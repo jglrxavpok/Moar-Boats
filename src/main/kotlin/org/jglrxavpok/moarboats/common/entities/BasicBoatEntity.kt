@@ -1,0 +1,567 @@
+package org.jglrxavpok.moarboats.common.entities
+
+import com.google.common.collect.Lists
+import net.minecraft.block.BlockLiquid
+import net.minecraft.block.material.Material
+import net.minecraft.block.state.IBlockState
+import net.minecraft.entity.Entity
+import net.minecraft.entity.MoverType
+import net.minecraft.entity.item.EntityBoat
+import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.init.Items
+import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.NBTTagList
+import net.minecraft.nbt.NBTTagString
+import net.minecraft.network.datasync.DataSerializers
+import net.minecraft.network.datasync.EntityDataManager
+import net.minecraft.util.*
+import net.minecraft.util.math.AxisAlignedBB
+import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.MathHelper
+import net.minecraft.world.World
+import net.minecraftforge.common.util.Constants
+import net.minecraftforge.fml.relauncher.Side
+import net.minecraftforge.fml.relauncher.SideOnly
+import org.jglrxavpok.moarboats.common.ResourceLocationsSerializer
+import org.jglrxavpok.moarboats.common.items.BaseBoatItem
+import org.jglrxavpok.moarboats.modules.BoatModule
+import org.jglrxavpok.moarboats.modules.BoatModuleRegistry
+import org.jglrxavpok.moarboats.modules.IControllable
+
+abstract class BasicBoatEntity(world: World): Entity(world), IControllable {
+
+    private companion object {
+        val TIME_SINCE_HIT = EntityDataManager.createKey(BasicBoatEntity::class.java, DataSerializers.VARINT)
+        val FORWARD_DIRECTION = EntityDataManager.createKey(BasicBoatEntity::class.java, DataSerializers.VARINT)
+        val DAMAGE_TAKEN = EntityDataManager.createKey(BasicBoatEntity::class.java, DataSerializers.FLOAT)
+    }
+    /** How much of current speed to retain. Value zero to one.  */
+    private var momentum = 0f
+
+    private var outOfControlTicks = 0f
+    protected var deltaRotation = 0f
+    private var lerpSteps = 0
+    private var lerpX = 0.0
+    private var lerpY = 0.0
+    private var lerpZ = 0.0
+    private var lerpYaw = 0.0
+    private var lerpPitch = 0.0
+    private var waterLevel = 0.0
+    /**
+     * How much the boat should glide given the slippery blocks it's currently gliding over.
+     * Halved every tick.
+     */
+    private var boatGlide = 0f
+    private var status: EntityBoat.Status? = null
+    private var previousStatus: EntityBoat.Status? = null
+    private var lastYd = 0.0
+    protected var acceleration = 0f
+
+    /**
+     * damage taken from the last hit.
+     */
+    var damageTaken: Float
+        get()= this.dataManager.get(DAMAGE_TAKEN)
+        set(value) { this.dataManager.set(DAMAGE_TAKEN, value) }
+
+    /**
+     * time since the last hit.
+     */
+    var timeSinceHit: Int
+        get() = this.dataManager.get(TIME_SINCE_HIT)
+        set(value) { this.dataManager.set(TIME_SINCE_HIT, value) }
+
+    /**
+     * forward direction of the entity.
+     */
+    var forwardDirection: Int
+        get()= this.dataManager.get(FORWARD_DIRECTION)
+        set(value) { this.dataManager.set(FORWARD_DIRECTION, value) }
+
+    init {
+        this.preventEntitySpawning = true
+        this.setSize(1.375f, 0.5625f)
+    }
+
+    constructor(world: World, x: Double, y: Double, z: Double): this(world) {
+        this.setPosition(x, y, z)
+        this.motionX = 0.0
+        this.motionY = 0.0
+        this.motionZ = 0.0
+        this.prevPosX = x
+        this.prevPosY = y
+        this.prevPosZ = z
+    }
+
+    override fun getCollisionBox(entityIn: Entity): AxisAlignedBB? {
+        return if (entityIn.canBePushed()) entityIn.entityBoundingBox else null
+    }
+
+    override fun getCollisionBoundingBox(): AxisAlignedBB? {
+        return this.entityBoundingBox
+    }
+
+    /**
+     * Returns true if this entity should push and be pushed by other entities when colliding.
+     */
+    override fun canBePushed(): Boolean {
+        return true
+    }
+
+    /**
+     * Returns the Y offset from the entity's position for any entity riding this one.
+     */
+    override fun getMountedYOffset(): Double {
+        return -0.1
+    }
+
+    /**
+     * Called when the entity is attacked.
+     */
+    override fun attackEntityFrom(source: DamageSource, amount: Float): Boolean {
+        if (this.isEntityInvulnerable(source)) {
+            return false
+        } else if (!this.world.isRemote && !this.isDead) {
+            if (source is EntityDamageSourceIndirect && source.getTrueSource() != null && this.isPassenger(source.getTrueSource()!!)) {
+                return false
+            } else {
+                forwardDirection = -forwardDirection
+                timeSinceHit = 10
+                damageTaken += amount * 10.0f
+                this.markVelocityChanged()
+                val flag = source.trueSource is EntityPlayer && (source.trueSource as EntityPlayer).capabilities.isCreativeMode
+
+                if (flag || this.damageTaken > 40.0f) {
+                    if (!flag && this.world.gameRules.getBoolean("doEntityDrops")) {
+                        this.dropItemWithOffset(BaseBoatItem, 1, 0.0f)
+                    }
+
+                    this.setDead()
+                }
+
+                return true
+            }
+        } else {
+            return true
+        }
+    }
+
+    private fun checkInWater(): Boolean {
+        val axisalignedbb = this.entityBoundingBox
+        val i = MathHelper.floor(axisalignedbb.minX)
+        val j = MathHelper.ceil(axisalignedbb.maxX)
+        val k = MathHelper.floor(axisalignedbb.minY)
+        val l = MathHelper.ceil(axisalignedbb.minY + 0.001)
+        val i1 = MathHelper.floor(axisalignedbb.minZ)
+        val j1 = MathHelper.ceil(axisalignedbb.maxZ)
+        var flag = false
+        this.waterLevel = java.lang.Double.MIN_VALUE
+        val currentBlockPos = BlockPos.PooledMutableBlockPos.retain()
+
+        try {
+            for (k1 in i until j) {
+                for (l1 in k until l) {
+                    for (i2 in i1 until j1) {
+                        currentBlockPos.setPos(k1, l1, i2)
+                        val iblockstate = this.world.getBlockState(currentBlockPos)
+
+                        if (iblockstate.material === Material.WATER) {
+                            val f = BlockLiquid.getLiquidHeight(iblockstate, this.world, currentBlockPos)
+                            this.waterLevel = Math.max(f.toDouble(), this.waterLevel)
+                            flag = flag or (axisalignedbb.minY < f.toDouble())
+                        }
+                    }
+                }
+            }
+        } finally {
+            currentBlockPos.release()
+        }
+
+        return flag
+    }
+
+    /**
+     * Decides how much the boat should be gliding on the land (based on any slippery blocks)
+     */
+    fun getBoatGlide(): Float {
+        val axisalignedbb = this.entityBoundingBox
+        val axisalignedbb1 = AxisAlignedBB(axisalignedbb.minX, axisalignedbb.minY - 0.001, axisalignedbb.minZ, axisalignedbb.maxX, axisalignedbb.minY, axisalignedbb.maxZ)
+        val i = MathHelper.floor(axisalignedbb1.minX) - 1
+        val j = MathHelper.ceil(axisalignedbb1.maxX) + 1
+        val k = MathHelper.floor(axisalignedbb1.minY) - 1
+        val l = MathHelper.ceil(axisalignedbb1.maxY) + 1
+        val i1 = MathHelper.floor(axisalignedbb1.minZ) - 1
+        val j1 = MathHelper.ceil(axisalignedbb1.maxZ) + 1
+        val list = Lists.newArrayList<AxisAlignedBB>()
+        var f = 0.0f
+        var k1 = 0
+        val currentPosition = BlockPos.PooledMutableBlockPos.retain()
+
+        try {
+            for (l1 in i until j) {
+                for (i2 in i1 until j1) {
+                    val j2 = (if (l1 != i && l1 != j - 1) 0 else 1) + if (i2 != i1 && i2 != j1 - 1) 0 else 1
+
+                    if (j2 != 2) {
+                        for (k2 in k until l) {
+                            if (j2 <= 0 || k2 != k && k2 != l - 1) {
+                                currentPosition.setPos(l1, k2, i2)
+                                val iblockstate = this.world.getBlockState(currentPosition)
+                                iblockstate.addCollisionBoxToList(this.world, currentPosition, axisalignedbb1, list, this, false)
+
+                                if (!list.isEmpty()) {
+                                    f += iblockstate.block.getSlipperiness(iblockstate, this.world, currentPosition, this)
+                                    ++k1
+                                }
+
+                                list.clear()
+                            }
+                        }
+                    }
+                }
+            }
+        } finally {
+            currentPosition.release()
+        }
+
+        return f / k1.toFloat()
+    }
+
+    /**
+     * Determines whether the boat is in water, gliding on land, or in air
+     */
+    private fun getBoatStatus(): EntityBoat.Status {
+        val currentStatus = this.getUnderwaterStatus()
+
+        return when {
+            currentStatus != null -> {
+                this.waterLevel = this.entityBoundingBox.maxY
+                currentStatus
+            }
+            this.checkInWater() -> EntityBoat.Status.IN_WATER
+            else -> {
+                val f = this.getBoatGlide()
+
+                if (f > 0.0f) {
+                    this.boatGlide = f
+                    EntityBoat.Status.ON_LAND
+                } else {
+                    EntityBoat.Status.IN_AIR
+                }
+            }
+        }
+    }
+
+    fun getWaterLevelAbove(): Float {
+        val axisalignedbb = this.entityBoundingBox
+        val i = MathHelper.floor(axisalignedbb.minX)
+        val j = MathHelper.ceil(axisalignedbb.maxX)
+        val k = MathHelper.floor(axisalignedbb.maxY)
+        val l = MathHelper.ceil(axisalignedbb.maxY - this.lastYd)
+        val i1 = MathHelper.floor(axisalignedbb.minZ)
+        val j1 = MathHelper.ceil(axisalignedbb.maxZ)
+        val currentPosition = BlockPos.PooledMutableBlockPos.retain()
+
+        try {
+            label108@
+
+            for (k1 in k until l) {
+                var f = 0.0f
+                var l1 = i
+
+                while (true) {
+                    if (l1 >= j) {
+                        if (f < 1.0f) {
+                            return currentPosition.y.toFloat() + f
+                        }
+
+                        break
+                    }
+
+                    for (i2 in i1 until j1) {
+                        currentPosition.setPos(l1, k1, i2)
+                        val iblockstate = this.world.getBlockState(currentPosition)
+
+                        if (iblockstate.material === Material.WATER) {
+                            f = Math.max(f, BlockLiquid.getBlockLiquidHeight(iblockstate, this.world, currentPosition))
+                        }
+
+                        if (f >= 1.0f) {
+                            continue@label108
+                        }
+                    }
+
+                    ++l1
+                }
+            }
+
+            return (l + 1).toFloat()
+        } finally {
+            currentPosition.release()
+        }
+    }
+
+    /**
+     * Applies a velocity to the entities, to push them away from eachother.
+     */
+    override fun applyEntityCollision(entityIn: Entity) {
+        if (entityIn is EntityBoat) {
+            if (entityIn.getEntityBoundingBox().minY < this.entityBoundingBox.maxY) {
+                super.applyEntityCollision(entityIn)
+            }
+        } else if (entityIn.entityBoundingBox.minY <= this.entityBoundingBox.minY) {
+            super.applyEntityCollision(entityIn)
+        }
+    }
+
+    /**
+     * Setups the entity to do the hurt animation. Only used by packets in multiplayer.
+     */
+    @SideOnly(Side.CLIENT)
+    override fun performHurtAnimation() {
+        forwardDirection = -this.forwardDirection
+        timeSinceHit = 10
+        damageTaken *= 11.0f
+    }
+
+    /**
+     * Returns true if other Entities should be prevented from moving through this Entity.
+     */
+    override fun canBeCollidedWith(): Boolean {
+        return !this.isDead
+    }
+
+    /**
+     * Set the position and rotation values directly without any clamping.
+     */
+    @SideOnly(Side.CLIENT)
+    override fun setPositionAndRotationDirect(x: Double, y: Double, z: Double, yaw: Float, pitch: Float, posRotationIncrements: Int, teleport: Boolean) {
+        this.lerpX = x
+        this.lerpY = y
+        this.lerpZ = z
+        this.lerpYaw = yaw.toDouble()
+        this.lerpPitch = pitch.toDouble()
+        this.lerpSteps = 10
+    }
+
+    /**
+     * Gets the horizontal facing direction of this Entity, adjusted to take specially-treated entity types into
+     * account.
+     */
+    override fun getAdjustedHorizontalFacing(): EnumFacing {
+        return this.horizontalFacing.rotateY()
+    }
+
+    /**
+     * Called to update the entity's position/logic.
+     */
+    override fun onUpdate() {
+        this.previousStatus = this.status
+        this.status = this.getBoatStatus()
+
+        if (this.status != EntityBoat.Status.UNDER_WATER && this.status != EntityBoat.Status.UNDER_FLOWING_WATER) {
+            this.outOfControlTicks = 0.0f
+        } else {
+            ++this.outOfControlTicks
+        }
+
+        if (!this.world.isRemote && this.outOfControlTicks >= 60.0f) {
+            this.removePassengers()
+        }
+
+        if (this.timeSinceHit > 0) {
+            timeSinceHit--
+        }
+
+        if (this.damageTaken > 0.0f) {
+            damageTaken -= 1.0f
+        }
+
+        this.prevPosX = this.posX
+        this.prevPosY = this.posY
+        this.prevPosZ = this.posZ
+        super.onUpdate()
+
+        this.controlBoat()
+
+        this.updateMotion()
+
+        this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ)
+
+        this.doBlockCollisions()
+        val list = this.world.getEntitiesInAABBexcluding(this, this.entityBoundingBox.grow(0.20000000298023224, -0.009999999776482582, 0.20000000298023224), EntitySelectors.getTeamCollisionPredicate(this))
+
+        if (!list.isEmpty()) {
+            for (entity in list) {
+                // no passengers in this boat!
+                this.applyEntityCollision(entity)
+            }
+        }
+    }
+
+    override fun turnRight() {
+        deltaRotation += 1f
+    }
+
+    override fun turnLeft() {
+        deltaRotation -= 1f
+    }
+
+    override fun accelerate() {
+        acceleration += 0.04f
+    }
+
+    override fun decelerate() {
+        acceleration -= 0.005f
+    }
+
+    abstract fun controlBoat()
+
+    /**
+     * Decides whether the boat is currently underwater.
+     */
+    private fun getUnderwaterStatus(): EntityBoat.Status? {
+        val axisalignedbb = this.entityBoundingBox
+        val aboveMaxY = axisalignedbb.maxY + 0.001
+        val minX = MathHelper.floor(axisalignedbb.minX)
+        val maxX = MathHelper.ceil(axisalignedbb.maxX)
+        val maxY = MathHelper.floor(axisalignedbb.maxY)
+        val aboveMaxYPos = MathHelper.ceil(aboveMaxY)
+        val minZ = MathHelper.floor(axisalignedbb.minZ)
+        val maxZ = MathHelper.ceil(axisalignedbb.maxZ)
+        var foundWater = false
+        val currentBlockPos = BlockPos.PooledMutableBlockPos.retain()
+
+        try {
+            for (x in minX until maxX) {
+                for (y in maxY until aboveMaxYPos) {
+                    for (z in minZ until maxZ) {
+                        currentBlockPos.setPos(x, y, z)
+                        val block = this.world.getBlockState(currentBlockPos)
+
+                        if (block.material === Material.WATER && aboveMaxY < BlockLiquid.getLiquidHeight(block, this.world, currentBlockPos).toDouble()) {
+                            if ((block.getValue(BlockLiquid.LEVEL) as Int).toInt() != 0) {
+                                return EntityBoat.Status.UNDER_FLOWING_WATER
+                            }
+
+                            foundWater = true
+                        }
+                    }
+                }
+            }
+        } finally {
+            currentBlockPos.release()
+        }
+
+        return if (foundWater) EntityBoat.Status.UNDER_WATER else null
+    }
+
+
+    /**
+     * Update the boat's speed, based on momentum.
+     */
+    private fun updateMotion() {
+        var verticalAcceleration = if (this.hasNoGravity()) 0.0 else -0.03999999910593033
+        var d2 = 0.0
+        this.momentum = 0.05f
+
+        if (this.previousStatus == EntityBoat.Status.IN_AIR && this.status != EntityBoat.Status.IN_AIR && this.status != EntityBoat.Status.ON_LAND) {
+            this.waterLevel = this.entityBoundingBox.minY + this.height.toDouble()
+            this.setPosition(this.posX, (this.getWaterLevelAbove() - this.height).toDouble() + 0.101, this.posZ)
+            this.motionY = 0.0
+            this.lastYd = 0.0
+            this.status = EntityBoat.Status.IN_WATER
+        } else {
+            when(this.status) {
+                EntityBoat.Status.IN_WATER -> {
+                    d2 = (this.waterLevel - this.entityBoundingBox.minY) / this.height.toDouble()
+                    this.momentum = 0.9f
+                }
+                EntityBoat.Status.UNDER_FLOWING_WATER -> {
+                    verticalAcceleration = -7.0E-4
+                    this.momentum = 0.9f
+                }
+                EntityBoat.Status.UNDER_WATER -> {
+                    d2 = 0.009999999776482582
+                    this.momentum = 0.45f
+                }
+                EntityBoat.Status.IN_AIR -> this.momentum = 0.9f
+                EntityBoat.Status.ON_LAND -> this.momentum = this.boatGlide
+            }
+
+            this.motionX *= this.momentum.toDouble()
+            this.motionZ *= this.momentum.toDouble()
+            this.deltaRotation *= this.momentum
+            this.motionY += verticalAcceleration
+
+            if (d2 > 0.0) {
+                this.motionY += d2 * 0.06153846016296973
+                this.motionY *= 0.75
+            }
+        }
+    }
+
+
+    /**
+     * Applies this boat's yaw to the given entity. Used to update the orientation of its passenger.
+     */
+    protected fun applyYawToEntity(entityToUpdate: Entity) {
+        entityToUpdate.setRenderYawOffset(this.rotationYaw)
+        val f = MathHelper.wrapDegrees(entityToUpdate.rotationYaw - this.rotationYaw)
+        val f1 = MathHelper.clamp(f, -105.0f, 105.0f)
+        entityToUpdate.prevRotationYaw += f1 - f
+        entityToUpdate.rotationYaw += f1 - f
+        entityToUpdate.rotationYawHead = entityToUpdate.rotationYaw
+    }
+
+    /**
+     * Applies this entity's orientation (pitch/yaw) to another entity. Used to update passenger orientation.
+     */
+    @SideOnly(Side.CLIENT)
+    override fun applyOrientationToEntity(entityToUpdate: Entity) {
+        this.applyYawToEntity(entityToUpdate)
+    }
+
+    override fun updateFallState(y: Double, onGroundIn: Boolean, state: IBlockState, pos: BlockPos) {
+        this.lastYd = this.motionY
+
+        if (onGroundIn) {
+            if (this.fallDistance > 3.0f) {
+                if (this.status != EntityBoat.Status.ON_LAND) {
+                    this.fallDistance = 0.0f
+                    return
+                }
+
+                this.fall(this.fallDistance, 1.0f)
+
+                if (!this.world.isRemote && !this.isDead) {
+                    this.setDead()
+
+                    if (this.world.gameRules.getBoolean("doEntityDrops")) {
+                        for (i in 0..2) {
+                            // TODO this.entityDropItem(ItemStack(Item.getItemFromBlock(Blocks.PLANKS), 1, this.getBoatType().getMetadata()), 0.0f)
+                        }
+
+                        for (j in 0..1) {
+                            this.dropItemWithOffset(Items.STICK, 1, 0.0f)
+                        }
+                    }
+                }
+            }
+
+            this.fallDistance = 0.0f
+        } else if (this.world.getBlockState(BlockPos(this).down()).material !== Material.WATER && y < 0.0) {
+            this.fallDistance = (this.fallDistance.toDouble() - y).toFloat()
+        }
+    }
+
+    override fun canTriggerWalking(): Boolean {
+        return false
+    }
+
+    override fun entityInit() {
+        this.dataManager.register(TIME_SINCE_HIT, 0)
+        this.dataManager.register(FORWARD_DIRECTION, 1)
+        this.dataManager.register(DAMAGE_TAKEN, 0f)
+    }
+}
