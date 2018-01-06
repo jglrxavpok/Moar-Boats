@@ -13,7 +13,7 @@ import java.lang.Math
 fun Float.toRadians() = this / 180f * Math.PI.toFloat()
 fun Double.toRadians() = this / 360.0 * Math.PI * 2.0
 fun Double.toDegrees() = this * 360.0 / Math.PI / 2.0
-fun Float.toDegrees() = this * 360.0f / Math.PI.toFloat() / 2f
+fun Float.toDegrees() = this * 180.0f / Math.PI.toFloat()
 
 fun Quaternion.lookAt(x: Double, y: Double, z: Double) {
     val length = Math.sqrt(x*x + y*y + z*z)

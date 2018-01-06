@@ -13,20 +13,19 @@ import net.minecraft.init.Items
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.network.datasync.DataSerializers
 import net.minecraft.network.datasync.EntityDataManager
-import net.minecraft.server.MinecraftServer
 import net.minecraft.util.*
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
+import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
-import net.minecraft.world.WorldServer
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import org.jglrxavpok.moarboats.common.items.BaseBoatItem
 import org.jglrxavpok.moarboats.common.items.BoatLinkerItem
-import org.jglrxavpok.moarboats.extensions.getEntityByUUID
+import org.jglrxavpok.moarboats.extensions.toDegrees
+import org.jglrxavpok.moarboats.extensions.toRadians
 import org.jglrxavpok.moarboats.modules.IControllable
-import java.util.*
 
 abstract class BasicBoatEntity(world: World): Entity(world), IControllable {
 
@@ -393,8 +392,31 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable {
         this.prevPosZ = this.posZ
         super.onUpdate()
 
-        this.controlBoat()
+        var canControlItself = true
+        if(hasLink(FrontLink)) { // is trailing boat, need to come closer to heading boat if needed
+            val heading = getLinkedTo(FrontLink)!!
+            val f = getDistance(heading)
+            if (f > 3.0f) {
+                canControlItself = false
+                val d0 = (heading.posX - this.posX) / f.toDouble()
+                val d1 = (heading.posY - this.posY) / f.toDouble()
+                val d2 = (heading.posZ - this.posZ) / f.toDouble()
+                this.motionX += d0 * Math.abs(d0) * 0.2
+                this.motionY += d1 * Math.abs(d1) * 0.2
+                this.motionZ += d2 * Math.abs(d2) * 0.2
+                val alpha = 0.3f
 
+                val anchorPos = calculateAnchorPosition(FrontLink)
+                val otherAnchorPos = heading.calculateAnchorPosition(BackLink)
+                // FIXME: handle case where targetYaw is ~0-180 and rotationYaw is ~180+ (avoid doing a crazy flip)
+                val targetYaw = (Math.atan2(otherAnchorPos.x - anchorPos.x, -(otherAnchorPos.z - anchorPos.z)).toFloat().toDegrees() - 90)
+                rotationYaw = alpha*rotationYaw + targetYaw * (1f-alpha)
+            }
+        }
+
+        if(canControlItself) {
+            this.controlBoat()
+        }
         this.updateMotion()
 
         this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ)
@@ -410,20 +432,28 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable {
         }
     }
 
-    override fun turnRight() {
-        deltaRotation += 1f
+    fun calculateAnchorPosition(linkType: Int): Vec3d {
+        val distanceFromCenter = 0.0625f * 17f * if(linkType == BasicBoatEntity.FrontLink) 1f else -1f
+        val anchorX = posX + MathHelper.cos(rotationYaw.toRadians()) * distanceFromCenter
+        val anchorY = posY + -4f
+        val anchorZ = posZ + MathHelper.sin(rotationYaw.toRadians()) * distanceFromCenter
+        return Vec3d(anchorX, anchorY, anchorZ)
     }
 
-    override fun turnLeft() {
-        deltaRotation -= 1f
+    override fun turnRight(multiplier: Float) {
+        deltaRotation += 1f * multiplier
     }
 
-    override fun accelerate() {
-        acceleration += 0.04f
+    override fun turnLeft(multiplier: Float) {
+        deltaRotation -= 1f * multiplier
     }
 
-    override fun decelerate() {
-        acceleration -= 0.005f
+    override fun accelerate(multiplier: Float) {
+        acceleration += 0.04f * multiplier
+    }
+
+    override fun decelerate(multiplier: Float) {
+        acceleration -= 0.005f * multiplier
     }
 
     abstract fun controlBoat()

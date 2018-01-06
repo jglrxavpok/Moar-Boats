@@ -76,18 +76,11 @@ class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>
     }
 
     private fun renderActualLink(thisBoat: BasicBoatEntity, otherBoat: BasicBoatEntity, sideFromThisBoat: Int, entityYaw: Float) {
-        val distanceFromCenter = 0.0625f * 17f * if(sideFromThisBoat == BasicBoatEntity.FrontLink) 1f else -1f
-        val anchorX = thisBoat.posX + MathHelper.cos(thisBoat.rotationYaw.toRadians()) * distanceFromCenter
-        val anchorY = thisBoat.posY + -4f
-        val anchorZ = thisBoat.posZ + MathHelper.sin(thisBoat.rotationYaw.toRadians()) * distanceFromCenter
-
-        val otherAnchorX = otherBoat.posX + MathHelper.cos(otherBoat.rotationYaw.toRadians()) * -distanceFromCenter
-        val otherAnchorY = otherBoat.posY + -4f
-        val otherAnchorZ = otherBoat.posZ + MathHelper.sin(otherBoat.rotationYaw.toRadians()) * -distanceFromCenter
-
-        val offsetX = otherAnchorX - anchorX
-        val offsetY = otherAnchorY - anchorY
-        val offsetZ = otherAnchorZ - anchorZ
+        val anchorThis = thisBoat.calculateAnchorPosition(sideFromThisBoat)
+        val anchorOther = otherBoat.calculateAnchorPosition(1-sideFromThisBoat)
+        val offsetX = anchorOther.x - anchorThis.x
+        val offsetY = anchorOther.y - anchorThis.y
+        val offsetZ = anchorOther.z - anchorThis.z
 
         val rotQuat by lazy { Quaternion() }
         rotQuat.lookAt(offsetX, offsetY, offsetZ)
