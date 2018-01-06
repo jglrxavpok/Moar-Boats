@@ -13,6 +13,7 @@ import org.jglrxavpok.moarboats.client.models.ModelModularBoat
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.extensions.lookAt
+import org.jglrxavpok.moarboats.extensions.setLookAlong
 import org.jglrxavpok.moarboats.extensions.toDegrees
 import org.jglrxavpok.moarboats.extensions.toRadians
 import org.lwjgl.util.vector.Quaternion
@@ -57,7 +58,7 @@ class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>
         if(boatEntity.hasLink(BasicBoatEntity.FrontLink)) {
             GlStateManager.pushMatrix()
             GlStateManager.translate(17f, -4f, 0f)
-            renderActualLink(boatEntity, boatEntity.getLinkedTo(BasicBoatEntity.FrontLink)!!, BasicBoatEntity.FrontLink)
+            renderActualLink(boatEntity, boatEntity.getLinkedTo(BasicBoatEntity.FrontLink)!!, BasicBoatEntity.FrontLink, entityYaw)
             bindTexture(LinkerTextureLocation)
             linkerAnchorModel.render(boatEntity, 0f, 0f, boatEntity.ticksExisted.toFloat(), 0f, 0f, 1f)
             GlStateManager.popMatrix()
@@ -67,14 +68,14 @@ class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>
         if(boatEntity.hasLink(BasicBoatEntity.BackLink)) {
             GlStateManager.pushMatrix()
             GlStateManager.translate(-17f, -4f, 0f)
-            renderActualLink(boatEntity, boatEntity.getLinkedTo(BasicBoatEntity.BackLink)!!, BasicBoatEntity.BackLink)
+            renderActualLink(boatEntity, boatEntity.getLinkedTo(BasicBoatEntity.BackLink)!!, BasicBoatEntity.BackLink, entityYaw)
             bindTexture(LinkerTextureLocation)
             linkerAnchorModel.render(boatEntity, 0f, 0f, boatEntity.ticksExisted.toFloat(), 0f, 0f, 1f)
             GlStateManager.popMatrix()
         }
     }
 
-    private fun renderActualLink(thisBoat: BasicBoatEntity, otherBoat: BasicBoatEntity, sideFromThisBoat: Int) {
+    private fun renderActualLink(thisBoat: BasicBoatEntity, otherBoat: BasicBoatEntity, sideFromThisBoat: Int, entityYaw: Float) {
         val distanceFromCenter = 0.0625f * 17f * if(sideFromThisBoat == BasicBoatEntity.FrontLink) 1f else -1f
         val anchorX = thisBoat.posX + MathHelper.cos(thisBoat.rotationYaw.toRadians()) * distanceFromCenter
         val anchorY = thisBoat.posY + -4f
@@ -92,9 +93,9 @@ class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>
         rotQuat.lookAt(offsetX, offsetY, offsetZ)
 
         GlStateManager.pushMatrix()
-        GlStateManager.rotate(-thisBoat.rotationYaw.toRadians(), 0f, 1f, 0f)
         GlStateManager.rotate(rotQuat)
-        GlStateManager.rotate(-90f, 0f, 1f, 0f)
+        GlStateManager.rotate(-thisBoat.rotationYaw, 0f, 1f, 0f)
+        GlStateManager.rotate(-180f, 0f, 1f, 0f)
         val dist = Math.sqrt(offsetX*offsetX+offsetY*offsetY+offsetZ*offsetZ) / 0.0625f // account for scaling
         GlStateManager.scale(1.0, 1.0, dist)
         GlStateManager.translate(0f, 0f, 0.5f)
