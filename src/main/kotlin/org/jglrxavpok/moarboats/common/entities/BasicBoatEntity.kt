@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.common.entities
 
+import com.google.common.base.Optional
 import com.google.common.collect.Lists
 import net.minecraft.block.BlockLiquid
 import net.minecraft.block.material.Material
@@ -10,30 +11,34 @@ import net.minecraft.entity.item.EntityBoat
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Items
 import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.nbt.NBTTagList
-import net.minecraft.nbt.NBTTagString
 import net.minecraft.network.datasync.DataSerializers
 import net.minecraft.network.datasync.EntityDataManager
+import net.minecraft.server.MinecraftServer
 import net.minecraft.util.*
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
 import net.minecraft.world.World
-import net.minecraftforge.common.util.Constants
+import net.minecraft.world.WorldServer
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
-import org.jglrxavpok.moarboats.common.ResourceLocationsSerializer
 import org.jglrxavpok.moarboats.common.items.BaseBoatItem
-import org.jglrxavpok.moarboats.modules.BoatModule
-import org.jglrxavpok.moarboats.modules.BoatModuleRegistry
+import org.jglrxavpok.moarboats.common.items.BoatLinkerItem
+import org.jglrxavpok.moarboats.extensions.getEntityByUUID
 import org.jglrxavpok.moarboats.modules.IControllable
+import java.util.*
 
 abstract class BasicBoatEntity(world: World): Entity(world), IControllable {
 
-    private companion object {
+    companion object {
         val TIME_SINCE_HIT = EntityDataManager.createKey(BasicBoatEntity::class.java, DataSerializers.VARINT)
         val FORWARD_DIRECTION = EntityDataManager.createKey(BasicBoatEntity::class.java, DataSerializers.VARINT)
         val DAMAGE_TAKEN = EntityDataManager.createKey(BasicBoatEntity::class.java, DataSerializers.FLOAT)
+        val LINKS = Array(2) { EntityDataManager.createKey(BasicBoatEntity::class.java, DataSerializers.OPTIONAL_UNIQUE_ID) }
+        val LINKS_RUNTIME = Array(2) { EntityDataManager.createKey(BasicBoatEntity::class.java, DataSerializers.VARINT) }
+
+        val FrontLink = 0
+        val BackLink = 1
     }
     /** How much of current speed to retain. Value zero to one.  */
     private var momentum = 0f
@@ -78,6 +83,10 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable {
         get()= this.dataManager.get(FORWARD_DIRECTION)
         set(value) { this.dataManager.set(FORWARD_DIRECTION, value) }
 
+    var links
+        get()= LINKS.map { dataManager[it] }
+        set(value) { LINKS.forEachIndexed { index, dataParameter -> dataManager[dataParameter] = value[index] } }
+
     init {
         this.preventEntitySpawning = true
         this.setSize(1.375f, 0.5625f)
@@ -92,6 +101,8 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable {
         this.prevPosY = y
         this.prevPosZ = z
     }
+
+    fun hasLink(linkType: Int) = links[linkType].isPresent
 
     override fun getCollisionBox(entityIn: Entity): AxisAlignedBB? {
         return if (entityIn.canBePushed()) entityIn.entityBoundingBox else null
@@ -555,13 +566,76 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable {
         }
     }
 
+    fun linkTo(other: BasicBoatEntity?, linkType: Int) {
+        val currentLinks = links.toTypedArray()
+        if(other == null) {
+            currentLinks[linkType] = Optional.absent()
+            dataManager.set(LINKS_RUNTIME[linkType], -1)
+        } else {
+            currentLinks[linkType] = Optional.of(other.uniqueID)
+            dataManager.set(LINKS_RUNTIME[linkType], other.entityId)
+        }
+        links = listOf(*currentLinks)
+
+        println("LINKED TO $other AT POS $linkType")
+    }
+
     override fun canTriggerWalking(): Boolean {
         return false
+    }
+
+    override fun writeEntityToNBT(compound: NBTTagCompound) {
+        if(links[FrontLink].isPresent)
+            compound.setUniqueId("linkFront", links[FrontLink].get())
+
+        if(links[BackLink].isPresent)
+            compound.setUniqueId("linkBack", links[BackLink].get())
+    }
+
+    override fun readEntityFromNBT(compound: NBTTagCompound) {
+        val front =
+                if(compound.hasUniqueId("linkFront"))
+                    Optional.of(compound.getUniqueId("linkFront")!!)
+                else
+                    Optional.absent()
+        val back =
+                if(compound.hasUniqueId("linkBack"))
+                    Optional.of(compound.getUniqueId("linkBack")!!)
+                else
+                    Optional.absent()
+        dataManager.set(LINKS[FrontLink], front)
+        dataManager.set(LINKS[BackLink], back)
+
+        if(!world.isRemote) {
+            dataManager.set(LINKS_RUNTIME[FrontLink], if(front.isPresent)  { world.minecraftServer?.getEntityFromUuid(front.get())?.entityId ?: -10 } else -1)
+            dataManager.set(LINKS_RUNTIME[BackLink], if(back.isPresent) { world.minecraftServer?.getEntityFromUuid(back.get())?.entityId ?: -10 } else -1)
+
+            println("read ${dataManager[LINKS_RUNTIME[FrontLink]]} - ${dataManager[LINKS_RUNTIME[BackLink]]}")
+        }
     }
 
     override fun entityInit() {
         this.dataManager.register(TIME_SINCE_HIT, 0)
         this.dataManager.register(FORWARD_DIRECTION, 1)
         this.dataManager.register(DAMAGE_TAKEN, 0f)
+        this.dataManager.register(LINKS[FrontLink], Optional.absent())
+        this.dataManager.register(LINKS[BackLink], Optional.absent())
+        this.dataManager.register(LINKS_RUNTIME[FrontLink], -1)
+        this.dataManager.register(LINKS_RUNTIME[BackLink], -1)
+    }
+
+    override fun processInitialInteract(player: EntityPlayer, hand: EnumHand): Boolean {
+        val itemstack = player.getHeldItem(hand)
+        if(itemstack.item == BoatLinkerItem) {
+            BoatLinkerItem.onLinkUsed(itemstack, player, hand, world, this)
+            return true
+        }
+        return false
+    }
+
+    fun getLinkedTo(side: Int): BasicBoatEntity? {
+        if(hasLink(side))
+            return world.getEntityByID(dataManager.get(LINKS_RUNTIME[side])) as BasicBoatEntity
+        return null
     }
 }

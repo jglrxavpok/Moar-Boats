@@ -16,6 +16,7 @@ import net.minecraft.item.Item
 import net.minecraft.network.datasync.DataSerializers
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.common.MinecraftForge
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper
 import org.jglrxavpok.moarboats.common.*
 import org.jglrxavpok.moarboats.common.modules.EngineTest
 import org.jglrxavpok.moarboats.modules.BoatModuleEntry
@@ -31,6 +32,8 @@ object MoarBoats {
 
     @SidedProxy(clientSide = "org.jglrxavpok.moarboats.client.Proxy", serverSide = "org.jglrxavpok.moarboats.server.Proxy")
     lateinit var proxy: MoarBoatsProxy
+
+    val network = SimpleNetworkWrapper(ModID)
 
     @Mod.EventHandler
     fun preInit(event: FMLPreInitializationEvent) {

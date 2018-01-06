@@ -5,17 +5,29 @@ import net.minecraft.client.renderer.entity.Render
 import net.minecraft.client.renderer.entity.RenderManager
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
+import net.minecraft.util.math.Vec3d
 import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.client.models.ModelBoatLink
+import org.jglrxavpok.moarboats.client.models.ModelBoatLinkerAnchor
 import org.jglrxavpok.moarboats.client.models.ModelModularBoat
+import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
+import org.jglrxavpok.moarboats.extensions.lookAt
+import org.jglrxavpok.moarboats.extensions.toDegrees
+import org.jglrxavpok.moarboats.extensions.toRadians
+import org.lwjgl.util.vector.Quaternion
 
 class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>(renderManager) {
 
     companion object {
         val TextureLocation = ResourceLocation(MoarBoats.ModID, "texture/entity/modularboat-texturemap.png")
+        val LinkerTextureLocation = ResourceLocation(MoarBoats.ModID, "texture/entity/linkeranchor-texturemap.png")
+        val LinkTextureLocation = ResourceLocation(MoarBoats.ModID, "texture/entity/linker-texturemap.png")
     }
 
     val model = ModelModularBoat()
+    val linkerAnchorModel = ModelBoatLinkerAnchor()
+    val linkModel = ModelBoatLink()
 
     override fun getEntityTexture(entity: ModularBoatEntity) = TextureLocation
 
@@ -29,12 +41,65 @@ class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>
         setScale()
         model.noWater.showModel = false
         model.render(entity, 0f, 0f, entity.ticksExisted.toFloat(), 0f, 0f, 1f)
+        renderLink(entity, entityYaw, partialTicks)
         removeScale()
         entity.moduleLocations.forEach {
             BoatModuleRenderingRegistry.getValue(it)?.renderModule(entity, x, y, z, entityYaw, partialTicks, renderManager)
         }
         GlStateManager.disableRescaleNormal()
         GlStateManager.enableCull()
+        GlStateManager.popMatrix()
+    }
+
+    private fun renderLink(boatEntity: ModularBoatEntity, entityYaw: Float, partialTicks: Float) {
+        bindTexture(LinkerTextureLocation)
+        // front
+        if(boatEntity.hasLink(BasicBoatEntity.FrontLink)) {
+            GlStateManager.pushMatrix()
+            GlStateManager.translate(17f, -4f, 0f)
+            renderActualLink(boatEntity, boatEntity.getLinkedTo(BasicBoatEntity.FrontLink)!!, BasicBoatEntity.FrontLink)
+            bindTexture(LinkerTextureLocation)
+            linkerAnchorModel.render(boatEntity, 0f, 0f, boatEntity.ticksExisted.toFloat(), 0f, 0f, 1f)
+            GlStateManager.popMatrix()
+        }
+
+        // back
+        if(boatEntity.hasLink(BasicBoatEntity.BackLink)) {
+            GlStateManager.pushMatrix()
+            GlStateManager.translate(-17f, -4f, 0f)
+            renderActualLink(boatEntity, boatEntity.getLinkedTo(BasicBoatEntity.BackLink)!!, BasicBoatEntity.BackLink)
+            bindTexture(LinkerTextureLocation)
+            linkerAnchorModel.render(boatEntity, 0f, 0f, boatEntity.ticksExisted.toFloat(), 0f, 0f, 1f)
+            GlStateManager.popMatrix()
+        }
+    }
+
+    private fun renderActualLink(thisBoat: BasicBoatEntity, otherBoat: BasicBoatEntity, sideFromThisBoat: Int) {
+        val distanceFromCenter = 0.0625f * 17f * if(sideFromThisBoat == BasicBoatEntity.FrontLink) 1f else -1f
+        val anchorX = thisBoat.posX + MathHelper.cos(thisBoat.rotationYaw.toRadians()) * distanceFromCenter
+        val anchorY = thisBoat.posY + -4f
+        val anchorZ = thisBoat.posZ + MathHelper.sin(thisBoat.rotationYaw.toRadians()) * distanceFromCenter
+
+        val otherAnchorX = otherBoat.posX + MathHelper.cos(otherBoat.rotationYaw.toRadians()) * -distanceFromCenter
+        val otherAnchorY = otherBoat.posY + -4f
+        val otherAnchorZ = otherBoat.posZ + MathHelper.sin(otherBoat.rotationYaw.toRadians()) * -distanceFromCenter
+
+        val offsetX = otherAnchorX - anchorX
+        val offsetY = otherAnchorY - anchorY
+        val offsetZ = otherAnchorZ - anchorZ
+
+        val rotQuat by lazy { Quaternion() }
+        rotQuat.lookAt(offsetX, offsetY, offsetZ)
+
+        GlStateManager.pushMatrix()
+        GlStateManager.rotate(-thisBoat.rotationYaw.toRadians(), 0f, 1f, 0f)
+        GlStateManager.rotate(rotQuat)
+        GlStateManager.rotate(-90f, 0f, 1f, 0f)
+        val dist = Math.sqrt(offsetX*offsetX+offsetY*offsetY+offsetZ*offsetZ) / 0.0625f // account for scaling
+        GlStateManager.scale(1.0, 1.0, dist)
+        GlStateManager.translate(0f, 0f, 0.5f)
+        bindTexture(LinkTextureLocation)
+        linkModel.render(thisBoat, 0f, 0f, thisBoat.ticksExisted.toFloat(), 0f, 0f, 1f)
         GlStateManager.popMatrix()
     }
 

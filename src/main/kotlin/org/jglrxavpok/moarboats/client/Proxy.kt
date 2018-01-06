@@ -10,10 +10,12 @@ import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 class Proxy: MoarBoatsProxy() {
 
     override fun init() {
+        super.init()
         BoatModuleRenderingRegistry.register(EngineTestRenderer)
     }
 
     override fun preInit() {
+        super.preInit()
         RenderingRegistry.registerEntityRenderingHandler(ModularBoatEntity::class.java, ::RenderModularBoat)
     }
 }

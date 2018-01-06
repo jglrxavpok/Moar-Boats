@@ -64,6 +64,8 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world) {
     }
 
     override fun processInitialInteract(player: EntityPlayer, hand: EnumHand): Boolean {
+        if(super.processInitialInteract(player, hand))
+            return true
         val heldItem = player.getHeldItem(hand)
         val module = BoatModuleRegistry.findModule(heldItem)
         if(module != null) {
@@ -78,6 +80,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world) {
     }
 
     override fun writeEntityToNBT(compound: NBTTagCompound) {
+        super.writeEntityToNBT(compound)
         val list = NBTTagList()
         for(module in modules) {
             list.appendTag(NBTTagString(module.id.toString()))
@@ -86,6 +89,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world) {
     }
 
     override fun readEntityFromNBT(compound: NBTTagCompound) {
+        super.readEntityFromNBT(compound)
         val list = compound.getTagList("modules", Constants.NBT.TAG_STRING)
         for(moduleNBT in list) {
             moduleNBT as NBTTagString
