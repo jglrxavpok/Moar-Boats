@@ -44,8 +44,8 @@ class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>
         model.render(entity, 0f, 0f, entity.ticksExisted.toFloat(), 0f, 0f, 1f)
         renderLink(entity, entityYaw, partialTicks)
         removeScale()
-        entity.moduleLocations.forEach {
-            BoatModuleRenderingRegistry.getValue(it)?.renderModule(entity, x, y, z, entityYaw, partialTicks, renderManager)
+        entity.modules.forEach {
+            BoatModuleRenderingRegistry.getValue(it.id)?.renderModule(entity, it, x, y, z, entityYaw, partialTicks, renderManager)
         }
         GlStateManager.disableRescaleNormal()
         GlStateManager.enableCull()

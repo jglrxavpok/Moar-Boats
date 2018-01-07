@@ -8,11 +8,12 @@ import net.minecraftforge.registries.IForgeRegistryEntry
 import net.minecraftforge.registries.RegistryBuilder
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
+import org.jglrxavpok.moarboats.modules.BoatModule
 import org.jglrxavpok.moarboats.modules.IControllable
 
 abstract class BoatModuleRenderer: IForgeRegistryEntry.Impl<BoatModuleRenderer>() {
 
-    abstract fun renderModule(boat: ModularBoatEntity, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, renderManager: RenderManager)
+    abstract fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, renderManager: RenderManager)
 
     fun setScale() {
         val scale = 0.0625f
