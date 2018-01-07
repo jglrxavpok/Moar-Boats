@@ -2,6 +2,7 @@ package org.jglrxavpok.moarboats.common.entities
 
 import com.google.common.base.Optional
 import com.google.common.collect.Lists
+import io.netty.buffer.ByteBuf
 import net.minecraft.block.BlockLiquid
 import net.minecraft.block.material.Material
 import net.minecraft.block.state.IBlockState
@@ -19,6 +20,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
+import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import org.jglrxavpok.moarboats.common.items.BaseBoatItem
@@ -26,8 +28,9 @@ import org.jglrxavpok.moarboats.common.items.BoatLinkerItem
 import org.jglrxavpok.moarboats.extensions.toDegrees
 import org.jglrxavpok.moarboats.extensions.toRadians
 import org.jglrxavpok.moarboats.modules.IControllable
+import java.util.*
 
-abstract class BasicBoatEntity(world: World): Entity(world), IControllable {
+abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEntityAdditionalSpawnData {
 
     companion object {
         val TIME_SINCE_HIT = EntityDataManager.createKey(BasicBoatEntity::class.java, DataSerializers.VARINT)
@@ -38,6 +41,9 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable {
 
         val FrontLink = 0
         val BackLink = 1
+
+        val UnitializedLinkID = -10
+        val NoLinkFound = -1
     }
     /** How much of current speed to retain. Value zero to one.  */
     private var momentum = 0f
@@ -60,6 +66,8 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable {
     private var previousStatus: EntityBoat.Status? = null
     private var lastYd = 0.0
     protected var acceleration = 0f
+
+    var boatID: UUID = UUID.randomUUID()
 
     /**
      * damage taken from the last hit.
@@ -602,12 +610,10 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable {
             currentLinks[linkType] = Optional.absent()
             dataManager.set(LINKS_RUNTIME[linkType], -1)
         } else {
-            currentLinks[linkType] = Optional.of(other.uniqueID)
+            currentLinks[linkType] = Optional.of(other.boatID)
             dataManager.set(LINKS_RUNTIME[linkType], other.entityId)
         }
         links = listOf(*currentLinks)
-
-        println("LINKED TO $other AT POS $linkType")
     }
 
     override fun canTriggerWalking(): Boolean {
@@ -620,6 +626,7 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable {
 
         if(links[BackLink].isPresent)
             compound.setUniqueId("linkBack", links[BackLink].get())
+        compound.setUniqueId("boatID", boatID)
     }
 
     override fun readEntityFromNBT(compound: NBTTagCompound) {
@@ -635,13 +642,11 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable {
                     Optional.absent()
         dataManager.set(LINKS[FrontLink], front)
         dataManager.set(LINKS[BackLink], back)
+        boatID = compound.getUniqueId("boatID")!!
 
-        if(!world.isRemote) {
-            dataManager.set(LINKS_RUNTIME[FrontLink], if(front.isPresent)  { world.minecraftServer?.getEntityFromUuid(front.get())?.entityId ?: -10 } else -1)
-            dataManager.set(LINKS_RUNTIME[BackLink], if(back.isPresent) { world.minecraftServer?.getEntityFromUuid(back.get())?.entityId ?: -10 } else -1)
-
-            println("read ${dataManager[LINKS_RUNTIME[FrontLink]]} - ${dataManager[LINKS_RUNTIME[BackLink]]}")
-        }
+        // reset runtime links
+        dataManager.set(LINKS_RUNTIME[FrontLink], UnitializedLinkID)
+        dataManager.set(LINKS_RUNTIME[BackLink], UnitializedLinkID)
     }
 
     override fun entityInit() {
@@ -650,8 +655,8 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable {
         this.dataManager.register(DAMAGE_TAKEN, 0f)
         this.dataManager.register(LINKS[FrontLink], Optional.absent())
         this.dataManager.register(LINKS[BackLink], Optional.absent())
-        this.dataManager.register(LINKS_RUNTIME[FrontLink], -1)
-        this.dataManager.register(LINKS_RUNTIME[BackLink], -1)
+        this.dataManager.register(LINKS_RUNTIME[FrontLink], UnitializedLinkID)
+        this.dataManager.register(LINKS_RUNTIME[BackLink], UnitializedLinkID)
     }
 
     override fun processInitialInteract(player: EntityPlayer, hand: EnumHand): Boolean {
@@ -664,8 +669,43 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable {
     }
 
     fun getLinkedTo(side: Int): BasicBoatEntity? {
-        if(hasLink(side))
-            return world.getEntityByID(dataManager.get(LINKS_RUNTIME[side])) as BasicBoatEntity
+        if(hasLink(side)) {
+            var id = dataManager.get(LINKS_RUNTIME[side])
+            if(id == UnitializedLinkID) {
+                id = forceLinkLoad(side)
+                if(id == NoLinkFound) {
+                    println("NO LINK FOUND FOR SIDE $side (UUID was ${links[side].get()}) FOR BOAT $boatID")
+                    val idList = world.getEntities(BasicBoatEntity::class.java) { true }
+                            .map { it.boatID.toString() }
+                            .joinToString(", ")
+                    println("Here's a list of all loaded boatIDs:\n$idList")
+                }
+            }
+            return world.getEntityByID(id) as BasicBoatEntity
+        }
         return null
+    }
+
+    private fun forceLinkLoad(side: Int): Int {
+        val boatID = links[side].get()
+        val correspondingBoat = world.getEntities(BasicBoatEntity::class.java) { entity ->
+            entity?.boatID == boatID ?: false
+        }.firstOrNull()
+        val id = correspondingBoat?.entityId ?: NoLinkFound
+        dataManager.set(LINKS_RUNTIME[side], id)
+        return id
+    }
+
+    override fun readSpawnData(additionalData: ByteBuf) {
+        val idLow = additionalData.readLong()
+        val idHigh = additionalData.readLong()
+        val id = UUID(idHigh, idLow)
+        boatID = id
+    }
+
+    override fun writeSpawnData(buffer: ByteBuf) {
+        val id = boatID
+        buffer.writeLong(id.leastSignificantBits)
+        buffer.writeLong(id.mostSignificantBits)
     }
 }

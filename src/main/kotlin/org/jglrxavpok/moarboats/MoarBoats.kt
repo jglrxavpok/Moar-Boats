@@ -49,6 +49,7 @@ object MoarBoats {
     fun init(event: FMLInitializationEvent) {
         proxy.init()
         DataSerializers.registerSerializer(ResourceLocationsSerializer)
+        DataSerializers.registerSerializer(UniqueIDSerializer)
     }
 
     @SubscribeEvent
