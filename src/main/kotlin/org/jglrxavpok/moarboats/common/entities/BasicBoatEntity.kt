@@ -400,6 +400,9 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         this.prevPosZ = this.posZ
         super.onUpdate()
 
+        breakLinkIfNeeded(FrontLink)
+        breakLinkIfNeeded(BackLink)
+
         var canControlItself = true
         if(hasLink(FrontLink)) { // is trailing boat, need to come closer to heading boat if needed
             val heading = getLinkedTo(FrontLink)!!
@@ -412,12 +415,12 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
                 this.motionX += d0 * Math.abs(d0) * 0.2
                 this.motionY += d1 * Math.abs(d1) * 0.2
                 this.motionZ += d2 * Math.abs(d2) * 0.2
-                val alpha = 0.3f
+                val alpha = 0.5f
 
                 val anchorPos = calculateAnchorPosition(FrontLink)
                 val otherAnchorPos = heading.calculateAnchorPosition(BackLink)
                 // FIXME: handle case where targetYaw is ~0-180 and rotationYaw is ~180+ (avoid doing a crazy flip)
-                val targetYaw = (Math.atan2(otherAnchorPos.x - anchorPos.x, -(otherAnchorPos.z - anchorPos.z)).toFloat().toDegrees() - 90)
+                val targetYaw = computeTargetYaw(rotationYaw, anchorPos, otherAnchorPos)
                 rotationYaw = alpha*rotationYaw + targetYaw * (1f-alpha)
             }
         }
@@ -437,6 +440,29 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
                 // no passengers in this boat!
                 this.applyEntityCollision(entity)
             }
+        }
+    }
+
+    private fun computeTargetYaw(currentYaw: Float, anchorPos: Vec3d, otherAnchorPos: Vec3d): Float {
+        val idealYaw = (Math.atan2(otherAnchorPos.x - anchorPos.x, -(otherAnchorPos.z - anchorPos.z)).toFloat().toDegrees() - 90)
+        var closestDistance = Float.POSITIVE_INFINITY
+        var closest = idealYaw
+        for(sign in -1..1) {
+            val potentialYaw = idealYaw + sign * 360f
+            val distance = Math.abs(potentialYaw - currentYaw)
+            if(distance < closestDistance) {
+                closestDistance = distance
+                closest = potentialYaw
+            }
+        }
+        return closest
+    }
+
+    private fun breakLinkIfNeeded(linkType: Int) {
+        if(hasLink(linkType)) {
+            val linkedTo = getLinkedTo(linkType)
+            if(linkedTo == null || linkedTo.isDead)
+                linkTo(null, linkType)
         }
     }
 
@@ -608,7 +634,7 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         val currentLinks = links.toTypedArray()
         if(other == null) {
             currentLinks[linkType] = Optional.absent()
-            dataManager.set(LINKS_RUNTIME[linkType], -1)
+            dataManager.set(LINKS_RUNTIME[linkType], NoLinkFound)
         } else {
             currentLinks[linkType] = Optional.of(other.boatID)
             dataManager.set(LINKS_RUNTIME[linkType], other.entityId)
@@ -681,7 +707,7 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
                     println("Here's a list of all loaded boatIDs:\n$idList")
                 }
             }
-            return world.getEntityByID(id) as BasicBoatEntity
+            return world.getEntityByID(id) as? BasicBoatEntity
         }
         return null
     }

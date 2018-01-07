@@ -56,22 +56,26 @@ class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>
         bindTexture(LinkerTextureLocation)
         // front
         if(boatEntity.hasLink(BasicBoatEntity.FrontLink)) {
-            GlStateManager.pushMatrix()
-            GlStateManager.translate(17f, -4f, 0f)
-            renderActualLink(boatEntity, boatEntity.getLinkedTo(BasicBoatEntity.FrontLink)!!, BasicBoatEntity.FrontLink, entityYaw)
-            bindTexture(LinkerTextureLocation)
-            linkerAnchorModel.render(boatEntity, 0f, 0f, boatEntity.ticksExisted.toFloat(), 0f, 0f, 1f)
-            GlStateManager.popMatrix()
+            boatEntity.getLinkedTo(BasicBoatEntity.FrontLink)?.let {
+                GlStateManager.pushMatrix()
+                GlStateManager.translate(17f, -4f, 0f)
+                renderActualLink(boatEntity, it, BasicBoatEntity.FrontLink, entityYaw)
+                bindTexture(LinkerTextureLocation)
+                linkerAnchorModel.render(boatEntity, 0f, 0f, boatEntity.ticksExisted.toFloat(), 0f, 0f, 1f)
+                GlStateManager.popMatrix()
+            }
         }
 
         // back
         if(boatEntity.hasLink(BasicBoatEntity.BackLink)) {
-            GlStateManager.pushMatrix()
-            GlStateManager.translate(-17f, -4f, 0f)
-            renderActualLink(boatEntity, boatEntity.getLinkedTo(BasicBoatEntity.BackLink)!!, BasicBoatEntity.BackLink, entityYaw)
-            bindTexture(LinkerTextureLocation)
-            linkerAnchorModel.render(boatEntity, 0f, 0f, boatEntity.ticksExisted.toFloat(), 0f, 0f, 1f)
-            GlStateManager.popMatrix()
+            boatEntity.getLinkedTo(BasicBoatEntity.BackLink)?.let {
+                GlStateManager.pushMatrix()
+                GlStateManager.translate(-17f, -4f, 0f)
+                renderActualLink(boatEntity, it, BasicBoatEntity.BackLink, entityYaw)
+                bindTexture(LinkerTextureLocation)
+                linkerAnchorModel.render(boatEntity, 0f, 0f, boatEntity.ticksExisted.toFloat(), 0f, 0f, 1f)
+                GlStateManager.popMatrix()
+            }
         }
     }
 
