@@ -2,10 +2,10 @@ package org.jglrxavpok.moarboats.common.containers
 
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.player.InventoryPlayer
-import net.minecraft.inventory.Container
-import net.minecraft.inventory.IInventory
-import net.minecraft.inventory.Slot
-import net.minecraft.inventory.SlotFurnaceFuel
+import net.minecraft.inventory.*
+import net.minecraft.item.ItemStack
+import net.minecraft.item.crafting.FurnaceRecipes
+import net.minecraft.tileentity.TileEntityFurnace
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import org.jglrxavpok.moarboats.modules.BoatModule
@@ -14,8 +14,8 @@ import org.jglrxavpok.moarboats.modules.IControllable
 class ContainerTestEngine(val playerInventory: InventoryPlayer, val engine: BoatModule, val boat: IControllable): Container() {
 
     val engineInventory = boat.getInventory(engine)
-    private var fuelTime = 0
-    private var fuelTotalTime = 0
+    private var fuelTime = engineInventory.getField(0)
+    private var fuelTotalTime = engineInventory.getField(1)
 
     init {
         this.addSlotToContainer(SlotFurnaceFuel(engineInventory, 0, 56, 53))
@@ -39,6 +39,11 @@ class ContainerTestEngine(val playerInventory: InventoryPlayer, val engine: Boat
         return true
     }
 
+    override fun addListener(listener: IContainerListener) {
+        super.addListener(listener)
+        listener.sendAllContents(this, engineInventory.list)
+    }
+
     override fun detectAndSendChanges() {
         super.detectAndSendChanges()
 
@@ -52,6 +57,8 @@ class ContainerTestEngine(val playerInventory: InventoryPlayer, val engine: Boat
             }
         }
 
+        this.fuelTime = this.engineInventory.getField(0)
+        this.fuelTotalTime = this.engineInventory.getField(1)
     }
 
     @SideOnly(Side.CLIENT)
@@ -59,4 +66,43 @@ class ContainerTestEngine(val playerInventory: InventoryPlayer, val engine: Boat
         this.engineInventory.setField(id, data)
     }
 
+    override fun transferStackInSlot(playerIn: EntityPlayer, index: Int): ItemStack {
+        var itemstack = ItemStack.EMPTY
+        val slot = this.inventorySlots[index]
+
+        if (slot != null && slot.hasStack) {
+            val itemstack1 = slot.stack
+            itemstack = itemstack1.copy()
+
+            if (index != 0) {
+                if (TileEntityFurnace.isItemFuel(itemstack1)) {
+                    if (!this.mergeItemStack(itemstack1, 0, 1, false)) {
+                        return ItemStack.EMPTY
+                    }
+                } else if (index in 1..27) {
+                    if (!this.mergeItemStack(itemstack1, 28, 37, false)) {
+                        return ItemStack.EMPTY
+                    }
+                } else if (index in 28..36 && !this.mergeItemStack(itemstack1, 1, 37, false)) {
+                    return ItemStack.EMPTY
+                }
+            } else if (!this.mergeItemStack(itemstack1, 1, 37, false)) {
+                return ItemStack.EMPTY
+            }
+
+            if (itemstack1.isEmpty) {
+                slot.putStack(ItemStack.EMPTY)
+            } else {
+                slot.onSlotChanged()
+            }
+
+            if (itemstack1.count == itemstack.count) {
+                return ItemStack.EMPTY
+            }
+
+            slot.onTake(playerIn, itemstack1)
+        }
+
+        return itemstack
+    }
 }

@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.common.entities
 
+import io.netty.buffer.ByteBuf
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.ItemStackHelper
@@ -41,7 +42,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world) {
         set(value) { dataManager[MODULE_DATA] = value }
     internal val modules = mutableListOf<BoatModule>()
 
-    val testInv = EngineModuleInventory("testEngine", this, EngineTest)
+    private val moduleInventories = hashMapOf<ResourceLocation, IBoatModuleInventory>()
 
     init {
         this.preventEntitySpawning = true
@@ -63,7 +64,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world) {
      */
     override fun onUpdate() {
         modules.clear()
-        modules.addAll(moduleLocations.map { BoatModuleRegistry[it]!!.module } )
+        moduleLocations.forEach { modules.add(BoatModuleRegistry[it].module) }
 
         modules.forEach { it.update(this) }
         super.onUpdate()
@@ -78,7 +79,13 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world) {
     }
 
     override fun getInventory(module: BoatModule): IBoatModuleInventory {
-        return testInv
+        val key = module.id
+        if(key !in moduleInventories) {
+            val inventory = BoatModuleRegistry[key].inventoryFactory!!(this, module)
+            println("created inventory for $module")
+            moduleInventories[key] = inventory
+        }
+        return moduleInventories[key]!!
     }
 
     override fun processInitialInteract(player: EntityPlayer, hand: EnumHand): Boolean {
@@ -121,6 +128,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world) {
             val module = addModule(correspondingLocation, addedByNBT = true)
             if(module.usesInventory) {
                 loadInventory(moduleNBT, getInventory(module))
+                println("loading inventory from NBT for $module")
             }
         }
         moduleData = compound.getCompoundTag("state")
@@ -165,4 +173,12 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world) {
         return module
     }
 
+    // TODO: read/write inventories to sync client&server
+    override fun readSpawnData(additionalData: ByteBuf) {
+        super.readSpawnData(additionalData)
+    }
+
+    override fun writeSpawnData(buffer: ByteBuf) {
+        super.writeSpawnData(buffer)
+    }
 }

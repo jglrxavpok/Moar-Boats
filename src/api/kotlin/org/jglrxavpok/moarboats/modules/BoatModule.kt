@@ -1,15 +1,10 @@
 package org.jglrxavpok.moarboats.modules
 
-import net.minecraft.client.renderer.entity.Render
-import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.inventory.IInventory
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
-import net.minecraftforge.fml.relauncher.Side
-import net.minecraftforge.fml.relauncher.SideOnly
 
 abstract class BoatModule {
 
@@ -32,14 +27,16 @@ abstract class BoatModule {
     }
 }
 
-data class BoatModuleEntry(val correspondingItem: Item, val module: BoatModule)
+data class BoatModuleEntry(val correspondingItem: Item, val module: BoatModule, val inventoryFactory: ((IControllable, BoatModule) -> IBoatModuleInventory)?)
 
 object BoatModuleRegistry {
 
     private val backingMap = hashMapOf<ResourceLocation, BoatModuleEntry>()
 
-    fun registerModule(name: ResourceLocation, correspondingItem: Item, module: BoatModule) {
-        backingMap[name] = BoatModuleEntry(correspondingItem, module)
+    fun registerModule(name: ResourceLocation, correspondingItem: Item, module: BoatModule, inventoryFactory: ((IControllable, BoatModule) -> IBoatModuleInventory)?) {
+        backingMap[name] = BoatModuleEntry(correspondingItem, module, inventoryFactory)
+        if(module.usesInventory && inventoryFactory == null)
+            error("Module $module uses an inventory but no inventory factory was provided!")
     }
 
     operator fun get(location: ResourceLocation) = backingMap[location]!!

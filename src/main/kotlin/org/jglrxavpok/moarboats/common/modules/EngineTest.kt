@@ -60,8 +60,8 @@ object EngineTest: BoatModule() {
     private fun updateFuelState(boat: IControllable, state: NBTTagCompound, inv: IInventory) {
         val fuelTime = state.getInteger("fuelTime")
         val fuelTotalTime = state.getInteger("fuelTotalTime")
+        println(inv.getStackInSlot(0).item)
         if(fuelTime < fuelTotalTime) {
-            println("current fuel: $fuelTime / $fuelTotalTime")
             state.setInteger("fuelTime", fuelTime+1)
         } else {
             val fuelItem = inv.getStackInSlot(0).item
@@ -82,7 +82,7 @@ object EngineTest: BoatModule() {
 
 class EngineModuleInventory(val inventoryName: String, override val boat: IControllable, override val module: BoatModule): IBoatModuleInventory {
 
-    val list = NonNullList.withSize(1, ItemStack.EMPTY)
+    override val list = NonNullList.withSize(1, ItemStack.EMPTY)
 
     override fun getField(id: Int): Int {
         val key = id2key(id)
@@ -166,6 +166,7 @@ class EngineModuleInventory(val inventoryName: String, override val boat: IContr
     }
 
     override fun getFieldCount(): Int {
-        return 0
+        return 2
     }
+
 }
