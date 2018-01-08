@@ -2,11 +2,9 @@ package org.jglrxavpok.moarboats.common.entities
 
 import io.netty.buffer.ByteBuf
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.inventory.IInventory
-import net.minecraft.inventory.ItemStackHelper
+import net.minecraft.inventory.Container
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
-import net.minecraft.nbt.NBTTagString
 import net.minecraft.network.datasync.DataSerializers
 import net.minecraft.network.datasync.EntityDataManager
 import net.minecraft.util.EnumHand
@@ -16,8 +14,6 @@ import net.minecraft.world.World
 import net.minecraftforge.common.util.Constants
 import net.minecraftforge.fml.common.network.ByteBufUtils
 import org.jglrxavpok.moarboats.common.ResourceLocationsSerializer
-import org.jglrxavpok.moarboats.common.modules.EngineModuleInventory
-import org.jglrxavpok.moarboats.common.modules.EngineTest
 import org.jglrxavpok.moarboats.extensions.loadInventory
 import org.jglrxavpok.moarboats.extensions.saveInventory
 import org.jglrxavpok.moarboats.modules.BoatModule
@@ -33,6 +29,9 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world) {
 
     override val entityID: Int
         get() = this.entityId
+
+    override val rngSeed: Long
+        get() = entityId.toLong()
 
     internal var moduleLocations
         get()= dataManager[MODULE_LOCATIONS]

@@ -41,7 +41,7 @@ class ContainerTestEngine(val playerInventory: InventoryPlayer, val engine: Boat
 
     override fun addListener(listener: IContainerListener) {
         super.addListener(listener)
-        listener.sendAllContents(this, engineInventory.list)
+        listener.sendAllWindowProperties(this, engineInventory)
     }
 
     override fun detectAndSendChanges() {

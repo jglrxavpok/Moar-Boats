@@ -2,9 +2,7 @@ package org.jglrxavpok.moarboats.common.modules
 
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Items
-import net.minecraft.inventory.IInventory
-import net.minecraft.inventory.ItemStackHelper
-import net.minecraft.inventory.SlotFurnaceFuel
+import net.minecraft.inventory.*
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
@@ -22,6 +20,10 @@ import org.jglrxavpok.moarboats.modules.IControllable
 
 object EngineTest: BoatModule() {
 
+    override val id = ResourceLocation("moarboats:testEngine")
+    override val usesInventory = true
+    override val moduleType = Type.Engine
+
     override fun onAddition(to: IControllable) {
         val state = to.getState()
         state.setInteger("fuelTotalTime", 0)
@@ -29,17 +31,15 @@ object EngineTest: BoatModule() {
         to.saveState()
     }
 
-    override val id = ResourceLocation("moarboats:testEngine")
-    override val usesInventory = true
-    override val moduleType = Type.Engine
-
     override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean) {
-        player.openGui(MoarBoats, MoarBoatsGuiHandler.EngineGui, player.world, from.entityID, 0, 0)
+        if(!player.world.isRemote) {
+            player.openGui(MoarBoats, MoarBoatsGuiHandler.EngineGui, player.world, from.entityID, 0, 0)
+        }
     }
 
     override fun controlBoat(from: IControllable) {
         if(hasFuel(from)) {
-            from.accelerate((1.0+Math.random()).toFloat())
+            from.accelerate((1.0+rng.nextFloat()).toFloat())
             from.turnRight()
         }
     }
@@ -79,7 +79,7 @@ object EngineTest: BoatModule() {
     }
 }
 
-class EngineModuleInventory(val inventoryName: String, override val boat: IControllable, override val module: BoatModule): IBoatModuleInventory {
+class EngineModuleInventory(val inventoryName: String, override val boat: IControllable, override val module: BoatModule): InventoryBasic("testEngine",  true,1), IBoatModuleInventory {
 
     override val list = NonNullList.withSize(1, ItemStack.EMPTY)
 
@@ -101,7 +101,6 @@ class EngineModuleInventory(val inventoryName: String, override val boat: IContr
     }
 
     override fun markDirty() {
-
     }
 
     override fun getStackInSlot(index: Int): ItemStack {

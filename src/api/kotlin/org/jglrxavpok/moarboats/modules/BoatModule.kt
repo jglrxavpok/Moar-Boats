@@ -5,6 +5,7 @@ import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
+import java.util.*
 
 abstract class BoatModule {
 
@@ -15,6 +16,12 @@ abstract class BoatModule {
     abstract fun controlBoat(from: IControllable)
     abstract fun update(from: IControllable)
     abstract fun onAddition(to: IControllable)
+
+    open fun onInit(to: IControllable) {
+        rng.setSeed(to.rngSeed)
+    }
+
+    val rng = Random()
 
     protected fun IControllable.saveState() = this.saveState(this@BoatModule)
     protected fun IControllable.getState() = this.getState(this@BoatModule)

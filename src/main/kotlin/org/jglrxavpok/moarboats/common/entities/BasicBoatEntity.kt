@@ -687,7 +687,7 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
 
     override fun processInitialInteract(player: EntityPlayer, hand: EnumHand): Boolean {
         val itemstack = player.getHeldItem(hand)
-        if(itemstack.item == BoatLinkerItem) {
+        if(itemstack.item == BoatLinkerItem && !world.isRemote) {
             BoatLinkerItem.onLinkUsed(itemstack, player, hand, world, this)
             return true
         }
