@@ -323,12 +323,14 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
      * Applies a velocity to the entities, to push them away from eachother.
      */
     override fun applyEntityCollision(entityIn: Entity) {
-        if (entityIn is EntityBoat) {
-            if (entityIn.getEntityBoundingBox().minY < this.entityBoundingBox.maxY) {
+        if(getLinkedTo(FrontLink) != entityIn && getLinkedTo(BackLink) != entityIn) {
+            if (entityIn is BasicBoatEntity) {
+                if (entityIn.getEntityBoundingBox().minY < this.entityBoundingBox.maxY) {
+                    super.applyEntityCollision(entityIn)
+                }
+            } else if (entityIn.entityBoundingBox.minY <= this.entityBoundingBox.minY) {
                 super.applyEntityCollision(entityIn)
             }
-        } else if (entityIn.entityBoundingBox.minY <= this.entityBoundingBox.minY) {
-            super.applyEntityCollision(entityIn)
         }
     }
 
@@ -405,6 +407,7 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
 
         var canControlItself = true
         if(hasLink(FrontLink)) { // is trailing boat, need to come closer to heading boat if needed
+            println("updating front link")
             val heading = getLinkedTo(FrontLink)!!
             val f = getDistance(heading)
             if (f > 3.0f) {
@@ -424,11 +427,11 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
                 rotationYaw = alpha*rotationYaw + targetYaw * (1f-alpha)
             }
         }
-
+        this.updateMotion()
         if(canControlItself) {
             this.controlBoat()
         }
-        this.updateMotion()
+
 
         this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ)
 
