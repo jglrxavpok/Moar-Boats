@@ -14,6 +14,7 @@ import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
 import net.minecraft.world.World
 import net.minecraftforge.common.util.Constants
+import net.minecraftforge.fml.common.network.ByteBufUtils
 import org.jglrxavpok.moarboats.common.ResourceLocationsSerializer
 import org.jglrxavpok.moarboats.common.modules.EngineModuleInventory
 import org.jglrxavpok.moarboats.common.modules.EngineTest
@@ -173,12 +174,28 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world) {
         return module
     }
 
-    // TODO: read/write inventories to sync client&server
     override fun readSpawnData(additionalData: ByteBuf) {
         super.readSpawnData(additionalData)
+        val inventoriesCount = additionalData.readInt()
+        for(i in 0 until inventoriesCount) {
+            val ownerID = ResourceLocation(ByteBufUtils.readUTF8String(additionalData))
+            val owner = BoatModuleRegistry[ownerID].module
+            val inventory = getInventory(owner)
+            val nbtData = ByteBufUtils.readTag(additionalData)!!
+            loadInventory(nbtData, inventory)
+        }
     }
 
     override fun writeSpawnData(buffer: ByteBuf) {
         super.writeSpawnData(buffer)
+        val inventoriesCount = moduleLocations.count { BoatModuleRegistry[it].module.usesInventory }
+        buffer.writeInt(inventoriesCount)
+        for(moduleID in moduleLocations) {
+            val module = BoatModuleRegistry[moduleID].module
+            val nbtData = NBTTagCompound()
+            ByteBufUtils.writeUTF8String(buffer, moduleID.toString())
+            saveInventory(nbtData, getInventory(module))
+            ByteBufUtils.writeTag(buffer, nbtData)
+        }
     }
 }

@@ -60,7 +60,6 @@ object EngineTest: BoatModule() {
     private fun updateFuelState(boat: IControllable, state: NBTTagCompound, inv: IInventory) {
         val fuelTime = state.getInteger("fuelTime")
         val fuelTotalTime = state.getInteger("fuelTotalTime")
-        println(inv.getStackInSlot(0).item)
         if(fuelTime < fuelTotalTime) {
             state.setInteger("fuelTime", fuelTime+1)
         } else {

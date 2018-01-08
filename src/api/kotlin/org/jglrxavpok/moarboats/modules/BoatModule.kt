@@ -39,7 +39,7 @@ object BoatModuleRegistry {
             error("Module $module uses an inventory but no inventory factory was provided!")
     }
 
-    operator fun get(location: ResourceLocation) = backingMap[location]!!
+    operator fun get(location: ResourceLocation) = backingMap[location] ?: error("No module with ID $location")
 
     fun findModule(heldItem: ItemStack): ResourceLocation? {
         for((key, entry) in backingMap) {
