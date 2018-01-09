@@ -13,7 +13,7 @@ object EntityEntries {
             .id(ResourceLocation(MoarBoats.ModID, "modular_boat"), ID++)
             .name("modular_boat")
             .factory({ ModularBoatEntity(it)})
-            .tracker(64, 80 , true)
+            .tracker(64, 3, true)
             .build()
     val list = listOf(ModularBoat)
 }

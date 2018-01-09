@@ -82,7 +82,6 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world) {
         val key = module.id
         if(key !in moduleInventories) {
             val inventory = BoatModuleRegistry[key].inventoryFactory!!(this, module)
-            println("created inventory for $module")
             moduleInventories[key] = inventory
         }
         return moduleInventories[key]!!

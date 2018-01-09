@@ -20,6 +20,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
+import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
@@ -48,14 +49,7 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
     /** How much of current speed to retain. Value zero to one.  */
     private var momentum = 0f
 
-    private var outOfControlTicks = 0f
     protected var deltaRotation = 0f
-    private var lerpSteps = 0
-    private var lerpX = 0.0
-    private var lerpY = 0.0
-    private var lerpZ = 0.0
-    private var lerpYaw = 0.0
-    private var lerpPitch = 0.0
     private var waterLevel = 0.0
     /**
      * How much the boat should glide given the slippery blocks it's currently gliding over.
@@ -323,14 +317,12 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
      * Applies a velocity to the entities, to push them away from eachother.
      */
     override fun applyEntityCollision(entityIn: Entity) {
-        if(getLinkedTo(FrontLink) != entityIn && getLinkedTo(BackLink) != entityIn) {
-            if (entityIn is BasicBoatEntity) {
-                if (entityIn.getEntityBoundingBox().minY < this.entityBoundingBox.maxY) {
-                    super.applyEntityCollision(entityIn)
-                }
-            } else if (entityIn.entityBoundingBox.minY <= this.entityBoundingBox.minY) {
+        if (entityIn is BasicBoatEntity) {
+            if (entityIn.getEntityBoundingBox().minY < this.entityBoundingBox.maxY) {
                 super.applyEntityCollision(entityIn)
             }
+        } else if (entityIn.entityBoundingBox.minY <= this.entityBoundingBox.minY) {
+            super.applyEntityCollision(entityIn)
         }
     }
 
@@ -352,19 +344,6 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
     }
 
     /**
-     * Set the position and rotation values directly without any clamping.
-     */
-    @SideOnly(Side.CLIENT)
-    override fun setPositionAndRotationDirect(x: Double, y: Double, z: Double, yaw: Float, pitch: Float, posRotationIncrements: Int, teleport: Boolean) {
-        this.lerpX = x
-        this.lerpY = y
-        this.lerpZ = z
-        this.lerpYaw = yaw.toDouble()
-        this.lerpPitch = pitch.toDouble()
-        this.lerpSteps = 10
-    }
-
-    /**
      * Gets the horizontal facing direction of this Entity, adjusted to take specially-treated entity types into
      * account.
      */
@@ -378,16 +357,6 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
     override fun onUpdate() {
         this.previousStatus = this.status
         this.status = this.getBoatStatus()
-
-        if (this.status != EntityBoat.Status.UNDER_WATER && this.status != EntityBoat.Status.UNDER_FLOWING_WATER) {
-            this.outOfControlTicks = 0.0f
-        } else {
-            ++this.outOfControlTicks
-        }
-
-        if (!this.world.isRemote && this.outOfControlTicks >= 60.0f) {
-            this.removePassengers()
-        }
 
         if (this.timeSinceHit > 0) {
             timeSinceHit--
@@ -406,32 +375,34 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         breakLinkIfNeeded(BackLink)
 
         var canControlItself = true
-        if(hasLink(FrontLink)) { // is trailing boat, need to come closer to heading boat if needed
-            println("updating front link")
+        if (hasLink(FrontLink)) { // is trailing boat, need to come closer to heading boat if needed
             val heading = getLinkedTo(FrontLink)!!
             val f = getDistance(heading)
             if (f > 3.0f) {
                 canControlItself = false
+
                 val d0 = (heading.posX - this.posX) / f.toDouble()
                 val d1 = (heading.posY - this.posY) / f.toDouble()
                 val d2 = (heading.posZ - this.posZ) / f.toDouble()
-                this.motionX += d0 * Math.abs(d0) * 0.2
-                this.motionY += d1 * Math.abs(d1) * 0.2
-                this.motionZ += d2 * Math.abs(d2) * 0.2
                 val alpha = 0.5f
 
                 val anchorPos = calculateAnchorPosition(FrontLink)
                 val otherAnchorPos = heading.calculateAnchorPosition(BackLink)
                 // FIXME: handle case where targetYaw is ~0-180 and rotationYaw is ~180+ (avoid doing a crazy flip)
                 val targetYaw = computeTargetYaw(rotationYaw, anchorPos, otherAnchorPos)
-                rotationYaw = alpha*rotationYaw + targetYaw * (1f-alpha)
+                rotationYaw = alpha * rotationYaw + targetYaw * (1f - alpha)
+
+                val speed = 0.2
+                this.motionX += d0 * Math.abs(d0) * speed
+                this.motionY += d1 * Math.abs(d1) * speed
+                this.motionZ += d2 * Math.abs(d2) * speed
             }
         }
         this.updateMotion()
-        if(canControlItself) {
+
+        if (canControlItself) {
             this.controlBoat()
         }
-
 
         this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ)
 
@@ -726,15 +697,20 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
     }
 
     override fun readSpawnData(additionalData: ByteBuf) {
-        val idLow = additionalData.readLong()
+        val data = ByteBufUtils.readTag(additionalData)!!
+        readEntityFromNBT(data)
+        /*val idLow = additionalData.readLong()
         val idHigh = additionalData.readLong()
         val id = UUID(idHigh, idLow)
-        boatID = id
+        boatID = id*/
     }
 
     override fun writeSpawnData(buffer: ByteBuf) {
-        val id = boatID
+        val nbtData = NBTTagCompound()
+        writeEntityToNBT(nbtData)
+        ByteBufUtils.writeTag(buffer, nbtData)
+/*        val id = boatID
         buffer.writeLong(id.leastSignificantBits)
-        buffer.writeLong(id.mostSignificantBits)
+        buffer.writeLong(id.mostSignificantBits)*/
     }
 }
