@@ -1,6 +1,7 @@
 package org.jglrxavpok.moarboats.common.modules
 
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.init.Blocks
 import net.minecraft.init.Items
 import net.minecraft.inventory.*
 import net.minecraft.item.Item
@@ -23,6 +24,8 @@ object EngineTest: BoatModule() {
     override val id = ResourceLocation("moarboats:testEngine")
     override val usesInventory = true
     override val moduleType = Type.Engine
+
+    const val SECONDS_TO_TICKS = 20
 
     override fun onAddition(to: IControllable) {
         val state = to.getState()
@@ -63,18 +66,27 @@ object EngineTest: BoatModule() {
         if(fuelTime < fuelTotalTime) {
             state.setInteger("fuelTime", fuelTime+1)
         } else {
-            val fuelItem = inv.getStackInSlot(0).item
+            val stack = inv.getStackInSlot(0)
+            val fuelItem = stack.item
+            val itemFuelTime = getFuelTime(fuelItem)
+            if (itemFuelTime > 0) {
+                if(fuelItem == Items.LAVA_BUCKET)
+                    inv.setInventorySlotContents(0, ItemStack(Items.BUCKET))
+                else
+                    inv.decrStackSize(0, 1)
+            }
             state.setInteger("fuelTime", 0)
-            state.setInteger("fuelTotalTime", getFuelTime(fuelItem))
-            inv.decrStackSize(0, 1)
+            state.setInteger("fuelTotalTime", itemFuelTime)
         }
         boat.saveState()
     }
 
     private fun getFuelTime(fuelItem: Item): Int {
         return when(fuelItem) {
-            Items.AIR -> 0
-            else -> 200
+            Items.COAL -> 60*3*SECONDS_TO_TICKS
+            Items.LAVA_BUCKET -> 60*15*SECONDS_TO_TICKS
+            Item.getItemFromBlock(Blocks.MAGMA) -> 60*30*SECONDS_TO_TICKS
+            else -> 0
         }
     }
 }

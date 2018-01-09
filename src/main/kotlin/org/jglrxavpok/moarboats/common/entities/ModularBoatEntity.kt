@@ -127,7 +127,6 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world) {
             val module = addModule(correspondingLocation, addedByNBT = true)
             if(module.usesInventory) {
                 loadInventory(moduleNBT, getInventory(module))
-                println("loading inventory from NBT for $module")
             }
         }
         moduleData = compound.getCompoundTag("state")
