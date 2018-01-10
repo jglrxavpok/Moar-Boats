@@ -11,11 +11,11 @@ import org.jglrxavpok.moarboats.common.modules.EngineTest
 object MoarBoatsGuiHandler: IGuiHandler {
     override fun getClientGuiElement(ID: Int, player: EntityPlayer, world: World, x: Int, y: Int, z: Int): Any? {
         return when(ID) {
-            EngineGui -> {
+            ModuleGui -> {
                 val boatID = x
                 val boat = world.getEntityByID(boatID) as ModularBoatEntity
-                val engine = boat.modules.first { it is EngineTest }
-                GuiTestEngine(player.inventory, engine, boat)
+                val module = boat.modules[y]
+                module.createGui(player, boat)
             }
             else -> null
         }
@@ -23,15 +23,15 @@ object MoarBoatsGuiHandler: IGuiHandler {
 
     override fun getServerGuiElement(ID: Int, player: EntityPlayer, world: World, x: Int, y: Int, z: Int): Any? {
         return when(ID) {
-            EngineGui -> {
+            ModuleGui -> {
                 val boatID = x
                 val boat = world.getEntityByID(boatID) as ModularBoatEntity
-                val engine = boat.modules.first { it is EngineTest }
-                ContainerTestEngine(player.inventory, engine, boat)
+                val module = boat.modules[y]
+                module.createContainer(player, boat)
             }
             else -> null
         }
     }
 
-    val EngineGui: Int = 0
+    val ModuleGui: Int = 0
 }

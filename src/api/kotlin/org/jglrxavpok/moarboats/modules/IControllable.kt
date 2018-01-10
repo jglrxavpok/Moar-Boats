@@ -17,4 +17,5 @@ interface IControllable {
 
     fun getState(module: BoatModule): NBTTagCompound
     fun getInventory(module: BoatModule): IBoatModuleInventory
+    val modules: List<BoatModule>
 }

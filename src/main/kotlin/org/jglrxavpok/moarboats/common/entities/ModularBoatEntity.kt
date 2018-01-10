@@ -2,7 +2,6 @@ package org.jglrxavpok.moarboats.common.entities
 
 import io.netty.buffer.ByteBuf
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.inventory.Container
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
 import net.minecraft.network.datasync.DataSerializers
@@ -13,6 +12,8 @@ import net.minecraft.util.math.MathHelper
 import net.minecraft.world.World
 import net.minecraftforge.common.util.Constants
 import net.minecraftforge.fml.common.network.ByteBufUtils
+import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.ResourceLocationsSerializer
 import org.jglrxavpok.moarboats.extensions.loadInventory
 import org.jglrxavpok.moarboats.extensions.saveInventory
@@ -40,7 +41,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world) {
     private var moduleData
         get()= dataManager[MODULE_DATA]
         set(value) { dataManager[MODULE_DATA] = value }
-    internal val modules = mutableListOf<BoatModule>()
+    override val modules = mutableListOf<BoatModule>()
 
     private val moduleInventories = hashMapOf<ResourceLocation, IBoatModuleInventory>()
 
@@ -99,7 +100,12 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world) {
             }
         }
 
-        modules.forEach { it.onInteract(this, player, hand, player.isSneaking) }
+        val canOpenGui = !modules.any { it.onInteract(this, player, hand, player.isSneaking) }
+        if(canOpenGui) {
+            if(modules.isNotEmpty() && !world.isRemote) {
+                player.openGui(MoarBoats, MoarBoatsGuiHandler.ModuleGui, player.world, entityID, 0, 0)
+            }
+        }
         return true
     }
 

@@ -1,21 +1,18 @@
 package org.jglrxavpok.moarboats.client.gui
 
-import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.entity.player.InventoryPlayer
-import net.minecraft.inventory.IInventory
-import net.minecraft.tileentity.TileEntityFurnace
 import net.minecraft.util.ResourceLocation
 import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.common.containers.ContainerChestModule
 import org.jglrxavpok.moarboats.common.containers.ContainerTestEngine
 import org.jglrxavpok.moarboats.modules.BoatModule
 import org.jglrxavpok.moarboats.modules.IControllable
 
-class GuiTestEngine(playerInventory: InventoryPlayer, engine: BoatModule, boat: IControllable):
-        GuiModuleBase(engine, boat, playerInventory, ContainerTestEngine(playerInventory, engine, boat)) {
+class GuiChestModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: IControllable):
+        GuiModuleBase(engine, boat, playerInventory, ContainerChestModule(playerInventory, engine, boat)) {
 
-
-    private val BACKGROUND_TEXTURE = ResourceLocation(MoarBoats.ModID, "texture/gui/modules/furnace_engine.png")
+    private val BACKGROUND_TEXTURE = ResourceLocation(MoarBoats.ModID, "texture/gui/modules/chest.png")
 
     override fun drawModuleForeground(mouseX: Int, mouseY: Int) {
         val s = module.id.toString()
@@ -28,6 +25,6 @@ class GuiTestEngine(playerInventory: InventoryPlayer, engine: BoatModule, boat: 
         this.mc.textureManager.bindTexture(BACKGROUND_TEXTURE)
         val i = (this.width - this.xSize) / 2
         val j = (this.height - this.ySize) / 2
-        this.drawTexturedModalRect(i, j, 0, 0, this.xSize, this.ySize)
+        this.drawTexturedModalRect(i, j, 0, 0, this.xSize, ySize)
     }
 }

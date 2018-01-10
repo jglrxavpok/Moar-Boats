@@ -18,9 +18,10 @@ import net.minecraft.util.ResourceLocation
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper
 import org.jglrxavpok.moarboats.common.*
-import org.jglrxavpok.moarboats.common.modules.EngineModuleInventory
+import org.jglrxavpok.moarboats.common.modules.ChestModule
 import org.jglrxavpok.moarboats.common.modules.EngineTest
-import org.jglrxavpok.moarboats.modules.BoatModuleEntry
+import org.jglrxavpok.moarboats.common.modules.inventories.ChestModuleInventory
+import org.jglrxavpok.moarboats.common.modules.inventories.EngineModuleInventory
 import org.jglrxavpok.moarboats.modules.BoatModuleRegistry
 
 
@@ -38,7 +39,8 @@ object MoarBoats {
 
     @Mod.EventHandler
     fun preInit(event: FMLPreInitializationEvent) {
-        BoatModuleRegistry.registerModule(ResourceLocation("moarboats:testEngine"), Item.getItemFromBlock(MCBlocks.FURNACE), EngineTest, { boat, module -> EngineModuleInventory("testEngine", boat, module) })
+        BoatModuleRegistry.registerModule(ResourceLocation("moarboats:testEngine"), Item.getItemFromBlock(MCBlocks.FURNACE), EngineTest, { boat, module -> EngineModuleInventory(boat, module) })
+        BoatModuleRegistry.registerModule(ResourceLocation("moarboats:chest"), Item.getItemFromBlock(MCBlocks.CHEST), ChestModule, { boat, module -> ChestModuleInventory(boat, module) })
         MinecraftForge.EVENT_BUS.register(this)
         logger = event.modLog
         proxy.preInit()

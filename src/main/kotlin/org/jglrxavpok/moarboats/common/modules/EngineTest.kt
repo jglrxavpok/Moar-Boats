@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.common.modules
 
+import net.minecraft.client.gui.GuiScreen
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Blocks
 import net.minecraft.init.Items
@@ -13,13 +14,27 @@ import net.minecraft.util.NonNullList
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.TextComponentTranslation
+import net.minecraftforge.fml.relauncher.Side
+import net.minecraftforge.fml.relauncher.SideOnly
 import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.client.gui.GuiTestEngine
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
+import org.jglrxavpok.moarboats.common.containers.ContainerTestEngine
+import org.jglrxavpok.moarboats.common.modules.inventories.BaseModuleInventory
 import org.jglrxavpok.moarboats.modules.BoatModule
 import org.jglrxavpok.moarboats.modules.IBoatModuleInventory
 import org.jglrxavpok.moarboats.modules.IControllable
 
 object EngineTest: BoatModule() {
+
+    @SideOnly(Side.CLIENT)
+    override fun createGui(player: EntityPlayer, boat: IControllable): GuiScreen {
+        return GuiTestEngine(player.inventory, this, boat)
+    }
+
+    override fun createContainer(player: EntityPlayer, boat: IControllable): Container {
+        return ContainerTestEngine(player.inventory, this, boat)
+    }
 
     override val id = ResourceLocation("moarboats:testEngine")
     override val usesInventory = true
@@ -34,10 +49,8 @@ object EngineTest: BoatModule() {
         to.saveState()
     }
 
-    override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean) {
-        if(!player.world.isRemote) {
-            player.openGui(MoarBoats, MoarBoatsGuiHandler.EngineGui, player.world, from.entityID, 0, 0)
-        }
+    override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean): Boolean {
+        return false
     }
 
     override fun controlBoat(from: IControllable) {
@@ -89,94 +102,4 @@ object EngineTest: BoatModule() {
             else -> 0
         }
     }
-}
-
-class EngineModuleInventory(val inventoryName: String, override val boat: IControllable, override val module: BoatModule): InventoryBasic("testEngine",  true,1), IBoatModuleInventory {
-
-    override val list = NonNullList.withSize(1, ItemStack.EMPTY)
-
-    override fun getField(id: Int): Int {
-        val key = id2key(id)
-        if(key != null)
-            return getModuleState().getInteger(key)
-        return -1
-    }
-
-    private fun id2key(id: Int): String? = when(id) {
-        0 -> "fuelTime"
-        1 -> "fuelTotalTime"
-        else -> null
-    }
-
-    override fun hasCustomName(): Boolean {
-        return false
-    }
-
-    override fun markDirty() {
-    }
-
-    override fun getStackInSlot(index: Int): ItemStack {
-        return list[index]
-    }
-
-    override fun decrStackSize(index: Int, count: Int) = ItemStackHelper.getAndSplit(list, index, count)
-
-    override fun clear() {
-        list.clear()
-    }
-
-    override fun getSizeInventory() = list.size
-
-    override fun getName() = inventoryName
-
-    override fun isEmpty(): Boolean {
-        return list.all { it.isEmpty }
-    }
-
-    override fun getDisplayName(): ITextComponent {
-        return TextComponentTranslation("inventory.$inventoryName.name")
-    }
-
-    override fun isItemValidForSlot(index: Int, stack: ItemStack): Boolean {
-        if(index == 0) {
-            val itemstack = list[0]
-            return TileEntityFurnace.isItemFuel(stack) || SlotFurnaceFuel.isBucket(stack) && itemstack.item !== Items.BUCKET
-        }
-        return false
-    }
-
-    override fun getInventoryStackLimit() = 64
-
-    override fun isUsableByPlayer(player: EntityPlayer): Boolean {
-        return true
-    }
-
-    override fun openInventory(player: EntityPlayer?) {
-
-    }
-
-    override fun setField(id: Int, value: Int) {
-        val key = id2key(id)
-        if(key != null) {
-            getModuleState().setInteger(key, value)
-            saveModuleState()
-        }
-    }
-
-    override fun closeInventory(player: EntityPlayer?) {
-
-    }
-
-    override fun setInventorySlotContents(index: Int, stack: ItemStack) {
-        list[index] = stack
-    }
-
-    override fun removeStackFromSlot(index: Int): ItemStack {
-        return ItemStackHelper.getAndRemove(list, index)
-    }
-
-    override fun getFieldCount(): Int {
-        return 2
-    }
-
 }
