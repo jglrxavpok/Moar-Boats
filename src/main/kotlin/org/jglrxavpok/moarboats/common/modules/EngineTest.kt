@@ -36,7 +36,7 @@ object EngineTest: BoatModule() {
         return ContainerTestEngine(player.inventory, this, boat)
     }
 
-    override val id = ResourceLocation("moarboats:testEngine")
+    override val id = ResourceLocation("moarboats:furnace_engine")
     override val usesInventory = true
     override val moduleType = Type.Engine
 

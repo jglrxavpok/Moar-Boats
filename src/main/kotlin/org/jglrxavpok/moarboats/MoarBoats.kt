@@ -39,7 +39,7 @@ object MoarBoats {
 
     @Mod.EventHandler
     fun preInit(event: FMLPreInitializationEvent) {
-        BoatModuleRegistry.registerModule(ResourceLocation("moarboats:testEngine"), Item.getItemFromBlock(MCBlocks.FURNACE), EngineTest, { boat, module -> EngineModuleInventory(boat, module) })
+        BoatModuleRegistry.registerModule(ResourceLocation("moarboats:furnace_engine"), Item.getItemFromBlock(MCBlocks.FURNACE), EngineTest, { boat, module -> EngineModuleInventory(boat, module) })
         BoatModuleRegistry.registerModule(ResourceLocation("moarboats:chest"), Item.getItemFromBlock(MCBlocks.CHEST), ChestModule, { boat, module -> ChestModuleInventory(boat, module) })
         MinecraftForge.EVENT_BUS.register(this)
         logger = event.modLog

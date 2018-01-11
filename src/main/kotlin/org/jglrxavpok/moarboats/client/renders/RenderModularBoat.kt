@@ -21,9 +21,9 @@ import org.lwjgl.util.vector.Quaternion
 class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>(renderManager) {
 
     companion object {
-        val TextureLocation = ResourceLocation(MoarBoats.ModID, "texture/entity/modularboat-texturemap.png")
-        val LinkerTextureLocation = ResourceLocation(MoarBoats.ModID, "texture/entity/linkeranchor-texturemap.png")
-        val LinkTextureLocation = ResourceLocation(MoarBoats.ModID, "texture/entity/linker-texturemap.png")
+        val TextureLocation = ResourceLocation(MoarBoats.ModID, "textures/entity/modularboat.png")
+        val LinkerTextureLocation = ResourceLocation(MoarBoats.ModID, "textures/entity/linkeranchor-texturemap.png")
+        val LinkTextureLocation = ResourceLocation(MoarBoats.ModID, "textures/entity/linker-texturemap.png")
     }
 
     val model = ModelModularBoat()

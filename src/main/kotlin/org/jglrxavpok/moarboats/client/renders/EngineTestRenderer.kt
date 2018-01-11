@@ -19,7 +19,7 @@ object EngineTestRenderer: BoatModuleRenderer() {
         module as EngineTest
         GlStateManager.pushMatrix()
         GlStateManager.scale(0.75f, 0.75f, 0.75f)
-        GlStateManager.translate(0.15f, -1f/16f, 0.5f)
+        GlStateManager.translate(0.15f, -4f/16f, 0.5f)
         renderManager.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
         val block = if(module.hasFuel(boat)) {
             Blocks.LIT_FURNACE

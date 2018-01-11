@@ -25,10 +25,14 @@ object BoatLinkerItem: Item() {
 
     init {
         creativeTab = CreativeTabs.TRANSPORTATION
-        unlocalizedName = "item.moarboats.boat_linker"
-        registryName = ResourceLocation(MoarBoats.ModID, "boat_linker_item")
+        unlocalizedName = "boat_linker"
+        registryName = ResourceLocation(MoarBoats.ModID, "boat_linker")
         maxDamage = 500
-        maxStackSize = 64
+        maxStackSize = 1
+
+        addPropertyOverride(ResourceLocation("frontLinked")) { stack, _, _ ->
+            if(getState(stack) == State.WAITING_NEXT) 1f else 0f
+        }
     }
 
     private fun setLinked(worldIn: World, stack: ItemStack, entity: BasicBoatEntity) {

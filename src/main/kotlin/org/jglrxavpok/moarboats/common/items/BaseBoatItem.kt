@@ -21,8 +21,8 @@ object BaseBoatItem: Item() {
 
     init {
         creativeTab = CreativeTabs.TRANSPORTATION
-        unlocalizedName = "item.moarboats.modular_boat"
-        registryName = ResourceLocation(MoarBoats.ModID, "modular_boat_item")
+        unlocalizedName = "modular_boat"
+        registryName = ResourceLocation(MoarBoats.ModID, "modular_boat")
     }
 
     override fun onItemRightClick(worldIn: World, playerIn: EntityPlayer, handIn: EnumHand): ActionResult<ItemStack> {

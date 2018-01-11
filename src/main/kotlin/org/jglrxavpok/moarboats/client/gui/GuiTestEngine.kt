@@ -14,20 +14,6 @@ import org.jglrxavpok.moarboats.modules.IControllable
 class GuiTestEngine(playerInventory: InventoryPlayer, engine: BoatModule, boat: IControllable):
         GuiModuleBase(engine, boat, playerInventory, ContainerTestEngine(playerInventory, engine, boat)) {
 
+    override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/furnace_engine.png")
 
-    private val BACKGROUND_TEXTURE = ResourceLocation(MoarBoats.ModID, "texture/gui/modules/furnace_engine.png")
-
-    override fun drawModuleForeground(mouseX: Int, mouseY: Int) {
-        val s = module.id.toString()
-        this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2, 6, 4210752)
-        this.fontRenderer.drawString(playerInventory.displayName.unformattedText, 8, this.ySize - 96 + 2, 4210752)
-    }
-
-    override fun drawModuleBackground(mouseX: Int, mouseY: Int) {
-        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f)
-        this.mc.textureManager.bindTexture(BACKGROUND_TEXTURE)
-        val i = (this.width - this.xSize) / 2
-        val j = (this.height - this.ySize) / 2
-        this.drawTexturedModalRect(i, j, 0, 0, this.xSize, this.ySize)
-    }
 }
