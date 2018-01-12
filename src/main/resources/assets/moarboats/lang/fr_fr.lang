@@ -1,4 +1,7 @@
 inventory.chest.name=Coffre
 inventory.furnace_engine.name=Moteur thermique
-item.boat_linker.name=Lien
+item.rope.name=Corde
 item.modular_boat.name=Bateau modulaire
+item.rope.notToSelf=On ne peut pas lier un bateau à lui-même!
+item.rope.backOccupied=Arrière déjà occupé
+item.rope.frontOccupied=Avant déjà occupé

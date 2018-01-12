@@ -16,7 +16,7 @@ import net.minecraft.world.World
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 
-object BoatLinkerItem: Item() {
+object RopeItem : Item() {
 
     enum class State {
         WAITING_NEXT,
@@ -25,12 +25,12 @@ object BoatLinkerItem: Item() {
 
     init {
         creativeTab = CreativeTabs.TRANSPORTATION
-        unlocalizedName = "boat_linker"
-        registryName = ResourceLocation(MoarBoats.ModID, "boat_linker")
+        unlocalizedName = "rope"
+        registryName = ResourceLocation(MoarBoats.ModID, "rope")
         maxDamage = 500
         maxStackSize = 1
 
-        addPropertyOverride(ResourceLocation("frontLinked")) { stack, _, _ ->
+        addPropertyOverride(ResourceLocation("firstKnot")) { stack, _, _ ->
             if(getState(stack) == State.WAITING_NEXT) 1f else 0f
         }
     }
@@ -71,8 +71,8 @@ object BoatLinkerItem: Item() {
                 val other = getLinked(worldIn, itemstack) ?: return
                 val hit = boatEntity
                 when {
-                    other == hit -> playerIn.sendStatusMessage(TextComponentTranslation("item.linker.notToSelf"), true)
-                    hit.hasLink(BasicBoatEntity.Companion.BackLink) -> playerIn.sendStatusMessage(TextComponentTranslation("item.linker.backOccupied"), true)
+                    other == hit -> playerIn.sendStatusMessage(TextComponentTranslation("item.rope.notToSelf"), true)
+                    hit.hasLink(BasicBoatEntity.Companion.BackLink) -> playerIn.sendStatusMessage(TextComponentTranslation("item.rope.backOccupied"), true)
                     else -> {
                         // first boat gets its back attached to the second boat's front
                         hit.linkTo(other, BasicBoatEntity.Companion.BackLink)
@@ -83,7 +83,7 @@ object BoatLinkerItem: Item() {
             }
             else -> {
                 if(boatEntity.hasLink(BasicBoatEntity.Companion.FrontLink)) {
-                    playerIn.sendStatusMessage(TextComponentTranslation("item.linker.frontOccupied"), true)
+                    playerIn.sendStatusMessage(TextComponentTranslation("item.rope.frontOccupied"), true)
                     resetLinked(itemstack)
                 } else {
                     setLinked(worldIn, itemstack, boatEntity)

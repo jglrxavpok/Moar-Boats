@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "moarboats:items/boat_linker_opened"
+    "layer0": "moarboats:items/rope_first_knot"
   }
 }

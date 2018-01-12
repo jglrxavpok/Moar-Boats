@@ -1,4 +1,7 @@
 inventory.chest.name=Chest module
 inventory.furnace_engine.name=Furnace Engine
-item.boat_linker.name=Boat Linker
+item.rope.name=Rope
 item.modular_boat.name=Modular Boat
+item.rope.notToSelf=You can't link a boat to itself!
+item.rope.backOccupied=Back already occupied
+item.rope.frontOccupied=Front already occupied

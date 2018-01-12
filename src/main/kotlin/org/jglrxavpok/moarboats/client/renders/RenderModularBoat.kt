@@ -1,34 +1,36 @@
 package org.jglrxavpok.moarboats.client.renders
 
 import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.entity.Render
 import net.minecraft.client.renderer.entity.RenderManager
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats
+import net.minecraft.entity.EntityHanging
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
-import net.minecraft.util.math.Vec3d
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.models.ModelBoatLink
 import org.jglrxavpok.moarboats.client.models.ModelBoatLinkerAnchor
 import org.jglrxavpok.moarboats.client.models.ModelModularBoat
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
+import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity.Companion.BackLink
+import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity.Companion.FrontLink
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.extensions.lookAt
-import org.jglrxavpok.moarboats.extensions.setLookAlong
 import org.jglrxavpok.moarboats.extensions.toDegrees
-import org.jglrxavpok.moarboats.extensions.toRadians
 import org.lwjgl.util.vector.Quaternion
 
 class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>(renderManager) {
 
     companion object {
         val TextureLocation = ResourceLocation(MoarBoats.ModID, "textures/entity/modularboat.png")
-        val LinkerTextureLocation = ResourceLocation(MoarBoats.ModID, "textures/entity/linkeranchor-texturemap.png")
-        val LinkTextureLocation = ResourceLocation(MoarBoats.ModID, "textures/entity/linker-texturemap.png")
+        val RopeAnchorTextureLocation = ResourceLocation(MoarBoats.ModID, "textures/entity/ropeanchor.png")
+        val RopeTextureLocation = ResourceLocation(MoarBoats.ModID, "textures/entity/rope.png")
     }
 
     val model = ModelModularBoat()
-    val linkerAnchorModel = ModelBoatLinkerAnchor()
-    val linkModel = ModelBoatLink()
+    val ropeAnchorModel = ModelBoatLinkerAnchor()
+    val ropeModel = ModelBoatLink()
 
     override fun getEntityTexture(entity: ModularBoatEntity) = TextureLocation
 
@@ -42,7 +44,7 @@ class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>
         setScale()
         model.noWater.showModel = false
         model.render(entity, 0f, 0f, entity.ticksExisted.toFloat(), 0f, 0f, 1f)
-        renderLink(entity, entityYaw, partialTicks)
+        renderLink(entity, x, y, z, entityYaw, partialTicks)
         removeScale()
         entity.modules.forEach {
             BoatModuleRenderingRegistry.getValue(it.id)?.renderModule(entity, it, x, y, z, entityYaw, partialTicks, renderManager)
@@ -52,16 +54,16 @@ class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>
         GlStateManager.popMatrix()
     }
 
-    private fun renderLink(boatEntity: ModularBoatEntity, entityYaw: Float, partialTicks: Float) {
-        bindTexture(LinkerTextureLocation)
+    private fun renderLink(boatEntity: ModularBoatEntity, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float) {
+        bindTexture(RopeAnchorTextureLocation)
         // front
         if(boatEntity.hasLink(BasicBoatEntity.FrontLink)) {
             boatEntity.getLinkedTo(BasicBoatEntity.FrontLink)?.let {
                 GlStateManager.pushMatrix()
                 GlStateManager.translate(17f, -4f, 0f)
                 renderActualLink(boatEntity, it, BasicBoatEntity.FrontLink, entityYaw)
-                bindTexture(LinkerTextureLocation)
-                linkerAnchorModel.render(boatEntity, 0f, 0f, boatEntity.ticksExisted.toFloat(), 0f, 0f, 1f)
+                bindTexture(RopeAnchorTextureLocation)
+                ropeAnchorModel.render(boatEntity, 0f, 0f, boatEntity.ticksExisted.toFloat(), 0f, 0f, 1f)
                 GlStateManager.popMatrix()
             }
         }
@@ -72,11 +74,15 @@ class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>
                 GlStateManager.pushMatrix()
                 GlStateManager.translate(-17f, -4f, 0f)
                 renderActualLink(boatEntity, it, BasicBoatEntity.BackLink, entityYaw)
-                bindTexture(LinkerTextureLocation)
-                linkerAnchorModel.render(boatEntity, 0f, 0f, boatEntity.ticksExisted.toFloat(), 0f, 0f, 1f)
+                bindTexture(RopeAnchorTextureLocation)
+                ropeAnchorModel.render(boatEntity, 0f, 0f, boatEntity.ticksExisted.toFloat(), 0f, 0f, 1f)
                 GlStateManager.popMatrix()
             }
         }
+    }
+
+    private fun interpolateValue(start: Double, end: Double, pct: Double): Double {
+        return start + (end - start) * pct
     }
 
     private fun renderActualLink(thisBoat: BasicBoatEntity, otherBoat: BasicBoatEntity, sideFromThisBoat: Int, entityYaw: Float) {
@@ -96,8 +102,8 @@ class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>
         val dist = Math.sqrt(offsetX*offsetX+offsetY*offsetY+offsetZ*offsetZ) / 0.0625f // account for scaling
         GlStateManager.scale(1.0, 1.0, dist)
         GlStateManager.translate(0f, 0f, 0.5f)
-        bindTexture(LinkTextureLocation)
-        linkModel.render(thisBoat, 0f, 0f, thisBoat.ticksExisted.toFloat(), 0f, 0f, 1f)
+        bindTexture(RopeTextureLocation)
+        ropeModel.render(thisBoat, 0f, 0f, thisBoat.ticksExisted.toFloat(), 0f, 0f, 1f)
         GlStateManager.popMatrix()
     }
 

@@ -1,14 +1,14 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "moarboats:items/boat_linker"
+    "layer0": "moarboats:items/rope"
   },
   "overrides": [
     {
       "predicate": {
-        "pulling": 1
+        "firstKnot": 1
       },
-      "model": "moarboats:item/boat_linker_opened"
+      "model": "moarboats:item/rope_first_knot"
     }
   ]
 }

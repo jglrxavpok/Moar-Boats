@@ -10,6 +10,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.tileentity.TileEntityFurnace
 import net.minecraft.util.EnumHand
+import net.minecraft.util.EnumParticleTypes
 import net.minecraft.util.NonNullList
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.ITextComponent
@@ -90,6 +91,10 @@ object EngineTest: BoatModule() {
             }
             state.setInteger("fuelTime", 0)
             state.setInteger("fuelTotalTime", itemFuelTime)
+        }
+
+        if(hasFuel(boat) && rng.nextInt(4) == 0) {
+            boat.worldRef.spawnParticle(EnumParticleTypes.SMOKE_LARGE, boat.positionX, boat.positionY + 0.8, boat.positionZ, 0.0, 0.0, 0.0)
         }
         boat.saveState()
     }

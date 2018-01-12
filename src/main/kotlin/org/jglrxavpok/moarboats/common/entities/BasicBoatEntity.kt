@@ -25,7 +25,7 @@ import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import org.jglrxavpok.moarboats.common.items.BaseBoatItem
-import org.jglrxavpok.moarboats.common.items.BoatLinkerItem
+import org.jglrxavpok.moarboats.common.items.RopeItem
 import org.jglrxavpok.moarboats.extensions.toDegrees
 import org.jglrxavpok.moarboats.extensions.toRadians
 import org.jglrxavpok.moarboats.modules.IControllable
@@ -62,6 +62,22 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
     protected var acceleration = 0f
 
     var boatID: UUID = UUID.randomUUID()
+    override val worldRef: World
+        get() = this.world
+    override val positionX: Double
+        get() = posX
+    override val positionY: Double
+        get() = posY
+    override val positionZ: Double
+        get() = posZ
+    override val velocityX: Double
+        get() = motionX
+    override val velocityY: Double
+        get() = motionY
+    override val velocityZ: Double
+        get() = motionZ
+    override val yaw: Float
+        get() = rotationYaw
 
     /**
      * damage taken from the last hit.
@@ -661,8 +677,8 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
 
     override fun processInitialInteract(player: EntityPlayer, hand: EnumHand): Boolean {
         val itemstack = player.getHeldItem(hand)
-        if(itemstack.item == BoatLinkerItem && !world.isRemote) {
-            BoatLinkerItem.onLinkUsed(itemstack, player, hand, world, this)
+        if(itemstack.item == RopeItem && !world.isRemote) {
+            RopeItem.onLinkUsed(itemstack, player, hand, world, this)
             return true
         }
         return false
