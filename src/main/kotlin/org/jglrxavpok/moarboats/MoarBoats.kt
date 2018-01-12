@@ -6,6 +6,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
 import org.apache.logging.log4j.Logger
 import net.minecraft.block.Block
+import net.minecraft.creativetab.CreativeTabs
 import net.minecraft.init.Items as MCItems
 import net.minecraft.init.Blocks as MCBlocks
 import net.minecraftforge.fml.common.registry.EntityEntry
@@ -13,15 +14,20 @@ import net.minecraftforge.event.RegistryEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.Item
+import net.minecraft.item.ItemStack
 import net.minecraft.network.datasync.DataSerializers
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper
 import org.jglrxavpok.moarboats.common.*
+import org.jglrxavpok.moarboats.common.items.BaseBoatItem
+import org.jglrxavpok.moarboats.common.items.HelmItem
 import org.jglrxavpok.moarboats.common.modules.ChestModule
 import org.jglrxavpok.moarboats.common.modules.EngineTest
+import org.jglrxavpok.moarboats.common.modules.HelmModule
 import org.jglrxavpok.moarboats.common.modules.inventories.ChestModuleInventory
 import org.jglrxavpok.moarboats.common.modules.inventories.EngineModuleInventory
+import org.jglrxavpok.moarboats.common.modules.inventories.SimpleModuleInventory
 import org.jglrxavpok.moarboats.modules.BoatModuleRegistry
 
 
@@ -37,15 +43,21 @@ object MoarBoats {
 
     val network = SimpleNetworkWrapper(ModID)
 
+    val CreativeTab = object: CreativeTabs("moarboats") {
+        override fun getTabIconItem(): ItemStack {
+            return ItemStack(BaseBoatItem)
+        }
+
+    }
+
     @Mod.EventHandler
     fun preInit(event: FMLPreInitializationEvent) {
         BoatModuleRegistry.registerModule(ResourceLocation("moarboats:furnace_engine"), Item.getItemFromBlock(MCBlocks.FURNACE), EngineTest, { boat, module -> EngineModuleInventory(boat, module) })
         BoatModuleRegistry.registerModule(ResourceLocation("moarboats:chest"), Item.getItemFromBlock(MCBlocks.CHEST), ChestModule, { boat, module -> ChestModuleInventory(boat, module) })
+        BoatModuleRegistry.registerModule(ResourceLocation("moarboats:helm"), HelmItem, HelmModule, { boat, module -> SimpleModuleInventory(1, "helm", boat, module) })
         MinecraftForge.EVENT_BUS.register(this)
         logger = event.modLog
         proxy.preInit()
-        println("Hello from Kotlin!")
-        logger.error("Hi from logger!")
     }
 
     @Mod.EventHandler

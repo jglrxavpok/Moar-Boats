@@ -14,17 +14,19 @@ import org.jglrxavpok.moarboats.modules.BoatModule
 import org.jglrxavpok.moarboats.modules.BoatModuleRegistry
 import org.jglrxavpok.moarboats.modules.IControllable
 
-abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, val playerInventory: InventoryPlayer, val container: Container): GuiContainer(container) {
+abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, val playerInventory: InventoryPlayer, val container: Container, val isLarge: Boolean = false): GuiContainer(container) {
 
     val tabs = mutableListOf<ModuleTab>()
 
     val title = TextComponentTranslation("inventory.${module.id.resourcePath}.name")
 
     private val BACKGROUND_TEXTURE = ResourceLocation(MoarBoats.ModID, "textures/gui/default_background.png")
+    private val BACKGROUND_TEXTURE_LARGE = ResourceLocation(MoarBoats.ModID, "textures/gui/default_background_large.png")
 
     protected abstract val moduleBackground: ResourceLocation
 
     override fun initGui() {
+        this.ySize = 114 + (if(isLarge) 6 else 3) * 18
         super.initGui()
         tabs.clear()
         val guiX = getGuiLeft()
@@ -81,7 +83,10 @@ abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, va
      */
     override fun drawGuiContainerBackgroundLayer(partialTicks: Float, mouseX: Int, mouseY: Int) {
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f)
-        mc.textureManager.bindTexture(BACKGROUND_TEXTURE)
+        if(isLarge)
+            mc.textureManager.bindTexture(BACKGROUND_TEXTURE_LARGE)
+        else
+            mc.textureManager.bindTexture(BACKGROUND_TEXTURE)
         val i = (this.width - this.xSize) / 2
         val j = (this.height - this.ySize) / 2
         this.drawTexturedModalRect(i, j, 0, 0, this.xSize, this.ySize)

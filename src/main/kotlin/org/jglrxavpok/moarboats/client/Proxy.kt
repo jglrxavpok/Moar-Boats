@@ -1,15 +1,12 @@
 package org.jglrxavpok.moarboats.client
 
 import net.minecraftforge.fml.client.registry.RenderingRegistry
-import org.jglrxavpok.moarboats.client.renders.BoatModuleRenderingRegistry
-import org.jglrxavpok.moarboats.client.renders.ChestModuleRenderer
-import org.jglrxavpok.moarboats.client.renders.EngineTestRenderer
-import org.jglrxavpok.moarboats.client.renders.RenderModularBoat
 import org.jglrxavpok.moarboats.common.MoarBoatsProxy
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import net.minecraft.client.renderer.block.model.ModelResourceLocation
 import net.minecraftforge.client.model.ModelLoader
 import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.client.renders.*
 import org.jglrxavpok.moarboats.common.items.RopeItem
 
 
@@ -19,6 +16,7 @@ class Proxy: MoarBoatsProxy() {
         super.init()
         BoatModuleRenderingRegistry.register(EngineTestRenderer)
         BoatModuleRenderingRegistry.register(ChestModuleRenderer)
+        BoatModuleRenderingRegistry.register(HelmModuleRenderer)
     }
 
     override fun preInit() {

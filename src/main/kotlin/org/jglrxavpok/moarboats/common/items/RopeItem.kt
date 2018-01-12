@@ -27,7 +27,6 @@ object RopeItem : Item() {
         creativeTab = CreativeTabs.TRANSPORTATION
         unlocalizedName = "rope"
         registryName = ResourceLocation(MoarBoats.ModID, "rope")
-        maxDamage = 500
         maxStackSize = 1
 
         addPropertyOverride(ResourceLocation("firstKnot")) { stack, _, _ ->

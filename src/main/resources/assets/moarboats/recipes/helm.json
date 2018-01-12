@@ -1,0 +1,68 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "/ /",
+    "/B/",
+    " | "
+  ],
+  "key": {
+    "/": {
+      "item": "minecraft:stick"
+    },
+    "|": [
+        {
+          "item": "minecraft:fence",
+          "data": 0
+        },
+        {
+          "item": "minecraft:fence",
+          "data": 1
+        },
+        {
+          "item": "minecraft:fence",
+          "data": 2
+        },
+        {
+          "item": "minecraft:fence",
+          "data": 3
+        },
+        {
+          "item": "minecraft:fence",
+          "data": 4
+        },
+        {
+          "item": "minecraft:fence",
+          "data": 5
+        }
+    ],
+    "B": [
+      {
+      "item": "minecraft:planks",
+      "data": 0
+      },
+      {
+        "item": "minecraft:planks",
+        "data": 1
+      },
+      {
+        "item": "minecraft:planks",
+        "data": 2
+      },
+      {
+        "item": "minecraft:planks",
+        "data": 3
+      },
+      {
+        "item": "minecraft:planks",
+        "data": 4
+      },
+      {
+        "item": "minecraft:planks",
+        "data": 5
+      }
+    ]
+  },
+  "result": {
+    "item": "moarboats:helm"
+  }
+}

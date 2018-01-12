@@ -1,0 +1,79 @@
+package org.jglrxavpok.moarboats.client.gui
+
+import net.minecraft.block.state.BlockStateBase
+import net.minecraft.block.state.IBlockState
+import net.minecraft.client.gui.inventory.GuiContainer
+import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.client.renderer.Tessellator
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats
+import net.minecraft.entity.player.InventoryPlayer
+import net.minecraft.inventory.IInventory
+import net.minecraft.item.ItemMap
+import net.minecraft.tileentity.TileEntityFurnace
+import net.minecraft.util.ResourceLocation
+import net.minecraft.util.math.BlockPos
+import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.common.containers.ContainerHelmModule
+import org.jglrxavpok.moarboats.common.containers.ContainerTestEngine
+import org.jglrxavpok.moarboats.modules.BoatModule
+import org.jglrxavpok.moarboats.modules.IControllable
+
+class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: IControllable):
+        GuiModuleBase(engine, boat, playerInventory, ContainerHelmModule(playerInventory, engine, boat), isLarge = true) {
+
+    override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/helm.png")
+
+    private val RES_MAP_BACKGROUND = ResourceLocation("textures/map/map_background.png")
+
+    override fun drawModuleBackground(mouseX: Int, mouseY: Int) {
+        super.drawModuleBackground(mouseX, mouseY)
+        GlStateManager.disableLighting()
+        this.mc.textureManager.bindTexture(RES_MAP_BACKGROUND)
+        val tessellator = Tessellator.getInstance()
+        val bufferbuilder = tessellator.buffer
+        val x = guiLeft.toDouble() + 22 + 4
+        val y = guiTop.toDouble() + 3 + 4
+        val mapSize = 130.0
+        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX)
+        bufferbuilder.pos(x, y+mapSize, 0.0).tex(0.0, 1.0).endVertex()
+        bufferbuilder.pos(x+mapSize, y+mapSize, 0.0).tex(1.0, 1.0).endVertex()
+        bufferbuilder.pos(x+mapSize, y, 0.0).tex(1.0, 0.0).endVertex()
+        bufferbuilder.pos(x, y, 0.0).tex(0.0, 0.0).endVertex()
+        tessellator.draw()
+        val stack = container.getSlot(0).stack
+        val item = stack.item
+        var blockX = -1
+        var blockY = -1
+        var blockZ = -1
+        var block: IBlockState? = null
+        if(item is ItemMap) {
+            val mapdata = item.getMapData(stack, this.mc.world)
+            if (mapdata != null) {
+                GlStateManager.pushMatrix()
+                GlStateManager.translate(x, y, 0.0)
+                GlStateManager.scale(0.0078125f, 0.0078125f, 0.0078125f)
+                GlStateManager.scale(mapSize, mapSize, 0.0)
+                this.mc.entityRenderer.mapItemRenderer.updateMapTexture(mapdata)
+                this.mc.entityRenderer.mapItemRenderer.renderMap(mapdata, true)
+                GlStateManager.popMatrix()
+
+                if(mouseX >= x && mouseX <= x+mapSize && mouseY >= y && mouseY <= y+mapSize) {
+                    val world = playerInventory.player.world
+                    val mapScale = 1 shl mapdata.scale.toInt()
+                    blockX = (mapdata.xCenter + (mouseX-x-mapSize/2) * mapScale).toInt() + world.spawnPoint.x
+                    blockZ = (mapdata.zCenter + (mouseY-y-mapSize/2) * mapScale).toInt() + world.spawnPoint.z
+
+
+                    blockY = world.getHeight(blockX, blockZ)-1
+                    val pos = BlockPos.PooledMutableBlockPos.retain(blockX, blockY, blockZ)
+                    block = world.getBlockState(pos)
+                    pos.release()
+                }
+            }
+        }
+
+        fontRenderer.drawString("Block at $blockX $blockY $blockZ = $block", 0, 0, 0xFFFFFF)
+
+        GlStateManager.enableLighting()
+    }
+}
