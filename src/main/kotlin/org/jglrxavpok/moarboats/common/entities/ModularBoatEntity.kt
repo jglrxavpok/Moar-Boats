@@ -40,7 +40,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world) {
 
     private var moduleData
         get()= dataManager[MODULE_DATA]
-        set(value) { dataManager[MODULE_DATA] = value }
+        set(value) { dataManager[MODULE_DATA] = value; dataManager.setDirty(MODULE_DATA) }
     override val modules = mutableListOf<BoatModule>()
 
     private val moduleInventories = hashMapOf<ResourceLocation, IBoatModuleInventory>()
@@ -126,6 +126,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world) {
 
     override fun readEntityFromNBT(compound: NBTTagCompound) {
         super.readEntityFromNBT(compound)
+        moduleLocations.clear()
         val list = compound.getTagList("modules", Constants.NBT.TAG_COMPOUND)
         for(moduleNBT in list) {
             moduleNBT as NBTTagCompound
@@ -147,8 +148,9 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world) {
     override fun getState(module: BoatModule): NBTTagCompound {
         val key = module.id.toString()
         val state = moduleData.getCompoundTag(key)
-        if(!state.hasKey(key)) {
+        if(!moduleData.hasKey(key)) {
             moduleData.setTag(key, state)
+            println("created state for $module")
             updateModuleData()
         }
         return state
@@ -177,6 +179,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world) {
         return module
     }
 
+    /*
     override fun readSpawnData(additionalData: ByteBuf) {
         super.readSpawnData(additionalData)
         val inventoriesCount = additionalData.readInt()
@@ -200,5 +203,5 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world) {
             saveInventory(nbtData, getInventory(module))
             ByteBufUtils.writeTag(buffer, nbtData)
         }
-    }
+    }*/
 }

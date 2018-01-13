@@ -21,7 +21,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
     }
 
     val model = ModelHelm()
-    val texture = ResourceLocation(MoarBoats.ModID, "textures/entity/helm")
+    val texture = ResourceLocation(MoarBoats.ModID, "textures/entity/helm.png")
 
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, renderManager: RenderManager) {
         module as HelmModule

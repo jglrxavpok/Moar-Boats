@@ -84,6 +84,7 @@ object EngineTest: BoatModule() {
             val fuelItem = stack.item
             val itemFuelTime = getFuelTime(fuelItem)
             if (itemFuelTime > 0) {
+                println("using fuel!")
                 if(fuelItem == Items.LAVA_BUCKET)
                     inv.setInventorySlotContents(0, ItemStack(Items.BUCKET))
                 else
@@ -101,7 +102,7 @@ object EngineTest: BoatModule() {
 
     private fun getFuelTime(fuelItem: Item): Int {
         return when(fuelItem) {
-            Items.COAL -> 60*3*SECONDS_TO_TICKS
+            Items.COAL -> 20*5// FIXME 60*3*SECONDS_TO_TICKS
             Items.LAVA_BUCKET -> 60*15*SECONDS_TO_TICKS
             Item.getItemFromBlock(Blocks.MAGMA) -> 60*30*SECONDS_TO_TICKS
             else -> 0
