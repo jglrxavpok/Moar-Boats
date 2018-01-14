@@ -1,22 +1,21 @@
 package org.jglrxavpok.moarboats.client.renders
 
-import net.minecraft.block.state.IBlockState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.entity.RenderManager
-import net.minecraft.client.renderer.texture.TextureMap
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
-import net.minecraft.init.Blocks
 import net.minecraft.item.ItemMap
+import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.ResourceLocation
+import net.minecraft.world.storage.MapData
+import net.minecraftforge.common.util.Constants
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.models.ModelHelm
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
-import org.jglrxavpok.moarboats.common.modules.ChestModule
-import org.jglrxavpok.moarboats.common.modules.EngineTest
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 import org.jglrxavpok.moarboats.modules.BoatModule
+import org.lwjgl.Sys
 
 object HelmModuleRenderer : BoatModuleRenderer() {
 
@@ -27,6 +26,8 @@ object HelmModuleRenderer : BoatModuleRenderer() {
     val model = ModelHelm()
     val texture = ResourceLocation(MoarBoats.ModID, "textures/entity/helm.png")
     private val RES_MAP_BACKGROUND = ResourceLocation("textures/map/map_background.png")
+    private val WaypointIndicator = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/helm/helm_waypoint.png")
+    private val BoatPathTexture = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/helm/boat_path.png")
 
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, renderManager: RenderManager) {
         module as HelmModule
@@ -64,17 +65,80 @@ object HelmModuleRenderer : BoatModuleRenderer() {
 
             val mapdata = item.getMapData(stack, boat.world)
             if (mapdata != null) {
-                GlStateManager.pushMatrix()
-                val margins = 7.0
-                GlStateManager.translate(x + margins, y + margins, 0.0)
-                GlStateManager.scale(0.0078125f, 0.0078125f, 0.0078125f)
-                GlStateManager.translate(0.0f, 0.0f, 1.0f)
-                GlStateManager.scale(mapSize - margins * 2, mapSize - margins * 2, 0.0)
-                mc.entityRenderer.mapItemRenderer.updateMapTexture(mapdata)
-                mc.entityRenderer.mapItemRenderer.renderMap(mapdata, true)
-                GlStateManager.popMatrix()
+                val moduleState = boat.getState(module)
+                GlStateManager.translate(0f, 0f, 1f)
+                renderMap(mapdata, x, y, mapSize, 7.0, moduleState)
             }
         }
         GlStateManager.popMatrix()
+    }
+
+    fun renderMap(mapdata: MapData, x: Double, y: Double, mapSize: Double, margins: Double = 7.0, moduleState: NBTTagCompound) {
+        val mc = Minecraft.getMinecraft()
+        GlStateManager.pushMatrix()
+        GlStateManager.translate(x+margins, y+margins, 0.0)
+        GlStateManager.scale(0.0078125f, 0.0078125f, 0.0078125f)
+        GlStateManager.scale(mapSize-margins*2, mapSize-margins*2, 0.0)
+        mc.entityRenderer.mapItemRenderer.updateMapTexture(mapdata)
+        mc.entityRenderer.mapItemRenderer.renderMap(mapdata, false)
+        GlStateManager.translate(0.0, 0.0, 1.0)
+        // render waypoints and path
+        val waypointsData = moduleState.getTagList("waypoints", Constants.NBT.TAG_COMPOUND)
+
+        var hasPrevious = false
+        var previousX = 0.0
+        var previousZ = 0.0
+        for(waypoint in waypointsData) {
+            waypoint as NBTTagCompound
+            val x = waypoint.getInteger("renderX").toDouble()
+            val z = waypoint.getInteger("renderZ").toDouble()
+            renderSingleWaypoint(x, z-7.0)
+
+            if(hasPrevious)
+                renderPath(previousX, previousZ, x, z)
+            hasPrevious = true
+            previousX = x
+            previousZ = z
+        }
+        GlStateManager.popMatrix()
+    }
+
+    private fun renderPath(previousX: Double, previousZ: Double, x: Double, z: Double) {
+        val time = Sys.getTime()
+        val pathTextureIndex = 3 - ((time/500) % 4)
+
+        val dx = x - previousX
+        val dz = z - previousZ
+        val length = Math.sqrt(dx*dx+dz*dz)
+        val angle = Math.atan2(dz, dx)
+        GlStateManager.pushMatrix()
+        GlStateManager.translate(previousX, previousZ, 0.0)
+        GlStateManager.rotate((angle * 180.0 / Math.PI).toFloat(), 0f, 0f, 1f)
+        val tessellator = Tessellator.getInstance()
+        val bufferbuilder = tessellator.buffer
+        val mc = Minecraft.getMinecraft()
+        mc.textureManager.bindTexture(BoatPathTexture)
+        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX)
+        bufferbuilder.pos(0.0, 1.0, 0.0).tex(0.0, 0.25 * pathTextureIndex).endVertex()
+        bufferbuilder.pos(0.0+length, 1.0, 0.0).tex(1.0, 0.25 * pathTextureIndex).endVertex()
+        bufferbuilder.pos(0.0+length, 0.0, 0.0).tex(1.0, 0.25 * pathTextureIndex + 0.25).endVertex()
+        bufferbuilder.pos(0.0, 0.0, 0.0).tex(0.0, 0.25 * pathTextureIndex + 0.25).endVertex()
+        tessellator.draw()
+        GlStateManager.popMatrix()
+    }
+
+    fun renderSingleWaypoint(x: Double, y: Double) {
+        val mc = Minecraft.getMinecraft()
+        mc.textureManager.bindTexture(WaypointIndicator)
+
+        val spriteSize = 8.0
+        val tessellator = Tessellator.getInstance()
+        val bufferbuilder = tessellator.buffer
+        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX)
+        bufferbuilder.pos(x, y+spriteSize, 0.0).tex(0.0, 1.0).endVertex()
+        bufferbuilder.pos(x+spriteSize, y+spriteSize, 0.0).tex(1.0, 1.0).endVertex()
+        bufferbuilder.pos(x+spriteSize, y, 0.0).tex(1.0, 0.0).endVertex()
+        bufferbuilder.pos(x, y, 0.0).tex(0.0, 0.0).endVertex()
+        tessellator.draw()
     }
 }

@@ -1,9 +1,11 @@
 package org.jglrxavpok.moarboats.client.gui
 
+import net.minecraft.client.audio.PositionedSoundRecord
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.entity.player.InventoryPlayer
+import net.minecraft.init.SoundEvents
 import net.minecraft.inventory.Container
 import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
@@ -58,6 +60,7 @@ abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, va
         val hoveredTabIndex = tabs.indexOfFirst { it.isMouseOn(mouseX, mouseY) }
         if(hoveredTabIndex != -1) {
             if(tabs[hoveredTabIndex].tabModule != module) {
+                mc.soundHandler.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f))
                 MoarBoats.network.sendToServer(C0OpenModuleGui(boat.entityID, hoveredTabIndex))
                 return true
             }
