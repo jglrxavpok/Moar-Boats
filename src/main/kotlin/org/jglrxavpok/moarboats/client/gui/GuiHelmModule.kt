@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.client.gui
 
+import net.minecraft.block.material.MapColor
 import net.minecraft.block.state.BlockStateBase
 import net.minecraft.block.state.IBlockState
 import net.minecraft.client.gui.MapItemRenderer
@@ -18,6 +19,7 @@ import org.jglrxavpok.moarboats.common.containers.ContainerHelmModule
 import org.jglrxavpok.moarboats.common.containers.ContainerTestEngine
 import org.jglrxavpok.moarboats.modules.BoatModule
 import org.jglrxavpok.moarboats.modules.IControllable
+import kotlin.experimental.and
 
 class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: IControllable):
         GuiModuleBase(engine, boat, playerInventory, ContainerHelmModule(playerInventory, engine, boat), isLarge = true) {
@@ -47,7 +49,6 @@ class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: 
         var blockY = -1
         var blockZ = -1
         var block: IBlockState? = null
-        var explored = false
         if(item is ItemMap) {
             val mapdata = item.getMapData(stack, this.mc.world)
             if (mapdata != null) {
@@ -70,24 +71,18 @@ class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: 
                     val zCenter = state.getInteger("zCenter")
                     val pixelX = (mouseX-x-margins)
                     val pixelY = (mouseY-y-margins)
-                    val color = mapdata.colors[(pixelX*pixelsToMap + pixelY*pixelsToMap * 128).toInt() % mapdata.colors.size].toInt()
-                    fontRenderer.drawStringWithShadow("color = ${Integer.toHexString(color)}", 0f, 45f, 0xFFFFFF)
-                    fontRenderer.drawStringWithShadow("pixelx=${pixelX * pixelsToMap}", 0f, 20f, 0xFFFFFF)
-                    fontRenderer.drawStringWithShadow("pixely=${pixelY* pixelsToMap}", 0f, 30f, 0xFFFFFF)
-                    blockX = (Math.floor(xCenter / mapScale + (pixelX-(mapSize-margins*2)/2) * pixelsToMap) * mapScale).toInt() // ((correctX + mouseX-mapSize/2-x) * mapScale).toInt()
-                    blockZ = (Math.floor(zCenter / mapScale + (pixelY-(mapSize-margins*2)/2) * pixelsToMap) * mapScale).toInt() // ((correctZ + mouseY-mapSize/2-y) * mapScale).toInt()
+                    blockX = Math.floor((xCenter / mapScale + (pixelX-(mapSize-margins*2)/2) * pixelsToMap) * mapScale).toInt() // ((correctX + mouseX-mapSize/2-x) * mapScale).toInt()
+                    blockZ = Math.floor((zCenter / mapScale + (pixelY-(mapSize-margins*2)/2) * pixelsToMap) * mapScale).toInt() // ((correctZ + mouseY-mapSize/2-y) * mapScale).toInt()
 
                     blockY = world.getHeight(blockX, blockZ)-1
                     val pos = BlockPos.PooledMutableBlockPos.retain(blockX, blockY, blockZ)
                     block = world.getBlockState(pos)
                     pos.release()
-
-                    explored = color != 0
                 }
             }
         }
 
-        fontRenderer.drawString("Block at $blockX $blockY $blockZ = $block explored?=$explored", 0, 0, 0xFFFFFF)
+        fontRenderer.drawString("Block at $blockX $blockY $blockZ = $block", 0, 0, 0xFFFFFF)
 
         GlStateManager.enableLighting()
     }

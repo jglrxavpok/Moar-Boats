@@ -33,6 +33,7 @@ object HelmModule: BoatModule() {
         val stack = inventory.getStackInSlot(0)
         val item = stack.item
         if (item is ItemMap) {
+            item.onUpdate(stack, from.worldRef, from.correspondingEntity, 0, false)
             val mapdata = item.getMapData(stack, from.worldRef)
             if (mapdata != null) {
                 val state = from.getState()

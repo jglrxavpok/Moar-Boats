@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.modules
 
+import net.minecraft.entity.Entity
 import net.minecraft.inventory.IInventory
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.world.World
@@ -17,6 +18,7 @@ interface IControllable {
     val velocityY: Double
     val velocityZ: Double
     val yaw: Float
+    val correspondingEntity: Entity
 
     fun turnRight(multiplier: Float = 1f)
 

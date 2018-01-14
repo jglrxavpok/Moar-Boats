@@ -78,7 +78,7 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         get() = motionZ
     override val yaw: Float
         get() = rotationYaw
-
+    override val correspondingEntity = this
     /**
      * damage taken from the last hit.
      */
