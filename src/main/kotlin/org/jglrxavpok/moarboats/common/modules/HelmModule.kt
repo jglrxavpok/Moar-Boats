@@ -27,13 +27,13 @@ object HelmModule: BoatModule() {
     }
 
     override fun update(from: IControllable) {
-        if(from.worldRef.isRemote)
-            return
         val inventory = from.getInventory()
         val stack = inventory.getStackInSlot(0)
         val item = stack.item
         if (item is ItemMap) {
             item.onUpdate(stack, from.worldRef, from.correspondingEntity, 0, false)
+            if(from.worldRef.isRemote)
+                return
             val mapdata = item.getMapData(stack, from.worldRef)
             if (mapdata != null) {
                 val state = from.getState()
