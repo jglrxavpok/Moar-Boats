@@ -1,6 +1,7 @@
 package org.jglrxavpok.moarboats.common.modules
 
 import net.minecraft.block.state.IBlockState
+import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.inventory.Container
@@ -10,10 +11,14 @@ import net.minecraft.nbt.NBTTagList
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
+import net.minecraft.world.storage.MapData
 import net.minecraftforge.common.util.Constants
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.gui.GuiHelmModule
 import org.jglrxavpok.moarboats.common.containers.ContainerHelmModule
+import org.jglrxavpok.moarboats.common.network.C2MapRequest
+import org.jglrxavpok.moarboats.extensions.getMapDataFromName
+import org.jglrxavpok.moarboats.extensions.hasMapInstance
 import org.jglrxavpok.moarboats.extensions.toDegrees
 import org.jglrxavpok.moarboats.modules.BoatModule
 import org.jglrxavpok.moarboats.modules.IControllable
@@ -29,6 +34,33 @@ object HelmModule: BoatModule() {
 
     override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean): Boolean {
         return false
+    }
+
+    override fun onInit(to: IControllable) {
+        super.onInit(to)
+        if(to.worldRef.isRemote) {
+            val stack = to.getInventory().getStackInSlot(0)
+            if(!stack.isEmpty && stack.item is ItemMap) {
+                val mapitemrenderer = Minecraft.getMinecraft().entityRenderer.mapItemRenderer
+                val id = stack.itemDamage
+                var mapdata = ItemMap.loadMapData(id, to.worldRef)
+
+                if (mapdata == null) {
+                    val s = "map_" + id
+                    mapdata = MapData(s)
+                    if (mapitemrenderer.hasMapInstance(s)) {
+                        val mapdata1 = mapitemrenderer.getMapDataFromName(s)
+
+                        if (mapdata1 != null) {
+                            mapdata = mapdata1
+                        }
+                    }
+                    to.worldRef.setData(s, mapdata)
+                    MoarBoats.network.sendToServer(C2MapRequest(s))
+                }
+                mapitemrenderer.updateMapTexture(mapdata)
+            }
+        }
     }
 
     override fun controlBoat(from: IControllable) {
@@ -72,19 +104,19 @@ object HelmModule: BoatModule() {
                 state.setInteger("currentWaypoint", nextWaypoint)
             }
         }
-        if (item is ItemMap) {
-            item.onUpdate(stack, from.worldRef, from.correspondingEntity, 0, false)
-            if(from.worldRef.isRemote)
-                return
-            val mapdata = item.getMapData(stack, from.worldRef)
-            if (mapdata != null) {
-                state.setInteger("xCenter", mapdata.xCenter)
-                state.setInteger("zCenter", mapdata.zCenter)
-                hasMap = true
+        if (!from.worldRef.isRemote) {
+            if(item is ItemMap) {
+                item.onUpdate(stack, from.worldRef, from.correspondingEntity, 0, false)
+                val mapdata = item.getMapData(stack, from.worldRef)
+                if (mapdata != null) {
+                    state.setInteger("xCenter", mapdata.xCenter)
+                    state.setInteger("zCenter", mapdata.zCenter)
+                    hasMap = true
+                }
             }
-        }
-        if(!hasMap) {
-            state.setTag("waypoints", NBTTagList()) // reset waypoints
+            if(!hasMap) {
+                state.setTag("waypoints", NBTTagList()) // reset waypoints
+            }
         }
         from.saveState()
     }

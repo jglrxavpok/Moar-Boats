@@ -127,16 +127,17 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world) {
     override fun readEntityFromNBT(compound: NBTTagCompound) {
         super.readEntityFromNBT(compound)
         moduleLocations.clear()
+        moduleData = compound.getCompoundTag("state")
         val list = compound.getTagList("modules", Constants.NBT.TAG_COMPOUND)
         for(moduleNBT in list) {
             moduleNBT as NBTTagCompound
             val correspondingLocation = ResourceLocation(moduleNBT.getString("moduleID"))
-            val module = addModule(correspondingLocation, addedByNBT = true)
+            val module = BoatModuleRegistry[correspondingLocation].module
             if(module.usesInventory) {
                 loadInventory(moduleNBT, getInventory(module))
             }
+            addModule(correspondingLocation, addedByNBT = true)
         }
-        moduleData = compound.getCompoundTag("state")
     }
 
     override fun saveState(module: BoatModule) {
@@ -172,6 +173,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world) {
 
     fun addModule(location: ResourceLocation, addedByNBT: Boolean = false): BoatModule {
         val module = BoatModuleRegistry[location].module
+        module.onInit(this)
         if(!addedByNBT)
             module.onAddition(this)
         moduleLocations.add(location)
