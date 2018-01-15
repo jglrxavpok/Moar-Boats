@@ -13,6 +13,7 @@ import net.minecraft.util.EnumHand
 import net.minecraft.util.EnumParticleTypes
 import net.minecraft.util.NonNullList
 import net.minecraft.util.ResourceLocation
+import net.minecraft.util.math.MathHelper
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.TextComponentTranslation
 import net.minecraftforge.fml.relauncher.Side
@@ -22,6 +23,7 @@ import org.jglrxavpok.moarboats.client.gui.GuiTestEngine
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.containers.ContainerTestEngine
 import org.jglrxavpok.moarboats.common.modules.inventories.BaseModuleInventory
+import org.jglrxavpok.moarboats.extensions.toRadians
 import org.jglrxavpok.moarboats.modules.BoatModule
 import org.jglrxavpok.moarboats.modules.IBoatModuleInventory
 import org.jglrxavpok.moarboats.modules.IControllable
@@ -56,8 +58,7 @@ object EngineTest: BoatModule() {
 
     override fun controlBoat(from: IControllable) {
         if(hasFuel(from)) {
-            from.accelerate((1.0+rng.nextFloat()).toFloat())
-            from.turnRight()
+            from.accelerate()
         }
     }
 
@@ -95,7 +96,10 @@ object EngineTest: BoatModule() {
         }
 
         if(hasFuel(boat) && rng.nextInt(4) == 0) {
-            boat.worldRef.spawnParticle(EnumParticleTypes.SMOKE_LARGE, boat.positionX, boat.positionY + 0.8, boat.positionZ, 0.0, 0.0, 0.0)
+            val cos = MathHelper.cos((boat.yaw + 90f).toRadians())
+            val sin = MathHelper.sin((boat.yaw + 90f).toRadians())
+            val dist = 0.5
+            boat.worldRef.spawnParticle(EnumParticleTypes.SMOKE_LARGE, boat.positionX + dist * cos, boat.positionY + 0.8, boat.positionZ + dist * sin, 0.0, 0.0, 0.0)
         }
         boat.saveState()
     }

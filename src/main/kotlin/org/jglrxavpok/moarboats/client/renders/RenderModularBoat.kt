@@ -125,7 +125,7 @@ class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>
     }
 
     private fun setRotation(entity: ModularBoatEntity, entityYaw: Float, partialTicks: Float) {
-        GlStateManager.rotate(180.0f - entityYaw, 0.0f, 1.0f, 0.0f)
+        GlStateManager.rotate(180.0f - entityYaw - 90f, 0.0f, 1.0f, 0.0f)
         val timeSinceHit = entity.timeSinceHit - partialTicks
         var damage = entity.damageTaken - partialTicks
 

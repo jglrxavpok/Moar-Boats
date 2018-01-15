@@ -9,10 +9,12 @@ import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
+import net.minecraft.util.math.MathHelper
 import net.minecraftforge.common.util.Constants
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.gui.GuiHelmModule
 import org.jglrxavpok.moarboats.common.containers.ContainerHelmModule
+import org.jglrxavpok.moarboats.extensions.toDegrees
 import org.jglrxavpok.moarboats.modules.BoatModule
 import org.jglrxavpok.moarboats.modules.IControllable
 
@@ -21,12 +23,34 @@ object HelmModule: BoatModule() {
     override val usesInventory = true
     override val moduleType = Type.Misc
 
+    private val Epsilon = 10e-1
+    val MaxDistanceToWaypoint = 0.5
+    val MaxDistanceToWaypointSquared = MaxDistanceToWaypoint*MaxDistanceToWaypoint
+
     override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean): Boolean {
         return false
     }
 
     override fun controlBoat(from: IControllable) {
-        // TODO()
+        val state = from.getState()
+        val waypoints = state.getTagList("waypoints", Constants.NBT.TAG_COMPOUND)
+        if(waypoints.tagCount() != 0) {
+            val currentWaypoint = state.getInteger("currentWaypoint")
+            val nextWaypoint = (currentWaypoint+1) % waypoints.tagCount() // FIXME: add a way to choose if loops or not
+            val next = waypoints[nextWaypoint] as NBTTagCompound
+            val nextX = next.getInteger("x")
+            val nextZ = next.getInteger("z")
+            val dx = from.positionX - nextX
+            val dz = from.positionZ - nextZ
+            val targetAngle = Math.atan2(dz, dx).toDegrees() + 90f
+            val yaw = from.yaw
+            if(MathHelper.wrapDegrees(targetAngle - yaw) > Epsilon) {
+                from.turnRight()
+            } else if(MathHelper.wrapDegrees(targetAngle - yaw) < -Epsilon) {
+                from.turnLeft()
+            }
+        }
+        from.saveState()
     }
 
     override fun update(from: IControllable) {
@@ -35,16 +59,27 @@ object HelmModule: BoatModule() {
         val item = stack.item
         var hasMap = false
         val state = from.getState()
+        val waypoints = state.getTagList("waypoints", Constants.NBT.TAG_COMPOUND)
+        if(waypoints.tagCount() != 0) {
+            val currentWaypoint = state.getInteger("currentWaypoint")
+            val nextWaypoint = (currentWaypoint+1) % waypoints.tagCount() // FIXME: add a way to choose if loops or not
+            val next = waypoints[nextWaypoint] as NBTTagCompound
+            val nextX = next.getInteger("x")
+            val nextZ = next.getInteger("z")
+            val dx = nextX - from.positionX
+            val dz = nextZ - from.positionZ
+            if(dx*dx+dz*dz < MaxDistanceToWaypointSquared) {
+                state.setInteger("currentWaypoint", nextWaypoint)
+            }
+        }
         if (item is ItemMap) {
             item.onUpdate(stack, from.worldRef, from.correspondingEntity, 0, false)
             if(from.worldRef.isRemote)
                 return
             val mapdata = item.getMapData(stack, from.worldRef)
             if (mapdata != null) {
-
                 state.setInteger("xCenter", mapdata.xCenter)
                 state.setInteger("zCenter", mapdata.zCenter)
-
                 hasMap = true
             }
         }
