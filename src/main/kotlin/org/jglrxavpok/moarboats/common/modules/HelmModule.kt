@@ -28,7 +28,7 @@ object HelmModule: BoatModule() {
     override val usesInventory = true
     override val moduleType = Type.Misc
 
-    private val Epsilon = 10e-1
+    private val Epsilon = 2.0
     val MaxDistanceToWaypoint = 0.5
     val MaxDistanceToWaypointSquared = MaxDistanceToWaypoint*MaxDistanceToWaypoint
 
@@ -41,24 +41,8 @@ object HelmModule: BoatModule() {
         if(to.worldRef.isRemote) {
             val stack = to.getInventory().getStackInSlot(0)
             if(!stack.isEmpty && stack.item is ItemMap) {
-                val mapitemrenderer = Minecraft.getMinecraft().entityRenderer.mapItemRenderer
                 val id = stack.itemDamage
-                var mapdata = ItemMap.loadMapData(id, to.worldRef)
-
-                if (mapdata == null) {
-                    val s = "map_" + id
-                    mapdata = MapData(s)
-                    if (mapitemrenderer.hasMapInstance(s)) {
-                        val mapdata1 = mapitemrenderer.getMapDataFromName(s)
-
-                        if (mapdata1 != null) {
-                            mapdata = mapdata1
-                        }
-                    }
-                    to.worldRef.setData(s, mapdata)
-                    MoarBoats.network.sendToServer(C2MapRequest(s))
-                }
-                mapitemrenderer.updateMapTexture(mapdata)
+                MoarBoats.network.sendToServer(C2MapRequest("map_$id", to.entityID, this.id))
             }
         }
     }

@@ -97,7 +97,7 @@ class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>
 
         GlStateManager.pushMatrix()
         GlStateManager.rotate(rotQuat)
-        GlStateManager.rotate(-thisBoat.rotationYaw, 0f, 1f, 0f)
+        GlStateManager.rotate(-thisBoat.rotationYaw-90f, 0f, 1f, 0f)
         GlStateManager.rotate(-180f, 0f, 1f, 0f)
         val dist = Math.sqrt(offsetX*offsetX+offsetY*offsetY+offsetZ*offsetZ) / 0.0625f // account for scaling
         GlStateManager.scale(1.0, 1.0, dist)

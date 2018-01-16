@@ -434,7 +434,7 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
     }
 
     private fun computeTargetYaw(currentYaw: Float, anchorPos: Vec3d, otherAnchorPos: Vec3d): Float {
-        val idealYaw = (Math.atan2(otherAnchorPos.x - anchorPos.x, -(otherAnchorPos.z - anchorPos.z)).toFloat().toDegrees() - 90)
+        val idealYaw = Math.atan2(otherAnchorPos.x - anchorPos.x, -(otherAnchorPos.z - anchorPos.z)).toFloat().toDegrees() + 180f
         var closestDistance = Float.POSITIVE_INFINITY
         var closest = idealYaw
         for(sign in -1..1) {
@@ -458,9 +458,9 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
 
     fun calculateAnchorPosition(linkType: Int): Vec3d {
         val distanceFromCenter = 0.0625f * 17f * if(linkType == BasicBoatEntity.FrontLink) 1f else -1f
-        val anchorX = posX + MathHelper.cos(rotationYaw.toRadians()) * distanceFromCenter
+        val anchorX = posX + MathHelper.cos((rotationYaw + 90f).toRadians()) * distanceFromCenter
         val anchorY = posY + -4f
-        val anchorZ = posZ + MathHelper.sin(rotationYaw.toRadians()) * distanceFromCenter
+        val anchorZ = posZ + MathHelper.sin((rotationYaw + 90f).toRadians()) * distanceFromCenter
         return Vec3d(anchorX, anchorY, anchorZ)
     }
 
