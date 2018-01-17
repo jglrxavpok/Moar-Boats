@@ -1,11 +1,13 @@
 package org.jglrxavpok.moarboats.client.renders
 
 import net.minecraft.client.Minecraft
+import net.minecraft.client.model.ModelRenderer
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.entity.RenderManager
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.item.ItemMap
+import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.ResourceLocation
 import net.minecraft.world.storage.MapData
@@ -13,7 +15,10 @@ import net.minecraftforge.common.util.Constants
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.models.ModelHelm
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
+import org.jglrxavpok.moarboats.common.items.HelmItem
 import org.jglrxavpok.moarboats.common.modules.HelmModule
+import org.jglrxavpok.moarboats.extensions.toDegrees
+import org.jglrxavpok.moarboats.extensions.toRadians
 import org.jglrxavpok.moarboats.modules.BoatModule
 import org.lwjgl.Sys
 
@@ -28,6 +33,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
     private val RES_MAP_BACKGROUND = ResourceLocation("textures/map/map_background.png")
     private val WaypointIndicator = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/helm/helm_waypoint.png")
     private val BoatPathTexture = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/helm/boat_path.png")
+    private val helmStack = ItemStack(HelmItem)
 
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, renderManager: RenderManager) {
         module as HelmModule
@@ -36,7 +42,12 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         GlStateManager.scale(-1f, -1f, 1f)
         GlStateManager.translate(0.0f, -0f/16f, 0.0f)
         renderManager.renderEngine.bindTexture(texture)
+        val moduleState = boat.getState(module)
+
+        val frameAngle = moduleState.getFloat("rotationAngle").toRadians()
+        rotate(frameAngle, model.frameCenter, model.left, model.radiusLeft, model.right, model.radiusRight, model.top, model.radiusTop, model.bottom, model.radiusBottom)
         model.render(boat, 0f, 0f, 0f, 0f, 0f, 0.0625f)
+        rotate(-frameAngle, model.frameCenter, model.left, model.radiusLeft, model.right, model.radiusRight, model.top, model.radiusTop, model.bottom, model.radiusBottom)
 
         val inventory = boat.getInventory(module)
         val stack = inventory.getStackInSlot(0)
@@ -54,6 +65,10 @@ object HelmModuleRenderer : BoatModuleRenderer() {
             GlStateManager.translate(7f, 30f, 0f)
             GlStateManager.rotate(90f, 0f, 1f, 0f)
             GlStateManager.rotate(25f, 1f, 0f, 0f)
+
+            GlStateManager.translate(32f, 32f, 0f)
+            GlStateManager.rotate(-frameAngle.toDegrees(), 0f, 0f, 1f)
+            GlStateManager.translate(-32f, -32f, 0f)
             val mapScale = 0.5f
             GlStateManager.scale(mapScale, mapScale, mapScale)
             bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX)
@@ -65,15 +80,20 @@ object HelmModuleRenderer : BoatModuleRenderer() {
 
             val mapdata = item.getMapData(stack, boat.world)
             if (mapdata != null) {
-                val moduleState = boat.getState(module)
                 GlStateManager.translate(0f, 0f, 1f)
-                renderMap(mapdata, x, y, mapSize, 7.0, moduleState)
+                renderMap(mapdata, x, y, mapSize, boat.posX, boat.posZ, 7.0, moduleState)
             }
         }
         GlStateManager.popMatrix()
     }
 
-    fun renderMap(mapdata: MapData, x: Double, y: Double, mapSize: Double, margins: Double = 7.0, moduleState: NBTTagCompound) {
+    private fun rotate(angle: Float, vararg modelParts: ModelRenderer) {
+        modelParts.forEach {
+            it.rotateAngleX -= angle
+        }
+    }
+
+    fun renderMap(mapdata: MapData, x: Double, y: Double, mapSize: Double, worldX: Double, worldZ: Double, margins: Double = 7.0, moduleState: NBTTagCompound) {
         val mc = Minecraft.getMinecraft()
         GlStateManager.pushMatrix()
         GlStateManager.translate(x+margins, y+margins, 0.0)
@@ -82,6 +102,15 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         mc.entityRenderer.mapItemRenderer.updateMapTexture(mapdata)
         mc.entityRenderer.mapItemRenderer.renderMap(mapdata, false)
         GlStateManager.translate(0.0, 0.0, 1.0)
+
+        val mapScale = (1 shl mapdata.scale.toInt()).toFloat()
+        val xOffset = (worldX - mapdata.xCenter.toDouble()).toFloat() / mapScale
+        val zOffset = (worldZ - mapdata.zCenter.toDouble()).toFloat() / mapScale
+        val boatRenderX = ((xOffset * 2.0f).toDouble() + 0.5).toInt() / 2f + 64f - 8f
+        val boatRenderZ = ((zOffset * 2.0f).toDouble() + 0.5).toInt() / 2f + 64f - 8f
+
+        mc.renderItem.renderItemAndEffectIntoGUI(helmStack, boatRenderX.toInt(), boatRenderZ.toInt())
+
         // render waypoints and path
         val waypointsData = moduleState.getTagList("waypoints", Constants.NBT.TAG_COMPOUND)
 

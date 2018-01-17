@@ -28,7 +28,7 @@ object HelmModule: BoatModule() {
     override val usesInventory = true
     override val moduleType = Type.Misc
 
-    private val Epsilon = 2.0
+    private val Epsilon = 0.1
     val MaxDistanceToWaypoint = 0.5
     val MaxDistanceToWaypointSquared = MaxDistanceToWaypoint*MaxDistanceToWaypoint
 
@@ -52,10 +52,9 @@ object HelmModule: BoatModule() {
         val waypoints = state.getTagList("waypoints", Constants.NBT.TAG_COMPOUND)
         if(waypoints.tagCount() != 0) {
             val currentWaypoint = state.getInteger("currentWaypoint")
-            val nextWaypoint = (currentWaypoint+1) % waypoints.tagCount() // FIXME: add a way to choose if loops or not
-            val next = waypoints[nextWaypoint] as NBTTagCompound
-            val nextX = next.getInteger("x")
-            val nextZ = next.getInteger("z")
+            val current = waypoints[currentWaypoint] as NBTTagCompound
+            val nextX = current.getInteger("x")
+            val nextZ = current.getInteger("z")
             val dx = from.positionX - nextX
             val dz = from.positionZ - nextZ
             val targetAngle = Math.atan2(dz, dx).toDegrees() + 90f
@@ -65,6 +64,7 @@ object HelmModule: BoatModule() {
             } else if(MathHelper.wrapDegrees(targetAngle - yaw) < -Epsilon) {
                 from.turnLeft()
             }
+            state.setFloat("rotationAngle", MathHelper.wrapDegrees(targetAngle-yaw).toFloat())
         }
         from.saveState()
     }
@@ -79,11 +79,11 @@ object HelmModule: BoatModule() {
         if(waypoints.tagCount() != 0) {
             val currentWaypoint = state.getInteger("currentWaypoint")
             val nextWaypoint = (currentWaypoint+1) % waypoints.tagCount() // FIXME: add a way to choose if loops or not
-            val next = waypoints[nextWaypoint] as NBTTagCompound
-            val nextX = next.getInteger("x")
-            val nextZ = next.getInteger("z")
-            val dx = nextX - from.positionX
-            val dz = nextZ - from.positionZ
+            val current = waypoints[currentWaypoint] as NBTTagCompound
+            val currentX = current.getInteger("x")
+            val currentZ = current.getInteger("z")
+            val dx = currentX - from.positionX
+            val dz = currentZ - from.positionZ
             if(dx*dx+dz*dz < MaxDistanceToWaypointSquared) {
                 state.setInteger("currentWaypoint", nextWaypoint)
             }
@@ -103,6 +103,11 @@ object HelmModule: BoatModule() {
             }
         }
         from.saveState()
+    }
+
+    private fun pixel2map(pixel: Double, center: Int, mapSize: Double, margins: Double, mapScale: Float): Int {
+        val pixelsToMap = 128f/(mapSize-margins*2)
+        return Math.floor((center / mapScale + (pixel-(mapSize-margins*2)/2) * pixelsToMap) * mapScale).toInt()
     }
 
     override fun onAddition(to: IControllable) {

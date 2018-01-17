@@ -45,7 +45,7 @@ class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: 
             val mapdata = item.getMapData(stack, this.mc.world)
             if (mapdata != null) {
                 val moduleState = boat.getState(module)
-                HelmModuleRenderer.renderMap(mapdata, x, y, mapSize, margins, moduleState)
+                HelmModuleRenderer.renderMap(mapdata, x, y, mapSize, boat.positionX, boat.positionZ, margins, moduleState)
 
                 if(mouseX >= x+margins && mouseX <= x+mapSize-margins && mouseY >= y+margins && mouseY <= y+mapSize-margins) {
                     GlStateManager.pushMatrix()
