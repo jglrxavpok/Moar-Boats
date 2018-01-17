@@ -3,6 +3,7 @@ package org.jglrxavpok.moarboats.client.renders
 import net.minecraft.client.Minecraft
 import net.minecraft.client.model.ModelRenderer
 import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.entity.RenderManager
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
@@ -62,7 +63,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
             val mapSize = 130.0
             GlStateManager.scale(0.0078125f, 0.0078125f, 0.0078125f)
             GlStateManager.translate(64f, -128f, 32f)
-            GlStateManager.translate(7f, 30f, 0f)
+            GlStateManager.translate(3+7f, 40f, 0f)
             GlStateManager.rotate(90f, 0f, 1f, 0f)
             GlStateManager.rotate(25f, 1f, 0f, 0f)
 

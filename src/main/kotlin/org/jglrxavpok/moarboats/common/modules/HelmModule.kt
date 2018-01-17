@@ -29,7 +29,7 @@ object HelmModule: BoatModule() {
     override val moduleType = Type.Misc
 
     private val Epsilon = 0.1
-    val MaxDistanceToWaypoint = 0.5
+    val MaxDistanceToWaypoint = 1.5
     val MaxDistanceToWaypointSquared = MaxDistanceToWaypoint*MaxDistanceToWaypoint
 
     override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean): Boolean {
