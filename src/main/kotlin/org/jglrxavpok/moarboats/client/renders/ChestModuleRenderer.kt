@@ -22,7 +22,7 @@ object ChestModuleRenderer : BoatModuleRenderer() {
         GlStateManager.pushMatrix()
         GlStateManager.scale(0.75f, 0.75f, 0.75f)
         GlStateManager.scale(-1f, 1f, 1f)
-        GlStateManager.translate(0.15f, -4f/16f, 0.5f)
+        GlStateManager.translate(-0.15f, -4f/16f, 0.5f)
         renderManager.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
         val block = Blocks.CHEST
         Minecraft.getMinecraft().blockRendererDispatcher.renderBlockBrightness(block.defaultState, boat.brightness)

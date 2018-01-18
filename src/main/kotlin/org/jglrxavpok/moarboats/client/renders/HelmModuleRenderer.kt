@@ -41,7 +41,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         GlStateManager.pushMatrix()
         //GlStateManager.scale(0.75f, 0.75f, 0.75f)
         GlStateManager.scale(-1f, -1f, 1f)
-        GlStateManager.translate(0.0f, -0f/16f, 0.0f)
+        GlStateManager.translate(0.2f, -0f/16f, 0.0f)
         renderManager.renderEngine.bindTexture(texture)
         val moduleState = boat.getState(module)
 
@@ -107,10 +107,17 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         val mapScale = (1 shl mapdata.scale.toInt()).toFloat()
         val xOffset = (worldX - mapdata.xCenter.toDouble()).toFloat() / mapScale
         val zOffset = (worldZ - mapdata.zCenter.toDouble()).toFloat() / mapScale
-        val boatRenderX = ((xOffset * 2.0f).toDouble() + 0.5).toInt() / 2f + 64f - 8f
-        val boatRenderZ = ((zOffset * 2.0f).toDouble() + 0.5).toInt() / 2f + 64f - 8f
+        val boatRenderX = ((xOffset * 2.0f).toDouble() + 0.5).toInt() / 2f + 64f
+        val boatRenderZ = ((zOffset * 2.0f).toDouble() + 0.5).toInt() / 2f + 64f
 
-        mc.renderItem.renderItemAndEffectIntoGUI(helmStack, boatRenderX.toInt(), boatRenderZ.toInt())
+        val iconScale = 0.5f
+
+        GlStateManager.pushMatrix()
+        GlStateManager.scale(iconScale, iconScale, iconScale)
+        GlStateManager.translate(-8f, -8f, 0f)
+        mc.renderItem.renderItemAndEffectIntoGUI(helmStack, (boatRenderX/iconScale).toInt(), (boatRenderZ/iconScale).toInt())
+
+        GlStateManager.popMatrix()
 
         // render waypoints and path
         val waypointsData = moduleState.getTagList("waypoints", Constants.NBT.TAG_COMPOUND)
@@ -131,6 +138,8 @@ object HelmModuleRenderer : BoatModuleRenderer() {
             previousZ = z
         }
         GlStateManager.popMatrix()
+
+        GlStateManager.enableLighting()
     }
 
     private fun renderPath(previousX: Double, previousZ: Double, x: Double, z: Double) {

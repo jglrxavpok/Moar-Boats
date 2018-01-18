@@ -5,3 +5,4 @@ item.modular_boat.name=Bateau modulaire
 item.rope.notToSelf=On ne peut pas lier un bateau à lui-même!
 item.rope.backOccupied=Arrière déjà occupé
 item.rope.frontOccupied=Avant déjà occupé
+item.helm.name=Barre de navigation

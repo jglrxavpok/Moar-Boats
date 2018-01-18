@@ -5,3 +5,4 @@ item.modular_boat.name=Modular Boat
 item.rope.notToSelf=You can't link a boat to itself!
 item.rope.backOccupied=Back already occupied
 item.rope.frontOccupied=Front already occupied
+item.helm.name=Boat helm
