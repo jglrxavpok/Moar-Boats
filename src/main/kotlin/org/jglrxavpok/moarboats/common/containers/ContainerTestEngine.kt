@@ -18,7 +18,7 @@ class ContainerTestEngine(val playerInventory: InventoryPlayer, val engine: Boat
     private var fuelTotalTime = engineInventory.getField(1)
 
     init {
-        this.addSlotToContainer(SlotFurnaceFuel(engineInventory, 0, 56, 53))
+        this.addSlotToContainer(SlotFurnaceFuel(engineInventory, 0, 8, 8))
 
         addPlayerSlots()
     }

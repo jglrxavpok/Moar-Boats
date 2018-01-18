@@ -104,7 +104,7 @@ object EngineTest: BoatModule() {
         boat.saveState()
     }
 
-    private fun getFuelTime(fuelItem: Item): Int {
+    fun getFuelTime(fuelItem: Item): Int {
         return when(fuelItem) {
             Items.COAL -> 20*5// FIXME 60*3*SECONDS_TO_TICKS
             Items.LAVA_BUCKET -> 60*15*SECONDS_TO_TICKS

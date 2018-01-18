@@ -6,3 +6,5 @@ item.rope.notToSelf=On ne peut pas lier un bateau à lui-même!
 item.rope.backOccupied=Arrière déjà occupé
 item.rope.frontOccupied=Avant déjà occupé
 item.helm.name=Barre de navigation
+gui.engine.remainingCurrent=Carburant restant
+gui.engine.estimatedTime=Temps total estimé
