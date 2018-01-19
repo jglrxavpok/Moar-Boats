@@ -2,6 +2,8 @@ package org.jglrxavpok.moarboats.client.gui
 
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.client.renderer.Tessellator
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.entity.player.InventoryPlayer
 import net.minecraft.inventory.IInventory
 import net.minecraft.tileentity.TileEntityFurnace
@@ -12,11 +14,13 @@ import org.jglrxavpok.moarboats.common.containers.ContainerTestEngine
 import org.jglrxavpok.moarboats.common.modules.EngineTest
 import org.jglrxavpok.moarboats.modules.BoatModule
 import org.jglrxavpok.moarboats.modules.IControllable
+import org.lwjgl.opengl.GL11
 
 class GuiTestEngine(playerInventory: InventoryPlayer, engine: BoatModule, boat: IControllable):
         GuiModuleBase(engine, boat, playerInventory, ContainerTestEngine(playerInventory, engine, boat)) {
 
     override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/furnace_engine.png")
+    val barsTexture = ResourceLocation("minecraft:textures/gui/bars.png")
     val remainingCurrentItem = TextComponentTranslation("gui.engine.remainingCurrent")
     val estimatedTimeText = TextComponentTranslation("gui.engine.estimatedTime")
 
@@ -29,10 +33,29 @@ class GuiTestEngine(playerInventory: InventoryPlayer, engine: BoatModule, boat: 
         val estimatedTotalTicks = (totalFuel - currentFuel) + currentStack.count * EngineTest.getFuelTime(currentStack.item)
         val estimatedTime = estimatedTotalTicks / 20
 
-        drawCenteredString(remainingCurrentItem.unformattedText, 88, 25, 0xFFFFFFFF.toInt(), shadow = true)
-        drawCenteredString("${(remaining*100f).toInt()}%", 88, 35, 0xFFA0FFA0.toInt())
-        drawCenteredString(estimatedTimeText.unformattedText, 88, 45, 0xFFFFFFFF.toInt(), shadow = true)
-        drawCenteredString("${estimatedTime}s", 88, 55, 0xFFA0FFA0.toInt())
+        drawCenteredString(remainingCurrentItem.unformattedText, 88, 30, 0xFFFFFFFF.toInt(), shadow = true)
+
+        mc.renderEngine.bindTexture(barsTexture)
+        val barIndex = 4
+        val barSize = xSize*.85f
+        val x = xSize/2f - barSize/2f
+        drawBar(x, 40f, barIndex, barSize, fill = remaining)
+        drawCenteredString(estimatedTimeText.unformattedText, 88, 48, 0xFFFFFFFF.toInt(), shadow = true)
+        drawCenteredString("${estimatedTime}s", 88, 58, 0xFF50A050.toInt())
+    }
+
+    private fun drawBar(x: Float, y: Float, barIndex: Int, barSize: Float, fill: Float) {
+        val barWidth = 182f
+        val filledSize = fill * barSize
+        val filledWidth = fill * barWidth
+
+        val scale = barSize/barWidth
+        GlStateManager.pushMatrix()
+        GlStateManager.scale(scale, scale, scale)
+        GlStateManager.translate((x/scale).toDouble(), (y/scale).toDouble(), 0.0)
+        drawTexturedModalRect(0, 0, 0, barIndex*10+5, (filledWidth).toInt(), 5)
+        drawTexturedModalRect(filledWidth.toInt(), 0, filledWidth.toInt(), barIndex*10, (barWidth-filledWidth+1).toInt(), 5)
+        GlStateManager.popMatrix()
     }
 
     private fun drawCenteredString(text: String, x: Int, y: Int, color: Int, shadow: Boolean = false) {
