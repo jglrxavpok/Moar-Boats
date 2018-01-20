@@ -6,6 +6,7 @@ import net.minecraft.init.Blocks
 import net.minecraft.init.Items
 import net.minecraft.inventory.*
 import net.minecraft.item.Item
+import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.tileentity.TileEntityFurnace
@@ -111,5 +112,10 @@ object EngineTest: BoatModule() {
             Item.getItemFromBlock(Blocks.MAGMA) -> 60*30*SECONDS_TO_TICKS
             else -> 0
         }
+    }
+
+    override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
+        if(!killedByPlayerInCreative)
+            boat.correspondingEntity.dropItem(ItemBlock.getItemFromBlock(Blocks.FURNACE), 1)
     }
 }

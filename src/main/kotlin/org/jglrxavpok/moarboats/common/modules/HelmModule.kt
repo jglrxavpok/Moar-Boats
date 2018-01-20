@@ -4,7 +4,9 @@ import net.minecraft.block.state.IBlockState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.init.Blocks
 import net.minecraft.inventory.Container
+import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemMap
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
@@ -15,7 +17,9 @@ import net.minecraft.world.storage.MapData
 import net.minecraftforge.common.util.Constants
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.gui.GuiHelmModule
+import org.jglrxavpok.moarboats.common.Items
 import org.jglrxavpok.moarboats.common.containers.ContainerHelmModule
+import org.jglrxavpok.moarboats.common.items.HelmItem
 import org.jglrxavpok.moarboats.common.network.C2MapRequest
 import org.jglrxavpok.moarboats.extensions.getMapDataFromName
 import org.jglrxavpok.moarboats.extensions.hasMapInstance
@@ -139,5 +143,10 @@ object HelmModule: BoatModule() {
         waypointsData.appendTag(waypointNBT)
         state.setTag("waypoints", waypointsData)
         boat.saveState()
+    }
+
+    override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
+        if(!killedByPlayerInCreative)
+            boat.correspondingEntity.dropItem(HelmItem, 1)
     }
 }

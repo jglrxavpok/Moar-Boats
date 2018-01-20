@@ -1,7 +1,9 @@
 package org.jglrxavpok.moarboats.common.entities
 
 import io.netty.buffer.ByteBuf
+import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.inventory.InventoryHelper
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
 import net.minecraft.network.datasync.DataSerializers
@@ -15,6 +17,7 @@ import net.minecraftforge.fml.common.network.ByteBufUtils
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.ResourceLocationsSerializer
+import org.jglrxavpok.moarboats.common.items.BaseBoatItem
 import org.jglrxavpok.moarboats.extensions.loadInventory
 import org.jglrxavpok.moarboats.extensions.saveInventory
 import org.jglrxavpok.moarboats.modules.BoatModule
@@ -95,6 +98,12 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world) {
         val module = BoatModuleRegistry.findModule(heldItem)
         if(module != null) {
             if(module !in moduleLocations) {
+                if(!player.capabilities.isCreativeMode) {
+                    heldItem.shrink(1)
+                    if (heldItem.isEmpty) {
+                        player.inventory.deleteStack(heldItem)
+                    }
+                }
                 addModule(module)
                 return true
             }
@@ -181,29 +190,14 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world) {
         return module
     }
 
-    /*
-    override fun readSpawnData(additionalData: ByteBuf) {
-        super.readSpawnData(additionalData)
-        val inventoriesCount = additionalData.readInt()
-        for(i in 0 until inventoriesCount) {
-            val ownerID = ResourceLocation(ByteBufUtils.readUTF8String(additionalData))
-            val owner = BoatModuleRegistry[ownerID].module
-            val inventory = getInventory(owner)
-            val nbtData = ByteBufUtils.readTag(additionalData)!!
-            loadInventory(nbtData, inventory)
+    override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
+        if(!killedByPlayerInCreative) {
+            dropItem(BaseBoatItem, 1)
+        }
+        modules.forEach {
+            if(it.usesInventory)
+                InventoryHelper.dropInventoryItems(world, this, getInventory(it))
+            it.dropItemsOnDeath(this, killedByPlayerInCreative)
         }
     }
-
-    override fun writeSpawnData(buffer: ByteBuf) {
-        super.writeSpawnData(buffer)
-        val inventoriesCount = moduleLocations.count { BoatModuleRegistry[it].module.usesInventory }
-        buffer.writeInt(inventoriesCount)
-        for(moduleID in moduleLocations) {
-            val module = BoatModuleRegistry[moduleID].module
-            val nbtData = NBTTagCompound()
-            ByteBufUtils.writeUTF8String(buffer, moduleID.toString())
-            saveInventory(nbtData, getInventory(module))
-            ByteBufUtils.writeTag(buffer, nbtData)
-        }
-    }*/
 }

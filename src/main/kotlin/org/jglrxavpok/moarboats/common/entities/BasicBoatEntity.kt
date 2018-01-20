@@ -160,8 +160,8 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
                 val flag = source.trueSource is EntityPlayer && (source.trueSource as EntityPlayer).capabilities.isCreativeMode
 
                 if (flag || this.damageTaken > 40.0f) {
-                    if (!flag && this.world.gameRules.getBoolean("doEntityDrops")) {
-                        this.dropItemWithOffset(BaseBoatItem, 1, 0.0f)
+                    if (this.world.gameRules.getBoolean("doEntityDrops")) {
+                        dropItemsOnDeath(flag)
                     }
 
                     this.setDead()
@@ -481,6 +481,8 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
     }
 
     abstract fun controlBoat()
+
+    abstract fun dropItemsOnDeath(killedByPlayerInCreative: Boolean)
 
     /**
      * Decides whether the boat is currently underwater.

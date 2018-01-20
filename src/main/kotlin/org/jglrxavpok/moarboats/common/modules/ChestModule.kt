@@ -2,7 +2,10 @@ package org.jglrxavpok.moarboats.common.modules
 
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.init.Blocks
+import net.minecraft.init.Items
 import net.minecraft.inventory.Container
+import net.minecraft.item.ItemBlock
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.fml.relauncher.Side
@@ -42,5 +45,10 @@ object ChestModule: BoatModule() {
 
     override fun onAddition(to: IControllable) {
 
+    }
+
+    override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
+        if(!killedByPlayerInCreative)
+            boat.correspondingEntity.dropItem(ItemBlock.getItemFromBlock(Blocks.CHEST), 1)
     }
 }

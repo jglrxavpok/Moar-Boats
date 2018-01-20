@@ -40,6 +40,8 @@ abstract class BoatModule {
         Storage,
         Misc
     }
+
+    open fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {}
 }
 
 data class BoatModuleEntry(val correspondingItem: Item, val module: BoatModule, val inventoryFactory: ((IControllable, BoatModule) -> IBoatModuleInventory)?)
