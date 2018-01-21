@@ -3,7 +3,6 @@ package org.jglrxavpok.moarboats.client.renders
 import net.minecraft.client.Minecraft
 import net.minecraft.client.model.ModelRenderer
 import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.entity.RenderManager
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
@@ -20,7 +19,7 @@ import org.jglrxavpok.moarboats.common.items.HelmItem
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 import org.jglrxavpok.moarboats.extensions.toDegrees
 import org.jglrxavpok.moarboats.extensions.toRadians
-import org.jglrxavpok.moarboats.modules.BoatModule
+import org.jglrxavpok.moarboats.api.BoatModule
 import org.lwjgl.Sys
 
 object HelmModuleRenderer : BoatModuleRenderer() {

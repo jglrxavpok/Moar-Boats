@@ -4,11 +4,10 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.player.InventoryPlayer
 import net.minecraft.inventory.*
 import net.minecraft.item.ItemStack
-import net.minecraft.tileentity.TileEntityFurnace
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
-import org.jglrxavpok.moarboats.modules.BoatModule
-import org.jglrxavpok.moarboats.modules.IControllable
+import org.jglrxavpok.moarboats.api.BoatModule
+import org.jglrxavpok.moarboats.api.IControllable
 
 class ContainerChestModule(val playerInventory: InventoryPlayer, val engine: BoatModule, val boat: IControllable): Container() {
 

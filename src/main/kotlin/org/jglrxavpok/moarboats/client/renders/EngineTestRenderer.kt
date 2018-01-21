@@ -7,7 +7,7 @@ import net.minecraft.client.renderer.texture.TextureMap
 import net.minecraft.init.Blocks
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.EngineTest
-import org.jglrxavpok.moarboats.modules.BoatModule
+import org.jglrxavpok.moarboats.api.BoatModule
 
 object EngineTestRenderer: BoatModuleRenderer() {
 

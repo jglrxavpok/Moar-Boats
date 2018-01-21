@@ -3,7 +3,6 @@ package org.jglrxavpok.moarboats.common.modules
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Blocks
-import net.minecraft.init.Items
 import net.minecraft.inventory.Container
 import net.minecraft.item.ItemBlock
 import net.minecraft.util.EnumHand
@@ -13,8 +12,8 @@ import net.minecraftforge.fml.relauncher.SideOnly
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.gui.GuiChestModule
 import org.jglrxavpok.moarboats.common.containers.ContainerChestModule
-import org.jglrxavpok.moarboats.modules.BoatModule
-import org.jglrxavpok.moarboats.modules.IControllable
+import org.jglrxavpok.moarboats.api.BoatModule
+import org.jglrxavpok.moarboats.api.IControllable
 
 object ChestModule: BoatModule() {
     override val id = ResourceLocation(MoarBoats.ModID, "chest")

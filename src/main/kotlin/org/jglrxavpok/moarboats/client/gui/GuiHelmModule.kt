@@ -1,6 +1,5 @@
 package org.jglrxavpok.moarboats.client.gui
 
-import net.minecraft.block.state.IBlockState
 import net.minecraft.client.audio.PositionedSoundRecord
 import net.minecraft.client.gui.Gui
 import net.minecraft.client.renderer.GlStateManager
@@ -16,8 +15,8 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.renders.HelmModuleRenderer
 import org.jglrxavpok.moarboats.common.containers.ContainerHelmModule
 import org.jglrxavpok.moarboats.common.network.C1MapClick
-import org.jglrxavpok.moarboats.modules.BoatModule
-import org.jglrxavpok.moarboats.modules.IControllable
+import org.jglrxavpok.moarboats.api.BoatModule
+import org.jglrxavpok.moarboats.api.IControllable
 import org.lwjgl.opengl.GL11
 
 class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: IControllable):

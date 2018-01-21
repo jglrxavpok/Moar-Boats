@@ -1,18 +1,15 @@
 package org.jglrxavpok.moarboats.common.modules.inventories
 
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.init.Items
 import net.minecraft.inventory.InventoryBasic
 import net.minecraft.inventory.ItemStackHelper
-import net.minecraft.inventory.SlotFurnaceFuel
 import net.minecraft.item.ItemStack
-import net.minecraft.tileentity.TileEntityFurnace
 import net.minecraft.util.NonNullList
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.TextComponentTranslation
-import org.jglrxavpok.moarboats.modules.BoatModule
-import org.jglrxavpok.moarboats.modules.IBoatModuleInventory
-import org.jglrxavpok.moarboats.modules.IControllable
+import org.jglrxavpok.moarboats.api.BoatModule
+import org.jglrxavpok.moarboats.api.IBoatModuleInventory
+import org.jglrxavpok.moarboats.api.IControllable
 
 abstract class BaseModuleInventory(val slotCount: Int, val inventoryName: String, override val boat: IControllable, override val module: BoatModule): InventoryBasic(inventoryName,  true,slotCount), IBoatModuleInventory {
 

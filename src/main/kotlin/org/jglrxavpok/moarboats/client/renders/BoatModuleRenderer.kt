@@ -8,8 +8,7 @@ import net.minecraftforge.registries.IForgeRegistryEntry
 import net.minecraftforge.registries.RegistryBuilder
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
-import org.jglrxavpok.moarboats.modules.BoatModule
-import org.jglrxavpok.moarboats.modules.IControllable
+import org.jglrxavpok.moarboats.api.BoatModule
 
 abstract class BoatModuleRenderer: IForgeRegistryEntry.Impl<BoatModuleRenderer>() {
 

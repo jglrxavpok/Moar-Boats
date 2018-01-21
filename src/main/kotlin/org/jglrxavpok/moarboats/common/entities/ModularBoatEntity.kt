@@ -1,7 +1,5 @@
 package org.jglrxavpok.moarboats.common.entities
 
-import io.netty.buffer.ByteBuf
-import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.inventory.InventoryHelper
 import net.minecraft.nbt.NBTTagCompound
@@ -13,16 +11,15 @@ import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
 import net.minecraft.world.World
 import net.minecraftforge.common.util.Constants
-import net.minecraftforge.fml.common.network.ByteBufUtils
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.ResourceLocationsSerializer
 import org.jglrxavpok.moarboats.common.items.BaseBoatItem
 import org.jglrxavpok.moarboats.extensions.loadInventory
 import org.jglrxavpok.moarboats.extensions.saveInventory
-import org.jglrxavpok.moarboats.modules.BoatModule
-import org.jglrxavpok.moarboats.modules.BoatModuleRegistry
-import org.jglrxavpok.moarboats.modules.IBoatModuleInventory
+import org.jglrxavpok.moarboats.api.BoatModule
+import org.jglrxavpok.moarboats.api.BoatModuleRegistry
+import org.jglrxavpok.moarboats.api.IBoatModuleInventory
 
 class ModularBoatEntity(world: World): BasicBoatEntity(world) {
 

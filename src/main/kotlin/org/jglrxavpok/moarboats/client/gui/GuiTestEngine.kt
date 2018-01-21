@@ -1,20 +1,14 @@
 package org.jglrxavpok.moarboats.client.gui
 
-import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.client.renderer.Tessellator
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.entity.player.InventoryPlayer
-import net.minecraft.inventory.IInventory
-import net.minecraft.tileentity.TileEntityFurnace
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.TextComponentTranslation
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.containers.ContainerTestEngine
 import org.jglrxavpok.moarboats.common.modules.EngineTest
-import org.jglrxavpok.moarboats.modules.BoatModule
-import org.jglrxavpok.moarboats.modules.IControllable
-import org.lwjgl.opengl.GL11
+import org.jglrxavpok.moarboats.api.BoatModule
+import org.jglrxavpok.moarboats.api.IControllable
 
 class GuiTestEngine(playerInventory: InventoryPlayer, engine: BoatModule, boat: IControllable):
         GuiModuleBase(engine, boat, playerInventory, ContainerTestEngine(playerInventory, engine, boat)) {
