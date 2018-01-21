@@ -99,9 +99,10 @@ object EngineTest: BoatModule() {
 
     fun getFuelTime(fuelItem: Item): Int {
         return when(fuelItem) {
-            Items.COAL -> 20*5// FIXME 60*3*SECONDS_TO_TICKS
+            Items.COAL -> 60*3*SECONDS_TO_TICKS
             Items.LAVA_BUCKET -> 60*15*SECONDS_TO_TICKS
             Item.getItemFromBlock(Blocks.MAGMA) -> 60*30*SECONDS_TO_TICKS
+            Item.getItemFromBlock(Blocks.COAL_BLOCK) -> 30*30*SECONDS_TO_TICKS
             else -> 0
         }
     }
