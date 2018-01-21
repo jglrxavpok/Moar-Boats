@@ -20,7 +20,7 @@ import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 object BaseBoatItem: Item() {
 
     init {
-        creativeTab = CreativeTabs.TRANSPORTATION
+        creativeTab = MoarBoats.CreativeTab
         unlocalizedName = "modular_boat"
         registryName = ResourceLocation(MoarBoats.ModID, "modular_boat")
     }

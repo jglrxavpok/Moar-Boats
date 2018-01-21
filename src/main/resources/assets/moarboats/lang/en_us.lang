@@ -8,3 +8,4 @@ item.rope.frontOccupied=Front already occupied
 item.helm.name=Boat helm
 gui.engine.remainingCurrent=Remaining on current item
 gui.engine.estimatedTime=Estimated running time
+itemGroup.moarboats=Moar boats

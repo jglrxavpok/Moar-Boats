@@ -24,7 +24,7 @@ object RopeItem : Item() {
     }
 
     init {
-        creativeTab = CreativeTabs.TRANSPORTATION
+        creativeTab = MoarBoats.CreativeTab
         unlocalizedName = "rope"
         registryName = ResourceLocation(MoarBoats.ModID, "rope")
         maxStackSize = 1

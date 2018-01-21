@@ -1,0 +1,23 @@
+{
+  "parent": "moarboats:root",
+  "rewards": {
+    "recipes": [
+      "moarboats:modular_boat",
+      "moarboats:helm",
+      "moarboats:rope"
+    ]
+  },
+  "criteria": {
+    "has_the_boat_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "boat"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_the_boat_recipe"
+    ]
+  ]
+}

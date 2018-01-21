@@ -10,30 +10,24 @@
       "item": "minecraft:stick"
     },
     "|": [
-        {
-          "item": "minecraft:fence",
-          "data": 0
-        },
-        {
-          "item": "minecraft:fence",
-          "data": 1
-        },
-        {
-          "item": "minecraft:fence",
-          "data": 2
-        },
-        {
-          "item": "minecraft:fence",
-          "data": 3
-        },
-        {
-          "item": "minecraft:fence",
-          "data": 4
-        },
-        {
-          "item": "minecraft:fence",
-          "data": 5
-        }
+      {
+        "item": "minecraft:acacia_fence"
+      },
+      {
+        "item": "minecraft:birch_fence"
+      },
+      {
+        "item": "minecraft:dark_oak_fence"
+      },
+      {
+        "item": "minecraft:jungle_fence"
+      },
+      {
+        "item": "minecraft:spruce_fence"
+      },
+      {
+        "item": "minecraft:fence"
+      }
     ],
     "B": [
       {
