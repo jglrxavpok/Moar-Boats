@@ -15,12 +15,12 @@ abstract class BoatModule {
 
     abstract val id: ResourceLocation
     abstract val usesInventory: Boolean
-    abstract val moduleType: Type
+    abstract val moduleSpot: Spot
     abstract fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean): Boolean
     abstract fun controlBoat(from: IControllable)
     abstract fun update(from: IControllable)
     abstract fun onAddition(to: IControllable)
-    abstract fun createContainer(player: EntityPlayer, boat: IControllable): Container
+    abstract fun createContainer(player: EntityPlayer, boat: IControllable): Container?
 
     /**
      * Priority for using a hopper: the higher, the strongest priority. Use 0 to disallow hopper interactions
@@ -41,9 +41,10 @@ abstract class BoatModule {
     protected fun IControllable.getState() = this.getState(this@BoatModule)
     protected fun IControllable.getInventory() = this.getInventory(this@BoatModule)
 
-    enum class Type {
+    enum class Spot {
         Engine,
         Storage,
+        Navigation,
         Misc
     }
 
@@ -56,7 +57,7 @@ object BoatModuleRegistry {
 
     private val backingMap = hashMapOf<ResourceLocation, BoatModuleEntry>()
 
-    fun registerModule(name: ResourceLocation, correspondingItem: Item, module: BoatModule, inventoryFactory: ((IControllable, BoatModule) -> IBoatModuleInventory)?) {
+    fun registerModule(name: ResourceLocation, correspondingItem: Item, module: BoatModule, inventoryFactory: ((IControllable, BoatModule) -> IBoatModuleInventory)? = null) {
         backingMap[name] = BoatModuleEntry(correspondingItem, module, inventoryFactory)
         if(module.usesInventory && inventoryFactory == null)
             error("Module $module uses an inventory but no inventory factory was provided!")

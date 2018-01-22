@@ -19,7 +19,7 @@ object ChestModule: BoatModule() {
     override val id = ResourceLocation(MoarBoats.ModID, "chest")
 
     override val usesInventory = true
-    override val moduleType = Type.Storage
+    override val moduleSpot = Spot.Storage
     override val hopperPriority = 20
 
     @SideOnly(Side.CLIENT)

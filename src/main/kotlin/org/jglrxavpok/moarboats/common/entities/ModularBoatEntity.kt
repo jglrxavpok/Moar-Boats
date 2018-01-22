@@ -96,7 +96,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
         val heldItem = player.getHeldItem(hand)
         val module = BoatModuleRegistry.findModule(heldItem)
         if(module != null) {
-            if(module !in moduleLocations) {
+            if(module !in moduleLocations && canFitModule(module)) {
                 if(!player.capabilities.isCreativeMode) {
                     heldItem.shrink(1)
                     if (heldItem.isEmpty) {
@@ -115,6 +115,12 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
             }
         }
         return true
+    }
+
+    private fun canFitModule(module: ResourceLocation): Boolean {
+        val correspondingModule = BoatModuleRegistry[module].module
+        val usedSpots = moduleLocations.map { BoatModuleRegistry[it].module.moduleSpot }
+        return correspondingModule.moduleSpot !in usedSpots
     }
 
     override fun writeEntityToNBT(compound: NBTTagCompound) {
@@ -159,7 +165,6 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
         val state = moduleData.getCompoundTag(key)
         if(!moduleData.hasKey(key)) {
             moduleData.setTag(key, state)
-            println("created state for $module")
             updateModuleData()
         }
         return state

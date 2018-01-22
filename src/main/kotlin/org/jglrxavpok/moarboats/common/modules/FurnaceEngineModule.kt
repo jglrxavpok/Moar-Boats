@@ -34,7 +34,7 @@ object FurnaceEngineModule : BoatModule() {
 
     override val id = ResourceLocation("moarboats:furnace_engine")
     override val usesInventory = true
-    override val moduleType = Type.Engine
+    override val moduleSpot = Spot.Engine
     override val hopperPriority = 10
 
     const val SECONDS_TO_TICKS = 20

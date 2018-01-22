@@ -29,6 +29,7 @@ import org.jglrxavpok.moarboats.common.modules.inventories.ChestModuleInventory
 import org.jglrxavpok.moarboats.common.modules.inventories.EngineModuleInventory
 import org.jglrxavpok.moarboats.common.modules.inventories.SimpleModuleInventory
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
+import org.jglrxavpok.moarboats.common.modules.SonarModule
 
 
 @Mod(modLanguageAdapter = "net.shadowfacts.forgelin.KotlinAdapter", modid = MoarBoats.ModID, dependencies = "required-after:forgelin;",
@@ -55,6 +56,7 @@ object MoarBoats {
         BoatModuleRegistry.registerModule(ResourceLocation("moarboats:furnace_engine"), Item.getItemFromBlock(MCBlocks.FURNACE), FurnaceEngineModule, { boat, module -> EngineModuleInventory(boat, module) })
         BoatModuleRegistry.registerModule(ResourceLocation("moarboats:chest"), Item.getItemFromBlock(MCBlocks.CHEST), ChestModule, { boat, module -> ChestModuleInventory(boat, module) })
         BoatModuleRegistry.registerModule(ResourceLocation("moarboats:helm"), HelmItem, HelmModule, { boat, module -> SimpleModuleInventory(1, "helm", boat, module) })
+        BoatModuleRegistry.registerModule(ResourceLocation("moarboats:sonar"), Item.getItemFromBlock(MCBlocks.NOTEBLOCK), SonarModule)
         MinecraftForge.EVENT_BUS.register(this)
         logger = event.modLog
         proxy.preInit()
