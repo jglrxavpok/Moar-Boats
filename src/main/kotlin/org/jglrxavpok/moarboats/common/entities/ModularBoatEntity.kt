@@ -1,7 +1,9 @@
 package org.jglrxavpok.moarboats.common.entities
 
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.InventoryHelper
+import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
 import net.minecraft.network.datasync.DataSerializers
@@ -21,7 +23,7 @@ import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.api.IBoatModuleInventory
 
-class ModularBoatEntity(world: World): BasicBoatEntity(world) {
+class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
 
     private companion object {
         val MODULE_LOCATIONS = EntityDataManager.createKey(ModularBoatEntity::class.java, ResourceLocationsSerializer)
@@ -197,4 +199,94 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world) {
             it.dropItemsOnDeath(this, killedByPlayerInCreative)
         }
     }
+
+
+    // === START OF INVENTORY CODE FOR INTERACTIONS WITH HOPPERS === //
+
+    private fun indexToInventory(index: Int): IBoatModuleInventory? {
+        var slotCount = 0
+        val sortedModules = modules.filterNot { !it.usesInventory || it.hopperPriority == 0 }.sortedBy { -it.hopperPriority /* reverse list */ }
+        for(m in sortedModules) {
+            val inv = getInventory(m)
+            slotCount += inv.sizeInventory
+            if(slotCount > index)
+                return inv
+        }
+        return null
+    }
+
+    private fun globalIndexToLocalIndex(index: Int): Int {
+        var slotCount = 0
+        val sortedModules = modules.filterNot { !it.usesInventory || it.hopperPriority == 0 }.sortedBy { -it.hopperPriority /* reverse list */ }
+        for(m in sortedModules) {
+            val inv = getInventory(m)
+            slotCount += inv.sizeInventory
+            if(slotCount > index) {
+                return index - slotCount + inv.sizeInventory
+            }
+        }
+        return -1
+    }
+
+    override fun getField(id: Int) = -1
+    override fun markDirty() { }
+
+    override fun getStackInSlot(index: Int): ItemStack {
+        return indexToInventory(index)?.let { inv ->
+            val i = globalIndexToLocalIndex(index)
+            inv.getStackInSlot(i)
+        } ?: ItemStack.EMPTY
+    }
+
+    override fun decrStackSize(index: Int, count: Int): ItemStack {
+        return indexToInventory(index)?.let { inv ->
+            val i = globalIndexToLocalIndex(index)
+            inv.decrStackSize(i, count)
+        } ?: ItemStack.EMPTY
+    }
+
+    override fun clear() { }
+
+    override fun getSizeInventory(): Int {
+        return modules.sumBy { if(it.usesInventory) getInventory(it).sizeInventory else 0 }
+    }
+
+    override fun isEmpty(): Boolean {
+        return modules.all { !it.usesInventory || getInventory(it).isEmpty }
+    }
+
+    override fun isItemValidForSlot(index: Int, stack: ItemStack): Boolean {
+        return indexToInventory(index)?.let { inv ->
+            val i = globalIndexToLocalIndex(index)
+            inv.isItemValidForSlot(i, stack)
+        } ?: false
+    }
+
+    override fun getInventoryStackLimit() = 64
+
+    override fun isUsableByPlayer(player: EntityPlayer?): Boolean {
+        return false
+    }
+
+    override fun openInventory(player: EntityPlayer?) { }
+
+    override fun setField(id: Int, value: Int) { }
+
+    override fun closeInventory(player: EntityPlayer?) { }
+
+    override fun setInventorySlotContents(index: Int, stack: ItemStack) {
+        return indexToInventory(index)?.let { inv ->
+            val i = globalIndexToLocalIndex(index)
+            inv.setInventorySlotContents(i, stack)
+        } ?: Unit
+    }
+
+    override fun removeStackFromSlot(index: Int): ItemStack {
+        return indexToInventory(index)?.let { inv ->
+            val i = globalIndexToLocalIndex(index)
+            inv.removeStackFromSlot(i)
+        } ?: ItemStack.EMPTY
+    }
+
+    override fun getFieldCount() = 0
 }

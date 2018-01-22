@@ -23,6 +23,7 @@ object HelmModule: BoatModule() {
     override val id: ResourceLocation = ResourceLocation(MoarBoats.ModID, "helm")
     override val usesInventory = true
     override val moduleType = Type.Misc
+    override val hopperPriority = 0
 
     private val Epsilon = 0.1
     val MaxDistanceToWaypoint = 1.5

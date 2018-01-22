@@ -35,13 +35,14 @@ object FurnaceEngineModule : BoatModule() {
     override val id = ResourceLocation("moarboats:furnace_engine")
     override val usesInventory = true
     override val moduleType = Type.Engine
+    override val hopperPriority = 10
 
     const val SECONDS_TO_TICKS = 20
 
     // State names
     const val STATIONARY = "stationary"
-    const val FUEL_TOTAL_TIME = "stationary"
-    const val FUEL_TIME = "stationary"
+    const val FUEL_TOTAL_TIME = "fuelTotalTime"
+    const val FUEL_TIME = "fuelTime"
 
     override fun onAddition(to: IControllable) {
         val state = to.getState()

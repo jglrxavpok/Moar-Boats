@@ -20,6 +20,7 @@ object ChestModule: BoatModule() {
 
     override val usesInventory = true
     override val moduleType = Type.Storage
+    override val hopperPriority = 20
 
     @SideOnly(Side.CLIENT)
     override fun createGui(player: EntityPlayer, boat: IControllable): GuiScreen {
