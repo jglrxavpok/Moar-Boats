@@ -38,13 +38,12 @@ object HelmModuleRenderer : BoatModuleRenderer() {
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, renderManager: RenderManager) {
         module as HelmModule
         GlStateManager.pushMatrix()
-        //GlStateManager.scale(0.75f, 0.75f, 0.75f)
         GlStateManager.scale(-1f, -1f, 1f)
         GlStateManager.translate(0.2f, -0f/16f, 0.0f)
         renderManager.renderEngine.bindTexture(texture)
         val moduleState = boat.getState(module)
 
-        val frameAngle = moduleState.getFloat("rotationAngle").toRadians()
+        val frameAngle = moduleState.getFloat(HelmModule.ROTATION_ANGLE).toRadians()
         rotate(frameAngle, model.frameCenter, model.left, model.radiusLeft, model.right, model.radiusRight, model.top, model.radiusTop, model.bottom, model.radiusBottom)
         model.render(boat, 0f, 0f, 0f, 0f, 0f, 0.0625f)
         rotate(-frameAngle, model.frameCenter, model.left, model.radiusLeft, model.right, model.radiusRight, model.top, model.radiusTop, model.bottom, model.radiusBottom)
@@ -119,7 +118,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         GlStateManager.popMatrix()
 
         // render waypoints and path
-        val waypointsData = moduleState.getTagList("waypoints", Constants.NBT.TAG_COMPOUND)
+        val waypointsData = moduleState.getTagList(HelmModule.WAYPOINTS, Constants.NBT.TAG_COMPOUND)
 
         var hasPrevious = false
         var previousX = 0.0

@@ -38,11 +38,16 @@ object FurnaceEngineModule : BoatModule() {
 
     const val SECONDS_TO_TICKS = 20
 
+    // State names
+    const val STATIONARY = "stationary"
+    const val FUEL_TOTAL_TIME = "stationary"
+    const val FUEL_TIME = "stationary"
+
     override fun onAddition(to: IControllable) {
         val state = to.getState()
-        state.setInteger("fuelTotalTime", 0)
-        state.setInteger("fuelTime", 0)
-        state.setBoolean("stationary", false)
+        state.setInteger(FUEL_TOTAL_TIME, 0)
+        state.setInteger(FUEL_TIME, 0)
+        state.setBoolean(STATIONARY, false)
         to.saveState()
     }
 
@@ -56,12 +61,12 @@ object FurnaceEngineModule : BoatModule() {
         }
     }
 
-    fun isStationary(from: IControllable) = from.getState().getBoolean("stationary")
+    fun isStationary(from: IControllable) = from.getState().getBoolean(STATIONARY)
 
     fun hasFuel(from: IControllable): Boolean {
         val state = from.getState()
-        val fuelTime = state.getInteger("fuelTime")
-        val fuelTotalTime = state.getInteger("fuelTotalTime")
+        val fuelTime = state.getInteger(FUEL_TIME)
+        val fuelTotalTime = state.getInteger(FUEL_TOTAL_TIME)
         return fuelTime < fuelTotalTime
     }
 
@@ -72,10 +77,10 @@ object FurnaceEngineModule : BoatModule() {
     }
 
     private fun updateFuelState(boat: IControllable, state: NBTTagCompound, inv: IInventory) {
-        val fuelTime = state.getInteger("fuelTime")
-        val fuelTotalTime = state.getInteger("fuelTotalTime")
+        val fuelTime = state.getInteger(FUEL_TIME)
+        val fuelTotalTime = state.getInteger(FUEL_TOTAL_TIME)
         if(fuelTime < fuelTotalTime) {
-            state.setInteger("fuelTime", fuelTime+1)
+            state.setInteger(FUEL_TIME, fuelTime+1)
         } else {
             val stack = inv.getStackInSlot(0)
             val fuelItem = stack.item
@@ -85,8 +90,8 @@ object FurnaceEngineModule : BoatModule() {
                     inv.setInventorySlotContents(0, ItemStack(Items.BUCKET))
                 else
                     inv.decrStackSize(0, 1)
-                state.setInteger("fuelTime", 0)
-                state.setInteger("fuelTotalTime", itemFuelTime)
+                state.setInteger(FUEL_TIME, 0)
+                state.setInteger(FUEL_TOTAL_TIME, itemFuelTime)
             }
         }
 
@@ -117,8 +122,8 @@ object FurnaceEngineModule : BoatModule() {
 
     fun changeStationaryState(boat: IControllable) {
         val state = boat.getState()
-        val isStationary = state.getBoolean("stationary")
-        state.setBoolean("stationary", !isStationary)
+        val isStationary = state.getBoolean(STATIONARY)
+        state.setBoolean(STATIONARY, !isStationary)
         boat.saveState()
     }
 

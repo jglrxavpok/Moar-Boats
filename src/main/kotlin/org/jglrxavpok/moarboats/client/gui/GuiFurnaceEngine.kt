@@ -32,7 +32,7 @@ class GuiFurnaceEngine(playerInventory: InventoryPlayer, engine: BoatModule, boa
 
     override fun updateScreen() {
         super.updateScreen()
-        lockInPlaceButton.isLocked = boat.getState(module).getBoolean("stationary")
+        lockInPlaceButton.isLocked = boat.getState(module).getBoolean(FurnaceEngineModule.STATIONARY)
     }
 
     override fun actionPerformed(button: GuiButton) {
@@ -54,8 +54,8 @@ class GuiFurnaceEngine(playerInventory: InventoryPlayer, engine: BoatModule, boa
 
     override fun drawModuleForeground(mouseX: Int, mouseY: Int) {
         val state = boat.getState(module)
-        val currentFuel = state.getInteger("fuelTime")
-        val totalFuel = state.getInteger("fuelTotalTime")
+        val currentFuel = state.getInteger(FurnaceEngineModule.FUEL_TIME)
+        val totalFuel = state.getInteger(FurnaceEngineModule.FUEL_TOTAL_TIME)
         val remaining = if(totalFuel == 0) 0f else 1f - currentFuel / totalFuel.toFloat()
         val currentStack = inventorySlots.getSlot(0).stack
         val estimatedTotalTicks = (totalFuel - currentFuel) + currentStack.count * FurnaceEngineModule.getFuelTime(currentStack.item)

@@ -28,6 +28,13 @@ object HelmModule: BoatModule() {
     val MaxDistanceToWaypoint = 1.5
     val MaxDistanceToWaypointSquared = MaxDistanceToWaypoint*MaxDistanceToWaypoint
 
+    // State names
+    const val WAYPOINTS = "waypoints"
+    const val CURRENT_WAYPOINT = "currentWaypoint"
+    const val ROTATION_ANGLE = "rotationAngle"
+    const val CENTER_X = "xCenter"
+    const val CENTER_Z = "zCenter"
+
     override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean): Boolean {
         return false
     }
@@ -45,9 +52,9 @@ object HelmModule: BoatModule() {
 
     override fun controlBoat(from: IControllable) {
         val state = from.getState()
-        val waypoints = state.getTagList("waypoints", Constants.NBT.TAG_COMPOUND)
+        val waypoints = state.getTagList(WAYPOINTS, Constants.NBT.TAG_COMPOUND)
         if(waypoints.tagCount() != 0) {
-            val currentWaypoint = state.getInteger("currentWaypoint")
+            val currentWaypoint = state.getInteger(CURRENT_WAYPOINT)
             val current = waypoints[currentWaypoint] as NBTTagCompound
             val nextX = current.getInteger("x")
             val nextZ = current.getInteger("z")
@@ -60,7 +67,7 @@ object HelmModule: BoatModule() {
             } else if(MathHelper.wrapDegrees(targetAngle - yaw) < -Epsilon) {
                 from.turnLeft()
             }
-            state.setFloat("rotationAngle", MathHelper.wrapDegrees(targetAngle-yaw).toFloat())
+            state.setFloat(ROTATION_ANGLE, MathHelper.wrapDegrees(targetAngle-yaw).toFloat())
         }
         from.saveState()
     }
@@ -71,9 +78,9 @@ object HelmModule: BoatModule() {
         val item = stack.item
         var hasMap = false
         val state = from.getState()
-        val waypoints = state.getTagList("waypoints", Constants.NBT.TAG_COMPOUND)
+        val waypoints = state.getTagList(WAYPOINTS, Constants.NBT.TAG_COMPOUND)
         if(waypoints.tagCount() != 0) {
-            val currentWaypoint = state.getInteger("currentWaypoint")
+            val currentWaypoint = state.getInteger(CURRENT_WAYPOINT)
             val nextWaypoint = (currentWaypoint+1) % waypoints.tagCount() // FIXME: add a way to choose if loops or not
             val current = waypoints[currentWaypoint] as NBTTagCompound
             val currentX = current.getInteger("x")
@@ -81,7 +88,7 @@ object HelmModule: BoatModule() {
             val dx = currentX - from.positionX
             val dz = currentZ - from.positionZ
             if(dx*dx+dz*dz < MaxDistanceToWaypointSquared) {
-                state.setInteger("currentWaypoint", nextWaypoint)
+                state.setInteger(CURRENT_WAYPOINT, nextWaypoint)
             }
         }
         if (!from.worldRef.isRemote) {
@@ -89,13 +96,13 @@ object HelmModule: BoatModule() {
                 item.onUpdate(stack, from.worldRef, from.correspondingEntity, 0, false)
                 val mapdata = item.getMapData(stack, from.worldRef)
                 if (mapdata != null) {
-                    state.setInteger("xCenter", mapdata.xCenter)
-                    state.setInteger("zCenter", mapdata.zCenter)
+                    state.setInteger(CENTER_X, mapdata.xCenter)
+                    state.setInteger(CENTER_Z, mapdata.zCenter)
                     hasMap = true
                 }
             }
             if(!hasMap) {
-                state.setTag("waypoints", NBTTagList()) // reset waypoints
+                state.setTag(WAYPOINTS, NBTTagList()) // reset waypoints
             }
         }
         from.saveState()
@@ -109,9 +116,9 @@ object HelmModule: BoatModule() {
     override fun onAddition(to: IControllable) {
         if(!to.worldRef.isRemote) {
             val state = to.getState()
-            state.setInteger("xCenter", 0)
-            state.setInteger("zCenter", 0)
-            state.setTag("waypoints", NBTTagList())
+            state.setInteger(CENTER_X, 0)
+            state.setInteger(CENTER_Z, 0)
+            state.setTag(WAYPOINTS, NBTTagList())
             to.saveState()
         }
     }
@@ -126,14 +133,14 @@ object HelmModule: BoatModule() {
 
     fun addWaypoint(boat: IControllable, blockX: Int, blockZ: Int, renderX: Int, renderZ: Int) {
         val state = boat.getState()
-        val waypointsData = state.getTagList("waypoints", Constants.NBT.TAG_COMPOUND)
+        val waypointsData = state.getTagList(WAYPOINTS, Constants.NBT.TAG_COMPOUND)
         val waypointNBT = NBTTagCompound()
         waypointNBT.setInteger("x", blockX)
         waypointNBT.setInteger("z", blockZ)
         waypointNBT.setInteger("renderX", renderX)
         waypointNBT.setInteger("renderZ", renderZ)
         waypointsData.appendTag(waypointNBT)
-        state.setTag("waypoints", waypointsData)
+        state.setTag(WAYPOINTS, waypointsData)
         boat.saveState()
     }
 
