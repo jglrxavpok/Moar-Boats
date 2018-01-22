@@ -23,7 +23,7 @@ import org.jglrxavpok.moarboats.common.*
 import org.jglrxavpok.moarboats.common.items.BaseBoatItem
 import org.jglrxavpok.moarboats.common.items.HelmItem
 import org.jglrxavpok.moarboats.common.modules.ChestModule
-import org.jglrxavpok.moarboats.common.modules.EngineTest
+import org.jglrxavpok.moarboats.common.modules.FurnaceEngineModule
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 import org.jglrxavpok.moarboats.common.modules.inventories.ChestModuleInventory
 import org.jglrxavpok.moarboats.common.modules.inventories.EngineModuleInventory
@@ -32,7 +32,7 @@ import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 
 
 @Mod(modLanguageAdapter = "net.shadowfacts.forgelin.KotlinAdapter", modid = MoarBoats.ModID, dependencies = "required-after:forgelin;",
-        name = "Moar Boats", version = "1.0-indev")
+        name = "Moar Boats", version = "pre-1.1.0")
 object MoarBoats {
     const val ModID = "moarboats"
 
@@ -52,7 +52,7 @@ object MoarBoats {
 
     @Mod.EventHandler
     fun preInit(event: FMLPreInitializationEvent) {
-        BoatModuleRegistry.registerModule(ResourceLocation("moarboats:furnace_engine"), Item.getItemFromBlock(MCBlocks.FURNACE), EngineTest, { boat, module -> EngineModuleInventory(boat, module) })
+        BoatModuleRegistry.registerModule(ResourceLocation("moarboats:furnace_engine"), Item.getItemFromBlock(MCBlocks.FURNACE), FurnaceEngineModule, { boat, module -> EngineModuleInventory(boat, module) })
         BoatModuleRegistry.registerModule(ResourceLocation("moarboats:chest"), Item.getItemFromBlock(MCBlocks.CHEST), ChestModule, { boat, module -> ChestModuleInventory(boat, module) })
         BoatModuleRegistry.registerModule(ResourceLocation("moarboats:helm"), HelmItem, HelmModule, { boat, module -> SimpleModuleInventory(1, "helm", boat, module) })
         MinecraftForge.EVENT_BUS.register(this)

@@ -2,6 +2,7 @@ package org.jglrxavpok.moarboats.common.containers
 
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.player.InventoryPlayer
+import net.minecraft.init.Items
 import net.minecraft.inventory.*
 import net.minecraft.item.ItemStack
 import net.minecraft.tileentity.TileEntityFurnace
@@ -9,15 +10,16 @@ import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
+import org.jglrxavpok.moarboats.common.modules.FurnaceEngineModule
 
-class ContainerTestEngine(val playerInventory: InventoryPlayer, val engine: BoatModule, val boat: IControllable): Container() {
+class ContainerFurnaceEngine(val playerInventory: InventoryPlayer, val engine: BoatModule, val boat: IControllable): Container() {
 
     val engineInventory = boat.getInventory(engine)
     private var fuelTime = engineInventory.getField(0)
     private var fuelTotalTime = engineInventory.getField(1)
 
     init {
-        this.addSlotToContainer(SlotFurnaceFuel(engineInventory, 0, 8, 8))
+        this.addSlotToContainer(SlotEngineFuel(engineInventory, 0, 8, 8))
 
         addPlayerSlots()
     }
@@ -74,7 +76,7 @@ class ContainerTestEngine(val playerInventory: InventoryPlayer, val engine: Boat
             itemstack = itemstack1.copy()
 
             if (index != 0) {
-                if (TileEntityFurnace.isItemFuel(itemstack1)) {
+                if (FurnaceEngineModule.isItemFuel(itemstack1)) {
                     if (!this.mergeItemStack(itemstack1, 0, 1, false)) {
                         return ItemStack.EMPTY
                     }
@@ -103,5 +105,21 @@ class ContainerTestEngine(val playerInventory: InventoryPlayer, val engine: Boat
         }
 
         return itemstack
+    }
+
+
+    class SlotEngineFuel(inventoryIn: IInventory, slotIndex: Int, xPosition: Int, yPosition: Int) : Slot(inventoryIn, slotIndex, xPosition, yPosition) {
+
+        override fun isItemValid(stack: ItemStack): Boolean {
+            return FurnaceEngineModule.isItemFuel(stack) || isBucket(stack)
+        }
+
+        override fun getItemStackLimit(stack: ItemStack): Int {
+            return if (isBucket(stack)) 1 else super.getItemStackLimit(stack)
+        }
+
+        fun isBucket(stack: ItemStack): Boolean {
+            return stack.item === Items.BUCKET
+        }
     }
 }

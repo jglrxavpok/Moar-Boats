@@ -6,17 +6,17 @@ import net.minecraft.client.renderer.entity.RenderManager
 import net.minecraft.client.renderer.texture.TextureMap
 import net.minecraft.init.Blocks
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
-import org.jglrxavpok.moarboats.common.modules.EngineTest
+import org.jglrxavpok.moarboats.common.modules.FurnaceEngineModule
 import org.jglrxavpok.moarboats.api.BoatModule
 
-object EngineTestRenderer: BoatModuleRenderer() {
+object FurnaceEngineRenderer: BoatModuleRenderer() {
 
     init {
-        registryName = EngineTest.id
+        registryName = FurnaceEngineModule.id
     }
 
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, renderManager: RenderManager) {
-        module as EngineTest
+        module as FurnaceEngineModule
         GlStateManager.pushMatrix()
         GlStateManager.scale(0.75f, 0.75f, 0.75f)
         GlStateManager.translate(0.15f, -4f/16f, 0.5f)

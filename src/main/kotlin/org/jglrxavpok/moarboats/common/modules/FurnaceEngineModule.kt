@@ -15,21 +15,21 @@ import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
-import org.jglrxavpok.moarboats.client.gui.GuiTestEngine
-import org.jglrxavpok.moarboats.common.containers.ContainerTestEngine
+import org.jglrxavpok.moarboats.client.gui.GuiFurnaceEngine
+import org.jglrxavpok.moarboats.common.containers.ContainerFurnaceEngine
 import org.jglrxavpok.moarboats.extensions.toRadians
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 
-object EngineTest: BoatModule() {
+object FurnaceEngineModule : BoatModule() {
 
     @SideOnly(Side.CLIENT)
     override fun createGui(player: EntityPlayer, boat: IControllable): GuiScreen {
-        return GuiTestEngine(player.inventory, this, boat)
+        return GuiFurnaceEngine(player.inventory, this, boat)
     }
 
     override fun createContainer(player: EntityPlayer, boat: IControllable): Container {
-        return ContainerTestEngine(player.inventory, this, boat)
+        return ContainerFurnaceEngine(player.inventory, this, boat)
     }
 
     override val id = ResourceLocation("moarboats:furnace_engine")
@@ -42,6 +42,7 @@ object EngineTest: BoatModule() {
         val state = to.getState()
         state.setInteger("fuelTotalTime", 0)
         state.setInteger("fuelTime", 0)
+        state.setBoolean("stationary", false)
         to.saveState()
     }
 
@@ -50,10 +51,12 @@ object EngineTest: BoatModule() {
     }
 
     override fun controlBoat(from: IControllable) {
-        if(hasFuel(from)) {
+        if(hasFuel(from) && !isStationary(from)) {
             from.accelerate()
         }
     }
+
+    fun isStationary(from: IControllable) = from.getState().getBoolean("stationary")
 
     fun hasFuel(from: IControllable): Boolean {
         val state = from.getState()
@@ -77,15 +80,14 @@ object EngineTest: BoatModule() {
             val stack = inv.getStackInSlot(0)
             val fuelItem = stack.item
             val itemFuelTime = getFuelTime(fuelItem)
-            if (itemFuelTime > 0) {
-                println("using fuel!")
+            if (itemFuelTime > 0 && !isStationary(boat)) { // don't consume a new item if you are not moving
                 if(fuelItem == Items.LAVA_BUCKET)
                     inv.setInventorySlotContents(0, ItemStack(Items.BUCKET))
                 else
                     inv.decrStackSize(0, 1)
+                state.setInteger("fuelTime", 0)
+                state.setInteger("fuelTotalTime", itemFuelTime)
             }
-            state.setInteger("fuelTime", 0)
-            state.setInteger("fuelTotalTime", itemFuelTime)
         }
 
         if(hasFuel(boat) && rng.nextInt(4) == 0) {
@@ -99,6 +101,7 @@ object EngineTest: BoatModule() {
 
     fun getFuelTime(fuelItem: Item): Int {
         return when(fuelItem) {
+            Item.getItemFromBlock(Blocks.TORCH) -> 1*SECONDS_TO_TICKS
             Items.COAL -> 60*3*SECONDS_TO_TICKS
             Items.LAVA_BUCKET -> 60*15*SECONDS_TO_TICKS
             Item.getItemFromBlock(Blocks.MAGMA) -> 60*30*SECONDS_TO_TICKS
@@ -111,4 +114,13 @@ object EngineTest: BoatModule() {
         if(!killedByPlayerInCreative)
             boat.correspondingEntity.dropItem(ItemBlock.getItemFromBlock(Blocks.FURNACE), 1)
     }
+
+    fun changeStationaryState(boat: IControllable) {
+        val state = boat.getState()
+        val isStationary = state.getBoolean("stationary")
+        state.setBoolean("stationary", !isStationary)
+        boat.saveState()
+    }
+
+    fun isItemFuel(fuelItem: ItemStack) = getFuelTime(fuelItem.item) > 0
 }

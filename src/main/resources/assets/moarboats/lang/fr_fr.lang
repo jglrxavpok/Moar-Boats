@@ -8,4 +8,5 @@ item.rope.frontOccupied=Avant déjà occupé
 item.helm.name=Barre de navigation
 gui.engine.remainingCurrent=Carburant restant
 gui.engine.estimatedTime=Temps total estimé
+gui.engine.lock=Mode stationnaire
 itemGroup.moarboats=Moar boats

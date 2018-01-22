@@ -8,13 +8,10 @@ import net.minecraftforge.client.model.ModelLoader
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.renders.*
 import org.jglrxavpok.moarboats.common.Items
-import org.jglrxavpok.moarboats.common.items.HelmItem
-import org.jglrxavpok.moarboats.common.items.RopeItem
 import net.minecraftforge.client.event.ModelRegistryEvent
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
-import net.minecraftforge.fml.common.thread.SidedThreadGroups.CLIENT
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 
@@ -23,7 +20,7 @@ class Proxy: MoarBoatsProxy() {
 
     override fun init() {
         super.init()
-        BoatModuleRenderingRegistry.register(EngineTestRenderer)
+        BoatModuleRenderingRegistry.register(FurnaceEngineRenderer)
         BoatModuleRenderingRegistry.register(ChestModuleRenderer)
         BoatModuleRenderingRegistry.register(HelmModuleRenderer)
     }
