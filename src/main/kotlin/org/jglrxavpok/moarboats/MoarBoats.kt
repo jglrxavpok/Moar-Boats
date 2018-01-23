@@ -33,7 +33,7 @@ import org.jglrxavpok.moarboats.common.modules.SonarModule
 
 
 @Mod(modLanguageAdapter = "net.shadowfacts.forgelin.KotlinAdapter", modid = MoarBoats.ModID, dependencies = "required-after:forgelin;",
-        name = "Moar Boats", version = "pre-1.1.0")
+        name = "Moar Boats", version = "1.1.0")
 object MoarBoats {
     const val ModID = "moarboats"
 
