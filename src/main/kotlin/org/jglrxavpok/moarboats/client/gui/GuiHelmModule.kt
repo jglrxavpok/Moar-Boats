@@ -86,8 +86,12 @@ class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: 
         val item = stack.item
         val hasMap = item is ItemMap && item.getMapData(stack, this.mc.world) != null
         if(hasMap && mouseX >= x+margins && mouseX <= x+mapSize-margins && mouseY >= y+margins && mouseY <= y+mapSize-margins) {
-            MoarBoats.network.sendToServer(C1MapClick(pixelX.toInt(), pixelY.toInt(), mapSize-margins*2))
-            mc.soundHandler.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 2.5f))
+            MoarBoats.network.sendToServer(C1MapClick(pixelX.toInt(), pixelY.toInt(), mapSize-margins*2, mouseButton))
+            if(mouseButton == 0) { // left click
+                mc.soundHandler.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 2.5f))
+            } else if(mouseButton == 1) {
+                mc.soundHandler.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 0.5f))
+            }
         } else {
             super.mouseClicked(mouseX, mouseY, mouseButton)
         }

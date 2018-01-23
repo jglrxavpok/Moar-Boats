@@ -149,4 +149,13 @@ object HelmModule: BoatModule() {
         if(!killedByPlayerInCreative)
             boat.correspondingEntity.dropItem(HelmItem, 1)
     }
+
+    fun removeLastWaypoint(boat: IControllable) {
+        val state = boat.getState()
+        val waypointsData = state.getTagList(WAYPOINTS, Constants.NBT.TAG_COMPOUND)
+        if(waypointsData.tagCount() > 0) {
+            waypointsData.removeTag(waypointsData.tagCount()-1)
+            boat.saveState()
+        }
+    }
 }
