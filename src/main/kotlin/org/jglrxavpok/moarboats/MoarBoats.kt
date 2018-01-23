@@ -56,7 +56,7 @@ object MoarBoats {
         BoatModuleRegistry.registerModule(ResourceLocation("moarboats:furnace_engine"), Item.getItemFromBlock(MCBlocks.FURNACE), FurnaceEngineModule, { boat, module -> EngineModuleInventory(boat, module) })
         BoatModuleRegistry.registerModule(ResourceLocation("moarboats:chest"), Item.getItemFromBlock(MCBlocks.CHEST), ChestModule, { boat, module -> ChestModuleInventory(boat, module) })
         BoatModuleRegistry.registerModule(ResourceLocation("moarboats:helm"), HelmItem, HelmModule, { boat, module -> SimpleModuleInventory(1, "helm", boat, module) })
-        // TODO: BoatModuleRegistry.registerModule(ResourceLocation("moarboats:sonar"), Item.getItemFromBlock(MCBlocks.AIR), SonarModule)
+        BoatModuleRegistry.registerModule(ResourceLocation("moarboats:sonar"), Item.getItemFromBlock(MCBlocks.NOTEBLOCK), SonarModule)
         MinecraftForge.EVENT_BUS.register(this)
         logger = event.modLog
         proxy.preInit()
