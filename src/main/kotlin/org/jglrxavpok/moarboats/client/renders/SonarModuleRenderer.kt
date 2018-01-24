@@ -9,6 +9,8 @@ import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.ChestModule
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.common.modules.SonarModule
+import org.jglrxavpok.moarboats.extensions.lookAt
+import org.lwjgl.util.vector.Quaternion
 
 object SonarModuleRenderer : BoatModuleRenderer() {
 
@@ -33,6 +35,19 @@ object SonarModuleRenderer : BoatModuleRenderer() {
                 GlStateManager.popMatrix()
             }
         }
+
+        // TODO: Debug only, remove
+        // render gradient
+        GlStateManager.rotate(-(180.0f - entityYaw - 90f), 0.0f, 1.0f, 0.0f)
+        val lookAtQuat by lazy { Quaternion() }
+        val state = boat.getState(module)
+        lookAtQuat.lookAt(state.getFloat("gradientX").toDouble(), state.getFloat("gradientY").toDouble(), state.getFloat("gradientZ").toDouble())
+        GlStateManager.rotate(lookAtQuat)
+        val length = Math.sqrt((state.getFloat("gradientX")*state.getFloat("gradientX")+state.getFloat("gradientY")*state.getFloat("gradientY")+state.getFloat("gradientZ")*state.getFloat("gradientZ")).toDouble())
+        GlStateManager.scale(1.0, 1.0, length*5)
+        val block = Blocks.COMMAND_BLOCK
+        Minecraft.getMinecraft().blockRendererDispatcher.renderBlockBrightness(block.defaultState, boat.brightness)
+
         GlStateManager.popMatrix()
     }
 }

@@ -1,34 +1,32 @@
 package org.jglrxavpok.moarboats.common.modules
 
+import net.minecraft.block.BlockFalling
+import net.minecraft.block.BlockLiquid
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.inventory.Container
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.AxisAlignedBB
+import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec2f
+import net.minecraft.world.World
+import net.minecraftforge.fluids.BlockFluidBase
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiSonarModule
+import org.jglrxavpok.moarboats.extensions.toDegrees
 import org.jglrxavpok.moarboats.extensions.toRadians
+import org.lwjgl.util.vector.Vector3f
 
 object SonarModule: BoatModule() {
     override val id = ResourceLocation(MoarBoats.ModID, "sonar")
     override val usesInventory = false
     override val moduleSpot = Spot.Navigation
 
-    val SONARS = arrayOf("sonar0", "sonar1", "sonar2", "sonar3")
-    const val FrontLeftSonar = 1
-    const val BackLeftSonar = 0
-    const val FrontRightSonar = 3
-    const val BackRightSonar = 2
-    val SonarPositions = arrayOf(
-            Vec2f(-1.25f/0.75f, -0.625f/0.75f),
-            Vec2f(1.0f/0.75f, -0.625f/0.75f),
-            Vec2f(-1.25f/0.75f, 0.875f/0.75f),
-            Vec2f(1.0f/0.75f, -0.875f/0.75f)
-    )
+    private val Epsilon = 10e-1
 
     override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean): Boolean {
         return false
@@ -36,56 +34,82 @@ object SonarModule: BoatModule() {
 
     override fun controlBoat(from: IControllable) {
         val state = from.getState()
-        for(toTurn in 0..3) {
-            val power = 1f-state.getDouble("distanceToTurn$toTurn").toFloat()
-            if(power.isInfinite())
-                continue
-            when(toTurn) {
-                FrontLeftSonar -> from.turnRight(power)
-                FrontRightSonar -> from.turnLeft(power)
-                BackRightSonar -> from.turnLeft(power*.5f)
-                BackLeftSonar -> from.turnRight(power*.5f)
-            }
+        val gradX = -state.getFloat("gradientX")
+        val gradZ = state.getFloat("gradientZ")
+        val length = gradX*gradX+gradZ*gradZ
+        val destinationX = from.positionX-gradX*length
+        val destinationZ = from.positionZ-gradZ*length
+
+        val steps = 2.0
+        val cos = Math.cos(from.yaw.toDouble().toRadians())
+        val sin = Math.sin(from.yaw.toDouble().toRadians())
+        val pos = BlockPos.PooledMutableBlockPos.retain(from.positionX+cos*steps, from.positionY-0.5, from.positionZ+sin*steps)
+        val blockInFront = from.worldRef.getBlockState(pos).block
+        //println(pos)
+    //    if(blockInFront is BlockLiquid || blockInFront is BlockFluidBase)
+     //       return
+        pos.release()
+        //from.decelerate(1f/length)
+        val dx = from.positionX - destinationX
+        val dz = from.positionZ - destinationZ
+        val targetAngle = Math.atan2(dz, dx).toDegrees() + 90f
+        val yaw = from.yaw
+        if(MathHelper.wrapDegrees(targetAngle - yaw) > Epsilon) {
+            from.turnRight(length/15f)
+        } else if(MathHelper.wrapDegrees(targetAngle - yaw) < -Epsilon) {
+            from.turnLeft(length/15f)
         }
+        //state.setFloat(HelmModule.ROTATION_ANGLE, MathHelper.wrapDegrees(targetAngle-yaw).toFloat())
     }
 
     override fun update(from: IControllable) {
-        val cos = Math.cos(from.yaw.toRadians().toDouble())
-        val sin = Math.sin(from.yaw.toRadians().toDouble())
-        val radius = 0.5f
+        val gradient by lazy { Vector3f() }
         val state = from.getState()
-        state.setInteger("toTurn", -1)
-        var closestDistSq = Float.POSITIVE_INFINITY
-        for(i in 3 downTo 0) {
-            val xOffset = SonarPositions[i].x
-            val zOffset = SonarPositions[i].y
-            val worldX = from.positionX + cos * xOffset
-            val worldY = from.positionY
-            val worldZ = from.positionZ + sin * zOffset
-            val sonarBoundingBox = AxisAlignedBB(worldX-radius, worldY-0.5f, worldZ-radius, worldX+radius, worldY+0.5, worldZ+radius)
-            //val collision = from.worldRef.collidesWithAnyBlock(sonarBoundingBox)
-            val list = from.worldRef.getCollisionBoxes(null, sonarBoundingBox)
-            val smallestDistanceSq = list.map {
-                val c = it.center
-                val dx = c.x-worldX
-                val dy = c.y-worldY
-                val dz = c.z-worldZ
-                dx*dx+dy*dy+dz*dz
-            }.min() ?: Double.POSITIVE_INFINITY
-            /*if(collision) {
-                state.setInteger("toTurn", i)
-                break
-            }*/
-            state.setDouble("distanceToTurn$i", smallestDistanceSq)
-        }
+        computeGradient(from.worldRef, from.positionX, from.positionY, from.positionZ, gradient)
+        state.setFloat("gradientX", gradient.x)
+        state.setFloat("gradientY", gradient.y)
+        state.setFloat("gradientZ", gradient.z)
         from.saveState()
+    }
+
+    private fun computeGradient(world: World, x: Double, y: Double, z: Double, dest: Vector3f) {
+        val radius = 4
+        var blockChecked = 0
+        dest.set(0f, 0f, 0f)
+        for(xOff in -radius..radius) {
+            for (zOff in -radius..radius) {
+                val depth = y-computeHeight(world, xOff, zOff, x, y, z)
+                val dist = Math.sqrt((xOff*xOff+zOff*zOff).toDouble())
+                dest.x += (depth*dist * xOff).toFloat()
+                dest.z += -(depth*dist * zOff).toFloat()
+                blockChecked++
+            }
+        }
+        dest.scale(1f/blockChecked) // average
+    }
+
+    private fun computeHeight(world: World, xOffset: Int, zOffset: Int, x: Double, y: Double, z: Double): Int {
+        val maxDepthToCheck = 0
+        val worldX = x + xOffset
+        val worldZ = z + zOffset
+        val blockPos = BlockPos.PooledMutableBlockPos.retain(worldX, y, worldZ)
+        val startY = blockPos.y
+        for(i in 0..maxDepthToCheck) {
+            blockPos.y = startY-i
+            val blockState = world.getBlockState(blockPos)
+            val block = blockState.block
+            if(block !is BlockLiquid && block !is BlockFluidBase) {
+                break
+            }
+            blockPos.y--
+        }
+        val result = blockPos.y
+        blockPos.release()
+        return result
     }
 
     override fun onAddition(to: IControllable) {
         val state = to.getState()
-        for(key in SONARS) {
-            state.setBoolean(key, false)
-        }
         to.saveState()
     }
 
