@@ -1,14 +1,17 @@
 package org.jglrxavpok.moarboats.client.renders
 
+import net.minecraft.block.BlockLiquid
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.entity.RenderManager
 import net.minecraft.client.renderer.texture.TextureMap
 import net.minecraft.init.Blocks
+import net.minecraft.util.math.BlockPos
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.ChestModule
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.common.modules.SonarModule
+import org.jglrxavpok.moarboats.common.modules.SurroundingsMatrix
 import org.jglrxavpok.moarboats.extensions.lookAt
 import org.jglrxavpok.moarboats.extensions.toRadians
 import org.lwjgl.util.vector.Quaternion
@@ -18,6 +21,8 @@ object SonarModuleRenderer : BoatModuleRenderer() {
     init {
         registryName = SonarModule.id
     }
+
+    private val testMatrix = SurroundingsMatrix(32)
 
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, renderManager: RenderManager) {
         module as SonarModule
@@ -39,21 +44,20 @@ object SonarModuleRenderer : BoatModuleRenderer() {
 
         // TODO: Debug only, remove
         // render gradient
-        val distance = -1.5
-        val length = 8
         GlStateManager.rotate(-(180.0f - entityYaw - 90f), 0.0f, 1.0f, 0.0f)
-        val cos = Math.cos(entityYaw.toRadians().toDouble())
-        val sin = Math.sin(entityYaw.toRadians().toDouble())
-        val offX = cos * distance
-        val offZ = sin * distance
-        for(offset in -length..length) {
-            val worldX = offX - cos * offset
-            val worldZ = offZ - sin * offset
-            GlStateManager.pushMatrix()
-            GlStateManager.translate(worldX, 0.0, worldZ)
-            val block = Blocks.COMMAND_BLOCK
-            Minecraft.getMinecraft().blockRendererDispatcher.renderBlockBrightness(block.defaultState, boat.brightness)
-            GlStateManager.popMatrix()
+        testMatrix.compute(boat.world, boat.positionX, boat.positionY, boat.positionZ).removeNotConnectedToCenter()
+        testMatrix.forEach { xOffset, zOffset, potentialState ->
+            if(potentialState != null) {
+                GlStateManager.pushMatrix()
+                GlStateManager.scale(0.25f, 0.25f, 0.25f)
+                GlStateManager.translate(xOffset.toDouble(), 1.0, zOffset.toDouble())
+                if(potentialState.block is BlockLiquid) {
+                    Minecraft.getMinecraft().blockRendererDispatcher.renderBlockBrightness(Blocks.EMERALD_BLOCK.defaultState, boat.brightness)
+                } else {
+                    Minecraft.getMinecraft().blockRendererDispatcher.renderBlockBrightness(potentialState, boat.brightness)
+                }
+                GlStateManager.popMatrix()
+            }
         }
 
         GlStateManager.popMatrix()

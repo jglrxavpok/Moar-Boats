@@ -29,7 +29,7 @@ object SonarModule: BoatModule() {
     override fun controlBoat(from: IControllable) {
         val state = from.getState()
         val turnPower = state.getInteger("turnAmount")
-        from.turnRight(turnPower * 0.005f*2f)
+       // from.turnRight(turnPower * 0.005f*2f)
     }
 
     override fun update(from: IControllable) {
@@ -55,7 +55,6 @@ object SonarModule: BoatModule() {
             val blockPos = BlockPos.PooledMutableBlockPos.retain(worldX + x, worldY, worldZ + z)
             val blockState = world.getBlockState(blockPos)
             val block = blockState.block
-            println(block)
             val hasBlock = block !is BlockLiquid && block !is BlockFluidBase
             if(hasBlock) {
                 totalTurnAmount += amount * Math.signum(offset.toFloat()).toInt()
