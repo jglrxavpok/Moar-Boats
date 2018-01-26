@@ -88,14 +88,34 @@ class SurroundingsMatrix(val size: Int) {
         return this
     }
 
-    private fun index2posX(index: Int): Int {
+    fun createInteriorCurve() {
+        for(offset in -halfSize until halfSize) {
+            // top
+            createSubCurve(pos2index(offset, -halfSize))
+            // bottom
+            createSubCurve(pos2index(offset, halfSize-1))
+
+            // left
+            createSubCurve(pos2index(-halfSize, offset))
+            // right
+            createSubCurve(pos2index(halfSize-1, offset))
+        }
+    }
+
+    private fun createSubCurve(to: Int) {
+        if(internalMatrix[to] == null) // no exit
+            return
+
+    }
+
+    fun index2posX(index: Int): Int {
         val matrixX = index % size
         if(matrixX % 2 == 0)
             return matrixX/2
         return -(matrixX+1)/2
     }
 
-    private fun index2posZ(index: Int): Int {
+    fun index2posZ(index: Int): Int {
         val matrixZ = index / size
         if(matrixZ % 2 == 0)
             return matrixZ/2
@@ -105,7 +125,7 @@ class SurroundingsMatrix(val size: Int) {
     /**
      * Positive or null 'x' values are mapped to even numbers, negative to odd numbers; same for z
      */
-    private fun pos2index(x: Int, z: Int): Int {
+    fun pos2index(x: Int, z: Int): Int {
         val matrixX = if(x >= 0) {
             x*2
         } else {
@@ -117,5 +137,12 @@ class SurroundingsMatrix(val size: Int) {
             (-z)*2-1
         }
         return matrixX + matrixZ*size
+    }
+
+    operator fun get(x: Int, z: Int): IBlockState? {
+        val index = pos2index(x, z)
+        if(index < 0 || index >= size*size)
+            return null
+        return internalMatrix[index]
     }
 }
