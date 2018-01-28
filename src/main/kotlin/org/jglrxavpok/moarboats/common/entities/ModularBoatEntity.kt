@@ -126,9 +126,10 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
     override fun writeEntityToNBT(compound: NBTTagCompound) {
         super.writeEntityToNBT(compound)
         val list = NBTTagList()
-        for(module in modules) {
+        for(moduleID in moduleLocations) {
             val data = NBTTagCompound()
-            data.setString("moduleID", module.id.toString())
+            val module = BoatModuleRegistry[moduleID].module
+            data.setString("moduleID", moduleID.toString())
             if(module.usesInventory) {
                 saveInventory(data, getInventory(module))
             }
