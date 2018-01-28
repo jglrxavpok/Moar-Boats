@@ -75,6 +75,43 @@ class SurroundingsMatrix(val size: Int) {
         return and(andMatrix)
     }
 
+    fun computeGradient(): FloatArray {
+        val gradient = FloatArray(internalMatrix.size)
+        val requiredState = this[0, 0]
+        forEach { x, z, state ->
+            val index = pos2index(x, z)
+            if(state != requiredState) {
+                gradient[index] = +50f
+            } else {
+                val dist = maximumDistance(x, z, requiredState)
+                gradient[index] = -dist
+            }
+        }
+        return gradient
+    }
+
+    private fun maximumDistance(x: Int, z: Int, state: IBlockState?): Float {
+        var radius = 0
+        while(squareFit(state, radius, x, z)) {
+            radius++
+        }
+        return radius.toFloat()
+    }
+
+    private fun squareFit(state: IBlockState?, radius: Int, x: Int, z: Int): Boolean {
+        for(offset in -radius..radius) {
+            if(this[offset, z-radius] != state)
+                return false
+            if(this[offset, z+radius] != state)
+                return false
+            if(this[x-radius, offset] != state)
+                return false
+            if(this[x+radius, offset] != state)
+                return false
+        }
+        return true
+    }
+
     fun and(matrix: Array<Boolean>): SurroundingsMatrix {
         if(matrix.size != internalMatrix.size)
             error("Wrong matrix size, expected ${internalMatrix.size}, got ${matrix.size}")

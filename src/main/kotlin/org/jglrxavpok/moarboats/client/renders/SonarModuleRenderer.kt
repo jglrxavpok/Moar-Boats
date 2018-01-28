@@ -46,11 +46,13 @@ object SonarModuleRenderer : BoatModuleRenderer() {
         // render gradient
         GlStateManager.rotate(-(180.0f - entityYaw - 90f), 0.0f, 1.0f, 0.0f)
         testMatrix.compute(boat.world, boat.positionX, boat.positionY, boat.positionZ).removeNotConnectedToCenter()
+        val gradient = testMatrix.computeGradient()
         testMatrix.forEach { xOffset, zOffset, potentialState ->
             if(potentialState != null) {
                 GlStateManager.pushMatrix()
                 GlStateManager.scale(0.25f, 0.25f, 0.25f)
                 GlStateManager.translate(xOffset.toDouble(), 1.0, zOffset.toDouble())
+                GlStateManager.scale(1.0, -gradient[testMatrix.pos2index(xOffset, zOffset)].toDouble(), 1.0)
                 if(potentialState.block is BlockLiquid) {
                     Minecraft.getMinecraft().blockRendererDispatcher.renderBlockBrightness(Blocks.EMERALD_BLOCK.defaultState, boat.brightness)
                 } else {
