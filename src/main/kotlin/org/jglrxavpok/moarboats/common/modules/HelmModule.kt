@@ -4,6 +4,7 @@ import net.minecraft.client.gui.GuiScreen
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.inventory.Container
 import net.minecraft.item.ItemMap
+import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
 import net.minecraft.util.EnumHand
@@ -40,8 +41,8 @@ object HelmModule: BoatModule() {
         return false
     }
 
-    override fun onInit(to: IControllable) {
-        super.onInit(to)
+    override fun onInit(to: IControllable, fromItem: ItemStack?) {
+        super.onInit(to, fromItem)
         if(to.worldRef.isRemote) {
             val stack = to.getInventory().getStackInSlot(0)
             if(!stack.isEmpty && stack.item is ItemMap) {

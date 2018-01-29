@@ -26,6 +26,7 @@ class Proxy: MoarBoatsProxy() {
         BoatModuleRenderingRegistry.register(ChestModuleRenderer)
         BoatModuleRenderingRegistry.register(HelmModuleRenderer)
         BoatModuleRenderingRegistry.register(SonarModuleRenderer)
+        BoatModuleRenderingRegistry.register(FishingModuleRenderer)
     }
 
     override fun preInit() {

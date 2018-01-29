@@ -103,7 +103,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
                         player.inventory.deleteStack(heldItem)
                     }
                 }
-                addModule(module)
+                addModule(module, fromItem = heldItem)
                 return true
             }
         }
@@ -185,9 +185,9 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
         this.dataManager.register(MODULE_DATA, NBTTagCompound())
     }
 
-    fun addModule(location: ResourceLocation, addedByNBT: Boolean = false): BoatModule {
+    fun addModule(location: ResourceLocation, addedByNBT: Boolean = false, fromItem: ItemStack? = null): BoatModule {
         val module = BoatModuleRegistry[location].module
-        module.onInit(this)
+        module.onInit(this, fromItem)
         if(!addedByNBT)
             module.onAddition(this)
         moduleLocations.add(location)
