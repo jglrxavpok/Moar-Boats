@@ -22,6 +22,7 @@ import org.jglrxavpok.moarboats.extensions.saveInventory
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.api.IBoatModuleInventory
+import java.util.*
 
 class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
 
@@ -33,8 +34,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
     override val entityID: Int
         get() = this.entityId
 
-    override val rngSeed: Long
-        get() = entityId.toLong()
+    override var moduleRNG = Random()
 
     internal var moduleLocations
         get()= dataManager[MODULE_LOCATIONS]
@@ -153,6 +153,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
             }
             addModule(correspondingLocation, addedByNBT = true)
         }
+        moduleRNG = Random(boatID.leastSignificantBits)
     }
 
     override fun saveState(module: BoatModule) {

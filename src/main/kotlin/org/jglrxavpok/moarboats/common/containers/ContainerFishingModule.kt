@@ -23,12 +23,12 @@ class ContainerFishingModule(val playerInventory: InventoryPlayer, val fishingMo
     private fun addPlayerSlots() {
         for (i in 0..2) {
             for (j in 0..8) {
-                this.addSlotToContainer(Slot(playerInventory, j + i * 9 + 9, 8 + j * 18, 84 + i * 18 + 3*18 +2))
+                this.addSlotToContainer(Slot(playerInventory, j + i * 9 + 9, 8 + j * 18, 84 + i * 18))
             }
         }
 
         for (k in 0..8) {
-            this.addSlotToContainer(Slot(playerInventory, k, 8 + k * 18, 142 + 3*18 + 2))
+            this.addSlotToContainer(Slot(playerInventory, k, 8 + k * 18, 142))
         }
     }
 

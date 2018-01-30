@@ -31,9 +31,7 @@ abstract class BoatModule {
     @SideOnly(Side.CLIENT)
     abstract fun createGui(player: EntityPlayer, boat: IControllable): GuiScreen
 
-    open fun onInit(to: IControllable, fromItem: ItemStack?) {
-        rng.setSeed(to.rngSeed)
-    }
+    open fun onInit(to: IControllable, fromItem: ItemStack?) { }
 
     val rng = Random()
 
