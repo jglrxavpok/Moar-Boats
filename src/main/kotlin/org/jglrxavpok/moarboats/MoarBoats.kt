@@ -56,6 +56,7 @@ object MoarBoats {
         BoatModuleRegistry.registerModule(ResourceLocation("moarboats:fishing"), MCItems.FISHING_ROD, FishingModule, { boat, module -> SimpleModuleInventory(1, "fishing", boat, module) })
         // TODO: BoatModuleRegistry.registerModule(ResourceLocation("moarboats:sonar"), Item.getItemFromBlock(MCBlocks.AIR), SonarModule)
         MinecraftForge.EVENT_BUS.register(this)
+        MinecraftForge.EVENT_BUS.register(ItemEventHandler)
         logger = event.modLog
         proxy.preInit()
     }

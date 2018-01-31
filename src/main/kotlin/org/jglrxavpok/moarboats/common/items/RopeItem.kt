@@ -3,6 +3,7 @@ package org.jglrxavpok.moarboats.common.items
 import net.minecraft.block.BlockFence
 import net.minecraft.client.util.ITooltipFlag
 import net.minecraft.creativetab.CreativeTabs
+import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLeashKnot
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
@@ -57,7 +58,7 @@ object RopeItem : Item() {
         nbt(itemstack).removeTag("linked")
     }
 
-    private fun getState(stack: ItemStack): State {
+    fun getState(stack: ItemStack): State {
         if(nbt(stack).hasKey("linked"))
             return State.WAITING_NEXT
         return State.READY
@@ -119,6 +120,23 @@ object RopeItem : Item() {
     override fun addInformation(stack: ItemStack, worldIn: World?, tooltip: MutableList<String>, flagIn: ITooltipFlag) {
         super.addInformation(stack, worldIn, tooltip, flagIn)
         tooltip.add(ropeInfo.unformattedText)
+    }
+
+    fun onEntityInteract(player: EntityPlayer, stack: ItemStack, entity: Entity): EnumActionResult {
+        if(getState(stack) == State.WAITING_NEXT) {
+            if(entity is EntityLeashKnot) {
+                val world = player.world
+                if(!world.isRemote) {
+                    val target = getLinked(world, stack) ?: return EnumActionResult.PASS
+                    target.linkTo(entity, BasicBoatEntity.FrontLink)
+                }
+                resetLinked(stack)
+                if(!player.capabilities.isCreativeMode)
+                    stack.shrink(1)
+                return EnumActionResult.SUCCESS
+            }
+        }
+        return EnumActionResult.PASS
     }
 }
 
