@@ -14,3 +14,4 @@ itemGroup.moarboats=Moar boats
 # 1.2.0
 inventory.fishing.name=Fishing module
 gui.fishing.missingStorage=Missing storage!
+item.rope.description=Select the last boat in the chain first, and then the one before in said chain!

@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.common.items
 
+import net.minecraft.client.util.ITooltipFlag
 import net.minecraft.creativetab.CreativeTabs
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
@@ -33,6 +34,8 @@ object RopeItem : Item() {
             if(getState(stack) == State.WAITING_NEXT) 1f else 0f
         }
     }
+
+    private val ropeInfo = TextComponentTranslation("item.rope.description")
 
     private fun setLinked(worldIn: World, stack: ItemStack, entity: BasicBoatEntity) {
         nbt(stack).setInteger("linked", entity.entityId)
@@ -89,6 +92,11 @@ object RopeItem : Item() {
                 }
             }
         }
+    }
+
+    override fun addInformation(stack: ItemStack, worldIn: World?, tooltip: MutableList<String>, flagIn: ITooltipFlag) {
+        super.addInformation(stack, worldIn, tooltip, flagIn)
+        tooltip.add(ropeInfo.unformattedText)
     }
 }
 

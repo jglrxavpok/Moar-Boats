@@ -14,3 +14,4 @@ itemGroup.moarboats=Moar boats
 # 1.2.0
 inventory.fishing.name=Module de pêche
 gui.fishing.missingStorage=Il manque un module de stockage!
+item.rope.description=Sélectionnez le dernier bateau de la chaîne, puis celui le précédant!
