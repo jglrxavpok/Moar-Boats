@@ -1,16 +1,17 @@
 package org.jglrxavpok.moarboats.common.items
 
+import net.minecraft.block.BlockFence
 import net.minecraft.client.util.ITooltipFlag
 import net.minecraft.creativetab.CreativeTabs
+import net.minecraft.entity.EntityLeashKnot
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.EnumAction
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.util.ActionResult
-import net.minecraft.util.EnumHand
-import net.minecraft.util.ResourceLocation
+import net.minecraft.util.*
+import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.RayTraceResult
 import net.minecraft.util.text.TextComponentTranslation
 import net.minecraft.world.World
@@ -74,14 +75,16 @@ object RopeItem : Item() {
                 val hit = boatEntity
                 when {
                     other == hit -> playerIn.sendStatusMessage(TextComponentTranslation("item.rope.notToSelf"), true)
-                    hit.hasLink(BasicBoatEntity.Companion.BackLink) -> playerIn.sendStatusMessage(TextComponentTranslation("item.rope.backOccupied"), true)
+                    hit.hasLink(BasicBoatEntity.BackLink) -> playerIn.sendStatusMessage(TextComponentTranslation("item.rope.backOccupied"), true)
                     else -> {
                         // first boat gets its back attached to the second boat's front
-                        hit.linkTo(other, BasicBoatEntity.Companion.BackLink)
-                        other.linkTo(hit, BasicBoatEntity.Companion.FrontLink)
+                        hit.linkTo(other, BasicBoatEntity.BackLink)
+                        other.linkTo(hit, BasicBoatEntity.FrontLink)
                     }
                 }
-                resetLinked(itemstack) // TODO: consume
+                resetLinked(itemstack)
+                if(!playerIn.capabilities.isCreativeMode)
+                    itemstack.shrink(1)
             }
             else -> {
                 if(boatEntity.hasLink(BasicBoatEntity.Companion.FrontLink)) {
@@ -91,6 +94,25 @@ object RopeItem : Item() {
                     setLinked(worldIn, itemstack, boatEntity)
                 }
             }
+        }
+    }
+
+    override fun onItemUse(player: EntityPlayer, worldIn: World, pos: BlockPos, hand: EnumHand, facing: EnumFacing, hitX: Float, hitY: Float, hitZ: Float): EnumActionResult {
+        val block = worldIn.getBlockState(pos).block
+        val stack = player.getHeldItem(hand)
+        return when {
+            block is BlockFence && getState(stack) == State.WAITING_NEXT -> {
+                if(!worldIn.isRemote) {
+                    val knot = EntityLeashKnot.getKnotForPosition(worldIn, pos) ?: EntityLeashKnot.createKnot(worldIn, pos)
+                    val target = getLinked(worldIn, stack) ?: return EnumActionResult.PASS
+                    target.linkTo(knot, BasicBoatEntity.FrontLink)
+                }
+                resetLinked(stack)
+                if(!player.capabilities.isCreativeMode)
+                    stack.shrink(1)
+                EnumActionResult.SUCCESS
+            }
+            else -> EnumActionResult.PASS
         }
     }
 
