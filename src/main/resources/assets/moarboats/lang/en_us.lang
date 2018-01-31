@@ -10,3 +10,7 @@ gui.engine.remainingCurrent=Remaining on current item
 gui.engine.estimatedTime=Estimated running time
 gui.engine.lock=Lock in place
 itemGroup.moarboats=Moar boats
+
+# 1.2.0
+inventory.fishing.name=Fishing module
+gui.fishing.missingStorage=Missing storage!

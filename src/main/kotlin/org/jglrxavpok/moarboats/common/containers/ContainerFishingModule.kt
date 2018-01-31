@@ -15,7 +15,7 @@ class ContainerFishingModule(val playerInventory: InventoryPlayer, val fishingMo
     val fishingModuleInv = boat.getInventory(fishingModule)
 
     init {
-        this.addSlotToContainer(SlotFishingRod(fishingModuleInv, 0, 8, 8))
+        this.addSlotToContainer(SlotFishingRod(fishingModuleInv, 0, 80, 36))
 
         addPlayerSlots()
     }

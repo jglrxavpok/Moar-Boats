@@ -10,3 +10,7 @@ gui.engine.remainingCurrent=Carburant restant
 gui.engine.estimatedTime=Temps total estimé
 gui.engine.lock=Mode stationnaire
 itemGroup.moarboats=Moar boats
+
+# 1.2.0
+inventory.fishing.name=Module de pêche
+gui.fishing.missingStorage=Il manque un module de stockage!

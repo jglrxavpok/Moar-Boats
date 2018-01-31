@@ -89,8 +89,6 @@ object FishingModule : BoatModule() {
                 state.setTag(LAST_LOOT, lootList)
                 state.setBoolean(PLAYING_ANIMATION, true)
 
-                println("caught something!")
-
                 if(storageModule != null) {
                     val storageInventory = from.getInventory(storageModule)
                     for(loot in result) {
