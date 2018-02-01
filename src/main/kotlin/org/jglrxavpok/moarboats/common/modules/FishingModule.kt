@@ -60,7 +60,7 @@ object FishingModule : BoatModule() {
     }
 
     override fun update(from: IControllable) {
-        val storageModule = from.modules.find { it.moduleSpot == Spot.Storage }
+        val storageModule = from.modules.find { it.moduleSpot == Spot.Storage && it.usesInventory }
         val ready = storageModule != null
         val state = from.getState()
         state.setBoolean(READY, ready)

@@ -22,6 +22,7 @@ import org.jglrxavpok.moarboats.extensions.saveInventory
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.api.IBoatModuleInventory
+import org.jglrxavpok.moarboats.common.modules.SeatModule
 import java.util.*
 
 class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
@@ -296,4 +297,10 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
     }
 
     override fun getFieldCount() = 0
+
+    // === Start of passengers code ===
+
+    override fun canRide(player: EntityPlayer, heldItem: ItemStack, hand: EnumHand): Boolean {
+        return heldItem.isEmpty && SeatModule in modules //        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 }

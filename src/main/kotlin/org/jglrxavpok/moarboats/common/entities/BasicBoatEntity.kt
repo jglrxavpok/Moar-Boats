@@ -10,8 +10,10 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLeashKnot
 import net.minecraft.entity.MoverType
 import net.minecraft.entity.item.EntityBoat
+import net.minecraft.entity.passive.EntityAnimal
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Items
+import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.network.datasync.DataSerializers
 import net.minecraft.network.datasync.EntityDataManager
@@ -442,8 +444,8 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
 
         if (!list.isEmpty()) {
             for (entity in list) {
-                // no passengers in this boat!
-                this.applyEntityCollision(entity)
+                if(entity !in passengers)
+                    this.applyEntityCollision(entity)
             }
         }
     }
@@ -742,6 +744,12 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
 
     override fun processInitialInteract(player: EntityPlayer, hand: EnumHand): Boolean {
         val itemstack = player.getHeldItem(hand)
+        if(canRide(player, itemstack, hand)) {
+            if (!this.world.isRemote) {
+                player.startRiding(this)
+            }
+            return true
+        }
         if(itemstack.item == RopeItem && !world.isRemote) {
             RopeItem.onLinkUsed(itemstack, player, hand, world, this)
             return true
@@ -771,11 +779,10 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         if(id == UnitializedLinkID) {
             id = forceLinkLoad(side)
             if(id == NoLinkFound) {
-                println("NO LINK FOUND FOR SIDE $side (UUID was ${links[side].get()}) FOR BOAT $boatID")
                 val idList = world.getEntities(BasicBoatEntity::class.java) { true }
                         .map { it.boatID.toString() }
                         .joinToString(", ")
-                println("Here's a list of all loaded boatIDs:\n$idList")
+                error("NO LINK FOUND FOR SIDE $side (UUID was ${links[side].get()}) FOR BOAT $boatID \nHere's a list of all loaded boatIDs:\n$idList")
             }
         }
         return world.getEntityByID(id) as? BasicBoatEntity
@@ -808,4 +815,26 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         buffer.writeLong(id.leastSignificantBits)
         buffer.writeLong(id.mostSignificantBits)*/
     }
+
+    // === Start of code for passengers ===
+
+    override fun updatePassenger(passenger: Entity) {
+        if (this.isPassenger(passenger)) {
+            var f = 0.0f
+            val f1 = ((if (this.isDead) 0.009999999776482582 else this.mountedYOffset) + passenger.yOffset).toFloat()
+
+            val vec3d = Vec3d(f.toDouble(), 0.0, 0.0).rotateYaw(-(this.rotationYaw + 90f) * 0.017453292f - Math.PI.toFloat() / 2f)
+            passenger.setPosition(this.posX + vec3d.x, this.posY + f1.toDouble(), this.posZ + vec3d.z)
+            passenger.rotationYaw += this.deltaRotation
+            passenger.rotationYawHead = passenger.rotationYawHead + this.deltaRotation
+            this.applyYawToEntity(passenger)
+        }
+    }
+
+    override fun canFitPassenger(passenger: Entity): Boolean {
+        return this.passengers.isEmpty() && passenger is EntityPlayer
+    }
+
+    abstract fun canRide(player: EntityPlayer, heldItem: ItemStack, hand: EnumHand): Boolean
+
 }
