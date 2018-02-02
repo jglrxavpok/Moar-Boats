@@ -100,6 +100,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         GlStateManager.scale(mapSize-margins*2, mapSize-margins*2, 0.0)
         mc.entityRenderer.mapItemRenderer.updateMapTexture(mapdata)
         mc.entityRenderer.mapItemRenderer.renderMap(mapdata, false)
+        GlStateManager.enableBlend()
         GlStateManager.translate(0.0, 0.0, 1.0)
 
         val mapScale = (1 shl mapdata.scale.toInt()).toFloat()
@@ -116,6 +117,8 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         mc.renderItem.renderItemAndEffectIntoGUI(helmStack, (boatRenderX/iconScale).toInt(), (boatRenderZ/iconScale).toInt())
 
         GlStateManager.popMatrix()
+
+        GlStateManager.enableAlpha()
 
         // render waypoints and path
         val waypointsData = moduleState.getTagList(HelmModule.WAYPOINTS, Constants.NBT.TAG_COMPOUND)

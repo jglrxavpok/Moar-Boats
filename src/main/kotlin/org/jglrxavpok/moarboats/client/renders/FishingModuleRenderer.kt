@@ -28,7 +28,6 @@ object FishingModuleRenderer : BoatModuleRenderer() {
 
     val CastFishingRodLocation = "minecraft:item/fishing_rod_cast"
     private val StickStack = ItemStack(Items.STICK)
-    private val renderStack = ItemStack(Items.FISH, 1)
 
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, renderManager: RenderManager) {
         module as FishingModule
@@ -41,6 +40,8 @@ object FishingModuleRenderer : BoatModuleRenderer() {
 
         val inventory = boat.getInventory(module)
         val rodStack = inventory.getStackInSlot(0)
+
+        GlStateManager.pushAttrib()
         RenderHelper.enableStandardItemLighting()
 
         val state = boat.getState(module)
@@ -54,24 +55,32 @@ object FishingModuleRenderer : BoatModuleRenderer() {
             mc.textureManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
             GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f)
             GlStateManager.enableRescaleNormal()
-            GlStateManager.alphaFunc(516, 0.1f)
             GlStateManager.enableBlend()
+            GlStateManager.enableAlpha()
+            GlStateManager.alphaFunc(516, 0.1f)
             GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO)
             GlStateManager.pushMatrix()
             GlStateManager.scale(-1f, 1f, 1f)
             mc.renderItem.renderItem(rodStack, model)
-            GlStateManager.cullFace(GlStateManager.CullFace.BACK)
             GlStateManager.popMatrix()
             GlStateManager.disableRescaleNormal()
-            GlStateManager.disableBlend()
 
             if(!playingAnimation)
                 renderHook(entityYaw)
         } else {
+            GlStateManager.enableRescaleNormal()
+            GlStateManager.enableAlpha()
+            GlStateManager.alphaFunc(516, 0.1f)
+            GlStateManager.enableBlend()
+
+            GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO)
+
             val stackToRender = if(hasRod) rodStack else StickStack
             mc.renderItem.renderItem(stackToRender, ItemCameraTransforms.TransformType.FIXED)
+            GlStateManager.disableRescaleNormal()
         }
         RenderHelper.disableStandardItemLighting()
+        GlStateManager.popAttrib()
         GlStateManager.popMatrix()
 
         // draw fish flying out of water

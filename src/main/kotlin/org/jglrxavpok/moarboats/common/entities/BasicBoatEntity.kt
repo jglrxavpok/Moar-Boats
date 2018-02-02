@@ -820,10 +820,10 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
 
     override fun updatePassenger(passenger: Entity) {
         if (this.isPassenger(passenger)) {
-            var f = 0.0f
+            var f = -0.75f * 0.5f
             val f1 = ((if (this.isDead) 0.009999999776482582 else this.mountedYOffset) + passenger.yOffset).toFloat()
 
-            val vec3d = Vec3d(f.toDouble(), 0.0, 0.0).rotateYaw(-(this.rotationYaw + 90f) * 0.017453292f - Math.PI.toFloat() / 2f)
+            val vec3d = Vec3d(f.toDouble(), 0.0, 0.0).rotateYaw(-(this.rotationYaw) * 0.017453292f - Math.PI.toFloat() / 2f)
             passenger.setPosition(this.posX + vec3d.x, this.posY + f1.toDouble(), this.posZ + vec3d.z)
             passenger.rotationYaw += this.deltaRotation
             passenger.rotationYawHead = passenger.rotationYawHead + this.deltaRotation

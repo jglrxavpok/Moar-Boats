@@ -56,7 +56,7 @@ object HelmModule: BoatModule() {
         val state = from.getState()
         val waypoints = state.getTagList(WAYPOINTS, Constants.NBT.TAG_COMPOUND)
         if(waypoints.tagCount() != 0) {
-            val currentWaypoint = state.getInteger(CURRENT_WAYPOINT)
+            val currentWaypoint = state.getInteger(CURRENT_WAYPOINT) % waypoints.tagCount()
             val current = waypoints[currentWaypoint] as NBTTagCompound
             val nextX = current.getInteger("x")
             val nextZ = current.getInteger("z")
@@ -82,7 +82,7 @@ object HelmModule: BoatModule() {
         val state = from.getState()
         val waypoints = state.getTagList(WAYPOINTS, Constants.NBT.TAG_COMPOUND)
         if(waypoints.tagCount() != 0) {
-            val currentWaypoint = state.getInteger(CURRENT_WAYPOINT)
+            val currentWaypoint = state.getInteger(CURRENT_WAYPOINT) % waypoints.tagCount()
             val nextWaypoint = (currentWaypoint+1) % waypoints.tagCount() // FIXME: add a way to choose if loops or not
             val current = waypoints[currentWaypoint] as NBTTagCompound
             val currentX = current.getInteger("x")
