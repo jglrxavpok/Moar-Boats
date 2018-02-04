@@ -18,7 +18,7 @@ class GuiSeatModule(playerInventory: InventoryPlayer, seat: BoatModule, boat: IC
 
     override fun drawModuleForeground(mouseX: Int, mouseY: Int) {
         super.drawModuleForeground(mouseX, mouseY)
-        drawCenteredString(fontRenderer, nothingToDo.unformattedText, 0, 0, 0xFFFFFF)
-        drawCenteredString(fontRenderer, enjoyTheTrip.unformattedText, 0, 10, 0xFFFFFF)
+        drawCenteredString(fontRenderer, nothingToDo.unformattedText, xSize/2, 30, 0xFFFFFF)
+        drawCenteredString(fontRenderer, enjoyTheTrip.unformattedText, xSize/2, 40, 0xFFFFFF)
     }
 }

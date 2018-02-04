@@ -9,9 +9,14 @@ item.helm.name=Boat helm
 gui.engine.remainingCurrent=Remaining on current item
 gui.engine.estimatedTime=Estimated running time
 gui.engine.lock=Lock in place
-itemGroup.moarboats=Moar boats
+itemGroup.moarboats=Moar Boats
 
 # 1.2.0
 inventory.fishing.name=Fishing module
 gui.fishing.missingStorage=Missing storage!
 item.rope.description=Select the last boat in the chain first, and then the one before in said chain!
+item.seat.name=Boat Seat
+inventory.seat.name=Boat Seat
+gui.seat.nothingToDo=Nothing to configure!
+gui.seat.enjoy=Sit and enjoy the rid!
+item.seat.description=Click with an empty hand to sit!
