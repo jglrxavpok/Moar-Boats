@@ -58,7 +58,10 @@ object WaterborneConductorItem : Item() {
                     }
 
                     val facing = playerIn.adjustedHorizontalFacing.opposite
-                    worldIn.setBlockState(blockpos1, BlockUnpoweredWaterboneConductor.defaultState.withProperty(BlockHorizontal.FACING, facing), 11)
+                    var iblockstate1 = BlockUnpoweredWaterboneConductor.getStateForPlacement(worldIn, blockpos1, facing, raytraceresult.hitVec.x.toFloat(), raytraceresult.hitVec.y.toFloat(), raytraceresult.hitVec.z.toFloat(), 0, playerIn, handIn)
+                    worldIn.setBlockState(blockpos1, iblockstate1, 11)
+
+                    iblockstate1.block.onBlockPlacedBy(worldIn, blockpos1, iblockstate1, playerIn, itemstack)
 
                     if (playerIn is EntityPlayerMP) {
                         CriteriaTriggers.PLACED_BLOCK.trigger(playerIn, blockpos1, itemstack)

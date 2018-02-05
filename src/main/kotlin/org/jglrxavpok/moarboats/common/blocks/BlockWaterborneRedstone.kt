@@ -3,6 +3,8 @@ package org.jglrxavpok.moarboats.common.blocks
 import net.minecraft.block.*
 import net.minecraft.block.state.BlockStateContainer
 import net.minecraft.block.state.IBlockState
+import net.minecraft.entity.EntityLivingBase
+import net.minecraft.item.ItemStack
 import net.minecraft.util.*
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
@@ -87,5 +89,22 @@ class BlockWaterborneConductor(powered: Boolean): BlockRedstoneDiode(powered) {
     override fun breakBlock(worldIn: World, pos: BlockPos, state: IBlockState) {
         super.breakBlock(worldIn, pos, state)
         this.notifyNeighbors(worldIn, pos, state)
+    }
+
+    override fun onBlockPlacedBy(worldIn: World, pos: BlockPos, state: IBlockState, placer: EntityLivingBase, stack: ItemStack) {
+     //   worldIn.scheduleUpdate(pos, this, 1)
+        this.notifyNeighbors(worldIn, pos, state)
+    }
+
+    override fun onBlockAdded(worldIn: World, pos: BlockPos, state: IBlockState) {
+      //  worldIn.scheduleUpdate(pos, this, 1)
+        super.onBlockAdded(worldIn, pos, state)
+        if(shouldBePowered(worldIn, pos, state) != isRepeaterPowered) {
+            when(isRepeaterPowered) {
+                true -> worldIn.setBlockState(pos, BlockUnpoweredWaterboneConductor.defaultState.withProperty(BlockHorizontal.FACING, state.getValue(BlockHorizontal.FACING)))
+                false -> worldIn.setBlockState(pos, BlockPoweredWaterboneConductor.defaultState.withProperty(BlockHorizontal.FACING, state.getValue(BlockHorizontal.FACING)))
+            }
+            notifyNeighbors(worldIn, pos, state)
+        }
     }
 }
