@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.client
 
+import net.minecraft.block.Block
 import net.minecraftforge.fml.client.registry.RenderingRegistry
 import org.jglrxavpok.moarboats.common.MoarBoatsProxy
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
@@ -16,6 +17,9 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import org.jglrxavpok.moarboats.common.Blocks
+import net.minecraftforge.event.RegistryEvent
+
+
 
 @Mod.EventBusSubscriber(value = Side.CLIENT, modid = MoarBoats.ModID)
 class Proxy: MoarBoatsProxy() {
@@ -34,6 +38,12 @@ class Proxy: MoarBoatsProxy() {
         MinecraftForge.EVENT_BUS.register(this)
         super.preInit()
         RenderingRegistry.registerEntityRenderingHandler(ModularBoatEntity::class.java, ::RenderModularBoat)
+    }
+
+    @SideOnly(Side.CLIENT)
+    @SubscribeEvent
+    fun registerBlocks(event: RegistryEvent.Register<Block>) {
+        event.registry.registerAll(*Blocks.list.toTypedArray())
     }
 
     @SideOnly(Side.CLIENT)
