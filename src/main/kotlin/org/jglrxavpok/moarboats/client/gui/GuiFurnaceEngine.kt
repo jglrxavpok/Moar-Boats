@@ -75,7 +75,7 @@ class GuiFurnaceEngine(playerInventory: InventoryPlayer, engine: BoatModule, boa
         drawCenteredString(estimatedTimeText.unformattedText, 88, infoY+18, 0xFFFFFFFF.toInt(), shadow = true)
         drawCenteredString("${estimatedTime}s", 88, infoY+28, 0xFF50A050.toInt())
         if(engine.isLockedByRedstone(boat))
-            drawCenteredString(lockedByRedstone.unformattedText, 88, infoY+38, 0xFF0000, shadow = true)
+            drawCenteredString(lockedByRedstone.unformattedText, 88, infoY+38, 0xFF0000)
     }
 
     private fun drawBar(x: Float, y: Float, barIndex: Int, barSize: Float, fill: Float) {
