@@ -12,6 +12,8 @@ import net.minecraft.world.IBlockAccess
 import net.minecraft.world.World
 import net.minecraftforge.fluids.BlockFluidBase
 import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.common.items.WaterborneConductorItem
+import java.util.*
 
 val BlockPoweredWaterboneConductor = BlockWaterborneConductor(powered = true)
 val BlockUnpoweredWaterboneConductor = BlockWaterborneConductor(powered = false)
@@ -92,19 +94,22 @@ class BlockWaterborneConductor(powered: Boolean): BlockRedstoneDiode(powered) {
     }
 
     override fun onBlockPlacedBy(worldIn: World, pos: BlockPos, state: IBlockState, placer: EntityLivingBase, stack: ItemStack) {
-     //   worldIn.scheduleUpdate(pos, this, 1)
+        super.onBlockPlacedBy(worldIn, pos, state, placer, stack)
         this.notifyNeighbors(worldIn, pos, state)
     }
 
     override fun onBlockAdded(worldIn: World, pos: BlockPos, state: IBlockState) {
-      //  worldIn.scheduleUpdate(pos, this, 1)
         super.onBlockAdded(worldIn, pos, state)
         if(shouldBePowered(worldIn, pos, state) != isRepeaterPowered) {
-            when(isRepeaterPowered) {
+            when(!isRepeaterPowered) {
                 true -> worldIn.setBlockState(pos, BlockUnpoweredWaterboneConductor.defaultState.withProperty(BlockHorizontal.FACING, state.getValue(BlockHorizontal.FACING)))
                 false -> worldIn.setBlockState(pos, BlockPoweredWaterboneConductor.defaultState.withProperty(BlockHorizontal.FACING, state.getValue(BlockHorizontal.FACING)))
             }
             notifyNeighbors(worldIn, pos, state)
         }
     }
+
+    override fun getItemDropped(state: IBlockState?, rand: Random?, fortune: Int) = WaterborneConductorItem
+
+    override fun getItem(worldIn: World?, pos: BlockPos?, state: IBlockState?) = ItemStack(WaterborneConductorItem, 1)
 }
