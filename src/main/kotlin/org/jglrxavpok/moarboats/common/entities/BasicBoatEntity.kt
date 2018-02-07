@@ -71,6 +71,7 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
     protected var acceleration = 0f
 
     var boatID: UUID = UUID.randomUUID()
+    private var blockedMovement = false
     override val worldRef: World
         get() = this.world
     override val positionX: Double
@@ -433,10 +434,16 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         }
         this.updateMotion()
 
+        blockedMovement = false
         if (canControlItself) {
             this.controlBoat()
         }
 
+        if(blockedMovement) {
+            motionX = 0.0
+            motionY = 0.0
+            motionZ = 0.0
+        }
         this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ)
 
         this.doBlockCollisions()
@@ -495,6 +502,10 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
 
     override fun decelerate(multiplier: Float) {
         acceleration -= 0.005f * multiplier
+    }
+
+    override fun blockMovement() {
+        blockedMovement = true
     }
 
     abstract fun controlBoat()

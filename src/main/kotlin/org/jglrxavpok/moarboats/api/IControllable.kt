@@ -25,6 +25,7 @@ interface IControllable {
     fun turnLeft(multiplier: Float = 1f)
     fun accelerate(multiplier: Float = 1f)
     fun decelerate(multiplier: Float = 1f)
+    fun blockMovement()
 
     fun saveState(module: BoatModule)
     fun getState(module: BoatModule): NBTTagCompound

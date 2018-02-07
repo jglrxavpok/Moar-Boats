@@ -301,6 +301,6 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
     // === Start of passengers code ===
 
     override fun canRide(player: EntityPlayer, heldItem: ItemStack, hand: EnumHand): Boolean {
-        return heldItem.isEmpty && SeatModule in modules //        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return heldItem.isEmpty && SeatModule in modules
     }
 }
