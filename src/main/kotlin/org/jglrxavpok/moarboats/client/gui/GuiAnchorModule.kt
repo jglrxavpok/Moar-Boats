@@ -26,10 +26,14 @@ class GuiAnchorModule(playerInventory: InventoryPlayer, anchor: BoatModule, boat
     override fun initGui() {
         super.initGui()
         deployButton.x = guiLeft
-        deployButton.y = guiTop
+        deployButton.y = guiTop+40
+        addButton(deployButton)
+    }
+
+    override fun updateScreen() {
+        super.updateScreen()
         val deployText = if(boat.getState(module).getBoolean(AnchorModule.DEPLOYED)) deployedText else undeployedText
         deployButton.displayString = deployText.unformattedText
-        addButton(deployButton)
     }
 
     override fun actionPerformed(button: GuiButton) {

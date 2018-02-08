@@ -70,17 +70,18 @@ object AnchorModule: BoatModule() {
             val dz = from.positionZ - anchorZ
             val totalLength = Math.sqrt(dx*dx+dy*dy+dz*dz)
             val toAdvance = anchorDescentSpeed
-            val length = minOf(toAdvance, totalLength)
-            val nextX = dx * length + from.positionX
-            val nextY = dy * length + from.positionY
-            val nextZ = dz * length + from.positionZ
+            val length = minOf(toAdvance, totalLength)/totalLength
+            val nextX = dx * length + anchorX
+            val nextY = dy * length + anchorY
+            val nextZ = dz * length + anchorZ
             state.setDouble(ANCHOR_X, nextX)
             state.setDouble(ANCHOR_Y, nextY)
             state.setDouble(ANCHOR_Z, nextZ)
-            if(from.correspondingEntity.position.distanceSq(nextX, nextY, nextZ) < 0.25) { // going up & less than half a block away
+            if(from.correspondingEntity.position.distanceSq(nextX, nextY, nextZ) < 1.0) { // going up & less than half a block away
                 // stop
                 state.setInteger(ANCHOR_DIRECTION, 0)
                 state.setBoolean(DEPLOYED, false)
+                println("No longer deployed!")
             }
         }
 

@@ -17,11 +17,8 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
 
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, renderManager: RenderManager) {
         GlStateManager.pushMatrix()
-        GlStateManager.scale(0.75f, 0.75f, 0.75f)
-        GlStateManager.scale(-1f, 1f, 1f)
-        GlStateManager.scale(-1.5f, 1.5f, 1.5f)
-        GlStateManager.translate(-0.75f, 8f/16f, 0.58f)
 
+        GlStateManager.rotate(180f - entityYaw, 0f, 1f, 0f)
         val state = boat.getState(module)
 
         if(state.getBoolean(AnchorModule.DEPLOYED)) {
@@ -33,6 +30,10 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
             val dz = anchorZ - boat.posZ
             GlStateManager.translate(dx, dy, dz)
         }
+
+        GlStateManager.scale(0.75f, 0.75f, 0.75f)
+        GlStateManager.scale(-1f, 1f, 1f)
+        GlStateManager.scale(-1.5f, 1.5f, 1.5f)
 
         renderManager.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
         Minecraft.getMinecraft().blockRendererDispatcher.renderBlockBrightness(Blocks.ANVIL.defaultState, boat.brightness)
