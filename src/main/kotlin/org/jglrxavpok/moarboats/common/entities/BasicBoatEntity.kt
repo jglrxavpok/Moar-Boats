@@ -10,7 +10,6 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLeashKnot
 import net.minecraft.entity.MoverType
 import net.minecraft.entity.item.EntityBoat
-import net.minecraft.entity.passive.EntityAnimal
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Items
 import net.minecraft.item.ItemStack
@@ -755,7 +754,7 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
 
     override fun processInitialInteract(player: EntityPlayer, hand: EnumHand): Boolean {
         val itemstack = player.getHeldItem(hand)
-        if(canRide(player, itemstack, hand)) {
+        if(canStartRiding(player, itemstack, hand)) {
             if (!this.world.isRemote) {
                 player.startRiding(this)
             }
@@ -846,6 +845,6 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         return this.passengers.isEmpty() && passenger is EntityPlayer
     }
 
-    abstract fun canRide(player: EntityPlayer, heldItem: ItemStack, hand: EnumHand): Boolean
+    abstract fun canStartRiding(player: EntityPlayer, heldItem: ItemStack, hand: EnumHand): Boolean
 
 }

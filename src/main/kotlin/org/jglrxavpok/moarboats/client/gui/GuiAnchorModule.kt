@@ -17,11 +17,9 @@ class GuiAnchorModule(playerInventory: InventoryPlayer, anchor: BoatModule, boat
 
     override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/anchor.png")
 
-    val deployButton = GuiButton(0,0,0,"")
+    val deployButton = GuiButton(0,0,0, 100, 20, "")
     val deployedText = TextComponentTranslation("gui.anchor.deployed")
     val undeployedText = TextComponentTranslation("gui.anchor.undeploy")
-
-    // TODO: Force player to sit in boat?
 
     override fun initGui() {
         super.initGui()

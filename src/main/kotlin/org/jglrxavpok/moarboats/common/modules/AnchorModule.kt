@@ -81,7 +81,6 @@ object AnchorModule: BoatModule() {
                 // stop
                 state.setInteger(ANCHOR_DIRECTION, 0)
                 state.setBoolean(DEPLOYED, false)
-                println("No longer deployed!")
             }
         }
 
