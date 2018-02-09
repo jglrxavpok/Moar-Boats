@@ -77,7 +77,7 @@ object AnchorModule: BoatModule() {
             state.setDouble(ANCHOR_X, nextX)
             state.setDouble(ANCHOR_Y, nextY)
             state.setDouble(ANCHOR_Z, nextZ)
-            if(from.correspondingEntity.position.distanceSq(nextX, nextY, nextZ) < 1.0) { // going up & less than half a block away
+            if(from.correspondingEntity.positionVector.squareDistanceTo(nextX, nextY, nextZ) < 1.0) { // going up & less than half a block away
                 // stop
                 state.setInteger(ANCHOR_DIRECTION, 0)
                 state.setBoolean(DEPLOYED, false)
