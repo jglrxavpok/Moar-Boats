@@ -22,3 +22,8 @@ gui.seat.enjoy=Asseyez vous et profitez du voyage!
 item.seat.description=Cliquez avec une main vide pour vous asseoir!
 gui.engine.lockedByRedstone=Désactivé par de la redstone!
 item.waterborne_conductor.name=Conducteur flottant
+
+gui.anchor.deploy=Déployer l'ancre
+gui.anchor.deployed=Lever l'ancre
+gui.anchor.moving=Ancre en movement...
+inventory.anchor.name=Ancre

@@ -14,7 +14,7 @@ class GuiSeatModule(playerInventory: InventoryPlayer, seat: BoatModule, boat: IC
 
     val enjoyTheTrip = TextComponentTranslation("gui.seat.enjoy")
     val nothingToDo = TextComponentTranslation("gui.seat.nothingToDo")
-    override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/seat.png")
+    override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/nothing.png")
 
     override fun drawModuleForeground(mouseX: Int, mouseY: Int) {
         super.drawModuleForeground(mouseX, mouseY)
