@@ -114,7 +114,6 @@ object AnchorModule: BoatModule() {
             state.setBoolean(DEPLOYED, true)
             state.setInteger(ANCHOR_DIRECTION, -1)
 
-            // TODO: take offset into account
             state.setDouble(ANCHOR_X, boat.positionX)
             state.setDouble(ANCHOR_Y, boat.positionY)
             state.setDouble(ANCHOR_Z, boat.positionZ)

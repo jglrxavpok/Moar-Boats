@@ -21,11 +21,12 @@ class GuiAnchorModule(playerInventory: InventoryPlayer, anchor: BoatModule, boat
     val deployedText = TextComponentTranslation("gui.anchor.deployed")
     val undeployedText = TextComponentTranslation("gui.anchor.deploy")
     val movingAnchorText = TextComponentTranslation("gui.anchor.moving")
+    val descText = TextComponentTranslation("gui.anchor.desc")
 
     override fun initGui() {
         super.initGui()
         deployButton.x = guiLeft+xSize/2-70
-        deployButton.y = guiTop+40
+        deployButton.y = guiTop+20
         addButton(deployButton)
     }
 
@@ -40,6 +41,11 @@ class GuiAnchorModule(playerInventory: InventoryPlayer, anchor: BoatModule, boat
             deployButton.enabled = true
             deployButton.displayString = deployText.unformattedText
         }
+    }
+
+    override fun drawModuleForeground(mouseX: Int, mouseY: Int) {
+        super.drawModuleForeground(mouseX, mouseY)
+        fontRenderer.drawSplitString(descText.unformattedText, 0+20, 0+50, xSize-40, 0xF0F0F0)
     }
 
     override fun actionPerformed(button: GuiButton) {

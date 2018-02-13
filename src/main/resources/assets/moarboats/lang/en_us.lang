@@ -23,7 +23,9 @@ item.seat.description=Click with an empty hand to sit!
 gui.engine.lockedByRedstone=Locked by redstone!
 item.waterborne_conductor.name=Waterborne redstone conductor
 
+gui.anchor.desc=Deploying the anchor updates your spawnpoint!
 gui.anchor.deploy=Deploy anchor
 gui.anchor.deployed=Bring back anchor
 gui.anchor.moving=Anchor moving, hold still...
+gui.anchor.spawnPointSet=Spawn point set!
 inventory.anchor.name=Anchor module
