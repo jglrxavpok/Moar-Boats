@@ -32,10 +32,12 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
             val anchorX = state.getDouble(AnchorModule.ANCHOR_X)
             val anchorY = state.getDouble(AnchorModule.ANCHOR_Y)
             val anchorZ = state.getDouble(AnchorModule.ANCHOR_Z)
-            val dx = anchorX - boat.posX
+            val dx = -(anchorX - boat.posX)
             val dy = anchorY - boat.posY
-            val dz = anchorZ - boat.posZ
+            val dz = -(anchorZ - boat.posZ)
+            GlStateManager.rotate(180f - entityYaw - 90f, 0f, -1f, 0f)
             GlStateManager.translate(dx, dy, dz)
+            GlStateManager.rotate(180f - entityYaw - 90f, 0f, 1f, 0f)
         } else {
             anchorX = boat.posX
             anchorY = boat.posY
@@ -49,20 +51,20 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
 
         GlStateManager.translate(-0.5f, -0.5f, 0.5f)
         val anchorScale = 0.75
-        val invAnchorScale = 1.0/anchorScale
+        GlStateManager.pushMatrix()
         GlStateManager.scale(anchorScale, anchorScale, anchorScale)
         renderManager.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
         Minecraft.getMinecraft().blockRendererDispatcher.renderBlockBrightness(Blocks.ANVIL.defaultState, boat.brightness)
 
-        GlStateManager.scale(invAnchorScale, invAnchorScale, invAnchorScale)
-        GlStateManager.translate(+0.5f + 0.125f, +0.5f, 0.25f)
+        GlStateManager.popMatrix()
+        GlStateManager.translate(+0.5f, +0.5f, -0.5f)
 
         val radangle = (90f-entityYaw).toRadians()
-        val dx = anchorX-boat.posX
-        val dy = anchorY-boat.posY
-        val dz = anchorZ-boat.posZ
+        val dx = (anchorX-boat.posX)
+        val dy = (anchorY-boat.posY)
+        val dz = (anchorZ-boat.posZ)
+        val localAnchorX = -MathHelper.sin(radangle) * dz + MathHelper.cos(radangle) * dx
         val localAnchorZ = MathHelper.cos(radangle) * dz + MathHelper.sin(radangle) * dx
-        val localAnchorX = MathHelper.sin(radangle) * dz - MathHelper.cos(radangle) * dx
         renderChain(localAnchorX, dy, localAnchorZ)
         GlStateManager.popMatrix()
     }
