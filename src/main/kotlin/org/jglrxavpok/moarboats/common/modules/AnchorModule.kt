@@ -2,6 +2,8 @@ package org.jglrxavpok.moarboats.common.modules
 
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.init.Blocks
+import net.minecraft.item.ItemBlock
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
@@ -121,5 +123,10 @@ object AnchorModule: BoatModule() {
             player.setSpawnPoint(boat.correspondingEntity.position, true)
         }
         boat.saveState()
+    }
+
+    override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
+        if(!killedByPlayerInCreative)
+            boat.correspondingEntity.dropItem(ItemBlock.getItemFromBlock(Blocks.ANVIL), 1)
     }
 }

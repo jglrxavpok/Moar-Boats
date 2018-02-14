@@ -5,7 +5,8 @@
       "moarboats:modular_boat",
       "moarboats:helm",
       "moarboats:rope",
-      "moarboats:seat"
+      "moarboats:seat",
+      "moarboats:waterborne_conductor"
     ]
   },
   "criteria": {
