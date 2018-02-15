@@ -26,6 +26,7 @@ import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
+import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.items.RopeItem
 import org.jglrxavpok.moarboats.extensions.toDegrees
 import org.jglrxavpok.moarboats.extensions.toRadians
@@ -53,6 +54,8 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         val NoLink = 1
         val BoatLink = 0 // Boat link is 0 so old saves still work
         val KnotLink = 2
+
+        val CurrentDataFormatVersion = 1 // 1.2.0
     }
     /** How much of current speed to retain. Value zero to one.  */
     private var momentum = 0f
@@ -700,9 +703,16 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
             compound.setInteger("linkBackZ", pos.z)
         }
         compound.setUniqueId("boatID", boatID)
+        compound.setInteger("dataFormatVersion", CurrentDataFormatVersion)
     }
 
     override fun readEntityFromNBT(compound: NBTTagCompound) {
+        val version = compound.getInteger("dataFormatVersion")
+        if(version < CurrentDataFormatVersion) {
+            updateContentsToNextVersion(compound, version)
+        } else if(version > CurrentDataFormatVersion) {
+            MoarBoats.logger.warn("Found newer data format version ($version, current is $CurrentDataFormatVersion), this might cause issues!")
+        }
         linkEntityTypes = listOf(compound.getInteger("linkFrontType"), compound.getInteger("linkBackType"))
         val readKnotLocations = knotLocations.toTypedArray()
         if(linkEntityTypes[FrontLink] == BoatLink) {
@@ -736,6 +746,36 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         // reset runtime links
         dataManager.set(LINKS_RUNTIME[FrontLink], UnitializedLinkID)
         dataManager.set(LINKS_RUNTIME[BackLink], UnitializedLinkID)
+    }
+
+    private tailrec fun updateContentsToNextVersion(compound: NBTTagCompound, fromVersion: Int) {
+
+        if (fromVersion < CurrentDataFormatVersion) {
+            MoarBoats.logger.info("Found boat with old data format version ($fromVersion), current is $CurrentDataFormatVersion, converting NBT data...")
+            if(fromVersion == 0)
+                updateFromVersion0(compound)
+
+            updateContentsToNextVersion(compound, fromVersion+1) // allows very old saves to be converted
+        }
+    }
+
+    private fun updateFromVersion0(compound: NBTTagCompound) {
+        val front =
+                if(compound.hasUniqueId("linkFront"))
+                    Optional.of(compound.getUniqueId("linkFront")!!)
+                else
+                    Optional.absent()
+        val back =
+                if(compound.hasUniqueId("linkBack"))
+                    Optional.of(compound.getUniqueId("linkBack")!!)
+                else
+                    Optional.absent()
+        fun updateSide(name: String, boat: Optional<UUID>) {
+            compound.setInteger("link${name}Type", if(boat.isPresent) BoatLink else NoLink)
+        }
+
+        updateSide("Back", back)
+        updateSide("Front", front)
     }
 
     override fun entityInit() {
@@ -799,6 +839,7 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
     }
 
     private fun forceLinkLoad(side: Int): Int {
+
         val boatID = links[side].get()
         val correspondingBoat = world.getEntities(BasicBoatEntity::class.java) { entity ->
             entity?.boatID == boatID ?: false
