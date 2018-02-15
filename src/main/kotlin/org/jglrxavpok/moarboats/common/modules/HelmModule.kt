@@ -4,6 +4,7 @@ import net.minecraft.client.gui.GuiScreen
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.inventory.Container
 import net.minecraft.item.ItemMap
+import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
 import net.minecraft.util.EnumHand
@@ -40,8 +41,8 @@ object HelmModule: BoatModule() {
         return false
     }
 
-    override fun onInit(to: IControllable) {
-        super.onInit(to)
+    override fun onInit(to: IControllable, fromItem: ItemStack?) {
+        super.onInit(to, fromItem)
         if(to.worldRef.isRemote) {
             val stack = to.getInventory().getStackInSlot(0)
             if(!stack.isEmpty && stack.item is ItemMap) {
@@ -55,7 +56,7 @@ object HelmModule: BoatModule() {
         val state = from.getState()
         val waypoints = state.getTagList(WAYPOINTS, Constants.NBT.TAG_COMPOUND)
         if(waypoints.tagCount() != 0) {
-            val currentWaypoint = state.getInteger(CURRENT_WAYPOINT)
+            val currentWaypoint = state.getInteger(CURRENT_WAYPOINT) % waypoints.tagCount()
             val current = waypoints[currentWaypoint] as NBTTagCompound
             val nextX = current.getInteger("x")
             val nextZ = current.getInteger("z")
@@ -81,7 +82,7 @@ object HelmModule: BoatModule() {
         val state = from.getState()
         val waypoints = state.getTagList(WAYPOINTS, Constants.NBT.TAG_COMPOUND)
         if(waypoints.tagCount() != 0) {
-            val currentWaypoint = state.getInteger(CURRENT_WAYPOINT)
+            val currentWaypoint = state.getInteger(CURRENT_WAYPOINT) % waypoints.tagCount()
             val nextWaypoint = (currentWaypoint+1) % waypoints.tagCount() // FIXME: add a way to choose if loops or not
             val current = waypoints[currentWaypoint] as NBTTagCompound
             val currentX = current.getInteger("x")

@@ -4,7 +4,9 @@
     "recipes": [
       "moarboats:modular_boat",
       "moarboats:helm",
-      "moarboats:rope"
+      "moarboats:rope",
+      "moarboats:seat",
+      "moarboats:waterborne_conductor"
     ]
   },
   "criteria": {

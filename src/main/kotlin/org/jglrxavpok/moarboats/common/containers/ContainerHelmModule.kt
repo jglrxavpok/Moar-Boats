@@ -10,30 +10,14 @@ import net.minecraftforge.fml.relauncher.SideOnly
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 
-class ContainerHelmModule(val playerInventory: InventoryPlayer, val helm: BoatModule, val boat: IControllable): Container() {
+class ContainerHelmModule(playerInventory: InventoryPlayer, val helm: BoatModule, val boat: IControllable): ContainerBase(playerInventory) {
 
     val helmInventory = boat.getInventory(helm)
 
     init {
         this.addSlotToContainer(SlotMap(helmInventory, 0, 8, 8))
 
-        addPlayerSlots()
-    }
-
-    private fun addPlayerSlots() {
-        for (i in 0..2) {
-            for (j in 0..8) {
-                this.addSlotToContainer(Slot(playerInventory, j + i * 9 + 9, 8 + j * 18, 84 + i * 18 + 3*18 +2))
-            }
-        }
-
-        for (k in 0..8) {
-            this.addSlotToContainer(Slot(playerInventory, k, 8 + k * 18, 142 + 3*18 + 2))
-        }
-    }
-
-    override fun canInteractWith(playerIn: EntityPlayer): Boolean {
-        return true
+        addPlayerSlots(isLarge = true)
     }
 
     override fun addListener(listener: IContainerListener) {

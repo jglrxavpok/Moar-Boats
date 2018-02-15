@@ -7,10 +7,12 @@ import net.minecraft.block.BlockLiquid
 import net.minecraft.block.material.Material
 import net.minecraft.block.state.IBlockState
 import net.minecraft.entity.Entity
+import net.minecraft.entity.EntityLeashKnot
 import net.minecraft.entity.MoverType
 import net.minecraft.entity.item.EntityBoat
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Items
+import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.network.datasync.DataSerializers
 import net.minecraft.network.datasync.EntityDataManager
@@ -24,6 +26,7 @@ import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
+import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.items.RopeItem
 import org.jglrxavpok.moarboats.extensions.toDegrees
 import org.jglrxavpok.moarboats.extensions.toRadians
@@ -36,14 +39,23 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         val TIME_SINCE_HIT = EntityDataManager.createKey(BasicBoatEntity::class.java, DataSerializers.VARINT)
         val FORWARD_DIRECTION = EntityDataManager.createKey(BasicBoatEntity::class.java, DataSerializers.VARINT)
         val DAMAGE_TAKEN = EntityDataManager.createKey(BasicBoatEntity::class.java, DataSerializers.FLOAT)
-        val LINKS = Array(2) { EntityDataManager.createKey(BasicBoatEntity::class.java, DataSerializers.OPTIONAL_UNIQUE_ID) }
+        val BOAT_LINKS = Array(2) { EntityDataManager.createKey(BasicBoatEntity::class.java, DataSerializers.OPTIONAL_UNIQUE_ID) }
         val LINKS_RUNTIME = Array(2) { EntityDataManager.createKey(BasicBoatEntity::class.java, DataSerializers.VARINT) }
+        val KNOT_LOCATIONS = Array(2) { EntityDataManager.createKey(BasicBoatEntity::class.java, DataSerializers.OPTIONAL_BLOCK_POS) }
+        val LINK_TYPES = Array(2) { EntityDataManager.createKey(BasicBoatEntity::class.java, DataSerializers.VARINT) }
 
         val FrontLink = 0
         val BackLink = 1
 
         val UnitializedLinkID = -10
         val NoLinkFound = -1
+
+        // Link types
+        val NoLink = 1
+        val BoatLink = 0 // Boat link is 0 so old saves still work
+        val KnotLink = 2
+
+        val CurrentDataFormatVersion = 1 // 1.2.0
     }
     /** How much of current speed to retain. Value zero to one.  */
     private var momentum = 0f
@@ -61,6 +73,7 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
     protected var acceleration = 0f
 
     var boatID: UUID = UUID.randomUUID()
+    private var blockedMovement = false
     override val worldRef: World
         get() = this.world
     override val positionX: Double
@@ -100,8 +113,16 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         set(value) { this.dataManager.set(FORWARD_DIRECTION, value) }
 
     var links
-        get()= LINKS.map { dataManager[it] }
-        set(value) { LINKS.forEachIndexed { index, dataParameter -> dataManager[dataParameter] = value[index] } }
+        get()= BOAT_LINKS.map { dataManager[it] }
+        set(value) { BOAT_LINKS.forEachIndexed { index, dataParameter -> dataManager[dataParameter] = value[index] } }
+
+    var linkEntityTypes
+        get() = LINK_TYPES.map { dataManager[it] }
+        set(value) { LINK_TYPES.forEachIndexed { index, dataParameter -> dataManager[dataParameter] = value[index] } }
+
+    var knotLocations
+        get() = KNOT_LOCATIONS.map { dataManager[it] }
+        set(value) { KNOT_LOCATIONS.forEachIndexed { index, dataParameter -> dataManager[dataParameter] = value[index] } }
 
     init {
         this.preventEntitySpawning = true
@@ -118,7 +139,7 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         this.prevPosZ = z
     }
 
-    fun hasLink(linkType: Int) = links[linkType].isPresent
+    fun hasLink(linkType: Int) = linkEntityTypes[linkType] != NoLink
 
     override fun getCollisionBox(entityIn: Entity): AxisAlignedBB? {
         return if (entityIn.canBePushed()) entityIn.entityBoundingBox else null
@@ -402,7 +423,7 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
                 val alpha = 0.5f
 
                 val anchorPos = calculateAnchorPosition(FrontLink)
-                val otherAnchorPos = heading.calculateAnchorPosition(BackLink)
+                val otherAnchorPos = if(heading is BasicBoatEntity) heading.calculateAnchorPosition(BackLink) else heading.positionVector
                 // FIXME: handle case where targetYaw is ~0-180 and rotationYaw is ~180+ (avoid doing a crazy flip)
                 val targetYaw = computeTargetYaw(rotationYaw, anchorPos, otherAnchorPos)
                 rotationYaw = alpha * rotationYaw + targetYaw * (1f - alpha)
@@ -415,10 +436,16 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         }
         this.updateMotion()
 
+        blockedMovement = false
         if (canControlItself) {
             this.controlBoat()
         }
 
+        if(blockedMovement) {
+            motionX = 0.0
+            motionY = 0.0
+            motionZ = 0.0
+        }
         this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ)
 
         this.doBlockCollisions()
@@ -426,8 +453,8 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
 
         if (!list.isEmpty()) {
             for (entity in list) {
-                // no passengers in this boat!
-                this.applyEntityCollision(entity)
+                if(entity !in passengers)
+                    this.applyEntityCollision(entity)
             }
         }
     }
@@ -458,7 +485,7 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
     fun calculateAnchorPosition(linkType: Int): Vec3d {
         val distanceFromCenter = 0.0625f * 17f * if(linkType == BasicBoatEntity.FrontLink) 1f else -1f
         val anchorX = posX + MathHelper.cos((rotationYaw + 90f).toRadians()) * distanceFromCenter
-        val anchorY = posY + -4f
+        val anchorY = posY + 0.0625f * 16f
         val anchorZ = posZ + MathHelper.sin((rotationYaw + 90f).toRadians()) * distanceFromCenter
         return Vec3d(anchorX, anchorY, anchorZ)
     }
@@ -477,6 +504,10 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
 
     override fun decelerate(multiplier: Float) {
         acceleration -= 0.005f * multiplier
+    }
+
+    override fun blockMovement() {
+        blockedMovement = true
     }
 
     abstract fun controlBoat()
@@ -621,16 +652,30 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         }
     }
 
-    fun linkTo(other: BasicBoatEntity?, linkType: Int) {
+    fun linkTo(other: Entity?, linkType: Int) {
         val currentLinks = links.toTypedArray()
+        val currentLinkTypes = linkEntityTypes.toTypedArray()
+        val currentKnotLocations = knotLocations.toTypedArray()
         if(other == null) {
             currentLinks[linkType] = Optional.absent()
+            currentLinkTypes[linkType] = NoLink
+            currentKnotLocations[linkType] = Optional.absent()
             dataManager.set(LINKS_RUNTIME[linkType], NoLinkFound)
         } else {
-            currentLinks[linkType] = Optional.of(other.boatID)
+            if(other is BasicBoatEntity) {
+                currentLinks[linkType] = Optional.of(other.boatID)
+                currentLinkTypes[linkType] = BoatLink
+                currentKnotLocations[linkType] = Optional.absent()
+            } else if(other is EntityLeashKnot) {
+                currentLinks[linkType] = Optional.absent()
+                currentLinkTypes[linkType] = KnotLink
+                currentKnotLocations[linkType] = Optional.of(other.hangingPosition)
+            }
             dataManager.set(LINKS_RUNTIME[linkType], other.entityId)
         }
         links = listOf(*currentLinks)
+        linkEntityTypes = listOf(*currentLinkTypes)
+        knotLocations = listOf(*currentKnotLocations)
     }
 
     override fun canTriggerWalking(): Boolean {
@@ -638,15 +683,83 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
     }
 
     override fun writeEntityToNBT(compound: NBTTagCompound) {
+        compound.setInteger("linkFrontType", linkEntityTypes[FrontLink])
+        compound.setInteger("linkBackType", linkEntityTypes[BackLink])
         if(links[FrontLink].isPresent)
             compound.setUniqueId("linkFront", links[FrontLink].get())
+        else if(knotLocations[FrontLink].isPresent) {
+            val pos = knotLocations[FrontLink].get()
+            compound.setInteger("linkFrontX", pos.x)
+            compound.setInteger("linkFrontY", pos.y)
+            compound.setInteger("linkFrontZ", pos.z)
+        }
 
         if(links[BackLink].isPresent)
             compound.setUniqueId("linkBack", links[BackLink].get())
+        else if(knotLocations[BackLink].isPresent) {
+            val pos = knotLocations[BackLink].get()
+            compound.setInteger("linkBackX", pos.x)
+            compound.setInteger("linkBackY", pos.y)
+            compound.setInteger("linkBackZ", pos.z)
+        }
         compound.setUniqueId("boatID", boatID)
+        compound.setInteger("dataFormatVersion", CurrentDataFormatVersion)
     }
 
     override fun readEntityFromNBT(compound: NBTTagCompound) {
+        val version = compound.getInteger("dataFormatVersion")
+        if(version < CurrentDataFormatVersion) {
+            updateContentsToNextVersion(compound, version)
+        } else if(version > CurrentDataFormatVersion) {
+            MoarBoats.logger.warn("Found newer data format version ($version, current is $CurrentDataFormatVersion), this might cause issues!")
+        }
+        linkEntityTypes = listOf(compound.getInteger("linkFrontType"), compound.getInteger("linkBackType"))
+        val readKnotLocations = knotLocations.toTypedArray()
+        if(linkEntityTypes[FrontLink] == BoatLink) {
+            val frontBoatLink =
+                    if(compound.hasUniqueId("linkFront"))
+                        Optional.of(compound.getUniqueId("linkFront")!!)
+                    else
+                        Optional.absent()
+            dataManager.set(BOAT_LINKS[FrontLink], frontBoatLink)
+            readKnotLocations[FrontLink] = Optional.absent()
+        } else if(linkEntityTypes[FrontLink] == KnotLink) {
+            val pos = BlockPos(compound.getInteger("linkFrontX"), compound.getInteger("linkFrontY"), compound.getInteger("linkFrontZ"))
+            readKnotLocations[FrontLink] = Optional.of(pos)
+        }
+
+        if(linkEntityTypes[BackLink] == BoatLink) {
+            val backBoatLink =
+                    if(compound.hasUniqueId("linkBack"))
+                        Optional.of(compound.getUniqueId("linkBack")!!)
+                    else
+                        Optional.absent()
+            dataManager.set(BOAT_LINKS[BackLink], backBoatLink)
+            readKnotLocations[BackLink] = Optional.absent()
+        } else if(linkEntityTypes[BackLink] == KnotLink) {
+            val pos = BlockPos(compound.getInteger("linkBackX"), compound.getInteger("linkBackY"), compound.getInteger("linkBackZ"))
+            readKnotLocations[BackLink] = Optional.of(pos)
+        }
+        boatID = compound.getUniqueId("boatID")!!
+        knotLocations = listOf(*readKnotLocations)
+
+        // reset runtime links
+        dataManager.set(LINKS_RUNTIME[FrontLink], UnitializedLinkID)
+        dataManager.set(LINKS_RUNTIME[BackLink], UnitializedLinkID)
+    }
+
+    private tailrec fun updateContentsToNextVersion(compound: NBTTagCompound, fromVersion: Int) {
+
+        if (fromVersion < CurrentDataFormatVersion) {
+            MoarBoats.logger.info("Found boat with old data format version ($fromVersion), current is $CurrentDataFormatVersion, converting NBT data...")
+            if(fromVersion == 0)
+                updateFromVersion0(compound)
+
+            updateContentsToNextVersion(compound, fromVersion+1) // allows very old saves to be converted
+        }
+    }
+
+    private fun updateFromVersion0(compound: NBTTagCompound) {
         val front =
                 if(compound.hasUniqueId("linkFront"))
                     Optional.of(compound.getUniqueId("linkFront")!!)
@@ -657,27 +770,36 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
                     Optional.of(compound.getUniqueId("linkBack")!!)
                 else
                     Optional.absent()
-        dataManager.set(LINKS[FrontLink], front)
-        dataManager.set(LINKS[BackLink], back)
-        boatID = compound.getUniqueId("boatID")!!
+        fun updateSide(name: String, boat: Optional<UUID>) {
+            compound.setInteger("link${name}Type", if(boat.isPresent) BoatLink else NoLink)
+        }
 
-        // reset runtime links
-        dataManager.set(LINKS_RUNTIME[FrontLink], UnitializedLinkID)
-        dataManager.set(LINKS_RUNTIME[BackLink], UnitializedLinkID)
+        updateSide("Back", back)
+        updateSide("Front", front)
     }
 
     override fun entityInit() {
         this.dataManager.register(TIME_SINCE_HIT, 0)
         this.dataManager.register(FORWARD_DIRECTION, 1)
         this.dataManager.register(DAMAGE_TAKEN, 0f)
-        this.dataManager.register(LINKS[FrontLink], Optional.absent())
-        this.dataManager.register(LINKS[BackLink], Optional.absent())
+        this.dataManager.register(BOAT_LINKS[FrontLink], Optional.absent())
+        this.dataManager.register(BOAT_LINKS[BackLink], Optional.absent())
         this.dataManager.register(LINKS_RUNTIME[FrontLink], UnitializedLinkID)
         this.dataManager.register(LINKS_RUNTIME[BackLink], UnitializedLinkID)
+        this.dataManager.register(KNOT_LOCATIONS[FrontLink], Optional.absent())
+        this.dataManager.register(KNOT_LOCATIONS[BackLink], Optional.absent())
+        this.dataManager.register(LINK_TYPES[FrontLink], NoLink)
+        this.dataManager.register(LINK_TYPES[BackLink], NoLink)
     }
 
     override fun processInitialInteract(player: EntityPlayer, hand: EnumHand): Boolean {
         val itemstack = player.getHeldItem(hand)
+        if(canStartRiding(player, itemstack, hand)) {
+            if (!this.world.isRemote) {
+                player.startRiding(this)
+            }
+            return true
+        }
         if(itemstack.item == RopeItem && !world.isRemote) {
             RopeItem.onLinkUsed(itemstack, player, hand, world, this)
             return true
@@ -685,25 +807,39 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         return false
     }
 
-    fun getLinkedTo(side: Int): BasicBoatEntity? {
+    fun getLinkedTo(side: Int): Entity? {
         if(hasLink(side)) {
-            var id = dataManager.get(LINKS_RUNTIME[side])
-            if(id == UnitializedLinkID) {
-                id = forceLinkLoad(side)
-                if(id == NoLinkFound) {
-                    println("NO LINK FOUND FOR SIDE $side (UUID was ${links[side].get()}) FOR BOAT $boatID")
-                    val idList = world.getEntities(BasicBoatEntity::class.java) { true }
-                            .map { it.boatID.toString() }
-                            .joinToString(", ")
-                    println("Here's a list of all loaded boatIDs:\n$idList")
-                }
+            val type = linkEntityTypes[side]
+            return when(type) {
+                BoatLink -> getBoatLinkedTo(side)
+                KnotLink -> getKnotLinkedTo(side)
+                else -> null
             }
-            return world.getEntityByID(id) as? BasicBoatEntity
         }
         return null
     }
 
+    private fun getKnotLinkedTo(side: Int): EntityLeashKnot? {
+        val location = knotLocations[side]
+        return EntityLeashKnot.getKnotForPosition(world, location.get()) ?: EntityLeashKnot.createKnot(world, location.get())
+    }
+
+    private fun getBoatLinkedTo(side: Int): BasicBoatEntity? {
+        var id = dataManager.get(LINKS_RUNTIME[side])
+        if(id == UnitializedLinkID) {
+            id = forceLinkLoad(side)
+            if(id == NoLinkFound) {
+                val idList = world.getEntities(BasicBoatEntity::class.java) { true }
+                        .map { it.boatID.toString() }
+                        .joinToString(", ")
+                error("NO LINK FOUND FOR SIDE $side (UUID was ${links[side].get()}) FOR BOAT $boatID \nHere's a list of all loaded boatIDs:\n$idList")
+            }
+        }
+        return world.getEntityByID(id) as? BasicBoatEntity
+    }
+
     private fun forceLinkLoad(side: Int): Int {
+
         val boatID = links[side].get()
         val correspondingBoat = world.getEntities(BasicBoatEntity::class.java) { entity ->
             entity?.boatID == boatID ?: false
@@ -730,4 +866,26 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         buffer.writeLong(id.leastSignificantBits)
         buffer.writeLong(id.mostSignificantBits)*/
     }
+
+    // === Start of code for passengers ===
+
+    override fun updatePassenger(passenger: Entity) {
+        if (this.isPassenger(passenger)) {
+            var f = -0.75f * 0.5f
+            val f1 = ((if (this.isDead) 0.009999999776482582 else this.mountedYOffset) + passenger.yOffset).toFloat()
+
+            val vec3d = Vec3d(f.toDouble(), 0.0, 0.0).rotateYaw(-(this.rotationYaw) * 0.017453292f - Math.PI.toFloat() / 2f)
+            passenger.setPosition(this.posX + vec3d.x, this.posY + f1.toDouble(), this.posZ + vec3d.z)
+            passenger.rotationYaw += this.deltaRotation
+            passenger.rotationYawHead = passenger.rotationYawHead + this.deltaRotation
+            this.applyYawToEntity(passenger)
+        }
+    }
+
+    override fun canFitPassenger(passenger: Entity): Boolean {
+        return this.passengers.isEmpty() && passenger is EntityPlayer
+    }
+
+    abstract fun canStartRiding(player: EntityPlayer, heldItem: ItemStack, hand: EnumHand): Boolean
+
 }

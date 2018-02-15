@@ -22,6 +22,8 @@ class GuiFurnaceEngine(playerInventory: InventoryPlayer, engine: BoatModule, boa
     val estimatedTimeText = TextComponentTranslation("gui.engine.estimatedTime")
     private val lockInPlaceButton = GuiLockIconButton(0, 0, 0)
     private val lockText = TextComponentTranslation("gui.engine.lock")
+    private val lockedByRedstone = TextComponentTranslation("gui.engine.lockedByRedstone")
+    private val engine = module as FurnaceEngineModule
 
     override fun initGui() {
         super.initGui()
@@ -62,7 +64,7 @@ class GuiFurnaceEngine(playerInventory: InventoryPlayer, engine: BoatModule, boa
         val estimatedTime = estimatedTotalTicks / 20
 
 
-        val infoY = 40
+        val infoY = 26
         drawCenteredString(remainingCurrentItem.unformattedText, 88, infoY, 0xFFFFFFFF.toInt(), shadow = true)
 
         mc.renderEngine.bindTexture(barsTexture)
@@ -72,6 +74,8 @@ class GuiFurnaceEngine(playerInventory: InventoryPlayer, engine: BoatModule, boa
         drawBar(x, infoY+10f, barIndex, barSize, fill = remaining)
         drawCenteredString(estimatedTimeText.unformattedText, 88, infoY+18, 0xFFFFFFFF.toInt(), shadow = true)
         drawCenteredString("${estimatedTime}s", 88, infoY+28, 0xFF50A050.toInt())
+        if(engine.isLockedByRedstone(boat))
+            drawCenteredString(lockedByRedstone.unformattedText, 88, infoY+38, 0xFF0000)
     }
 
     private fun drawBar(x: Float, y: Float, barIndex: Int, barSize: Float, fill: Float) {

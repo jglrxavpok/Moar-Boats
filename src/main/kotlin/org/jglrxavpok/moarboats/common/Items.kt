@@ -1,11 +1,8 @@
 package org.jglrxavpok.moarboats.common
 
-import net.minecraft.item.Item
-import org.jglrxavpok.moarboats.common.items.BaseBoatItem
-import org.jglrxavpok.moarboats.common.items.HelmItem
-import org.jglrxavpok.moarboats.common.items.RopeItem
+import org.jglrxavpok.moarboats.common.items.*
 
 object Items {
 
-    val list = listOf(BaseBoatItem, RopeItem, HelmItem)
+    val list = listOf(BaseBoatItem, RopeItem, HelmItem, SeatItem, WaterborneConductorItem)
 }

@@ -20,6 +20,7 @@ import org.jglrxavpok.moarboats.common.containers.ContainerFurnaceEngine
 import org.jglrxavpok.moarboats.extensions.toRadians
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
+import org.jglrxavpok.moarboats.common.modules.FurnaceEngineModule.saveState
 
 object FurnaceEngineModule : BoatModule() {
 
@@ -43,12 +44,14 @@ object FurnaceEngineModule : BoatModule() {
     const val STATIONARY = "stationary"
     const val FUEL_TOTAL_TIME = "fuelTotalTime"
     const val FUEL_TIME = "fuelTime"
+    const val LOCKED_BY_REDSTONE = "redstoneLocked"
 
     override fun onAddition(to: IControllable) {
         val state = to.getState()
         state.setInteger(FUEL_TOTAL_TIME, 0)
         state.setInteger(FUEL_TIME, 0)
         state.setBoolean(STATIONARY, false)
+        state.setBoolean(LOCKED_BY_REDSTONE, false)
         to.saveState()
     }
 
@@ -62,7 +65,7 @@ object FurnaceEngineModule : BoatModule() {
         }
     }
 
-    fun isStationary(from: IControllable) = from.getState().getBoolean(STATIONARY)
+    fun isStationary(from: IControllable) = from.getState().getBoolean(STATIONARY) || from.getState().getBoolean(LOCKED_BY_REDSTONE)
 
     fun hasFuel(from: IControllable): Boolean {
         val state = from.getState()
@@ -75,6 +78,9 @@ object FurnaceEngineModule : BoatModule() {
         val state = from.getState()
         val inv = from.getInventory()
         updateFuelState(from, state, inv)
+        val world = from.worldRef
+        state.setBoolean(LOCKED_BY_REDSTONE, world.isBlockPowered(from.correspondingEntity.position))
+        from.saveState()
     }
 
     private fun updateFuelState(boat: IControllable, state: NBTTagCompound, inv: IInventory) {
@@ -102,7 +108,6 @@ object FurnaceEngineModule : BoatModule() {
             val dist = 0.5
             boat.worldRef.spawnParticle(EnumParticleTypes.SMOKE_LARGE, boat.positionX + dist * cos, boat.positionY + 0.8, boat.positionZ + dist * sin, 0.0, 0.0, 0.0)
         }
-        boat.saveState()
     }
 
     fun getFuelTime(fuelItem: Item): Int {
@@ -129,4 +134,6 @@ object FurnaceEngineModule : BoatModule() {
     }
 
     fun isItemFuel(fuelItem: ItemStack) = getFuelTime(fuelItem.item) > 0
+
+    fun isLockedByRedstone(boat: IControllable) = boat.getState().getBoolean(LOCKED_BY_REDSTONE)
 }

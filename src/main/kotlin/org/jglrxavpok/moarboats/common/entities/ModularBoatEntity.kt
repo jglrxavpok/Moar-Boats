@@ -22,6 +22,8 @@ import org.jglrxavpok.moarboats.extensions.saveInventory
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.api.IBoatModuleInventory
+import org.jglrxavpok.moarboats.common.modules.SeatModule
+import java.util.*
 
 class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
 
@@ -33,8 +35,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
     override val entityID: Int
         get() = this.entityId
 
-    override val rngSeed: Long
-        get() = entityId.toLong()
+    override var moduleRNG = Random()
 
     internal var moduleLocations
         get()= dataManager[MODULE_LOCATIONS]
@@ -103,7 +104,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
                         player.inventory.deleteStack(heldItem)
                     }
                 }
-                addModule(module)
+                addModule(module, fromItem = heldItem)
                 return true
             }
         }
@@ -153,6 +154,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
             }
             addModule(correspondingLocation, addedByNBT = true)
         }
+        moduleRNG = Random(boatID.leastSignificantBits)
     }
 
     override fun saveState(module: BoatModule) {
@@ -185,9 +187,9 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
         this.dataManager.register(MODULE_DATA, NBTTagCompound())
     }
 
-    fun addModule(location: ResourceLocation, addedByNBT: Boolean = false): BoatModule {
+    fun addModule(location: ResourceLocation, addedByNBT: Boolean = false, fromItem: ItemStack? = null): BoatModule {
         val module = BoatModuleRegistry[location].module
-        module.onInit(this)
+        module.onInit(this, fromItem)
         if(!addedByNBT)
             module.onAddition(this)
         moduleLocations.add(location)
@@ -295,4 +297,14 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
     }
 
     override fun getFieldCount() = 0
+
+    // === Start of passengers code ===
+
+    override fun canStartRiding(player: EntityPlayer, heldItem: ItemStack, hand: EnumHand): Boolean {
+        return heldItem.isEmpty && SeatModule in modules && player !in passengers
+    }
+
+    override fun canRiderInteract(): Boolean {
+        return true
+    }
 }
