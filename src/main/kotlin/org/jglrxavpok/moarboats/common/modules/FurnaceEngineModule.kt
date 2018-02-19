@@ -1,6 +1,7 @@
 package org.jglrxavpok.moarboats.common.modules
 
 import net.minecraft.block.Block
+import net.minecraft.block.material.Material
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Blocks
@@ -102,7 +103,12 @@ object FurnaceEngineModule : BoatModule() {
                 val anchorX = posX + MathHelper.cos(angle) * distAlongLength + MathHelper.sin(angle) * distAlongWidth
                 val anchorY = posY + 0.0625f * 4f
                 val anchorZ = posZ + MathHelper.sin(angle) * distAlongLength - MathHelper.cos(angle) * distAlongWidth
-                from.worldRef.spawnParticle(EnumParticleTypes.BLOCK_CRACK, anchorX, anchorY, anchorZ, -from.velocityX, 1.0, -from.velocityZ, Block.getStateId(blockState))
+                val particleType = if(blockState.material == Material.WATER) {
+                    EnumParticleTypes.WATER_SPLASH
+                } else {
+                    EnumParticleTypes.BLOCK_CRACK
+                }
+                from.worldRef.spawnParticle(particleType, anchorX, anchorY, anchorZ, -from.velocityX, 1.0, -from.velocityZ, Block.getStateId(blockState))
             }
             pos.release()
         }
