@@ -68,7 +68,7 @@ object FishingModule : BoatModule() {
         val inventory = from.getInventory()
         val rodStack = inventory.getStackInSlot(0)
         val hasRod = rodStack.item is ItemFishingRod
-        if(ready && hasRod && !from.worldRef.isRemote) { // you can go fishing
+        if(ready && hasRod && !from.worldRef.isRemote && from.inWater()) { // you can go fishing
 
             val lureSpeed = EnchantmentHelper.getFishingSpeedBonus(rodStack)
 

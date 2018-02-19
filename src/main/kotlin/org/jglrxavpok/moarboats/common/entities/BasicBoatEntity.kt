@@ -867,6 +867,10 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         buffer.writeLong(id.mostSignificantBits)*/
     }
 
+    override fun inWater(): Boolean {
+        return getBoatStatus() != EntityBoat.Status.ON_LAND
+    }
+
     // === Start of code for passengers ===
 
     override fun updatePassenger(passenger: Entity) {

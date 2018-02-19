@@ -53,6 +53,8 @@ object HelmModule: BoatModule() {
     }
 
     override fun controlBoat(from: IControllable) {
+        if(!from.inWater())
+            return
         val state = from.getState()
         val waypoints = state.getTagList(WAYPOINTS, Constants.NBT.TAG_COMPOUND)
         if(waypoints.tagCount() != 0) {

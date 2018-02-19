@@ -49,7 +49,7 @@ object FishingModuleRenderer : BoatModuleRenderer() {
         val ready = state.getBoolean(FishingModule.READY)
         val playingAnimation = state.getBoolean(FishingModule.PLAYING_ANIMATION)
 
-        if(ready && hasRod) {
+        if(ready && hasRod && boat.inWater()) {
             val model = mc.renderItem.itemModelMesher.modelManager.getModel(net.minecraftforge.client.model.ModelLoader.getInventoryVariant(CastFishingRodLocation))
 
             mc.textureManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)

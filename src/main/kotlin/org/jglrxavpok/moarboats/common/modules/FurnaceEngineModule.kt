@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.common.modules
 
+import net.minecraft.block.Block
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Blocks
@@ -12,6 +13,7 @@ import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.EnumHand
 import net.minecraft.util.EnumParticleTypes
 import net.minecraft.util.ResourceLocation
+import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
@@ -20,6 +22,7 @@ import org.jglrxavpok.moarboats.common.containers.ContainerFurnaceEngine
 import org.jglrxavpok.moarboats.extensions.toRadians
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
+import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.modules.FurnaceEngineModule.saveState
 
 object FurnaceEngineModule : BoatModule() {
@@ -60,7 +63,7 @@ object FurnaceEngineModule : BoatModule() {
     }
 
     override fun controlBoat(from: IControllable) {
-        if(hasFuel(from) && !isStationary(from)) {
+        if(hasFuel(from) && !isStationary(from) && from.inWater()) {
             from.accelerate()
         }
     }
@@ -81,6 +84,28 @@ object FurnaceEngineModule : BoatModule() {
         val world = from.worldRef
         state.setBoolean(LOCKED_BY_REDSTONE, world.isBlockPowered(from.correspondingEntity.position))
         from.saveState()
+        if(hasFuel(from) && !isStationary(from)) {
+            val count = ((Math.random() * 5) + 3).toInt()
+            val posX = from.positionX
+            val posY = from.positionY
+            val posZ = from.positionZ
+            val rotationYaw = from.yaw
+            val angle = (rotationYaw + 90f).toRadians()
+            val distAlongLength = 0.0625f * 17f * -1f
+
+            val pos = BlockPos.PooledMutableBlockPos.retain(posX, posY-0.5, posZ)
+            val blockState = from.worldRef.getBlockState(pos)
+
+            repeat(count) {
+                // between -8s and 8s, s being the scaling factor
+                val distAlongWidth = 0.0625f * 8f * (Math.random() * 2.0 - 1.0)
+                val anchorX = posX + MathHelper.cos(angle) * distAlongLength + MathHelper.sin(angle) * distAlongWidth
+                val anchorY = posY + 0.0625f * 4f
+                val anchorZ = posZ + MathHelper.sin(angle) * distAlongLength - MathHelper.cos(angle) * distAlongWidth
+                from.worldRef.spawnParticle(EnumParticleTypes.BLOCK_CRACK, anchorX, anchorY, anchorZ, -from.velocityX, 1.0, -from.velocityZ, Block.getStateId(blockState))
+            }
+            pos.release()
+        }
     }
 
     private fun updateFuelState(boat: IControllable, state: NBTTagCompound, inv: IInventory) {

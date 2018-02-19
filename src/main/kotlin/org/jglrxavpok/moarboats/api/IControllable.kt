@@ -20,6 +20,8 @@ interface IControllable {
     val correspondingEntity: Entity
     val moduleRNG: Random
 
+    fun inWater(): Boolean
+
     fun turnRight(multiplier: Float = 1f)
 
     fun turnLeft(multiplier: Float = 1f)
