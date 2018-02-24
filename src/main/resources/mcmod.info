@@ -11,6 +11,6 @@
   "credits": "DYColdWind for the Chinese translation",
   "logoFile": "/assets/moarboats/logo.png",
   "screenshots": [],
-  "dependencies": []
+  "dependencies": ["forgelin"]
 }
 ]
