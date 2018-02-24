@@ -5,7 +5,7 @@
   "description": "Adds more uses to boats!",
   "version": "${version}",
   "mcversion": "${mcversion}",
-  "url": "",
+  "url": "https://minecraft.curseforge.com/projects/moar-boats",
   "updateUrl": "",
   "authorList": ["jglrxavpok"],
   "credits": "DYColdWind for the Chinese translation",
