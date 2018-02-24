@@ -6,7 +6,7 @@
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "https://minecraft.curseforge.com/projects/moar-boats",
-  "updateUrl": "",
+  "updateUrl": "https://raw.githubusercontent.com/jglrxavpok/Moar-Boats/master/updateCheck.json",
   "authorList": ["jglrxavpok"],
   "credits": "DYColdWind for the Chinese translation",
   "logoFile": "/assets/moarboats/logo.png",
