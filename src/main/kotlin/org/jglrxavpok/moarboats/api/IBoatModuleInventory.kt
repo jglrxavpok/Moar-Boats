@@ -3,6 +3,8 @@ package org.jglrxavpok.moarboats.api
 import net.minecraft.inventory.IInventory
 import net.minecraft.item.ItemStack
 import net.minecraft.util.NonNullList
+import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.common.network.S7SyncInventory
 
 interface IBoatModuleInventory: IInventory {
 
@@ -49,6 +51,10 @@ interface IBoatModuleInventory: IInventory {
         }
 
         return itemstack
+    }
+
+    fun syncToClient() {
+        MoarBoats.network.sendToAll(S7SyncInventory(boat.entityID, module.id, list))
     }
 
 }

@@ -18,6 +18,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.network.datasync.DataSerializers
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.common.MinecraftForge
+import net.minecraftforge.common.config.Configuration
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper
 import org.jglrxavpok.moarboats.common.*
 import org.jglrxavpok.moarboats.common.items.BaseBoatItem
@@ -41,6 +42,8 @@ object MoarBoats {
     lateinit var proxy: MoarBoatsProxy
 
     val network = SimpleNetworkWrapper(ModID)
+    lateinit var config: Configuration
+        private set
 
     val CreativeTab = object: CreativeTabs("moarboats") {
         override fun getTabIconItem(): ItemStack {
@@ -51,6 +54,9 @@ object MoarBoats {
 
     @Mod.EventHandler
     fun preInit(event: FMLPreInitializationEvent) {
+        config = Configuration(event.suggestedConfigurationFile)
+        MBConfig.backing = config
+        MBConfig.loadAll()
         BoatModuleRegistry.registerModule(ResourceLocation("moarboats:furnace_engine"), Item.getItemFromBlock(MCBlocks.FURNACE), FurnaceEngineModule, { boat, module -> EngineModuleInventory(boat, module) })
         BoatModuleRegistry.registerModule(ResourceLocation("moarboats:chest"), Item.getItemFromBlock(MCBlocks.CHEST), ChestModule, { boat, module -> ChestModuleInventory(boat, module) })
         BoatModuleRegistry.registerModule(ResourceLocation("moarboats:helm"), HelmItem, HelmModule, { boat, module -> SimpleModuleInventory(1, "helm", boat, module) })

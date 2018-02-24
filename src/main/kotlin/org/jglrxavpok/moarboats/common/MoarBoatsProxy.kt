@@ -15,6 +15,8 @@ open class MoarBoatsProxy {
         MoarBoats.network.registerMessage(S3MapAnswer.Handler, S3MapAnswer::class.java, 3, Side.CLIENT)
         MoarBoats.network.registerMessage(C4ChangeEngineMode.Handler, C4ChangeEngineMode::class.java, 4, Side.SERVER)
         MoarBoats.network.registerMessage(C5DeployAnchor.Handler, C5DeployAnchor::class.java, 5, Side.SERVER)
+        MoarBoats.network.registerMessage(S6PlaySound.Handler, S6PlaySound::class.java, 6, Side.CLIENT)
+        MoarBoats.network.registerMessage(S7SyncInventory.Handler, S7SyncInventory::class.java, 7, Side.CLIENT)
     }
 
     open fun preInit() {
