@@ -24,8 +24,12 @@ import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiFishingModule
 import org.jglrxavpok.moarboats.common.MBConfig
+import org.jglrxavpok.moarboats.common.containers.ContainerBase
 import org.jglrxavpok.moarboats.common.containers.ContainerFishingModule
 import org.jglrxavpok.moarboats.common.network.S6PlaySound
+import org.jglrxavpok.moarboats.common.state.BooleanBoatProperty
+import org.jglrxavpok.moarboats.common.state.IntBoatProperty
+import org.jglrxavpok.moarboats.common.state.NBTListBoatProperty
 
 object FishingModule : BoatModule() {
     override val id = ResourceLocation(MoarBoats.ModID, "fishing")
@@ -35,18 +39,18 @@ object FishingModule : BoatModule() {
     override val hopperPriority = 20
 
     const val MaxAnimationTicks = 10
-    // State names
-    const val READY = "ready"
-    const val ANIMATION_TICK = "animationTick"
-    const val LAST_LOOT = "lastLoot"
-    const val PLAYING_ANIMATION = "playingAnimation"
+    // State properties
+    val readyProperty = BooleanBoatProperty("ready")
+    val animationTickProperty = IntBoatProperty("animationTick")
+    val lastLootProperty = NBTListBoatProperty("lastLoot", Constants.NBT.TAG_COMPOUND)
+    val playingAnimationProperty = BooleanBoatProperty("playingAnimation")
 
     @SideOnly(Side.CLIENT)
     override fun createGui(player: EntityPlayer, boat: IControllable): GuiScreen {
         return GuiFishingModule(player.inventory, this, boat)
     }
 
-    override fun createContainer(player: EntityPlayer, boat: IControllable): Container? {
+    override fun createContainer(player: EntityPlayer, boat: IControllable): ContainerBase? {
         return ContainerFishingModule(player.inventory, this, boat)
     }
 
@@ -61,8 +65,7 @@ object FishingModule : BoatModule() {
     override fun update(from: IControllable) {
         val storageModule = from.modules.find { it.moduleSpot == Spot.Storage && it.usesInventory }
         val ready = storageModule != null
-        val state = from.getState()
-        state.setBoolean(READY, ready)
+        readyProperty[from] = ready
 
         val inventory = from.getInventory()
         val rodStack = inventory.getStackInSlot(0)
@@ -86,8 +89,8 @@ object FishingModule : BoatModule() {
                     info.setInteger("damage", it.itemDamage)
                     lootList.appendTag(info)
                 }
-                state.setTag(LAST_LOOT, lootList)
-                state.setBoolean(PLAYING_ANIMATION, true)
+                lastLootProperty[from] = lootList
+                playingAnimationProperty[from] = true
 
                 val storageInventory = from.getInventory(storageModule)
                 val damageAmount = 1
@@ -109,20 +112,17 @@ object FishingModule : BoatModule() {
             }
         }
 
-        if(state.getTagList(LAST_LOOT, Constants.NBT.TAG_COMPOUND).tagCount() > 0) {
-            var animationTick = state.getInteger(ANIMATION_TICK)
-            animationTick++
+        if(lastLootProperty[from].tagCount() > 0) {
+            val animationTick = animationTickProperty[from]++
             if (animationTick >= MaxAnimationTicks) {
-                animationTick = 0
-                state.setBoolean(PLAYING_ANIMATION, false)
-                state.setTag(LAST_LOOT, NBTTagList()) // empty the loot list
+                animationTickProperty[from] = 0
+                playingAnimationProperty[from] = false
+                lastLootProperty[from] = NBTTagList() // empty the loot list
             }
-            state.setInteger(ANIMATION_TICK, animationTick)
         } else {
-            state.setInteger(ANIMATION_TICK, 0)
-            state.setBoolean(PLAYING_ANIMATION, false)
+            animationTickProperty[from] = 0
+            playingAnimationProperty[from] = false
         }
-        from.saveState()
     }
 
     private fun changeRodIfPossible(from: IControllable) {
@@ -156,9 +156,7 @@ object FishingModule : BoatModule() {
     }
 
     override fun onAddition(to: IControllable) {
-        val state = to.getState()
-        state.setBoolean(READY, false)
-        to.saveState()
+        readyProperty[to] = false
     }
 
     override fun onInit(to: IControllable, fromItem: ItemStack?) {

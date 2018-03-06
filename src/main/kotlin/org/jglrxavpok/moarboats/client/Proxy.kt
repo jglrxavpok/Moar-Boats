@@ -33,18 +33,14 @@ class Proxy: MoarBoatsProxy() {
         BoatModuleRenderingRegistry.register(FishingModuleRenderer)
         BoatModuleRenderingRegistry.register(SeatModuleRenderer)
         BoatModuleRenderingRegistry.register(AnchorModuleRenderer)
+        BoatModuleRenderingRegistry.register(SolarEngineRenderer)
+        BoatModuleRenderingRegistry.register(CreativeEngineRenderer)
     }
 
     override fun preInit() {
         MinecraftForge.EVENT_BUS.register(this)
         super.preInit()
         RenderingRegistry.registerEntityRenderingHandler(ModularBoatEntity::class.java, ::RenderModularBoat)
-    }
-
-    @SideOnly(Side.CLIENT)
-    @SubscribeEvent
-    fun registerBlocks(event: RegistryEvent.Register<Block>) {
-        event.registry.registerAll(*Blocks.list.toTypedArray())
     }
 
     @SideOnly(Side.CLIENT)

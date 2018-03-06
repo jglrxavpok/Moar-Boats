@@ -27,6 +27,7 @@ import org.jglrxavpok.moarboats.common.modules.inventories.ChestModuleInventory
 import org.jglrxavpok.moarboats.common.modules.inventories.EngineModuleInventory
 import org.jglrxavpok.moarboats.common.modules.inventories.SimpleModuleInventory
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
+import org.jglrxavpok.moarboats.common.items.CreativeEngineItem
 import org.jglrxavpok.moarboats.common.items.SeatItem
 import org.jglrxavpok.moarboats.common.modules.*
 
@@ -63,6 +64,8 @@ object MoarBoats {
         BoatModuleRegistry.registerModule(ResourceLocation("moarboats:fishing"), MCItems.FISHING_ROD, FishingModule, { boat, module -> SimpleModuleInventory(1, "fishing", boat, module) })
         BoatModuleRegistry.registerModule(ResourceLocation("moarboats:seat"), SeatItem, SeatModule)
         BoatModuleRegistry.registerModule(ResourceLocation("moarboats:anchor"), Item.getItemFromBlock(MCBlocks.ANVIL), AnchorModule)
+        BoatModuleRegistry.registerModule(ResourceLocation("moarboats:solar_engine"), Item.getItemFromBlock(MCBlocks.DAYLIGHT_DETECTOR), SolarEngineModule)
+        BoatModuleRegistry.registerModule(ResourceLocation("moarboats:creative_engine"), CreativeEngineItem, CreativeEngineModule)
         // TODO: BoatModuleRegistry.registerModule(ResourceLocation("moarboats:sonar"), Item.getItemFromBlock(MCBlocks.AIR), SonarModule)
         MinecraftForge.EVENT_BUS.register(this)
         MinecraftForge.EVENT_BUS.register(ItemEventHandler)

@@ -22,6 +22,7 @@ class GuiAnchorModule(playerInventory: InventoryPlayer, anchor: BoatModule, boat
     val undeployedText = TextComponentTranslation("gui.anchor.deploy")
     val movingAnchorText = TextComponentTranslation("gui.anchor.moving")
     val descText = TextComponentTranslation("gui.anchor.desc")
+    val anchor = module as AnchorModule
 
     override fun initGui() {
         super.initGui()
@@ -32,12 +33,11 @@ class GuiAnchorModule(playerInventory: InventoryPlayer, anchor: BoatModule, boat
 
     override fun updateScreen() {
         super.updateScreen()
-        val state = boat.getState(module)
-        if(state.getInteger(AnchorModule.ANCHOR_DIRECTION) != 0) {
+        if(anchor.anchorDirectionProperty[boat] != 0) {
             deployButton.displayString = movingAnchorText.unformattedText
             deployButton.enabled = false
         } else {
-            val deployText = if(state.getBoolean(AnchorModule.DEPLOYED)) deployedText else undeployedText
+            val deployText = if(anchor.deployedProperty[boat]) deployedText else undeployedText
             deployButton.enabled = true
             deployButton.displayString = deployText.unformattedText
         }

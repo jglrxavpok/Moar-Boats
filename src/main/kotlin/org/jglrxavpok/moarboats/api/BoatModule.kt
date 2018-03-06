@@ -9,6 +9,7 @@ import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
+import org.jglrxavpok.moarboats.common.containers.ContainerBase
 import java.util.*
 
 abstract class BoatModule {
@@ -20,7 +21,7 @@ abstract class BoatModule {
     abstract fun controlBoat(from: IControllable)
     abstract fun update(from: IControllable)
     abstract fun onAddition(to: IControllable)
-    abstract fun createContainer(player: EntityPlayer, boat: IControllable): Container?
+    abstract fun createContainer(player: EntityPlayer, boat: IControllable): ContainerBase?
 
     /**
      * Priority for using a hopper: the higher, the strongest priority. Use 0 to disallow hopper interactions

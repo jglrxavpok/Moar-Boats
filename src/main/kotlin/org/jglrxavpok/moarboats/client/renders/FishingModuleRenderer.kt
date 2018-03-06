@@ -44,10 +44,9 @@ object FishingModuleRenderer : BoatModuleRenderer() {
         GlStateManager.pushAttrib()
         RenderHelper.enableStandardItemLighting()
 
-        val state = boat.getState(module)
         val hasRod = rodStack.item is ItemFishingRod
-        val ready = state.getBoolean(FishingModule.READY)
-        val playingAnimation = state.getBoolean(FishingModule.PLAYING_ANIMATION)
+        val ready = module.readyProperty[boat]
+        val playingAnimation = module.playingAnimationProperty[boat]
 
         if(ready && hasRod && boat.inWater()) {
             val model = mc.renderItem.itemModelMesher.modelManager.getModel(net.minecraftforge.client.model.ModelLoader.getInventoryVariant(CastFishingRodLocation))
@@ -85,7 +84,7 @@ object FishingModuleRenderer : BoatModuleRenderer() {
 
         // draw fish flying out of water
         if(playingAnimation) {
-            val animationTick = state.getInteger(FishingModule.ANIMATION_TICK)
+            val animationTick = module.animationTickProperty[boat]
             val animationProgress = (animationTick + partialTicks) / FishingModule.MaxAnimationTicks
             val scaling = 1f / (1.5f * 0.75f)
             val hookX = (-0.75f-0.40) * scaling
@@ -101,7 +100,7 @@ object FishingModuleRenderer : BoatModuleRenderer() {
             GlStateManager.translate(fishX, fishY, fishZ)
             val fishScale = 0.25f
             GlStateManager.scale(fishScale, fishScale, fishScale)
-            val lootList = state.getTagList(FishingModule.LAST_LOOT, Constants.NBT.TAG_COMPOUND)
+            val lootList = module.lastLootProperty[boat]
             GlStateManager.rotate(boat.ticksExisted.toFloat()*4f, 0f, 1f, 0f)
             for(lootInfo in lootList) {
                 lootInfo as NBTTagCompound

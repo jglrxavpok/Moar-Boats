@@ -1,5 +1,9 @@
 package org.jglrxavpok.moarboats.common
 
+import net.minecraft.block.Block
+import net.minecraftforge.common.MinecraftForge
+import net.minecraftforge.event.RegistryEvent
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.fml.common.network.NetworkRegistry
 import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.MoarBoats
@@ -20,6 +24,6 @@ open class MoarBoatsProxy {
     }
 
     open fun preInit() {
-
     }
+
 }

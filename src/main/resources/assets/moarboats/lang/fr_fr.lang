@@ -29,3 +29,11 @@ gui.anchor.deployed=Lever l'ancre
 gui.anchor.moving=Ancre en movement...
 gui.anchor.spawnPointSet=Point de réapparition mis à jour!
 inventory.anchor.name=Ancre
+
+# 1.3.0
+inventory.solar_engine.name=Moteur solaire
+inventory.creative_engine.name=Moteur mode créatif
+gui.engine.powerSetting=Puissance
+gui.engine.power.max=Puissance maximale!
+gui.engine.power.min=Puissance minimale
+gui.engine.forever=Pour l'éternité

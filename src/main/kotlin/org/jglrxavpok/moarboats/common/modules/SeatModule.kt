@@ -13,6 +13,7 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiSeatModule
+import org.jglrxavpok.moarboats.common.containers.ContainerBase
 import org.jglrxavpok.moarboats.common.containers.EmptyContainer
 import org.jglrxavpok.moarboats.common.items.SeatItem
 
@@ -27,7 +28,7 @@ object SeatModule : BoatModule() {
         return GuiSeatModule(player.inventory, this, boat)
     }
 
-    override fun createContainer(player: EntityPlayer, boat: IControllable): Container? {
+    override fun createContainer(player: EntityPlayer, boat: IControllable): ContainerBase? {
         return EmptyContainer(player.inventory)
     }
 

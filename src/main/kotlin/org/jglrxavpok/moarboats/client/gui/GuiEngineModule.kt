@@ -11,19 +11,24 @@ import org.jglrxavpok.moarboats.common.containers.ContainerFurnaceEngine
 import org.jglrxavpok.moarboats.common.modules.FurnaceEngineModule
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
+import org.jglrxavpok.moarboats.common.containers.ContainerBase
+import org.jglrxavpok.moarboats.common.containers.EmptyContainer
+import org.jglrxavpok.moarboats.common.modules.BaseEngineModule
+import org.jglrxavpok.moarboats.common.modules.SolarEngineModule
 import org.jglrxavpok.moarboats.common.network.C4ChangeEngineMode
 
-class GuiFurnaceEngine(playerInventory: InventoryPlayer, engine: BoatModule, boat: IControllable):
-        GuiModuleBase(engine, boat, playerInventory, ContainerFurnaceEngine(playerInventory, engine, boat)) {
+class GuiEngineModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: IControllable, container: ContainerBase):
+        GuiModuleBase(engine, boat, playerInventory, container) {
 
-    override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/furnace_engine.png")
+    override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/${engine.id.resourcePath}.png")
     val barsTexture = ResourceLocation("minecraft:textures/gui/bars.png")
     val remainingCurrentItem = TextComponentTranslation("gui.engine.remainingCurrent")
     val estimatedTimeText = TextComponentTranslation("gui.engine.estimatedTime")
     private val lockInPlaceButton = GuiLockIconButton(0, 0, 0)
     private val lockText = TextComponentTranslation("gui.engine.lock")
     private val lockedByRedstone = TextComponentTranslation("gui.engine.lockedByRedstone")
-    private val engine = module as FurnaceEngineModule
+    private val foreverText = TextComponentTranslation("gui.engine.forever")
+    private val engine = module as BaseEngineModule
 
     override fun initGui() {
         super.initGui()
@@ -34,7 +39,7 @@ class GuiFurnaceEngine(playerInventory: InventoryPlayer, engine: BoatModule, boa
 
     override fun updateScreen() {
         super.updateScreen()
-        lockInPlaceButton.isLocked = boat.getState(module).getBoolean(FurnaceEngineModule.STATIONARY)
+        lockInPlaceButton.isLocked = engine.stationaryProperty[boat]
     }
 
     override fun actionPerformed(button: GuiButton) {
@@ -55,12 +60,8 @@ class GuiFurnaceEngine(playerInventory: InventoryPlayer, engine: BoatModule, boa
     }
 
     override fun drawModuleForeground(mouseX: Int, mouseY: Int) {
-        val state = boat.getState(module)
-        val currentFuel = state.getInteger(FurnaceEngineModule.FUEL_TIME)
-        val totalFuel = state.getInteger(FurnaceEngineModule.FUEL_TOTAL_TIME)
-        val remaining = if(totalFuel == 0) 0f else 1f - currentFuel / totalFuel.toFloat()
-        val currentStack = inventorySlots.getSlot(0).stack
-        val estimatedTotalTicks = (totalFuel - currentFuel) + currentStack.count * FurnaceEngineModule.getFuelTime(currentStack.item)
+        val remaining = engine.remainingTimeInPercent(boat)
+        val estimatedTotalTicks = engine.estimatedTotalTicks(boat)
         val estimatedTime = estimatedTotalTicks / 20
 
 
@@ -71,9 +72,14 @@ class GuiFurnaceEngine(playerInventory: InventoryPlayer, engine: BoatModule, boa
         val barIndex = 4
         val barSize = xSize*.85f
         val x = xSize/2f - barSize/2f
-        drawBar(x, infoY+10f, barIndex, barSize, fill = remaining)
-        drawCenteredString(estimatedTimeText.unformattedText, 88, infoY+18, 0xFFFFFFFF.toInt(), shadow = true)
-        drawCenteredString("${estimatedTime}s", 88, infoY+28, 0xFF50A050.toInt())
+        drawBar(x, infoY+10f, barIndex, barSize, fill = if(remaining.isFinite()) remaining else 1f)
+        if(estimatedTime.isInfinite()) {
+            drawCenteredString(estimatedTimeText.unformattedText, 88, infoY+18, 0xFFFFFFFF.toInt(), shadow = true)
+            drawCenteredString(foreverText.unformattedText, 88, infoY+28, 0xFF50A050.toInt())
+        } else if(!estimatedTime.isNaN()) {
+            drawCenteredString(estimatedTimeText.unformattedText, 88, infoY+18, 0xFFFFFFFF.toInt(), shadow = true)
+            drawCenteredString("${estimatedTime.toInt()}s", 88, infoY+28, 0xFF50A050.toInt())
+        }
         if(engine.isLockedByRedstone(boat))
             drawCenteredString(lockedByRedstone.unformattedText, 88, infoY+38, 0xFF0000)
     }
