@@ -20,7 +20,7 @@ object SolarEngineModule : BaseEngineModule() {
     val invertedProperty = BooleanBoatProperty("inverted")
 
     override fun createContainer(player: EntityPlayer, boat: IControllable): ContainerBase {
-        return EmptyContainer(player.inventory)
+        return EmptyContainer(player.inventory, isLarge = true)
     }
 
     override val id = ResourceLocation("moarboats:solar_engine")

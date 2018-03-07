@@ -36,4 +36,5 @@ inventory.creative_engine.name=Creative mode engine
 gui.engine.powerSetting=Power setting
 gui.engine.power.max=Unlimited power!
 gui.engine.power.min=Keep it cool
+gui.engine.power.normal=As usual
 gui.engine.forever=Forever and after

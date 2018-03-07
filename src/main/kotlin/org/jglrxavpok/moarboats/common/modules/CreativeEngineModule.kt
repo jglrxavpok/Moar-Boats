@@ -18,7 +18,7 @@ import org.jglrxavpok.moarboats.common.state.BooleanBoatProperty
 
 object CreativeEngineModule : BaseEngineModule() {
     override fun createContainer(player: EntityPlayer, boat: IControllable): ContainerBase? {
-        return EmptyContainer(player.inventory)
+        return EmptyContainer(player.inventory, isLarge = true)
     }
 
     override val id = ResourceLocation("moarboats:creative_engine")

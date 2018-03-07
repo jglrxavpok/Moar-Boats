@@ -21,7 +21,7 @@ class ContainerFurnaceEngine(playerInventory: InventoryPlayer, val engine: BoatM
     init {
         this.addSlotToContainer(SlotEngineFuel(engineInventory, 0, 8, 8))
 
-        addPlayerSlots(isLarge = false)
+        addPlayerSlots(isLarge = true)
     }
 
     override fun addListener(listener: IContainerListener) {

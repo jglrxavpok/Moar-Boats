@@ -36,4 +36,5 @@ inventory.creative_engine.name=Moteur mode créatif
 gui.engine.powerSetting=Puissance
 gui.engine.power.max=Puissance maximale!
 gui.engine.power.min=Puissance minimale
+gui.engine.power.normale=Puissance normale
 gui.engine.forever=Pour l'éternité
