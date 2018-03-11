@@ -18,13 +18,14 @@ import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiEngineModule
 import org.jglrxavpok.moarboats.common.state.ArrayBoatProperty
 import org.jglrxavpok.moarboats.common.state.BooleanBoatProperty
+import org.jglrxavpok.moarboats.common.state.FloatBoatProperty
 import org.jglrxavpok.moarboats.extensions.toRadians
 
 abstract class BaseEngineModule: BoatModule() {
 
     val stationaryProperty = BooleanBoatProperty("stationary")
     val lockedByRedstoneProperty = BooleanBoatProperty("redstoneLocked")
-    val speedProperty = ArrayBoatProperty("speedSetting", EngineSpeed.values())
+    val speedProperty = FloatBoatProperty("speedSetting")
     override val moduleSpot = Spot.Engine
     override val hopperPriority = 10
 
@@ -39,7 +40,7 @@ abstract class BaseEngineModule: BoatModule() {
 
     override fun controlBoat(from: IControllable) {
         if(hasFuel(from) && !isStationary(from) && from.inWater()) {
-            from.accelerate(speedProperty[from].speedMultiplier)
+            from.accelerate(speedProperty[from]+1f)
         }
     }
 
@@ -51,7 +52,7 @@ abstract class BaseEngineModule: BoatModule() {
     override fun onAddition(to: IControllable) {
         stationaryProperty[to] = true
         lockedByRedstoneProperty[to] = false
-        speedProperty[to] = EngineSpeed.Normal
+        speedProperty[to] = 0f
     }
 
     override fun update(from: IControllable) {
@@ -97,6 +98,10 @@ abstract class BaseEngineModule: BoatModule() {
         stationaryProperty[boat] = !isStationary
     }
 
+    fun changeSpeed(boat: IControllable, speed: Float) {
+        speedProperty[boat] = speed
+    }
+
     fun isItemFuel(fuelItem: ItemStack) = getFuelTime(fuelItem.item) > 0
 
     fun isLockedByRedstone(boat: IControllable) = lockedByRedstoneProperty[boat]
@@ -104,9 +109,4 @@ abstract class BaseEngineModule: BoatModule() {
     companion object {
         val SECONDS_TO_TICKS = 20
     }
-
-    enum class EngineSpeed(val speedMultiplier: Float) {
-        Minimum(0.5f), Normal(1.0f), Maximum(1.5f)
-    }
-
 }
