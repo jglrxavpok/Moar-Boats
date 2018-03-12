@@ -1,14 +1,16 @@
 package org.jglrxavpok.moarboats.common.state
 
+import com.google.common.collect.BiMap
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
+import net.minecraft.util.math.BlockPos
 import net.minecraftforge.common.util.Constants
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 
 abstract class BoatProperty<Type>(val module: BoatModule, val id: String) {
 
-    abstract val type: Class<Type>
+    abstract val type: Class<out Type>
     abstract val readProperty: NBTTagCompound.(String) -> Type
     abstract val writeProperty: NBTTagCompound.(String, Type) -> Unit
 

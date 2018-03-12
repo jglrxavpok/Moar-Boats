@@ -482,14 +482,6 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         }
     }
 
-    fun calculateAnchorPosition(linkType: Int): Vec3d {
-        val distanceFromCenter = 0.0625f * 17f * if(linkType == BasicBoatEntity.FrontLink) 1f else -1f
-        val anchorX = posX + MathHelper.cos((rotationYaw + 90f).toRadians()) * distanceFromCenter
-        val anchorY = posY + 0.0625f * 16f
-        val anchorZ = posZ + MathHelper.sin((rotationYaw + 90f).toRadians()) * distanceFromCenter
-        return Vec3d(anchorX, anchorY, anchorZ)
-    }
-
     override fun turnRight(multiplier: Float) {
         deltaRotation += 1f * multiplier
     }

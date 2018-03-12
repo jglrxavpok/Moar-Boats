@@ -9,7 +9,7 @@ import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.containers.EmptyContainer
 
-class GuiSeatModule(playerInventory: InventoryPlayer, seat: BoatModule, boat: IControllable):
+class GuiNoConfigModule(playerInventory: InventoryPlayer, seat: BoatModule, boat: IControllable):
         GuiModuleBase(seat, boat, playerInventory, EmptyContainer(playerInventory)) {
 
     val enjoyTheTrip = TextComponentTranslation("gui.seat.enjoy")

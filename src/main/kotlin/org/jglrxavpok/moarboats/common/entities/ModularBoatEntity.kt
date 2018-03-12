@@ -11,6 +11,7 @@ import net.minecraft.network.datasync.EntityDataManager
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
+import net.minecraft.util.text.TextComponentTranslation
 import net.minecraft.world.World
 import net.minecraftforge.common.util.Constants
 import org.jglrxavpok.moarboats.MoarBoats
@@ -97,15 +98,21 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
         val heldItem = player.getHeldItem(hand)
         val module = BoatModuleRegistry.findModule(heldItem)
         if(module != null) {
-            if(module !in moduleLocations && canFitModule(module)) {
-                if(!player.capabilities.isCreativeMode) {
-                    heldItem.shrink(1)
-                    if (heldItem.isEmpty) {
-                        player.inventory.deleteStack(heldItem)
+            if(module !in moduleLocations) {
+                if(canFitModule(module)) {
+                    if(!player.capabilities.isCreativeMode) {
+                        heldItem.shrink(1)
+                        if (heldItem.isEmpty) {
+                            player.inventory.deleteStack(heldItem)
+                        }
                     }
+                    addModule(module, fromItem = heldItem)
+                    return true
+                } else {
+                    val correspondingModule = BoatModuleRegistry[module].module
+                    player.sendStatusMessage(TextComponentTranslation("general.occupiedSpot", correspondingModule.moduleSpot.text), true)
+                    return false
                 }
-                addModule(module, fromItem = heldItem)
-                return true
             }
         }
 

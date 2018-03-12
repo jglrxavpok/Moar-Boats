@@ -7,6 +7,7 @@ import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
+import net.minecraft.util.text.TextComponentTranslation
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import org.jglrxavpok.moarboats.common.containers.ContainerBase
@@ -40,11 +41,13 @@ abstract class BoatModule {
     protected fun IControllable.getState() = this.getState(this@BoatModule)
     protected fun IControllable.getInventory() = this.getInventory(this@BoatModule)
 
-    enum class Spot {
-        Engine,
-        Storage,
-        Navigation,
-        Misc
+    enum class Spot(val id: String) {
+        Engine("engine"),
+        Storage("storage"),
+        Navigation("navigation"),
+        Misc("misc");
+
+        val text = TextComponentTranslation("general.spot.$id")
     }
 
     open fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {}

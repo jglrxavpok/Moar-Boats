@@ -21,14 +21,11 @@ import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.config.Configuration
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper
 import org.jglrxavpok.moarboats.common.*
-import org.jglrxavpok.moarboats.common.items.BaseBoatItem
-import org.jglrxavpok.moarboats.common.items.HelmItem
 import org.jglrxavpok.moarboats.common.modules.inventories.ChestModuleInventory
 import org.jglrxavpok.moarboats.common.modules.inventories.EngineModuleInventory
 import org.jglrxavpok.moarboats.common.modules.inventories.SimpleModuleInventory
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
-import org.jglrxavpok.moarboats.common.items.CreativeEngineItem
-import org.jglrxavpok.moarboats.common.items.SeatItem
+import org.jglrxavpok.moarboats.common.items.*
 import org.jglrxavpok.moarboats.common.modules.*
 
 
@@ -66,6 +63,7 @@ object MoarBoats {
         BoatModuleRegistry.registerModule(ResourceLocation("moarboats:anchor"), Item.getItemFromBlock(MCBlocks.ANVIL), AnchorModule)
         BoatModuleRegistry.registerModule(ResourceLocation("moarboats:solar_engine"), Item.getItemFromBlock(MCBlocks.DAYLIGHT_DETECTOR), SolarEngineModule)
         BoatModuleRegistry.registerModule(ResourceLocation("moarboats:creative_engine"), CreativeEngineItem, CreativeEngineModule)
+        BoatModuleRegistry.registerModule(ResourceLocation("moarboats:icebreaker"), IceBreakerItem, IceBreakerModule)
         // TODO: BoatModuleRegistry.registerModule(ResourceLocation("moarboats:sonar"), Item.getItemFromBlock(MCBlocks.AIR), SonarModule)
         MinecraftForge.EVENT_BUS.register(this)
         MinecraftForge.EVENT_BUS.register(ItemEventHandler)

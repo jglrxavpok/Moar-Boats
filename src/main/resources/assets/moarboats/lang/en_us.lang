@@ -33,8 +33,16 @@ inventory.anchor.name=Anchor module
 # 1.3.0
 inventory.solar_engine.name=Solar Engine
 inventory.creative_engine.name=Creative mode engine
+item.creative_engine.name=Creative mode Engine
 gui.engine.powerSetting=Power setting
 gui.engine.power.max=Unlimited power!
 gui.engine.power.min=Keep it cool
 gui.engine.power.normal=As usual
 gui.engine.forever=Forever and after
+general.occupiedSpot=Spot "%s" is already occupied!
+general.spot.engine=Engine
+general.spot.misc=Miscellaneous
+general.spot.storage=Storage
+general.spot.navigation=Navigation
+
+item.icebreaker.name=Icebreaker
