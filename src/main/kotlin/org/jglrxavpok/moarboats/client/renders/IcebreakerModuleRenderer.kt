@@ -27,11 +27,8 @@ object IcebreakerModuleRenderer : BoatModuleRenderer() {
 
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, renderManager: RenderManager) {
         GlStateManager.pushMatrix()
-        //GlStateManager.scale(0.75f, 0.75f, 0.75f)
-        GlStateManager.scale(-1f, -1f, 1f)
-        GlStateManager.translate(0.25f, 3f/16f * .75f, 0f)
+        GlStateManager.scale(1f, -1f, 1f)
 
-        GlStateManager.rotate(90f, 0f, 1f, 0f)
         renderManager.renderEngine.bindTexture(texture)
         model.render(boat, 0f, 0f, 0f, 0f, 0f, 0.0625f)
         GlStateManager.popMatrix()
