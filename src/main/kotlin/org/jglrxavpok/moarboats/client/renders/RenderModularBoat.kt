@@ -34,7 +34,10 @@ class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>
         bindTexture(TextureLocation)
         GlStateManager.pushMatrix()
         GlStateManager.disableCull()
-        setTranslation(entity, x, y, z)
+        if(entity.isInLava)
+            setTranslation(entity, x, y+0.20f, z)
+        else
+            setTranslation(entity, x, y, z)
         setRotation(entity, entityYaw, partialTicks)
         GlStateManager.enableRescaleNormal()
         setScale()
