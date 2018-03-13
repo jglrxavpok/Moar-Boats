@@ -1,5 +1,7 @@
 package org.jglrxavpok.moarboats.common.entities
 
+import net.minecraft.block.BlockLiquid
+import net.minecraft.block.state.IBlockState
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.InventoryHelper
@@ -8,12 +10,14 @@ import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
 import net.minecraft.network.datasync.DataSerializers
 import net.minecraft.network.datasync.EntityDataManager
+import net.minecraft.util.DamageSource
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.text.TextComponentTranslation
 import net.minecraft.world.World
 import net.minecraftforge.common.util.Constants
+import net.minecraftforge.fluids.BlockFluidBase
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.ResourceLocationsSerializer
@@ -24,6 +28,7 @@ import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.api.IBoatModuleInventory
 import org.jglrxavpok.moarboats.common.modules.SeatModule
+import org.jglrxavpok.moarboats.extensions.Fluids
 import java.util.*
 
 class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
@@ -215,6 +220,12 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
         }
     }
 
+    override fun isValidLiquidBlock(blockstate: IBlockState) = Fluids.isUsualLiquidBlock(blockstate)
+
+    override fun attackEntityFrom(source: DamageSource, amount: Float) = when(source) {
+        DamageSource.LAVA, DamageSource.IN_FIRE, DamageSource.ON_FIRE -> false
+        else -> super.attackEntityFrom(source, amount)
+    }
 
     // === START OF INVENTORY CODE FOR INTERACTIONS WITH HOPPERS === //
 
