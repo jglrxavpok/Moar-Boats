@@ -12,7 +12,7 @@ import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.modules.FurnaceEngineModule
 
-class ContainerFurnaceEngine(val playerInventory: InventoryPlayer, val engine: BoatModule, val boat: IControllable): Container() {
+class ContainerFurnaceEngine(playerInventory: InventoryPlayer, val engine: BoatModule, val boat: IControllable): ContainerBase(playerInventory) {
 
     val engineInventory = boat.getInventory(engine)
     private var fuelTime = engineInventory.getField(0)
@@ -21,23 +21,7 @@ class ContainerFurnaceEngine(val playerInventory: InventoryPlayer, val engine: B
     init {
         this.addSlotToContainer(SlotEngineFuel(engineInventory, 0, 8, 8))
 
-        addPlayerSlots()
-    }
-
-    private fun addPlayerSlots() {
-        for (i in 0..2) {
-            for (j in 0..8) {
-                this.addSlotToContainer(Slot(playerInventory, j + i * 9 + 9, 8 + j * 18, 84 + i * 18))
-            }
-        }
-
-        for (k in 0..8) {
-            this.addSlotToContainer(Slot(playerInventory, k, 8 + k * 18, 142))
-        }
-    }
-
-    override fun canInteractWith(playerIn: EntityPlayer): Boolean {
-        return true
+        addPlayerSlots(isLarge = true)
     }
 
     override fun addListener(listener: IContainerListener) {

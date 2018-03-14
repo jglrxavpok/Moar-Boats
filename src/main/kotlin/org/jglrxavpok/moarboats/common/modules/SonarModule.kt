@@ -14,6 +14,7 @@ import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiSonarModule
 import org.jglrxavpok.moarboats.extensions.toRadians
 import org.lwjgl.util.vector.Vector3f
+import org.jglrxavpok.moarboats.common.containers.ContainerBase
 
 object SonarModule: BoatModule() {
     override val id = ResourceLocation(MoarBoats.ModID, "sonar")
@@ -88,7 +89,7 @@ object SonarModule: BoatModule() {
         to.saveState()
     }
 
-    override fun createContainer(player: EntityPlayer, boat: IControllable): Container? {
+    override fun createContainer(player: EntityPlayer, boat: IControllable): ContainerBase? {
         return null
     }
 

@@ -1,11 +1,9 @@
 package org.jglrxavpok.moarboats.client.renders
 
 import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.entity.Render
 import net.minecraft.client.renderer.entity.RenderManager
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats
-import net.minecraft.entity.EntityHanging
+import net.minecraft.entity.Entity
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
 import org.jglrxavpok.moarboats.MoarBoats
@@ -13,11 +11,9 @@ import org.jglrxavpok.moarboats.client.models.ModelBoatLink
 import org.jglrxavpok.moarboats.client.models.ModelBoatLinkerAnchor
 import org.jglrxavpok.moarboats.client.models.ModelModularBoat
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
-import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity.Companion.BackLink
-import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity.Companion.FrontLink
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.extensions.lookAt
-import org.jglrxavpok.moarboats.extensions.toDegrees
+import org.jglrxavpok.moarboats.extensions.setLookAlong
 import org.lwjgl.util.vector.Quaternion
 
 class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>(renderManager) {
@@ -38,7 +34,10 @@ class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>
         bindTexture(TextureLocation)
         GlStateManager.pushMatrix()
         GlStateManager.disableCull()
-        setTranslation(entity, x, y, z)
+        if(entity.isInLava)
+            setTranslation(entity, x, y+0.20f, z)
+        else
+            setTranslation(entity, x, y, z)
         setRotation(entity, entityYaw, partialTicks)
         GlStateManager.enableRescaleNormal()
         setScale()
@@ -85,20 +84,20 @@ class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>
         return start + (end - start) * pct
     }
 
-    private fun renderActualLink(thisBoat: BasicBoatEntity, otherBoat: BasicBoatEntity, sideFromThisBoat: Int, entityYaw: Float) {
+    private fun renderActualLink(thisBoat: BasicBoatEntity, targetEntity: Entity, sideFromThisBoat: Int, entityYaw: Float) {
         val anchorThis = thisBoat.calculateAnchorPosition(sideFromThisBoat)
-        val anchorOther = otherBoat.calculateAnchorPosition(1-sideFromThisBoat)
+        val anchorOther = if(targetEntity is BasicBoatEntity) targetEntity.calculateAnchorPosition(1-sideFromThisBoat) else targetEntity.positionVector
         val offsetX = anchorOther.x - anchorThis.x
         val offsetY = anchorOther.y - anchorThis.y
         val offsetZ = anchorOther.z - anchorThis.z
 
         val rotQuat by lazy { Quaternion() }
-        rotQuat.lookAt(offsetX, offsetY, offsetZ)
+        //rotQuat.lookAt(offsetX, offsetY, offsetZ)
+        rotQuat.setLookAlong(offsetX.toFloat(), offsetY.toFloat(), offsetZ.toFloat(), 0f, 1f, 0f)
 
         GlStateManager.pushMatrix()
         GlStateManager.rotate(rotQuat)
         GlStateManager.rotate(-thisBoat.rotationYaw-90f, 0f, 1f, 0f)
-        GlStateManager.rotate(-180f, 0f, 1f, 0f)
         val dist = Math.sqrt(offsetX*offsetX+offsetY*offsetY+offsetZ*offsetZ) / 0.0625f // account for scaling
         GlStateManager.scale(1.0, 1.0, dist)
         GlStateManager.translate(0f, 0f, 0.5f)

@@ -9,4 +9,41 @@ item.helm.name=Barre de navigation
 gui.engine.remainingCurrent=Carburant restant
 gui.engine.estimatedTime=Temps total estimé
 gui.engine.lock=Mode stationnaire
-itemGroup.moarboats=Moar boats
+itemGroup.moarboats=Moar Boats
+
+# 1.2.0
+inventory.fishing.name=Module de pêche
+gui.fishing.missingStorage=Il manque un module de stockage!
+item.rope.description=Sélectionnez le dernier bateau de la chaîne, puis celui le précédant!
+item.seat.name=Siège pour bateau
+inventory.seat.name=Siège pour bateau
+gui.seat.nothingToDo=Rien à configurer!
+gui.seat.enjoy=Asseyez vous et profitez du voyage!
+item.seat.description=Cliquez avec une main vide pour vous asseoir!
+gui.engine.lockedByRedstone=Désactivé par de la redstone!
+item.waterborne_conductor.name=Conducteur flottant
+
+gui.anchor.desc=Déployer l'ancre mets à jour votre point de réapparition!
+gui.anchor.deploy=Déployer l'ancre
+gui.anchor.deployed=Lever l'ancre
+gui.anchor.moving=Ancre en movement...
+gui.anchor.spawnPointSet=Point de réapparition mis à jour!
+inventory.anchor.name=Ancre
+
+# 1.3.0
+inventory.solar_engine.name=Moteur solaire
+inventory.creative_engine.name=Moteur mode créatif
+item.creative_engine.name=Moteur mode Créatif
+gui.engine.powerSetting=Puissance
+gui.engine.power.max=Puissance maximale!
+gui.engine.power.min=Puissance minimale
+gui.engine.power.normale=Puissance normale
+gui.engine.forever=Pour l'éternité
+general.occupiedSpot=L'emplacement "%s" est déjà utilisé!
+general.spot.engine=Moteur
+general.spot.misc=Autres
+general.spot.storage=Stockage
+general.spot.navigation=Navigation
+
+item.icebreaker.name=Brise glace
+inventory.icebreaker.name=Icebreaker

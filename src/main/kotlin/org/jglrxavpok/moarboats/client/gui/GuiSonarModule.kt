@@ -8,7 +8,7 @@ import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.containers.EmptyContainer
 
 class GuiSonarModule(playerInventory: InventoryPlayer, sonar: BoatModule, boat: IControllable):
-        GuiModuleBase(sonar, boat, playerInventory, EmptyContainer) {
+        GuiModuleBase(sonar, boat, playerInventory, EmptyContainer(playerInventory)) {
 
     override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/sonar.png")
 }

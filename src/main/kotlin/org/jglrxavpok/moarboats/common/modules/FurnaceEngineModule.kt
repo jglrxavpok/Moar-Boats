@@ -1,10 +1,9 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.client.gui.GuiScreen
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Blocks
 import net.minecraft.init.Items
-import net.minecraft.inventory.*
+import net.minecraft.inventory.IInventory
 import net.minecraft.item.Item
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
@@ -13,75 +12,62 @@ import net.minecraft.util.EnumHand
 import net.minecraft.util.EnumParticleTypes
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
-import net.minecraftforge.fml.relauncher.Side
-import net.minecraftforge.fml.relauncher.SideOnly
-import org.jglrxavpok.moarboats.client.gui.GuiFurnaceEngine
-import org.jglrxavpok.moarboats.common.containers.ContainerFurnaceEngine
-import org.jglrxavpok.moarboats.extensions.toRadians
-import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
+import org.jglrxavpok.moarboats.common.containers.ContainerBase
+import org.jglrxavpok.moarboats.common.containers.ContainerFurnaceEngine
+import org.jglrxavpok.moarboats.common.state.IntBoatProperty
+import org.jglrxavpok.moarboats.extensions.toRadians
 
-object FurnaceEngineModule : BoatModule() {
-
-    @SideOnly(Side.CLIENT)
-    override fun createGui(player: EntityPlayer, boat: IControllable): GuiScreen {
-        return GuiFurnaceEngine(player.inventory, this, boat)
-    }
-
-    override fun createContainer(player: EntityPlayer, boat: IControllable): Container {
+object FurnaceEngineModule : BaseEngineModule() {
+    override fun createContainer(player: EntityPlayer, boat: IControllable): ContainerBase {
         return ContainerFurnaceEngine(player.inventory, this, boat)
     }
 
     override val id = ResourceLocation("moarboats:furnace_engine")
     override val usesInventory = true
-    override val moduleSpot = Spot.Engine
-    override val hopperPriority = 10
-
-    const val SECONDS_TO_TICKS = 20
 
     // State names
-    const val STATIONARY = "stationary"
-    const val FUEL_TOTAL_TIME = "fuelTotalTime"
-    const val FUEL_TIME = "fuelTime"
+    val fuelTotalTimeProperty = IntBoatProperty("fuelTotalTime")
+    val fuelTimeProperty = IntBoatProperty("fuelTime")
+
+    override fun remainingTimeInTicks(from: IControllable): Float {
+        return (fuelTotalTimeProperty[from] - fuelTimeProperty[from]).toFloat()
+    }
+
+    override fun remainingTimeInPercent(from: IControllable): Float {
+        val currentFuel = fuelTimeProperty[from]
+        val totalFuel = fuelTotalTimeProperty[from]
+        return if(totalFuel == 0) 0f else 1f - currentFuel / totalFuel.toFloat()
+    }
+
+    override fun estimatedTotalTicks(boat: IControllable): Float {
+        val inv = boat.getInventory()
+        val diff = remainingTimeInTicks(boat)
+        val currentStack = inv.getStackInSlot(0)
+        return diff + currentStack.count * getFuelTime(currentStack.item)
+    }
 
     override fun onAddition(to: IControllable) {
-        val state = to.getState()
-        state.setInteger(FUEL_TOTAL_TIME, 0)
-        state.setInteger(FUEL_TIME, 0)
-        state.setBoolean(STATIONARY, false)
-        to.saveState()
+        super.onAddition(to)
+        fuelTimeProperty[to] = 0
+        fuelTotalTimeProperty[to] = 0
     }
 
     override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean): Boolean {
         return false
     }
 
-    override fun controlBoat(from: IControllable) {
-        if(hasFuel(from) && !isStationary(from)) {
-            from.accelerate()
-        }
-    }
-
-    fun isStationary(from: IControllable) = from.getState().getBoolean(STATIONARY)
-
-    fun hasFuel(from: IControllable): Boolean {
-        val state = from.getState()
-        val fuelTime = state.getInteger(FUEL_TIME)
-        val fuelTotalTime = state.getInteger(FUEL_TOTAL_TIME)
+    override fun hasFuel(from: IControllable): Boolean {
+        val fuelTime = fuelTimeProperty[from]
+        val fuelTotalTime = fuelTotalTimeProperty[from]
         return fuelTime < fuelTotalTime
     }
 
-    override fun update(from: IControllable) {
-        val state = from.getState()
-        val inv = from.getInventory()
-        updateFuelState(from, state, inv)
-    }
-
-    private fun updateFuelState(boat: IControllable, state: NBTTagCompound, inv: IInventory) {
-        val fuelTime = state.getInteger(FUEL_TIME)
-        val fuelTotalTime = state.getInteger(FUEL_TOTAL_TIME)
+    override fun updateFuelState(boat: IControllable, state: NBTTagCompound, inv: IInventory) {
+        val fuelTime = fuelTimeProperty[boat]
+        val fuelTotalTime = fuelTotalTimeProperty[boat]
         if(fuelTime < fuelTotalTime) {
-            state.setInteger(FUEL_TIME, fuelTime+1)
+            fuelTimeProperty[boat]++
         } else {
             val stack = inv.getStackInSlot(0)
             val fuelItem = stack.item
@@ -91,8 +77,8 @@ object FurnaceEngineModule : BoatModule() {
                     inv.setInventorySlotContents(0, ItemStack(Items.BUCKET))
                 else
                     inv.decrStackSize(0, 1)
-                state.setInteger(FUEL_TIME, 0)
-                state.setInteger(FUEL_TOTAL_TIME, itemFuelTime)
+                fuelTimeProperty[boat] = 0
+                fuelTotalTimeProperty[boat] = itemFuelTime
             }
         }
 
@@ -102,10 +88,9 @@ object FurnaceEngineModule : BoatModule() {
             val dist = 0.5
             boat.worldRef.spawnParticle(EnumParticleTypes.SMOKE_LARGE, boat.positionX + dist * cos, boat.positionY + 0.8, boat.positionZ + dist * sin, 0.0, 0.0, 0.0)
         }
-        boat.saveState()
     }
 
-    fun getFuelTime(fuelItem: Item): Int {
+    override fun getFuelTime(fuelItem: Item): Int {
         return when(fuelItem) {
             Item.getItemFromBlock(Blocks.TORCH) -> 1*SECONDS_TO_TICKS
             Items.COAL -> 60*3*SECONDS_TO_TICKS
@@ -120,13 +105,4 @@ object FurnaceEngineModule : BoatModule() {
         if(!killedByPlayerInCreative)
             boat.correspondingEntity.dropItem(ItemBlock.getItemFromBlock(Blocks.FURNACE), 1)
     }
-
-    fun changeStationaryState(boat: IControllable) {
-        val state = boat.getState()
-        val isStationary = state.getBoolean(STATIONARY)
-        state.setBoolean(STATIONARY, !isStationary)
-        boat.saveState()
-    }
-
-    fun isItemFuel(fuelItem: ItemStack) = getFuelTime(fuelItem.item) > 0
 }

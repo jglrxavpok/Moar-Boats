@@ -1,0 +1,10 @@
+{
+  "homepage": "https://minecraft.curseforge.com/projects/moar-boats",
+  "1.12.2": {
+    "1.2.1": "+ Added configuration file\n* Fishing rods are now damaged when used in the fishing module\n* Added configuration options for fishing speed and rod removal before breaking"
+  },
+  "promos": {
+    "1.12.2-recommended": "1.2.1",
+    "1.12.2-latest": "1.2.1"
+  }
+}

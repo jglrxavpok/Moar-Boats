@@ -9,7 +9,7 @@ import net.minecraftforge.fml.relauncher.SideOnly
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 
-class ContainerChestModule(val playerInventory: InventoryPlayer, val engine: BoatModule, val boat: IControllable): Container() {
+class ContainerChestModule(playerInventory: InventoryPlayer, val engine: BoatModule, val boat: IControllable): ContainerBase(playerInventory) {
 
     val chestInventory = boat.getInventory(engine)
 
@@ -21,23 +21,7 @@ class ContainerChestModule(val playerInventory: InventoryPlayer, val engine: Boa
             }
         }
 
-        addPlayerSlots()
-    }
-
-    private fun addPlayerSlots() {
-        for (i in 0..2) {
-            for (j in 0..8) {
-                this.addSlotToContainer(Slot(playerInventory, j + i * 9 + 9, 8 + j * 18, 84 + i * 18))
-            }
-        }
-
-        for (k in 0..8) {
-            this.addSlotToContainer(Slot(playerInventory, k, 8 + k * 18, 142))
-        }
-    }
-
-    override fun canInteractWith(playerIn: EntityPlayer): Boolean {
-        return true
+        addPlayerSlots(isLarge = false)
     }
 
     override fun addListener(listener: IContainerListener) {

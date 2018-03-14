@@ -5,12 +5,12 @@
   "description": "Adds more uses to boats!",
   "version": "${version}",
   "mcversion": "${mcversion}",
-  "url": "",
-  "updateUrl": "",
+  "url": "https://minecraft.curseforge.com/projects/moar-boats",
+  "updateUrl": "https://raw.githubusercontent.com/jglrxavpok/Moar-Boats/master/updateCheck.json",
   "authorList": ["jglrxavpok"],
   "credits": "DYColdWind for the Chinese translation",
   "logoFile": "/assets/moarboats/logo.png",
   "screenshots": [],
-  "dependencies": []
+  "dependencies": ["forgelin"]
 }
 ]

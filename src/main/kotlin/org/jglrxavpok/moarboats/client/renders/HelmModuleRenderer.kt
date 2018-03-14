@@ -43,7 +43,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         renderManager.renderEngine.bindTexture(texture)
         val moduleState = boat.getState(module)
 
-        val frameAngle = moduleState.getFloat(HelmModule.ROTATION_ANGLE).toRadians()
+        val frameAngle = module.rotationAngleProperty[boat].toRadians()
         rotate(frameAngle, model.frameCenter, model.left, model.radiusLeft, model.right, model.radiusRight, model.top, model.radiusTop, model.bottom, model.radiusBottom)
         model.render(boat, 0f, 0f, 0f, 0f, 0f, 0.0625f)
         rotate(-frameAngle, model.frameCenter, model.left, model.radiusLeft, model.right, model.radiusRight, model.top, model.radiusTop, model.bottom, model.radiusBottom)
@@ -100,6 +100,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         GlStateManager.scale(mapSize-margins*2, mapSize-margins*2, 0.0)
         mc.entityRenderer.mapItemRenderer.updateMapTexture(mapdata)
         mc.entityRenderer.mapItemRenderer.renderMap(mapdata, false)
+        GlStateManager.enableBlend()
         GlStateManager.translate(0.0, 0.0, 1.0)
 
         val mapScale = (1 shl mapdata.scale.toInt()).toFloat()
@@ -117,8 +118,10 @@ object HelmModuleRenderer : BoatModuleRenderer() {
 
         GlStateManager.popMatrix()
 
+        GlStateManager.enableAlpha()
+
         // render waypoints and path
-        val waypointsData = moduleState.getTagList(HelmModule.WAYPOINTS, Constants.NBT.TAG_COMPOUND)
+        val waypointsData = moduleState.getTagList(HelmModule.waypointsProperty.id, Constants.NBT.TAG_COMPOUND)
 
         var hasPrevious = false
         var previousX = 0.0
