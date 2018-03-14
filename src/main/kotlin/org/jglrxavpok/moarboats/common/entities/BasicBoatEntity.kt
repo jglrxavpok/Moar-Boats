@@ -66,8 +66,8 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
      * Halved every tick.
      */
     private var boatGlide = 0f
-    private var status: EntityBoat.Status? = null
-    private var previousStatus: EntityBoat.Status? = null
+    private var status: Status? = null
+    private var previousStatus: Status? = null
     private var lastYd = 0.0
     protected var acceleration = 0f
 
@@ -127,6 +127,10 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         this.preventEntitySpawning = true
         this.setSize(1.375f, 0.5625f)
         isImmuneToFire = true
+    }
+
+    enum class Status {
+        IN_LIQUID, IN_AIR, ON_LAND, UNDER_FLOWING_LIQUID, UNDER_LIQUID
     }
 
     constructor(world: World, x: Double, y: Double, z: Double): this(world) {
@@ -280,7 +284,7 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
     /**
      * Determines whether the boat is in water, gliding on land, or in air
      */
-    private fun getBoatStatus(): EntityBoat.Status {
+    private fun getBoatStatus(): Status {
         val currentStatus = this.getUnderwaterStatus()
 
         return when {
@@ -288,15 +292,15 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
                 this.waterLevel = this.entityBoundingBox.maxY
                 currentStatus
             }
-            this.checkInWater() -> EntityBoat.Status.IN_WATER
+            this.checkInWater() -> Status.IN_LIQUID
             else -> {
                 val f = this.getBoatGlide()
 
                 if (f > 0.0f) {
                     this.boatGlide = f
-                    EntityBoat.Status.ON_LAND
+                    Status.ON_LAND
                 } else {
-                    EntityBoat.Status.IN_AIR
+                    Status.IN_AIR
                 }
             }
         }
@@ -460,11 +464,6 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         }
     }
 
-    /*
-    override fun isInLava(): Boolean {
-        return false
-    }*/
-
     private fun computeTargetYaw(currentYaw: Float, anchorPos: Vec3d, otherAnchorPos: Vec3d): Float {
         val idealYaw = Math.atan2(otherAnchorPos.x - anchorPos.x, -(otherAnchorPos.z - anchorPos.z)).toFloat().toDegrees() + 180f
         var closestDistance = Float.POSITIVE_INFINITY
@@ -521,7 +520,7 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
     /**
      * Decides whether the boat is currently underwater.
      */
-    private fun getUnderwaterStatus(): EntityBoat.Status? {
+    private fun getUnderwaterStatus(): Status? {
         val axisalignedbb = this.entityBoundingBox
         val aboveMaxY = axisalignedbb.maxY + 0.001
         val minX = MathHelper.floor(axisalignedbb.minX)
@@ -544,7 +543,7 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
                             val liquidLevel = getLiquidHeight(world, currentBlockPos).toDouble()
                             if(aboveMaxY < liquidLevel) {
                                 if (Fluids.getLiquidLocalLevel(block) != 0) {
-                                    return EntityBoat.Status.UNDER_FLOWING_WATER
+                                    return Status.UNDER_FLOWING_LIQUID
                                 }
 
                                 foundLiquid = true
@@ -558,7 +557,7 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
             currentBlockPos.release()
         }
 
-        return if (foundLiquid) EntityBoat.Status.UNDER_WATER else null
+        return if (foundLiquid) Status.UNDER_LIQUID else null
     }
 
     /**
@@ -569,28 +568,28 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         var d2 = 0.0
         this.momentum = 0.05f
 
-        if (this.previousStatus == EntityBoat.Status.IN_AIR && this.status != EntityBoat.Status.IN_AIR && this.status != EntityBoat.Status.ON_LAND) {
+        if (this.previousStatus == Status.IN_AIR && this.status != Status.IN_AIR && this.status != Status.ON_LAND) {
             this.waterLevel = this.entityBoundingBox.minY + this.height.toDouble()
             this.setPosition(this.posX, (this.getWaterLevelAbove() - this.height).toDouble() + 0.101, this.posZ)
             this.motionY = 0.0
             this.lastYd = 0.0
-            this.status = EntityBoat.Status.IN_WATER
+            this.status = Status.IN_LIQUID
         } else {
             when(this.status) {
-                EntityBoat.Status.IN_WATER -> {
+                Status.IN_LIQUID -> {
                     d2 = (this.waterLevel - this.entityBoundingBox.minY) / this.height.toDouble()
                     this.momentum = 0.9f
                 }
-                EntityBoat.Status.UNDER_FLOWING_WATER -> {
+                Status.UNDER_FLOWING_LIQUID -> {
                     verticalAcceleration = -7.0E-4
                     this.momentum = 0.9f
                 }
-                EntityBoat.Status.UNDER_WATER -> {
+                Status.UNDER_LIQUID -> {
                     d2 = 0.009999999776482582
                     this.momentum = 0.45f
                 }
-                EntityBoat.Status.IN_AIR -> this.momentum = 0.9f
-                EntityBoat.Status.ON_LAND -> this.momentum = this.boatGlide
+                Status.IN_AIR -> this.momentum = 0.9f
+                Status.ON_LAND -> this.momentum = this.boatGlide
             }
 
             this.motionX *= this.momentum.toDouble()
@@ -630,7 +629,7 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
 
         if (onGroundIn) {
             if (this.fallDistance > 3.0f) {
-                if (this.status != EntityBoat.Status.ON_LAND) {
+                if (this.status != Status.ON_LAND) {
                     this.fallDistance = 0.0f
                     return
                 }
@@ -873,8 +872,9 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         buffer.writeLong(id.mostSignificantBits)*/
     }
 
-    override fun inWater(): Boolean {
-        return getBoatStatus() != EntityBoat.Status.ON_LAND
+    override fun inLiquid(): Boolean = when(status) {
+        Status.UNDER_FLOWING_LIQUID, Status.IN_LIQUID -> true
+        else -> false
     }
 
     // === Start of code for passengers ===

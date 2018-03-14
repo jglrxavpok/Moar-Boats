@@ -13,9 +13,7 @@ import net.minecraft.item.Item
 import net.minecraft.item.ItemFishingRod
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.nbt.NBTTagString
 import net.minecraft.util.ResourceLocation
-import net.minecraftforge.common.util.Constants
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.common.modules.FishingModule
@@ -48,7 +46,7 @@ object FishingModuleRenderer : BoatModuleRenderer() {
         val ready = module.readyProperty[boat]
         val playingAnimation = module.playingAnimationProperty[boat]
 
-        if(ready && hasRod && boat.inWater()) {
+        if(ready && hasRod && boat.inLiquid() && !boat.isInLava) {
             val model = mc.renderItem.itemModelMesher.modelManager.getModel(net.minecraftforge.client.model.ModelLoader.getInventoryVariant(CastFishingRodLocation))
 
             mc.textureManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)

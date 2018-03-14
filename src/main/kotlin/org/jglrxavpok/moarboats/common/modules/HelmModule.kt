@@ -2,7 +2,6 @@ package org.jglrxavpok.moarboats.common.modules
 
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.inventory.Container
 import net.minecraft.item.ItemMap
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
@@ -20,7 +19,6 @@ import org.jglrxavpok.moarboats.extensions.toDegrees
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.containers.ContainerBase
-import org.jglrxavpok.moarboats.common.state.DoubleBoatProperty
 import org.jglrxavpok.moarboats.common.state.FloatBoatProperty
 import org.jglrxavpok.moarboats.common.state.IntBoatProperty
 import org.jglrxavpok.moarboats.common.state.NBTListBoatProperty
@@ -58,7 +56,7 @@ object HelmModule: BoatModule() {
     }
 
     override fun controlBoat(from: IControllable) {
-        if(!from.inWater())
+        if(!from.inLiquid())
             return
         val state = from.getState()
         val waypoints = waypointsProperty[from]

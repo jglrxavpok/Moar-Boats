@@ -16,7 +16,6 @@ import net.minecraftforge.fml.relauncher.SideOnly
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiEngineModule
-import org.jglrxavpok.moarboats.common.state.ArrayBoatProperty
 import org.jglrxavpok.moarboats.common.state.BooleanBoatProperty
 import org.jglrxavpok.moarboats.common.state.FloatBoatProperty
 import org.jglrxavpok.moarboats.extensions.toRadians
@@ -39,7 +38,7 @@ abstract class BaseEngineModule: BoatModule() {
     fun isStationary(from: IControllable) = stationaryProperty[from] || lockedByRedstoneProperty[from]
 
     override fun controlBoat(from: IControllable) {
-        if(hasFuel(from) && !isStationary(from) && from.inWater()) {
+        if(hasFuel(from) && !isStationary(from) && from.inLiquid()) {
             from.accelerate(speedProperty[from]+1f)
         }
     }

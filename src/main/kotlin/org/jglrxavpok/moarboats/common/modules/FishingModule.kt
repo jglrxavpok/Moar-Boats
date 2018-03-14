@@ -5,7 +5,6 @@ import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Items
 import net.minecraft.init.SoundEvents
-import net.minecraft.inventory.Container
 import net.minecraft.item.ItemFishingRod
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
@@ -70,7 +69,7 @@ object FishingModule : BoatModule() {
         val inventory = from.getInventory()
         val rodStack = inventory.getStackInSlot(0)
         val hasRod = rodStack.item is ItemFishingRod
-        if(ready && hasRod && !from.worldRef.isRemote && from.inWater()) { // you can go fishing
+        if(ready && hasRod && !from.worldRef.isRemote && from.inLiquid() && !from.isInLava()) { // you can go fishing
             storageModule as BoatModule
 
             val lureSpeed = EnchantmentHelper.getFishingSpeedBonus(rodStack)

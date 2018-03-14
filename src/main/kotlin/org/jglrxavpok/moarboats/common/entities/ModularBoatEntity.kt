@@ -103,21 +103,19 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
         val heldItem = player.getHeldItem(hand)
         val module = BoatModuleRegistry.findModule(heldItem)
         if(module != null) {
-            if(module !in moduleLocations) {
-                if(canFitModule(module)) {
-                    if(!player.capabilities.isCreativeMode) {
-                        heldItem.shrink(1)
-                        if (heldItem.isEmpty) {
-                            player.inventory.deleteStack(heldItem)
-                        }
+            if(canFitModule(module)) {
+                if(!player.capabilities.isCreativeMode) {
+                    heldItem.shrink(1)
+                    if (heldItem.isEmpty) {
+                        player.inventory.deleteStack(heldItem)
                     }
-                    addModule(module, fromItem = heldItem)
-                    return true
-                } else {
-                    val correspondingModule = BoatModuleRegistry[module].module
-                    player.sendStatusMessage(TextComponentTranslation("general.occupiedSpot", correspondingModule.moduleSpot.text), true)
-                    return false
                 }
+                addModule(module, fromItem = heldItem)
+                return true
+            } else {
+                val correspondingModule = BoatModuleRegistry[module].module
+                player.sendStatusMessage(TextComponentTranslation("general.occupiedSpot", correspondingModule.moduleSpot.text), true)
+                return true
             }
         }
 
@@ -133,7 +131,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
     private fun canFitModule(module: ResourceLocation): Boolean {
         val correspondingModule = BoatModuleRegistry[module].module
         val usedSpots = moduleLocations.map { BoatModuleRegistry[it].module.moduleSpot }
-        return correspondingModule.moduleSpot !in usedSpots
+        return correspondingModule.moduleSpot !in usedSpots && module !in moduleLocations
     }
 
     override fun writeEntityToNBT(compound: NBTTagCompound) {
