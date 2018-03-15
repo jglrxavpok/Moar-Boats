@@ -64,7 +64,7 @@ object MoarBoats {
         BoatModuleRegistry.registerModule(ResourceLocation("moarboats:solar_engine"), Item.getItemFromBlock(MCBlocks.DAYLIGHT_DETECTOR), SolarEngineModule)
         BoatModuleRegistry.registerModule(ResourceLocation("moarboats:creative_engine"), CreativeEngineItem, CreativeEngineModule)
         BoatModuleRegistry.registerModule(ResourceLocation("moarboats:icebreaker"), IceBreakerItem, IceBreakerModule)
-        BoatModuleRegistry.registerModule(ResourceLocation("moarboats:sonar"), Item.getItemFromBlock(MCBlocks.AIR), SonarModule)
+        BoatModuleRegistry.registerModule(ResourceLocation("moarboats:sonar"), Item.getItemFromBlock(MCBlocks.NOTEBLOCK), SonarModule)
         MinecraftForge.EVENT_BUS.register(this)
         MinecraftForge.EVENT_BUS.register(ItemEventHandler)
         logger = event.modLog

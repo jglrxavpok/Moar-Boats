@@ -6,15 +6,11 @@ import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.entity.RenderManager
 import net.minecraft.client.renderer.texture.TextureMap
 import net.minecraft.init.Blocks
-import net.minecraft.util.math.BlockPos
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
-import org.jglrxavpok.moarboats.common.modules.ChestModule
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.common.modules.SonarModule
 import org.jglrxavpok.moarboats.common.modules.SurroundingsMatrix
-import org.jglrxavpok.moarboats.extensions.lookAt
-import org.jglrxavpok.moarboats.extensions.toRadians
-import org.lwjgl.util.vector.Quaternion
+import org.jglrxavpok.moarboats.extensions.toDegrees
 
 object SonarModuleRenderer : BoatModuleRenderer() {
 
@@ -49,16 +45,23 @@ object SonarModuleRenderer : BoatModuleRenderer() {
         val gradient = testMatrix.computeGradient()
         testMatrix.forEach { xOffset, zOffset, potentialState ->
             if(potentialState != null) {
-                GlStateManager.pushMatrix()
-                GlStateManager.scale(0.25f, 0.25f, 0.25f)
-                GlStateManager.translate(xOffset.toDouble(), 1.0, zOffset.toDouble())
-                GlStateManager.scale(1.0, -gradient[testMatrix.pos2index(xOffset, zOffset)].toDouble(), 1.0)
-                if(potentialState.block is BlockLiquid) {
-                    Minecraft.getMinecraft().blockRendererDispatcher.renderBlockBrightness(Blocks.EMERALD_BLOCK.defaultState, boat.brightness)
-                } else {
-                    Minecraft.getMinecraft().blockRendererDispatcher.renderBlockBrightness(potentialState, boat.brightness)
+                val gradientVal = gradient[testMatrix.pos2index(xOffset, zOffset)]
+                if(gradientVal.x.toInt() != 0 || gradientVal.y.toInt() != 0) {
+                    GlStateManager.pushMatrix()
+                    GlStateManager.scale(0.25f, 0.25f, 0.25f)
+                    GlStateManager.translate(xOffset.toDouble(), 1.0, zOffset.toDouble())
+
+                    val angle = Math.atan2(gradientVal.y.toDouble(), gradientVal.x.toDouble()).toDegrees()
+                    GlStateManager.rotate(angle.toFloat(), 0f, 1f, 0f)
+                    GlStateManager.scale(0.1f, 0.1f, 1f)
+                    if(potentialState.block is BlockLiquid) {
+                        Minecraft.getMinecraft().blockRendererDispatcher.renderBlockBrightness(Blocks.EMERALD_BLOCK.defaultState, boat.brightness)
+                    } else {
+                        Minecraft.getMinecraft().blockRendererDispatcher.renderBlockBrightness(potentialState, boat.brightness)
+                    }
+
+                    GlStateManager.popMatrix()
                 }
-                GlStateManager.popMatrix()
             }
         }
 

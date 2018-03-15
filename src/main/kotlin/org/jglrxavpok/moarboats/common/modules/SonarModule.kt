@@ -6,6 +6,7 @@ import net.minecraft.inventory.Container
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.MathHelper
 import net.minecraft.world.World
 import net.minecraftforge.fluids.BlockFluidBase
 import org.jglrxavpok.moarboats.MoarBoats
@@ -13,8 +14,8 @@ import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiSonarModule
 import org.jglrxavpok.moarboats.extensions.toRadians
-import org.lwjgl.util.vector.Vector3f
 import org.jglrxavpok.moarboats.common.containers.ContainerBase
+import org.jglrxavpok.moarboats.extensions.toDegrees
 
 object SonarModule: BoatModule() {
     override val id = ResourceLocation(MoarBoats.ModID, "sonar")
@@ -28,9 +29,22 @@ object SonarModule: BoatModule() {
     }
 
     override fun controlBoat(from: IControllable) {
-        val state = from.getState()
-        val turnPower = state.getInteger("turnAmount")
-       // from.turnRight(turnPower * 0.005f*2f)
+        val testMatrix = SurroundingsMatrix(32)
+        testMatrix.compute(from.worldRef, from.positionX, from.positionY, from.positionZ).removeNotConnectedToCenter()
+        val gradient = testMatrix.computeGradient()
+        val localGradient = gradient[testMatrix.pos2index(0, 0)]
+        val gradientAngle = Math.atan2(-localGradient.y.toDouble(), -localGradient.x.toDouble()).toDegrees()
+        if(localGradient.x.toInt() == 0 && localGradient.y.toInt() == 0)
+            return
+        val yaw = from.yaw
+        val angleFactor = 0.25f
+        if(MathHelper.wrapDegrees(gradientAngle - yaw) > Epsilon) {
+            from.turnRight(localGradient.length() * angleFactor)
+        } else if(MathHelper.wrapDegrees(gradientAngle - yaw) < -Epsilon) {
+            from.turnLeft(localGradient.length() * angleFactor)
+        }
+
+        // from.turnRight(turnPower * 0.005f*2f)
     }
 
     override fun update(from: IControllable) {

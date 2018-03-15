@@ -3,6 +3,7 @@ package org.jglrxavpok.moarboats.common.modules
 import net.minecraft.block.state.IBlockState
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
+import org.lwjgl.util.vector.Vector2f
 
 class SurroundingsMatrix(val size: Int) {
 
@@ -75,27 +76,56 @@ class SurroundingsMatrix(val size: Int) {
         return and(andMatrix)
     }
 
-    fun computeGradient(): FloatArray {
-        val gradient = FloatArray(internalMatrix.size)
+    fun computeGradient(): Array<Vector2f> {
+        val distanceMap = IntArray(internalMatrix.size)
         val requiredState = this[0, 0]
         forEach { x, z, state ->
             val index = pos2index(x, z)
             if(state != requiredState) {
-                gradient[index] = +50f
+                distanceMap[index] = 0
             } else {
                 val dist = maximumDistance(x, z, requiredState)
-                gradient[index] = -dist
+                distanceMap[index] = -dist
             }
+        }
+        val gradient = Array(internalMatrix.size) { i-> Vector2f() }
+        forEach { x, z, state ->
+
+            fun distance(dx: Int, dz: Int): Int {
+                val newX = x + dx
+                val newZ = z + dz
+                if(newX < halfSize && newX > -halfSize
+                        && newZ < halfSize && newZ > -halfSize)
+                    return distanceMap[pos2index(newX, newZ)]
+                return 0
+            }
+
+            // From a Sobel filter implementation: compute gradient from distance to shore
+            var horizontalContribution = 0
+            horizontalContribution += distance(-1, -1) * -1
+            horizontalContribution += distance(-1, 0) * -2
+            horizontalContribution += distance(-1, +1) * -1
+            horizontalContribution += distance(+1, -1) * 1
+            horizontalContribution += distance(+1, 0) * 2
+            horizontalContribution += distance(+1, +1) * 1
+
+            var verticalContribution = 0
+
+            verticalContribution += distance(-1, -1) * -1
+            verticalContribution += distance(0, -1) * -2
+            verticalContribution += distance(+1, -1) * -1
+            verticalContribution += distance(-1, +1) * 1
+            verticalContribution += distance(0, +1) * 2
+            verticalContribution += distance(+1, +1) * 1
+            gradient[pos2index(x, z)] = Vector2f(horizontalContribution.toFloat(), verticalContribution.toFloat())
+
         }
         return gradient
     }
 
-    private fun maximumDistance(x: Int, z: Int, state: IBlockState?): Float {
-        var radius = 0
-        while(squareFit(state, radius, x, z)) {
-            radius++
-        }
-        return radius.toFloat()
+    private tailrec fun maximumDistance(x: Int, z: Int, state: IBlockState?, radius: Int = 0): Int = when {
+        squareFit(state, radius, x, z) -> maximumDistance(x, z, state, radius+1)
+        else -> radius
     }
 
     private fun squareFit(state: IBlockState?, radius: Int, x: Int, z: Int): Boolean {
@@ -123,26 +153,6 @@ class SurroundingsMatrix(val size: Int) {
             }
         }
         return this
-    }
-
-    fun createInteriorCurve() {
-        for(offset in -halfSize until halfSize) {
-            // top
-            createSubCurve(pos2index(offset, -halfSize))
-            // bottom
-            createSubCurve(pos2index(offset, halfSize-1))
-
-            // left
-            createSubCurve(pos2index(-halfSize, offset))
-            // right
-            createSubCurve(pos2index(halfSize-1, offset))
-        }
-    }
-
-    private fun createSubCurve(to: Int) {
-        if(internalMatrix[to] == null) // no exit
-            return
-
     }
 
     fun index2posX(index: Int): Int {
