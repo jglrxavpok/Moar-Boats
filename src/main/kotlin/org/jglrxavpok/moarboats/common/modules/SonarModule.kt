@@ -1,28 +1,24 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.block.BlockLiquid
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.inventory.Container
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
-import net.minecraft.world.World
-import net.minecraftforge.fluids.BlockFluidBase
+import net.minecraft.util.math.Vec3d
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiSonarModule
-import org.jglrxavpok.moarboats.extensions.toRadians
 import org.jglrxavpok.moarboats.common.containers.ContainerBase
+import org.jglrxavpok.moarboats.common.containers.EmptyContainer
 import org.jglrxavpok.moarboats.extensions.toDegrees
+import org.jglrxavpok.moarboats.extensions.toRadians
+import org.lwjgl.util.vector.Vector2f
 
 object SonarModule: BoatModule() {
     override val id = ResourceLocation(MoarBoats.ModID, "sonar")
     override val usesInventory = false
     override val moduleSpot = Spot.Navigation
-
-    private val Epsilon = 10e-1
 
     override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean): Boolean {
         return false
@@ -31,80 +27,55 @@ object SonarModule: BoatModule() {
     override fun controlBoat(from: IControllable) {
         val testMatrix = SurroundingsMatrix(32)
         testMatrix.compute(from.worldRef, from.positionX, from.positionY, from.positionZ).removeNotConnectedToCenter()
-        val gradient = testMatrix.computeGradient()
-        val localGradient = gradient[testMatrix.pos2index(0, 0)]
-        val gradientAngle = Math.atan2(-localGradient.y.toDouble(), -localGradient.x.toDouble()).toDegrees()
+        val localGradient = averageGradient(testMatrix)
         if(localGradient.x.toInt() == 0 && localGradient.y.toInt() == 0)
             return
-        val yaw = from.yaw
-        val angleFactor = 0.25f
-        if(MathHelper.wrapDegrees(gradientAngle - yaw) > Epsilon) {
-            from.turnRight(localGradient.length() * angleFactor)
-        } else if(MathHelper.wrapDegrees(gradientAngle - yaw) < -Epsilon) {
-            from.turnLeft(localGradient.length() * angleFactor)
+        val yawRad = (from.yaw).toRadians()
+        val speed = Math.sqrt(from.velocityX*from.velocityX+from.velocityZ*from.velocityZ)
+        if(speed > 0.01) {
+            val force = Vec3d(-localGradient.x.toDouble(), 0.0, -localGradient.y.toDouble())
+            val cos = MathHelper.cos(yawRad).toDouble()
+            val sin = MathHelper.sin(yawRad).toDouble()
+            val r = Vec3d(cos, 0.0, sin)
+            val moment = r.crossProduct(force)
+            val angularRotation = (moment.y) / speed
+            val rotationMultiplier = angularRotation.toFloat().toDegrees() / 500f
+            from.turnLeft(rotationMultiplier)
         }
+    }
 
-        // from.turnRight(turnPower * 0.005f*2f)
+    private fun averageGradient(matrix: SurroundingsMatrix): Vector2f {
+        val gradient = matrix.computeGradient()
+        val v = Vector2f(gradient[matrix.pos2index(0, 0)])
+        fun add(x: Int, z: Int) {
+            val index = matrix.pos2index(x, z)
+            val gx = gradient[index].x
+            val gz = gradient[index].y
+            v.translate(gx, gz)
+        }
+        add(-1, -1)
+        add(0, -1)
+        add(+1, -1)
+
+        add(-1, 0)
+        add(+1, 0)
+
+        add(-1, +1)
+        add(0, +1)
+        add(+1, +1)
+
+        v.scale(1f/9f)
+        return v
     }
 
     override fun update(from: IControllable) {
-        val state = from.getState()
-        val turnAmount = computeTurnAmount(from.worldRef, from.positionX, from.positionY, from.positionZ, from.yaw)
-        state.setInteger("turnAmount", turnAmount)
-        from.saveState()
-    }
-
-    private fun computeTurnAmount(world: World, x: Double, y: Double, z: Double, yaw: Float): Int {
-        var totalTurnAmount = 0
-        val distance = -1.5
-        val length = 8
-        val cos = Math.cos(yaw.toRadians().toDouble())
-        val sin = Math.sin(yaw.toRadians().toDouble())
-        val offX = sin * distance
-        val offZ = cos * distance
-        for(offset in -length..length) {
-            val worldX = offX + cos * offset
-            val worldZ = offZ - sin * offset
-            val worldY = Math.floor(y)-1
-            val amount = (length - Math.abs(offset))
-            val blockPos = BlockPos.PooledMutableBlockPos.retain(worldX + x, worldY, worldZ + z)
-            val blockState = world.getBlockState(blockPos)
-            val block = blockState.block
-            val hasBlock = block !is BlockLiquid && block !is BlockFluidBase
-            if(hasBlock) {
-                totalTurnAmount += amount * Math.signum(offset.toFloat()).toInt()
-            }
-        }
-        return totalTurnAmount
-    }
-
-    private fun computeHeight(world: World, xOffset: Int, zOffset: Int, x: Double, y: Double, z: Double): Int {
-        val maxDepthToCheck = 0
-        val worldX = x + xOffset
-        val worldZ = z + zOffset
-        val blockPos = BlockPos.PooledMutableBlockPos.retain(worldX, y, worldZ)
-        val startY = blockPos.y
-        for(i in 0..maxDepthToCheck) {
-            blockPos.y = startY-i
-            val blockState = world.getBlockState(blockPos)
-            val block = blockState.block
-            if(block !is BlockLiquid && block !is BlockFluidBase) {
-                break
-            }
-            blockPos.y--
-        }
-        val result = blockPos.y
-        blockPos.release()
-        return result
     }
 
     override fun onAddition(to: IControllable) {
-        val state = to.getState()
-        to.saveState()
     }
 
     override fun createContainer(player: EntityPlayer, boat: IControllable): ContainerBase? {
-        return null
+        return EmptyContainer(player.inventory)
     }
 
     override fun createGui(player: EntityPlayer, boat: IControllable) = GuiSonarModule(player.inventory, this, boat)

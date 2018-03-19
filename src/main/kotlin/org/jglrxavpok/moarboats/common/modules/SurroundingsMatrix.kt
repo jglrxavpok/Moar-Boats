@@ -124,20 +124,50 @@ class SurroundingsMatrix(val size: Int) {
     }
 
     private tailrec fun maximumDistance(x: Int, z: Int, state: IBlockState?, radius: Int = 0): Int = when {
-        squareFit(state, radius, x, z) -> maximumDistance(x, z, state, radius+1)
+        circleFit(state, radius, x, z) -> maximumDistance(x, z, state, radius+1)
         else -> radius
     }
 
-    private fun squareFit(state: IBlockState?, radius: Int, x: Int, z: Int): Boolean {
-        for(offset in -radius..radius) {
-            if(this[offset, z-radius] != state)
+    private fun circleFit(state: IBlockState?, radius: Int, x0: Int, z0: Int): Boolean {
+        // adapted from https://en.wikipedia.org/wiki/Midpoint_circle_algorithm
+        fun foundIntersection(dx: Int, dz: Int): Boolean {
+            return this[x0+dx, z0+dz] != state
+        }
+        var x = radius-1
+        var z = 0
+        var dx = 1
+        var dz = 1
+        var err = dx - (radius shl 1)
+        while(x >= z) {
+            if(foundIntersection(x, z))
                 return false
-            if(this[offset, z+radius] != state)
+            if(foundIntersection(x, -z))
                 return false
-            if(this[x-radius, offset] != state)
+            if(foundIntersection(-x, z))
                 return false
-            if(this[x+radius, offset] != state)
+            if(foundIntersection(-x, -z))
                 return false
+
+            if(foundIntersection(z, x))
+                return false
+            if(foundIntersection(-z, x))
+                return false
+            if(foundIntersection(z, -x))
+                return false
+            if(foundIntersection(-z, -x))
+                return false
+
+            if(err <= 0) {
+                z++
+                err += dz
+                dz += 2
+            }
+
+            if(err > 0) {
+                x--
+                dx += 2
+                err += dx - (radius shl 1)
+            }
         }
         return true
     }
