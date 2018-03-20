@@ -51,7 +51,7 @@ class S7SyncInventory(): IMessage {
     object Handler: IMessageHandler<S7SyncInventory, IMessage?> {
         override fun onMessage(message: S7SyncInventory, ctx: MessageContext): IMessage? {
             val world = Minecraft.getMinecraft().world
-            val boat = world.getEntityByID(message.boatID) as ModularBoatEntity
+            val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
             val moduleLocation = message.moduleLocation
             val module = BoatModuleRegistry[moduleLocation].module
             val inventory = boat.getInventory(module)

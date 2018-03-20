@@ -36,7 +36,7 @@ class C4ChangeEngineMode(): IMessage {
         override fun onMessage(message: C4ChangeEngineMode, ctx: MessageContext): IMessage? {
             val player = ctx.serverHandler.player
             val world = player.world
-            val boat = world.getEntityByID(message.boatID) as ModularBoatEntity
+            val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
             val moduleLocation = message.moduleLocation
             val module = BoatModuleRegistry[moduleLocation].module
             module as BaseEngineModule

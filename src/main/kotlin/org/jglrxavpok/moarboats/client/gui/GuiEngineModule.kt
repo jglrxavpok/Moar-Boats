@@ -57,6 +57,7 @@ class GuiEngineModule(playerInventory: InventoryPlayer, engine: BoatModule, boat
 
     override fun updateScreen() {
         super.updateScreen()
+        speedSlider.updateSlider()
         lockInPlaceButton.isLocked = engine.stationaryProperty[boat]
     }
 
