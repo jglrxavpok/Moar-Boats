@@ -109,8 +109,6 @@ object RopeItem : Item() {
                     target.linkTo(knot, BasicBoatEntity.FrontLink)
                 }
                 resetLinked(stack)
-                if(!player.capabilities.isCreativeMode)
-                    stack.shrink(1)
                 EnumActionResult.SUCCESS
             }
             else -> EnumActionResult.PASS

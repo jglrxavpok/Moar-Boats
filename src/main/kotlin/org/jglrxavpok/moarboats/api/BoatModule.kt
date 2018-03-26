@@ -59,6 +59,10 @@ object BoatModuleRegistry {
 
     private val backingMap = hashMapOf<ResourceLocation, BoatModuleEntry>()
 
+    fun registerModule(module: BoatModule, correspondingItem: Item, inventoryFactory: ((IControllable, BoatModule) -> IBoatModuleInventory)? = null) {
+        registerModule(module.id, correspondingItem, module, inventoryFactory)
+    }
+
     fun registerModule(name: ResourceLocation, correspondingItem: Item, module: BoatModule, inventoryFactory: ((IControllable, BoatModule) -> IBoatModuleInventory)? = null) {
         backingMap[name] = BoatModuleEntry(correspondingItem, module, inventoryFactory)
         if(module.usesInventory && inventoryFactory == null)
