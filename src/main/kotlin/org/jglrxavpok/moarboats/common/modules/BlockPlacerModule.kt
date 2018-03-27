@@ -1,7 +1,9 @@
 package org.jglrxavpok.moarboats.common.modules
 
+import net.minecraft.advancements.CriteriaTriggers
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.player.EntityPlayerMP
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
 import net.minecraft.util.EnumHand
@@ -56,11 +58,22 @@ object BlockPlacerModule: BoatModule() {
             val itemBlock = stack.item as ItemBlock
             val world = boat.worldRef
             val block = itemBlock.block
+            val newState = block.defaultState
             if(world.isAirBlock(blockPos) || Fluids.isUsualLiquidBlock(world.getBlockState(blockPos))) {
                 if(world.mayPlace(block, blockPos, false, null, boat.correspondingEntity)) {
-                    val succeeded = itemBlock.placeBlockAt(stack, null, world, blockPos, null, 0.5f, 0.5f, 0.5f, block.defaultState)
-                    if(succeeded)
+                    val succeeded = world.setBlockState(blockPos, newState, 11)
+                    if (succeeded) {
+                        try {
+                            val state = world.getBlockState(blockPos)
+                            if (state.block === block) {
+                                ItemBlock.setTileEntityNBT(world, null, blockPos, stack)
+                                block.onBlockPlacedBy(world, blockPos, state, null, stack)
+                            }
+                        } catch (npe: NullPointerException) {
+                            // some blocks do not like at all being placed by a machine apparently (eg chests)
+                        }
                         stack.shrink(1)
+                    }
                 }
             }
         }
