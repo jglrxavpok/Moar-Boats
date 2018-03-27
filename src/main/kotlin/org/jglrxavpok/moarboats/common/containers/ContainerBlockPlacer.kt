@@ -16,7 +16,7 @@ class ContainerBlockPlacer(inventoryPlayer: InventoryPlayer, module: BoatModule,
         val spacing = 1
         for (j in 0 until numRows) {
             for (k in 0..4) {
-                this.addSlotToContainer(Slot(placerInventory, k + j * 9, startX + k * 18, startY + j * (18+spacing) -2))
+                this.addSlotToContainer(Slot(placerInventory, k + j * 5, startX + k * 18, startY + j * (18+spacing) -2))
             }
         }
 

@@ -45,4 +45,11 @@ interface IControllable {
         val anchorZ = positionZ + MathHelper.sin((yaw + 90f).toRadians()) * distanceFromCenter
         return Vec3d(anchorX, anchorY, anchorZ)
     }
+
+    /**
+     * Applies current yaw rotation to the vector
+     */
+    fun localToWorld(localVec: Vec3d): Vec3d {
+        return localVec.rotateYaw((180f-yaw).toRadians()).addVector(positionX, positionY, positionZ)
+    }
 }
