@@ -17,7 +17,6 @@ import org.jglrxavpok.moarboats.client.gui.GuiBlockPlacer
 import org.jglrxavpok.moarboats.common.containers.ContainerBlockPlacer
 import org.jglrxavpok.moarboats.common.state.BlockPosProperty
 import org.jglrxavpok.moarboats.common.state.DoubleBoatProperty
-import org.jglrxavpok.moarboats.common.state.IntBoatProperty
 import org.jglrxavpok.moarboats.extensions.Fluids
 import org.jglrxavpok.moarboats.extensions.use
 
@@ -85,6 +84,7 @@ object BlockPlacerModule: BoatModule() {
         blockPos.release()
     }
 
+    // adapted from ItemBlock.java
     private fun setTileEntityNBT(worldIn: World, pos: BlockPos, stackIn: ItemStack) {
         val nbttagcompound = stackIn.getSubCompound("BlockEntityTag")
 

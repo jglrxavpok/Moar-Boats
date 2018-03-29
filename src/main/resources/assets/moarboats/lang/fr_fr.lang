@@ -53,3 +53,4 @@ gui.block_placer.middle_row=Milieu
 gui.block_placer.top_row=Haut
 gui.block_placer.period.suffix= bloc(s)
 gui.block_placer.period.prefix=Tous les
+inventory.block_placer.name=Placeur de blocs

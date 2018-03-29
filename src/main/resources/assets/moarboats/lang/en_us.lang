@@ -54,3 +54,4 @@ gui.block_placer.middle_row=Middle
 gui.block_placer.top_row=Top
 gui.block_placer.period.suffix= block(s)
 gui.block_placer.period.prefix=Every
+inventory.block_placer.name=Block Placer
