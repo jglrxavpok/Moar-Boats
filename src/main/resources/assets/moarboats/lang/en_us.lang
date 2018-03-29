@@ -48,3 +48,9 @@ general.spot.navigation=Navigation
 item.icebreaker.name=Icebreaker
 inventory.icebreaker.name=Icebreaker
 inventory.sonar.name=Sonar Module
+
+gui.block_placer.bottom_row=Bottom
+gui.block_placer.middle_row=Middle
+gui.block_placer.top_row=Top
+gui.block_placer.period.suffix= block(s)
+gui.block_placer.period.prefix=Every

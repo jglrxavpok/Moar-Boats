@@ -59,9 +59,27 @@ class ArrayBoatProperty<T: Any>(module: BoatModule, id: String, val array: Array
     override val writeProperty: NBTTagCompound.(String, T) -> Unit = { id, value -> setInteger(id, array.indexOf(value))}
 }
 
+/**
+ * Please release the positions after using them
+ */
+class BlockPosProperty(module: BoatModule, id: String): BoatProperty<BlockPos.PooledMutableBlockPos>(module, id) {
+    override val type: Class<out BlockPos.PooledMutableBlockPos> = BlockPos.PooledMutableBlockPos::class.java
+    override val readProperty: NBTTagCompound.(String) -> BlockPos.PooledMutableBlockPos = { id ->
+        val pos = BlockPos.PooledMutableBlockPos.retain()
+        pos.setPos(this.getInteger(id+"_X"), this.getInteger(id+"_Y"), this.getInteger(id+"_Z"))
+        pos
+    }
+    override val writeProperty: NBTTagCompound.(String, BlockPos.PooledMutableBlockPos) -> Unit = { id, pos ->
+        this.setInteger(id+"_X", pos.x)
+        this.setInteger(id+"_Y", pos.y)
+        this.setInteger(id+"_Z", pos.z)
+    }
+}
+
 fun BoatModule.IntBoatProperty(id: String) = IntBoatProperty(this, id)
 fun BoatModule.BooleanBoatProperty(id: String) = BooleanBoatProperty(this, id)
 fun BoatModule.FloatBoatProperty(id: String) = FloatBoatProperty(this, id)
 fun BoatModule.DoubleBoatProperty(id: String) = DoubleBoatProperty(this, id)
+fun BoatModule.BlockPosProperty(id: String) = BlockPosProperty(this, id)
 fun BoatModule.NBTListBoatProperty(id: String, elementType: Int) = NBTListBoatProperty(this, id, elementType)
 fun <T: Any> BoatModule.ArrayBoatProperty(id: String, array: Array<T>) = ArrayBoatProperty(this, id, array)

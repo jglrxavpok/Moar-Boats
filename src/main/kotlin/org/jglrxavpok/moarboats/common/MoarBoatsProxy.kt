@@ -22,6 +22,7 @@ open class MoarBoatsProxy {
         MoarBoats.network.registerMessage(S6PlaySound.Handler, S6PlaySound::class.java, 6, Side.CLIENT)
         MoarBoats.network.registerMessage(S7SyncInventory.Handler, S7SyncInventory::class.java, 7, Side.CLIENT)
         MoarBoats.network.registerMessage(C8ChangeEngineSpeed.Handler, C8ChangeEngineSpeed::class.java, 8, Side.SERVER)
+        MoarBoats.network.registerMessage(C9ChangeBlockPlacerPeriod.Handler, C9ChangeBlockPlacerPeriod::class.java, 9, Side.SERVER)
     }
 
     open fun preInit() {
