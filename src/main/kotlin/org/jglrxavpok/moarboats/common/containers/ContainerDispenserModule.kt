@@ -5,7 +5,7 @@ import net.minecraft.inventory.Slot
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 
-class ContainerBlockPlacer(inventoryPlayer: InventoryPlayer, module: BoatModule, boat: IControllable): ContainerBase(inventoryPlayer) {
+class ContainerDispenserModule(inventoryPlayer: InventoryPlayer, module: BoatModule, boat: IControllable): ContainerBase(inventoryPlayer) {
 
     val placerInventory = boat.getInventory(module)
 

@@ -8,10 +8,9 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
-import org.jglrxavpok.moarboats.common.modules.BaseEngineModule
-import org.jglrxavpok.moarboats.common.modules.BlockPlacerModule
+import org.jglrxavpok.moarboats.common.modules.DispenserModule
 
-class C9ChangeBlockPlacerPeriod(): IMessage {
+class C9ChangeDispenserPeriod(): IMessage {
 
     var boatID: Int = 0
     var moduleLocation: ResourceLocation = ResourceLocation("moarboats:none")
@@ -35,14 +34,14 @@ class C9ChangeBlockPlacerPeriod(): IMessage {
         buf.writeDouble(period)
     }
 
-    object Handler: IMessageHandler<C9ChangeBlockPlacerPeriod, IMessage?> {
-        override fun onMessage(message: C9ChangeBlockPlacerPeriod, ctx: MessageContext): IMessage? {
+    object Handler: IMessageHandler<C9ChangeDispenserPeriod, IMessage?> {
+        override fun onMessage(message: C9ChangeDispenserPeriod, ctx: MessageContext): IMessage? {
             val player = ctx.serverHandler.player
             val world = player.world
             val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
             val moduleLocation = message.moduleLocation
             val module = BoatModuleRegistry[moduleLocation].module
-            module as BlockPlacerModule
+            module as DispenserModule
             module.changePeriod(boat, message.period)
             return null
         }

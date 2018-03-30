@@ -65,7 +65,7 @@ object MoarBoats {
         BoatModuleRegistry.registerModule(CreativeEngineModule, CreativeEngineItem)
         BoatModuleRegistry.registerModule(IceBreakerModule, IceBreakerItem)
         BoatModuleRegistry.registerModule(SonarModule, Item.getItemFromBlock(MCBlocks.NOTEBLOCK))
-        BoatModuleRegistry.registerModule(BlockPlacerModule, Item.getItemFromBlock(MCBlocks.DEADBUSH), { boat, module -> SimpleModuleInventory(3*5, "block_placer", boat, module) })
+        BoatModuleRegistry.registerModule(DispenserModule, Item.getItemFromBlock(MCBlocks.DISPENSER), { boat, module -> SimpleModuleInventory(3*5, "dispenser", boat, module) })
         MinecraftForge.EVENT_BUS.register(this)
         MinecraftForge.EVENT_BUS.register(ItemEventHandler)
         logger = event.modLog

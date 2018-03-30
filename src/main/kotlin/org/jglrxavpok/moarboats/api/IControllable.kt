@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.api
 
+import net.minecraft.dispenser.IBlockSource
 import net.minecraft.entity.Entity
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.math.MathHelper
@@ -9,7 +10,7 @@ import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.extensions.toRadians
 import java.util.*
 
-interface IControllable {
+interface IControllable: IBlockSource {
 
     val entityID: Int
     val modules: List<BoatModule>

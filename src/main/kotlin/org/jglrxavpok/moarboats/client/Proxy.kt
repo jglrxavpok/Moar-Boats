@@ -1,25 +1,21 @@
 package org.jglrxavpok.moarboats.client
 
-import net.minecraft.block.Block
-import net.minecraftforge.fml.client.registry.RenderingRegistry
-import org.jglrxavpok.moarboats.common.MoarBoatsProxy
-import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import net.minecraft.client.renderer.block.model.ModelResourceLocation
 import net.minecraft.item.ItemBlock
-import net.minecraftforge.client.model.ModelLoader
-import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.client.renders.*
-import org.jglrxavpok.moarboats.common.Items
 import net.minecraftforge.client.event.ModelRegistryEvent
+import net.minecraftforge.client.model.ModelLoader
 import net.minecraftforge.common.MinecraftForge
+import net.minecraftforge.fml.client.registry.RenderingRegistry
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
+import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.client.renders.*
 import org.jglrxavpok.moarboats.common.Blocks
-import net.minecraftforge.event.RegistryEvent
-
-
+import org.jglrxavpok.moarboats.common.Items
+import org.jglrxavpok.moarboats.common.MoarBoatsProxy
+import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 
 @Mod.EventBusSubscriber(value = Side.CLIENT, modid = MoarBoats.ModID)
 class Proxy: MoarBoatsProxy() {
@@ -36,6 +32,7 @@ class Proxy: MoarBoatsProxy() {
         BoatModuleRenderingRegistry.register(SolarEngineRenderer)
         BoatModuleRenderingRegistry.register(CreativeEngineRenderer)
         BoatModuleRenderingRegistry.register(IcebreakerModuleRenderer)
+        BoatModuleRenderingRegistry.register(DispenserModuleRenderer)
     }
 
     override fun preInit() {

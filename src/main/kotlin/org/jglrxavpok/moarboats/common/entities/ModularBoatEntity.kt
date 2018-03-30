@@ -1,8 +1,10 @@
 package org.jglrxavpok.moarboats.common.entities
 
+import net.minecraft.block.BlockDispenser
 import net.minecraft.block.BlockLiquid
 import net.minecraft.block.state.IBlockState
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.init.Blocks
 import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.InventoryHelper
 import net.minecraft.item.ItemStack
@@ -10,9 +12,10 @@ import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
 import net.minecraft.network.datasync.DataSerializers
 import net.minecraft.network.datasync.EntityDataManager
-import net.minecraft.util.DamageSource
-import net.minecraft.util.EnumHand
-import net.minecraft.util.ResourceLocation
+import net.minecraft.tileentity.TileEntity
+import net.minecraft.tileentity.TileEntityDispenser
+import net.minecraft.util.*
+import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.text.TextComponentTranslation
 import net.minecraft.world.World
@@ -51,6 +54,11 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
         get()= dataManager[MODULE_DATA]
         set(value) { dataManager[MODULE_DATA] = value; dataManager.setDirty(MODULE_DATA) }
     override val modules = mutableListOf<BoatModule>()
+
+    /**
+     * Embedded TileEntityDispenser not to freak out the game engine when trying to dispense an item
+     */
+    private val embeddedDispenserTileEntity = TileEntityDispenser()
 
     private val moduleInventories = hashMapOf<ResourceLocation, IBoatModuleInventory>()
 
@@ -222,6 +230,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
 
     override fun attackEntityFrom(source: DamageSource, amount: Float) = when(source) {
         DamageSource.LAVA, DamageSource.IN_FIRE, DamageSource.ON_FIRE -> false
+        is EntityDamageSourceIndirect -> false // avoid to kill yourself with your own arrows; also you are an *iron* boat, act like it
         else -> super.attackEntityFrom(source, amount)
     }
 
@@ -314,6 +323,22 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
 
     override fun getFieldCount() = 0
 
+    // === Start of IBlockSource methods
+    override fun <T : TileEntity> getBlockTileEntity(): T {
+        return embeddedDispenserTileEntity as T
+    }
+
+    override fun getX() = posX
+    override fun getY() = posY
+    override fun getZ() = posZ
+
+    override fun getBlockState(): IBlockState {
+        return Blocks.DISPENSER.defaultState.withProperty(BlockDispenser.FACING, EnumFacing.fromAngle(180f - yaw.toDouble()))
+    }
+
+    override fun getBlockPos(): BlockPos {
+        return position
+    }
     // === Start of passengers code ===
 
     override fun canStartRiding(player: EntityPlayer, heldItem: ItemStack, hand: EnumHand): Boolean {
