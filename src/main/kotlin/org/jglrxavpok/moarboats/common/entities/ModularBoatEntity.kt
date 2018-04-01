@@ -1,7 +1,6 @@
 package org.jglrxavpok.moarboats.common.entities
 
 import net.minecraft.block.BlockDispenser
-import net.minecraft.block.BlockLiquid
 import net.minecraft.block.state.IBlockState
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Blocks
@@ -19,22 +18,26 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.text.TextComponentTranslation
 import net.minecraft.world.World
+import net.minecraftforge.common.capabilities.Capability
+import net.minecraftforge.common.capabilities.ICapabilityProvider
 import net.minecraftforge.common.util.Constants
-import net.minecraftforge.fluids.BlockFluidBase
+import net.minecraftforge.items.CapabilityItemHandler
+import net.minecraftforge.items.IItemHandler
+import net.minecraftforge.items.wrapper.InvWrapper
 import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
-import org.jglrxavpok.moarboats.common.ResourceLocationsSerializer
-import org.jglrxavpok.moarboats.common.items.BaseBoatItem
-import org.jglrxavpok.moarboats.extensions.loadInventory
-import org.jglrxavpok.moarboats.extensions.saveInventory
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.api.IBoatModuleInventory
+import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
+import org.jglrxavpok.moarboats.common.ResourceLocationsSerializer
+import org.jglrxavpok.moarboats.common.items.BaseBoatItem
 import org.jglrxavpok.moarboats.common.modules.SeatModule
 import org.jglrxavpok.moarboats.extensions.Fluids
+import org.jglrxavpok.moarboats.extensions.loadInventory
+import org.jglrxavpok.moarboats.extensions.saveInventory
 import java.util.*
 
-class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
+class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapabilityProvider {
 
     private companion object {
         val MODULE_LOCATIONS = EntityDataManager.createKey(ModularBoatEntity::class.java, ResourceLocationsSerializer)
@@ -59,6 +62,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
      * Embedded TileEntityDispenser not to freak out the game engine when trying to dispense an item
      */
     private val embeddedDispenserTileEntity = TileEntityDispenser()
+    private val itemHandler = InvWrapper(this)
 
     private val moduleInventories = hashMapOf<ResourceLocation, IBoatModuleInventory>()
 
@@ -308,10 +312,10 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
     override fun closeInventory(player: EntityPlayer?) { }
 
     override fun setInventorySlotContents(index: Int, stack: ItemStack) {
-        return indexToInventory(index)?.let { inv ->
+        indexToInventory(index)?.let { inv ->
             val i = globalIndexToLocalIndex(index)
             inv.setInventorySlotContents(i, stack)
-        } ?: Unit
+        }
     }
 
     override fun removeStackFromSlot(index: Int): ItemStack {
@@ -347,5 +351,21 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
 
     override fun canRiderInteract(): Boolean {
         return true
+    }
+
+    // === Start of Capability code ===
+
+    override fun hasCapability(capability: Capability<*>, facing: EnumFacing?): Boolean {
+        if(capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
+            return true
+        }
+        return super.hasCapability(capability, facing)
+    }
+
+    override fun <T : Any?> getCapability(capability: Capability<T>, facing: EnumFacing?): T? {
+        if(capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
+            return itemHandler as T
+        }
+        return super.getCapability(capability, facing)
     }
 }
