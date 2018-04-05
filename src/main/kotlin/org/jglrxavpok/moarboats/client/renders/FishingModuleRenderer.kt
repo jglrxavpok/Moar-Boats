@@ -46,7 +46,7 @@ object FishingModuleRenderer : BoatModuleRenderer() {
         val ready = module.readyProperty[boat]
         val playingAnimation = module.playingAnimationProperty[boat]
 
-        if(ready && hasRod && boat.inLiquid() && !boat.isInLava) {
+        if(ready && hasRod && boat.inLiquid() && !boat.isEntityInLava()) {
             val model = mc.renderItem.itemModelMesher.modelManager.getModel(net.minecraftforge.client.model.ModelLoader.getInventoryVariant(CastFishingRodLocation))
 
             mc.textureManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)

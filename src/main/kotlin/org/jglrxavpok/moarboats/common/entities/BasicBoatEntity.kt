@@ -143,6 +143,8 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         this.prevPosZ = z
     }
 
+    override fun isEntityInLava() = isInLava
+
     override fun getWorld() = world
 
     fun hasLink(linkType: Int) = linkEntityTypes[linkType] != NoLink

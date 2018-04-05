@@ -26,7 +26,7 @@ interface IControllable: IBlockSource {
     val moduleRNG: Random
 
     fun inLiquid(): Boolean
-    fun isInLava(): Boolean
+    fun isEntityInLava(): Boolean
 
     fun turnRight(multiplier: Float = 1f)
 

@@ -1,10 +1,11 @@
 {
   "homepage": "https://minecraft.curseforge.com/projects/moar-boats",
   "1.12.2": {
+    "1.3.0": "+ Dispenser module: place block and spawn items!\n+ Sonar module: make your boats follow streams!\n+ Icebreaker module!\n+ Creative mode engine module (requires no fuel)\n+ Diving module: Breathe underwater next to the boat!\n* Reinforced the boat, it should be able to go on lava now.\n* Boat speed is now configurable in the engine GUI.",
     "1.2.1": "+ Added configuration file\n* Fishing rods are now damaged when used in the fishing module\n* Added configuration options for fishing speed and rod removal before breaking"
   },
   "promos": {
-    "1.12.2-recommended": "1.2.1",
-    "1.12.2-latest": "1.2.1"
+    "1.12.2-recommended": "1.3.0",
+    "1.12.2-latest": "1.3.0"
   }
 }
