@@ -55,3 +55,4 @@ gui.dispenser.period.suffix= bloc(s)
 gui.dispenser.period.prefix=Tous les
 gui.dispenser.period=Période
 inventory.dispenser.name=Dispenseur
+item.diving_bottle.name=Bouteille de plongée

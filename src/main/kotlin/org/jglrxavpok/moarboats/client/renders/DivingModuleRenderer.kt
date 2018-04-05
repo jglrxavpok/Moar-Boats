@@ -1,23 +1,13 @@
 package org.jglrxavpok.moarboats.client.renders
 
-import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.client.renderer.Tessellator
-import net.minecraft.client.renderer.block.model.IBakedModel
 import net.minecraft.client.renderer.entity.RenderManager
-import net.minecraft.client.renderer.texture.TextureMap
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats
-import net.minecraft.init.Blocks
 import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.MathHelper
-import net.minecraftforge.client.model.obj.OBJLoader
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.client.models.ModelDivingBottle
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
-import org.jglrxavpok.moarboats.common.modules.AnchorModule
 import org.jglrxavpok.moarboats.common.modules.DivingModule
-import org.jglrxavpok.moarboats.extensions.toRadians
 
 object DivingModuleRenderer: BoatModuleRenderer() {
 

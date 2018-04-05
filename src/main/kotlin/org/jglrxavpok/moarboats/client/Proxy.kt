@@ -17,7 +17,7 @@ import org.jglrxavpok.moarboats.common.Items
 import org.jglrxavpok.moarboats.common.MoarBoatsProxy
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 
-@Mod.EventBusSubscriber(value = Side.CLIENT, modid = MoarBoats.ModID)
+@Mod.EventBusSubscriber(value = arrayOf(Side.CLIENT), modid = MoarBoats.ModID)
 class Proxy: MoarBoatsProxy() {
 
     override fun init() {

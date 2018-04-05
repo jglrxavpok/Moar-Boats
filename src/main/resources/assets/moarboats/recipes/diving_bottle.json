@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "IGI",
+    "III"
+  ],
+  "key": {
+    "G": [
+      {
+      "item": "minecraft:glass_bottle"
+      }
+    ],
+    "I": [
+      {
+        "item": "minecraft:iron_ingot"
+      }
+    ]
+  },
+  "result": {
+    "item": "moarboats:diving_bottle",
+    "count": 1
+  }
+}
