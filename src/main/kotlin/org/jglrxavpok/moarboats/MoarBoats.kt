@@ -30,7 +30,7 @@ import org.jglrxavpok.moarboats.common.modules.*
 
 
 @Mod(modLanguageAdapter = "net.shadowfacts.forgelin.KotlinAdapter", modid = MoarBoats.ModID, dependencies = "required-after:forgelin;",
-        name = "Moar Boats", version = "1.3.0")
+        name = "Moar Boats", version = "1.3.1")
 object MoarBoats {
     const val ModID = "moarboats"
 

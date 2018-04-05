@@ -1,13 +1,18 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "S ",
-    " S"
+    "S",
+    "P"
   ],
   "key": {
     "S": [
       {
       "item": "minecraft:iron_sword"
+      }
+    ],
+    "P": [
+      {
+        "item": "minecraft:iron_pickaxe"
       }
     ]
   },
