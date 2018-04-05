@@ -1,6 +1,9 @@
 package org.jglrxavpok.moarboats.common.entities
 
+import net.minecraft.block.BlockDispenser
+import net.minecraft.block.state.IBlockState
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.init.Blocks
 import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.InventoryHelper
 import net.minecraft.item.ItemStack
@@ -8,24 +11,33 @@ import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
 import net.minecraft.network.datasync.DataSerializers
 import net.minecraft.network.datasync.EntityDataManager
-import net.minecraft.util.EnumHand
-import net.minecraft.util.ResourceLocation
+import net.minecraft.tileentity.TileEntity
+import net.minecraft.tileentity.TileEntityDispenser
+import net.minecraft.util.*
+import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
+import net.minecraft.util.text.TextComponentTranslation
 import net.minecraft.world.World
+import net.minecraftforge.common.capabilities.Capability
+import net.minecraftforge.common.capabilities.ICapabilityProvider
 import net.minecraftforge.common.util.Constants
+import net.minecraftforge.items.CapabilityItemHandler
+import net.minecraftforge.items.IItemHandler
+import net.minecraftforge.items.wrapper.InvWrapper
 import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
-import org.jglrxavpok.moarboats.common.ResourceLocationsSerializer
-import org.jglrxavpok.moarboats.common.items.BaseBoatItem
-import org.jglrxavpok.moarboats.extensions.loadInventory
-import org.jglrxavpok.moarboats.extensions.saveInventory
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.api.IBoatModuleInventory
+import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
+import org.jglrxavpok.moarboats.common.ResourceLocationsSerializer
+import org.jglrxavpok.moarboats.common.items.BaseBoatItem
 import org.jglrxavpok.moarboats.common.modules.SeatModule
+import org.jglrxavpok.moarboats.extensions.Fluids
+import org.jglrxavpok.moarboats.extensions.loadInventory
+import org.jglrxavpok.moarboats.extensions.saveInventory
 import java.util.*
 
-class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
+class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapabilityProvider {
 
     private companion object {
         val MODULE_LOCATIONS = EntityDataManager.createKey(ModularBoatEntity::class.java, ResourceLocationsSerializer)
@@ -45,6 +57,12 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
         get()= dataManager[MODULE_DATA]
         set(value) { dataManager[MODULE_DATA] = value; dataManager.setDirty(MODULE_DATA) }
     override val modules = mutableListOf<BoatModule>()
+
+    /**
+     * Embedded TileEntityDispenser not to freak out the game engine when trying to dispense an item
+     */
+    private val embeddedDispenserTileEntity = TileEntityDispenser()
+    private val itemHandler = InvWrapper(this)
 
     private val moduleInventories = hashMapOf<ResourceLocation, IBoatModuleInventory>()
 
@@ -97,7 +115,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
         val heldItem = player.getHeldItem(hand)
         val module = BoatModuleRegistry.findModule(heldItem)
         if(module != null) {
-            if(module !in moduleLocations && canFitModule(module)) {
+            if(canFitModule(module)) {
                 if(!player.capabilities.isCreativeMode) {
                     heldItem.shrink(1)
                     if (heldItem.isEmpty) {
@@ -105,6 +123,10 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
                     }
                 }
                 addModule(module, fromItem = heldItem)
+                return true
+            } else {
+                val correspondingModule = BoatModuleRegistry[module].module
+                player.sendStatusMessage(TextComponentTranslation("general.occupiedSpot", correspondingModule.moduleSpot.text), true)
                 return true
             }
         }
@@ -121,7 +143,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
     private fun canFitModule(module: ResourceLocation): Boolean {
         val correspondingModule = BoatModuleRegistry[module].module
         val usedSpots = moduleLocations.map { BoatModuleRegistry[it].module.moduleSpot }
-        return correspondingModule.moduleSpot !in usedSpots
+        return correspondingModule.moduleSpot !in usedSpots && module !in moduleLocations
     }
 
     override fun writeEntityToNBT(compound: NBTTagCompound) {
@@ -208,6 +230,13 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
         }
     }
 
+    override fun isValidLiquidBlock(blockstate: IBlockState) = Fluids.isUsualLiquidBlock(blockstate)
+
+    override fun attackEntityFrom(source: DamageSource, amount: Float) = when(source) {
+        DamageSource.LAVA, DamageSource.IN_FIRE, DamageSource.ON_FIRE -> false
+        is EntityDamageSourceIndirect -> false // avoid to kill yourself with your own arrows; also you are an *iron* boat, act like it
+        else -> super.attackEntityFrom(source, amount)
+    }
 
     // === START OF INVENTORY CODE FOR INTERACTIONS WITH HOPPERS === //
 
@@ -283,10 +312,10 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
     override fun closeInventory(player: EntityPlayer?) { }
 
     override fun setInventorySlotContents(index: Int, stack: ItemStack) {
-        return indexToInventory(index)?.let { inv ->
+        indexToInventory(index)?.let { inv ->
             val i = globalIndexToLocalIndex(index)
             inv.setInventorySlotContents(i, stack)
-        } ?: Unit
+        }
     }
 
     override fun removeStackFromSlot(index: Int): ItemStack {
@@ -298,6 +327,22 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
 
     override fun getFieldCount() = 0
 
+    // === Start of IBlockSource methods
+    override fun <T : TileEntity> getBlockTileEntity(): T {
+        return embeddedDispenserTileEntity as T
+    }
+
+    override fun getX() = posX
+    override fun getY() = posY
+    override fun getZ() = posZ
+
+    override fun getBlockState(): IBlockState {
+        return Blocks.DISPENSER.defaultState.withProperty(BlockDispenser.FACING, EnumFacing.fromAngle(180f - yaw.toDouble()))
+    }
+
+    override fun getBlockPos(): BlockPos {
+        return position
+    }
     // === Start of passengers code ===
 
     override fun canStartRiding(player: EntityPlayer, heldItem: ItemStack, hand: EnumHand): Boolean {
@@ -306,5 +351,21 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory {
 
     override fun canRiderInteract(): Boolean {
         return true
+    }
+
+    // === Start of Capability code ===
+
+    override fun hasCapability(capability: Capability<*>, facing: EnumFacing?): Boolean {
+        if(capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
+            return true
+        }
+        return super.hasCapability(capability, facing)
+    }
+
+    override fun <T : Any?> getCapability(capability: Capability<T>, facing: EnumFacing?): T? {
+        if(capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
+            return itemHandler as T
+        }
+        return super.getCapability(capability, facing)
     }
 }

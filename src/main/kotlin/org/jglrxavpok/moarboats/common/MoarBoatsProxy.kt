@@ -17,9 +17,11 @@ open class MoarBoatsProxy {
         MoarBoats.network.registerMessage(C5DeployAnchor.Handler, C5DeployAnchor::class.java, 5, Side.SERVER)
         MoarBoats.network.registerMessage(S6PlaySound.Handler, S6PlaySound::class.java, 6, Side.CLIENT)
         MoarBoats.network.registerMessage(S7SyncInventory.Handler, S7SyncInventory::class.java, 7, Side.CLIENT)
+        MoarBoats.network.registerMessage(C8ChangeEngineSpeed.Handler, C8ChangeEngineSpeed::class.java, 8, Side.SERVER)
+        MoarBoats.network.registerMessage(C9ChangeDispenserPeriod.Handler, C9ChangeDispenserPeriod::class.java, 9, Side.SERVER)
     }
 
     open fun preInit() {
-
     }
+
 }

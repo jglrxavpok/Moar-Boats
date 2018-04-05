@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "S",
+    "P"
+  ],
+  "key": {
+    "S": [
+      {
+      "item": "minecraft:iron_sword"
+      }
+    ],
+    "P": [
+      {
+        "item": "minecraft:iron_pickaxe"
+      }
+    ]
+  },
+  "result": {
+    "item": "moarboats:icebreaker",
+    "count": 1
+  }
+}

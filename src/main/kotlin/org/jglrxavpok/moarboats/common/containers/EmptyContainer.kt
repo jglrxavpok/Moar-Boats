@@ -4,10 +4,10 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.player.InventoryPlayer
 import net.minecraft.inventory.Container
 
-class EmptyContainer(playerInventory: InventoryPlayer): ContainerBase(playerInventory) {
+class EmptyContainer(playerInventory: InventoryPlayer, val isLarge: Boolean = false): ContainerBase(playerInventory) {
 
     init {
-        addPlayerSlots(isLarge = false)
+        addPlayerSlots(isLarge)
     }
 
     override fun canInteractWith(playerIn: EntityPlayer): Boolean {

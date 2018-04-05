@@ -3,14 +3,13 @@ package org.jglrxavpok.moarboats.common.entities
 import com.google.common.base.Optional
 import com.google.common.collect.Lists
 import io.netty.buffer.ByteBuf
-import net.minecraft.block.BlockLiquid
-import net.minecraft.block.material.Material
 import net.minecraft.block.state.IBlockState
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLeashKnot
 import net.minecraft.entity.MoverType
 import net.minecraft.entity.item.EntityBoat
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.init.Blocks
 import net.minecraft.init.Items
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
@@ -29,8 +28,8 @@ import net.minecraftforge.fml.relauncher.SideOnly
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.items.RopeItem
 import org.jglrxavpok.moarboats.extensions.toDegrees
-import org.jglrxavpok.moarboats.extensions.toRadians
 import org.jglrxavpok.moarboats.api.IControllable
+import org.jglrxavpok.moarboats.extensions.Fluids
 import java.util.*
 
 abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEntityAdditionalSpawnData {
@@ -67,8 +66,8 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
      * Halved every tick.
      */
     private var boatGlide = 0f
-    private var status: EntityBoat.Status? = null
-    private var previousStatus: EntityBoat.Status? = null
+    private var status: Status? = null
+    private var previousStatus: Status? = null
     private var lastYd = 0.0
     protected var acceleration = 0f
 
@@ -127,6 +126,11 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
     init {
         this.preventEntitySpawning = true
         this.setSize(1.375f, 0.5625f)
+        isImmuneToFire = true
+    }
+
+    enum class Status {
+        IN_LIQUID, IN_AIR, ON_LAND, UNDER_FLOWING_LIQUID, UNDER_LIQUID
     }
 
     constructor(world: World, x: Double, y: Double, z: Double): this(world) {
@@ -138,6 +142,10 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         this.prevPosY = y
         this.prevPosZ = z
     }
+
+    override fun isEntityInLava() = isInLava
+
+    override fun getWorld() = world
 
     fun hasLink(linkType: Int) = linkEntityTypes[linkType] != NoLink
 
@@ -213,10 +221,12 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
                         currentBlockPos.setPos(k1, l1, i2)
                         val iblockstate = this.world.getBlockState(currentBlockPos)
 
-                        if (iblockstate.material === Material.WATER) {
-                            val f = BlockLiquid.getLiquidHeight(iblockstate, this.world, currentBlockPos)
-                            this.waterLevel = Math.max(f.toDouble(), this.waterLevel)
-                            flag = flag or (axisalignedbb.minY < f.toDouble())
+                        when {
+                            isValidLiquidBlock(iblockstate) -> {
+                                val liquidHeight = getLiquidHeight(world, currentBlockPos)
+                                this.waterLevel = Math.max(liquidHeight.toDouble(), this.waterLevel)
+                                flag = flag or (axisalignedbb.minY < liquidHeight.toDouble())
+                            }
                         }
                     }
                 }
@@ -278,7 +288,7 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
     /**
      * Determines whether the boat is in water, gliding on land, or in air
      */
-    private fun getBoatStatus(): EntityBoat.Status {
+    private fun getBoatStatus(): Status {
         val currentStatus = this.getUnderwaterStatus()
 
         return when {
@@ -286,15 +296,15 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
                 this.waterLevel = this.entityBoundingBox.maxY
                 currentStatus
             }
-            this.checkInWater() -> EntityBoat.Status.IN_WATER
+            this.checkInWater() -> Status.IN_LIQUID
             else -> {
                 val f = this.getBoatGlide()
 
                 if (f > 0.0f) {
                     this.boatGlide = f
-                    EntityBoat.Status.ON_LAND
+                    Status.ON_LAND
                 } else {
-                    EntityBoat.Status.IN_AIR
+                    Status.IN_AIR
                 }
             }
         }
@@ -330,9 +340,8 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
                         currentPosition.setPos(l1, k1, i2)
                         val iblockstate = this.world.getBlockState(currentPosition)
 
-                        if (iblockstate.material === Material.WATER) {
-                            f = Math.max(f, BlockLiquid.getBlockLiquidHeight(iblockstate, this.world, currentPosition))
-                        }
+                        if(isValidLiquidBlock(iblockstate))
+                            f = maxOf(f, Fluids.getBlockLiquidHeight(iblockstate, world, currentPosition))
 
                         if (f >= 1.0f) {
                             continue@label108
@@ -482,14 +491,6 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         }
     }
 
-    fun calculateAnchorPosition(linkType: Int): Vec3d {
-        val distanceFromCenter = 0.0625f * 17f * if(linkType == BasicBoatEntity.FrontLink) 1f else -1f
-        val anchorX = posX + MathHelper.cos((rotationYaw + 90f).toRadians()) * distanceFromCenter
-        val anchorY = posY + 0.0625f * 16f
-        val anchorZ = posZ + MathHelper.sin((rotationYaw + 90f).toRadians()) * distanceFromCenter
-        return Vec3d(anchorX, anchorY, anchorZ)
-    }
-
     override fun turnRight(multiplier: Float) {
         deltaRotation += 1f * multiplier
     }
@@ -514,10 +515,16 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
 
     abstract fun dropItemsOnDeath(killedByPlayerInCreative: Boolean)
 
+    abstract fun isValidLiquidBlock(blockstate: IBlockState): Boolean
+
+    open fun getLiquidHeight(world: World, blockPos: BlockPos): Float {
+        return Fluids.getLiquidHeight(world.getBlockState(blockPos), world, blockPos)
+    }
+
     /**
      * Decides whether the boat is currently underwater.
      */
-    private fun getUnderwaterStatus(): EntityBoat.Status? {
+    private fun getUnderwaterStatus(): Status? {
         val axisalignedbb = this.entityBoundingBox
         val aboveMaxY = axisalignedbb.maxY + 0.001
         val minX = MathHelper.floor(axisalignedbb.minX)
@@ -526,7 +533,7 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         val aboveMaxYPos = MathHelper.ceil(aboveMaxY)
         val minZ = MathHelper.floor(axisalignedbb.minZ)
         val maxZ = MathHelper.ceil(axisalignedbb.maxZ)
-        var foundWater = false
+        var foundLiquid = false
         val currentBlockPos = BlockPos.PooledMutableBlockPos.retain()
 
         try {
@@ -536,12 +543,16 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
                         currentBlockPos.setPos(x, y, z)
                         val block = this.world.getBlockState(currentBlockPos)
 
-                        if (block.material === Material.WATER && aboveMaxY < BlockLiquid.getLiquidHeight(block, this.world, currentBlockPos).toDouble()) {
-                            if ((block.getValue(BlockLiquid.LEVEL) as Int).toInt() != 0) {
-                                return EntityBoat.Status.UNDER_FLOWING_WATER
+                        if (isValidLiquidBlock(block)) {
+                            val liquidLevel = getLiquidHeight(world, currentBlockPos).toDouble()
+                            if(aboveMaxY < liquidLevel) {
+                                if (Fluids.getLiquidLocalLevel(block) != 0) {
+                                    return Status.UNDER_FLOWING_LIQUID
+                                }
+
+                                foundLiquid = true
                             }
 
-                            foundWater = true
                         }
                     }
                 }
@@ -550,9 +561,8 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
             currentBlockPos.release()
         }
 
-        return if (foundWater) EntityBoat.Status.UNDER_WATER else null
+        return if (foundLiquid) Status.UNDER_LIQUID else null
     }
-
 
     /**
      * Update the boat's speed, based on momentum.
@@ -562,28 +572,28 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         var d2 = 0.0
         this.momentum = 0.05f
 
-        if (this.previousStatus == EntityBoat.Status.IN_AIR && this.status != EntityBoat.Status.IN_AIR && this.status != EntityBoat.Status.ON_LAND) {
+        if (this.previousStatus == Status.IN_AIR && this.status != Status.IN_AIR && this.status != Status.ON_LAND) {
             this.waterLevel = this.entityBoundingBox.minY + this.height.toDouble()
             this.setPosition(this.posX, (this.getWaterLevelAbove() - this.height).toDouble() + 0.101, this.posZ)
             this.motionY = 0.0
             this.lastYd = 0.0
-            this.status = EntityBoat.Status.IN_WATER
+            this.status = Status.IN_LIQUID
         } else {
             when(this.status) {
-                EntityBoat.Status.IN_WATER -> {
+                Status.IN_LIQUID -> {
                     d2 = (this.waterLevel - this.entityBoundingBox.minY) / this.height.toDouble()
                     this.momentum = 0.9f
                 }
-                EntityBoat.Status.UNDER_FLOWING_WATER -> {
+                Status.UNDER_FLOWING_LIQUID -> {
                     verticalAcceleration = -7.0E-4
                     this.momentum = 0.9f
                 }
-                EntityBoat.Status.UNDER_WATER -> {
+                Status.UNDER_LIQUID -> {
                     d2 = 0.009999999776482582
                     this.momentum = 0.45f
                 }
-                EntityBoat.Status.IN_AIR -> this.momentum = 0.9f
-                EntityBoat.Status.ON_LAND -> this.momentum = this.boatGlide
+                Status.IN_AIR -> this.momentum = 0.9f
+                Status.ON_LAND -> this.momentum = this.boatGlide
             }
 
             this.motionX *= this.momentum.toDouble()
@@ -592,12 +602,11 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
             this.motionY += verticalAcceleration
 
             if (d2 > 0.0) {
-                this.motionY += d2 * 0.06153846016296973
+                this.motionY += d2 * 0.06153846016296973// * (1f/0.014f)
                 this.motionY *= 0.75
             }
         }
     }
-
 
     /**
      * Applies this boat's yaw to the given entity. Used to update the orientation of its passenger.
@@ -624,7 +633,7 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
 
         if (onGroundIn) {
             if (this.fallDistance > 3.0f) {
-                if (this.status != EntityBoat.Status.ON_LAND) {
+                if (this.status != Status.ON_LAND) {
                     this.fallDistance = 0.0f
                     return
                 }
@@ -647,7 +656,7 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
             }
 
             this.fallDistance = 0.0f
-        } else if (this.world.getBlockState(BlockPos(this).down()).material !== Material.WATER && y < 0.0) {
+        } else if (!isValidLiquidBlock(this.world.getBlockState(BlockPos(this).down())) && y < 0.0) {
             this.fallDistance = (this.fallDistance.toDouble() - y).toFloat()
         }
     }
@@ -867,8 +876,9 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         buffer.writeLong(id.mostSignificantBits)*/
     }
 
-    override fun inWater(): Boolean {
-        return getBoatStatus() != EntityBoat.Status.ON_LAND
+    override fun inLiquid(): Boolean = when(status) {
+        Status.UNDER_FLOWING_LIQUID, Status.IN_LIQUID -> true
+        else -> false
     }
 
     // === Start of code for passengers ===

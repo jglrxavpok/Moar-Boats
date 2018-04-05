@@ -44,10 +44,7 @@ class C1MapClick(): IMessage {
                 error("Invalid container, expected ContainerHelmModule, got $container")
             }
             val stack = container.getSlot(0).stack
-            val item = stack.item
-            if(item !is ItemMap) {
-                error("Got click while there was no map!")
-            }
+            val item = stack.item as? ItemMap ?: error("Got click while there was no map!")
             val boat = container.boat
             val mapdata = item.getMapData(stack, boat.worldRef)!!
             val helm = container.helm as HelmModule

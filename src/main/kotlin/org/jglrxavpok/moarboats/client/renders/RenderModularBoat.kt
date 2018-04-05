@@ -12,7 +12,6 @@ import org.jglrxavpok.moarboats.client.models.ModelBoatLinkerAnchor
 import org.jglrxavpok.moarboats.client.models.ModelModularBoat
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
-import org.jglrxavpok.moarboats.extensions.lookAt
 import org.jglrxavpok.moarboats.extensions.setLookAlong
 import org.lwjgl.util.vector.Quaternion
 
@@ -34,7 +33,10 @@ class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>
         bindTexture(TextureLocation)
         GlStateManager.pushMatrix()
         GlStateManager.disableCull()
-        setTranslation(entity, x, y, z)
+        if(entity.isEntityInLava())
+            setTranslation(entity, x, y+0.20f, z)
+        else
+            setTranslation(entity, x, y, z)
         setRotation(entity, entityYaw, partialTicks)
         GlStateManager.enableRescaleNormal()
         setScale()

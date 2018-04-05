@@ -14,13 +14,14 @@ class GuiFishingModule(playerInventory: InventoryPlayer, fishingModule: BoatModu
         GuiModuleBase(fishingModule, boat, playerInventory, ContainerFishingModule(playerInventory, fishingModule, boat)) {
 
     val missingStorage = TextComponentTranslation("gui.fishing.missingStorage")
+    val fishingModule = module as FishingModule
 
     override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/fishing.png")
 
     override fun drawModuleForeground(mouseX: Int, mouseY: Int) {
         super.drawModuleForeground(mouseX, mouseY)
         val state = boat.getState(module)
-        if(!state.getBoolean(FishingModule.READY)) {
+        if(!fishingModule.readyProperty[boat]) {
             drawCenteredString(fontRenderer, missingStorage.unformattedText, xSize/2, 20, 0xFF4040)
         }
     }

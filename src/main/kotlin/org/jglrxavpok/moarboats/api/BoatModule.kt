@@ -7,8 +7,10 @@ import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
+import net.minecraft.util.text.TextComponentTranslation
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
+import org.jglrxavpok.moarboats.common.containers.ContainerBase
 import java.util.*
 
 abstract class BoatModule {
@@ -20,7 +22,7 @@ abstract class BoatModule {
     abstract fun controlBoat(from: IControllable)
     abstract fun update(from: IControllable)
     abstract fun onAddition(to: IControllable)
-    abstract fun createContainer(player: EntityPlayer, boat: IControllable): Container?
+    abstract fun createContainer(player: EntityPlayer, boat: IControllable): ContainerBase?
 
     /**
      * Priority for using a hopper: the higher, the strongest priority. Use 0 to disallow hopper interactions
@@ -39,11 +41,13 @@ abstract class BoatModule {
     protected fun IControllable.getState() = this.getState(this@BoatModule)
     protected fun IControllable.getInventory() = this.getInventory(this@BoatModule)
 
-    enum class Spot {
-        Engine,
-        Storage,
-        Navigation,
-        Misc
+    enum class Spot(val id: String) {
+        Engine("engine"),
+        Storage("storage"),
+        Navigation("navigation"),
+        Misc("misc");
+
+        val text = TextComponentTranslation("general.spot.$id")
     }
 
     open fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {}
@@ -54,6 +58,10 @@ data class BoatModuleEntry(val correspondingItem: Item, val module: BoatModule, 
 object BoatModuleRegistry {
 
     private val backingMap = hashMapOf<ResourceLocation, BoatModuleEntry>()
+
+    fun registerModule(module: BoatModule, correspondingItem: Item, inventoryFactory: ((IControllable, BoatModule) -> IBoatModuleInventory)? = null) {
+        registerModule(module.id, correspondingItem, module, inventoryFactory)
+    }
 
     fun registerModule(name: ResourceLocation, correspondingItem: Item, module: BoatModule, inventoryFactory: ((IControllable, BoatModule) -> IBoatModuleInventory)? = null) {
         backingMap[name] = BoatModuleEntry(correspondingItem, module, inventoryFactory)

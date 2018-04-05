@@ -10,7 +10,7 @@ object MoarBoatsGuiHandler: IGuiHandler {
         return when(ID) {
             ModuleGui -> {
                 val boatID = x
-                val boat = world.getEntityByID(boatID) as ModularBoatEntity
+                val boat = world.getEntityByID(boatID) as? ModularBoatEntity ?: return null
                 val module = boat.modules[y]
                 module.createGui(player, boat)
             }
@@ -22,7 +22,7 @@ object MoarBoatsGuiHandler: IGuiHandler {
         return when(ID) {
             ModuleGui -> {
                 val boatID = x
-                val boat = world.getEntityByID(boatID) as ModularBoatEntity
+                val boat = world.getEntityByID(boatID) as? ModularBoatEntity ?: return null
                 val module = boat.modules[y]
                 module.createContainer(player, boat)
             }

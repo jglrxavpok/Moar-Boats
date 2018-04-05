@@ -9,6 +9,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
+import org.jglrxavpok.moarboats.common.modules.BaseEngineModule
 import org.jglrxavpok.moarboats.common.modules.FurnaceEngineModule
 
 class C4ChangeEngineMode(): IMessage {
@@ -35,10 +36,10 @@ class C4ChangeEngineMode(): IMessage {
         override fun onMessage(message: C4ChangeEngineMode, ctx: MessageContext): IMessage? {
             val player = ctx.serverHandler.player
             val world = player.world
-            val boat = world.getEntityByID(message.boatID) as ModularBoatEntity
+            val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
             val moduleLocation = message.moduleLocation
             val module = BoatModuleRegistry[moduleLocation].module
-            module as FurnaceEngineModule
+            module as BaseEngineModule
             module.changeStationaryState(boat)
             return null
         }

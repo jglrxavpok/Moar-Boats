@@ -1,9 +1,16 @@
 package org.jglrxavpok.moarboats.extensions
 
 import net.minecraft.entity.Entity
+import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import java.util.*
 
 fun World.getEntityByUUID(id: UUID): Entity? {
     return this.getLoadedEntityList().find { it.uniqueID == id }
+}
+
+fun <T> BlockPos.PooledMutableBlockPos.use(action: (BlockPos.PooledMutableBlockPos) -> T): T {
+    val result = action(this)
+    this.release()
+    return result
 }

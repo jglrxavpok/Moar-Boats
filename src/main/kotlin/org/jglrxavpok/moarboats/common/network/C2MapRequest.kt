@@ -38,14 +38,11 @@ class C2MapRequest(): IMessage {
         override fun onMessage(message: C2MapRequest, ctx: MessageContext): S3MapAnswer? {
             val player = ctx.serverHandler.player
             val world = player.world
-            val boat = world.getEntityByID(message.boatID) as ModularBoatEntity
+            val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
             val moduleLocation = message.moduleLocation
             val module = BoatModuleRegistry[moduleLocation].module
             val stack = boat.getInventory(module).getStackInSlot(0)
-            val item = stack.item
-            if(item !is ItemMap) {
-                error("Got request while there was no map!")
-            }
+            val item = stack.item as? ItemMap ?: error("Got request while there was no map!")
             val mapName = message.mapName
             val mapdata = item.getMapData(stack, boat.worldRef)!!
             val packet = S3MapAnswer(mapName)

@@ -21,17 +21,15 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
 
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, renderManager: RenderManager) {
         GlStateManager.pushMatrix()
+        val anchor = module as AnchorModule
 
         val state = boat.getState(module)
 
-        var anchorX = state.getDouble(AnchorModule.ANCHOR_X)
-        var anchorY = state.getDouble(AnchorModule.ANCHOR_Y)
-        var anchorZ = state.getDouble(AnchorModule.ANCHOR_Z)
+        var anchorX = anchor.anchorXProperty[boat]
+        var anchorY = anchor.anchorYProperty[boat]
+        var anchorZ = anchor.anchorZProperty[boat]
 
-        if(state.getBoolean(AnchorModule.DEPLOYED)) {
-            val anchorX = state.getDouble(AnchorModule.ANCHOR_X)
-            val anchorY = state.getDouble(AnchorModule.ANCHOR_Y)
-            val anchorZ = state.getDouble(AnchorModule.ANCHOR_Z)
+        if(anchor.deployedProperty[boat]) {
             val dx = -(anchorX - boat.posX)
             val dy = anchorY - boat.posY
             val dz = -(anchorZ - boat.posZ)

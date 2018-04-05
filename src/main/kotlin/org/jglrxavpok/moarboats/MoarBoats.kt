@@ -21,18 +21,16 @@ import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.config.Configuration
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper
 import org.jglrxavpok.moarboats.common.*
-import org.jglrxavpok.moarboats.common.items.BaseBoatItem
-import org.jglrxavpok.moarboats.common.items.HelmItem
 import org.jglrxavpok.moarboats.common.modules.inventories.ChestModuleInventory
 import org.jglrxavpok.moarboats.common.modules.inventories.EngineModuleInventory
 import org.jglrxavpok.moarboats.common.modules.inventories.SimpleModuleInventory
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
-import org.jglrxavpok.moarboats.common.items.SeatItem
+import org.jglrxavpok.moarboats.common.items.*
 import org.jglrxavpok.moarboats.common.modules.*
 
 
 @Mod(modLanguageAdapter = "net.shadowfacts.forgelin.KotlinAdapter", modid = MoarBoats.ModID, dependencies = "required-after:forgelin;",
-        name = "Moar Boats", version = "1.2.1")
+        name = "Moar Boats", version = "1.3.1")
 object MoarBoats {
     const val ModID = "moarboats"
 
@@ -61,9 +59,14 @@ object MoarBoats {
         BoatModuleRegistry.registerModule(ResourceLocation("moarboats:chest"), Item.getItemFromBlock(MCBlocks.CHEST), ChestModule, { boat, module -> ChestModuleInventory(boat, module) })
         BoatModuleRegistry.registerModule(ResourceLocation("moarboats:helm"), HelmItem, HelmModule, { boat, module -> SimpleModuleInventory(1, "helm", boat, module) })
         BoatModuleRegistry.registerModule(ResourceLocation("moarboats:fishing"), MCItems.FISHING_ROD, FishingModule, { boat, module -> SimpleModuleInventory(1, "fishing", boat, module) })
-        BoatModuleRegistry.registerModule(ResourceLocation("moarboats:seat"), SeatItem, SeatModule)
-        BoatModuleRegistry.registerModule(ResourceLocation("moarboats:anchor"), Item.getItemFromBlock(MCBlocks.ANVIL), AnchorModule)
-        // TODO: BoatModuleRegistry.registerModule(ResourceLocation("moarboats:sonar"), Item.getItemFromBlock(MCBlocks.AIR), SonarModule)
+        BoatModuleRegistry.registerModule(SeatModule, SeatItem)
+        BoatModuleRegistry.registerModule(AnchorModule, Item.getItemFromBlock(MCBlocks.ANVIL))
+        BoatModuleRegistry.registerModule(SolarEngineModule, Item.getItemFromBlock(MCBlocks.DAYLIGHT_DETECTOR))
+        BoatModuleRegistry.registerModule(CreativeEngineModule, CreativeEngineItem)
+        BoatModuleRegistry.registerModule(IceBreakerModule, IceBreakerItem)
+        BoatModuleRegistry.registerModule(SonarModule, Item.getItemFromBlock(MCBlocks.NOTEBLOCK))
+        BoatModuleRegistry.registerModule(DispenserModule, Item.getItemFromBlock(MCBlocks.DISPENSER), { boat, module -> SimpleModuleInventory(3*5, "dispenser", boat, module) })
+        BoatModuleRegistry.registerModule(DivingModule, DivingBottleItem)
         MinecraftForge.EVENT_BUS.register(this)
         MinecraftForge.EVENT_BUS.register(ItemEventHandler)
         logger = event.modLog

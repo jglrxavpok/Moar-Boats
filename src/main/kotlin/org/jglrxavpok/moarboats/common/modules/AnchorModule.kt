@@ -14,6 +14,9 @@ import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiAnchorModule
 import org.jglrxavpok.moarboats.common.containers.EmptyContainer
+import org.jglrxavpok.moarboats.common.state.BooleanBoatProperty
+import org.jglrxavpok.moarboats.common.state.DoubleBoatProperty
+import org.jglrxavpok.moarboats.common.state.IntBoatProperty
 
 object AnchorModule: BoatModule() {
 
@@ -22,13 +25,13 @@ object AnchorModule: BoatModule() {
     override val moduleSpot = Spot.Misc
 
     val spawnPointSet = TextComponentTranslation("gui.anchor.spawnPointSet")
-    // state names
-    const val ACTIVE = "active"
-    const val ANCHOR_X = "anchorX"
-    const val ANCHOR_Y = "anchorY"
-    const val ANCHOR_Z = "anchorZ"
-    const val ANCHOR_DIRECTION = "anchorDirection"
-    const val DEPLOYED = "deployed"
+
+    val activeProperty = BooleanBoatProperty("active")
+    val anchorDirectionProperty = IntBoatProperty("anchorDirection")
+    val anchorXProperty = DoubleBoatProperty("anchorX")
+    val anchorYProperty = DoubleBoatProperty("anchorY")
+    val anchorZProperty = DoubleBoatProperty("anchorZ")
+    val deployedProperty = BooleanBoatProperty("deployed")
 
     val anchorDescentSpeed get() = 0.2
 
@@ -37,33 +40,32 @@ object AnchorModule: BoatModule() {
     }
 
     override fun controlBoat(from: IControllable) {
-        val active = from.getState().getBoolean(ACTIVE)
+        val active = activeProperty[from]
         if(active) {
             from.blockMovement()
         }
     }
 
     override fun update(from: IControllable) {
-        val state = from.getState()
-        val deployed = state.getBoolean(DEPLOYED)
+        val deployed = deployedProperty[from]
         if(!deployed)
             return
-        val direction = state.getInteger(ANCHOR_DIRECTION)
+        val direction = anchorDirectionProperty[from]
         if(direction == 0)
             return
-        val anchorX = state.getDouble(ANCHOR_X)
-        val anchorY = state.getDouble(ANCHOR_Y)
-        val anchorZ = state.getDouble(ANCHOR_Z)
+        val anchorX = anchorXProperty[from]
+        val anchorY = anchorYProperty[from]
+        val anchorZ = anchorZProperty[from]
 
         if(direction == -1) { // going down
             val nextY = anchorY + anchorDescentSpeed * direction
-            state.setDouble(ANCHOR_Y, nextY)
+            anchorYProperty[from] = nextY
             val pos = BlockPos.PooledMutableBlockPos.retain(anchorX, nextY, anchorZ)
             val world = from.worldRef
             if(world.getBlockState(pos).isSideSolid(world, pos, EnumFacing.UP)) {
                 // stop descent
-                state.setInteger(ANCHOR_DIRECTION, 0)
-                state.setBoolean(ACTIVE, true)
+                anchorDirectionProperty[from] = 0
+                activeProperty[from] = true
             }
             pos.release()
         } else { // going up
@@ -76,28 +78,24 @@ object AnchorModule: BoatModule() {
             val nextX = dx * length + anchorX
             val nextY = dy * length + anchorY
             val nextZ = dz * length + anchorZ
-            state.setDouble(ANCHOR_X, nextX)
-            state.setDouble(ANCHOR_Y, nextY)
-            state.setDouble(ANCHOR_Z, nextZ)
+            anchorXProperty[from] = nextX
+            anchorYProperty[from] = nextY
+            anchorZProperty[from] = nextZ
             if(from.correspondingEntity.positionVector.squareDistanceTo(nextX, nextY, nextZ) < 1.0) { // going up & less than half a block away
                 // stop
-                state.setInteger(ANCHOR_DIRECTION, 0)
-                state.setBoolean(DEPLOYED, false)
+                anchorDirectionProperty[from] = 0
+                deployedProperty[from] = false
             }
         }
-
-        from.saveState()
     }
 
     override fun onAddition(to: IControllable) {
-        val state = to.getState()
-        state.setBoolean(ACTIVE, false)
-        state.setBoolean(DEPLOYED, false)
-        state.setDouble(ANCHOR_X, 0.0)
-        state.setDouble(ANCHOR_Y, 0.0)
-        state.setDouble(ANCHOR_Z, 0.0)
-        state.setInteger(ANCHOR_DIRECTION, 0)
-        to.saveState()
+        activeProperty[to] = false
+        deployedProperty[to] = false
+        anchorXProperty[to] = 0.0
+        anchorYProperty[to] = 0.0
+        anchorZProperty[to] = 0.0
+        anchorDirectionProperty[to] = 0
     }
 
     override fun createContainer(player: EntityPlayer, boat: IControllable) = EmptyContainer(player.inventory)
@@ -107,22 +105,20 @@ object AnchorModule: BoatModule() {
     }
 
     fun deploy(boat: IControllable, player: EntityPlayer) {
-        val state = boat.getState()
-        val deployed = state.getBoolean(DEPLOYED)
+        val deployed = deployedProperty[boat]
         if(deployed) {
-            state.setInteger(ANCHOR_DIRECTION, 1)
-            state.setBoolean(ACTIVE, false)
+            anchorDirectionProperty[boat] = 1
+            activeProperty[boat] = false
         } else {
-            state.setBoolean(DEPLOYED, true)
-            state.setInteger(ANCHOR_DIRECTION, -1)
+            deployedProperty[boat] = true
+            anchorDirectionProperty[boat] = -1
 
-            state.setDouble(ANCHOR_X, boat.positionX)
-            state.setDouble(ANCHOR_Y, boat.positionY)
-            state.setDouble(ANCHOR_Z, boat.positionZ)
+            anchorXProperty[boat] = boat.positionX
+            anchorYProperty[boat] = boat.positionY
+            anchorZProperty[boat] = boat.positionZ
             player.sendStatusMessage(spawnPointSet, true)
             player.setSpawnPoint(boat.correspondingEntity.position, true)
         }
-        boat.saveState()
     }
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
