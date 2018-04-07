@@ -41,6 +41,10 @@ abstract class BaseEngineModule: BoatModule() {
         if(hasFuel(from) && !isStationary(from) && from.inLiquid()) {
             from.accelerate(speedProperty[from]+1f)
         }
+
+        if(lockedByRedstoneProperty[from]) {
+            from.blockMovement()
+        }
     }
 
     @SideOnly(Side.CLIENT)
