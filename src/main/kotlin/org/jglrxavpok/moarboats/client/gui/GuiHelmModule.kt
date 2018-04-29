@@ -2,6 +2,7 @@ package org.jglrxavpok.moarboats.client.gui
 
 import net.minecraft.client.audio.PositionedSoundRecord
 import net.minecraft.client.gui.Gui
+import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
@@ -11,12 +12,14 @@ import net.minecraft.init.SoundEvents
 import net.minecraft.item.ItemMap
 import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
+import net.minecraft.util.text.TextComponentTranslation
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.renders.HelmModuleRenderer
 import org.jglrxavpok.moarboats.common.containers.ContainerHelmModule
 import org.jglrxavpok.moarboats.common.network.C1MapClick
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
+import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.lwjgl.opengl.GL11
 
 class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: IControllable):
@@ -28,9 +31,22 @@ class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: 
     private val margins = 7.0
     private val mapSize = 130.0
     private val mapStack = ItemStack(Items.FILLED_MAP)
+    private val editButtonText = TextComponentTranslation("gui.helm.path_editor")
+    private val mapEditButton = GuiButton(0, 0, 0, editButtonText.unformattedText)
 
     init {
         shouldRenderInventoryName = false
+    }
+
+    override fun initGui() {
+        super.initGui()
+        addButton(mapEditButton)
+    }
+
+    override fun actionPerformed(button: GuiButton) {
+        when(button) {
+            mapEditButton -> playerInventory.player.openGui(MoarBoats, MoarBoatsGuiHandler.PathEditor, boat.world, boat.entityID, 0, 0)
+        }
     }
 
     override fun drawModuleBackground(mouseX: Int, mouseY: Int) {
@@ -86,7 +102,7 @@ class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: 
         val item = stack.item
         val hasMap = item is ItemMap && item.getMapData(stack, this.mc.world) != null
         if(hasMap && mouseX >= x+margins && mouseX <= x+mapSize-margins && mouseY >= y+margins && mouseY <= y+mapSize-margins) {
-            MoarBoats.network.sendToServer(C1MapClick(pixelX.toInt(), pixelY.toInt(), mapSize-margins*2, mouseButton))
+            MoarBoats.network.sendToServer(C1MapClick(pixelX, pixelY, mapSize-margins*2, mouseButton))
             if(mouseButton == 0) { // left click
                 mc.soundHandler.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 2.5f))
             } else if(mouseButton == 1) {

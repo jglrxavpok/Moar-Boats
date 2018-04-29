@@ -22,7 +22,6 @@ import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.common.capabilities.ICapabilityProvider
 import net.minecraftforge.common.util.Constants
 import net.minecraftforge.items.CapabilityItemHandler
-import net.minecraftforge.items.IItemHandler
 import net.minecraftforge.items.wrapper.InvWrapper
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
@@ -134,7 +133,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         val canOpenGui = !modules.any { it.onInteract(this, player, hand, player.isSneaking) }
         if(canOpenGui) {
             if(modules.isNotEmpty() && !world.isRemote) {
-                player.openGui(MoarBoats, MoarBoatsGuiHandler.ModuleGui, player.world, entityID, 0, 0)
+                player.openGui(MoarBoats, MoarBoatsGuiHandler.ModulesGui, player.world, entityID, 0, 0)
             }
         }
         return true

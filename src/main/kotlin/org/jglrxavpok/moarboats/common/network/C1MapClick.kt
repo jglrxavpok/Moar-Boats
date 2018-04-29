@@ -10,12 +10,12 @@ import org.jglrxavpok.moarboats.common.modules.HelmModule
 
 class C1MapClick(): IMessage {
 
-    var pixelX: Int = 0
-    var pixelY: Int = 0
+    var pixelX: Double = 0.0
+    var pixelY: Double = 0.0
     var mapAreaSize: Double = 0.0
     var button: Int = 0
 
-    constructor(pixelX: Int, pixelY: Int, mapAreaSize: Double, mouseButton: Int): this() {
+    constructor(pixelX: Double, pixelY: Double, mapAreaSize: Double, mouseButton: Int): this() {
         this.pixelX = pixelX
         this.pixelY = pixelY
         this.mapAreaSize = mapAreaSize
@@ -24,15 +24,15 @@ class C1MapClick(): IMessage {
 
     override fun fromBytes(buf: ByteBuf) {
         mapAreaSize = buf.readDouble()
-        pixelX = buf.readInt()
-        pixelY = buf.readInt()
+        pixelX = buf.readDouble()
+        pixelY = buf.readDouble()
         button = buf.readInt()
     }
 
     override fun toBytes(buf: ByteBuf) {
         buf.writeDouble(mapAreaSize)
-        buf.writeInt(pixelX)
-        buf.writeInt(pixelY)
+        buf.writeDouble(pixelX)
+        buf.writeDouble(pixelY)
         buf.writeInt(button)
     }
 
@@ -64,7 +64,7 @@ class C1MapClick(): IMessage {
             return null
         }
 
-        private fun pixel2map(pixel: Int, center: Int, mapAreaSize: Double, mapScale: Float): Int {
+        private fun pixel2map(pixel: Double, center: Int, mapAreaSize: Double, mapScale: Float): Int {
             val pixelsToMap = 128f/mapAreaSize
             return Math.floor((center / mapScale + (pixel - mapAreaSize /2) * pixelsToMap) * mapScale).toInt()
         }

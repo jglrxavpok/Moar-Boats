@@ -29,7 +29,7 @@ class C0OpenModuleGui(): IMessage {
     object Handler: IMessageHandler<C0OpenModuleGui, IMessage> {
         override fun onMessage(message: C0OpenModuleGui, ctx: MessageContext): IMessage? {
             val player = ctx.serverHandler.player
-            player.openGui(MoarBoats, MoarBoatsGuiHandler.ModuleGui, player.world, message.boatID, message.moduleIndex, 0)
+            player.openGui(MoarBoats, MoarBoatsGuiHandler.ModulesGui, player.world, message.boatID, message.moduleIndex, 0)
             return null
         }
     }
