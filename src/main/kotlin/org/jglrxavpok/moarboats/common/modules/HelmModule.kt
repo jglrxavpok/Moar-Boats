@@ -42,9 +42,10 @@ object HelmModule: BoatModule() {
     val xCenterProperty = IntBoatProperty("xCenter")
     val zCenterProperty = IntBoatProperty("zCenter")
 
-    val MapUpdatePeriod = 20*1 // every second
+    val MapUpdatePeriod = 20*5 // every 5 second
 
     val EmptyMapData = MapData("empty")
+    val StripeLength = 64
 
     override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean): Boolean {
         return false
@@ -112,15 +113,13 @@ object HelmModule: BoatModule() {
                     zCenterProperty[from] = mapdata.zCenter
                     hasMap = true
                 }
-
-                if(from.correspondingEntity.ticksExisted % MapUpdatePeriod == 0) {
-                    val id = stack.itemDamage
-                    MoarBoats.network.sendToServer(C2MapRequest("map_$id", from.entityID, this.id))
-                }
             }
             if(!hasMap) {
                 waypointsProperty[from] = NBTTagList() // reset waypoints
             }
+        } else if(from.correspondingEntity.ticksExisted % MapUpdatePeriod == 0) {
+            val id = stack.itemDamage
+            MoarBoats.network.sendToServer(C2MapRequest("map_$id", from.entityID, this.id))
         }
     }
 

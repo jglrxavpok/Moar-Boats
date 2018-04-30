@@ -24,14 +24,10 @@ object MoarBoatsGuiHandler: IGuiHandler {
                 if(HelmModule in boat.modules) {
                     val inventory = boat.getInventory(HelmModule)
                     val stack = inventory.list[0]
+                    val id = stack.itemDamage
                     if(stack.item is ItemMap) {
-                        GuiPathEditor(player, boat) {
-                            if(stack.item is ItemMap) {
-                                (stack.item as ItemMap).getMapData(stack, world)!!
-                            } else {
-                                EmptyMapData
-                            }
-                        }
+                        val map = stack.item as ItemMap
+                        GuiPathEditor(player, boat, map.getMapData(stack, world)!!, "map_$id")
                     } else {
                         null // NO MAP
                     }
