@@ -8,49 +8,63 @@ import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.texture.DynamicTexture
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.item.ItemMap
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.storage.MapData
 import org.jglrxavpok.moarboats.api.IControllable
-import org.jglrxavpok.moarboats.client.renders.HelmModuleRenderer
+import org.jglrxavpok.moarboats.common.modules.HelmModule.MapUpdatePeriod
 import org.lwjgl.input.Mouse
+import kotlin.concurrent.thread
 
-class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapData: MapData): GuiScreen() {
+class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDataSupplier: () -> MapData): GuiScreen() {
 
     companion object {
         val maxZoom = 50f
         val minZoom = 1f
+
+        val StripeLength = 64
     }
 
     private var currentZoom = 1f
-    private val size = (1 shl mapData.scale.toInt())*128
-    private val mapScale = (1 shl mapData.scale.toInt()).toFloat()
-    private val mapInfo = mapData.getMapInfo(player)
+    private var mapData = mapDataSupplier()
+    private val initialMapName = mapData.mapName
+    private val mapScale = (1 shl mapData.scale.toInt())
+    private val size = mapScale*128
     private val areaTexture = DynamicTexture(size, size)
     private val areaResLocation: ResourceLocation
+    private var ticks = 0
 
     init {
         val textureManager = Minecraft.getMinecraft().textureManager
         areaResLocation = textureManager.getDynamicTextureLocation("moarboats:path_editor_preview", areaTexture)
-        takeScreenshotOfMapArea()
     }
 
-    private fun takeScreenshotOfMapArea() {
+    private fun takeScreenshotOfMapArea(stripeIndex: Int) {
         val xCenter = mapData.xCenter
         val zCenter = mapData.zCenter
         val minX = xCenter-size/2
-        val minZ = zCenter-size/2
+        val minZ = zCenter-size/2+stripeIndex*StripeLength
 
-        val maxX = xCenter-size/2+size-1
-        val maxZ = zCenter-size/2+size-1
+        val maxX = xCenter+size/2-1
+        val maxZ = minZ+StripeLength-1
 
         val blockPos = BlockPos.PooledMutableBlockPos.retain()
         val world = player.world
         for(z in minZ..maxZ) {
             for(x in minX..maxX) {
-                val pixelX = x-xCenter+size/2
-                val pixelZ = z-zCenter+size/2
+                val pixelX = x-minX
+                val pixelZ = z-minZ+stripeIndex*StripeLength
+
+                val mapZ = ((pixelZ / size.toDouble()) * 128.0).toInt()
+                val mapX = ((pixelX / size.toDouble()) * 128.0).toInt()
+                val i = mapZ*128+mapX
+                val j = mapData.colors[i].toInt() and 0xFF
+                val mapColor = if (j / 4 == 0) {
+                    (i + i / 128 and 1) * 8 + 16 shl 24
+                } else {
+                    MapColor.COLORS[j / 4].getMapColor(j and 3)
+                }
+                areaTexture.textureData[pixelZ*size+pixelX] = 0xFF000000.toInt() or mapColor
 
                 for(y in world.actualHeight downTo 0) {
                     blockPos.setPos(x, y, z)
@@ -78,7 +92,6 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
             }
         }
         blockPos.release()
-        areaTexture.updateDynamicTexture()
     }
 
     private fun reduceBrightness(rgbColor: Int, depth: Int): Int {
@@ -126,11 +139,14 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
         super.drawScreen(mouseX, mouseY, partialTicks)
-        /*val invZoom = 1f/currentZoom
-        val low = (size/2 * invZoom).toInt()
+        val invZoom = 1f/currentZoom
+        /*val low = (size/2 * invZoom).toInt()
         val upperBound = low + ((size-size*invZoom).toInt()).coerceAtLeast(0)
         scrollX = scrollX.coerceIn(low .. upperBound)
         scrollZ = scrollZ.coerceIn(low .. upperBound)*/
+        val viewportSize = (invZoom*size).toInt()
+        scrollX = scrollX.coerceIn(viewportSize/2 .. size-viewportSize/2)
+        scrollZ = scrollZ.coerceIn(viewportSize/2 .. size-viewportSize/2)
         renderMap(0.0, 0.0, 0.0, 256.0)
         drawString(fontRenderer, "TEST", 0, 0, 0xFFFFFFFF.toInt())
     }
@@ -149,11 +165,12 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
         GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE)
         GlStateManager.disableAlpha()
 
-        val invZoom = (1f/currentZoom)
-        val minU = ((scrollX-size/2)*invZoom).toDouble()/size
-        val maxU = ((scrollX+size/2)*invZoom).toDouble()/size
-        val minV = ((scrollZ-size/2)*invZoom).toDouble()/size
-        val maxV = ((scrollZ+size/2)*invZoom).toDouble()/size
+        val invZoom = (1.0/currentZoom)
+        val viewportSize = invZoom*size
+        val minU = (scrollX.toDouble()-viewportSize/2)/size
+        val maxU = (scrollX.toDouble()+viewportSize/2)/size
+        val minV = (scrollZ.toDouble()-viewportSize/2)/size
+        val maxV = (scrollZ.toDouble()+viewportSize/2)/size
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX)
         bufferbuilder.pos(0.0, 128.0, -0.009999999776482582).tex(minU, maxV).endVertex()
         bufferbuilder.pos(128.0, 128.0, -0.009999999776482582).tex(maxU, maxV).endVertex()
@@ -169,6 +186,31 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
         GlStateManager.enableAlpha()
 
         GlStateManager.popMatrix()
+    }
+
+    override fun updateScreen() {
+        super.updateScreen()
+
+        if(mapData.mapName != initialMapName) {
+            mc.displayGuiScreen(null) // eject player if map changes
+            return
+        }
+        areaTexture.updateDynamicTexture()
+        if(ticks == 0) {
+            mapData = mapDataSupplier() // refresh map data
+            val stripes = size/StripeLength
+            repeat(stripes) { index ->
+                thread(isDaemon = true) {
+                    takeScreenshotOfMapArea(index)
+                }
+            }
+        }
+        ticks++
+        ticks %= MapUpdatePeriod*5
+    }
+
+    override fun doesGuiPauseGame(): Boolean {
+        return false
     }
 
     override fun handleMouseInput() {

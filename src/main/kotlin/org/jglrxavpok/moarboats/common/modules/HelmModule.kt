@@ -9,6 +9,7 @@ import net.minecraft.nbt.NBTTagList
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
+import net.minecraft.world.storage.MapData
 import net.minecraftforge.common.util.Constants
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.gui.GuiHelmModule
@@ -19,6 +20,7 @@ import org.jglrxavpok.moarboats.extensions.toDegrees
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.containers.ContainerBase
+import org.jglrxavpok.moarboats.common.modules.HelmModule.getInventory
 import org.jglrxavpok.moarboats.common.state.FloatBoatProperty
 import org.jglrxavpok.moarboats.common.state.IntBoatProperty
 import org.jglrxavpok.moarboats.common.state.NBTListBoatProperty
@@ -39,6 +41,10 @@ object HelmModule: BoatModule() {
     val rotationAngleProperty = FloatBoatProperty("rotationAngle")
     val xCenterProperty = IntBoatProperty("xCenter")
     val zCenterProperty = IntBoatProperty("zCenter")
+
+    val MapUpdatePeriod = 20*1 // every second
+
+    val EmptyMapData = MapData("empty")
 
     override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean): Boolean {
         return false
@@ -105,6 +111,11 @@ object HelmModule: BoatModule() {
                     xCenterProperty[from] = mapdata.xCenter
                     zCenterProperty[from] = mapdata.zCenter
                     hasMap = true
+                }
+
+                if(from.correspondingEntity.ticksExisted % MapUpdatePeriod == 0) {
+                    val id = stack.itemDamage
+                    MoarBoats.network.sendToServer(C2MapRequest("map_$id", from.entityID, this.id))
                 }
             }
             if(!hasMap) {

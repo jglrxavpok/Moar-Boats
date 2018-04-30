@@ -33,6 +33,7 @@ class S3MapAnswer(): IMessage {
             val mapID = message.mapName
             val data = MapData(mapID)
             data.readFromNBT(message.mapData)
+            println("Updated map data $mapID")
             Minecraft.getMinecraft().world.setData(mapID, data)
             return null
         }

@@ -7,6 +7,7 @@ import net.minecraftforge.fml.common.network.IGuiHandler
 import org.jglrxavpok.moarboats.client.gui.GuiPathEditor
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.HelmModule
+import org.jglrxavpok.moarboats.common.modules.HelmModule.EmptyMapData
 
 object MoarBoatsGuiHandler: IGuiHandler {
     override fun getClientGuiElement(ID: Int, player: EntityPlayer, world: World, x: Int, y: Int, z: Int): Any? {
@@ -24,7 +25,13 @@ object MoarBoatsGuiHandler: IGuiHandler {
                     val inventory = boat.getInventory(HelmModule)
                     val stack = inventory.list[0]
                     if(stack.item is ItemMap) {
-                        GuiPathEditor(player, boat, (stack.item as ItemMap).getMapData(stack, world)!!)
+                        GuiPathEditor(player, boat) {
+                            if(stack.item is ItemMap) {
+                                (stack.item as ItemMap).getMapData(stack, world)!!
+                            } else {
+                                EmptyMapData
+                            }
+                        }
                     } else {
                         null // NO MAP
                     }
