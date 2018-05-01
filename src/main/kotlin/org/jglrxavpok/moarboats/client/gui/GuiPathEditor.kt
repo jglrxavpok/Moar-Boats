@@ -78,7 +78,7 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
         val viewportSize = (invZoom*size).toInt()
         scrollX = scrollX.coerceIn(viewportSize/2 .. size-viewportSize/2)
         scrollZ = scrollZ.coerceIn(viewportSize/2 .. size-viewportSize/2)
-        renderMap(0.0, 0.0, 0.0, 256.0)
+        renderMap(0.0, 0.0, 0.0, 200.0)
         drawString(fontRenderer, "TEST", 0, 0, 0xFFFFFFFF.toInt())
     }
 
