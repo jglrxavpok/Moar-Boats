@@ -57,3 +57,15 @@ gui.dispenser.period.prefix=Every
 gui.dispenser.period=Period
 inventory.dispenser.name=Dispenser
 item.diving_bottle.name=Diving Bottle
+
+# 1.4.0
+gui.path_editor.refresh=Refresh map
+gui.path_editor.tools=Tools
+gui.path_editor.path_properties=Path properties
+gui.path_editor.title=Editing map %s
+gui.path_editor.path_properties.lines=Straight lines
+gui.path_editor.path_properties.path_finding=Use pathfinding
+gui.path_editor.path_properties.looping=Loops on itself
+gui.path_editor.path_properties.one_way=One way path
+gui.path_editor.tools.marker=Marker
+gui.path_editor.tools.eraser=Eraser

@@ -175,10 +175,10 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         val tessellator = Tessellator.getInstance()
         val bufferbuilder = tessellator.buffer
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX)
-        bufferbuilder.pos(x, y+spriteSize, 0.0).tex(0.0, 1.0).endVertex()
-        bufferbuilder.pos(x+spriteSize, y+spriteSize, 0.0).tex(1.0, 1.0).endVertex()
-        bufferbuilder.pos(x+spriteSize, y, 0.0).tex(1.0, 0.0).endVertex()
-        bufferbuilder.pos(x, y, 0.0).tex(0.0, 0.0).endVertex()
+        bufferbuilder.pos(x-spriteSize/2, y+spriteSize, 0.0).tex(0.0, 1.0).endVertex()
+        bufferbuilder.pos(x+spriteSize/2, y+spriteSize, 0.0).tex(1.0, 1.0).endVertex()
+        bufferbuilder.pos(x+spriteSize/2, y, 0.0).tex(1.0, 0.0).endVertex()
+        bufferbuilder.pos(x-spriteSize/2, y, 0.0).tex(0.0, 0.0).endVertex()
         tessellator.draw()
     }
 }

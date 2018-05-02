@@ -1,6 +1,7 @@
 package org.jglrxavpok.moarboats.client.gui
 
 import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.Gui
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.renderer.GlStateManager
@@ -13,6 +14,8 @@ import net.minecraft.util.text.TextComponentTranslation
 import net.minecraft.world.storage.MapData
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.IControllable
+import org.jglrxavpok.moarboats.client.gui.elements.GuiBinaryProperty
+import org.jglrxavpok.moarboats.client.gui.elements.GuiToolButton
 import org.jglrxavpok.moarboats.common.data.MapImageStripe
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 import org.jglrxavpok.moarboats.common.modules.HelmModule.StripeLength
@@ -35,7 +38,27 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
     private var sentImageRequest = false
     private val stripesReceived = BooleanArray(stripes)
     private val refreshButtonText = TextComponentTranslation("gui.path_editor.refresh")
-    private val refreshMapButton = GuiButton(0, 0, 0, refreshButtonText.unformattedText)
+    private val toolsText = TextComponentTranslation("gui.path_editor.tools")
+    private val pathPropsText = TextComponentTranslation("gui.path_editor.path_properties")
+    private val titleText = TextComponentTranslation("gui.path_editor.title")
+    private val propertyLinesText = TextComponentTranslation("gui.path_editor.path_properties.lines")
+    private val propertyPathfindingText = TextComponentTranslation("gui.path_editor.path_properties.path_finding")
+    private val propertyLoopingText = TextComponentTranslation("gui.path_editor.path_properties.looping")
+    private val propertyOneWayText = TextComponentTranslation("gui.path_editor.path_properties.one_way")
+    private val toolMarkerText = TextComponentTranslation("gui.path_editor.tools.marker")
+    private val toolEraserText = TextComponentTranslation("gui.path_editor.tools.eraser")
+
+    private var buttonId = 0
+    private val refreshMapButton = GuiButton(buttonId++, 0, 0, refreshButtonText.unformattedText)
+    // Tools button
+    private val markerButton = GuiToolButton(buttonId++, toolMarkerText.unformattedText, 0)
+    private val eraserButton = GuiToolButton(buttonId++, toolEraserText.unformattedText, 1)
+    private val toolButtonList = listOf(markerButton, eraserButton)
+
+    // Properties buttons
+    private val loopingButton = GuiBinaryProperty(buttonId++, Pair(propertyLoopingText.unformattedText, propertyOneWayText.unformattedText), Pair(2, 3))
+    private val linesButton = GuiBinaryProperty(buttonId++, Pair(propertyLinesText.unformattedText, propertyPathfindingText.unformattedText), Pair(4, 5))
+    private val propertyButtons = listOf(loopingButton, linesButton)
 
     init {
         val textureManager = Minecraft.getMinecraft().textureManager
@@ -48,9 +71,45 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
     private var scrollZ = size/2
     private val world = player.world
 
+    private val mapScreenSize = 200.0
+
+    private var toolButtonListEndY = 0
+    private var menuX = 0
+    private var menuY = 0
+    private var horizontalBarY = 0
+
     override fun initGui() {
         super.initGui()
         addButton(refreshMapButton)
+
+        menuX = (width/2+mapScreenSize/2 + 5).toInt()
+        menuY = (height/2-mapScreenSize/2).toInt()
+        var yOffset = 0
+        val spacing = 10
+
+        yOffset += spacing // tools label
+        toolButtonList.forEach { button ->
+            button.x = menuX
+            button.y = menuY+yOffset
+            addButton(button)
+            yOffset += button.height
+            yOffset += spacing
+            button.selected = false
+        }
+
+        horizontalBarY = yOffset+menuY-spacing
+        toolButtonListEndY = yOffset+menuY+spacing/2 // horizontal bar
+        yOffset += spacing+spacing/2 // properties label + horizontal bar
+
+        propertyButtons.forEach { button ->
+            button.x = menuX
+            button.y = menuY+yOffset
+            addButton(button)
+            yOffset += button.height
+            yOffset += spacing
+        }
+
+        markerButton.selected = true
     }
 
     override fun actionPerformed(button: GuiButton) {
@@ -59,6 +118,13 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
             refreshMapButton -> {
                 sentImageRequest = false
                 stripesReceived.fill(false)
+            }
+
+            in toolButtonList -> {
+                toolButtonList.forEach {
+                    it.selected = false
+                }
+                (button as GuiToolButton).selected = true
             }
         }
     }
@@ -96,9 +162,16 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
         val viewportSize = (invZoom*size).toInt()
         scrollX = scrollX.coerceIn(viewportSize/2 .. size-viewportSize/2)
         scrollZ = scrollZ.coerceIn(viewportSize/2 .. size-viewportSize/2)
-        renderMap(0.0, 0.0, 0.0, 200.0)
+        renderMap(width/2-mapScreenSize/2, height/2-mapScreenSize/2, 0.0, mapScreenSize)
 
         super.drawScreen(mouseX, mouseY, partialTicks)
+        fontRenderer.drawStringWithShadow(toolsText.unformattedText, menuX.toFloat(), menuY.toFloat(), 0xFFF0F0F0.toInt())
+
+        mc.textureManager.bindTexture(GuiToolButton.WidgetsTextureLocation)
+        Gui.drawModalRectWithCustomSizedTexture(menuX, horizontalBarY, 0f, 100f, 120, 20, 120f, 120f)
+        fontRenderer.drawStringWithShadow(pathPropsText.unformattedText, menuX.toFloat(), toolButtonListEndY.toFloat(), 0xFFF0F0F0.toInt())
+
+        drawCenteredString(fontRenderer, titleText.unformattedText, width/2, 10, 0xFFF0F0F0.toInt())
     }
 
     private fun renderMap(x: Double, y: Double, margins: Double, mapSize: Double) {
