@@ -57,10 +57,10 @@ class C10MapImageRequest(): IMessage {
             val stripes = size/ StripeLength
 
             repeat(stripes) { index ->
-                //thread {
+                thread {
                     val textureData = takeScreenshotOfMapArea(index, mapData, world)
                     MoarBoats.network.sendTo(S11MapImageAnswer(mapName, index, textureData), player)
-                //}
+                }
             }
             return null
         }
@@ -94,7 +94,12 @@ class C10MapImageRequest(): IMessage {
                     } else {
                         MapColor.COLORS[j / 4].getMapColor(j and 3)
                     }
-                    val chunk = world.chunkProvider.getLoadedChunk(chunkX, chunkZ)
+                    val chunk = try {
+                        world.chunkProvider.getLoadedChunk(chunkX, chunkZ)
+                    } catch(e: Exception) {
+                        e.printStackTrace()
+                        null
+                    }
                     if(j / 4 == 0)
                         continue // let a transparent pixel here
 
@@ -105,7 +110,7 @@ class C10MapImageRequest(): IMessage {
 
                     for(y in world.actualHeight downTo 0) {
                         blockPos.setPos(x, y, z)
-                        val blockState = world.getBlockState(blockPos)
+                        val blockState = chunk.getBlockState(blockPos)
                         val color = blockState.getMapColor(world, blockPos)
                         if(color != MapColor.AIR) {
                             textureData[pixelZ*size+pixelX] = (color.colorValue) or 0xFF000000.toInt()

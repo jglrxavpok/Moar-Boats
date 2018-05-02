@@ -1,6 +1,7 @@
 package org.jglrxavpok.moarboats.client.gui
 
 import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.Tessellator
@@ -8,6 +9,7 @@ import net.minecraft.client.renderer.texture.DynamicTexture
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.ResourceLocation
+import net.minecraft.util.text.TextComponentTranslation
 import net.minecraft.world.storage.MapData
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.IControllable
@@ -32,6 +34,8 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
     private val areaResLocation: ResourceLocation
     private var sentImageRequest = false
     private val stripesReceived = BooleanArray(stripes)
+    private val refreshButtonText = TextComponentTranslation("gui.path_editor.refresh")
+    private val refreshMapButton = GuiButton(0, 0, 0, refreshButtonText.unformattedText)
 
     init {
         val textureManager = Minecraft.getMinecraft().textureManager
@@ -43,6 +47,21 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
     private var scrollX = size/2
     private var scrollZ = size/2
     private val world = player.world
+
+    override fun initGui() {
+        super.initGui()
+        addButton(refreshMapButton)
+    }
+
+    override fun actionPerformed(button: GuiButton) {
+        super.actionPerformed(button)
+        when(button) {
+            refreshMapButton -> {
+                sentImageRequest = false
+                stripesReceived.fill(false)
+            }
+        }
+    }
 
     override fun mouseClicked(mouseX: Int, mouseY: Int, mouseButton: Int) {
         super.mouseClicked(mouseX, mouseY, mouseButton)
@@ -69,7 +88,6 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
-        super.drawScreen(mouseX, mouseY, partialTicks)
         val invZoom = 1f/currentZoom
         /*val low = (size/2 * invZoom).toInt()
         val upperBound = low + ((size-size*invZoom).toInt()).coerceAtLeast(0)
@@ -79,7 +97,8 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
         scrollX = scrollX.coerceIn(viewportSize/2 .. size-viewportSize/2)
         scrollZ = scrollZ.coerceIn(viewportSize/2 .. size-viewportSize/2)
         renderMap(0.0, 0.0, 0.0, 200.0)
-        drawString(fontRenderer, "TEST", 0, 0, 0xFFFFFFFF.toInt())
+
+        super.drawScreen(mouseX, mouseY, partialTicks)
     }
 
     private fun renderMap(x: Double, y: Double, margins: Double, mapSize: Double) {
