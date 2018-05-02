@@ -28,7 +28,8 @@ open class GuiToolButton(buttonID: Int, var text: String, var toolIconIndex: Int
             mc.textureManager.bindTexture(WidgetsTextureLocation)
             Gui.drawModalRectWithCustomSizedTexture(x, y, minU, minV, 20, 20, WidgetsTextureSize, WidgetsTextureSize)
 
-            mc.fontRenderer.drawStringWithShadow(text, x+width+ 10f, y.toFloat(), 0xFFF0F0F0.toInt())
+            val textY = y + height/2f - mc.fontRenderer.FONT_HEIGHT/2f
+            mc.fontRenderer.drawStringWithShadow(text, x+width+ 4f, textY, 0xFFF0F0F0.toInt())
         }
     }
 

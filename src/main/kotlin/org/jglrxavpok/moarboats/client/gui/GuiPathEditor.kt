@@ -37,10 +37,10 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
     private val areaResLocation: ResourceLocation
     private var sentImageRequest = false
     private val stripesReceived = BooleanArray(stripes)
+    private val titleText = TextComponentTranslation("gui.path_editor.title", mapData.mapName)
     private val refreshButtonText = TextComponentTranslation("gui.path_editor.refresh")
     private val toolsText = TextComponentTranslation("gui.path_editor.tools")
     private val pathPropsText = TextComponentTranslation("gui.path_editor.path_properties")
-    private val titleText = TextComponentTranslation("gui.path_editor.title")
     private val propertyLinesText = TextComponentTranslation("gui.path_editor.path_properties.lines")
     private val propertyPathfindingText = TextComponentTranslation("gui.path_editor.path_properties.path_finding")
     private val propertyLoopingText = TextComponentTranslation("gui.path_editor.path_properties.looping")
@@ -110,6 +110,9 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
         }
 
         markerButton.selected = true
+
+        refreshMapButton.x = width/2-refreshMapButton.width/2
+        refreshMapButton.y = height-refreshMapButton.height-2
     }
 
     override fun actionPerformed(button: GuiButton) {
@@ -154,6 +157,7 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
+        drawDefaultBackground()
         val invZoom = 1f/currentZoom
         /*val low = (size/2 * invZoom).toInt()
         val upperBound = low + ((size-size*invZoom).toInt()).coerceAtLeast(0)
@@ -162,7 +166,10 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
         val viewportSize = (invZoom*size).toInt()
         scrollX = scrollX.coerceIn(viewportSize/2 .. size-viewportSize/2)
         scrollZ = scrollZ.coerceIn(viewportSize/2 .. size-viewportSize/2)
-        renderMap(width/2-mapScreenSize/2, height/2-mapScreenSize/2, 0.0, mapScreenSize)
+
+        val mapX = width/2-mapScreenSize/2
+        val mapY = height/2-mapScreenSize/2
+        renderMap(mapX, mapY, 0.0, mapScreenSize)
 
         super.drawScreen(mouseX, mouseY, partialTicks)
         fontRenderer.drawStringWithShadow(toolsText.unformattedText, menuX.toFloat(), menuY.toFloat(), 0xFFF0F0F0.toInt())
@@ -172,6 +179,31 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
         fontRenderer.drawStringWithShadow(pathPropsText.unformattedText, menuX.toFloat(), toolButtonListEndY.toFloat(), 0xFFF0F0F0.toInt())
 
         drawCenteredString(fontRenderer, titleText.unformattedText, width/2, 10, 0xFFF0F0F0.toInt())
+
+        renderTool(mouseX, mouseY, mapX, mapY)
+    }
+
+    private fun renderTool(mouseX: Int, mouseY: Int, mapX: Double, mapY: Double) {
+        val localX = mouseX-mapX
+        val localY = mouseY-mapY
+        if(localX < 0 || localX >= mapScreenSize
+        || localY < 0 || localY >= mapScreenSize)
+            return
+
+        val iconIndex = when {
+            markerButton.selected -> 0
+            eraserButton.selected -> 1
+            else -> 0
+        }
+
+        val toolX = iconIndex % GuiToolButton.ToolIconCountPerLine
+        val toolY = iconIndex / GuiToolButton.ToolIconCountPerLine
+        val minU = toolX.toFloat() * 20f
+        val minV = toolY.toFloat() * 20f
+        mc.textureManager.bindTexture(GuiToolButton.WidgetsTextureLocation)
+        val toolScreenX = mouseX-10
+        val toolScreenY = mouseY-15
+        Gui.drawModalRectWithCustomSizedTexture(toolScreenX, toolScreenY, minU, minV, 20, 20, GuiToolButton.WidgetsTextureSize, GuiToolButton.WidgetsTextureSize)
     }
 
     private fun renderMap(x: Double, y: Double, margins: Double, mapSize: Double) {
@@ -190,10 +222,10 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
 
         val invZoom = (1.0/currentZoom)
         val viewportSize = invZoom*size
-        val minU = (scrollX.toDouble()-viewportSize/2)/size
-        val maxU = (scrollX.toDouble()+viewportSize/2)/size
-        val minV = (scrollZ.toDouble()-viewportSize/2)/size
-        val maxV = (scrollZ.toDouble()+viewportSize/2)/size
+        val minU = ((scrollX.toDouble()-viewportSize/2)/size).coerceAtLeast(0.0)
+        val maxU = ((scrollX.toDouble()+viewportSize/2)/size).coerceAtMost(1.0)
+        val minV = ((scrollZ.toDouble()-viewportSize/2)/size).coerceAtLeast(0.0)
+        val maxV = ((scrollZ.toDouble()+viewportSize/2)/size).coerceAtMost(1.0)
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX)
         bufferbuilder.pos(0.0, 128.0, -0.009999999776482582).tex(minU, maxV).endVertex()
         bufferbuilder.pos(128.0, 128.0, -0.009999999776482582).tex(maxU, maxV).endVertex()
