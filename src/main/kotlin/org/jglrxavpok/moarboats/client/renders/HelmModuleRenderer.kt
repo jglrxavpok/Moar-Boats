@@ -77,11 +77,9 @@ object HelmModuleRenderer : BoatModuleRenderer() {
             bufferbuilder.pos(x, y, 0.0).tex(0.0, 0.0).endVertex()
             tessellator.draw()
 
-            val mapdata = item.getMapData(stack, boat.world)
-            if (mapdata != null) {
-                GlStateManager.translate(0f, 0f, 1f)
-                renderMap(mapdata, x, y, mapSize, boat.posX, boat.posZ, 7.0, moduleState)
-            }
+            val mapdata = HelmModule.mapDataCopyProperty[boat]
+            GlStateManager.translate(0f, 0f, 1f)
+            renderMap(mapdata, x, y, mapSize, boat.posX, boat.posZ, 7.0, moduleState)
         }
         GlStateManager.popMatrix()
     }
@@ -99,7 +97,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         GlStateManager.scale(0.0078125f, 0.0078125f, 0.0078125f)
         GlStateManager.scale(mapSize-margins*2, mapSize-margins*2, 0.0)
         mc.entityRenderer.mapItemRenderer.updateMapTexture(mapdata)
-        mc.entityRenderer.mapItemRenderer.renderMap(mapdata, false)
+        mc.entityRenderer.mapItemRenderer.renderMap(mapdata, true)
         GlStateManager.enableBlend()
         GlStateManager.translate(0.0, 0.0, 1.0)
 

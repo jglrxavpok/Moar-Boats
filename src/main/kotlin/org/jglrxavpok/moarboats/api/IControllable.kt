@@ -37,7 +37,7 @@ interface IControllable: IBlockSource {
 
     fun saveState(module: BoatModule)
     fun getState(module: BoatModule): NBTTagCompound
-    fun getInventory(module: BoatModule): IBoatModuleInventory
+    fun getInventory(module: BoatModule): BoatModuleInventory
 
     fun calculateAnchorPosition(linkType: Int): Vec3d {
         val distanceFromCenter = 0.0625f * 17f * if(linkType == BasicBoatEntity.FrontLink) 1f else -1f

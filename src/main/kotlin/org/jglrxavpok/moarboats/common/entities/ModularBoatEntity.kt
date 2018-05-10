@@ -26,7 +26,7 @@ import net.minecraftforge.items.wrapper.InvWrapper
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
-import org.jglrxavpok.moarboats.api.IBoatModuleInventory
+import org.jglrxavpok.moarboats.api.BoatModuleInventory
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.ResourceLocationsSerializer
 import org.jglrxavpok.moarboats.common.items.BaseBoatItem
@@ -63,7 +63,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
     private val embeddedDispenserTileEntity = TileEntityDispenser()
     private val itemHandler = InvWrapper(this)
 
-    private val moduleInventories = hashMapOf<ResourceLocation, IBoatModuleInventory>()
+    private val moduleInventories = hashMapOf<ResourceLocation, BoatModuleInventory>()
 
     init {
         this.preventEntitySpawning = true
@@ -99,7 +99,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         this.motionZ += (MathHelper.cos(this.rotationYaw * 0.017453292f) * acceleration).toDouble()
     }
 
-    override fun getInventory(module: BoatModule): IBoatModuleInventory {
+    override fun getInventory(module: BoatModule): BoatModuleInventory {
         val key = module.id
         if(key !in moduleInventories) {
             val inventory = BoatModuleRegistry[key].inventoryFactory!!(this, module)
@@ -239,7 +239,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
 
     // === START OF INVENTORY CODE FOR INTERACTIONS WITH HOPPERS === //
 
-    private fun indexToInventory(index: Int): IBoatModuleInventory? {
+    private fun indexToInventory(index: Int): BoatModuleInventory? {
         var slotCount = 0
         val sortedModules = modules.filterNot { !it.usesInventory || it.hopperPriority == 0 }.sortedBy { -it.hopperPriority /* reverse list */ }
         for(m in sortedModules) {

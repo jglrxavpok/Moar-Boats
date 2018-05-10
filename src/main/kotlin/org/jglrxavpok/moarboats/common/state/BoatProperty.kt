@@ -4,6 +4,7 @@ import com.google.common.collect.BiMap
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
 import net.minecraft.util.math.BlockPos
+import net.minecraft.world.storage.MapData
 import net.minecraftforge.common.util.Constants
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
@@ -76,6 +77,28 @@ class BlockPosProperty(module: BoatModule, id: String): BoatProperty<BlockPos.Po
     }
 }
 
+object EmptyMapData : MapData("empty")
+
+class MapDataProperty(module: BoatModule, id: String): BoatProperty<MapData>(module, id) {
+    override val type = MapData::class.java
+
+    override val readProperty: NBTTagCompound.(String) -> MapData = { id ->
+        if(!this.hasKey("mapData"))
+            EmptyMapData
+        else {
+            val name = this.getString("mapName")
+            val data = this.getCompoundTag("mapData")
+            MapData(name).apply { readFromNBT(data) }
+        }
+    }
+
+    override val writeProperty: NBTTagCompound.(String, MapData) -> Unit = { id, mapData ->
+        setString("mapName", mapData.mapName)
+        val mapDataNBT = mapData.writeToNBT(NBTTagCompound())
+        setTag("mapData", mapDataNBT)
+    }
+}
+
 fun BoatModule.IntBoatProperty(id: String) = IntBoatProperty(this, id)
 fun BoatModule.BooleanBoatProperty(id: String) = BooleanBoatProperty(this, id)
 fun BoatModule.FloatBoatProperty(id: String) = FloatBoatProperty(this, id)
@@ -83,3 +106,4 @@ fun BoatModule.DoubleBoatProperty(id: String) = DoubleBoatProperty(this, id)
 fun BoatModule.BlockPosProperty(id: String) = BlockPosProperty(this, id)
 fun BoatModule.NBTListBoatProperty(id: String, elementType: Int) = NBTListBoatProperty(this, id, elementType)
 fun <T: Any> BoatModule.ArrayBoatProperty(id: String, array: Array<T>) = ArrayBoatProperty(this, id, array)
+fun BoatModule.MapDataProperty(id: String) = MapDataProperty(this, id)

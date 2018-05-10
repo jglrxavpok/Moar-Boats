@@ -1,6 +1,7 @@
 package org.jglrxavpok.moarboats.client.gui
 
 import net.minecraft.client.Minecraft
+import net.minecraft.client.audio.PositionedSoundRecord
 import net.minecraft.client.gui.Gui
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
@@ -9,7 +10,9 @@ import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.texture.DynamicTexture
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.init.SoundEvents
 import net.minecraft.util.ResourceLocation
+import net.minecraft.util.math.BlockPos
 import net.minecraft.util.text.TextComponentTranslation
 import net.minecraft.world.storage.MapData
 import org.jglrxavpok.moarboats.MoarBoats
@@ -20,6 +23,7 @@ import org.jglrxavpok.moarboats.common.data.MapImageStripe
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 import org.jglrxavpok.moarboats.common.modules.HelmModule.StripeLength
 import org.jglrxavpok.moarboats.common.network.C10MapImageRequest
+import org.jglrxavpok.moarboats.common.network.C12AddWaypoint
 import org.lwjgl.input.Mouse
 
 class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapData: MapData, val mapID: String): GuiScreen() {
@@ -37,6 +41,8 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
     private val areaResLocation: ResourceLocation
     private var sentImageRequest = false
     private val stripesReceived = BooleanArray(stripes)
+    private val mapHeight = IntArray(size*size)
+
     private val titleText = TextComponentTranslation("gui.path_editor.title", mapData.mapName)
     private val refreshButtonText = TextComponentTranslation("gui.path_editor.refresh")
     private val toolsText = TextComponentTranslation("gui.path_editor.tools")
@@ -63,15 +69,19 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
     init {
         val textureManager = Minecraft.getMinecraft().textureManager
         areaResLocation = textureManager.getDynamicTextureLocation("moarboats:path_editor_preview", areaTexture)
+        mapHeight.fill(-1)
     }
 
     private var lastMouseX = 0
     private var lastMouseY = 0
-    private var scrollX = size/2
-    private var scrollZ = size/2
+    private var scrollX = size.toDouble()/2
+    private var scrollZ = size.toDouble()/2
     private val world = player.world
 
     private val mapScreenSize = 200.0
+
+    private val minX = mapData.xCenter-size/2
+    private val minZ = mapData.zCenter-size/2
 
     private var toolButtonListEndY = 0
     private var menuX = 0
@@ -120,6 +130,7 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
         when(button) {
             refreshMapButton -> {
                 sentImageRequest = false
+                mapHeight.fill(-1)
                 stripesReceived.fill(false)
             }
 
@@ -138,6 +149,15 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
         if(mouseButton == 1) {
             lastMouseX = mouseX
             lastMouseY = mouseY
+        } else if(mouseButton == 0) {
+            val mapX = width/2-mapScreenSize/2
+            val mapY = height/2-mapScreenSize/2
+            val posOnMapX = mouseX - mapX
+            val posOnMapY = mouseY - mapY
+            if(posOnMapX in 0.0..mapScreenSize
+                    && posOnMapY in 0.0..mapScreenSize) {
+                handleClickOnMap(posOnMapX, posOnMapY)
+            }
         }
     }
 
@@ -149,21 +169,65 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
             val dx = mouseX-lastMouseX
             val dy = mouseY-lastMouseY
 
-            scrollX -= dx
-            scrollZ -= dy
+            scrollX -= dx/currentZoom
+            scrollZ -= dy/currentZoom
             lastMouseX = mouseX
             lastMouseY = mouseY
         }
     }
 
+    private fun handleClickOnMap(x: Double, y: Double) {
+        when {
+            markerButton.selected -> addWaypointOnMap(x, y)
+            eraserButton.selected -> removeWaypointOnMap(x, y)
+        }
+    }
+
+    /**
+     * Please free the returned blockpos
+     */
+    private fun pixelsToWorldCoords(x: Double, y: Double): BlockPos.PooledMutableBlockPos {
+        val result = BlockPos.PooledMutableBlockPos.retain()
+
+        val invZoom = (1.0/currentZoom)
+        val viewportSize = invZoom*size
+        val minU = ((scrollX.toDouble()-viewportSize/2)/size).coerceAtLeast(0.0)
+        val maxU = ((scrollX.toDouble()+viewportSize/2)/size).coerceAtMost(1.0)
+        val minV = ((scrollZ.toDouble()-viewportSize/2)/size).coerceAtLeast(0.0)
+        val maxV = ((scrollZ.toDouble()+viewportSize/2)/size).coerceAtMost(1.0)
+
+        val blockX = (mapData.xCenter + ((x/mapScreenSize * (maxU-minU) + minU) - 0.5)*size).toInt()
+        val blockZ = (mapData.zCenter + ((y/mapScreenSize * (maxV-minV) + minV) - 0.5)*size).toInt()
+        val indexX = (blockX-minX).coerceIn(0 until size)
+        val indexZ = (blockZ-minZ).coerceIn(0 until size)
+        val blockY = mapHeight[indexX + indexZ*size]
+        result.setPos(blockX, blockY, blockZ)
+        return result
+    }
+
+    private fun worldCoordsToPixels(x: Int, z: Int): Pair<Int, Int> {
+        TODO()
+    }
+
+    private fun removeWaypointOnMap(x: Double, y: Double) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    private fun addWaypointOnMap(x: Double, y: Double) {
+        val pos = pixelsToWorldCoords(x, y)
+        MoarBoats.network.sendToServer(C12AddWaypoint(pos, boat.entityID, mapID))
+        pos.release()
+        mc.soundHandler.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 2.5f))
+    }
+
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
         drawDefaultBackground()
-        val invZoom = 1f/currentZoom
+        val invZoom = 1.0/currentZoom
         /*val low = (size/2 * invZoom).toInt()
         val upperBound = low + ((size-size*invZoom).toInt()).coerceAtLeast(0)
         scrollX = scrollX.coerceIn(low .. upperBound)
         scrollZ = scrollZ.coerceIn(low .. upperBound)*/
-        val viewportSize = (invZoom*size).toInt()
+        val viewportSize = invZoom*size
         scrollX = scrollX.coerceIn(viewportSize/2 .. size-viewportSize/2)
         scrollZ = scrollZ.coerceIn(viewportSize/2 .. size-viewportSize/2)
 
@@ -181,6 +245,17 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
         drawCenteredString(fontRenderer, titleText.unformattedText, width/2, 10, 0xFFF0F0F0.toInt())
 
         renderTool(mouseX, mouseY, mapX, mapY)
+
+
+
+        val posOnMapX = mouseX - mapX
+        val posOnMapY = mouseY - mapY
+        if(posOnMapX in 0.0..mapScreenSize
+                && posOnMapY in 0.0..mapScreenSize) {
+            val pos = pixelsToWorldCoords(posOnMapX, posOnMapY)
+            drawHoveringText("X: ${pos.x} Y: ${pos.y} Z: ${pos.z}", mouseX, mouseY)
+            pos.release()
+        }
     }
 
     private fun renderTool(mouseX: Int, mouseY: Int, mapX: Double, mapY: Double) {

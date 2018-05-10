@@ -21,9 +21,7 @@ import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.containers.ContainerBase
 import org.jglrxavpok.moarboats.common.modules.HelmModule.getInventory
-import org.jglrxavpok.moarboats.common.state.FloatBoatProperty
-import org.jglrxavpok.moarboats.common.state.IntBoatProperty
-import org.jglrxavpok.moarboats.common.state.NBTListBoatProperty
+import org.jglrxavpok.moarboats.common.state.*
 
 object HelmModule: BoatModule() {
     override val id: ResourceLocation = ResourceLocation(MoarBoats.ModID, "helm")
@@ -41,10 +39,10 @@ object HelmModule: BoatModule() {
     val rotationAngleProperty = FloatBoatProperty("rotationAngle")
     val xCenterProperty = IntBoatProperty("xCenter")
     val zCenterProperty = IntBoatProperty("zCenter")
+    val mapDataCopyProperty = MapDataProperty("internalMapData")
 
     val MapUpdatePeriod = 20*5 // every 5 second
 
-    val EmptyMapData = MapData("empty")
     val StripeLength = 64
 
     override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean): Boolean {
@@ -65,7 +63,6 @@ object HelmModule: BoatModule() {
     override fun controlBoat(from: IControllable) {
         if(!from.inLiquid())
             return
-        val state = from.getState()
         val waypoints = waypointsProperty[from]
         if(waypoints.tagCount() != 0) {
             val currentWaypoint = currentWaypointProperty[from] % waypoints.tagCount()
@@ -104,20 +101,17 @@ object HelmModule: BoatModule() {
                 currentWaypointProperty[from] = nextWaypoint
             }
         }
+
+        if(stack.isEmpty || item !is ItemMap) {
+            receiveMapData(from, EmptyMapData)
+            return
+        }
+        val mapdata = mapDataCopyProperty[from]
         if (!from.worldRef.isRemote) {
-            if(item is ItemMap) {
-                item.onUpdate(stack, from.worldRef, from.correspondingEntity, 0, false)
-                val mapdata = item.getMapData(stack, from.worldRef)
-                if (mapdata != null) {
-                    xCenterProperty[from] = mapdata.xCenter
-                    zCenterProperty[from] = mapdata.zCenter
-                    hasMap = true
-                }
-            }
-            if(!hasMap) {
-                waypointsProperty[from] = NBTTagList() // reset waypoints
-            }
-        } else if(from.correspondingEntity.ticksExisted % MapUpdatePeriod == 0) {
+            xCenterProperty[from] = mapdata.xCenter
+            zCenterProperty[from] = mapdata.zCenter
+            waypointsProperty[from] = NBTTagList() // reset waypoints
+        } else if(mapdata == EmptyMapData || from.correspondingEntity.ticksExisted % MapUpdatePeriod == 0) {
             val id = stack.itemDamage
             MoarBoats.network.sendToServer(C2MapRequest("map_$id", from.entityID, this.id))
         }
@@ -165,5 +159,9 @@ object HelmModule: BoatModule() {
         if(waypointsData.tagCount() > 0) {
             waypointsData.removeTag(waypointsData.tagCount()-1)
         }
+    }
+
+    fun receiveMapData(boat: IControllable, data: MapData) {
+        mapDataCopyProperty[boat] = data
     }
 }

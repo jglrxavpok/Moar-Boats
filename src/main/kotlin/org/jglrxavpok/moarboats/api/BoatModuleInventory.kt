@@ -1,16 +1,14 @@
 package org.jglrxavpok.moarboats.api
 
 import net.minecraft.inventory.IInventory
+import net.minecraft.inventory.InventoryBasic
 import net.minecraft.item.ItemStack
 import net.minecraft.util.NonNullList
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.network.S7SyncInventory
 
-interface IBoatModuleInventory: IInventory {
-
-    val boat: IControllable
-    val module: BoatModule
-    val list: NonNullList<ItemStack>
+abstract class BoatModuleInventory(val inventoryName: String, val slotCount: Int, val boat: IControllable, val module: BoatModule, val list: NonNullList<ItemStack>):
+        InventoryBasic(inventoryName, true, slotCount) {
 
     fun getModuleState() = boat.getState(module)
     fun saveModuleState() {

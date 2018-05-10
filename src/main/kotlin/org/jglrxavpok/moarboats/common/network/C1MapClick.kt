@@ -8,6 +8,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import org.jglrxavpok.moarboats.common.containers.ContainerHelmModule
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 
+@Deprecated(message = "Replace with C12AddWaypoint or C12RemoveWaypoint")
 class C1MapClick(): IMessage {
 
     var pixelX: Double = 0.0
