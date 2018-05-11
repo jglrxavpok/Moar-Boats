@@ -104,13 +104,13 @@ object HelmModule: BoatModule() {
 
         if(stack.isEmpty || item !is ItemMap) {
             receiveMapData(from, EmptyMapData)
+            waypointsProperty[from] = NBTTagList() // reset waypoints
             return
         }
         val mapdata = mapDataCopyProperty[from]
         if (!from.worldRef.isRemote) {
             xCenterProperty[from] = mapdata.xCenter
             zCenterProperty[from] = mapdata.zCenter
-            waypointsProperty[from] = NBTTagList() // reset waypoints
         } else if(mapdata == EmptyMapData || from.correspondingEntity.ticksExisted % MapUpdatePeriod == 0) {
             val id = stack.itemDamage
             MoarBoats.network.sendToServer(C2MapRequest("map_$id", from.entityID, this.id))
@@ -163,5 +163,11 @@ object HelmModule: BoatModule() {
 
     fun receiveMapData(boat: IControllable, data: MapData) {
         mapDataCopyProperty[boat] = data
+    }
+
+    fun removeWaypoint(boat: IControllable, index: Int) {
+        val waypointsData = waypointsProperty[boat]
+        waypointsData.removeTag(index)
+        //waypointsData[boat] = waypointsData
     }
 }

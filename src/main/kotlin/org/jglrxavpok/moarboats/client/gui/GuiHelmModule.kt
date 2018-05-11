@@ -21,6 +21,7 @@ import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.modules.HelmModule
+import org.jglrxavpok.moarboats.common.state.EmptyMapData
 import org.lwjgl.opengl.GL11
 
 class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: IControllable):
@@ -100,7 +101,7 @@ class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: 
         val pixelY = (mouseY-y-margins)
         val stack = container.getSlot(0).stack
         val item = stack.item
-        val hasMap = item is ItemMap && item.getMapData(stack, this.mc.world) != null
+        val hasMap = item is ItemMap && HelmModule.mapDataCopyProperty[boat] != EmptyMapData
         if(hasMap && mouseX >= x+margins && mouseX <= x+mapSize-margins && mouseY >= y+margins && mouseY <= y+mapSize-margins) {
             MoarBoats.network.sendToServer(C1MapClick(pixelX, pixelY, mapSize-margins*2, mouseButton))
             if(mouseButton == 0) { // left click

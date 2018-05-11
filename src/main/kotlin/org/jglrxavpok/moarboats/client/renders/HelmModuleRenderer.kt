@@ -141,7 +141,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         GlStateManager.enableLighting()
     }
 
-    private fun renderPath(previousX: Double, previousZ: Double, x: Double, z: Double) {
+    fun renderPath(previousX: Double, previousZ: Double, x: Double, z: Double) {
         val time = Sys.getTime()
         val pathTextureIndex = 3 - ((time/500) % 4)
 
@@ -165,18 +165,18 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         GlStateManager.popMatrix()
     }
 
-    fun renderSingleWaypoint(x: Double, y: Double) {
+    fun renderSingleWaypoint(x: Double, y: Double, redModifier: Float = 1.0f, greenModifier: Float = 1.0f, blueModifier: Float = 1.0f) {
         val mc = Minecraft.getMinecraft()
         mc.textureManager.bindTexture(WaypointIndicator)
 
         val spriteSize = 8.0
         val tessellator = Tessellator.getInstance()
         val bufferbuilder = tessellator.buffer
-        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX)
-        bufferbuilder.pos(x-spriteSize/2, y+spriteSize, 0.0).tex(0.0, 1.0).endVertex()
-        bufferbuilder.pos(x+spriteSize/2, y+spriteSize, 0.0).tex(1.0, 1.0).endVertex()
-        bufferbuilder.pos(x+spriteSize/2, y, 0.0).tex(1.0, 0.0).endVertex()
-        bufferbuilder.pos(x-spriteSize/2, y, 0.0).tex(0.0, 0.0).endVertex()
+        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR)
+        bufferbuilder.pos(x-spriteSize/2, y+spriteSize, 0.0).tex(0.0, 1.0).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
+        bufferbuilder.pos(x+spriteSize/2, y+spriteSize, 0.0).tex(1.0, 1.0).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
+        bufferbuilder.pos(x+spriteSize/2, y, 0.0).tex(1.0, 0.0).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
+        bufferbuilder.pos(x-spriteSize/2, y, 0.0).tex(0.0, 0.0).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
         tessellator.draw()
     }
 }

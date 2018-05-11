@@ -11,20 +11,26 @@ import net.minecraft.client.renderer.texture.DynamicTexture
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.SoundEvents
+import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.text.TextComponentTranslation
 import net.minecraft.world.storage.MapData
+import net.minecraftforge.common.util.Constants
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.elements.GuiBinaryProperty
 import org.jglrxavpok.moarboats.client.gui.elements.GuiToolButton
+import org.jglrxavpok.moarboats.client.renders.HelmModuleRenderer
 import org.jglrxavpok.moarboats.common.data.MapImageStripe
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 import org.jglrxavpok.moarboats.common.modules.HelmModule.StripeLength
 import org.jglrxavpok.moarboats.common.network.C10MapImageRequest
 import org.jglrxavpok.moarboats.common.network.C12AddWaypoint
+import org.jglrxavpok.moarboats.common.network.C13RemoveWaypoint
 import org.lwjgl.input.Mouse
+import org.lwjgl.opengl.GL11
+import org.lwjgl.opengl.GL11.*
 
 class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapData: MapData, val mapID: String): GuiScreen() {
 
@@ -191,10 +197,10 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
 
         val invZoom = (1.0/currentZoom)
         val viewportSize = invZoom*size
-        val minU = ((scrollX.toDouble()-viewportSize/2)/size).coerceAtLeast(0.0)
-        val maxU = ((scrollX.toDouble()+viewportSize/2)/size).coerceAtMost(1.0)
-        val minV = ((scrollZ.toDouble()-viewportSize/2)/size).coerceAtLeast(0.0)
-        val maxV = ((scrollZ.toDouble()+viewportSize/2)/size).coerceAtMost(1.0)
+        val minU = ((scrollX -viewportSize/2)/size).coerceAtLeast(0.0)
+        val maxU = ((scrollX+viewportSize/2)/size).coerceAtMost(1.0)
+        val minV = ((scrollZ-viewportSize/2)/size).coerceAtLeast(0.0)
+        val maxV = ((scrollZ+viewportSize/2)/size).coerceAtMost(1.0)
 
         val blockX = (mapData.xCenter + ((x/mapScreenSize * (maxU-minU) + minU) - 0.5)*size).toInt()
         val blockZ = (mapData.zCenter + ((y/mapScreenSize * (maxV-minV) + minV) - 0.5)*size).toInt()
@@ -205,12 +211,46 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
         return result
     }
 
-    private fun worldCoordsToPixels(x: Int, z: Int): Pair<Int, Int> {
-        TODO()
+    private fun worldCoordsToPixels(x: Int, z: Int): Pair<Double, Double> {
+        val invZoom = (1.0/currentZoom)
+        val viewportSize = invZoom*size
+        val minU = ((scrollX -viewportSize/2)/size).coerceAtLeast(0.0)
+        val maxU = ((scrollX+viewportSize/2)/size).coerceAtMost(1.0)
+        val minV = ((scrollZ-viewportSize/2)/size).coerceAtLeast(0.0)
+        val maxV = ((scrollZ+viewportSize/2)/size).coerceAtMost(1.0)
+
+        val deltaU = maxU-minU
+        val deltaV = maxV-minV
+
+        val pixelX = ((x-mapData.xCenter).toDouble() / size + 0.5 - minU) / deltaU * mapScreenSize
+        val pixelZ = ((z-mapData.zCenter).toDouble() / size + 0.5 - minV) / deltaV * mapScreenSize
+
+        return Pair(pixelX, pixelZ)
     }
 
     private fun removeWaypointOnMap(x: Double, y: Double) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        // render waypoints and path
+        var distSq = 50.0*50.0
+        var closestIndex = -1
+        val waypointsData = boat.getState(HelmModule).getTagList(HelmModule.waypointsProperty.id, Constants.NBT.TAG_COMPOUND)
+        for((index, waypoint) in waypointsData.withIndex()) {
+            waypoint as NBTTagCompound
+            val blockX = waypoint.getInteger("x")
+            val blockZ = waypoint.getInteger("z")
+
+            val (waypointX, waypointZ) = worldCoordsToPixels(blockX, blockZ)
+            val dx = x - waypointX
+            val dz = y - waypointZ
+            val newDistSq = dx*dx+dz*dz
+            if(newDistSq <= distSq) {
+                distSq = newDistSq
+                closestIndex = index
+            }
+        }
+        if(closestIndex >= 0) {
+            MoarBoats.network.sendToServer(C13RemoveWaypoint(closestIndex, boat.entityID))
+            mc.soundHandler.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 0.5f))
+        }
     }
 
     private fun addWaypointOnMap(x: Double, y: Double) {
@@ -233,7 +273,7 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
 
         val mapX = width/2-mapScreenSize/2
         val mapY = height/2-mapScreenSize/2
-        renderMap(mapX, mapY, 0.0, mapScreenSize)
+        renderMap(mapX, mapY, 0.0, mapScreenSize, mouseX, mouseY)
 
         super.drawScreen(mouseX, mouseY, partialTicks)
         fontRenderer.drawStringWithShadow(toolsText.unformattedText, menuX.toFloat(), menuY.toFloat(), 0xFFF0F0F0.toInt())
@@ -246,8 +286,6 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
 
         renderTool(mouseX, mouseY, mapX, mapY)
 
-
-
         val posOnMapX = mouseX - mapX
         val posOnMapY = mouseY - mapY
         if(posOnMapX in 0.0..mapScreenSize
@@ -256,6 +294,8 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
             drawHoveringText("X: ${pos.x} Y: ${pos.y} Z: ${pos.z}", mouseX, mouseY)
             pos.release()
         }
+
+        GlStateManager.enableAlpha()
     }
 
     private fun renderTool(mouseX: Int, mouseY: Int, mapX: Double, mapY: Double) {
@@ -281,7 +321,7 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
         Gui.drawModalRectWithCustomSizedTexture(toolScreenX, toolScreenY, minU, minV, 20, 20, GuiToolButton.WidgetsTextureSize, GuiToolButton.WidgetsTextureSize)
     }
 
-    private fun renderMap(x: Double, y: Double, margins: Double, mapSize: Double) {
+    private fun renderMap(x: Double, y: Double, margins: Double, mapSize: Double, mouseX: Int, mouseY: Int) {
         val mc = Minecraft.getMinecraft()
         GlStateManager.pushMatrix()
         GlStateManager.translate(x+margins, y+margins, 0.0)
@@ -295,12 +335,17 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
         GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE)
         GlStateManager.disableAlpha()
 
+        glEnable(GL_STENCIL_TEST)
+        glStencilMask(0xFF)
+
+        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE)
+        glStencilFunc(GL_ALWAYS, 1, 0xFF) // always write 1 to buffer
         val invZoom = (1.0/currentZoom)
         val viewportSize = invZoom*size
-        val minU = ((scrollX.toDouble()-viewportSize/2)/size).coerceAtLeast(0.0)
-        val maxU = ((scrollX.toDouble()+viewportSize/2)/size).coerceAtMost(1.0)
-        val minV = ((scrollZ.toDouble()-viewportSize/2)/size).coerceAtLeast(0.0)
-        val maxV = ((scrollZ.toDouble()+viewportSize/2)/size).coerceAtMost(1.0)
+        val minU = ((scrollX-viewportSize/2)/size).coerceAtLeast(0.0)
+        val maxU = ((scrollX+viewportSize/2)/size).coerceAtMost(1.0)
+        val minV = ((scrollZ-viewportSize/2)/size).coerceAtLeast(0.0)
+        val maxV = ((scrollZ+viewportSize/2)/size).coerceAtMost(1.0)
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX)
         bufferbuilder.pos(0.0, 128.0, -0.009999999776482582).tex(minU, maxV).endVertex()
         bufferbuilder.pos(128.0, 128.0, -0.009999999776482582).tex(maxU, maxV).endVertex()
@@ -308,12 +353,60 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
         bufferbuilder.pos(0.0, 0.0, -0.009999999776482582).tex(minU, minV).endVertex()
         tessellator.draw()
         GlStateManager.enableAlpha()
-        GlStateManager.disableBlend()
 
-        GlStateManager.enableBlend()
-        GlStateManager.translate(0.0, 0.0, 1.0)
+        glStencilFunc(GL_EQUAL, 1, 0xFF) // needs to have 1 in stencil buffer to be rendered
 
-        GlStateManager.enableAlpha()
+        // render waypoints and path
+        val waypointsData = boat.getState(HelmModule).getTagList(HelmModule.waypointsProperty.id, Constants.NBT.TAG_COMPOUND)
+
+        val localMX = mouseX - x
+        val localMY = mouseY - y
+
+        var distSq = 50.0*50.0
+        var closestIndex = -1
+
+        if(eraserButton.selected) {
+            for((index, waypoint) in waypointsData.withIndex()) {
+                waypoint as NBTTagCompound
+                val blockX = waypoint.getInteger("x")
+                val blockZ = waypoint.getInteger("z")
+
+                val (waypointX, waypointZ) = worldCoordsToPixels(blockX, blockZ)
+                val dx = localMX - waypointX
+                val dz = localMY - waypointZ
+                val newDistSq = dx*dx+dz*dz
+                if(newDistSq <= distSq) {
+                    distSq = newDistSq
+                    closestIndex = index
+                }
+            }
+        }
+
+        var hasPrevious = false
+        var previousX = 0.0
+        var previousZ = 0.0
+        for((index, waypoint) in waypointsData.withIndex()) {
+            waypoint as NBTTagCompound
+            val blockX = waypoint.getInteger("x")
+            val blockZ = waypoint.getInteger("z")
+
+            val (waypointX, waypointZ) = worldCoordsToPixels(blockX, blockZ)
+            val renderX = waypointX/mapScreenSize*128.0
+            val renderZ = waypointZ/mapScreenSize*128.0
+            if(index == closestIndex) {
+                HelmModuleRenderer.renderSingleWaypoint(renderX, renderZ - 7.0, 1f, 0.3f, 0.3f)
+            } else {
+                HelmModuleRenderer.renderSingleWaypoint(renderX, renderZ - 7.0)
+            }
+
+            if(hasPrevious)
+                HelmModuleRenderer.renderPath(previousX, previousZ, renderX, renderZ)
+            hasPrevious = true
+            previousX = renderX
+            previousZ = renderZ
+        }
+
+        glDisable(GL_STENCIL_TEST)
 
         GlStateManager.popMatrix()
     }
