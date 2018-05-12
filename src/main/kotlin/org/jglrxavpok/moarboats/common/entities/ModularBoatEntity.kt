@@ -94,9 +94,12 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
     override fun controlBoat() {
         acceleration = 0.0f
         modules.forEach { it.controlBoat(this) }
-        this.rotationYaw += this.deltaRotation
-        this.motionX += (MathHelper.sin(-this.rotationYaw * 0.017453292f) * acceleration).toDouble()
-        this.motionZ += (MathHelper.cos(this.rotationYaw * 0.017453292f) * acceleration).toDouble()
+
+        if(!blockedMovement) {
+            this.rotationYaw += this.deltaRotation
+            this.motionX += (MathHelper.sin(-this.rotationYaw * 0.017453292f) * acceleration).toDouble()
+            this.motionZ += (MathHelper.cos(this.rotationYaw * 0.017453292f) * acceleration).toDouble()
+        }
     }
 
     override fun getInventory(module: BoatModule): BoatModuleInventory {
