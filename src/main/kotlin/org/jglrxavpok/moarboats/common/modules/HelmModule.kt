@@ -40,6 +40,7 @@ object HelmModule: BoatModule() {
     val xCenterProperty = IntBoatProperty("xCenter")
     val zCenterProperty = IntBoatProperty("zCenter")
     val mapDataCopyProperty = MapDataProperty("internalMapData")
+    val loopingProperty = BooleanBoatProperty("looping")
 
     val MapUpdatePeriod = 20*5 // every 5 second
 
@@ -69,8 +70,18 @@ object HelmModule: BoatModule() {
             val current = waypoints[currentWaypoint] as NBTTagCompound
             val nextX = current.getInteger("x")
             val nextZ = current.getInteger("z")
+
             val dx = from.positionX - nextX
             val dz = from.positionZ - nextZ
+            val nextWaypoint = (currentWaypoint+1) % waypoints.tagCount()
+
+            if(!loopingProperty[from] && currentWaypoint > nextWaypoint) {
+                if(dx*dx+dz*dz < MaxDistanceToWaypointSquared) { // close to the last waypoint
+                    from.blockMovement()
+                    return
+                }
+            }
+
             val targetAngle = Math.atan2(dz, dx).toDegrees() + 90f
             val yaw = from.yaw
             if(MathHelper.wrapDegrees(targetAngle - yaw) > Epsilon) {
@@ -80,25 +91,25 @@ object HelmModule: BoatModule() {
             }
             rotationAngleProperty[from] = MathHelper.wrapDegrees(targetAngle-yaw).toFloat()
         }
-        from.saveState()
     }
 
     override fun update(from: IControllable) {
         val inventory = from.getInventory()
         val stack = inventory.getStackInSlot(0)
         val item = stack.item
-        var hasMap = false
         val waypoints = waypointsProperty[from]
         if(waypoints.tagCount() != 0) {
             val currentWaypoint = currentWaypointProperty[from] % waypoints.tagCount()
-            val nextWaypoint = (currentWaypoint+1) % waypoints.tagCount() // FIXME: add a way to choose if loops or not
-            val current = waypoints[currentWaypoint] as NBTTagCompound
-            val currentX = current.getInteger("x")
-            val currentZ = current.getInteger("z")
-            val dx = currentX - from.positionX
-            val dz = currentZ - from.positionZ
-            if(dx*dx+dz*dz < MaxDistanceToWaypointSquared) {
-                currentWaypointProperty[from] = nextWaypoint
+            val nextWaypoint = (currentWaypoint+1) % waypoints.tagCount()
+            if(loopingProperty[from] || currentWaypoint <= nextWaypoint) { // next one is further from the start of the list
+                val current = waypoints[currentWaypoint] as NBTTagCompound
+                val currentX = current.getInteger("x")
+                val currentZ = current.getInteger("z")
+                val dx = currentX - from.positionX
+                val dz = currentZ - from.positionZ
+                if(dx*dx+dz*dz < MaxDistanceToWaypointSquared) {
+                    currentWaypointProperty[from] = nextWaypoint
+                }
             }
         }
 
@@ -168,6 +179,5 @@ object HelmModule: BoatModule() {
     fun removeWaypoint(boat: IControllable, index: Int) {
         val waypointsData = waypointsProperty[boat]
         waypointsData.removeTag(index)
-        //waypointsData[boat] = waypointsData
     }
 }

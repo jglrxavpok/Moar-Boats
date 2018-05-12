@@ -23,6 +23,7 @@ open class MoarBoatsProxy {
         MoarBoats.network.registerMessage(S11MapImageAnswer.Handler, S11MapImageAnswer::class.java, 11, Side.CLIENT)
         MoarBoats.network.registerMessage(C12AddWaypoint.Handler, C12AddWaypoint::class.java, 12, Side.SERVER)
         MoarBoats.network.registerMessage(C13RemoveWaypoint.Handler, C13RemoveWaypoint::class.java, 13, Side.SERVER)
+        MoarBoats.network.registerMessage(C14ChangeLoopingState.Handler, C14ChangeLoopingState::class.java, 14, Side.SERVER)
     }
 
     open fun preInit() {

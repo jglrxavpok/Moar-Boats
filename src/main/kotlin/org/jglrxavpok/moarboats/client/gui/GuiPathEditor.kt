@@ -28,6 +28,7 @@ import org.jglrxavpok.moarboats.common.modules.HelmModule.StripeLength
 import org.jglrxavpok.moarboats.common.network.C10MapImageRequest
 import org.jglrxavpok.moarboats.common.network.C12AddWaypoint
 import org.jglrxavpok.moarboats.common.network.C13RemoveWaypoint
+import org.jglrxavpok.moarboats.common.network.C14ChangeLoopingState
 import org.lwjgl.input.Mouse
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL11.*
@@ -70,7 +71,7 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
     // Properties buttons
     private val loopingButton = GuiBinaryProperty(buttonId++, Pair(propertyLoopingText.unformattedText, propertyOneWayText.unformattedText), Pair(2, 3))
     private val linesButton = GuiBinaryProperty(buttonId++, Pair(propertyLinesText.unformattedText, propertyPathfindingText.unformattedText), Pair(4, 5))
-    private val propertyButtons = listOf(loopingButton, linesButton)
+    private val propertyButtons = listOf(loopingButton/*, linesButton*/) // TODO: Pathfinding?
 
     init {
         val textureManager = Minecraft.getMinecraft().textureManager
@@ -129,6 +130,8 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
 
         refreshMapButton.x = width/2-refreshMapButton.width/2
         refreshMapButton.y = height-refreshMapButton.height-2
+
+        loopingButton.inFirstState = HelmModule.loopingProperty[boat]
     }
 
     override fun actionPerformed(button: GuiButton) {
@@ -138,6 +141,10 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
                 sentImageRequest = false
                 mapHeight.fill(-1)
                 stripesReceived.fill(false)
+            }
+
+            loopingButton -> {
+                MoarBoats.network.sendToServer(C14ChangeLoopingState(loopingButton.inFirstState, boat.entityID))
             }
 
             in toolButtonList -> {
@@ -263,10 +270,6 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
         drawDefaultBackground()
         val invZoom = 1.0/currentZoom
-        /*val low = (size/2 * invZoom).toInt()
-        val upperBound = low + ((size-size*invZoom).toInt()).coerceAtLeast(0)
-        scrollX = scrollX.coerceIn(low .. upperBound)
-        scrollZ = scrollZ.coerceIn(low .. upperBound)*/
         val viewportSize = invZoom*size
         scrollX = scrollX.coerceIn(viewportSize/2 .. size-viewportSize/2)
         scrollZ = scrollZ.coerceIn(viewportSize/2 .. size-viewportSize/2)
@@ -385,6 +388,7 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
         var hasPrevious = false
         var previousX = 0.0
         var previousZ = 0.0
+        val first = waypointsData.firstOrNull() as? NBTTagCompound
         for((index, waypoint) in waypointsData.withIndex()) {
             waypoint as NBTTagCompound
             val blockX = waypoint.getInteger("x")
@@ -404,7 +408,28 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
             hasPrevious = true
             previousX = renderX
             previousZ = renderZ
+
+            if(first != null && index == waypointsData.tagCount()-1 && loopingButton.inFirstState) { // last one
+                val firstBlockX = first.getInteger("x")
+                val firstBlockZ = first.getInteger("z")
+                val (firstWaypointX, firstWaypointZ) = worldCoordsToPixels(firstBlockX, firstBlockZ)
+                val firstX = firstWaypointX/mapScreenSize*128.0
+                val firstZ = firstWaypointZ/mapScreenSize*128.0
+                HelmModuleRenderer.renderPath(renderX, renderZ, firstX, firstZ, redModifier = 0.15f)
+            }
         }
+
+        val iconScale = 0.5f
+
+        GlStateManager.pushMatrix()
+        GlStateManager.scale(iconScale, iconScale, 1f)
+        GlStateManager.translate(-8f, -8f, 0f)
+        val (boatPixelX, boatPixelZ) = worldCoordsToPixels(boat.blockPos.x, boat.blockPos.z)
+        val boatRenderX = boatPixelX/mapScreenSize*128.0
+        val boatRenderZ = boatPixelZ/mapScreenSize*128.0
+        mc.renderItem.renderItemAndEffectIntoGUI(HelmModuleRenderer.helmStack, (boatRenderX/iconScale).toInt(), (boatRenderZ/iconScale).toInt())
+
+        GlStateManager.popMatrix()
 
         glDisable(GL_STENCIL_TEST)
 
