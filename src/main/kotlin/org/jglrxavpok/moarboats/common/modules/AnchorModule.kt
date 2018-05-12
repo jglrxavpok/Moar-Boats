@@ -18,7 +18,7 @@ import org.jglrxavpok.moarboats.common.state.BooleanBoatProperty
 import org.jglrxavpok.moarboats.common.state.DoubleBoatProperty
 import org.jglrxavpok.moarboats.common.state.IntBoatProperty
 
-object AnchorModule: BoatModule() {
+object AnchorModule: BoatModule(), BlockReason {
 
     override val id = ResourceLocation(MoarBoats.ModID, "anchor")
     override val usesInventory = false
@@ -42,7 +42,7 @@ object AnchorModule: BoatModule() {
     override fun controlBoat(from: IControllable) {
         val active = activeProperty[from]
         if(active) {
-            from.blockMovement()
+            from.blockMovement(this)
         }
     }
 

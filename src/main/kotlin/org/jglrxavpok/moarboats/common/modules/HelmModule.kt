@@ -23,7 +23,7 @@ import org.jglrxavpok.moarboats.common.containers.ContainerBase
 import org.jglrxavpok.moarboats.common.modules.HelmModule.getInventory
 import org.jglrxavpok.moarboats.common.state.*
 
-object HelmModule: BoatModule() {
+object HelmModule: BoatModule(), BlockReason {
     override val id: ResourceLocation = ResourceLocation(MoarBoats.ModID, "helm")
     override val usesInventory = true
     override val moduleSpot = Spot.Navigation
@@ -77,7 +77,7 @@ object HelmModule: BoatModule() {
 
             if(!loopingProperty[from] && currentWaypoint > nextWaypoint) {
                 if(dx*dx+dz*dz < MaxDistanceToWaypointSquared) { // close to the last waypoint
-                    from.blockMovement()
+                    from.blockMovement(this)
                     return
                 }
             }

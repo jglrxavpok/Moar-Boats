@@ -56,3 +56,21 @@ gui.dispenser.period.prefix=Tous les
 gui.dispenser.period=Période
 inventory.dispenser.name=Dispenseur
 item.diving_bottle.name=Bouteille de plongée
+
+# 1.4.0
+gui.path_editor.refresh=Rafraîchir la carte
+gui.path_editor.tools=Outils
+gui.path_editor.path_properties=Propriétés du chemin
+gui.path_editor.title=Modification du chemin sur "%s"
+gui.path_editor.path_properties.lines=Lines droites
+gui.path_editor.path_properties.path_finding=Utilise du Pathfinding
+gui.path_editor.path_properties.looping=Boucle sur lui-même
+gui.path_editor.path_properties.one_way=Aller simple
+gui.path_editor.tools.marker=Marqueur
+gui.path_editor.tools.eraser=Gomme
+
+gui.helm.path_editor=Modifier le chemin
+
+gui.engine.blocked.redstone=Désactivé par de la redstone!
+gui.engine.blocked.unkown=Désactivé par %s
+gui.engine.blocked.module=Désactivé par

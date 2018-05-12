@@ -35,7 +35,7 @@ abstract class BaseEngineModule: BoatModule() {
     abstract fun remainingTimeInPercent(from: IControllable): Float
     abstract fun estimatedTotalTicks(boat: IControllable): Float
 
-    fun isStationary(from: IControllable) = stationaryProperty[from] || lockedByRedstoneProperty[from]
+    fun isStationary(from: IControllable) = stationaryProperty[from] || from.blockedReason != NoBlockReason
 
     override fun controlBoat(from: IControllable) {
         if(hasFuel(from) && !isStationary(from) && from.inLiquid()) {
@@ -43,7 +43,7 @@ abstract class BaseEngineModule: BoatModule() {
         }
 
         if(lockedByRedstoneProperty[from]) {
-            from.blockMovement()
+            from.blockMovement(BlockedByRedstone)
         }
     }
 

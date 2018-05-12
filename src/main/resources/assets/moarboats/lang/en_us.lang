@@ -69,3 +69,9 @@ gui.path_editor.path_properties.looping=Loops on itself
 gui.path_editor.path_properties.one_way=One way path
 gui.path_editor.tools.marker=Marker
 gui.path_editor.tools.eraser=Eraser
+
+gui.helm.path_editor=Edit path
+
+gui.engine.blocked.redstone=Blocked by redstone!
+gui.engine.blocked.unkown=Blocked by %s
+gui.engine.blocked.module=Blocked by
