@@ -31,6 +31,8 @@ import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.ResourceLocationsSerializer
 import org.jglrxavpok.moarboats.common.items.BaseBoatItem
 import org.jglrxavpok.moarboats.common.modules.SeatModule
+import org.jglrxavpok.moarboats.common.network.S15ModuleData
+import org.jglrxavpok.moarboats.common.network.S16ModuleLocations
 import org.jglrxavpok.moarboats.extensions.Fluids
 import org.jglrxavpok.moarboats.extensions.loadInventory
 import org.jglrxavpok.moarboats.extensions.saveInventory
@@ -52,7 +54,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         get()= dataManager[MODULE_LOCATIONS]
         set(value) { dataManager[MODULE_LOCATIONS] = value }
 
-    private var moduleData
+    var moduleData
         get()= dataManager[MODULE_DATA]
         set(value) { dataManager[MODULE_DATA] = value; dataManager.setDirty(MODULE_DATA) }
     override val modules = mutableListOf<BoatModule>()
@@ -113,6 +115,8 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
 
     override fun processInitialInteract(player: EntityPlayer, hand: EnumHand): Boolean {
         if(super.processInitialInteract(player, hand))
+            return true
+        if(world.isRemote)
             return true
         val heldItem = player.getHeldItem(hand)
         val module = BoatModuleRegistry.findModule(heldItem)
@@ -198,11 +202,17 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
     }
 
     private fun updateModuleData() {
-        moduleData = moduleData // uses the setter of 'moduleData' to update the state
+        dataManager[MODULE_DATA] = moduleData // uses the setter of 'moduleData' to update the state
+        if(!world.isRemote) {
+            MoarBoats.network.sendToAll(S15ModuleData(entityID, moduleData))
+        }
     }
 
-    private fun updateModuleLocations() {
-        moduleLocations = moduleLocations // uses the setter of 'moduleLocations' to update the state
+    private fun updateModuleLocations(sendUpdate: Boolean = true) {
+        dataManager[MODULE_LOCATIONS] = moduleLocations // uses the setter of 'moduleLocations' to update the state
+        if(!world.isRemote && sendUpdate) {
+            MoarBoats.network.sendToAll(S16ModuleLocations(entityID, moduleLocations))
+        }
     }
 
     override fun entityInit() {
@@ -217,7 +227,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         if(!addedByNBT)
             module.onAddition(this)
         moduleLocations.add(location)
-        updateModuleLocations()
+        updateModuleLocations(!addedByNBT)
         return module
     }
 

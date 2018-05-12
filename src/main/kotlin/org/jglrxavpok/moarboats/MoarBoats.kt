@@ -52,6 +52,7 @@ object MoarBoats {
 
     @Mod.EventHandler
     fun preInit(event: FMLPreInitializationEvent) {
+        logger = event.modLog
         config = Configuration(event.suggestedConfigurationFile)
         MBConfig.backing = config
         MBConfig.loadAll()
@@ -69,7 +70,6 @@ object MoarBoats {
         BoatModuleRegistry.registerModule(DivingModule, DivingBottleItem)
         MinecraftForge.EVENT_BUS.register(this)
         MinecraftForge.EVENT_BUS.register(ItemEventHandler)
-        logger = event.modLog
         proxy.preInit()
     }
 

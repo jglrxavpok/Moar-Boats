@@ -9,6 +9,7 @@ import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.TextComponentTranslation
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
+import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.containers.ContainerBase
 import java.util.*
 
@@ -64,6 +65,7 @@ object BoatModuleRegistry {
 
     fun registerModule(name: ResourceLocation, correspondingItem: Item, module: BoatModule, inventoryFactory: ((IControllable, BoatModule) -> BoatModuleInventory)? = null) {
         backingMap[name] = BoatModuleEntry(correspondingItem, module, inventoryFactory)
+        MoarBoats.logger.info("Registered module with ID $name")
         if(module.usesInventory && inventoryFactory == null)
             error("Module $module uses an inventory but no inventory factory was provided!")
     }
