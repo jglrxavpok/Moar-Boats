@@ -26,7 +26,7 @@ abstract class BaseEngineModule: BoatModule() {
     val lockedByRedstoneProperty = BooleanBoatProperty("redstoneLocked")
     val speedProperty = FloatBoatProperty("speedSetting")
     override val moduleSpot = Spot.Engine
-    override val hopperPriority = 10
+    override val hopperPriority = 0
 
     abstract fun hasFuel(from: IControllable): Boolean
     abstract fun getFuelTime(fuelItem: Item): Int

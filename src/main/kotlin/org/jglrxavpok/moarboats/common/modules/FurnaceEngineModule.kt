@@ -6,6 +6,7 @@ import net.minecraft.init.Items
 import net.minecraft.inventory.IInventory
 import net.minecraft.item.Item
 import net.minecraft.item.ItemBlock
+import net.minecraft.item.ItemFishingRod
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.EnumHand
@@ -13,8 +14,10 @@ import net.minecraft.util.EnumParticleTypes
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
 import org.jglrxavpok.moarboats.api.IControllable
+import org.jglrxavpok.moarboats.common.MBConfig
 import org.jglrxavpok.moarboats.common.containers.ContainerBase
 import org.jglrxavpok.moarboats.common.containers.ContainerFurnaceEngine
+import org.jglrxavpok.moarboats.common.modules.FishingModule.getInventory
 import org.jglrxavpok.moarboats.common.state.IntBoatProperty
 import org.jglrxavpok.moarboats.extensions.toRadians
 
@@ -69,7 +72,11 @@ object FurnaceEngineModule : BaseEngineModule() {
         if(fuelTime < fuelTotalTime) {
             fuelTimeProperty[boat]++
         } else {
-            val stack = inv.getStackInSlot(0)
+            var stack = inv.getStackInSlot(0)
+            if(stack.isEmpty) {
+                tryToFindFuel(boat)
+                stack = inv.getStackInSlot(0)
+            }
             val fuelItem = stack.item
             val itemFuelTime = getFuelTime(fuelItem)
             if (itemFuelTime > 0 && !isStationary(boat)) { // don't consume a new item if you are not moving
@@ -87,6 +94,24 @@ object FurnaceEngineModule : BaseEngineModule() {
             val sin = MathHelper.sin((boat.yaw + 90f).toRadians())
             val dist = 0.5
             boat.worldRef.spawnParticle(EnumParticleTypes.SMOKE_LARGE, boat.positionX + dist * cos, boat.positionY + 0.8, boat.positionZ + dist * sin, 0.0, 0.0, 0.0)
+        }
+    }
+
+    private fun tryToFindFuel(boat: IControllable) {
+        val storageModule = boat.modules.find { it.moduleSpot == Spot.Storage && it.usesInventory }
+        if(storageModule != null) {
+            val inventory = boat.getInventory()
+            val storageInventory = boat.getInventory(storageModule)
+            for(index in 0 until storageInventory.sizeInventory) {
+                val stack = storageInventory.getStackInSlot(index)
+                if(isItemFuel(stack)) {
+                    storageInventory.setInventorySlotContents(index, ItemStack.EMPTY)
+                    inventory.setInventorySlotContents(0, stack)
+                    break
+                }
+            }
+            inventory.syncToClient()
+            storageInventory.syncToClient()
         }
     }
 

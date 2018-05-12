@@ -128,11 +128,6 @@ object HelmModule: BoatModule(), BlockReason {
         }
     }
 
-    private fun pixel2map(pixel: Double, center: Int, mapSize: Double, margins: Double, mapScale: Float): Int {
-        val pixelsToMap = 128f/(mapSize-margins*2)
-        return Math.floor((center / mapScale + (pixel-(mapSize-margins*2)/2) * pixelsToMap) * mapScale).toInt()
-    }
-
     override fun onAddition(to: IControllable) {
         if(!to.worldRef.isRemote) {
             xCenterProperty[to] = 0
