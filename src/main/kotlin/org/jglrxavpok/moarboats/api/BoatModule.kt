@@ -26,7 +26,7 @@ abstract class BoatModule {
 
     /**
      * Priority for using a hopper: the higher, the strongest priority. Use 0 to disallow hopper interactions
-     * eg. Chests have 20, furnace engines have 10 and helms have 0
+     * eg. Chests have 20, furnace engines and helms have 0
      */
     open val hopperPriority = 1
 

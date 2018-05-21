@@ -69,6 +69,9 @@ gui.path_editor.path_properties.looping=Loops on itself
 gui.path_editor.path_properties.one_way=One way path
 gui.path_editor.tools.marker=Marker
 gui.path_editor.tools.eraser=Eraser
+gui.path_editor.controls=Controls
+gui.path_editor.controls.zoom=Zoom: Mouse wheel
+gui.path_editor.controls.move=Move: Drag with right click
 
 gui.helm.path_editor=Edit path
 

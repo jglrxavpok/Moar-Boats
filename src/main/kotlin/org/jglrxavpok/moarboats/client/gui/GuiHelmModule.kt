@@ -31,7 +31,7 @@ class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: 
 
     private val RES_MAP_BACKGROUND = ResourceLocation("textures/map/map_background.png")
     private val margins = 7.0
-    private val mapSize = 130.0
+    private val mapSize = 100.0
     private val mapStack = ItemStack(Items.FILLED_MAP)
     private val editButtonText = TextComponentTranslation("gui.helm.path_editor")
     private val mapEditButton = GuiButton(0, 0, 0, editButtonText.unformattedText)
@@ -42,6 +42,9 @@ class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: 
 
     override fun initGui() {
         super.initGui()
+        mapEditButton.width = (xSize * .75).toInt()
+        mapEditButton.x = guiLeft + xSize/2 - mapEditButton.width/2
+        mapEditButton.y = guiTop + (mapSize + 7).toInt()
         addButton(mapEditButton)
     }
 
@@ -57,8 +60,8 @@ class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: 
         this.mc.textureManager.bindTexture(RES_MAP_BACKGROUND)
         val tessellator = Tessellator.getInstance()
         val bufferbuilder = tessellator.buffer
-        val x = guiLeft.toDouble() + 22 + 4
-        val y = guiTop.toDouble() + 3 + 4
+        val x = guiLeft + xSize/2f - mapSize/2
+        val y = guiTop.toDouble() + 5.0
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX)
         bufferbuilder.pos(x, y+mapSize, 0.0).tex(0.0, 1.0).endVertex()
         bufferbuilder.pos(x+mapSize, y+mapSize, 0.0).tex(1.0, 1.0).endVertex()
@@ -95,7 +98,7 @@ class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: 
     }
 
     override fun mouseClicked(mouseX: Int, mouseY: Int, mouseButton: Int) {
-        val x = guiLeft.toDouble() + 22 + 4
+       /* val x = guiLeft.toDouble() + 22 + 4
         val y = guiTop.toDouble() + 3 + 4
         val pixelX = (mouseX-x-margins)
         val pixelY = (mouseY-y-margins)
@@ -109,9 +112,9 @@ class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: 
             } else if(mouseButton == 1) {
                 mc.soundHandler.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 0.5f))
             }
-        } else {
+        } else {*/
             super.mouseClicked(mouseX, mouseY, mouseButton)
-        }
+        //}
     }
 
     private fun pixel2map(pixel: Double, center: Int, mapSize: Double, margins: Double, mapScale: Float): Int {

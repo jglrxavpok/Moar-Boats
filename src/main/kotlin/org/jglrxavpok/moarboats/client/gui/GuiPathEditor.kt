@@ -30,7 +30,6 @@ import org.jglrxavpok.moarboats.common.network.C12AddWaypoint
 import org.jglrxavpok.moarboats.common.network.C13RemoveWaypoint
 import org.jglrxavpok.moarboats.common.network.C14ChangeLoopingState
 import org.lwjgl.input.Mouse
-import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL11.*
 
 class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapData: MapData, val mapID: String): GuiScreen() {
@@ -60,6 +59,9 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
     private val propertyOneWayText = TextComponentTranslation("gui.path_editor.path_properties.one_way")
     private val toolMarkerText = TextComponentTranslation("gui.path_editor.tools.marker")
     private val toolEraserText = TextComponentTranslation("gui.path_editor.tools.eraser")
+    private val controlsText = TextComponentTranslation("gui.path_editor.controls")
+    private val zoomText = TextComponentTranslation("gui.path_editor.controls.zoom")
+    private val moveMapText = TextComponentTranslation("gui.path_editor.controls.move")
 
     private var buttonId = 0
     private val refreshMapButton = GuiButton(buttonId++, 0, 0, refreshButtonText.unformattedText)
@@ -287,6 +289,8 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
 
         drawCenteredString(fontRenderer, titleText.unformattedText, width/2, 10, 0xFFF0F0F0.toInt())
 
+        drawControls()
+
         renderTool(mouseX, mouseY, mapX, mapY)
 
         val posOnMapX = mouseX - mapX
@@ -294,11 +298,36 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
         if(posOnMapX in 0.0..mapScreenSize
                 && posOnMapY in 0.0..mapScreenSize) {
             val pos = pixelsToWorldCoords(posOnMapX, posOnMapY)
-            drawHoveringText("X: ${pos.x} Y: ${pos.y} Z: ${pos.z}", mouseX, mouseY)
+            drawHoveringText("X: ${pos.x} Z: ${pos.z}", mouseX, mouseY)
             pos.release()
         }
 
+
         GlStateManager.enableAlpha()
+    }
+
+    private fun drawControls() {
+        val borderX = width/2-mapScreenSize/2 - 5f
+        val y = menuY.toFloat()
+
+        GlStateManager.color(1f, 1f, 1f, 1f)
+        val scale = 0.5f
+        GlStateManager.pushMatrix()
+        GlStateManager.scale(scale, scale, 1f)
+        drawRightAligned(controlsText.unformattedText, borderX.toFloat()/scale, y/scale, 0xFFF0F0F0.toInt(), shadow = true)
+        drawRightAligned(zoomText.unformattedText, (borderX/scale).toFloat(), (y+20f)/scale, 0xFFF0F0F0.toInt())
+        drawRightAligned(moveMapText.unformattedText, (borderX/scale).toFloat(), (y+30f)/scale, 0xFFF0F0F0.toInt())
+        GlStateManager.popMatrix()
+
+        mc.textureManager.bindTexture(GuiToolButton.WidgetsTextureLocation)
+        Gui.drawModalRectWithCustomSizedTexture((borderX-120).toInt(), (y+5f).toInt(), 0f, 100f, 120, 20, 120f, 120f)
+
+    }
+
+    private fun drawRightAligned(text: String, x: Float, textY: Float, color: Int, shadow: Boolean = false) {
+        val width = fontRenderer.getStringWidth(text)
+        val textX = x-width
+        fontRenderer.drawString(text, textX, textY, color, shadow)
     }
 
     private fun renderTool(mouseX: Int, mouseY: Int, mapX: Double, mapY: Double) {

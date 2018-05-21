@@ -68,6 +68,9 @@ gui.path_editor.path_properties.looping=Boucle sur lui-même
 gui.path_editor.path_properties.one_way=Aller simple
 gui.path_editor.tools.marker=Marqueur
 gui.path_editor.tools.eraser=Gomme
+gui.path_editor.controls=Contrôles
+gui.path_editor.controls.zoom=Zoom: Molette de la souris
+gui.path_editor.controls.move=Déplacement: Clic droit enfoncé
 
 gui.helm.path_editor=Modifier le chemin
 
