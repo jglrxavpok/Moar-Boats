@@ -33,7 +33,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
     private val RES_MAP_BACKGROUND = ResourceLocation("textures/map/map_background.png")
     private val WaypointIndicator = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/helm/helm_waypoint.png")
     private val BoatPathTexture = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/helm/boat_path.png")
-    private val helmStack = ItemStack(HelmItem)
+    val helmStack = ItemStack(HelmItem)
 
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, renderManager: RenderManager) {
         module as HelmModule
@@ -77,11 +77,9 @@ object HelmModuleRenderer : BoatModuleRenderer() {
             bufferbuilder.pos(x, y, 0.0).tex(0.0, 0.0).endVertex()
             tessellator.draw()
 
-            val mapdata = item.getMapData(stack, boat.world)
-            if (mapdata != null) {
-                GlStateManager.translate(0f, 0f, 1f)
-                renderMap(mapdata, x, y, mapSize, boat.posX, boat.posZ, 7.0, moduleState)
-            }
+            val mapdata = HelmModule.mapDataCopyProperty[boat]
+            GlStateManager.translate(0f, 0f, 1f)
+            renderMap(mapdata, x, y, mapSize, boat.posX, boat.posZ, 7.0, moduleState)
         }
         GlStateManager.popMatrix()
     }
@@ -99,7 +97,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         GlStateManager.scale(0.0078125f, 0.0078125f, 0.0078125f)
         GlStateManager.scale(mapSize-margins*2, mapSize-margins*2, 0.0)
         mc.entityRenderer.mapItemRenderer.updateMapTexture(mapdata)
-        mc.entityRenderer.mapItemRenderer.renderMap(mapdata, false)
+        mc.entityRenderer.mapItemRenderer.renderMap(mapdata, true)
         GlStateManager.enableBlend()
         GlStateManager.translate(0.0, 0.0, 1.0)
 
@@ -122,11 +120,13 @@ object HelmModuleRenderer : BoatModuleRenderer() {
 
         // render waypoints and path
         val waypointsData = moduleState.getTagList(HelmModule.waypointsProperty.id, Constants.NBT.TAG_COMPOUND)
+        val loops = moduleState.getBoolean(HelmModule.loopingProperty.id)
 
         var hasPrevious = false
         var previousX = 0.0
         var previousZ = 0.0
-        for(waypoint in waypointsData) {
+        val first = waypointsData.firstOrNull() as? NBTTagCompound
+        for((index, waypoint) in waypointsData.withIndex()) {
             waypoint as NBTTagCompound
             val x = waypoint.getInteger("renderX").toDouble()
             val z = waypoint.getInteger("renderZ").toDouble()
@@ -137,13 +137,19 @@ object HelmModuleRenderer : BoatModuleRenderer() {
             hasPrevious = true
             previousX = x
             previousZ = z
+
+            if(first != null && index == waypointsData.tagCount()-1 && loops) { // last one
+                val firstX = first.getInteger("renderX").toDouble()
+                val firstZ = first.getInteger("renderZ").toDouble()
+                HelmModuleRenderer.renderPath(x, z, firstX, firstZ, redModifier = 0.15f)
+            }
         }
         GlStateManager.popMatrix()
 
         GlStateManager.enableLighting()
     }
 
-    private fun renderPath(previousX: Double, previousZ: Double, x: Double, z: Double) {
+    fun renderPath(previousX: Double, previousZ: Double, x: Double, z: Double, redModifier: Float = 1.0f, greenModifier: Float = 1.0f, blueModifier: Float = 1.0f) {
         val time = Sys.getTime()
         val pathTextureIndex = 3 - ((time/500) % 4)
 
@@ -158,27 +164,29 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         val bufferbuilder = tessellator.buffer
         val mc = Minecraft.getMinecraft()
         mc.textureManager.bindTexture(BoatPathTexture)
-        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX)
-        bufferbuilder.pos(0.0, 1.0, 0.0).tex(0.0, 0.25 * pathTextureIndex).endVertex()
-        bufferbuilder.pos(0.0+length, 1.0, 0.0).tex(1.0, 0.25 * pathTextureIndex).endVertex()
-        bufferbuilder.pos(0.0+length, 0.0, 0.0).tex(1.0, 0.25 * pathTextureIndex + 0.25).endVertex()
-        bufferbuilder.pos(0.0, 0.0, 0.0).tex(0.0, 0.25 * pathTextureIndex + 0.25).endVertex()
+
+        val thickness = 0.5
+        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR)
+        bufferbuilder.pos(0.0, thickness, 0.0).tex(0.0, 0.25 * pathTextureIndex).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
+        bufferbuilder.pos(0.0+length, thickness, 0.0).tex(1.0, 0.25 * pathTextureIndex).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
+        bufferbuilder.pos(0.0+length, 0.0, 0.0).tex(1.0, 0.25 * pathTextureIndex + 0.25).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
+        bufferbuilder.pos(0.0, 0.0, 0.0).tex(0.0, 0.25 * pathTextureIndex + 0.25).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
         tessellator.draw()
         GlStateManager.popMatrix()
     }
 
-    fun renderSingleWaypoint(x: Double, y: Double) {
+    fun renderSingleWaypoint(x: Double, y: Double, redModifier: Float = 1.0f, greenModifier: Float = 1.0f, blueModifier: Float = 1.0f) {
         val mc = Minecraft.getMinecraft()
         mc.textureManager.bindTexture(WaypointIndicator)
 
         val spriteSize = 8.0
         val tessellator = Tessellator.getInstance()
         val bufferbuilder = tessellator.buffer
-        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX)
-        bufferbuilder.pos(x, y+spriteSize, 0.0).tex(0.0, 1.0).endVertex()
-        bufferbuilder.pos(x+spriteSize, y+spriteSize, 0.0).tex(1.0, 1.0).endVertex()
-        bufferbuilder.pos(x+spriteSize, y, 0.0).tex(1.0, 0.0).endVertex()
-        bufferbuilder.pos(x, y, 0.0).tex(0.0, 0.0).endVertex()
+        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR)
+        bufferbuilder.pos(x-spriteSize/2, y+spriteSize, 0.0).tex(0.0, 1.0).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
+        bufferbuilder.pos(x+spriteSize/2, y+spriteSize, 0.0).tex(1.0, 1.0).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
+        bufferbuilder.pos(x+spriteSize/2, y, 0.0).tex(1.0, 0.0).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
+        bufferbuilder.pos(x-spriteSize/2, y, 0.0).tex(0.0, 0.0).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
         tessellator.draw()
     }
 }

@@ -2,7 +2,6 @@ package org.jglrxavpok.moarboats.api
 
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.inventory.Container
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.util.EnumHand
@@ -10,6 +9,7 @@ import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.TextComponentTranslation
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
+import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.containers.ContainerBase
 import java.util.*
 
@@ -26,7 +26,7 @@ abstract class BoatModule {
 
     /**
      * Priority for using a hopper: the higher, the strongest priority. Use 0 to disallow hopper interactions
-     * eg. Chests have 20, furnace engines have 10 and helms have 0
+     * eg. Chests have 20, furnace engines and helms have 0
      */
     open val hopperPriority = 1
 
@@ -53,18 +53,19 @@ abstract class BoatModule {
     open fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {}
 }
 
-data class BoatModuleEntry(val correspondingItem: Item, val module: BoatModule, val inventoryFactory: ((IControllable, BoatModule) -> IBoatModuleInventory)?)
+data class BoatModuleEntry(val correspondingItem: Item, val module: BoatModule, val inventoryFactory: ((IControllable, BoatModule) -> BoatModuleInventory)?)
 
 object BoatModuleRegistry {
 
     private val backingMap = hashMapOf<ResourceLocation, BoatModuleEntry>()
 
-    fun registerModule(module: BoatModule, correspondingItem: Item, inventoryFactory: ((IControllable, BoatModule) -> IBoatModuleInventory)? = null) {
+    fun registerModule(module: BoatModule, correspondingItem: Item, inventoryFactory: ((IControllable, BoatModule) -> BoatModuleInventory)? = null) {
         registerModule(module.id, correspondingItem, module, inventoryFactory)
     }
 
-    fun registerModule(name: ResourceLocation, correspondingItem: Item, module: BoatModule, inventoryFactory: ((IControllable, BoatModule) -> IBoatModuleInventory)? = null) {
+    fun registerModule(name: ResourceLocation, correspondingItem: Item, module: BoatModule, inventoryFactory: ((IControllable, BoatModule) -> BoatModuleInventory)? = null) {
         backingMap[name] = BoatModuleEntry(correspondingItem, module, inventoryFactory)
+        MoarBoats.logger.info("Registered module with ID $name")
         if(module.usesInventory && inventoryFactory == null)
             error("Module $module uses an inventory but no inventory factory was provided!")
     }

@@ -29,6 +29,8 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.items.RopeItem
 import org.jglrxavpok.moarboats.extensions.toDegrees
 import org.jglrxavpok.moarboats.api.IControllable
+import org.jglrxavpok.moarboats.common.modules.BlockReason
+import org.jglrxavpok.moarboats.common.modules.NoBlockReason
 import org.jglrxavpok.moarboats.extensions.Fluids
 import java.util.*
 
@@ -72,7 +74,8 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
     protected var acceleration = 0f
 
     var boatID: UUID = UUID.randomUUID()
-    private var blockedMovement = false
+    protected var blockedMovement = false
+    override var blockedReason: BlockReason = NoBlockReason
     override val worldRef: World
         get() = this.world
     override val positionX: Double
@@ -450,11 +453,6 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
             this.controlBoat()
         }
 
-        if(blockedMovement) {
-            motionX = 0.0
-            motionY = 0.0
-            motionZ = 0.0
-        }
         this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ)
 
         this.doBlockCollisions()
@@ -507,8 +505,9 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         acceleration -= 0.005f * multiplier
     }
 
-    override fun blockMovement() {
+    override fun blockMovement(blockReason: BlockReason) {
         blockedMovement = true
+        blockedReason = blockReason
     }
 
     abstract fun controlBoat()

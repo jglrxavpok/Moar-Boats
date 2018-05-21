@@ -3,17 +3,23 @@ package org.jglrxavpok.moarboats.client.gui
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiLockIconButton
 import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.entity.player.InventoryPlayer
+import net.minecraft.init.Items
+import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.TextComponentTranslation
 import net.minecraftforge.fml.client.config.GuiSlider
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
+import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.containers.ContainerBase
 import org.jglrxavpok.moarboats.common.modules.BaseEngineModule
+import org.jglrxavpok.moarboats.common.modules.BlockedByRedstone
+import org.jglrxavpok.moarboats.common.modules.NoBlockReason
 import org.jglrxavpok.moarboats.common.network.C4ChangeEngineMode
 import org.jglrxavpok.moarboats.common.network.C8ChangeEngineSpeed
 import org.lwjgl.opengl.GL11
@@ -21,18 +27,24 @@ import org.lwjgl.opengl.GL11
 class GuiEngineModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: IControllable, container: ContainerBase):
         GuiModuleBase(engine, boat, playerInventory, container, isLarge = true) {
 
+    companion object {
+        val RedstoneDustStack = ItemStack(Items.REDSTONE)
+    }
+
     override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/${engine.id.resourcePath}.png")
     val barsTexture = ResourceLocation("minecraft:textures/gui/bars.png")
     val remainingCurrentItem = TextComponentTranslation("gui.engine.remainingCurrent")
     val estimatedTimeText = TextComponentTranslation("gui.engine.estimatedTime")
     private val lockInPlaceButton = GuiLockIconButton(0, 0, 0)
     private val lockText = TextComponentTranslation("gui.engine.lock")
-    private val lockedByRedstone = TextComponentTranslation("gui.engine.lockedByRedstone")
+    private val lockedByRedstone = TextComponentTranslation("gui.engine.blocked.redstone")
     private val foreverText = TextComponentTranslation("gui.engine.forever")
     private val speedSetting = TextComponentTranslation("gui.engine.powerSetting")
     private val minimumSpeedText = TextComponentTranslation("gui.engine.power.min")
     private val maximumSpeedText = TextComponentTranslation("gui.engine.power.max")
     private val normalSpeedText = TextComponentTranslation("gui.engine.power.normal")
+    private val blockedByModuleText = TextComponentTranslation("gui.engine.blocked.module")
+    private val unknownBlockReasonText = { str: String -> TextComponentTranslation("gui.engine.blocked.unknown", str) }
     private val engine = module as BaseEngineModule
 
     private lateinit var speedSlider: GuiSlider
@@ -98,8 +110,7 @@ class GuiEngineModule(playerInventory: InventoryPlayer, engine: BoatModule, boat
             drawCenteredString(estimatedTimeText.unformattedText, 88, infoY+18, 0xFFF0F0F0.toInt(), shadow = true)
             drawCenteredString("${estimatedTime.toInt()}s", 88, infoY+28, 0xFF50A050.toInt())
         }
-        if(engine.isLockedByRedstone(boat))
-            drawCenteredString(lockedByRedstone.unformattedText, 88, infoY+38, 0xFF0000)
+        renderBlockReason(infoY+38)
         drawCenteredString(speedSetting.unformattedText, 88, infoY+52, 0xFFF0F0F0.toInt(), shadow = true)
 
         when {
@@ -110,6 +121,37 @@ class GuiEngineModule(playerInventory: InventoryPlayer, engine: BoatModule, boat
 
         renderSpeedIcon(0, 5, infoY + 40 + speedSlider.height)
         renderSpeedIcon(2, xSize - 25, infoY + 40 + speedSlider.height)
+    }
+
+    private fun renderBlockReason(y: Int) {
+        when(boat.blockedReason) {
+            NoBlockReason -> {}
+            BlockedByRedstone -> renderPrettyReason(y, lockedByRedstone.unformattedText, RedstoneDustStack)
+            else -> {
+                if(boat.blockedReason is BoatModule) {
+                    val blockingModule = boat.blockedReason as BoatModule
+                    val itemstack = ItemStack(BoatModuleRegistry[blockingModule.id].correspondingItem)
+                    renderPrettyReason(y, blockedByModuleText.unformattedText, itemstack)
+                } else {
+                    drawCenteredString(unknownBlockReasonText(boat.blockedReason.toString()).unformattedText, 88, y, 0xFF0000)
+                }
+            }
+        }
+    }
+
+    private fun renderPrettyReason(y: Int, text: String, itemStack: ItemStack) {
+        drawCenteredString(text, 88-16, y, 0xFF0000)
+        val textWidth = fontRenderer.getStringWidth(text)
+        val textX = 88-16 - textWidth/2
+        zLevel = 100.0f
+        itemRender.zLevel = 100.0f
+        RenderHelper.enableGUIStandardItemLighting()
+        GlStateManager.color(1f, 1f, 1f)
+        val itemX = textX+textWidth + 1
+        val itemY = fontRenderer.FONT_HEIGHT/2 - 8 + y
+        itemRender.renderItemAndEffectIntoGUI(itemStack, itemX, itemY)
+        itemRender.zLevel = 0.0f
+        zLevel = 0.0f
     }
 
     private fun renderSpeedIcon(ordinal: Int, x: Int, y: Int) {

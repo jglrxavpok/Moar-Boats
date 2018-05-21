@@ -9,6 +9,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
+import org.jglrxavpok.moarboats.common.modules.HelmModule
 
 class C2MapRequest(): IMessage {
 
@@ -42,12 +43,14 @@ class C2MapRequest(): IMessage {
             val moduleLocation = message.moduleLocation
             val module = BoatModuleRegistry[moduleLocation].module
             val stack = boat.getInventory(module).getStackInSlot(0)
-            val item = stack.item as? ItemMap ?: error("Got request while there was no map!")
+            val item = stack.item as? ItemMap ?: return null // Got request while there was no map!
             val mapName = message.mapName
             val mapdata = item.getMapData(stack, boat.worldRef)!!
-            val packet = S3MapAnswer(mapName)
+            val packet = S3MapAnswer(mapName, message.boatID, message.moduleLocation)
             mapdata.writeToNBT(packet.mapData)
-            return packet
+            module as HelmModule
+            module.receiveMapData(boat, mapdata)
+            return null
         }
     }
 }

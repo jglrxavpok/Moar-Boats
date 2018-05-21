@@ -30,7 +30,7 @@ import org.jglrxavpok.moarboats.common.modules.*
 
 
 @Mod(modLanguageAdapter = "net.shadowfacts.forgelin.KotlinAdapter", modid = MoarBoats.ModID, dependencies = "required-after:forgelin;",
-        name = "Moar Boats", version = "1.3.2", updateJSON = "https://raw.githubusercontent.com/jglrxavpok/Moar-Boats/master/updateCheck.json")
+        name = "Moar Boats", version = "2.0.0", updateJSON = "https://raw.githubusercontent.com/jglrxavpok/Moar-Boats/master/updateCheck.json")
 object MoarBoats {
     const val ModID = "moarboats"
 
@@ -52,6 +52,7 @@ object MoarBoats {
 
     @Mod.EventHandler
     fun preInit(event: FMLPreInitializationEvent) {
+        logger = event.modLog
         config = Configuration(event.suggestedConfigurationFile)
         MBConfig.backing = config
         MBConfig.loadAll()
@@ -69,7 +70,6 @@ object MoarBoats {
         BoatModuleRegistry.registerModule(DivingModule, DivingBottleItem)
         MinecraftForge.EVENT_BUS.register(this)
         MinecraftForge.EVENT_BUS.register(ItemEventHandler)
-        logger = event.modLog
         proxy.preInit()
     }
 

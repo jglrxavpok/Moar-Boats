@@ -22,16 +22,17 @@ import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.common.capabilities.ICapabilityProvider
 import net.minecraftforge.common.util.Constants
 import net.minecraftforge.items.CapabilityItemHandler
-import net.minecraftforge.items.IItemHandler
 import net.minecraftforge.items.wrapper.InvWrapper
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
-import org.jglrxavpok.moarboats.api.IBoatModuleInventory
+import org.jglrxavpok.moarboats.api.BoatModuleInventory
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.ResourceLocationsSerializer
 import org.jglrxavpok.moarboats.common.items.BaseBoatItem
 import org.jglrxavpok.moarboats.common.modules.SeatModule
+import org.jglrxavpok.moarboats.common.network.S15ModuleData
+import org.jglrxavpok.moarboats.common.network.S16ModuleLocations
 import org.jglrxavpok.moarboats.extensions.Fluids
 import org.jglrxavpok.moarboats.extensions.loadInventory
 import org.jglrxavpok.moarboats.extensions.saveInventory
@@ -53,7 +54,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         get()= dataManager[MODULE_LOCATIONS]
         set(value) { dataManager[MODULE_LOCATIONS] = value }
 
-    private var moduleData
+    var moduleData
         get()= dataManager[MODULE_DATA]
         set(value) { dataManager[MODULE_DATA] = value; dataManager.setDirty(MODULE_DATA) }
     override val modules = mutableListOf<BoatModule>()
@@ -64,7 +65,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
     private val embeddedDispenserTileEntity = TileEntityDispenser()
     private val itemHandler = InvWrapper(this)
 
-    private val moduleInventories = hashMapOf<ResourceLocation, IBoatModuleInventory>()
+    private val moduleInventories = hashMapOf<ResourceLocation, BoatModuleInventory>()
 
     init {
         this.preventEntitySpawning = true
@@ -95,12 +96,15 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
     override fun controlBoat() {
         acceleration = 0.0f
         modules.forEach { it.controlBoat(this) }
-        this.rotationYaw += this.deltaRotation
-        this.motionX += (MathHelper.sin(-this.rotationYaw * 0.017453292f) * acceleration).toDouble()
-        this.motionZ += (MathHelper.cos(this.rotationYaw * 0.017453292f) * acceleration).toDouble()
+
+        if(!blockedMovement) {
+            this.rotationYaw += this.deltaRotation
+            this.motionX += (MathHelper.sin(-this.rotationYaw * 0.017453292f) * acceleration).toDouble()
+            this.motionZ += (MathHelper.cos(this.rotationYaw * 0.017453292f) * acceleration).toDouble()
+        }
     }
 
-    override fun getInventory(module: BoatModule): IBoatModuleInventory {
+    override fun getInventory(module: BoatModule): BoatModuleInventory {
         val key = module.id
         if(key !in moduleInventories) {
             val inventory = BoatModuleRegistry[key].inventoryFactory!!(this, module)
@@ -111,6 +115,8 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
 
     override fun processInitialInteract(player: EntityPlayer, hand: EnumHand): Boolean {
         if(super.processInitialInteract(player, hand))
+            return true
+        if(world.isRemote)
             return true
         val heldItem = player.getHeldItem(hand)
         val module = BoatModuleRegistry.findModule(heldItem)
@@ -134,7 +140,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         val canOpenGui = !modules.any { it.onInteract(this, player, hand, player.isSneaking) }
         if(canOpenGui) {
             if(modules.isNotEmpty() && !world.isRemote) {
-                player.openGui(MoarBoats, MoarBoatsGuiHandler.ModuleGui, player.world, entityID, 0, 0)
+                player.openGui(MoarBoats, MoarBoatsGuiHandler.ModulesGui, player.world, entityID, 0, 0)
             }
         }
         return true
@@ -196,11 +202,17 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
     }
 
     private fun updateModuleData() {
-        moduleData = moduleData // uses the setter of 'moduleData' to update the state
+        dataManager[MODULE_DATA] = moduleData // uses the setter of 'moduleData' to update the state
+        if(!world.isRemote) {
+            MoarBoats.network.sendToAll(S15ModuleData(entityID, moduleData))
+        }
     }
 
-    private fun updateModuleLocations() {
-        moduleLocations = moduleLocations // uses the setter of 'moduleLocations' to update the state
+    private fun updateModuleLocations(sendUpdate: Boolean = true) {
+        dataManager[MODULE_LOCATIONS] = moduleLocations // uses the setter of 'moduleLocations' to update the state
+        if(!world.isRemote && sendUpdate) {
+            MoarBoats.network.sendToAll(S16ModuleLocations(entityID, moduleLocations))
+        }
     }
 
     override fun entityInit() {
@@ -215,7 +227,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         if(!addedByNBT)
             module.onAddition(this)
         moduleLocations.add(location)
-        updateModuleLocations()
+        updateModuleLocations(!addedByNBT)
         return module
     }
 
@@ -240,7 +252,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
 
     // === START OF INVENTORY CODE FOR INTERACTIONS WITH HOPPERS === //
 
-    private fun indexToInventory(index: Int): IBoatModuleInventory? {
+    private fun indexToInventory(index: Int): BoatModuleInventory? {
         var slotCount = 0
         val sortedModules = modules.filterNot { !it.usesInventory || it.hopperPriority == 0 }.sortedBy { -it.hopperPriority /* reverse list */ }
         for(m in sortedModules) {

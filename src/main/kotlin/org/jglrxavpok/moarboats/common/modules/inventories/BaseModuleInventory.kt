@@ -1,19 +1,17 @@
 package org.jglrxavpok.moarboats.common.modules.inventories
 
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.inventory.InventoryBasic
 import net.minecraft.inventory.ItemStackHelper
 import net.minecraft.item.ItemStack
 import net.minecraft.util.NonNullList
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.TextComponentTranslation
 import org.jglrxavpok.moarboats.api.BoatModule
-import org.jglrxavpok.moarboats.api.IBoatModuleInventory
+import org.jglrxavpok.moarboats.api.BoatModuleInventory
 import org.jglrxavpok.moarboats.api.IControllable
 
-abstract class BaseModuleInventory(val slotCount: Int, val inventoryName: String, override val boat: IControllable, override val module: BoatModule): InventoryBasic(inventoryName,  true,slotCount), IBoatModuleInventory {
-
-    override val list = NonNullList.withSize(slotCount, ItemStack.EMPTY)
+abstract class BaseModuleInventory(slotCount: Int, inventoryName: String, boat: IControllable, module: BoatModule):
+        BoatModuleInventory(inventoryName, slotCount, boat, module, NonNullList.withSize(slotCount, ItemStack.EMPTY)) {
 
     protected abstract fun id2key(id: Int): String?
     abstract override fun getFieldCount(): Int

@@ -35,7 +35,7 @@ object FishingModule : BoatModule() {
 
     override val usesInventory = true
     override val moduleSpot = Spot.Misc
-    override val hopperPriority = 20
+    override val hopperPriority = 0
 
     const val MaxAnimationTicks = 10
     // State properties
@@ -74,7 +74,7 @@ object FishingModule : BoatModule() {
 
             val lureSpeed = EnchantmentHelper.getFishingSpeedBonus(rodStack)
 
-            val randNumber = from.moduleRNG.nextInt(400 - lureSpeed*50) / MBConfig.fishingSpeedMultiplier
+            val randNumber = from.moduleRNG.nextInt((400 - lureSpeed*50)*3) / MBConfig.fishingSpeedMultiplier
             if(randNumber <= 1f) {
                 val luck = EnchantmentHelper.getFishingLuckBonus(rodStack)
                 // catch fish
@@ -137,6 +137,7 @@ object FishingModule : BoatModule() {
                     foundReplacement = true
                     storageInventory.setInventorySlotContents(index, inventory.getStackInSlot(0))
                     inventory.setInventorySlotContents(0, stack)
+                    break
                 }
             }
             if(!foundReplacement) {

@@ -7,6 +7,7 @@ import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
+import org.jglrxavpok.moarboats.common.modules.BlockReason
 import org.jglrxavpok.moarboats.extensions.toRadians
 import java.util.*
 
@@ -24,6 +25,7 @@ interface IControllable: IBlockSource {
     val yaw: Float
     val correspondingEntity: Entity
     val moduleRNG: Random
+    val blockedReason: BlockReason
 
     fun inLiquid(): Boolean
     fun isEntityInLava(): Boolean
@@ -33,11 +35,11 @@ interface IControllable: IBlockSource {
     fun turnLeft(multiplier: Float = 1f)
     fun accelerate(multiplier: Float = 1f)
     fun decelerate(multiplier: Float = 1f)
-    fun blockMovement()
+    fun blockMovement(blockedReason: BlockReason)
 
     fun saveState(module: BoatModule)
     fun getState(module: BoatModule): NBTTagCompound
-    fun getInventory(module: BoatModule): IBoatModuleInventory
+    fun getInventory(module: BoatModule): BoatModuleInventory
 
     fun calculateAnchorPosition(linkType: Int): Vec3d {
         val distanceFromCenter = 0.0625f * 17f * if(linkType == BasicBoatEntity.FrontLink) 1f else -1f

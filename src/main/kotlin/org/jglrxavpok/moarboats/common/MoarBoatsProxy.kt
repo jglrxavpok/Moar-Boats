@@ -19,6 +19,13 @@ open class MoarBoatsProxy {
         MoarBoats.network.registerMessage(S7SyncInventory.Handler, S7SyncInventory::class.java, 7, Side.CLIENT)
         MoarBoats.network.registerMessage(C8ChangeEngineSpeed.Handler, C8ChangeEngineSpeed::class.java, 8, Side.SERVER)
         MoarBoats.network.registerMessage(C9ChangeDispenserPeriod.Handler, C9ChangeDispenserPeriod::class.java, 9, Side.SERVER)
+        MoarBoats.network.registerMessage(C10MapImageRequest.Handler, C10MapImageRequest::class.java, 10, Side.SERVER)
+        MoarBoats.network.registerMessage(S11MapImageAnswer.Handler, S11MapImageAnswer::class.java, 11, Side.CLIENT)
+        MoarBoats.network.registerMessage(C12AddWaypoint.Handler, C12AddWaypoint::class.java, 12, Side.SERVER)
+        MoarBoats.network.registerMessage(C13RemoveWaypoint.Handler, C13RemoveWaypoint::class.java, 13, Side.SERVER)
+        MoarBoats.network.registerMessage(C14ChangeLoopingState.Handler, C14ChangeLoopingState::class.java, 14, Side.SERVER)
+        MoarBoats.network.registerMessage(S15ModuleData.Handler, S15ModuleData::class.java, 15, Side.CLIENT)
+        MoarBoats.network.registerMessage(S16ModuleLocations.Handler, S16ModuleLocations::class.java, 16, Side.CLIENT)
     }
 
     open fun preInit() {
