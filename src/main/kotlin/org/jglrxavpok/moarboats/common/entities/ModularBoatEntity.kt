@@ -2,6 +2,7 @@ package org.jglrxavpok.moarboats.common.entities
 
 import net.minecraft.block.BlockDispenser
 import net.minecraft.block.state.IBlockState
+import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Blocks
 import net.minecraft.inventory.IInventory
@@ -97,8 +98,10 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         acceleration = 0.0f
         modules.forEach { it.controlBoat(this) }
 
-        if(!blockedMovement) {
+        if(!blockedRotation) {
             this.rotationYaw += this.deltaRotation
+        }
+        if(!blockedMotion) {
             this.motionX += (MathHelper.sin(-this.rotationYaw * 0.017453292f) * acceleration).toDouble()
             this.motionZ += (MathHelper.cos(this.rotationYaw * 0.017453292f) * acceleration).toDouble()
         }
@@ -363,6 +366,12 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
 
     override fun canRiderInteract(): Boolean {
         return true
+    }
+
+    override fun getControllingPassenger(): Entity? {
+        if(passengers.size >= 1)
+            return passengers[0]
+        return null
     }
 
     // === Start of Capability code ===
