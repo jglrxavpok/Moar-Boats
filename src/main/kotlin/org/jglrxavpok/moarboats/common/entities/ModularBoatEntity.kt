@@ -234,15 +234,31 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         return module
     }
 
+    fun removeModule(location: ResourceLocation) {
+        if(location !in moduleLocations)
+            return
+        val module = BoatModuleRegistry[location].module
+        if(module === SeatModule) {
+            removePassengers()
+        }
+        dropItemsForModule(module, killedByPlayerInCreative = false)
+        moduleLocations.remove(location)
+        updateModuleLocations(sendUpdate = true)
+    }
+
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative) {
             dropItem(BaseBoatItem, 1)
         }
         modules.forEach {
-            if(it.usesInventory)
-                InventoryHelper.dropInventoryItems(world, this, getInventory(it))
-            it.dropItemsOnDeath(this, killedByPlayerInCreative)
+            dropItemsForModule(it, killedByPlayerInCreative)
         }
+    }
+
+    private fun dropItemsForModule(module: BoatModule, killedByPlayerInCreative: Boolean) {
+        if(module.usesInventory)
+            InventoryHelper.dropInventoryItems(world, this, getInventory(module))
+        module.dropItemsOnDeath(this, killedByPlayerInCreative)
     }
 
     override fun isValidLiquidBlock(blockstate: IBlockState) = Fluids.isUsualLiquidBlock(blockstate)

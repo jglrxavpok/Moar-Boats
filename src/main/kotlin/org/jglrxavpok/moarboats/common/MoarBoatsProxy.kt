@@ -26,6 +26,7 @@ open class MoarBoatsProxy {
         MoarBoats.network.registerMessage(C14ChangeLoopingState.Handler, C14ChangeLoopingState::class.java, 14, Side.SERVER)
         MoarBoats.network.registerMessage(S15ModuleData.Handler, S15ModuleData::class.java, 15, Side.CLIENT)
         MoarBoats.network.registerMessage(S16ModuleLocations.Handler, S16ModuleLocations::class.java, 16, Side.CLIENT)
+        MoarBoats.network.registerMessage(C17RemoveModule.Handler, C17RemoveModule::class.java, 17, Side.SERVER)
     }
 
     open fun preInit() {

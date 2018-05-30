@@ -81,4 +81,4 @@ gui.engine.blocked.module=Blocked by
 
 # 2.1.0.0
 item.rudder.name=Rudder
-inventory.rudder.name=Gouvernail
+inventory.rudder.name=Rudder
