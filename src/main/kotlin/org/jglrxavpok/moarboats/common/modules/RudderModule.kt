@@ -10,15 +10,19 @@ import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiNoConfigModule
 import org.jglrxavpok.moarboats.common.containers.ContainerBase
 import org.jglrxavpok.moarboats.common.containers.EmptyContainer
+import org.jglrxavpok.moarboats.common.state.FloatBoatProperty
 
 object RudderModule: BoatModule(), BlockReason {
     override val id = ResourceLocation(MoarBoats.ModID, "rudder")
     override val usesInventory = false
     override val moduleSpot = Spot.Navigation
 
+    val RudderAngleMultiplier = FloatBoatProperty("rudderAngleMultiplier")
+
     override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean) = false
 
     override fun controlBoat(from: IControllable) {
+        RudderAngleMultiplier[from] = 0f
         val controllingEntity = from.correspondingEntity.controllingPassenger as? EntityPlayer ?: return
         val forward = controllingEntity.moveForward
         val strafe = controllingEntity.moveStrafing
@@ -28,6 +32,7 @@ object RudderModule: BoatModule(), BlockReason {
             //from.accelerate(forward)
         }
         from.turnLeft(strafe)
+        RudderAngleMultiplier[from] = strafe
     }
 
     override fun blocksRotation() = false

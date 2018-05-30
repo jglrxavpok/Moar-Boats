@@ -77,3 +77,7 @@ gui.helm.path_editor=Modifier le chemin
 gui.engine.blocked.redstone=Désactivé par de la redstone!
 gui.engine.blocked.unkown=Désactivé par %s
 gui.engine.blocked.module=Désactivé par
+
+# 2.1.0.0
+item.rudder.name=Gouvernail
+inventory.rudder.name=Gouvernail

@@ -68,7 +68,7 @@ object MoarBoats {
         BoatModuleRegistry.registerModule(SonarModule, Item.getItemFromBlock(MCBlocks.NOTEBLOCK))
         BoatModuleRegistry.registerModule(DispenserModule, Item.getItemFromBlock(MCBlocks.DISPENSER), { boat, module -> SimpleModuleInventory(3*5, "dispenser", boat, module) })
         BoatModuleRegistry.registerModule(DivingModule, DivingBottleItem)
-        BoatModuleRegistry.registerModule(RudderModule, Item.getItemFromBlock(MCBlocks.DEADBUSH)) // TODO
+        BoatModuleRegistry.registerModule(RudderModule, RudderItem)
         MinecraftForge.EVENT_BUS.register(this)
         MinecraftForge.EVENT_BUS.register(ItemEventHandler)
         proxy.preInit()
