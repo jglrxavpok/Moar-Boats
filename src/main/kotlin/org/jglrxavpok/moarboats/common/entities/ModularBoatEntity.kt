@@ -2,6 +2,7 @@ package org.jglrxavpok.moarboats.common.entities
 
 import net.minecraft.block.BlockDispenser
 import net.minecraft.block.state.IBlockState
+import net.minecraft.dispenser.IBehaviorDispenseItem
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Blocks
@@ -64,6 +65,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
      * Embedded TileEntityDispenser not to freak out the game engine when trying to dispense an item
      */
     private val embeddedDispenserTileEntity = TileEntityDispenser()
+    private var moduleDispenseFacing: EnumFacing = defaultFacing()
     private val itemHandler = InvWrapper(this)
 
     private val moduleInventories = hashMapOf<ResourceLocation, BoatModuleInventory>()
@@ -269,6 +271,25 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         else -> super.attackEntityFrom(source, amount)
     }
 
+    private fun defaultFacing() = EnumFacing.fromAngle(180f - yaw.toDouble())
+
+    override fun dispense(behavior: IBehaviorDispenseItem, stack: ItemStack, overrideFacing: EnumFacing?): ItemStack {
+        moduleDispenseFacing = when(overrideFacing) {
+            null -> defaultFacing()
+            EnumFacing.WEST, EnumFacing.EAST, EnumFacing.NORTH, EnumFacing.SOUTH -> reorientate(overrideFacing)
+            else -> overrideFacing
+        }
+        return behavior.dispense(this, stack)
+    }
+
+    /**
+     * Takes into account the rotation of the boat
+     */
+    override fun reorientate(overrideFacing: EnumFacing): EnumFacing {
+        val angle = overrideFacing.horizontalAngle // default angle is 0 (SOUTH)
+        return EnumFacing.fromAngle(180f - (yaw.toDouble() + angle.toDouble()))
+    }
+
     // === START OF INVENTORY CODE FOR INTERACTIONS WITH HOPPERS === //
 
     private fun indexToInventory(index: Int): BoatModuleInventory? {
@@ -368,7 +389,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
     override fun getZ() = posZ
 
     override fun getBlockState(): IBlockState {
-        return Blocks.DISPENSER.defaultState.withProperty(BlockDispenser.FACING, EnumFacing.fromAngle(180f - yaw.toDouble()))
+        return Blocks.DISPENSER.defaultState.withProperty(BlockDispenser.FACING, moduleDispenseFacing)
     }
 
     override fun getBlockPos(): BlockPos {

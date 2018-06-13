@@ -1,8 +1,11 @@
 package org.jglrxavpok.moarboats.api
 
+import net.minecraft.dispenser.IBehaviorDispenseItem
 import net.minecraft.dispenser.IBlockSource
 import net.minecraft.entity.Entity
+import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.util.EnumFacing
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
@@ -40,6 +43,13 @@ interface IControllable: IBlockSource {
     fun saveState(module: BoatModule)
     fun getState(module: BoatModule): NBTTagCompound
     fun getInventory(module: BoatModule): BoatModuleInventory
+
+    fun dispense(behavior: IBehaviorDispenseItem, stack: ItemStack, overrideFacing: EnumFacing? = null): ItemStack
+
+    /**
+     * Takes into account the rotation of the boat
+     */
+    fun reorientate(overrideFacing: EnumFacing): EnumFacing
 
     fun calculateAnchorPosition(linkType: Int): Vec3d {
         val distanceFromCenter = 0.0625f * 17f * if(linkType == BasicBoatEntity.FrontLink) 1f else -1f

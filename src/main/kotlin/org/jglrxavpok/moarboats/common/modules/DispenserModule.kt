@@ -21,6 +21,7 @@ import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiDispenserModule
 import org.jglrxavpok.moarboats.common.containers.ContainerDispenserModule
+import org.jglrxavpok.moarboats.common.state.ArrayBoatProperty
 import org.jglrxavpok.moarboats.common.state.BlockPosProperty
 import org.jglrxavpok.moarboats.common.state.DoubleBoatProperty
 import org.jglrxavpok.moarboats.extensions.Fluids
@@ -33,6 +34,11 @@ object DispenserModule: BoatModule() {
 
     val blockPeriodProperty = DoubleBoatProperty("period")
     val lastDispensePositionProperty = BlockPosProperty("lastFire")
+    /**
+     * Starts with EnumFacing.SOUTH which is the default facing (behind the boat)
+     */
+    val facings = arrayOf(EnumFacing.SOUTH, EnumFacing.NORTH, EnumFacing.EAST, EnumFacing.WEST, EnumFacing.UP, EnumFacing.DOWN)
+    val facingProperty = ArrayBoatProperty("facing", facings)
     val BOAT_BEHIND = Vec3d(0.0, 0.0, 0.0625 * 25)
 
     // Row indices
@@ -71,7 +77,7 @@ object DispenserModule: BoatModule() {
                 is ItemBlock -> useItemBlock(item, world, stack, blockPos, boat)
                 else -> {
                     val behavior = BlockDispenser.DISPENSE_BEHAVIOR_REGISTRY.getObject(item)
-                    val resultingStack = behavior.dispense(boat, stack)
+                    val resultingStack = boat.dispense(behavior, stack, overrideFacing = facingProperty[boat])
                     boat.getInventory().setInventorySlotContents(index, resultingStack)
                 }
             }
@@ -84,7 +90,7 @@ object DispenserModule: BoatModule() {
         val block = item.block
         val newState = block.getStateFromMeta(stack.metadata)
         if(world.isAirBlock(blockPos) || Fluids.isUsualLiquidBlock(world.getBlockState(blockPos))) {
-            if(world.mayPlace(block, blockPos, false, EnumFacing.fromAngle(boat.yaw.toDouble()), boat.correspondingEntity)) {
+            if(world.mayPlace(block, blockPos, false, boat.reorientate(facingProperty[boat]).opposite, boat.correspondingEntity)) {
                 val succeeded = world.setBlockState(blockPos, newState, 11)
                 if (succeeded) {
                     try {
