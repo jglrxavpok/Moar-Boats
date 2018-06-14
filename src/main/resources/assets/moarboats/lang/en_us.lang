@@ -85,3 +85,5 @@ inventory.rudder.name=Rudder
 
 gui.dispenser.orientation=Orientation
 inventory.dropper.name=Dropper
+
+item.animal_boat.name=Animal Boat

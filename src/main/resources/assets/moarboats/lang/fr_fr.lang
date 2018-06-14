@@ -84,3 +84,5 @@ inventory.rudder.name=Gouvernail
 
 gui.dispenser.orientation=Orientation
 inventory.dropper.name=Dropper
+
+item.animal_boat.name=Bateau pour animaux

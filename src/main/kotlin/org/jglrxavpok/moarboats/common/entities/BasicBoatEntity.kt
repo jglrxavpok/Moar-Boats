@@ -807,6 +807,8 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
     }
 
     override fun processInitialInteract(player: EntityPlayer, hand: EnumHand): Boolean {
+        if(world.isRemote)
+            return true
         val itemstack = player.getHeldItem(hand)
         if(canStartRiding(player, itemstack, hand)) {
             if (!this.world.isRemote) {

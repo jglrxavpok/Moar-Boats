@@ -45,7 +45,7 @@ object MoarBoats {
 
     val CreativeTab = object: CreativeTabs("moarboats") {
         override fun getTabIconItem(): ItemStack {
-            return ItemStack(BaseBoatItem)
+            return ItemStack(ModularBoatItem)
         }
 
     }

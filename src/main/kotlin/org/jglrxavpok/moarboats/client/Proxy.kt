@@ -15,6 +15,7 @@ import org.jglrxavpok.moarboats.client.renders.*
 import org.jglrxavpok.moarboats.common.Blocks
 import org.jglrxavpok.moarboats.common.Items
 import org.jglrxavpok.moarboats.common.MoarBoatsProxy
+import org.jglrxavpok.moarboats.common.entities.AnimalBoatEntity
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 
 @Mod.EventBusSubscriber(value = arrayOf(Side.CLIENT), modid = MoarBoats.ModID)
@@ -42,6 +43,7 @@ class Proxy: MoarBoatsProxy() {
         MinecraftForge.EVENT_BUS.register(this)
         super.preInit()
         RenderingRegistry.registerEntityRenderingHandler(ModularBoatEntity::class.java, ::RenderModularBoat)
+        RenderingRegistry.registerEntityRenderingHandler(AnimalBoatEntity::class.java, ::RenderAnimalBoat)
     }
 
     @SideOnly(Side.CLIENT)

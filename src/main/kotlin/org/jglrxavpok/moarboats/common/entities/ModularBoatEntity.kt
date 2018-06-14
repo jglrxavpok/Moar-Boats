@@ -23,7 +23,6 @@ import net.minecraft.world.World
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.common.capabilities.ICapabilityProvider
 import net.minecraftforge.common.util.Constants
-import net.minecraftforge.fml.common.IWorldGenerator
 import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.wrapper.InvWrapper
 import org.jglrxavpok.moarboats.MoarBoats
@@ -32,7 +31,7 @@ import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.api.BoatModuleInventory
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.ResourceLocationsSerializer
-import org.jglrxavpok.moarboats.common.items.BaseBoatItem
+import org.jglrxavpok.moarboats.common.items.ModularBoatItem
 import org.jglrxavpok.moarboats.common.modules.SeatModule
 import org.jglrxavpok.moarboats.common.network.S15ModuleData
 import org.jglrxavpok.moarboats.common.network.S16ModuleLocations
@@ -252,7 +251,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
 
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative) {
-            dropItem(BaseBoatItem, 1)
+            dropItem(ModularBoatItem, 1)
         }
         modules.forEach {
             dropItemsForModule(it, killedByPlayerInCreative)
