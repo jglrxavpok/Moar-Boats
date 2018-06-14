@@ -2,6 +2,7 @@ package org.jglrxavpok.moarboats.common.modules
 
 import net.minecraft.block.BlockDispenser
 import net.minecraft.client.gui.GuiScreen
+import net.minecraft.dispenser.BehaviorDefaultDispenseItem
 import net.minecraft.dispenser.IBehaviorDispenseItem
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Blocks
@@ -19,6 +20,7 @@ import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiDispenserModule
 import org.jglrxavpok.moarboats.common.containers.ContainerDispenserModule
+import org.jglrxavpok.moarboats.common.modules.DispenserModule.getInventory
 import org.jglrxavpok.moarboats.common.state.ArrayBoatProperty
 import org.jglrxavpok.moarboats.common.state.BlockPosProperty
 import org.jglrxavpok.moarboats.common.state.DoubleBoatProperty
@@ -71,17 +73,24 @@ object DispenserModule: BoatModule() {
         firstValidStack(inventoryRowStart, boat)?.let { (index, stack) ->
             val item = stack.item
             val world = boat.worldRef
-            when(item) {
-                is ItemBlock -> useItemBlock(item, world, stack, blockPos, boat, row)
-                else -> {
-                    val behavior = BlockDispenser.DISPENSE_BEHAVIOR_REGISTRY.getObject(item)
-                    val resultingStack = boat.dispense(behavior, stack, overridePosition = blockPos, overrideFacing = facingProperty[boat])
-                    boat.getInventory().setInventorySlotContents(index, resultingStack)
+            val behavior = BlockDispenser.DISPENSE_BEHAVIOR_REGISTRY.getObject(item)
+            if(behavior.javaClass === BehaviorDefaultDispenseItem::class.java) {
+                if(item is ItemBlock) {
+                    useItemBlock(item, world, stack, blockPos, boat, row)
+                } else {
+                    dispenseWithDefaultBehavior(boat, behavior, stack, blockPos, index)
                 }
+            } else {
+                dispenseWithDefaultBehavior(boat, behavior, stack, blockPos, index)
             }
-            boat.getInventory().syncToClient()
         }
         blockPos.release()
+    }
+
+    private fun dispenseWithDefaultBehavior(boat: IControllable, behavior: IBehaviorDispenseItem, stack: ItemStack, blockPos: BlockPos, index: Int) {
+        val resultingStack = boat.dispense(behavior, stack, overridePosition = blockPos, overrideFacing = facingProperty[boat])
+        boat.getInventory().setInventorySlotContents(index, resultingStack)
+        boat.getInventory().syncToClient()
     }
 
     private fun useItemBlock(item: ItemBlock, world: World, stack: ItemStack, pos: BlockPos.PooledMutableBlockPos, boat: IControllable, row: Int) {
