@@ -5,14 +5,12 @@ import net.minecraft.client.gui.GuiScreen
 import net.minecraft.dispenser.IBehaviorDispenseItem
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Blocks
-import net.minecraft.init.SoundEvents
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
-import net.minecraft.util.SoundCategory
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
@@ -74,10 +72,10 @@ object DispenserModule: BoatModule() {
             val item = stack.item
             val world = boat.worldRef
             when(item) {
-                is ItemBlock -> useItemBlock(item, world, stack, blockPos, boat)
+                is ItemBlock -> useItemBlock(item, world, stack, blockPos, boat, row)
                 else -> {
                     val behavior = BlockDispenser.DISPENSE_BEHAVIOR_REGISTRY.getObject(item)
-                    val resultingStack = boat.dispense(behavior, stack, overrideFacing = facingProperty[boat])
+                    val resultingStack = boat.dispense(behavior, stack, overridePosition = blockPos, overrideFacing = facingProperty[boat])
                     boat.getInventory().setInventorySlotContents(index, resultingStack)
                 }
             }
@@ -86,11 +84,13 @@ object DispenserModule: BoatModule() {
         blockPos.release()
     }
 
-    private fun useItemBlock(item: ItemBlock, world: World, stack: ItemStack, blockPos: BlockPos.PooledMutableBlockPos, boat: IControllable) {
+    private fun useItemBlock(item: ItemBlock, world: World, stack: ItemStack, pos: BlockPos.PooledMutableBlockPos, boat: IControllable, row: Int) {
+        val facing = boat.reorientate(facingProperty[boat]).opposite
+        val blockPos = pos.offset(facing)
         val block = item.block
         val newState = block.getStateFromMeta(stack.metadata)
         if(world.isAirBlock(blockPos) || Fluids.isUsualLiquidBlock(world.getBlockState(blockPos))) {
-            if(world.mayPlace(block, blockPos, false, boat.reorientate(facingProperty[boat]).opposite, boat.correspondingEntity)) {
+            if(world.mayPlace(block, blockPos, false, facing.opposite, boat.correspondingEntity)) {
                 val succeeded = world.setBlockState(blockPos, newState, 11)
                 if (succeeded) {
                     try {

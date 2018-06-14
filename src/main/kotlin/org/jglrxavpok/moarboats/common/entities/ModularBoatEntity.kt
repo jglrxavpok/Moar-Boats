@@ -23,6 +23,7 @@ import net.minecraft.world.World
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.common.capabilities.ICapabilityProvider
 import net.minecraftforge.common.util.Constants
+import net.minecraftforge.fml.common.IWorldGenerator
 import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.wrapper.InvWrapper
 import org.jglrxavpok.moarboats.MoarBoats
@@ -66,6 +67,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
      */
     private val embeddedDispenserTileEntity = TileEntityDispenser()
     private var moduleDispenseFacing: EnumFacing = defaultFacing()
+    private var moduleDispensePosition = BlockPos.MutableBlockPos()
     private val itemHandler = InvWrapper(this)
 
     private val moduleInventories = hashMapOf<ResourceLocation, BoatModuleInventory>()
@@ -273,12 +275,13 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
 
     private fun defaultFacing() = EnumFacing.fromAngle(180f - yaw.toDouble())
 
-    override fun dispense(behavior: IBehaviorDispenseItem, stack: ItemStack, overrideFacing: EnumFacing?): ItemStack {
+    override fun dispense(behavior: IBehaviorDispenseItem, stack: ItemStack, overridePosition: BlockPos?, overrideFacing: EnumFacing?): ItemStack {
         moduleDispenseFacing = when(overrideFacing) {
             null -> defaultFacing()
             EnumFacing.WEST, EnumFacing.EAST, EnumFacing.NORTH, EnumFacing.SOUTH -> reorientate(overrideFacing)
             else -> overrideFacing
         }
+        moduleDispensePosition.setPos(overridePosition ?: position)
         return behavior.dispense(this, stack)
     }
 
@@ -287,7 +290,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
      */
     override fun reorientate(overrideFacing: EnumFacing): EnumFacing {
         val angle = overrideFacing.horizontalAngle // default angle is 0 (SOUTH)
-        return EnumFacing.fromAngle(180f - (yaw.toDouble() + angle.toDouble()))
+        return EnumFacing.fromAngle(180f-(yaw.toDouble() + angle.toDouble()))
     }
 
     // === START OF INVENTORY CODE FOR INTERACTIONS WITH HOPPERS === //
@@ -384,16 +387,16 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         return embeddedDispenserTileEntity as T
     }
 
-    override fun getX() = posX
-    override fun getY() = posY
-    override fun getZ() = posZ
+    override fun getX() = moduleDispensePosition.x.toDouble()
+    override fun getY() = moduleDispensePosition.y.toDouble()
+    override fun getZ() = moduleDispensePosition.z.toDouble()
 
     override fun getBlockState(): IBlockState {
         return Blocks.DISPENSER.defaultState.withProperty(BlockDispenser.FACING, moduleDispenseFacing)
     }
 
     override fun getBlockPos(): BlockPos {
-        return position
+        return moduleDispensePosition
     }
     // === Start of passengers code ===
 

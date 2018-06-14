@@ -6,6 +6,7 @@ import net.minecraft.entity.Entity
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.EnumFacing
+import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
@@ -44,7 +45,7 @@ interface IControllable: IBlockSource {
     fun getState(module: BoatModule): NBTTagCompound
     fun getInventory(module: BoatModule): BoatModuleInventory
 
-    fun dispense(behavior: IBehaviorDispenseItem, stack: ItemStack, overrideFacing: EnumFacing? = null): ItemStack
+    fun dispense(behavior: IBehaviorDispenseItem, stack: ItemStack, overridePosition: BlockPos? = null, overrideFacing: EnumFacing? = null): ItemStack
 
     /**
      * Takes into account the rotation of the boat
