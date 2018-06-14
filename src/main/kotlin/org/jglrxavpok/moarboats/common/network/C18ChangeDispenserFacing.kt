@@ -11,6 +11,7 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.DispenserModule
+import org.jglrxavpok.moarboats.common.modules.DispensingModule
 
 class C18ChangeDispenserFacing(): IMessage {
 
@@ -43,7 +44,7 @@ class C18ChangeDispenserFacing(): IMessage {
             val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
             val moduleLocation = message.moduleID
             val module = BoatModuleRegistry[moduleLocation].module
-            module as DispenserModule
+            module as DispensingModule
             module.facingProperty[boat] = message.facing
             return null
         }

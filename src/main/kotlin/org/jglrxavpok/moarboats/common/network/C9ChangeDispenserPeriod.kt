@@ -8,7 +8,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
-import org.jglrxavpok.moarboats.common.modules.DispenserModule
+import org.jglrxavpok.moarboats.common.modules.DispensingModule
 
 class C9ChangeDispenserPeriod(): IMessage {
 
@@ -41,7 +41,7 @@ class C9ChangeDispenserPeriod(): IMessage {
             val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
             val moduleLocation = message.moduleLocation
             val module = BoatModuleRegistry[moduleLocation].module
-            module as DispenserModule
+            module as DispensingModule
             module.changePeriod(boat, message.period)
             return null
         }

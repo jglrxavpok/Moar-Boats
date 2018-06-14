@@ -83,3 +83,4 @@ item.rudder.name=Gouvernail
 inventory.rudder.name=Gouvernail
 
 gui.dispenser.orientation=Orientation
+inventory.dropper.name=Dropper

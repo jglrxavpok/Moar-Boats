@@ -12,12 +12,14 @@ import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.containers.ContainerDispenserModule
 import org.jglrxavpok.moarboats.common.modules.DispenserModule
+import org.jglrxavpok.moarboats.common.modules.DispensingModule
 import org.jglrxavpok.moarboats.common.network.C18ChangeDispenserFacing
 import org.jglrxavpok.moarboats.common.network.C9ChangeDispenserPeriod
 
 class GuiDispenserModule(inventoryPlayer: InventoryPlayer, module: BoatModule, boat: IControllable): GuiModuleBase(module, boat, inventoryPlayer, ContainerDispenserModule(inventoryPlayer, module, boat), isLarge = true) {
     override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/dispenser.png")
 
+    private val dispensingModule = module as DispensingModule
     private val sliderPrefix = TextComponentTranslation("gui.dispenser.period.prefix")
     private val sliderSuffix = TextComponentTranslation("gui.dispenser.period.suffix")
     private val topRowText = TextComponentTranslation("gui.dispenser.top_row")
@@ -44,7 +46,7 @@ class GuiDispenserModule(inventoryPlayer: InventoryPlayer, module: BoatModule, b
         super.initGui()
         val sliderWidth = xSize-10
         periodSlider = GuiSlider(-1, guiLeft+xSize/2-sliderWidth/2, guiTop + 100, sliderWidth, 20, "${sliderPrefix.unformattedText} ", sliderSuffix.unformattedText, 1.0, 100.0, 0.0, true, true, sliderCallback)
-        periodSlider.value = DispenserModule.blockPeriodProperty[boat]
+        periodSlider.value = dispensingModule.blockPeriodProperty[boat]
         addButton(periodSlider)
 
         val yStart = guiTop + 35
