@@ -30,7 +30,7 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(world) {
 
     init {
         this.preventEntitySpawning = true
-        this.setSize(1.375f *2f, 0.5625f)
+        this.setSize(1.375f *1.5f, 0.5625f)
     }
 
     constructor(world: World, x: Double, y: Double, z: Double): this(world) {
@@ -41,6 +41,10 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(world) {
         this.prevPosX = x
         this.prevPosY = y
         this.prevPosZ = z
+    }
+
+    override fun getMountedYOffset(): Double {
+        return 0.0
     }
 
     override fun onUpdate() {
@@ -56,11 +60,15 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(world) {
         }
     }
 
+    override fun canBePushed(): Boolean {
+        return false
+    }
+
     // MoarBoats code
     override fun controlBoat() { /* NOP */ }
 
     override fun calculateAnchorPosition(linkType: Int): Vec3d {
-        val distanceFromCenter = (0.0625f * 17f * if(linkType == BasicBoatEntity.FrontLink) 1f else -1f) *2f
+        val distanceFromCenter = (0.0625f * 17f * if(linkType == BasicBoatEntity.FrontLink) 1f else -1f) *1.5f
         val anchorX = positionX + MathHelper.cos((yaw + 90f).toRadians()) * distanceFromCenter
         val anchorY = positionY + 0.0625f * 16f
         val anchorZ = positionZ + MathHelper.sin((yaw + 90f).toRadians()) * distanceFromCenter

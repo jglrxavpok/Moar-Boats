@@ -55,9 +55,11 @@ class RenderAnimalBoat(renderManager: RenderManager): Render<AnimalBoatEntity>(r
         if(boatEntity.hasLink(BasicBoatEntity.FrontLink)) {
             boatEntity.getLinkedTo(BasicBoatEntity.FrontLink)?.let {
                 GlStateManager.pushMatrix()
-                GlStateManager.translate(17f*2f, -4f, 0f)
+                GlStateManager.translate(17f, -4f, 0f)
+                GlStateManager.scale(1f/1.5f, 1f, 1f/1.5f)
                 renderActualLink(boatEntity, it, BasicBoatEntity.FrontLink, entityYaw)
                 bindTexture(RopeAnchorTextureLocation)
+                GlStateManager.scale(1.5f, 1f, 1.5f)
                 ropeAnchorModel.render(boatEntity, 0f, 0f, boatEntity.ticksExisted.toFloat(), 0f, 0f, 1f)
                 GlStateManager.popMatrix()
             }
@@ -67,9 +69,11 @@ class RenderAnimalBoat(renderManager: RenderManager): Render<AnimalBoatEntity>(r
         if(boatEntity.hasLink(BasicBoatEntity.BackLink)) {
             boatEntity.getLinkedTo(BasicBoatEntity.BackLink)?.let {
                 GlStateManager.pushMatrix()
-                GlStateManager.translate(-17f*2f, -4f, 0f)
+                GlStateManager.translate(-17f, -4f, 0f)
+                GlStateManager.scale(1f/1.5f, 1f, 1f/1.5f)
                 renderActualLink(boatEntity, it, BasicBoatEntity.BackLink, entityYaw)
                 bindTexture(RopeAnchorTextureLocation)
+                GlStateManager.scale(1.5f, 1f, 1.5f)
                 ropeAnchorModel.render(boatEntity, 0f, 0f, boatEntity.ticksExisted.toFloat(), 0f, 0f, 1f)
                 GlStateManager.popMatrix()
             }
@@ -100,7 +104,7 @@ class RenderAnimalBoat(renderManager: RenderManager): Render<AnimalBoatEntity>(r
 
     private fun setScale() {
         val scale = 0.0625f
-        GlStateManager.scale(scale, scale, scale)
+        GlStateManager.scale(scale*1.5f, scale, scale*1.5f)
         GlStateManager.scale(1.0f, -1.0f, 1.0f)
     }
 
