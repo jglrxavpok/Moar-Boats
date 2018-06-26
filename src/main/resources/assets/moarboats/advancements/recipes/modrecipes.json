@@ -7,7 +7,8 @@
       "moarboats:rope",
       "moarboats:seat",
       "moarboats:waterborne_conductor",
-      "moarboats:rudder"
+      "moarboats:rudder",
+      "moarboats:animal_boat"
     ]
   },
   "criteria": {
