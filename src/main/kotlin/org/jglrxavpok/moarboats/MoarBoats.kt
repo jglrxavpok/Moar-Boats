@@ -30,7 +30,7 @@ import org.jglrxavpok.moarboats.common.modules.*
 
 
 @Mod(modLanguageAdapter = "net.shadowfacts.forgelin.KotlinAdapter", modid = MoarBoats.ModID, dependencies = "required-after:forgelin;",
-        name = "Moar Boats", version = "2.0.0", updateJSON = "https://raw.githubusercontent.com/jglrxavpok/Moar-Boats/master/updateCheck.json")
+        name = "Moar Boats", version = "2.1.0.0", updateJSON = "https://raw.githubusercontent.com/jglrxavpok/Moar-Boats/master/updateCheck.json")
 object MoarBoats {
     const val ModID = "moarboats"
 
@@ -45,7 +45,7 @@ object MoarBoats {
 
     val CreativeTab = object: CreativeTabs("moarboats") {
         override fun getTabIconItem(): ItemStack {
-            return ItemStack(BaseBoatItem)
+            return ItemStack(ModularBoatItem)
         }
 
     }
@@ -68,6 +68,8 @@ object MoarBoats {
         BoatModuleRegistry.registerModule(SonarModule, Item.getItemFromBlock(MCBlocks.NOTEBLOCK))
         BoatModuleRegistry.registerModule(DispenserModule, Item.getItemFromBlock(MCBlocks.DISPENSER), { boat, module -> SimpleModuleInventory(3*5, "dispenser", boat, module) })
         BoatModuleRegistry.registerModule(DivingModule, DivingBottleItem)
+        BoatModuleRegistry.registerModule(RudderModule, RudderItem)
+        BoatModuleRegistry.registerModule(DropperModule, Item.getItemFromBlock(MCBlocks.DROPPER), { boat, module -> SimpleModuleInventory(3*5, "dropper", boat, module) })
         MinecraftForge.EVENT_BUS.register(this)
         MinecraftForge.EVENT_BUS.register(ItemEventHandler)
         proxy.preInit()

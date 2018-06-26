@@ -2,6 +2,8 @@ package org.jglrxavpok.moarboats.common.entities
 
 import net.minecraft.block.BlockDispenser
 import net.minecraft.block.state.IBlockState
+import net.minecraft.dispenser.IBehaviorDispenseItem
+import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Blocks
 import net.minecraft.inventory.IInventory
@@ -29,7 +31,7 @@ import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.api.BoatModuleInventory
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.ResourceLocationsSerializer
-import org.jglrxavpok.moarboats.common.items.BaseBoatItem
+import org.jglrxavpok.moarboats.common.items.ModularBoatItem
 import org.jglrxavpok.moarboats.common.modules.SeatModule
 import org.jglrxavpok.moarboats.common.network.S15ModuleData
 import org.jglrxavpok.moarboats.common.network.S16ModuleLocations
@@ -63,6 +65,8 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
      * Embedded TileEntityDispenser not to freak out the game engine when trying to dispense an item
      */
     private val embeddedDispenserTileEntity = TileEntityDispenser()
+    private var moduleDispenseFacing: EnumFacing = defaultFacing()
+    private var moduleDispensePosition = BlockPos.MutableBlockPos()
     private val itemHandler = InvWrapper(this)
 
     private val moduleInventories = hashMapOf<ResourceLocation, BoatModuleInventory>()
@@ -97,8 +101,10 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         acceleration = 0.0f
         modules.forEach { it.controlBoat(this) }
 
-        if(!blockedMovement) {
+        if(!blockedRotation) {
             this.rotationYaw += this.deltaRotation
+        }
+        if(!blockedMotion) {
             this.motionX += (MathHelper.sin(-this.rotationYaw * 0.017453292f) * acceleration).toDouble()
             this.motionZ += (MathHelper.cos(this.rotationYaw * 0.017453292f) * acceleration).toDouble()
         }
@@ -231,15 +237,31 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         return module
     }
 
+    fun removeModule(location: ResourceLocation) {
+        if(location !in moduleLocations)
+            return
+        val module = BoatModuleRegistry[location].module
+        if(module === SeatModule) {
+            removePassengers()
+        }
+        dropItemsForModule(module, killedByPlayerInCreative = false)
+        moduleLocations.remove(location)
+        updateModuleLocations(sendUpdate = true)
+    }
+
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative) {
-            dropItem(BaseBoatItem, 1)
+            dropItem(ModularBoatItem, 1)
         }
         modules.forEach {
-            if(it.usesInventory)
-                InventoryHelper.dropInventoryItems(world, this, getInventory(it))
-            it.dropItemsOnDeath(this, killedByPlayerInCreative)
+            dropItemsForModule(it, killedByPlayerInCreative)
         }
+    }
+
+    private fun dropItemsForModule(module: BoatModule, killedByPlayerInCreative: Boolean) {
+        if(module.usesInventory)
+            InventoryHelper.dropInventoryItems(world, this, getInventory(module))
+        module.dropItemsOnDeath(this, killedByPlayerInCreative)
     }
 
     override fun isValidLiquidBlock(blockstate: IBlockState) = Fluids.isUsualLiquidBlock(blockstate)
@@ -248,6 +270,26 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         DamageSource.LAVA, DamageSource.IN_FIRE, DamageSource.ON_FIRE -> false
         is EntityDamageSourceIndirect -> false // avoid to kill yourself with your own arrows; also you are an *iron* boat, act like it
         else -> super.attackEntityFrom(source, amount)
+    }
+
+    private fun defaultFacing() = EnumFacing.fromAngle(180f - yaw.toDouble())
+
+    override fun dispense(behavior: IBehaviorDispenseItem, stack: ItemStack, overridePosition: BlockPos?, overrideFacing: EnumFacing?): ItemStack {
+        moduleDispenseFacing = when(overrideFacing) {
+            null -> defaultFacing()
+            EnumFacing.WEST, EnumFacing.EAST, EnumFacing.NORTH, EnumFacing.SOUTH -> reorientate(overrideFacing)
+            else -> overrideFacing
+        }
+        moduleDispensePosition.setPos(overridePosition ?: position)
+        return behavior.dispense(this, stack)
+    }
+
+    /**
+     * Takes into account the rotation of the boat
+     */
+    override fun reorientate(overrideFacing: EnumFacing): EnumFacing {
+        val angle = overrideFacing.horizontalAngle // default angle is 0 (SOUTH)
+        return EnumFacing.fromAngle(180f-(yaw.toDouble() + angle.toDouble()))
     }
 
     // === START OF INVENTORY CODE FOR INTERACTIONS WITH HOPPERS === //
@@ -344,16 +386,16 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         return embeddedDispenserTileEntity as T
     }
 
-    override fun getX() = posX
-    override fun getY() = posY
-    override fun getZ() = posZ
+    override fun getX() = moduleDispensePosition.x.toDouble()
+    override fun getY() = moduleDispensePosition.y.toDouble()
+    override fun getZ() = moduleDispensePosition.z.toDouble()
 
     override fun getBlockState(): IBlockState {
-        return Blocks.DISPENSER.defaultState.withProperty(BlockDispenser.FACING, EnumFacing.fromAngle(180f - yaw.toDouble()))
+        return Blocks.DISPENSER.defaultState.withProperty(BlockDispenser.FACING, moduleDispenseFacing)
     }
 
     override fun getBlockPos(): BlockPos {
-        return position
+        return moduleDispensePosition
     }
     // === Start of passengers code ===
 
@@ -363,6 +405,12 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
 
     override fun canRiderInteract(): Boolean {
         return true
+    }
+
+    override fun getControllingPassenger(): Entity? {
+        if(passengers.size >= 1)
+            return passengers[0]
+        return null
     }
 
     // === Start of Capability code ===

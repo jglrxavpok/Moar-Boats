@@ -1,8 +1,6 @@
 package org.jglrxavpok.moarboats.common.items
 
-import net.minecraft.creativetab.CreativeTabs
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.init.Blocks
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.stats.StatList
@@ -15,14 +13,39 @@ import net.minecraft.util.math.RayTraceResult
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
 import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.common.entities.AnimalBoatEntity
+import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
+import org.jglrxavpok.moarboats.extensions.Fluids
 
-object BaseBoatItem: Item() {
+object ModularBoatItem: BaseBoatItem() {
+
+    init {
+        unlocalizedName = "modular_boat"
+        registryName = ResourceLocation(MoarBoats.ModID, "modular_boat")
+    }
+
+    override fun createBoat(worldIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean): BasicBoatEntity {
+        return ModularBoatEntity(worldIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z)
+    }
+}
+
+object AnimalBoatItem: BaseBoatItem() {
+
+    init {
+        unlocalizedName = "animal_boat"
+        registryName = ResourceLocation(MoarBoats.ModID, "animal_boat")
+    }
+
+    override fun createBoat(worldIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean): BasicBoatEntity {
+        return AnimalBoatEntity(worldIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z)
+    }
+}
+
+abstract class BaseBoatItem: Item() {
 
     init {
         creativeTab = MoarBoats.CreativeTab
-        unlocalizedName = "modular_boat"
-        registryName = ResourceLocation(MoarBoats.ModID, "modular_boat")
     }
 
     override fun onItemRightClick(worldIn: World, playerIn: EntityPlayer, handIn: EnumHand): ActionResult<ItemStack> {
@@ -61,9 +84,9 @@ object BaseBoatItem: Item() {
             } else if (raytraceresult.typeOfHit != RayTraceResult.Type.BLOCK) {
                 return ActionResult(EnumActionResult.PASS, itemstack)
             } else {
-                val block = worldIn.getBlockState(raytraceresult.blockPos).block
-                val flag1 = block === Blocks.WATER || block === Blocks.FLOWING_WATER
-                val entityboat = ModularBoatEntity(worldIn, raytraceresult.hitVec.x, if (flag1) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z)
+                val block = worldIn.getBlockState(raytraceresult.blockPos)
+                val inUsualFluid = Fluids.isUsualLiquidBlock(block)
+                val entityboat = createBoat(worldIn, raytraceresult, inUsualFluid)
                 entityboat.rotationYaw = playerIn.rotationYaw
 
                 return if (!worldIn.getCollisionBoxes(entityboat, entityboat.entityBoundingBox.grow(-0.1)).isEmpty()) {
@@ -83,4 +106,6 @@ object BaseBoatItem: Item() {
             }
         }
     }
+
+    abstract fun createBoat(worldIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean): BasicBoatEntity
 }

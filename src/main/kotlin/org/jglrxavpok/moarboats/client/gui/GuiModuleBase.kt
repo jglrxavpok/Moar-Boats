@@ -15,6 +15,7 @@ import org.jglrxavpok.moarboats.common.network.C0OpenModuleGui
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.api.IControllable
+import org.jglrxavpok.moarboats.common.network.C17RemoveModule
 
 abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, val playerInventory: InventoryPlayer, val container: Container, val isLarge: Boolean = false): GuiContainer(container) {
 
@@ -52,9 +53,21 @@ abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, va
     }
 
     override fun mouseClicked(mouseX: Int, mouseY: Int, mouseButton: Int) {
-        if(mouseButton != 0 || !attemptTabChange(mouseX, mouseY)) {
+        if(mouseButton != 0 || (!attemptTabChange(mouseX, mouseY) && !attemptModuleRemoval(mouseX, mouseY))) {
             super.mouseClicked(mouseX, mouseY, mouseButton)
         }
+    }
+
+    fun attemptModuleRemoval(mouseX: Int, mouseY: Int): Boolean {
+        val hoveredTabIndex = tabs.indexOfFirst { it.isMouseOn(mouseX - 26+4, mouseY) }
+        if(hoveredTabIndex != -1) {
+            if(tabs[hoveredTabIndex].tabModule == module) {
+                mc.soundHandler.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 0.5f))
+                MoarBoats.network.sendToServer(C17RemoveModule(boat.entityID, module.id))
+                return true
+            }
+        }
+        return false
     }
 
     fun attemptTabChange(mouseX: Int, mouseY: Int): Boolean {
@@ -117,6 +130,10 @@ abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, va
             val selected = tabModule == module
             mc.textureManager.bindTexture(BACKGROUND_TEXTURE)
             drawTexturedModalRect(x, y, 176, if(selected) 3 else 30, 26, 26)
+
+            if(selected) {
+                drawTexturedModalRect(x+width - 4, y+5, 201, 8, 18, 17)
+            }
 
             zLevel = 100.0f
             itemRender.zLevel = 100.0f
