@@ -2,38 +2,43 @@ package org.jglrxavpok.moarboats.common.modules
 
 import net.minecraft.block.BlockDispenser
 import net.minecraft.client.gui.GuiScreen
+import net.minecraft.dispenser.BehaviorDefaultDispenseItem
 import net.minecraft.dispenser.IBehaviorDispenseItem
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Blocks
-import net.minecraft.init.SoundEvents
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
-import net.minecraft.util.SoundCategory
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
+import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiDispenserModule
 import org.jglrxavpok.moarboats.common.containers.ContainerDispenserModule
+import org.jglrxavpok.moarboats.common.modules.DispenserModule.getInventory
+import org.jglrxavpok.moarboats.common.state.ArrayBoatProperty
 import org.jglrxavpok.moarboats.common.state.BlockPosProperty
 import org.jglrxavpok.moarboats.common.state.DoubleBoatProperty
 import org.jglrxavpok.moarboats.extensions.Fluids
 import org.jglrxavpok.moarboats.extensions.use
 
-object DispenserModule: BoatModule() {
-    override val id = ResourceLocation(MoarBoats.ModID, "dispenser")
+abstract class DispensingModule: BoatModule() {
     override val usesInventory = true
     override val moduleSpot = Spot.Storage
 
     val blockPeriodProperty = DoubleBoatProperty("period")
     val lastDispensePositionProperty = BlockPosProperty("lastFire")
-    val BOAT_BEHIND = Vec3d(0.0, 0.0, 0.0625 * 25)
+    /**
+     * Starts with EnumFacing.SOUTH which is the default facing (behind the boat)
+     */
+    val facings = arrayOf(EnumFacing.SOUTH, EnumFacing.NORTH, EnumFacing.EAST, EnumFacing.WEST, EnumFacing.UP, EnumFacing.DOWN)
+    val facingProperty = ArrayBoatProperty("facing", facings)
 
     // Row indices
     val TOP = 1
@@ -60,31 +65,94 @@ object DispenserModule: BoatModule() {
         }
     }
 
-    private fun dispenseItem(row: Int, boat: IControllable) {
-        val pos = boat.localToWorld(BOAT_BEHIND)
+    abstract fun dispenseItem(row: Int, boat: IControllable)
+
+    protected fun firstValidStack(startIndex: Int, boat: IControllable): Pair<Int, ItemStack>? {
+        val inv = boat.getInventory()
+        return (0..4)
+                .map { offset -> inv.getStackInSlot(startIndex+offset) }
+                .filter { !it.isEmpty }
+                .mapIndexed { index, itemStack -> Pair(startIndex+index, itemStack) }
+                .firstOrNull { val item = it.second.item
+                    item is ItemBlock
+                            || BlockDispenser.DISPENSE_BEHAVIOR_REGISTRY.getObject(item) != IBehaviorDispenseItem.DEFAULT_BEHAVIOR
+                }
+    }
+
+    override fun onAddition(to: IControllable) {
+        blockPeriodProperty[to] = 1.0 // every block by default
+    }
+
+    fun changePeriod(boat: IControllable, period: Double) {
+        blockPeriodProperty[boat] = period
+    }
+
+    override fun createContainer(player: EntityPlayer, boat: IControllable) = ContainerDispenserModule(player.inventory, this, boat)
+
+    override fun createGui(player: EntityPlayer, boat: IControllable): GuiScreen {
+        return GuiDispenserModule(player.inventory, this, boat)
+    }
+
+    override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
+        if(!killedByPlayerInCreative)
+            boat.correspondingEntity.dropItem(BoatModuleRegistry.findEntry(this)!!.correspondingItem, 1)
+    }
+}
+
+object DropperModule: DispensingModule() {
+    override val id = ResourceLocation(MoarBoats.ModID, "dropper")
+
+    private val dropBehavior = BehaviorDefaultDispenseItem()
+
+    override fun dispenseItem(row: Int, boat: IControllable) {
+        val pos = boat.correspondingEntity.positionVector
+        val blockPos = BlockPos.PooledMutableBlockPos.retain(pos.x, pos.y+row + .75f, pos.z)
+        val inventoryRowStart = (-row)*5 +5
+        firstValidStack(inventoryRowStart, boat)?.let { (index, stack) ->
+            val resultingStack = boat.dispense(dropBehavior, stack, overridePosition = blockPos, overrideFacing = facingProperty[boat])
+            boat.getInventory().setInventorySlotContents(index, resultingStack)
+            boat.getInventory().syncToClient()
+        }
+        blockPos.release()
+    }
+}
+object DispenserModule: DispensingModule() {
+    override val id = ResourceLocation(MoarBoats.ModID, "dispenser")
+
+    override fun dispenseItem(row: Int, boat: IControllable) {
+        val pos = boat.correspondingEntity.positionVector
         val blockPos = BlockPos.PooledMutableBlockPos.retain(pos.x, pos.y+row + .75f, pos.z)
         val inventoryRowStart = (-row)*5 +5
         firstValidStack(inventoryRowStart, boat)?.let { (index, stack) ->
             val item = stack.item
             val world = boat.worldRef
-            when(item) {
-                is ItemBlock -> useItemBlock(item, world, stack, blockPos, boat)
-                else -> {
-                    val behavior = BlockDispenser.DISPENSE_BEHAVIOR_REGISTRY.getObject(item)
-                    val resultingStack = behavior.dispense(boat, stack)
-                    boat.getInventory().setInventorySlotContents(index, resultingStack)
+            val behavior = BlockDispenser.DISPENSE_BEHAVIOR_REGISTRY.getObject(item)
+            if(behavior.javaClass === BehaviorDefaultDispenseItem::class.java) {
+                if(item is ItemBlock) {
+                    useItemBlock(item, world, stack, blockPos, boat, row)
+                } else {
+                    dispenseWithDefaultBehavior(boat, behavior, stack, blockPos, index)
                 }
+            } else {
+                dispenseWithDefaultBehavior(boat, behavior, stack, blockPos, index)
             }
-            boat.getInventory().syncToClient()
         }
         blockPos.release()
     }
 
-    private fun useItemBlock(item: ItemBlock, world: World, stack: ItemStack, blockPos: BlockPos.PooledMutableBlockPos, boat: IControllable) {
+    private fun dispenseWithDefaultBehavior(boat: IControllable, behavior: IBehaviorDispenseItem, stack: ItemStack, blockPos: BlockPos, index: Int) {
+        val resultingStack = boat.dispense(behavior, stack, overridePosition = blockPos, overrideFacing = facingProperty[boat])
+        boat.getInventory().setInventorySlotContents(index, resultingStack)
+        boat.getInventory().syncToClient()
+    }
+
+    private fun useItemBlock(item: ItemBlock, world: World, stack: ItemStack, pos: BlockPos.PooledMutableBlockPos, boat: IControllable, row: Int) {
+        val facing = boat.reorientate(facingProperty[boat]).opposite
+        val blockPos = pos.offset(facing)
         val block = item.block
         val newState = block.getStateFromMeta(stack.metadata)
         if(world.isAirBlock(blockPos) || Fluids.isUsualLiquidBlock(world.getBlockState(blockPos))) {
-            if(world.mayPlace(block, blockPos, false, EnumFacing.fromAngle(boat.yaw.toDouble()), boat.correspondingEntity)) {
+            if(world.mayPlace(block, blockPos, false, facing.opposite, boat.correspondingEntity)) {
                 val succeeded = world.setBlockState(blockPos, newState, 11)
                 if (succeeded) {
                     try {
@@ -123,36 +191,5 @@ object DispenserModule: BoatModule() {
                 }
             }
         }
-    }
-
-    private fun firstValidStack(startIndex: Int, boat: IControllable): Pair<Int, ItemStack>? {
-        val inv = boat.getInventory()
-        return (0..4)
-                .map { offset -> inv.getStackInSlot(startIndex+offset) }
-                .filter { !it.isEmpty }
-                .mapIndexed { index, itemStack -> Pair(startIndex+index, itemStack) }
-                .firstOrNull { val item = it.second.item
-                    item is ItemBlock
-                            || BlockDispenser.DISPENSE_BEHAVIOR_REGISTRY.getObject(item) != IBehaviorDispenseItem.DEFAULT_BEHAVIOR
-                }
-    }
-
-    override fun onAddition(to: IControllable) {
-        blockPeriodProperty[to] = 1.0 // every block by default
-    }
-
-    fun changePeriod(boat: IControllable, period: Double) {
-        blockPeriodProperty[boat] = period
-    }
-
-    override fun createContainer(player: EntityPlayer, boat: IControllable) = ContainerDispenserModule(player.inventory, this, boat)
-
-    override fun createGui(player: EntityPlayer, boat: IControllable): GuiScreen {
-        return GuiDispenserModule(player.inventory, this, boat)
-    }
-
-    override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
-        if(!killedByPlayerInCreative)
-            boat.correspondingEntity.dropItem(ItemBlock.getItemFromBlock(Blocks.DISPENSER), 1)
     }
 }

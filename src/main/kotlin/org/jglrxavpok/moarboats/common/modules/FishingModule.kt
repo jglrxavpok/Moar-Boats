@@ -74,7 +74,7 @@ object FishingModule : BoatModule() {
 
             val lureSpeed = EnchantmentHelper.getFishingSpeedBonus(rodStack)
 
-            val randNumber = from.moduleRNG.nextInt((400 - lureSpeed*50)*3) / MBConfig.fishingSpeedMultiplier
+            val randNumber = from.moduleRNG.nextInt((400 - lureSpeed*50)*9) / MBConfig.fishingSpeedMultiplier
             if(randNumber <= 1f) {
                 val luck = EnchantmentHelper.getFishingLuckBonus(rodStack)
                 // catch fish

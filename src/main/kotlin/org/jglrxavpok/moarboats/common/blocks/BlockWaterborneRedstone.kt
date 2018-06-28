@@ -15,10 +15,10 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.items.WaterborneConductorItem
 import java.util.*
 
-val BlockPoweredWaterboneConductor = BlockWaterborneConductor(powered = true)
-val BlockUnpoweredWaterboneConductor = BlockWaterborneConductor(powered = false)
+object BlockPoweredWaterboneConductor : BlockWaterborneConductor(powered = true)
+object BlockUnpoweredWaterboneConductor : BlockWaterborneConductor(powered = false)
 
-class BlockWaterborneConductor(powered: Boolean): BlockRedstoneDiode(powered) {
+open class BlockWaterborneConductor(powered: Boolean): BlockRedstoneDiode(powered) {
     init {
         val id = "waterborne_redstone_${if(powered) "" else "un"}powered"
         registryName = ResourceLocation(MoarBoats.ModID, id)

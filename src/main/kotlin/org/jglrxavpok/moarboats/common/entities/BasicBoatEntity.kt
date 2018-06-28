@@ -7,9 +7,7 @@ import net.minecraft.block.state.IBlockState
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLeashKnot
 import net.minecraft.entity.MoverType
-import net.minecraft.entity.item.EntityBoat
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.init.Blocks
 import net.minecraft.init.Items
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
@@ -74,7 +72,8 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
     protected var acceleration = 0f
 
     var boatID: UUID = UUID.randomUUID()
-    protected var blockedMovement = false
+    protected var blockedRotation = false
+    protected var blockedMotion = false
     override var blockedReason: BlockReason = NoBlockReason
     override val worldRef: World
         get() = this.world
@@ -448,7 +447,9 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         }
         this.updateMotion()
 
-        blockedMovement = false
+        blockedReason = NoBlockReason
+        blockedMotion = false
+        blockedRotation = false
         if (canControlItself) {
             this.controlBoat()
         }
@@ -505,9 +506,14 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         acceleration -= 0.005f * multiplier
     }
 
-    override fun blockMovement(blockReason: BlockReason) {
-        blockedMovement = true
-        blockedReason = blockReason
+    override fun blockMovement(reason: BlockReason) {
+        if(reason.blocksRotation()) {
+            blockedRotation = true
+        }
+        if(reason.blocksSpeed()) {
+            blockedMotion = true
+        }
+        blockedReason = reason
     }
 
     abstract fun controlBoat()
@@ -801,6 +807,8 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
     }
 
     override fun processInitialInteract(player: EntityPlayer, hand: EnumHand): Boolean {
+        if(world.isRemote)
+            return true
         val itemstack = player.getHeldItem(hand)
         if(canStartRiding(player, itemstack, hand)) {
             if (!this.world.isRemote) {

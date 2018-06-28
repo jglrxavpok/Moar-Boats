@@ -78,3 +78,12 @@ gui.helm.path_editor=Edit path
 gui.engine.blocked.redstone=Blocked by redstone!
 gui.engine.blocked.unkown=Blocked by %s
 gui.engine.blocked.module=Blocked by
+
+# 2.1.0.0
+item.rudder.name=Rudder
+inventory.rudder.name=Rudder
+
+gui.dispenser.orientation=Orientation
+inventory.dropper.name=Dropper
+
+item.animal_boat.name=Animal Boat
