@@ -15,6 +15,7 @@ import org.jglrxavpok.moarboats.client.gui.GuiNoConfigModule
 import org.jglrxavpok.moarboats.common.containers.EmptyContainer
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.state.FloatBoatProperty
+import org.jglrxavpok.moarboats.extensions.getCenterForAllSides
 
 object IceBreakerModule: BoatModule() {
 
@@ -35,7 +36,7 @@ object IceBreakerModule: BoatModule() {
         val collidedBB = world.getCollisionBoxes(from.correspondingEntity, bb)
         val blockPos = BlockPos.PooledMutableBlockPos.retain()
         for(box in collidedBB) {
-            val center = box.center
+            val center = box.getCenterForAllSides()
             blockPos.setPos(center.x, center.y, center.z)
             val blockAtCenter = world.getBlockState(blockPos)
             if(blockAtCenter.block is BlockIce) {
