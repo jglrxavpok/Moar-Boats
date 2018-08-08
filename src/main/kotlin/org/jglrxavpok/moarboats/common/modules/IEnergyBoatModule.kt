@@ -15,7 +15,7 @@ interface IEnergyBoatModule {
             return 0
         val receivable = min(getMaxStorableEnergy(boat)-getCurrentEnergy(boat), amount)
         if(!simulate) {
-            energyProperty[boat] += amount
+            energyProperty[boat] += receivable
         }
         return receivable
     }
@@ -25,7 +25,7 @@ interface IEnergyBoatModule {
             return 0
         val extractable = min(getCurrentEnergy(boat), amount)
         if(!simulate) {
-            energyProperty[boat] -= amount
+            energyProperty[boat] -= extractable
         }
         return extractable
     }

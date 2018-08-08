@@ -23,6 +23,8 @@ import net.minecraft.world.World
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.common.capabilities.ICapabilityProvider
 import net.minecraftforge.common.util.Constants
+import net.minecraftforge.energy.CapabilityEnergy
+import net.minecraftforge.energy.IEnergyStorage
 import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.wrapper.InvWrapper
 import org.jglrxavpok.moarboats.MoarBoats
@@ -32,6 +34,7 @@ import org.jglrxavpok.moarboats.api.BoatModuleInventory
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.ResourceLocationsSerializer
 import org.jglrxavpok.moarboats.common.items.ModularBoatItem
+import org.jglrxavpok.moarboats.common.modules.IEnergyBoatModule
 import org.jglrxavpok.moarboats.common.modules.SeatModule
 import org.jglrxavpok.moarboats.common.network.S15ModuleData
 import org.jglrxavpok.moarboats.common.network.S16ModuleLocations
@@ -40,7 +43,7 @@ import org.jglrxavpok.moarboats.extensions.loadInventory
 import org.jglrxavpok.moarboats.extensions.saveInventory
 import java.util.*
 
-class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapabilityProvider {
+class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapabilityProvider, IEnergyStorage {
 
     private companion object {
         val MODULE_LOCATIONS = EntityDataManager.createKey(ModularBoatEntity::class.java, ResourceLocationsSerializer)
@@ -416,7 +419,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
     // === Start of Capability code ===
 
     override fun hasCapability(capability: Capability<*>, facing: EnumFacing?): Boolean {
-        if(capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
+        if(capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY || capability == CapabilityEnergy.ENERGY) {
             return true
         }
         return super.hasCapability(capability, facing)
@@ -426,6 +429,36 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         if(capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
             return itemHandler as T
         }
+        if(capability == CapabilityEnergy.ENERGY) {
+            return this as T
+        }
         return super.getCapability(capability, facing)
+    }
+
+    fun getEnergyModuleOrNull() = modules.filterIsInstance<IEnergyBoatModule>().firstOrNull()
+
+    // === Start of energy code ===
+    override fun canExtract(): Boolean {
+        return getEnergyModuleOrNull()?.canGiveEnergy(this) ?: false
+    }
+
+    override fun getMaxEnergyStored(): Int {
+        return getEnergyModuleOrNull()?.getMaxStorableEnergy(this) ?: 0
+    }
+
+    override fun getEnergyStored(): Int {
+        return getEnergyModuleOrNull()?.getCurrentEnergy(this) ?: 0
+    }
+
+    override fun extractEnergy(maxExtract: Int, simulate: Boolean): Int {
+        return getEnergyModuleOrNull()?.extractEnergy(this, maxExtract, simulate) ?: 0
+    }
+
+    override fun receiveEnergy(maxReceive: Int, simulate: Boolean): Int {
+        return getEnergyModuleOrNull()?.receiveEnergy(this, maxReceive, simulate) ?: 0
+    }
+
+    override fun canReceive(): Boolean {
+        return getEnergyModuleOrNull()?.canReceiveEnergy(this) ?: false
     }
 }

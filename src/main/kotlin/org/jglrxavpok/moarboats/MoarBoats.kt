@@ -20,6 +20,7 @@ import net.minecraft.util.ResourceLocation
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.config.Configuration
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper
+import net.minecraftforge.fml.common.registry.GameRegistry
 import net.minecraftforge.registries.ForgeRegistry
 import net.minecraftforge.registries.RegistryBuilder
 import org.jglrxavpok.moarboats.api.BoatModuleEntry
@@ -30,8 +31,12 @@ import org.jglrxavpok.moarboats.common.modules.inventories.SimpleModuleInventory
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.api.registerModule
 import org.jglrxavpok.moarboats.common.blocks.BlockBoatBattery
+import org.jglrxavpok.moarboats.common.blocks.BlockEnergyLoader
+import org.jglrxavpok.moarboats.common.blocks.BlockEnergyUnloader
 import org.jglrxavpok.moarboats.common.items.*
 import org.jglrxavpok.moarboats.common.modules.*
+import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergyLoader
+import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergyUnloader
 
 
 @Mod.EventBusSubscriber
@@ -106,6 +111,8 @@ object MoarBoats {
     @SubscribeEvent
     fun registerBlocks(e: RegistryEvent.Register<Block>) {
         e.registry.registerAll(*Blocks.list.toTypedArray())
+        GameRegistry.registerTileEntity(TileEntityEnergyUnloader::class.java, BlockEnergyUnloader.registryName)
+        GameRegistry.registerTileEntity(TileEntityEnergyLoader::class.java, BlockEnergyLoader.registryName)
     }
 
     @SubscribeEvent
