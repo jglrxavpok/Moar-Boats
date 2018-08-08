@@ -32,7 +32,7 @@ inventory.anchor.name=Ancre
 
 # 1.3.0
 inventory.solar_engine.name=Moteur solaire
-inventory.creative_engine.name=Moteur mode créatif
+inventory.creative_engine.name=Moteur pour bateaux: mode créatif
 item.creative_engine.name=Moteur mode Créatif
 gui.engine.powerSetting=Puissance
 gui.engine.power.max=Puissance maximale!
