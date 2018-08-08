@@ -87,3 +87,10 @@ gui.dispenser.orientation=Orientation
 inventory.dropper.name=Dropper
 
 item.animal_boat.name=Animal Boat
+
+# 3.0.0.0
+tile.boat_battery.name=Battery on Boat
+tile.boat_energy_charger.name=Boat Energy Charger
+tile.boat_energy_discharger.name=Boat Energy Discharger
+tile.boat_fluid_loader.name=Boat Fluid Loader
+tile.boat_fluid_unloader.name=Boat Fluid Unloader
