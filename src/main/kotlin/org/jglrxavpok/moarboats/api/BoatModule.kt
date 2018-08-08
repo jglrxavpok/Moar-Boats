@@ -9,6 +9,8 @@ import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.TextComponentTranslation
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
+import net.minecraftforge.registries.IForgeRegistry
+import net.minecraftforge.registries.IForgeRegistryEntry
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.containers.ContainerBase
 import java.util.*
@@ -53,27 +55,16 @@ abstract class BoatModule {
     open fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {}
 }
 
-data class BoatModuleEntry(val correspondingItem: Item, val module: BoatModule, val inventoryFactory: ((IControllable, BoatModule) -> BoatModuleInventory)?)
+class BoatModuleEntry(val correspondingItem: Item, val module: BoatModule, val inventoryFactory: ((IControllable, BoatModule) -> BoatModuleInventory)?): IForgeRegistryEntry.Impl<BoatModuleEntry>()
 
 object BoatModuleRegistry {
 
-    private val backingMap = hashMapOf<ResourceLocation, BoatModuleEntry>()
+    lateinit var forgeRegistry: IForgeRegistry<BoatModuleEntry>
 
-    fun registerModule(module: BoatModule, correspondingItem: Item, inventoryFactory: ((IControllable, BoatModule) -> BoatModuleInventory)? = null) {
-        registerModule(module.id, correspondingItem, module, inventoryFactory)
-    }
-
-    fun registerModule(name: ResourceLocation, correspondingItem: Item, module: BoatModule, inventoryFactory: ((IControllable, BoatModule) -> BoatModuleInventory)? = null) {
-        backingMap[name] = BoatModuleEntry(correspondingItem, module, inventoryFactory)
-        MoarBoats.logger.info("Registered module with ID $name")
-        if(module.usesInventory && inventoryFactory == null)
-            error("Module $module uses an inventory but no inventory factory was provided!")
-    }
-
-    operator fun get(location: ResourceLocation) = backingMap[location] ?: error("No module with ID $location")
+    operator fun get(location: ResourceLocation) = forgeRegistry.getValue(location) ?: error("No module with ID $location")
 
     fun findModule(heldItem: ItemStack): ResourceLocation? {
-        for((key, entry) in backingMap) {
+        for((key, entry) in forgeRegistry.entries) {
             if(entry.correspondingItem == heldItem.item)
                 return key
         }
@@ -81,7 +72,20 @@ object BoatModuleRegistry {
     }
 
     fun findEntry(module: BoatModule): BoatModuleEntry? {
-        return backingMap.values.find { it.module == module }
+        return forgeRegistry.valuesCollection.find { it.module == module }
     }
 
+}
+
+fun IForgeRegistry<BoatModuleEntry>.registerModule(module: BoatModule, correspondingItem: Item, inventoryFactory: ((IControllable, BoatModule) -> BoatModuleInventory)? = null) {
+    registerModule(module.id, correspondingItem, module, inventoryFactory)
+}
+
+fun IForgeRegistry<BoatModuleEntry>.registerModule(name: ResourceLocation, correspondingItem: Item, module: BoatModule, inventoryFactory: ((IControllable, BoatModule) -> BoatModuleInventory)? = null) {
+    val entry = BoatModuleEntry(correspondingItem, module, inventoryFactory)
+    entry.registryName = module.id
+    this.register(entry)
+    MoarBoats.logger.info("Registered module with ID $name")
+    if(module.usesInventory && inventoryFactory == null)
+        error("Module $module uses an inventory but no inventory factory was provided!")
 }

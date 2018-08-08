@@ -109,3 +109,7 @@ fun Quaternion.setLookAlong(dirX: Float, dirY: Float, dirZ: Float, upX: Float, u
             this.w * z + this.x * y - this.y * x + this.z * w,
             this.w * w - this.x * x - this.y * y - this.z * z)
 }
+
+// Forge Units
+val Int.k get() = this * 1000
+val Int.M get() = this * 1_000_000

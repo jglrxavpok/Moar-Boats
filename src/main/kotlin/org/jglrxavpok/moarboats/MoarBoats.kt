@@ -20,15 +20,21 @@ import net.minecraft.util.ResourceLocation
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.config.Configuration
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper
+import net.minecraftforge.registries.ForgeRegistry
+import net.minecraftforge.registries.RegistryBuilder
+import org.jglrxavpok.moarboats.api.BoatModuleEntry
 import org.jglrxavpok.moarboats.common.*
 import org.jglrxavpok.moarboats.common.modules.inventories.ChestModuleInventory
 import org.jglrxavpok.moarboats.common.modules.inventories.EngineModuleInventory
 import org.jglrxavpok.moarboats.common.modules.inventories.SimpleModuleInventory
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
+import org.jglrxavpok.moarboats.api.registerModule
+import org.jglrxavpok.moarboats.common.blocks.BlockBoatBattery
 import org.jglrxavpok.moarboats.common.items.*
 import org.jglrxavpok.moarboats.common.modules.*
 
 
+@Mod.EventBusSubscriber
 @Mod(modLanguageAdapter = "net.shadowfacts.forgelin.KotlinAdapter", modid = MoarBoats.ModID, dependencies = "required-after:forgelin;",
         name = "Moar Boats", version = "2.1.0.2", updateJSON = "https://raw.githubusercontent.com/jglrxavpok/Moar-Boats/master/updateCheck.json")
 object MoarBoats {
@@ -56,20 +62,6 @@ object MoarBoats {
         config = Configuration(event.suggestedConfigurationFile)
         MBConfig.backing = config
         MBConfig.loadAll()
-        BoatModuleRegistry.registerModule(ResourceLocation("moarboats:furnace_engine"), Item.getItemFromBlock(MCBlocks.FURNACE), FurnaceEngineModule, { boat, module -> EngineModuleInventory(boat, module) })
-        BoatModuleRegistry.registerModule(ResourceLocation("moarboats:chest"), Item.getItemFromBlock(MCBlocks.CHEST), ChestModule, { boat, module -> ChestModuleInventory(boat, module) })
-        BoatModuleRegistry.registerModule(ResourceLocation("moarboats:helm"), HelmItem, HelmModule, { boat, module -> SimpleModuleInventory(1, "helm", boat, module) })
-        BoatModuleRegistry.registerModule(ResourceLocation("moarboats:fishing"), MCItems.FISHING_ROD, FishingModule, { boat, module -> SimpleModuleInventory(1, "fishing", boat, module) })
-        BoatModuleRegistry.registerModule(SeatModule, SeatItem)
-        BoatModuleRegistry.registerModule(AnchorModule, Item.getItemFromBlock(MCBlocks.ANVIL))
-        BoatModuleRegistry.registerModule(SolarEngineModule, Item.getItemFromBlock(MCBlocks.DAYLIGHT_DETECTOR))
-        BoatModuleRegistry.registerModule(CreativeEngineModule, CreativeEngineItem)
-        BoatModuleRegistry.registerModule(IceBreakerModule, IceBreakerItem)
-        BoatModuleRegistry.registerModule(SonarModule, Item.getItemFromBlock(MCBlocks.NOTEBLOCK))
-        BoatModuleRegistry.registerModule(DispenserModule, Item.getItemFromBlock(MCBlocks.DISPENSER), { boat, module -> SimpleModuleInventory(3*5, "dispenser", boat, module) })
-        BoatModuleRegistry.registerModule(DivingModule, DivingBottleItem)
-        BoatModuleRegistry.registerModule(RudderModule, RudderItem)
-        BoatModuleRegistry.registerModule(DropperModule, Item.getItemFromBlock(MCBlocks.DROPPER), { boat, module -> SimpleModuleInventory(3*5, "dropper", boat, module) })
         MinecraftForge.EVENT_BUS.register(this)
         MinecraftForge.EVENT_BUS.register(ItemEventHandler)
         proxy.preInit()
@@ -80,6 +72,35 @@ object MoarBoats {
         proxy.init()
         DataSerializers.registerSerializer(ResourceLocationsSerializer)
         DataSerializers.registerSerializer(UniqueIDSerializer)
+    }
+
+    @JvmStatic
+    @SubscribeEvent
+    fun createRegistry(e: RegistryEvent.NewRegistry) {
+        BoatModuleRegistry.forgeRegistry = RegistryBuilder<BoatModuleEntry>()
+                .allowModification()
+                .setName(ResourceLocation(ModID, "module_registry"))
+                .setType(BoatModuleEntry::class.java)
+                .create()
+    }
+
+    @SubscribeEvent
+    fun registerModules(event: RegistryEvent.Register<BoatModuleEntry>) {
+        event.registry.registerModule(ResourceLocation("moarboats:furnace_engine"), Item.getItemFromBlock(MCBlocks.FURNACE), FurnaceEngineModule, { boat, module -> EngineModuleInventory(boat, module) })
+        event.registry.registerModule(ResourceLocation("moarboats:chest"), Item.getItemFromBlock(MCBlocks.CHEST), ChestModule, { boat, module -> ChestModuleInventory(boat, module) })
+        event.registry.registerModule(ResourceLocation("moarboats:helm"), HelmItem, HelmModule, { boat, module -> SimpleModuleInventory(1, "helm", boat, module) })
+        event.registry.registerModule(ResourceLocation("moarboats:fishing"), MCItems.FISHING_ROD, FishingModule, { boat, module -> SimpleModuleInventory(1, "fishing", boat, module) })
+        event.registry.registerModule(SeatModule, SeatItem)
+        event.registry.registerModule(AnchorModule, Item.getItemFromBlock(MCBlocks.ANVIL))
+        event.registry.registerModule(SolarEngineModule, Item.getItemFromBlock(MCBlocks.DAYLIGHT_DETECTOR))
+        event.registry.registerModule(CreativeEngineModule, CreativeEngineItem)
+        event.registry.registerModule(IceBreakerModule, IceBreakerItem)
+        event.registry.registerModule(SonarModule, Item.getItemFromBlock(MCBlocks.NOTEBLOCK))
+        event.registry.registerModule(DispenserModule, Item.getItemFromBlock(MCBlocks.DISPENSER), { boat, module -> SimpleModuleInventory(3*5, "dispenser", boat, module) })
+        event.registry.registerModule(DivingModule, DivingBottleItem)
+        event.registry.registerModule(RudderModule, RudderItem)
+        event.registry.registerModule(DropperModule, Item.getItemFromBlock(MCBlocks.DROPPER), { boat, module -> SimpleModuleInventory(3*5, "dropper", boat, module) })
+        event.registry.registerModule(BatteryModule, Item.getItemFromBlock(BlockBoatBattery))
     }
 
     @SubscribeEvent
