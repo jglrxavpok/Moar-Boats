@@ -94,3 +94,7 @@ tile.boat_energy_charger.name=Boat Energy Charger
 tile.boat_energy_discharger.name=Boat Energy Discharger
 tile.boat_fluid_loader.name=Boat Fluid Loader
 tile.boat_fluid_unloader.name=Boat Fluid Unloader
+
+moarboats.tile.waterborne_comparator.description=The increase of floatibility made the device only capable of counting items
+
+item.waterborne_comparator.name=Waterborne comparator
