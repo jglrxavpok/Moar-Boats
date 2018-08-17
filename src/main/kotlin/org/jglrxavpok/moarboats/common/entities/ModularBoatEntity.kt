@@ -25,6 +25,9 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider
 import net.minecraftforge.common.util.Constants
 import net.minecraftforge.energy.CapabilityEnergy
 import net.minecraftforge.energy.IEnergyStorage
+import net.minecraftforge.fluids.FluidStack
+import net.minecraftforge.fluids.capability.IFluidHandler
+import net.minecraftforge.fluids.capability.IFluidTankProperties
 import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.wrapper.InvWrapper
 import org.jglrxavpok.moarboats.MoarBoats
@@ -35,6 +38,7 @@ import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.ResourceLocationsSerializer
 import org.jglrxavpok.moarboats.common.items.ModularBoatItem
 import org.jglrxavpok.moarboats.common.modules.IEnergyBoatModule
+import org.jglrxavpok.moarboats.common.modules.IFluidBoatModule
 import org.jglrxavpok.moarboats.common.modules.SeatModule
 import org.jglrxavpok.moarboats.common.network.S15ModuleData
 import org.jglrxavpok.moarboats.common.network.S16ModuleLocations
@@ -43,7 +47,7 @@ import org.jglrxavpok.moarboats.extensions.loadInventory
 import org.jglrxavpok.moarboats.extensions.saveInventory
 import java.util.*
 
-class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapabilityProvider, IEnergyStorage {
+class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapabilityProvider, IEnergyStorage, IFluidHandler, IFluidTankProperties {
 
     private companion object {
         val MODULE_LOCATIONS = EntityDataManager.createKey(ModularBoatEntity::class.java, ResourceLocationsSerializer)
@@ -460,5 +464,47 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
 
     override fun canReceive(): Boolean {
         return getEnergyModuleOrNull()?.canReceiveEnergy(this) ?: false
+    }
+
+    // === Start of fluid code ===
+
+    fun getFluidModuleOrNull() = modules.filterIsInstance<IFluidBoatModule>().firstOrNull()
+
+    override fun drain(resource: FluidStack, doDrain: Boolean): FluidStack? {
+        return getFluidModuleOrNull()?.drain(this, resource, !doDrain)
+    }
+
+    override fun drain(maxDrain: Int, doDrain: Boolean): FluidStack? {
+        return getFluidModuleOrNull()?.drain(this, maxDrain, !doDrain)
+    }
+
+    override fun fill(resource: FluidStack, doFill: Boolean): Int {
+        return getFluidModuleOrNull()?.fill(this, resource, !doFill) ?: 0
+    }
+
+    override fun getTankProperties(): Array<IFluidTankProperties> = arrayOf(this)
+
+    override fun canDrainFluidType(fluidStack: FluidStack): Boolean {
+        return getFluidModuleOrNull()?.canBeDrained(this, fluidStack) ?: false
+    }
+
+    override fun getContents(): FluidStack? {
+        return getFluidModuleOrNull()?.getContents(this)
+    }
+
+    override fun canFillFluidType(fluidStack: FluidStack): Boolean {
+        return getFluidModuleOrNull()?.canBeFilled(this, fluidStack) ?: false
+    }
+
+    override fun getCapacity(): Int {
+        return getFluidModuleOrNull()?.getCapacity(this) ?: 0
+    }
+
+    override fun canFill(): Boolean {
+        return getFluidModuleOrNull()?.canBeFilled(this) ?: false
+    }
+
+    override fun canDrain(): Boolean {
+        return getFluidModuleOrNull()?.canBeDrained(this) ?: false
     }
 }

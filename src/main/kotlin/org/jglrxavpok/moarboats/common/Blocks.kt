@@ -6,5 +6,7 @@ import org.jglrxavpok.moarboats.common.blocks.*
 object Blocks {
 
     val list = listOf<Block>(BlockUnpoweredWaterborneConductor, BlockPoweredWaterborneConductor,
-            BlockBoatBattery, BlockEnergyLoader, BlockEnergyUnloader, BlockPoweredWaterborneComparator, BlockUnpoweredWaterborneComparator)
+            BlockBoatBattery, BlockEnergyLoader, BlockEnergyUnloader,
+            BlockPoweredWaterborneComparator, BlockUnpoweredWaterborneComparator, BlockBoatTank,
+            BlockFluidLoader, BlockFluidUnloader)
 }

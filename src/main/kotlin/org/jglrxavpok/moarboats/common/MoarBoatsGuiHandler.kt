@@ -84,4 +84,5 @@ object MoarBoatsGuiHandler: IGuiHandler {
     val ModulesGui: Int = 0
     val PathEditor: Int = 1
     val EnergyGui: Int = 2
+    val FluidGui: Int = 3
 }

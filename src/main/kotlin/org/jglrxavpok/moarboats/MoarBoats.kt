@@ -30,13 +30,13 @@ import org.jglrxavpok.moarboats.common.modules.inventories.EngineModuleInventory
 import org.jglrxavpok.moarboats.common.modules.inventories.SimpleModuleInventory
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.api.registerModule
-import org.jglrxavpok.moarboats.common.blocks.BlockBoatBattery
-import org.jglrxavpok.moarboats.common.blocks.BlockEnergyLoader
-import org.jglrxavpok.moarboats.common.blocks.BlockEnergyUnloader
+import org.jglrxavpok.moarboats.common.blocks.*
 import org.jglrxavpok.moarboats.common.items.*
 import org.jglrxavpok.moarboats.common.modules.*
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergyLoader
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergyUnloader
+import org.jglrxavpok.moarboats.common.tileentity.TileEntityFluidLoader
+import org.jglrxavpok.moarboats.common.tileentity.TileEntityFluidUnloader
 
 @Mod.EventBusSubscriber
 @Mod(modLanguageAdapter = "net.shadowfacts.forgelin.KotlinAdapter", modid = MoarBoats.ModID, dependencies = "required-after:forgelin;",
@@ -112,6 +112,8 @@ object MoarBoats {
         e.registry.registerAll(*Blocks.list.toTypedArray())
         GameRegistry.registerTileEntity(TileEntityEnergyUnloader::class.java, BlockEnergyUnloader.registryName)
         GameRegistry.registerTileEntity(TileEntityEnergyLoader::class.java, BlockEnergyLoader.registryName)
+        GameRegistry.registerTileEntity(TileEntityFluidUnloader::class.java, BlockFluidUnloader.registryName)
+        GameRegistry.registerTileEntity(TileEntityFluidLoader::class.java, BlockFluidLoader.registryName)
     }
 
     @SubscribeEvent
