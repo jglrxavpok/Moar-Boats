@@ -40,7 +40,7 @@ import org.jglrxavpok.moarboats.common.tileentity.TileEntityFluidUnloader
 
 @Mod.EventBusSubscriber
 @Mod(modLanguageAdapter = "net.shadowfacts.forgelin.KotlinAdapter", modid = MoarBoats.ModID, dependencies = "required-after:forgelin;",
-        name = "Moar Boats", version = "2.1.0.2", updateJSON = "https://raw.githubusercontent.com/jglrxavpok/Moar-Boats/master/updateCheck.json")
+        name = "Moar Boats", version = "3.0.0.0", updateJSON = "https://raw.githubusercontent.com/jglrxavpok/Moar-Boats/master/updateCheck.json")
 object MoarBoats {
     const val ModID = "moarboats"
 
@@ -105,6 +105,7 @@ object MoarBoats {
         event.registry.registerModule(RudderModule, RudderItem)
         event.registry.registerModule(DropperModule, Item.getItemFromBlock(MCBlocks.DROPPER), { boat, module -> SimpleModuleInventory(3*5, "dropper", boat, module) })
         event.registry.registerModule(BatteryModule, Item.getItemFromBlock(BlockBoatBattery))
+        event.registry.registerModule(FluidTankModule, Item.getItemFromBlock(BlockBoatTank))
     }
 
     @SubscribeEvent

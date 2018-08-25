@@ -93,3 +93,5 @@ tile.boat_energy_charger.name=Chargeur d'énergie pour bateaux
 tile.boat_energy_discharger.name=Déchargeur d'énergie pour bateaux
 tile.boat_fluid_loader.name=Chargeur de fluides pour bateaux
 tile.boat_fluid_unloader.name=Déchargeur de fluides pour bateaux
+
+moarboats.tank_level=%s$1 / %s$2 mB de %s$3

@@ -2,6 +2,8 @@ package org.jglrxavpok.moarboats.common.modules
 
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.init.Blocks
+import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemBucket
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
@@ -13,6 +15,7 @@ import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiTankModule
 import org.jglrxavpok.moarboats.common.MBConfig
+import org.jglrxavpok.moarboats.common.blocks.BlockBoatTank
 import org.jglrxavpok.moarboats.common.containers.ContainerBase
 import org.jglrxavpok.moarboats.common.containers.EmptyContainer
 import org.jglrxavpok.moarboats.common.state.IntBoatProperty
@@ -36,6 +39,7 @@ object FluidTankModule: BoatModule(), IFluidBoatModule {
                     val accepted = this.fill(from, potentialDrain, true)
                     if(accepted > 0) {
                         val drained = capability.drain(1000, true)!!
+                        player.setHeldItem(hand, capability.container)
                         this.fill(from, drained, false)
                     }
                     return true
@@ -74,4 +78,10 @@ object FluidTankModule: BoatModule(), IFluidBoatModule {
     override fun canBeFilled(boat: IControllable, fluidStack: FluidStack) = true
 
     override fun canBeDrained(boat: IControllable, fluidStack: FluidStack) = true
+
+    override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
+        if(!killedByPlayerInCreative)
+            boat.correspondingEntity.dropItem(ItemBlock.getItemFromBlock(BlockBoatTank), 1)
+    }
+
 }

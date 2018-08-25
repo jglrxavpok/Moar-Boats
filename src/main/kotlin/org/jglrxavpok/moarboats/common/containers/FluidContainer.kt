@@ -15,6 +15,7 @@ class FluidContainer(val te: TileEntityListenable, val fluidCapability: IFluidHa
 
     private var fluidAmount = -1
     private var fluidName = ""
+    private var fluidCapacity = 1
 
     init {
         te.addContainerListener(this)
@@ -26,24 +27,24 @@ class FluidContainer(val te: TileEntityListenable, val fluidCapability: IFluidHa
     }
 
     override fun detectAndSendChanges() {
+        super.detectAndSendChanges()
         if(player !is EntityPlayerMP)
             return
-        super.detectAndSendChanges()
         val teFluidName: String
         val teFluidAmount: Int
+        val teFluidCapacity: Int
         if(fluidCapability.tankProperties.isNotEmpty()) {
             teFluidName = fluidCapability.tankProperties[0].contents?.fluid?.name ?: ""
             teFluidAmount = fluidCapability.tankProperties[0].contents?.amount ?: 0
+            teFluidCapacity = fluidCapability.tankProperties[0].capacity
         } else {
             teFluidAmount = 0
+            teFluidCapacity = 1
             teFluidName = ""
         }
-        for(listener in listeners) {
-            if(fluidName != teFluidName || fluidAmount != teFluidAmount)
-                MoarBoats.network.sendTo(S19UpdateFluidGui(teFluidName, teFluidAmount), player)
-        }
+        MoarBoats.network.sendTo(S19UpdateFluidGui(teFluidName, teFluidAmount, teFluidCapacity), player)
         fluidAmount = teFluidAmount
         fluidName = teFluidName
+        fluidCapacity = teFluidCapacity
     }
-
 }

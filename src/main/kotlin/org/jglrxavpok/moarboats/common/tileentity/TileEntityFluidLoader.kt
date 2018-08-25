@@ -1,11 +1,14 @@
 package org.jglrxavpok.moarboats.common.tileentity
 
 import net.minecraft.entity.Entity
+import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.ITickable
 import net.minecraft.util.math.AxisAlignedBB
+import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.energy.CapabilityEnergy
 import net.minecraftforge.fluids.Fluid
+import net.minecraftforge.fluids.FluidRegistry
 import net.minecraftforge.fluids.FluidStack
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import net.minecraftforge.fluids.capability.IFluidHandler
@@ -24,8 +27,11 @@ class TileEntityFluidLoader: TileEntityListenable(), ITickable, IFluidHandler, I
             return
         updateListeners()
 
+        if(fluid == null)
+            return
+
         val aabb = AxisAlignedBB(pos.offset(blockFacing))
-        val entities = world.getEntitiesWithinAABB(Entity::class.java, aabb) { e -> e != null && e.hasCapability(CapabilityEnergy.ENERGY, null) }
+        val entities = world.getEntitiesWithinAABB(Entity::class.java, aabb) { e -> e != null && e.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null) }
 
         val totalFluidToSend = minOf(MBConfig.fluidLoaderSendAmount, fluidAmount)
         val entityCount = entities.size
@@ -35,9 +41,20 @@ class TileEntityFluidLoader: TileEntityListenable(), ITickable, IFluidHandler, I
         entities.forEach {
             val fluidCapa = it.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null)
             if(fluidCapa != null) {
-                drain(fluidCapa.fill(FluidStack(fluid, fluidToSendToASingleNeighbor), true), true)
+                forceDrain(fluidCapa.fill(FluidStack(fluid, fluidToSendToASingleNeighbor), true), true)
             }
         }
+    }
+
+    fun forceDrain(maxDrain: Int, doDrain: Boolean): FluidStack? {
+        if(fluid == null)
+            return null
+        val maxDrainable = minOf(maxDrain, fluidAmount)
+        if(doDrain) {
+            fluidAmount -= maxDrainable
+            markDirty()
+        }
+        return FluidStack(fluid, maxDrainable)
     }
 
     override fun drain(resource: FluidStack, doDrain: Boolean): FluidStack? {
@@ -53,15 +70,7 @@ class TileEntityFluidLoader: TileEntityListenable(), ITickable, IFluidHandler, I
     override fun drain(maxDrain: Int, doDrain: Boolean): FluidStack? {
         if(!canDrain())
             return null
-
-        if(fluid == null)
-            return null
-        val maxDrainable = minOf(maxDrain, fluidAmount)
-        if(doDrain) {
-            fluidAmount -= maxDrainable
-            markDirty()
-        }
-        return FluidStack(fluid, maxDrainable)
+        return forceDrain(maxDrain, doDrain)
     }
 
     override fun fill(resource: FluidStack, doFill: Boolean): Int {
@@ -76,7 +85,7 @@ class TileEntityFluidLoader: TileEntityListenable(), ITickable, IFluidHandler, I
             return 0
         }
         fluid = resource.fluid
-        val maxFillable = minOf(resource.amount, fluidAmount)
+        val maxFillable = minOf(resource.amount, capacity-fluidAmount)
         if(doFill) {
             fluidAmount += maxFillable
             markDirty()
@@ -111,4 +120,29 @@ class TileEntityFluidLoader: TileEntityListenable(), ITickable, IFluidHandler, I
     override fun canDrain(): Boolean {
         return false
     }
+
+    override fun hasCapability(capability: Capability<*>, facing: EnumFacing?): Boolean {
+        if(capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY)
+            return true
+        return super.hasCapability(capability, facing)
+    }
+
+    override fun <T : Any?> getCapability(capability: Capability<T>, facing: EnumFacing?): T? {
+        if(capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY)
+            return this as T
+        return super.getCapability(capability, facing)
+    }
+
+    override fun writeToNBT(compound: NBTTagCompound): NBTTagCompound {
+        compound.setInteger("fluidAmount", fluidAmount)
+        compound.setString("fluidName", fluid?.name ?: "")
+        return super.writeToNBT(compound)
+    }
+
+    override fun readFromNBT(compound: NBTTagCompound) {
+        super.readFromNBT(compound)
+        fluid = FluidRegistry.getFluid(compound.getString("fluidName"))
+        fluidAmount = compound.getInteger("fluidAmount")
+    }
+
 }

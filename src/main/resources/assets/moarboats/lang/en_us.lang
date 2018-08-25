@@ -98,3 +98,5 @@ tile.boat_fluid_unloader.name=Boat Fluid Unloader
 moarboats.tile.waterborne_comparator.description=The increase of floatibility made the device only capable of counting items
 
 item.waterborne_comparator.name=Waterborne comparator
+
+moarboats.tank_level=%1$s / %2$s mB of %3$s

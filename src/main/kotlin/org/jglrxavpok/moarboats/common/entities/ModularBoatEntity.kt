@@ -26,6 +26,7 @@ import net.minecraftforge.common.util.Constants
 import net.minecraftforge.energy.CapabilityEnergy
 import net.minecraftforge.energy.IEnergyStorage
 import net.minecraftforge.fluids.FluidStack
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import net.minecraftforge.fluids.capability.IFluidHandler
 import net.minecraftforge.fluids.capability.IFluidTankProperties
 import net.minecraftforge.items.CapabilityItemHandler
@@ -423,7 +424,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
     // === Start of Capability code ===
 
     override fun hasCapability(capability: Capability<*>, facing: EnumFacing?): Boolean {
-        if(capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY || capability == CapabilityEnergy.ENERGY) {
+        if(capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY || capability == CapabilityEnergy.ENERGY || capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY) {
             return true
         }
         return super.hasCapability(capability, facing)
@@ -434,6 +435,9 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
             return itemHandler as T
         }
         if(capability == CapabilityEnergy.ENERGY) {
+            return this as T
+        }
+        if(capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY) {
             return this as T
         }
         return super.getCapability(capability, facing)

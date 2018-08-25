@@ -14,20 +14,24 @@ import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 class S19UpdateFluidGui(): IMessage {
 
     var fluidAmount = 0
+    var fluidCapacity = 0
     var fluidName = ""
 
-    constructor(fluidName: String, fluidAmount: Int): this() {
+    constructor(fluidName: String, fluidAmount: Int, fluidCapacity: Int): this() {
         this.fluidName = fluidName
         this.fluidAmount = fluidAmount
+        this.fluidCapacity = fluidCapacity
     }
 
     override fun fromBytes(buf: ByteBuf) {
-        fluidName = ByteBufUtils.readUTF8String(buf)
         fluidAmount = buf.readInt()
+        fluidCapacity = buf.readInt()
+        fluidName = ByteBufUtils.readUTF8String(buf)
     }
 
     override fun toBytes(buf: ByteBuf) {
         buf.writeInt(fluidAmount)
+        buf.writeInt(fluidCapacity)
         ByteBufUtils.writeUTF8String(buf, fluidName)
     }
 
@@ -35,7 +39,7 @@ class S19UpdateFluidGui(): IMessage {
         override fun onMessage(message: S19UpdateFluidGui, ctx: MessageContext): IMessage? {
             val screen = Minecraft.getMinecraft().currentScreen
             if(screen is GuiFluid) {
-                screen.updateFluid(message.fluidName, message.fluidAmount)
+                screen.updateFluid(message.fluidName, message.fluidAmount, message.fluidCapacity)
             }
             return null
         }
