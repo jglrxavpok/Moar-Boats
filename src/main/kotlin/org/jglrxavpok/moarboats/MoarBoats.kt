@@ -6,6 +6,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
 import org.apache.logging.log4j.Logger
 import net.minecraft.block.Block
+import net.minecraft.client.renderer.color.ItemColors
 import net.minecraft.creativetab.CreativeTabs
 import net.minecraft.init.Items as MCItems
 import net.minecraft.init.Blocks as MCBlocks
@@ -15,6 +16,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
+import net.minecraft.item.crafting.CraftingManager
+import net.minecraft.item.crafting.IRecipe
 import net.minecraft.network.datasync.DataSerializers
 import net.minecraft.util.NonNullList
 import net.minecraft.util.ResourceLocation
@@ -22,6 +25,7 @@ import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.config.Configuration
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper
 import net.minecraftforge.fml.common.registry.GameRegistry
+import net.minecraftforge.registries.GameData
 import net.minecraftforge.registries.RegistryBuilder
 import org.jglrxavpok.moarboats.api.BoatModuleEntry
 import org.jglrxavpok.moarboats.common.*
@@ -139,5 +143,10 @@ object MoarBoats {
     @SubscribeEvent
     fun registerEntities(e: RegistryEvent.Register<EntityEntry>) {
         e.registry.registerAll(*EntityEntries.list.toTypedArray())
+    }
+
+    @SubscribeEvent
+    fun registerRecipes(e: RegistryEvent.Register<IRecipe>) {
+        e.registry.register(ModularBoatColoringRecipe)
     }
 }

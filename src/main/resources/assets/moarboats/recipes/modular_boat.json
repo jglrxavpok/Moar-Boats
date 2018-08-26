@@ -30,6 +30,7 @@
     ]
   },
   "result": {
-    "item": "moarboats:modular_boat"
+    "item": "moarboats:modular_boat",
+    "data": 0
   }
 }
