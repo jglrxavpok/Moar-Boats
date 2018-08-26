@@ -24,8 +24,8 @@ val Facing = PropertyEnum.create("facing", EnumFacing::class.java)
 object BlockEnergyUnloader: Block(Material.IRON) {
 
     init {
-        registryName = ResourceLocation(MoarBoats.ModID, "boat_energy_unloader")
-        unlocalizedName = "boat_energy_unloader"
+        registryName = ResourceLocation(MoarBoats.ModID, "boat_energy_discharger")
+        unlocalizedName = "boat_energy_discharger"
         setCreativeTab(MoarBoats.CreativeTab)
         defaultState = blockState.baseState.withProperty(Facing, EnumFacing.UP)
     }

@@ -101,3 +101,4 @@ moarboats.tile.waterborne_comparator.description=The increase of floatability ma
 item.waterborne_comparator.name=Waterborne comparator
 
 moarboats.tank_level=%1$s / %2$s mB of %3$s
+moarboats.only_usable_on_boat=Only usable on boats

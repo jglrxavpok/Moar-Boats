@@ -16,7 +16,6 @@ object TankModuleRenderer : BoatModuleRenderer() {
 
     init {
         registryName = FluidTankModule.id
-
     }
 
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, renderManager: RenderManager) {

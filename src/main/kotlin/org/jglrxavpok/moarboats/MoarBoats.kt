@@ -16,12 +16,12 @@ import net.minecraft.item.ItemBlock
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.network.datasync.DataSerializers
+import net.minecraft.util.NonNullList
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.config.Configuration
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper
 import net.minecraftforge.fml.common.registry.GameRegistry
-import net.minecraftforge.registries.ForgeRegistry
 import net.minecraftforge.registries.RegistryBuilder
 import org.jglrxavpok.moarboats.api.BoatModuleEntry
 import org.jglrxavpok.moarboats.common.*
@@ -58,6 +58,17 @@ object MoarBoats {
             return ItemStack(ModularBoatItem)
         }
 
+        override fun displayAllRelevantItems(itemList: NonNullList<ItemStack>) {
+            for(item in Items.list) {
+                item.getSubItems(this, itemList)
+            }
+            for(block in Blocks.list) {
+                val itemBlock = Item.getItemFromBlock(block)
+                if(itemBlock != MCItems.AIR) {
+                    itemBlock.getSubItems(this, itemList)
+                }
+            }
+        }
     }
 
     @Mod.EventHandler

@@ -21,8 +21,8 @@ import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergyLoader
 object BlockEnergyLoader: Block(Material.IRON) {
 
     init {
-        registryName = ResourceLocation(MoarBoats.ModID, "boat_energy_loader")
-        unlocalizedName = "boat_energy_loader"
+        registryName = ResourceLocation(MoarBoats.ModID, "boat_energy_charger")
+        unlocalizedName = "boat_energy_charger"
         setCreativeTab(MoarBoats.CreativeTab)
         defaultState = blockState.baseState.withProperty(Facing, EnumFacing.UP)
     }
