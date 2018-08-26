@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.common.entities
 
+import io.netty.buffer.ByteBuf
 import net.minecraft.block.BlockDispenser
 import net.minecraft.block.state.IBlockState
 import net.minecraft.dispenser.IBehaviorDispenseItem
@@ -8,6 +9,7 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Blocks
 import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.InventoryHelper
+import net.minecraft.item.EnumDyeColor
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
@@ -29,6 +31,7 @@ import net.minecraftforge.fluids.FluidStack
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import net.minecraftforge.fluids.capability.IFluidHandler
 import net.minecraftforge.fluids.capability.IFluidTankProperties
+import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData
 import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.wrapper.InvWrapper
 import org.jglrxavpok.moarboats.MoarBoats
@@ -48,7 +51,7 @@ import org.jglrxavpok.moarboats.extensions.loadInventory
 import org.jglrxavpok.moarboats.extensions.saveInventory
 import java.util.*
 
-class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapabilityProvider, IEnergyStorage, IFluidHandler, IFluidTankProperties {
+class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapabilityProvider, IEnergyStorage, IFluidHandler, IFluidTankProperties, IEntityAdditionalSpawnData {
 
     private companion object {
         val MODULE_LOCATIONS = EntityDataManager.createKey(ModularBoatEntity::class.java, ResourceLocationsSerializer)
@@ -79,12 +82,15 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
 
     private val moduleInventories = hashMapOf<ResourceLocation, BoatModuleInventory>()
 
+    var color = EnumDyeColor.WHITE // white by default
+        private set
+
     init {
         this.preventEntitySpawning = true
         this.setSize(1.375f, 0.5625f)
     }
 
-    constructor(world: World, x: Double, y: Double, z: Double): this(world) {
+    constructor(world: World, x: Double, y: Double, z: Double, color: EnumDyeColor): this(world) {
         this.setPosition(x, y, z)
         this.motionX = 0.0
         this.motionY = 0.0
@@ -92,6 +98,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         this.prevPosX = x
         this.prevPosY = y
         this.prevPosZ = z
+        this.color = color
     }
 
     /**
@@ -180,6 +187,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         }
         compound.setTag("modules", list)
         compound.setTag("state", moduleData)
+        compound.setString("color", color.dyeColorName)
     }
 
     override fun readEntityFromNBT(compound: NBTTagCompound) {
@@ -197,6 +205,13 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
             addModule(correspondingLocation, addedByNBT = true)
         }
         moduleRNG = Random(boatID.leastSignificantBits)
+        fun colorFromString(str: String): EnumDyeColor {
+            return EnumDyeColor.values().find { it.dyeColorName == str } ?: EnumDyeColor.WHITE
+        }
+        color = if(compound.hasKey("color"))
+            colorFromString(compound.getString("color"))
+        else
+            EnumDyeColor.WHITE
     }
 
     override fun saveState(module: BoatModule) {
@@ -511,4 +526,5 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
     override fun canDrain(): Boolean {
         return getFluidModuleOrNull()?.canBeDrained(this) ?: false
     }
+
 }

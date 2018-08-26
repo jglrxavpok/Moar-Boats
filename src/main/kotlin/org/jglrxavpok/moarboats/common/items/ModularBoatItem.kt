@@ -1,6 +1,7 @@
 package org.jglrxavpok.moarboats.common.items
 
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.item.EnumDyeColor
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.stats.StatList
@@ -25,8 +26,9 @@ object ModularBoatItem: BaseBoatItem() {
         registryName = ResourceLocation(MoarBoats.ModID, "modular_boat")
     }
 
-    override fun createBoat(worldIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean): BasicBoatEntity {
-        return ModularBoatEntity(worldIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z)
+    override fun createBoat(worldIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack): BasicBoatEntity {
+        val color = EnumDyeColor.values()[itemstack.metadata % EnumDyeColor.values().size] // TODO: use something else for 1.13
+        return ModularBoatEntity(worldIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z, color)
     }
 }
 
@@ -37,7 +39,7 @@ object AnimalBoatItem: BaseBoatItem() {
         registryName = ResourceLocation(MoarBoats.ModID, "animal_boat")
     }
 
-    override fun createBoat(worldIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean): BasicBoatEntity {
+    override fun createBoat(worldIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack): BasicBoatEntity {
         return AnimalBoatEntity(worldIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z)
     }
 }
@@ -86,7 +88,7 @@ abstract class BaseBoatItem: Item() {
             } else {
                 val block = worldIn.getBlockState(raytraceresult.blockPos)
                 val inUsualFluid = Fluids.isUsualLiquidBlock(block)
-                val entityboat = createBoat(worldIn, raytraceresult, inUsualFluid)
+                val entityboat = createBoat(worldIn, raytraceresult, inUsualFluid, itemstack)
                 entityboat.rotationYaw = playerIn.rotationYaw
 
                 return if (!worldIn.getCollisionBoxes(entityboat, entityboat.entityBoundingBox.grow(-0.1)).isEmpty()) {
@@ -107,6 +109,6 @@ abstract class BaseBoatItem: Item() {
         }
     }
 
-    abstract fun createBoat(worldIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean): BasicBoatEntity
+    abstract fun createBoat(worldIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack): BasicBoatEntity
 
 }
