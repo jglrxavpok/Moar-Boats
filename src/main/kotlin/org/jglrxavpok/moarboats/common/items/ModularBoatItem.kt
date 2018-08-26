@@ -108,4 +108,5 @@ abstract class BaseBoatItem: Item() {
     }
 
     abstract fun createBoat(worldIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean): BasicBoatEntity
+
 }

@@ -89,13 +89,14 @@ inventory.dropper.name=Dropper
 item.animal_boat.name=Animal Boat
 
 # 3.0.0.0
-tile.boat_battery.name=Battery on Boat
+tile.boat_battery.name=Boat Energy Battery
 tile.boat_energy_charger.name=Boat Energy Charger
 tile.boat_energy_discharger.name=Boat Energy Discharger
 tile.boat_fluid_loader.name=Boat Fluid Loader
 tile.boat_fluid_unloader.name=Boat Fluid Unloader
+tile.boat_tank.name=Boat Fluid Tank
 
-moarboats.tile.waterborne_comparator.description=The increase of floatibility made the device only capable of counting items
+moarboats.tile.waterborne_comparator.description=The increase of floatability made the device only capable of counting items
 
 item.waterborne_comparator.name=Waterborne comparator
 
