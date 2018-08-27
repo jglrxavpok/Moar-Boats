@@ -20,7 +20,7 @@ import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.IItemHandler
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
-import org.jglrxavpok.moarboats.common.items.WaterborneConductorItem
+import org.jglrxavpok.moarboats.common.items.WaterborneComparatorItem
 import java.util.*
 
 object BlockPoweredWaterborneComparator: BlockWaterborneComparator(true)
@@ -169,9 +169,9 @@ open class BlockWaterborneComparator(val powered: Boolean): BlockRedstoneDiode(p
         return getWeakPower(state, worldIn, pos, state.getValue(BlockHorizontal.FACING)) > 0
     }
 
-    override fun getItemDropped(state: IBlockState?, rand: Random?, fortune: Int) = WaterborneConductorItem
+    override fun getItemDropped(state: IBlockState?, rand: Random?, fortune: Int) = WaterborneComparatorItem
 
-    override fun getItem(worldIn: World?, pos: BlockPos?, state: IBlockState?) = ItemStack(WaterborneConductorItem, 1)
+    override fun getItem(worldIn: World?, pos: BlockPos?, state: IBlockState?) = ItemStack(WaterborneComparatorItem, 1)
 
     override fun getWeakChanges(world: IBlockAccess, pos: BlockPos): Boolean {
         return true

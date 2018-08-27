@@ -6,6 +6,8 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
 import org.apache.logging.log4j.Logger
 import net.minecraft.block.Block
+import net.minecraft.block.material.MapColor
+import net.minecraft.block.material.Material
 import net.minecraft.client.renderer.color.ItemColors
 import net.minecraft.creativetab.CreativeTabs
 import net.minecraft.init.Items as MCItems
@@ -56,6 +58,12 @@ object MoarBoats {
     val network = SimpleNetworkWrapper(ModID)
     lateinit var config: Configuration
         private set
+
+    val MachineMaterial = object: Material(MapColor.IRON) {
+        init {
+            setImmovableMobility()
+        }
+    }
 
     val CreativeTab = object: CreativeTabs("moarboats") {
         override fun getTabIconItem(): ItemStack {

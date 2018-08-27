@@ -8,6 +8,7 @@ import net.minecraft.block.state.BlockStateContainer
 import net.minecraft.block.state.IBlockState
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.item.Item
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumHand
@@ -18,14 +19,16 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergyLoader
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityFluidUnloader
+import java.util.*
 
-object BlockFluidUnloader: Block(Material.IRON) {
+object BlockFluidUnloader: Block(MoarBoats.MachineMaterial) {
 
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "boat_fluid_unloader")
         unlocalizedName = "boat_fluid_unloader"
         setCreativeTab(MoarBoats.CreativeTab)
         defaultState = blockState.baseState.withProperty(Facing, EnumFacing.UP)
+        setHardness(0.5f)
     }
 
     override fun createBlockState(): BlockStateContainer {
@@ -57,4 +60,5 @@ object BlockFluidUnloader: Block(Material.IRON) {
     override fun getMetaFromState(state: IBlockState): Int {
         return state.getValue(Facing).ordinal
     }
+
 }

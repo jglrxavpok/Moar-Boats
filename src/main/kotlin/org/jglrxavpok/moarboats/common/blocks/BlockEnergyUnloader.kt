@@ -21,13 +21,14 @@ import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergyUnloader
 
 val Facing = PropertyEnum.create("facing", EnumFacing::class.java)
 
-object BlockEnergyUnloader: Block(Material.IRON) {
+object BlockEnergyUnloader: Block(MoarBoats.MachineMaterial) {
 
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "boat_energy_discharger")
         unlocalizedName = "boat_energy_discharger"
         setCreativeTab(MoarBoats.CreativeTab)
         defaultState = blockState.baseState.withProperty(Facing, EnumFacing.UP)
+        setHardness(0.5f)
     }
 
     override fun createBlockState(): BlockStateContainer {

@@ -16,11 +16,12 @@ import net.minecraftforge.fml.relauncher.SideOnly
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.OnlyUsableOnBoats
 
-object BlockBoatTank: Block(Material.IRON) {
+object BlockBoatTank: Block(MoarBoats.MachineMaterial) {
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "boat_tank")
         unlocalizedName = "boat_tank"
         setCreativeTab(MoarBoats.CreativeTab)
+        setHardness(0.5f)
     }
 
     override fun isOpaqueCube(state: IBlockState?): Boolean {
@@ -39,4 +40,5 @@ object BlockBoatTank: Block(Material.IRON) {
         super.addInformation(stack, player, tooltip, advanced)
         tooltip.add(OnlyUsableOnBoats.unformattedText)
     }
+
 }

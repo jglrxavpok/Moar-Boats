@@ -21,13 +21,14 @@ import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergyLoader
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityFluidLoader
 
-object BlockFluidLoader: Block(Material.IRON) {
+object BlockFluidLoader: Block(MoarBoats.MachineMaterial) {
 
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "boat_fluid_loader")
         unlocalizedName = "boat_fluid_loader"
         setCreativeTab(MoarBoats.CreativeTab)
         defaultState = blockState.baseState.withProperty(Facing, EnumFacing.UP)
+        setHardness(0.5f)
     }
 
     override fun createBlockState(): BlockStateContainer {
@@ -59,4 +60,5 @@ object BlockFluidLoader: Block(Material.IRON) {
     override fun getMetaFromState(state: IBlockState): Int {
         return state.getValue(Facing).ordinal
     }
+
 }

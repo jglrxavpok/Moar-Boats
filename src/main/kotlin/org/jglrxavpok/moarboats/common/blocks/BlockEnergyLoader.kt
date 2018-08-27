@@ -18,13 +18,14 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergyLoader
 
-object BlockEnergyLoader: Block(Material.IRON) {
+object BlockEnergyLoader: Block(MoarBoats.MachineMaterial) {
 
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "boat_energy_charger")
         unlocalizedName = "boat_energy_charger"
         setCreativeTab(MoarBoats.CreativeTab)
         defaultState = blockState.baseState.withProperty(Facing, EnumFacing.UP)
+        setHardness(0.5f)
     }
 
     override fun createBlockState(): BlockStateContainer {
@@ -56,4 +57,5 @@ object BlockEnergyLoader: Block(Material.IRON) {
     override fun getMetaFromState(state: IBlockState): Int {
         return state.getValue(Facing).ordinal
     }
+
 }
