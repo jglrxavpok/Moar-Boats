@@ -1,19 +1,23 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "GGG",
-    "GRG",
-    "GGG"
+    "IGI",
+    "III"
   ],
   "key": {
-    "G": {
-      "item": "minecraft:glass_pane"
-    },
-    "R": {
-      "item": "minecraft:redstone"
-    }
+    "G": [
+      {
+        "item": "minecraft:glass_bottle"
+      }
+    ],
+    "I": [
+      {
+        "item": "minecraft:iron_ingot"
+      }
+    ]
   },
   "result": {
-    "item": "moarboats:boat_tank"
+    "item": "moarboats:boat_tank",
+    "count": 1
   }
 }
