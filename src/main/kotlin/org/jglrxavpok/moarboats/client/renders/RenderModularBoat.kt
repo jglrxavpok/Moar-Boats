@@ -41,7 +41,10 @@ class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>
         GlStateManager.enableRescaleNormal()
         setScale()
         model.noWater.showModel = false
+        val color = entity.color.colorComponentValues
+        GlStateManager.color(color[0], color[1], color[2])
         model.render(entity, 0f, 0f, entity.ticksExisted.toFloat(), 0f, 0f, 1f)
+        GlStateManager.color(1f, 1f, 1f)
         renderLink(entity, x, y, z, entityYaw, partialTicks)
         removeScale()
         entity.modules.forEach {

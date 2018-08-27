@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube",
+  "textures": {
+    "particle": "moarboats:blocks/fluid_io_bottom",
+    "down": "moarboats:blocks/fluid_io_bottom",
+    "up": "moarboats:blocks/fluid_io_top",
+    "north": "moarboats:blocks/fluid_loader_side",
+    "east": "moarboats:blocks/fluid_loader_side",
+    "south": "moarboats:blocks/fluid_loader_side",
+    "west": "moarboats:blocks/fluid_loader_side"
+  }
+}

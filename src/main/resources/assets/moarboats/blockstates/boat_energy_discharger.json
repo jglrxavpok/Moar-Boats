@@ -1,0 +1,32 @@
+{
+  "variants": {
+    "inventory": {
+      "model": "moarboats:energy_discharger"
+    },
+    "facing=down": {
+      "model": "moarboats:energy_discharger",
+      "x": 180
+    },
+    "facing=up": {
+      "model": "moarboats:energy_discharger"
+    },
+    "facing=north": {
+      "model": "moarboats:energy_discharger",
+      "x": 90
+    },
+    "facing=south": {
+      "model": "moarboats:energy_discharger",
+      "x": 270
+    },
+    "facing=west": {
+      "model": "moarboats:energy_discharger",
+      "x": 90,
+      "y": 270
+    },
+    "facing=east": {
+      "model": "moarboats:energy_discharger",
+      "x": 90,
+      "y": 90
+    }
+  }
+}

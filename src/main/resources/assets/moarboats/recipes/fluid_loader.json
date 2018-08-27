@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:dispenser"
+    },
+    {
+      "item": "moarboats:boat_tank"
+    }
+  ],
+  "result": {
+    "item": "moarboats:boat_fluid_loader"
+  }
+}

@@ -32,7 +32,7 @@ inventory.anchor.name=Ancre
 
 # 1.3.0
 inventory.solar_engine.name=Moteur solaire
-inventory.creative_engine.name=Moteur mode créatif
+inventory.creative_engine.name=Moteur pour bateaux: mode créatif
 item.creative_engine.name=Moteur mode Créatif
 gui.engine.powerSetting=Puissance
 gui.engine.power.max=Puissance maximale!
@@ -86,3 +86,12 @@ gui.dispenser.orientation=Orientation
 inventory.dropper.name=Dropper
 
 item.animal_boat.name=Bateau pour animaux
+
+# 3.0.0.0
+tile.boat_battery.name=Batterie sur bateau
+tile.boat_energy_charger.name=Chargeur d'énergie pour bateaux
+tile.boat_energy_discharger.name=Déchargeur d'énergie pour bateaux
+tile.boat_fluid_loader.name=Chargeur de fluides pour bateaux
+tile.boat_fluid_unloader.name=Déchargeur de fluides pour bateaux
+
+moarboats.tank_level=%s$1 / %s$2 mB de %s$3

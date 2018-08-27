@@ -32,7 +32,7 @@ inventory.anchor.name=Anchor module
 
 # 1.3.0
 inventory.solar_engine.name=Solar Engine
-inventory.creative_engine.name=Creative mode engine
+inventory.creative_engine.name=Creative mode boat engine
 item.creative_engine.name=Creative mode Engine
 gui.engine.powerSetting=Power setting
 gui.engine.power.max=Unlimited power!
@@ -87,3 +87,18 @@ gui.dispenser.orientation=Orientation
 inventory.dropper.name=Dropper
 
 item.animal_boat.name=Animal Boat
+
+# 3.0.0.0
+tile.boat_battery.name=Boat Energy Battery
+tile.boat_energy_charger.name=Boat Energy Charger
+tile.boat_energy_discharger.name=Boat Energy Discharger
+tile.boat_fluid_loader.name=Boat Fluid Loader
+tile.boat_fluid_unloader.name=Boat Fluid Unloader
+tile.boat_tank.name=Boat Fluid Tank
+
+moarboats.tile.waterborne_comparator.description=The increase of floatability made the device only capable of counting items
+
+item.waterborne_comparator.name=Waterborne comparator
+
+moarboats.tank_level=%1$s / %2$s mB of %3$s
+moarboats.only_usable_on_boat=Only usable on boats

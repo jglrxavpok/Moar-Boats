@@ -15,8 +15,8 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.items.WaterborneConductorItem
 import java.util.*
 
-object BlockPoweredWaterboneConductor : BlockWaterborneConductor(powered = true)
-object BlockUnpoweredWaterboneConductor : BlockWaterborneConductor(powered = false)
+object BlockPoweredWaterborneConductor : BlockWaterborneConductor(powered = true)
+object BlockUnpoweredWaterborneConductor : BlockWaterborneConductor(powered = false)
 
 open class BlockWaterborneConductor(powered: Boolean): BlockRedstoneDiode(powered) {
     init {
@@ -52,12 +52,22 @@ open class BlockWaterborneConductor(powered: Boolean): BlockRedstoneDiode(powere
 
     override fun getUnpoweredState(poweredState: IBlockState): IBlockState {
         val enumfacing = poweredState.getValue(FACING) as EnumFacing
-        return BlockUnpoweredWaterboneConductor.defaultState.withProperty(FACING, enumfacing)
+        return BlockUnpoweredWaterborneConductor.defaultState.withProperty(FACING, enumfacing)
     }
 
     override fun getPoweredState(unpoweredState: IBlockState): IBlockState {
         val enumfacing = unpoweredState.getValue(FACING) as EnumFacing
-        return BlockPoweredWaterboneConductor.defaultState.withProperty(FACING, enumfacing)
+        return BlockPoweredWaterborneConductor.defaultState.withProperty(FACING, enumfacing)
+    }
+
+    override fun getActiveSignal(worldIn: IBlockAccess, pos: BlockPos, state: IBlockState): Int {
+        if(worldIn is World) {
+            val behindSide = state.getValue(BlockHorizontal.FACING)
+            val posBehind = pos.offset(behindSide)
+            val behind = worldIn.getBlockState(posBehind)
+            return behind.getWeakPower(worldIn, posBehind, behindSide)
+        }
+        return 0
     }
 
     /**
@@ -102,8 +112,8 @@ open class BlockWaterborneConductor(powered: Boolean): BlockRedstoneDiode(powere
         super.onBlockAdded(worldIn, pos, state)
         if(shouldBePowered(worldIn, pos, state) != isRepeaterPowered) {
             when(!isRepeaterPowered) {
-                true -> worldIn.setBlockState(pos, BlockUnpoweredWaterboneConductor.defaultState.withProperty(BlockHorizontal.FACING, state.getValue(BlockHorizontal.FACING)))
-                false -> worldIn.setBlockState(pos, BlockPoweredWaterboneConductor.defaultState.withProperty(BlockHorizontal.FACING, state.getValue(BlockHorizontal.FACING)))
+                true -> worldIn.setBlockState(pos, BlockUnpoweredWaterborneConductor.defaultState.withProperty(BlockHorizontal.FACING, state.getValue(BlockHorizontal.FACING)))
+                false -> worldIn.setBlockState(pos, BlockPoweredWaterborneConductor.defaultState.withProperty(BlockHorizontal.FACING, state.getValue(BlockHorizontal.FACING)))
             }
             notifyNeighbors(worldIn, pos, state)
         }

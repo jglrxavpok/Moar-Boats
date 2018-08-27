@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.common.entities
 
+import io.netty.buffer.ByteBuf
 import net.minecraft.block.BlockDispenser
 import net.minecraft.block.state.IBlockState
 import net.minecraft.dispenser.IBehaviorDispenseItem
@@ -8,6 +9,7 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Blocks
 import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.InventoryHelper
+import net.minecraft.item.EnumDyeColor
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
@@ -23,6 +25,13 @@ import net.minecraft.world.World
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.common.capabilities.ICapabilityProvider
 import net.minecraftforge.common.util.Constants
+import net.minecraftforge.energy.CapabilityEnergy
+import net.minecraftforge.energy.IEnergyStorage
+import net.minecraftforge.fluids.FluidStack
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler
+import net.minecraftforge.fluids.capability.IFluidHandler
+import net.minecraftforge.fluids.capability.IFluidTankProperties
+import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData
 import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.wrapper.InvWrapper
 import org.jglrxavpok.moarboats.MoarBoats
@@ -32,6 +41,8 @@ import org.jglrxavpok.moarboats.api.BoatModuleInventory
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.ResourceLocationsSerializer
 import org.jglrxavpok.moarboats.common.items.ModularBoatItem
+import org.jglrxavpok.moarboats.common.modules.IEnergyBoatModule
+import org.jglrxavpok.moarboats.common.modules.IFluidBoatModule
 import org.jglrxavpok.moarboats.common.modules.SeatModule
 import org.jglrxavpok.moarboats.common.network.S15ModuleData
 import org.jglrxavpok.moarboats.common.network.S16ModuleLocations
@@ -40,7 +51,7 @@ import org.jglrxavpok.moarboats.extensions.loadInventory
 import org.jglrxavpok.moarboats.extensions.saveInventory
 import java.util.*
 
-class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapabilityProvider {
+class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapabilityProvider, IEnergyStorage, IFluidHandler, IFluidTankProperties, IEntityAdditionalSpawnData {
 
     private companion object {
         val MODULE_LOCATIONS = EntityDataManager.createKey(ModularBoatEntity::class.java, ResourceLocationsSerializer)
@@ -71,12 +82,15 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
 
     private val moduleInventories = hashMapOf<ResourceLocation, BoatModuleInventory>()
 
+    var color = EnumDyeColor.WHITE // white by default
+        private set
+
     init {
         this.preventEntitySpawning = true
         this.setSize(1.375f, 0.5625f)
     }
 
-    constructor(world: World, x: Double, y: Double, z: Double): this(world) {
+    constructor(world: World, x: Double, y: Double, z: Double, color: EnumDyeColor): this(world) {
         this.setPosition(x, y, z)
         this.motionX = 0.0
         this.motionY = 0.0
@@ -84,6 +98,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         this.prevPosX = x
         this.prevPosY = y
         this.prevPosZ = z
+        this.color = color
     }
 
     /**
@@ -172,6 +187,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         }
         compound.setTag("modules", list)
         compound.setTag("state", moduleData)
+        compound.setString("color", color.dyeColorName)
     }
 
     override fun readEntityFromNBT(compound: NBTTagCompound) {
@@ -189,6 +205,13 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
             addModule(correspondingLocation, addedByNBT = true)
         }
         moduleRNG = Random(boatID.leastSignificantBits)
+        fun colorFromString(str: String): EnumDyeColor {
+            return EnumDyeColor.values().find { it.dyeColorName == str } ?: EnumDyeColor.WHITE
+        }
+        color = if(compound.hasKey("color"))
+            colorFromString(compound.getString("color"))
+        else
+            EnumDyeColor.WHITE
     }
 
     override fun saveState(module: BoatModule) {
@@ -416,7 +439,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
     // === Start of Capability code ===
 
     override fun hasCapability(capability: Capability<*>, facing: EnumFacing?): Boolean {
-        if(capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
+        if(capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY || capability == CapabilityEnergy.ENERGY || capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY) {
             return true
         }
         return super.hasCapability(capability, facing)
@@ -426,6 +449,82 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         if(capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
             return itemHandler as T
         }
+        if(capability == CapabilityEnergy.ENERGY) {
+            return this as T
+        }
+        if(capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY) {
+            return this as T
+        }
         return super.getCapability(capability, facing)
     }
+
+    fun getEnergyModuleOrNull() = modules.filterIsInstance<IEnergyBoatModule>().firstOrNull()
+
+    // === Start of energy code ===
+    override fun canExtract(): Boolean {
+        return getEnergyModuleOrNull()?.canGiveEnergy(this) ?: false
+    }
+
+    override fun getMaxEnergyStored(): Int {
+        return getEnergyModuleOrNull()?.getMaxStorableEnergy(this) ?: 0
+    }
+
+    override fun getEnergyStored(): Int {
+        return getEnergyModuleOrNull()?.getCurrentEnergy(this) ?: 0
+    }
+
+    override fun extractEnergy(maxExtract: Int, simulate: Boolean): Int {
+        return getEnergyModuleOrNull()?.extractEnergy(this, maxExtract, simulate) ?: 0
+    }
+
+    override fun receiveEnergy(maxReceive: Int, simulate: Boolean): Int {
+        return getEnergyModuleOrNull()?.receiveEnergy(this, maxReceive, simulate) ?: 0
+    }
+
+    override fun canReceive(): Boolean {
+        return getEnergyModuleOrNull()?.canReceiveEnergy(this) ?: false
+    }
+
+    // === Start of fluid code ===
+
+    fun getFluidModuleOrNull() = modules.filterIsInstance<IFluidBoatModule>().firstOrNull()
+
+    override fun drain(resource: FluidStack, doDrain: Boolean): FluidStack? {
+        return getFluidModuleOrNull()?.drain(this, resource, !doDrain)
+    }
+
+    override fun drain(maxDrain: Int, doDrain: Boolean): FluidStack? {
+        return getFluidModuleOrNull()?.drain(this, maxDrain, !doDrain)
+    }
+
+    override fun fill(resource: FluidStack, doFill: Boolean): Int {
+        return getFluidModuleOrNull()?.fill(this, resource, !doFill) ?: 0
+    }
+
+    override fun getTankProperties(): Array<IFluidTankProperties> = arrayOf(this)
+
+    override fun canDrainFluidType(fluidStack: FluidStack): Boolean {
+        return getFluidModuleOrNull()?.canBeDrained(this, fluidStack) ?: false
+    }
+
+    override fun getContents(): FluidStack? {
+        return getFluidModuleOrNull()?.getContents(this)
+    }
+
+    override fun canFillFluidType(fluidStack: FluidStack): Boolean {
+        return getFluidModuleOrNull()?.canBeFilled(this, fluidStack) ?: false
+    }
+
+    override fun getCapacity(): Int {
+        return getFluidModuleOrNull()?.getCapacity(this) ?: 0
+    }
+
+    override fun canFill(): Boolean {
+        return getFluidModuleOrNull()?.canBeFilled(this) ?: false
+    }
+
+    override fun canDrain(): Boolean {
+        return getFluidModuleOrNull()?.canBeDrained(this) ?: false
+    }
+
 }

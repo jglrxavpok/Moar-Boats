@@ -4,7 +4,7 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.player.InventoryPlayer
 import net.minecraft.inventory.Container
 
-class EmptyContainer(playerInventory: InventoryPlayer, val isLarge: Boolean = false): ContainerBase(playerInventory) {
+open class EmptyContainer(playerInventory: InventoryPlayer, val isLarge: Boolean = false): ContainerBase(playerInventory) {
 
     init {
         addPlayerSlots(isLarge)

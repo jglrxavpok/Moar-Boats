@@ -47,6 +47,12 @@ class IntBoatProperty(module: BoatModule, id: String): BoatProperty<Int>(module,
     override val writeProperty = NBTTagCompound::setInteger
 }
 
+class StringBoatProperty(module: BoatModule, id: String): BoatProperty<String>(module, id) {
+    override val type = String::class.java
+    override val readProperty = NBTTagCompound::getString
+    override val writeProperty = NBTTagCompound::setString
+}
+
 class NBTListBoatProperty(module: BoatModule, id: String, val elementType: Int): BoatProperty<NBTTagList>(module, id) {
     override val type = NBTTagList::class.java
 
@@ -103,6 +109,7 @@ fun BoatModule.IntBoatProperty(id: String) = IntBoatProperty(this, id)
 fun BoatModule.BooleanBoatProperty(id: String) = BooleanBoatProperty(this, id)
 fun BoatModule.FloatBoatProperty(id: String) = FloatBoatProperty(this, id)
 fun BoatModule.DoubleBoatProperty(id: String) = DoubleBoatProperty(this, id)
+fun BoatModule.StringBoatProperty(id: String) = StringBoatProperty(this, id)
 fun BoatModule.BlockPosProperty(id: String) = BlockPosProperty(this, id)
 fun BoatModule.NBTListBoatProperty(id: String, elementType: Int) = NBTListBoatProperty(this, id, elementType)
 fun <T: Any> BoatModule.ArrayBoatProperty(id: String, array: Array<T>) = ArrayBoatProperty(this, id, array)

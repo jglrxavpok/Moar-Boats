@@ -2,13 +2,19 @@
   "parent": "moarboats:root",
   "rewards": {
     "recipes": [
-      "moarboats:modular_boat",
+      "moarboats:animal_boat",
+      "moarboats:battery",
+      "moarboats:boat_tank",
+      "moarboats:diving_bottle",
       "moarboats:helm",
+      "moarboats:icebreaker",
+      "moarboats:modular_boat",
       "moarboats:rope",
-      "moarboats:seat",
-      "moarboats:waterborne_conductor",
       "moarboats:rudder",
-      "moarboats:animal_boat"
+      "moarboats:seat",
+      "moarboats:waterborne_comparator",
+      "moarboats:waterborne_conductor",
+      "moarboats:modular_boat_coloring"
     ]
   },
   "criteria": {
