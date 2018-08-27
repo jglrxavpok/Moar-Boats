@@ -51,7 +51,7 @@ object ModularBoatColoringRecipe: IForgeRegistryEntry.Impl<IRecipe>(), IRecipe {
         return ItemStack.EMPTY
     }
 
-    override fun matches(inv: InventoryCrafting, worldIn: World): Boolean {
+    override fun matches(inv: InventoryCrafting, worldIn: World?): Boolean {
         var dyeColorIndex = -1
         var boatCount = 0
         var dyeCount = 0
