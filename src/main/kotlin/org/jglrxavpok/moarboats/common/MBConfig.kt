@@ -51,6 +51,11 @@ object MBConfig {
         get() = backing.getInt("capacity", "Fluid unloader", 5000, 1, Integer.MAX_VALUE,
                 "The total amount of fluid the fluid unloader can hold at once (in mB)")
 
+    val dispenserConfigMode: DispenserConfigMode
+        get() = DispenserConfigMode.valueOf(backing.getString("configMode", "Dispenser module", "disallow", "Choose to either allow select items or disallow select items", arrayOf("allow", "disallow")).toUpperCase())
+    val dispenserItems: Array<String>
+        get() = backing.getStringList("items", "Dispenser module", emptyArray<String>(), "List of item IDs to allow/disallow, must match '^([a-z_]+:)?([a-z_]+)(\\/\\d+)?\$' (domain:name/metadata with 'domain:' and 'metadata' optional)")
+
     fun loadAll() {
         backing.load()
 
@@ -66,9 +71,15 @@ object MBConfig {
         tankCapacity
         batteryMaxEnergy
 
+        dispenserConfigMode
+        dispenserItems
+
         // allows for defaults to be saved on first load
         backing.save()
     }
 
 
+    enum class DispenserConfigMode {
+        ALLOW, DISALLOW
+    }
 }

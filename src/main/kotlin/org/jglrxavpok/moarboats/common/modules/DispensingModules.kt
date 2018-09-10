@@ -20,6 +20,7 @@ import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiDispenserModule
+import org.jglrxavpok.moarboats.common.MBConfig
 import org.jglrxavpok.moarboats.common.containers.ContainerDispenserModule
 import org.jglrxavpok.moarboats.common.modules.DispenserModule.getInventory
 import org.jglrxavpok.moarboats.common.state.ArrayBoatProperty
@@ -27,6 +28,7 @@ import org.jglrxavpok.moarboats.common.state.BlockPosProperty
 import org.jglrxavpok.moarboats.common.state.DoubleBoatProperty
 import org.jglrxavpok.moarboats.extensions.Fluids
 import org.jglrxavpok.moarboats.extensions.use
+import java.util.regex.Pattern
 
 abstract class DispensingModule: BoatModule() {
     override val usesInventory = true
@@ -72,11 +74,42 @@ abstract class DispensingModule: BoatModule() {
         return (0..4)
                 .map { offset -> inv.getStackInSlot(startIndex+offset) }
                 .filter { !it.isEmpty }
+                .filter(this::isAllowed)
                 .mapIndexed { index, itemStack -> Pair(startIndex+index, itemStack) }
                 .firstOrNull { val item = it.second.item
                     item is ItemBlock
                             || BlockDispenser.DISPENSE_BEHAVIOR_REGISTRY.getObject(item) != IBehaviorDispenseItem.DEFAULT_BEHAVIOR
                 }
+    }
+
+    private val pattern = Pattern.compile("^([a-z_]+:)?([a-z_]+)(\\/\\d+)?$")
+
+    protected fun isAllowed(stack: ItemStack): Boolean {
+        val isInList = MBConfig.dispenserItems.any { id ->
+            val matcher = pattern.matcher(id.trim(' ', '\n', '\r', '\b', '\t'))
+            if(!matcher.matches())
+                return@any false
+            val domain = matcher.group(1)
+            val name = matcher.group(2)
+            val metadata = matcher.group(3)
+            if(metadata?.isNotEmpty() == true) {
+                if(metadata.drop(1).toInt() != stack.metadata)
+                    return@any false
+            }
+            val location =
+                    if(domain?.isNotEmpty() == true) {
+                        ResourceLocation(domain.dropLast(1), name)
+                    } else {
+                        ResourceLocation(name)
+                    }
+
+            location == stack.item.registryName
+        }
+        return when {
+            isInList && MBConfig.dispenserConfigMode == MBConfig.DispenserConfigMode.DISALLOW -> false
+            !isInList && MBConfig.dispenserConfigMode == MBConfig.DispenserConfigMode.ALLOW -> false
+            else -> true
+        }
     }
 
     override fun onAddition(to: IControllable) {
