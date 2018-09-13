@@ -102,3 +102,6 @@ item.waterborne_comparator.name=Waterborne comparator
 
 moarboats.tank_level=%1$s / %2$s mB of %3$s
 moarboats.only_usable_on_boat=Only usable on boats
+
+# 3.1.0.0
+moarboats.item_path.description=%s waypoints

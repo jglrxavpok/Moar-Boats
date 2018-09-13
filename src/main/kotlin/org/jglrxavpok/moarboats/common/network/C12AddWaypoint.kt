@@ -15,13 +15,11 @@ class C12AddWaypoint(): IMessage {
     var x: Int = 0
     var z: Int = 0
     var boatID: Int = 0
-    var mapID: String = ""
 
-    constructor(blockPos: BlockPos, boatID: Int, mapID: String): this() {
+    constructor(blockPos: BlockPos, boatID: Int): this() {
         x = blockPos.x
         z = blockPos.z
         this.boatID = boatID
-        this.mapID = mapID
     }
 
 
@@ -29,14 +27,12 @@ class C12AddWaypoint(): IMessage {
         x = buf.readInt()
         z = buf.readInt()
         boatID = buf.readInt()
-        mapID = ByteBufUtils.readUTF8String(buf)
     }
 
     override fun toBytes(buf: ByteBuf) {
         buf.writeInt(x)
         buf.writeInt(z)
         buf.writeInt(boatID)
-        ByteBufUtils.writeUTF8String(buf, mapID)
     }
 
     object Handler: IMessageHandler<C12AddWaypoint, IMessage> {

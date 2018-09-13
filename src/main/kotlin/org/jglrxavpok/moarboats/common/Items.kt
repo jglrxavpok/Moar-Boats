@@ -18,6 +18,8 @@ object Items {
             DivingBottleItem,
             WaterborneConductorItem,
             WaterborneComparatorItem,
-            CreativeEngineItem
+            CreativeEngineItem,
+            ItemGoldenItinerary,
+            ItemMapWithPath
     )
 }

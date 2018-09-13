@@ -8,14 +8,18 @@ import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import net.minecraftforge.fml.common.network.IGuiHandler
 import org.jglrxavpok.moarboats.client.gui.GuiEnergy
 import org.jglrxavpok.moarboats.client.gui.GuiFluid
+import org.jglrxavpok.moarboats.client.gui.GuiMappingTable
 import org.jglrxavpok.moarboats.client.gui.GuiPathEditor
+import org.jglrxavpok.moarboats.common.containers.ContainerMappingTable
 import org.jglrxavpok.moarboats.common.containers.EnergyContainer
 import org.jglrxavpok.moarboats.common.containers.FluidContainer
+import org.jglrxavpok.moarboats.common.data.BoatPathHolder
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 import org.jglrxavpok.moarboats.common.state.EmptyMapData
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergy
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityListenable
+import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 
 object MoarBoatsGuiHandler: IGuiHandler {
     override fun getClientGuiElement(ID: Int, player: EntityPlayer, world: World, x: Int, y: Int, z: Int): Any? {
@@ -36,7 +40,7 @@ object MoarBoatsGuiHandler: IGuiHandler {
                     if(stack.item is ItemMap) {
                         val mapData = HelmModule.mapDataCopyProperty[boat]
                         if(mapData != EmptyMapData) {
-                            GuiPathEditor(player, boat, mapData, "map_$id")
+                            GuiPathEditor(player, BoatPathHolder(boat), mapData, "map_$id")
                         } else {
                             null
                         }
@@ -65,6 +69,16 @@ object MoarBoatsGuiHandler: IGuiHandler {
                     te == null -> null
                     te is TileEntityListenable && te.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null) ->
                         GuiFluid(te, te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null)!!, player)
+                    else -> null
+                }
+            }
+            MappingTableGui -> {
+                val pos = BlockPos.PooledMutableBlockPos.retain(x, y, z)
+                val te = world.getTileEntity(pos)
+                pos.release()
+                when (te) {
+                    null -> null
+                    is TileEntityMappingTable -> GuiMappingTable(te, player.inventory)
                     else -> null
                 }
             }
@@ -103,6 +117,16 @@ object MoarBoatsGuiHandler: IGuiHandler {
                     else -> null
                 }
             }
+            MappingTableGui -> {
+                val pos = BlockPos.PooledMutableBlockPos.retain(x, y, z)
+                val te = world.getTileEntity(pos)
+                pos.release()
+                when (te) {
+                    null -> null
+                    is TileEntityMappingTable -> ContainerMappingTable(te, player.inventory)
+                    else -> null
+                }
+            }
             else -> null
         }
     }
@@ -111,4 +135,5 @@ object MoarBoatsGuiHandler: IGuiHandler {
     val PathEditor: Int = 1
     val EnergyGui: Int = 2
     val FluidGui: Int = 3
+    val MappingTableGui: Int = 4
 }

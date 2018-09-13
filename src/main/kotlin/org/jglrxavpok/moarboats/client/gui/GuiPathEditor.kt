@@ -23,6 +23,7 @@ import org.jglrxavpok.moarboats.client.gui.elements.GuiBinaryProperty
 import org.jglrxavpok.moarboats.client.gui.elements.GuiToolButton
 import org.jglrxavpok.moarboats.client.renders.HelmModuleRenderer
 import org.jglrxavpok.moarboats.common.data.MapImageStripe
+import org.jglrxavpok.moarboats.common.data.PathHolder
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 import org.jglrxavpok.moarboats.common.modules.HelmModule.StripeLength
 import org.jglrxavpok.moarboats.common.network.C10MapImageRequest
@@ -32,7 +33,7 @@ import org.jglrxavpok.moarboats.common.network.C14ChangeLoopingState
 import org.lwjgl.input.Mouse
 import org.lwjgl.opengl.GL11.*
 
-class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapData: MapData, val mapID: String): GuiScreen() {
+class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val mapData: MapData, val mapID: String): GuiScreen() {
 
     companion object {
         val maxZoom = 50f
@@ -133,7 +134,7 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
         refreshMapButton.x = width/2-refreshMapButton.width/2
         refreshMapButton.y = height-refreshMapButton.height-2
 
-        loopingButton.inFirstState = HelmModule.loopingProperty[boat]
+        loopingButton.inFirstState = pathHolder.pathLoops()
     }
 
     override fun actionPerformed(button: GuiButton) {
@@ -146,7 +147,7 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
             }
 
             loopingButton -> {
-                MoarBoats.network.sendToServer(C14ChangeLoopingState(loopingButton.inFirstState, boat.entityID))
+                pathHolder.setLoopingState(loopingButton.inFirstState)
             }
 
             in toolButtonList -> {
@@ -241,7 +242,7 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
         // render waypoints and path
         var distSq = 50.0*50.0
         var closestIndex = -1
-        val waypointsData = boat.getState(HelmModule).getTagList(HelmModule.waypointsProperty.id, Constants.NBT.TAG_COMPOUND)
+        val waypointsData = pathHolder.getWaypointNBTList()
         for((index, waypoint) in waypointsData.withIndex()) {
             waypoint as NBTTagCompound
             val blockX = waypoint.getInteger("x")
@@ -257,14 +258,14 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
             }
         }
         if(closestIndex >= 0) {
-            MoarBoats.network.sendToServer(C13RemoveWaypoint(closestIndex, boat.entityID))
+            pathHolder.removeWaypoint(closestIndex)
             mc.soundHandler.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 0.5f))
         }
     }
 
     private fun addWaypointOnMap(x: Double, y: Double) {
         val pos = pixelsToWorldCoords(x, y)
-        MoarBoats.network.sendToServer(C12AddWaypoint(pos, boat.entityID, mapID))
+        pathHolder.addWaypoint(pos)
         pos.release()
         mc.soundHandler.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 2.5f))
     }
@@ -389,7 +390,7 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
         glStencilFunc(GL_EQUAL, 1, 0xFF) // needs to have 1 in stencil buffer to be rendered
 
         // render waypoints and path
-        val waypointsData = boat.getState(HelmModule).getTagList(HelmModule.waypointsProperty.id, Constants.NBT.TAG_COMPOUND)
+        val waypointsData = pathHolder.getWaypointNBTList()
 
         val localMX = mouseX - x
         val localMY = mouseY - y
@@ -450,15 +451,19 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
 
         val iconScale = 0.5f
 
-        GlStateManager.pushMatrix()
-        GlStateManager.scale(iconScale, iconScale, 1f)
-        GlStateManager.translate(-8f, -8f, 0f)
-        val (boatPixelX, boatPixelZ) = worldCoordsToPixels(boat.blockPos.x, boat.blockPos.z)
-        val boatRenderX = boatPixelX/mapScreenSize*128.0
-        val boatRenderZ = boatPixelZ/mapScreenSize*128.0
-        mc.renderItem.renderItemAndEffectIntoGUI(HelmModuleRenderer.helmStack, (boatRenderX/iconScale).toInt(), (boatRenderZ/iconScale).toInt())
+        val blockPos = pathHolder.getHolderLocation()
+        if(blockPos != null) {
+            GlStateManager.pushMatrix()
+            GlStateManager.scale(iconScale, iconScale, 1f)
+            GlStateManager.translate(-8f, -8f, 0f)
+            val (boatPixelX, boatPixelZ) = worldCoordsToPixels(blockPos.x, blockPos.z)
+            val boatRenderX = boatPixelX/mapScreenSize*128.0
+            val boatRenderZ = boatPixelZ/mapScreenSize*128.0
+            mc.renderItem.renderItemAndEffectIntoGUI(HelmModuleRenderer.helmStack, (boatRenderX/iconScale).toInt(), (boatRenderZ/iconScale).toInt())
 
-        GlStateManager.popMatrix()
+            GlStateManager.popMatrix()
+        }
+
 
         glDisable(GL_STENCIL_TEST)
 
@@ -468,7 +473,7 @@ class GuiPathEditor(val player: EntityPlayer, val boat: IControllable, val mapDa
     override fun updateScreen() {
         super.updateScreen()
         if(!sentImageRequest) {
-            MoarBoats.network.sendToServer(C10MapImageRequest(mapID, boat.entityID, HelmModule.id))
+            pathHolder.sendWorldImageRequest(mapID)
             sentImageRequest = true
         }
 
