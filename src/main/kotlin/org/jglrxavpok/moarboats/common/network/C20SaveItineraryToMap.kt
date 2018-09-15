@@ -2,7 +2,6 @@ package org.jglrxavpok.moarboats.common.network
 
 import io.netty.buffer.ByteBuf
 import net.minecraft.init.Items
-import net.minecraft.util.EnumFacing
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
@@ -11,10 +10,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
-import org.jglrxavpok.moarboats.common.items.ItemGoldenItinerary
 import org.jglrxavpok.moarboats.common.items.ItemMapWithPath
-import org.jglrxavpok.moarboats.common.modules.DispenserModule
-import org.jglrxavpok.moarboats.common.modules.DispensingModule
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 
 class C20SaveItineraryToMap(): IMessage {

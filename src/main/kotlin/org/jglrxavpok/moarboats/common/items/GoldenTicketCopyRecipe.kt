@@ -1,6 +1,5 @@
 package org.jglrxavpok.moarboats.common.items
 
-import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.InventoryCrafting
 import net.minecraft.item.ItemStack
 import net.minecraft.item.crafting.IRecipe
@@ -8,12 +7,11 @@ import net.minecraft.util.ResourceLocation
 import net.minecraft.world.World
 import net.minecraftforge.registries.IForgeRegistryEntry
 import org.jglrxavpok.moarboats.MoarBoats
-import java.util.*
 
-object UpgradeToGoldenItineraryRecipe: IForgeRegistryEntry.Impl<IRecipe>(), IRecipe {
+object GoldenTicketCopyRecipe: IForgeRegistryEntry.Impl<IRecipe>(), IRecipe {
 
     init {
-        registryName = ResourceLocation(MoarBoats.ModID, "upgrade_to_golden_itinerary")
+        registryName = ResourceLocation(MoarBoats.ModID, "golden_itinerary")
     }
 
     override fun canFit(width: Int, height: Int): Boolean {
@@ -24,52 +22,44 @@ object UpgradeToGoldenItineraryRecipe: IForgeRegistryEntry.Impl<IRecipe>(), IRec
 
     override fun getCraftingResult(inv: InventoryCrafting): ItemStack {
         var emptyTickets = 0
-        var fullMaps = 0
-        var fullMap: ItemStack? = null
+        var fullTickets = 0
+        var fullTicket: ItemStack? = null
         for(i in 0 until inv.sizeInventory) {
             val stack = inv.getStackInSlot(i)
-            if(stack.item == ItemGoldenItinerary) {
-                if(ItemGoldenItinerary.isEmpty(stack)) {
+            if(stack.item == ItemGoldenTicket) {
+                if(ItemGoldenTicket.isEmpty(stack)) {
                     emptyTickets++
                 } else {
-                    return ItemStack.EMPTY
+                    fullTickets++
+                    fullTicket = stack
                 }
-            } else if(stack.item == ItemMapWithPath) {
-                fullMaps++
-                fullMap = stack
             } else if(!stack.isEmpty) {
                 return ItemStack.EMPTY
             }
         }
-        if(fullMaps == 1 && fullMap != null && emptyTickets >= 1) {
-            val stack = ItemGoldenItinerary.createStack(UUID.randomUUID().toString())
-            ItemGoldenItinerary.updateItinerary(stack, ItemMapWithPath, fullMap)
+        if(fullTickets == 1 && fullTicket != null && emptyTickets >= 1) {
+            val stack = ItemGoldenTicket.createStack(ItemGoldenTicket.getUUID(fullTicket).toString())
+            stack.count = emptyTickets+1
             return stack
         }
         return ItemStack.EMPTY
     }
 
     override fun matches(inv: InventoryCrafting, worldIn: World?): Boolean {
-        return matches(inv as IInventory, worldIn)
-    }
-
-    fun matches(inv: IInventory, worldIn: World?): Boolean {
         var emptyTickets = 0
-        var fullMaps = 0
+        var fullTickets = 0
         for(i in 0 until inv.sizeInventory) {
             val stack = inv.getStackInSlot(i)
-            if(stack.item == ItemGoldenItinerary) {
-                if(ItemGoldenItinerary.isEmpty(stack)) {
+            if(stack.item == ItemGoldenTicket) {
+                if(ItemGoldenTicket.isEmpty(stack)) {
                     emptyTickets++
                 } else {
-                    return false
+                    fullTickets++
                 }
-            } else if(stack.item == ItemMapWithPath) {
-                fullMaps++
             } else if(!stack.isEmpty) {
                 return false
             }
         }
-        return fullMaps == 1 && emptyTickets >= 1
+        return fullTickets == 1 && emptyTickets >= 1
     }
 }

@@ -1,8 +1,5 @@
 package org.jglrxavpok.moarboats.common
 
-import net.minecraft.item.ItemStack
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
-import net.minecraftforge.fml.common.gameevent.PlayerEvent
 import org.jglrxavpok.moarboats.common.items.*
 import net.minecraft.init.Items as MCItems
 
@@ -23,7 +20,7 @@ object Items {
             WaterborneConductorItem,
             WaterborneComparatorItem,
             CreativeEngineItem,
-            ItemGoldenItinerary,
+            ItemGoldenTicket,
             ItemMapWithPath
     )
 

@@ -57,7 +57,7 @@ object ItemMapWithPath: ItemPath() {
     }
 }
 
-object ItemGoldenItinerary: ItemPath() {
+object ItemGoldenTicket: ItemPath() {
 
     private val EmptyName = TextComponentTranslation(MoarBoats.ModID+".item.golden_ticket.name.empty")
 

@@ -20,7 +20,6 @@ import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.item.crafting.IRecipe
 import net.minecraft.network.datasync.DataSerializers
-import net.minecraft.server.MinecraftServer
 import net.minecraft.util.NonNullList
 import net.minecraft.util.ResourceLocation
 import net.minecraft.world.storage.MapStorage
@@ -41,10 +40,7 @@ import org.jglrxavpok.moarboats.api.registerModule
 import org.jglrxavpok.moarboats.common.blocks.*
 import org.jglrxavpok.moarboats.common.items.*
 import org.jglrxavpok.moarboats.common.modules.*
-import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergyLoader
-import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergyUnloader
-import org.jglrxavpok.moarboats.common.tileentity.TileEntityFluidLoader
-import org.jglrxavpok.moarboats.common.tileentity.TileEntityFluidUnloader
+import org.jglrxavpok.moarboats.common.tileentity.*
 
 @Mod.EventBusSubscriber
 @Mod(modLanguageAdapter = "net.shadowfacts.forgelin.KotlinAdapter", modid = MoarBoats.ModID, dependencies = "required-after:forgelin;",
@@ -140,6 +136,7 @@ object MoarBoats {
         GameRegistry.registerTileEntity(TileEntityEnergyLoader::class.java, BlockEnergyLoader.registryName)
         GameRegistry.registerTileEntity(TileEntityFluidUnloader::class.java, BlockFluidUnloader.registryName)
         GameRegistry.registerTileEntity(TileEntityFluidLoader::class.java, BlockFluidLoader.registryName)
+        GameRegistry.registerTileEntity(TileEntityMappingTable::class.java, BlockMappingTable.registryName)
     }
 
     @SubscribeEvent
@@ -158,8 +155,8 @@ object MoarBoats {
     @SubscribeEvent
     fun registerRecipes(e: RegistryEvent.Register<IRecipe>) {
         e.registry.register(ModularBoatColoringRecipe)
-        e.registry.register(GoldenItineraryCopyRecipe)
-        e.registry.register(UpgradeToGoldenItineraryRecipe)
+        e.registry.register(GoldenTicketCopyRecipe)
+        e.registry.register(UpgradeToGoldenTicketRecipe)
     }
 
     fun getLocalMapStorage(): MapStorage {
