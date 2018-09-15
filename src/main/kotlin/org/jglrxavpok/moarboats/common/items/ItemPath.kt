@@ -57,11 +57,11 @@ object ItemMapWithPath: ItemPath() {
 
 object ItemGoldenItinerary: ItemPath() {
 
-    private val EmptyName = TextComponentTranslation(MoarBoats.ModID+".item.golden_itinerary.name.empty")
+    private val EmptyName = TextComponentTranslation(MoarBoats.ModID+".item.golden_ticket.name.empty")
 
     init {
-        registryName = ResourceLocation(MoarBoats.ModID, "golden_itinerary")
-        unlocalizedName = "golden_itinerary"
+        registryName = ResourceLocation(MoarBoats.ModID, "golden_ticket")
+        unlocalizedName = "golden_ticket"
     }
 
     data class WaypointData(var uuid: String): WorldSavedData(uuid) {
