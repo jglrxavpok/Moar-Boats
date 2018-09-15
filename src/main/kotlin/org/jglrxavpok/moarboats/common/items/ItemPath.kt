@@ -64,6 +64,7 @@ object ItemGoldenItinerary: ItemPath() {
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "golden_ticket")
         unlocalizedName = "golden_ticket"
+        creativeTab = MoarBoats.CreativeTab
     }
 
     data class WaypointData(var uuid: String): WorldSavedData(uuid) {
@@ -76,13 +77,11 @@ object ItemGoldenItinerary: ItemPath() {
 
         override fun writeToNBT(compound: NBTTagCompound): NBTTagCompound {
             compound.setTag("${MoarBoats.ModID}.path", backingList)
-            compound.setUniqueId("${MoarBoats.ModID}.uuid", UUID.fromString(uuid))
             return compound
         }
 
         override fun readFromNBT(nbt: NBTTagCompound) {
             backingList = nbt.getTagList("${MoarBoats.ModID}.path", Constants.NBT.TAG_COMPOUND)
-            uuid = nbt.getUniqueId("${MoarBoats.ModID}.uuid").toString()
         }
 
     }
