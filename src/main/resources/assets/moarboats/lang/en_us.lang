@@ -105,3 +105,5 @@ moarboats.only_usable_on_boat=Only usable on boats
 
 # 3.1.0.0
 moarboats.item_path.description=%s waypoints
+moarboats.item.golden_itinerary.name.empty=Golden Itinerary (Empty)
+item.golden_itinerary.name=Golden Itinerary

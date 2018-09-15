@@ -21,6 +21,7 @@ import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.modules.HelmModule
+import org.jglrxavpok.moarboats.common.network.C20SaveItineraryToMap
 import org.jglrxavpok.moarboats.common.state.EmptyMapData
 import org.lwjgl.opengl.GL11
 
@@ -35,6 +36,7 @@ class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: 
     private val mapStack = ItemStack(Items.FILLED_MAP)
     private val editButtonText = TextComponentTranslation("gui.helm.path_editor")
     private val mapEditButton = GuiButton(0, 0, 0, editButtonText.unformattedText)
+    private val saveButton = GuiButton(1, 0, 0, editButtonText.unformattedText)
 
     init {
         shouldRenderInventoryName = false
@@ -46,11 +48,13 @@ class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: 
         mapEditButton.x = guiLeft + xSize/2 - mapEditButton.width/2
         mapEditButton.y = guiTop + (mapSize + 7).toInt()
         addButton(mapEditButton)
+        addButton(saveButton)
     }
 
     override fun actionPerformed(button: GuiButton) {
         when(button) {
             mapEditButton -> playerInventory.player.openGui(MoarBoats, MoarBoatsGuiHandler.PathEditor, boat.world, boat.entityID, 0, 0)
+            saveButton -> MoarBoats.network.sendToServer(C20SaveItineraryToMap(boat.entityID, HelmModule.id))
         }
     }
 

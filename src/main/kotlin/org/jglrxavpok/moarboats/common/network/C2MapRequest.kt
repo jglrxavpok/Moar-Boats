@@ -50,7 +50,7 @@ class C2MapRequest(): IMessage {
             mapdata.writeToNBT(packet.mapData)
             module as HelmModule
             module.receiveMapData(boat, mapdata)
-            return null
+            return packet
         }
     }
 }
