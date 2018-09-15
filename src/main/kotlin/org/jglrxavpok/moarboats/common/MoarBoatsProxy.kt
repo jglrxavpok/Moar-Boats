@@ -30,6 +30,7 @@ open class MoarBoatsProxy {
         MoarBoats.network.registerMessage(C18ChangeDispenserFacing.Handler, C18ChangeDispenserFacing::class.java, 18, Side.SERVER)
         MoarBoats.network.registerMessage(S19UpdateFluidGui.Handler, S19UpdateFluidGui::class.java, 19, Side.CLIENT)
         MoarBoats.network.registerMessage(C20SaveItineraryToMap.Handler, C20SaveItineraryToMap::class.java, 20, Side.SERVER)
+        MoarBoats.network.registerMessage(S21SetGoldenItinerary.Handler, S21SetGoldenItinerary::class.java, 21, Side.CLIENT)
     }
 
     open fun preInit() {

@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger
 import net.minecraft.block.Block
 import net.minecraft.block.material.MapColor
 import net.minecraft.block.material.Material
+import net.minecraft.client.Minecraft
 import net.minecraft.creativetab.CreativeTabs
 import net.minecraft.init.Items as MCItems
 import net.minecraft.init.Blocks as MCBlocks
@@ -19,12 +20,16 @@ import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.item.crafting.IRecipe
 import net.minecraft.network.datasync.DataSerializers
+import net.minecraft.server.MinecraftServer
 import net.minecraft.util.NonNullList
 import net.minecraft.util.ResourceLocation
+import net.minecraft.world.storage.MapStorage
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.config.Configuration
+import net.minecraftforge.fml.common.FMLCommonHandler
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper
 import net.minecraftforge.fml.common.registry.GameRegistry
+import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.registries.RegistryBuilder
 import org.jglrxavpok.moarboats.api.BoatModuleEntry
 import org.jglrxavpok.moarboats.common.*
@@ -155,5 +160,15 @@ object MoarBoats {
         e.registry.register(ModularBoatColoringRecipe)
         e.registry.register(GoldenItineraryCopyRecipe)
         e.registry.register(UpgradeToGoldenItineraryRecipe)
+    }
+
+    fun getLocalMapStorage(): MapStorage {
+        val side = FMLCommonHandler.instance().side
+        return when {
+            side == Side.CLIENT && FMLCommonHandler.instance().minecraftServerInstance == null -> Minecraft.getMinecraft().world.mapStorage!!
+            side == Side.CLIENT && FMLCommonHandler.instance().minecraftServerInstance != null || side == Side.SERVER
+                        -> FMLCommonHandler.instance().minecraftServerInstance.getWorld(0).mapStorage!!
+            else -> throw RuntimeException("should not happen (side is null ?)")
+        }
     }
 }

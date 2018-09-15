@@ -12,7 +12,9 @@ import net.minecraft.world.storage.MapStorage
 import net.minecraft.world.storage.WorldSavedData
 import net.minecraftforge.common.util.Constants
 import net.minecraftforge.fml.common.FMLCommonHandler
+import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.common.network.S21SetGoldenItinerary
 import java.util.*
 
 abstract class ItemPath: Item() {
@@ -26,7 +28,7 @@ abstract class ItemPath: Item() {
     override fun addInformation(stack: ItemStack, worldIn: World?, tooltip: MutableList<String>, flagIn: ITooltipFlag) {
         super.addInformation(stack, worldIn, tooltip, flagIn)
         if(worldIn != null) {
-            val mapStorage: MapStorage = FMLCommonHandler.instance().minecraftServerInstance.getWorld(0).mapStorage!!
+            val mapStorage: MapStorage = MoarBoats.getLocalMapStorage()
             val list = getWaypointData(stack, mapStorage)
             tooltip.add(TextComponentTranslation(MoarBoats.ModID+".item_path.description", list.tagCount()).unformattedText)
         }
@@ -67,6 +69,10 @@ object ItemGoldenItinerary: ItemPath() {
     data class WaypointData(var uuid: String): WorldSavedData(uuid) {
 
         var backingList = NBTTagList()
+
+        override fun isDirty(): Boolean {
+            return true
+        }
 
         override fun writeToNBT(compound: NBTTagCompound): NBTTagCompound {
             compound.setTag("${MoarBoats.ModID}.path", backingList)
@@ -119,7 +125,7 @@ object ItemGoldenItinerary: ItemPath() {
     fun isEmpty(stack: ItemStack) = !stack.hasTagCompound() || stack.getSubCompound("${MoarBoats.ModID}.path") == null
 
     fun updateItinerary(stack: ItemStack, map: ItemMapWithPath, mapStack: ItemStack) {
-        val mapStorage: MapStorage = FMLCommonHandler.instance().minecraftServerInstance.getWorld(0).mapStorage!!
+        val mapStorage: MapStorage = MoarBoats.getLocalMapStorage()
         updateItinerary(stack, map.getWaypointData(mapStack, mapStorage), mapStorage)
     }
 
@@ -128,5 +134,9 @@ object ItemGoldenItinerary: ItemPath() {
         val data = WaypointData(uuid)
         data.backingList = list
         mapStorage.setData(uuid, data)
+
+        if(FMLCommonHandler.instance().effectiveSide == Side.SERVER) {
+            MoarBoats.network.sendToAll(S21SetGoldenItinerary(data))
+        }
     }
 }
