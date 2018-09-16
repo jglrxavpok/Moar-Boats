@@ -147,6 +147,7 @@ object HelmModule: BoatModule(), BlockReason {
     fun addWaypoint(boat: IControllable, blockX: Int, blockZ: Int, renderX: Int, renderZ: Int) {
         val waypointsData = waypointsProperty[boat]
         val waypointNBT = NBTTagCompound()
+        waypointNBT.setString("name", "Waypoint ${waypointsData.tagCount()+1}")
         waypointNBT.setInteger("x", blockX)
         waypointNBT.setInteger("z", blockZ)
         waypointNBT.setInteger("renderX", renderX)
