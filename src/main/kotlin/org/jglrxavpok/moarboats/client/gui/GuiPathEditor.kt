@@ -33,12 +33,14 @@ import org.jglrxavpok.moarboats.common.network.C14ChangeLoopingState
 import org.lwjgl.input.Mouse
 import org.lwjgl.opengl.GL11.*
 
-class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val mapData: MapData, val mapID: String): GuiScreen() {
+class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val mapData: MapData): GuiScreen() {
 
     companion object {
         val maxZoom = 50f
         val minZoom = 1f
     }
+
+    val mapID = pathHolder.getBaseMapID()
 
     private var currentZoom = 1f
     private val mapScale = (1 shl mapData.scale.toInt())

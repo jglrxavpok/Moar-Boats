@@ -146,14 +146,18 @@ object HelmModule: BoatModule(), BlockReason {
 
     fun addWaypoint(boat: IControllable, blockX: Int, blockZ: Int, renderX: Int, renderZ: Int) {
         val waypointsData = waypointsProperty[boat]
+        addWaypointToList(waypointsData, blockX, blockZ)
+        waypointsProperty[boat] = waypointsData
+    }
+
+    fun addWaypointToList(waypointsData: NBTTagList, blockX: Int, blockZ: Int) {
         val waypointNBT = NBTTagCompound()
         waypointNBT.setString("name", "Waypoint ${waypointsData.tagCount()+1}")
         waypointNBT.setInteger("x", blockX)
         waypointNBT.setInteger("z", blockZ)
-        waypointNBT.setInteger("renderX", renderX)
-        waypointNBT.setInteger("renderZ", renderZ)
+      // FIXME  waypointNBT.setInteger("renderX", renderX)
+      //  waypointNBT.setInteger("renderZ", renderZ)
         waypointsData.appendTag(waypointNBT)
-        waypointsProperty[boat] = waypointsData
     }
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {

@@ -44,7 +44,7 @@ class C20SaveItineraryToMap(): IMessage {
             val list = module.waypointsProperty[boat].copy()
             val inv = boat.getInventory(module)
             if(inv.getStackInSlot(0).item == Items.FILLED_MAP) {
-                inv.setInventorySlotContents(0, ItemMapWithPath.createStack(list))
+                inv.setInventorySlotContents(0, ItemMapWithPath.createStack(list, module.loopingProperty[boat]))
             }
             return null
         }

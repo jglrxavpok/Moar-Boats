@@ -21,45 +21,31 @@ import kotlin.concurrent.thread
 class C10MapImageRequest(): IMessage {
 
     var mapName: String = ""
-    var boatID: Int = 0
-    var moduleLocation: ResourceLocation = ResourceLocation("moarboats:none")
 
-    constructor(name: String, boatID: Int, moduleLocation: ResourceLocation): this() {
+    constructor(name: String): this() {
         this.mapName = name
-        this.boatID = boatID
-        this.moduleLocation = moduleLocation
     }
 
     override fun fromBytes(buf: ByteBuf) {
         mapName = ByteBufUtils.readUTF8String(buf)
-        boatID = buf.readInt()
-        moduleLocation = ResourceLocation(ByteBufUtils.readUTF8String(buf))
     }
 
     override fun toBytes(buf: ByteBuf) {
         ByteBufUtils.writeUTF8String(buf, mapName)
-        buf.writeInt(boatID)
-        ByteBufUtils.writeUTF8String(buf, moduleLocation.toString())
     }
 
     object Handler: IMessageHandler<C10MapImageRequest, IMessage?> {
         override fun onMessage(message: C10MapImageRequest, ctx: MessageContext): IMessage? {
             val player = ctx.serverHandler.player
             val world = player.world
-            val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
-            val moduleLocation = message.moduleLocation
-            val module = BoatModuleRegistry[moduleLocation].module
-            val stack = boat.getInventory(module).getStackInSlot(0)
-            val item = stack.item as? ItemMap ?: error("Got request while there was no map!")
-            val mapName = message.mapName
-            val mapData = item.getMapData(stack, boat.worldRef)!!
+            val mapData = world.loadData(MapData::class.java, message.mapName) as MapData
             val size = (1 shl mapData.scale.toInt())*128
             val stripes = size/ StripeLength
 
             repeat(stripes) { index ->
                 thread {
                     val textureData = takeScreenshotOfMapArea(index, mapData, world)
-                    MoarBoats.network.sendTo(S11MapImageAnswer(mapName, index, textureData), player)
+                    MoarBoats.network.sendTo(S11MapImageAnswer(message.mapName, index, textureData), player)
                 }
             }
             return null

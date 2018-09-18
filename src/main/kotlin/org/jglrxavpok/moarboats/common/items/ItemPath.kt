@@ -48,10 +48,11 @@ object ItemMapWithPath: ItemPath() {
         return stack.tagCompound!!.getTagList("${MoarBoats.ModID}.path", Constants.NBT.TAG_COMPOUND)
     }
 
-    fun createStack(list: NBTTagList): ItemStack {
+    fun createStack(list: NBTTagList, loops: Boolean): ItemStack {
         val result = ItemStack(this)
         result.tagCompound = NBTTagCompound().apply {
             setTag("${MoarBoats.ModID}.path", list)
+            setBoolean("${MoarBoats.ModID}.loops", loops)
         }
         return result
     }
@@ -70,6 +71,8 @@ object ItemGoldenTicket: ItemPath() {
     data class WaypointData(var uuid: String): WorldSavedData(uuid) {
 
         var backingList = NBTTagList()
+        var loops = false
+        var mapID = ""
 
         override fun isDirty(): Boolean {
             return true
@@ -77,11 +80,15 @@ object ItemGoldenTicket: ItemPath() {
 
         override fun writeToNBT(compound: NBTTagCompound): NBTTagCompound {
             compound.setTag("${MoarBoats.ModID}.path", backingList)
+            compound.setBoolean("${MoarBoats.ModID}.loops", loops)
+            compound.setString("${MoarBoats.ModID}.mapID", mapID)
             return compound
         }
 
         override fun readFromNBT(nbt: NBTTagCompound) {
             backingList = nbt.getTagList("${MoarBoats.ModID}.path", Constants.NBT.TAG_COMPOUND)
+            loops = nbt.getBoolean("${MoarBoats.ModID}.loops")
+            mapID = nbt.getString("${MoarBoats.ModID}.mapID")
         }
 
     }
