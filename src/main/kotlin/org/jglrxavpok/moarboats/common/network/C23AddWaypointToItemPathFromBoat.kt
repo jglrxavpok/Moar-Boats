@@ -21,12 +21,12 @@ class C23AddWaypointToItemPathFromBoat: CxxAddWaypointToItemPath {
 
     override fun fromBytes(buf: ByteBuf) {
         super.fromBytes(buf)
-        buf.writeInt(boatID)
+        boatID = buf.readInt()
     }
 
     override fun toBytes(buf: ByteBuf) {
         super.toBytes(buf)
-        boatID = buf.readInt()
+        buf.writeInt(boatID)
     }
 
     object Handler: CxxAddWaypointToItemPath.Handler<C23AddWaypointToItemPathFromBoat, S25UpdateMapWithPathInBoat>() {

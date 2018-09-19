@@ -48,10 +48,11 @@ object ItemMapWithPath: ItemPath() {
         return stack.tagCompound!!.getTagList("${MoarBoats.ModID}.path", Constants.NBT.TAG_COMPOUND)
     }
 
-    fun createStack(list: NBTTagList, loops: Boolean): ItemStack {
+    fun createStack(list: NBTTagList, mapID: String, loops: Boolean): ItemStack {
         val result = ItemStack(this)
         result.tagCompound = NBTTagCompound().apply {
             setTag("${MoarBoats.ModID}.path", list)
+            setString("${MoarBoats.ModID}.mapID", mapID)
             setBoolean("${MoarBoats.ModID}.loops", loops)
         }
         return result

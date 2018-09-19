@@ -16,20 +16,12 @@ import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.text.TextComponentTranslation
 import net.minecraft.world.storage.MapData
-import net.minecraftforge.common.util.Constants
-import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.elements.GuiBinaryProperty
 import org.jglrxavpok.moarboats.client.gui.elements.GuiToolButton
 import org.jglrxavpok.moarboats.client.renders.HelmModuleRenderer
 import org.jglrxavpok.moarboats.common.data.MapImageStripe
 import org.jglrxavpok.moarboats.common.data.PathHolder
-import org.jglrxavpok.moarboats.common.modules.HelmModule
 import org.jglrxavpok.moarboats.common.modules.HelmModule.StripeLength
-import org.jglrxavpok.moarboats.common.network.C10MapImageRequest
-import org.jglrxavpok.moarboats.common.network.C12AddWaypoint
-import org.jglrxavpok.moarboats.common.network.C13RemoveWaypoint
-import org.jglrxavpok.moarboats.common.network.C14ChangeLoopingState
 import org.lwjgl.input.Mouse
 import org.lwjgl.opengl.GL11.*
 

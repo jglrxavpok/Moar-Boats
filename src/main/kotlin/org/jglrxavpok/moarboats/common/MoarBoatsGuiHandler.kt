@@ -4,8 +4,10 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemMap
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
+import net.minecraft.world.storage.MapData
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import net.minecraftforge.fml.common.network.IGuiHandler
+import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.gui.GuiEnergy
 import org.jglrxavpok.moarboats.client.gui.GuiFluid
 import org.jglrxavpok.moarboats.client.gui.GuiMappingTable
@@ -14,7 +16,9 @@ import org.jglrxavpok.moarboats.common.containers.ContainerMappingTable
 import org.jglrxavpok.moarboats.common.containers.EnergyContainer
 import org.jglrxavpok.moarboats.common.containers.FluidContainer
 import org.jglrxavpok.moarboats.common.data.BoatPathHolder
+import org.jglrxavpok.moarboats.common.data.MapWithPathHolder
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
+import org.jglrxavpok.moarboats.common.items.ItemMapWithPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 import org.jglrxavpok.moarboats.common.state.EmptyMapData
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergy
@@ -41,6 +45,15 @@ object MoarBoatsGuiHandler: IGuiHandler {
                             val mapData = HelmModule.mapDataCopyProperty[boat]
                             if(mapData != EmptyMapData) {
                                 GuiPathEditor(player, BoatPathHolder(boat), mapData)
+                            } else {
+                                null
+                            }
+                        }
+                        is ItemMapWithPath -> {
+                            val id = stack.tagCompound!!.getString("${MoarBoats.ModID}.mapID")
+                            val mapData = MoarBoats.getLocalMapStorage().getOrLoadData(MapData::class.java, id) as? MapData
+                            if(mapData != null && mapData != EmptyMapData) {
+                                GuiPathEditor(player, MapWithPathHolder(stack, null, boat), mapData)
                             } else {
                                 null
                             }

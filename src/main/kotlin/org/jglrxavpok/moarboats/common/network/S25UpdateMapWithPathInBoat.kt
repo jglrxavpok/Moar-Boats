@@ -1,6 +1,7 @@
 package org.jglrxavpok.moarboats.common.network
 
 import io.netty.buffer.ByteBuf
+import net.minecraft.client.Minecraft
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
@@ -31,7 +32,7 @@ class S25UpdateMapWithPathInBoat: SxxUpdateMapWithPath {
     object Handler: SxxUpdateMapWithPath.Handler<S25UpdateMapWithPathInBoat>() {
         override fun updatePath(message: S25UpdateMapWithPathInBoat, ctx: MessageContext, list: NBTTagList) {
             with(message) {
-                val player = ctx.serverHandler.player
+                val player = Minecraft.getMinecraft().player
                 val world = player.world
                 val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return
                 val stack = boat.getInventory(HelmModule).getStackInSlot(0)

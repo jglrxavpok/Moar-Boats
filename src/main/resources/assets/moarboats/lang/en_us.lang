@@ -107,3 +107,4 @@ moarboats.only_usable_on_boat=Only usable on boats
 moarboats.item_path.description=%s waypoints
 moarboats.item.golden_ticket.name.empty=Golden Ticket (Empty)
 item.golden_ticket.name=Golden Ticket
+item.map_with_path.name=Map with path

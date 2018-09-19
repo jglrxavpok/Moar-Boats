@@ -25,16 +25,16 @@ class C22AddWaypointToItemPathFromMappingTable: CxxAddWaypointToItemPath {
 
     override fun fromBytes(buf: ByteBuf) {
         super.fromBytes(buf)
-        buf.writeInt(tileEntityX)
-        buf.writeInt(tileEntityY)
-        buf.writeInt(tileEntityZ)
+        tileEntityX = buf.readInt()
+        tileEntityY = buf.readInt()
+        tileEntityZ = buf.readInt()
     }
 
     override fun toBytes(buf: ByteBuf) {
         super.toBytes(buf)
-        tileEntityX = buf.readInt()
-        tileEntityY = buf.readInt()
-        tileEntityZ = buf.readInt()
+        buf.writeInt(tileEntityX)
+        buf.writeInt(tileEntityY)
+        buf.writeInt(tileEntityZ)
     }
 
     object Handler: CxxAddWaypointToItemPath.Handler<C22AddWaypointToItemPathFromMappingTable, S24UpdateMapWithPathInMappingTable>() {
