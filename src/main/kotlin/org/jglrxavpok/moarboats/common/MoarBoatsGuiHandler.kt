@@ -16,8 +16,10 @@ import org.jglrxavpok.moarboats.common.containers.ContainerMappingTable
 import org.jglrxavpok.moarboats.common.containers.EnergyContainer
 import org.jglrxavpok.moarboats.common.containers.FluidContainer
 import org.jglrxavpok.moarboats.common.data.BoatPathHolder
+import org.jglrxavpok.moarboats.common.data.GoldenTicketPathHolder
 import org.jglrxavpok.moarboats.common.data.MapWithPathHolder
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
+import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import org.jglrxavpok.moarboats.common.items.ItemMapWithPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 import org.jglrxavpok.moarboats.common.state.EmptyMapData
@@ -54,6 +56,15 @@ object MoarBoatsGuiHandler: IGuiHandler {
                             val mapData = MoarBoats.getLocalMapStorage().getOrLoadData(MapData::class.java, id) as? MapData
                             if(mapData != null && mapData != EmptyMapData) {
                                 GuiPathEditor(player, MapWithPathHolder(stack, null, boat), mapData)
+                            } else {
+                                null
+                            }
+                        }
+                        is ItemGoldenTicket -> {
+                            val id = ItemGoldenTicket.getData(stack).mapID
+                            val mapData = MoarBoats.getLocalMapStorage().getOrLoadData(MapData::class.java, id) as? MapData
+                            if(mapData != null && mapData != EmptyMapData) {
+                                GuiPathEditor(player, GoldenTicketPathHolder(stack, null, boat), mapData)
                             } else {
                                 null
                             }

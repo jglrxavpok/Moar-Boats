@@ -35,6 +35,12 @@ open class MoarBoatsProxy {
         MoarBoats.network.registerMessage(C23AddWaypointToItemPathFromBoat.Handler, C23AddWaypointToItemPathFromBoat::class.java, 23, Side.SERVER)
         MoarBoats.network.registerMessage(S24UpdateMapWithPathInMappingTable.Handler, S24UpdateMapWithPathInMappingTable::class.java, 24, Side.CLIENT)
         MoarBoats.network.registerMessage(S25UpdateMapWithPathInBoat.Handler, S25UpdateMapWithPathInBoat::class.java, 25, Side.CLIENT)
+        MoarBoats.network.registerMessage(C26RemoveWaypointFromMapWithPathFromMappingTable.Handler, C26RemoveWaypointFromMapWithPathFromMappingTable::class.java, 26, Side.SERVER)
+        MoarBoats.network.registerMessage(C27RemoveWaypointFromMapWithPathFromBoat.Handler, C27RemoveWaypointFromMapWithPathFromBoat::class.java, 27, Side.SERVER)
+        MoarBoats.network.registerMessage(C28RemoveWaypointFromGoldenTicketFromMappingTable.Handler, C28RemoveWaypointFromGoldenTicketFromMappingTable::class.java, 28, Side.SERVER)
+        MoarBoats.network.registerMessage(C29RemoveWaypointFromGoldenTicketFromBoat.Handler, C29RemoveWaypointFromGoldenTicketFromBoat::class.java, 29, Side.SERVER)
+        MoarBoats.network.registerMessage(C30AddWaypointToGoldenTicketFromMappingTable.Handler, C30AddWaypointToGoldenTicketFromMappingTable::class.java, 30, Side.SERVER)
+        MoarBoats.network.registerMessage(C31AddWaypointToGoldenTicketFromBoat.Handler, C31AddWaypointToGoldenTicketFromBoat::class.java, 31, Side.SERVER)
     }
 
     open fun preInit() {

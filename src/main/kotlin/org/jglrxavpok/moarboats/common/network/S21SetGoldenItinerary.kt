@@ -23,13 +23,12 @@ class S21SetGoldenItinerary(): IMessage {
         val uuid = ByteBufUtils.readUTF8String(buf)
         val compound = ByteBufUtils.readTag(buf)!!
         data = ItemGoldenTicket.WaypointData(uuid)
-        data.backingList = compound.getTagList("list", Constants.NBT.TAG_COMPOUND)
+        data.readFromNBT(compound)
     }
 
     override fun toBytes(buf: ByteBuf) {
         ByteBufUtils.writeUTF8String(buf, data.uuid)
-        val compound = NBTTagCompound()
-        compound.setTag("list", data.backingList)
+        val compound = data.writeToNBT(NBTTagCompound())
         ByteBufUtils.writeTag(buf, compound)
     }
 

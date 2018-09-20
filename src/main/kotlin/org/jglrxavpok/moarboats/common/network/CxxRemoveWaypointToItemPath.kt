@@ -14,28 +14,24 @@ import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 
-abstract class CxxAddWaypointToItemPath(): IMessage {
+abstract class CxxRemoveWaypointToItemPath(): IMessage {
 
-    var x: Int = 0
-    var z: Int = 0
+    var index: Int = 0
 
-    constructor(pos: BlockPos): this() {
-        x = pos.x
-        z = pos.z
+    constructor(index: Int): this() {
+        this.index = index
     }
 
 
     override fun fromBytes(buf: ByteBuf) {
-        x = buf.readInt()
-        z = buf.readInt()
+        index = buf.readInt()
     }
 
     override fun toBytes(buf: ByteBuf) {
-        buf.writeInt(x)
-        buf.writeInt(z)
+        buf.writeInt(index)
     }
 
-    abstract class Handler<T: CxxAddWaypointToItemPath, UpdateResponse: IMessage>: IMessageHandler<T, IMessage?> {
+    abstract class Handler<T: CxxRemoveWaypointToItemPath, UpdateResponse: IMessage>: IMessageHandler<T, IMessage?> {
         abstract val item: ItemPath
         abstract fun getStack(message: T, ctx: MessageContext): ItemStack?
         abstract fun createResponse(message: T, ctx: MessageContext, waypointList: NBTTagList): UpdateResponse?
@@ -43,9 +39,8 @@ abstract class CxxAddWaypointToItemPath(): IMessage {
         override fun onMessage(message: T, ctx: MessageContext): IMessage? {
             val stack = getStack(message, ctx) ?: return null
             val data = item.getWaypointData(stack, MoarBoats.getLocalMapStorage())
-            HelmModule.addWaypointToList(data,
-                    message.x,
-                    message.z)
+            if(message.index < data.tagCount())
+                data.removeTag(message.index)
             val answer = createResponse(message, ctx, data)
             MoarBoats.network.sendToAll(answer)
             return null

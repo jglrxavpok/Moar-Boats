@@ -6,10 +6,11 @@ import net.minecraft.nbt.NBTTagList
 import net.minecraft.util.math.BlockPos
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import org.jglrxavpok.moarboats.common.items.ItemMapWithPath
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 
-class C22AddWaypointToItemPathFromMappingTable: CxxAddWaypointToItemPath {
+class C28RemoveWaypointFromGoldenTicketFromMappingTable: CxxRemoveWaypointToItemPath {
 
     constructor()
 
@@ -17,7 +18,7 @@ class C22AddWaypointToItemPathFromMappingTable: CxxAddWaypointToItemPath {
     var tileEntityY: Int = 0
     var tileEntityZ: Int = 0
 
-    constructor(pos: BlockPos, mappingTable: TileEntityMappingTable): super(pos) {
+    constructor(index: Int, mappingTable: TileEntityMappingTable): super(index) {
         this.tileEntityX = mappingTable.pos.x
         this.tileEntityY = mappingTable.pos.y
         this.tileEntityZ = mappingTable.pos.z
@@ -37,10 +38,10 @@ class C22AddWaypointToItemPathFromMappingTable: CxxAddWaypointToItemPath {
         buf.writeInt(tileEntityZ)
     }
 
-    object Handler: CxxAddWaypointToItemPath.Handler<C22AddWaypointToItemPathFromMappingTable, S24UpdateMapWithPathInMappingTable>() {
-        override val item = ItemMapWithPath
+    object Handler: CxxRemoveWaypointToItemPath.Handler<C28RemoveWaypointFromGoldenTicketFromMappingTable, S21SetGoldenItinerary>() {
+        override val item = ItemGoldenTicket
 
-        override fun getStack(message: C22AddWaypointToItemPathFromMappingTable, ctx: MessageContext): ItemStack? {
+        override fun getStack(message: C28RemoveWaypointFromGoldenTicketFromMappingTable, ctx: MessageContext): ItemStack? {
             with(message) {
                 val pos = BlockPos.PooledMutableBlockPos.retain(tileEntityX, tileEntityY, tileEntityZ)
                 val te = ctx.serverHandler.player.world.getTileEntity(pos)
@@ -58,8 +59,10 @@ class C22AddWaypointToItemPathFromMappingTable: CxxAddWaypointToItemPath {
             }
         }
 
-        override fun createResponse(message: C22AddWaypointToItemPathFromMappingTable, ctx: MessageContext, waypointList: NBTTagList): S24UpdateMapWithPathInMappingTable? {
-            return S24UpdateMapWithPathInMappingTable(waypointList, message.tileEntityX, message.tileEntityY, message.tileEntityZ)
+        override fun createResponse(message: C28RemoveWaypointFromGoldenTicketFromMappingTable, ctx: MessageContext, waypointList: NBTTagList): S21SetGoldenItinerary? {
+            val stack = getStack(message, ctx) ?: return null
+            val data = ItemGoldenTicket.getData(stack)
+            return S21SetGoldenItinerary(data)
         }
 
     }

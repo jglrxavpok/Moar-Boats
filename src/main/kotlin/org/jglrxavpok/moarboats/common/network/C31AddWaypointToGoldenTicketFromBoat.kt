@@ -6,10 +6,11 @@ import net.minecraft.nbt.NBTTagList
 import net.minecraft.util.math.BlockPos
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
+import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import org.jglrxavpok.moarboats.common.items.ItemMapWithPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 
-class C23AddWaypointToItemPathFromBoat: CxxAddWaypointToItemPath {
+class C31AddWaypointToGoldenTicketFromBoat: CxxAddWaypointToItemPath {
 
     var boatID = -1
 
@@ -29,10 +30,10 @@ class C23AddWaypointToItemPathFromBoat: CxxAddWaypointToItemPath {
         buf.writeInt(boatID)
     }
 
-    object Handler: CxxAddWaypointToItemPath.Handler<C23AddWaypointToItemPathFromBoat, S25UpdateMapWithPathInBoat>() {
-        override val item = ItemMapWithPath
+    object Handler: CxxAddWaypointToItemPath.Handler<C31AddWaypointToGoldenTicketFromBoat, S21SetGoldenItinerary>() {
+        override val item = ItemGoldenTicket
 
-        override fun getStack(message: C23AddWaypointToItemPathFromBoat, ctx: MessageContext): ItemStack? {
+        override fun getStack(message: C31AddWaypointToGoldenTicketFromBoat, ctx: MessageContext): ItemStack? {
             with(message) {
                 val player = ctx.serverHandler.player
                 val world = player.world
@@ -41,8 +42,10 @@ class C23AddWaypointToItemPathFromBoat: CxxAddWaypointToItemPath {
             }
         }
 
-        override fun createResponse(message: C23AddWaypointToItemPathFromBoat, ctx: MessageContext, waypointList: NBTTagList): S25UpdateMapWithPathInBoat? {
-            return S25UpdateMapWithPathInBoat(waypointList, message.boatID)
+        override fun createResponse(message: C31AddWaypointToGoldenTicketFromBoat, ctx: MessageContext, waypointList: NBTTagList): S21SetGoldenItinerary? {
+            val stack = getStack(message, ctx) ?: return null
+            val data = ItemGoldenTicket.getData(stack)
+            return S21SetGoldenItinerary(data)
         }
 
     }

@@ -9,7 +9,7 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.items.ItemMapWithPath
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 
-class C22AddWaypointToItemPathFromMappingTable: CxxAddWaypointToItemPath {
+class C26RemoveWaypointFromMapWithPathFromMappingTable: CxxRemoveWaypointToItemPath {
 
     constructor()
 
@@ -17,7 +17,7 @@ class C22AddWaypointToItemPathFromMappingTable: CxxAddWaypointToItemPath {
     var tileEntityY: Int = 0
     var tileEntityZ: Int = 0
 
-    constructor(pos: BlockPos, mappingTable: TileEntityMappingTable): super(pos) {
+    constructor(index: Int, mappingTable: TileEntityMappingTable): super(index) {
         this.tileEntityX = mappingTable.pos.x
         this.tileEntityY = mappingTable.pos.y
         this.tileEntityZ = mappingTable.pos.z
@@ -37,10 +37,10 @@ class C22AddWaypointToItemPathFromMappingTable: CxxAddWaypointToItemPath {
         buf.writeInt(tileEntityZ)
     }
 
-    object Handler: CxxAddWaypointToItemPath.Handler<C22AddWaypointToItemPathFromMappingTable, S24UpdateMapWithPathInMappingTable>() {
+    object Handler: CxxRemoveWaypointToItemPath.Handler<C26RemoveWaypointFromMapWithPathFromMappingTable, S24UpdateMapWithPathInMappingTable>() {
         override val item = ItemMapWithPath
 
-        override fun getStack(message: C22AddWaypointToItemPathFromMappingTable, ctx: MessageContext): ItemStack? {
+        override fun getStack(message: C26RemoveWaypointFromMapWithPathFromMappingTable, ctx: MessageContext): ItemStack? {
             with(message) {
                 val pos = BlockPos.PooledMutableBlockPos.retain(tileEntityX, tileEntityY, tileEntityZ)
                 val te = ctx.serverHandler.player.world.getTileEntity(pos)
@@ -58,7 +58,7 @@ class C22AddWaypointToItemPathFromMappingTable: CxxAddWaypointToItemPath {
             }
         }
 
-        override fun createResponse(message: C22AddWaypointToItemPathFromMappingTable, ctx: MessageContext, waypointList: NBTTagList): S24UpdateMapWithPathInMappingTable? {
+        override fun createResponse(message: C26RemoveWaypointFromMapWithPathFromMappingTable, ctx: MessageContext, waypointList: NBTTagList): S24UpdateMapWithPathInMappingTable? {
             return S24UpdateMapWithPathInMappingTable(waypointList, message.tileEntityX, message.tileEntityY, message.tileEntityZ)
         }
 

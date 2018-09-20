@@ -9,13 +9,13 @@ import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.items.ItemMapWithPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 
-class C23AddWaypointToItemPathFromBoat: CxxAddWaypointToItemPath {
+class C27RemoveWaypointFromMapWithPathFromBoat: CxxRemoveWaypointToItemPath {
 
     var boatID = -1
 
     constructor()
 
-    constructor(pos: BlockPos, boatID: Int): super(pos) {
+    constructor(index: Int, boatID: Int): super(index) {
         this.boatID = boatID
     }
 
@@ -29,10 +29,10 @@ class C23AddWaypointToItemPathFromBoat: CxxAddWaypointToItemPath {
         buf.writeInt(boatID)
     }
 
-    object Handler: CxxAddWaypointToItemPath.Handler<C23AddWaypointToItemPathFromBoat, S25UpdateMapWithPathInBoat>() {
+    object Handler: CxxRemoveWaypointToItemPath.Handler<C27RemoveWaypointFromMapWithPathFromBoat, S25UpdateMapWithPathInBoat>() {
         override val item = ItemMapWithPath
 
-        override fun getStack(message: C23AddWaypointToItemPathFromBoat, ctx: MessageContext): ItemStack? {
+        override fun getStack(message: C27RemoveWaypointFromMapWithPathFromBoat, ctx: MessageContext): ItemStack? {
             with(message) {
                 val player = ctx.serverHandler.player
                 val world = player.world
@@ -41,7 +41,7 @@ class C23AddWaypointToItemPathFromBoat: CxxAddWaypointToItemPath {
             }
         }
 
-        override fun createResponse(message: C23AddWaypointToItemPathFromBoat, ctx: MessageContext, waypointList: NBTTagList): S25UpdateMapWithPathInBoat? {
+        override fun createResponse(message: C27RemoveWaypointFromMapWithPathFromBoat, ctx: MessageContext, waypointList: NBTTagList): S25UpdateMapWithPathInBoat? {
             return S25UpdateMapWithPathInBoat(waypointList, message.boatID)
         }
 

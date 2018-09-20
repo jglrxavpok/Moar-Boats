@@ -14,6 +14,7 @@ import net.minecraftforge.common.util.Constants
 import net.minecraftforge.fml.common.FMLCommonHandler
 import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.common.data.MapWithPathHolder
 import org.jglrxavpok.moarboats.common.network.S21SetGoldenItinerary
 import java.util.*
 
@@ -103,12 +104,7 @@ object ItemGoldenTicket: ItemPath() {
     }
 
     override fun getWaypointData(stack: ItemStack, mapStorage: MapStorage): NBTTagList {
-        val uuid = getUUID(stack).toString()
-        var data = mapStorage.getOrLoadData(WaypointData::class.java, uuid) as? WaypointData
-        if(data == null) {
-            data = WaypointData(uuid)
-            mapStorage.setData(uuid, data)
-        }
+        val data = getData(stack)
         return data.backingList
     }
 
@@ -133,17 +129,32 @@ object ItemGoldenTicket: ItemPath() {
 
     fun updateItinerary(stack: ItemStack, map: ItemMapWithPath, mapStack: ItemStack) {
         val mapStorage: MapStorage = MoarBoats.getLocalMapStorage()
-        updateItinerary(stack, map.getWaypointData(mapStack, mapStorage), mapStorage)
+        val mapID = mapStack.tagCompound!!.getString("${MoarBoats.ModID}.mapID")
+        val loops = mapStack.tagCompound!!.getBoolean("${MoarBoats.ModID}.loops")
+        updateItinerary(stack, map.getWaypointData(mapStack, mapStorage), mapID, loops, mapStorage)
     }
 
-    fun updateItinerary(stack: ItemStack, list: NBTTagList, mapStorage: MapStorage) {
+    fun updateItinerary(stack: ItemStack, list: NBTTagList, mapID: String, loops: Boolean, mapStorage: MapStorage) {
         val uuid = getUUID(stack).toString()
         val data = WaypointData(uuid)
         data.backingList = list
+        data.loops = loops
+        data.mapID = mapID
         mapStorage.setData(uuid, data)
 
         if(FMLCommonHandler.instance().effectiveSide == Side.SERVER) {
             MoarBoats.network.sendToAll(S21SetGoldenItinerary(data))
         }
+    }
+
+    fun getData(stack: ItemStack): WaypointData {
+        val mapStorage = MoarBoats.getLocalMapStorage()
+        val uuid = getUUID(stack).toString()
+        var data = mapStorage.getOrLoadData(WaypointData::class.java, uuid) as? WaypointData
+        if(data == null) {
+            data = WaypointData(uuid)
+            mapStorage.setData(uuid, data)
+        }
+        return data
     }
 }
