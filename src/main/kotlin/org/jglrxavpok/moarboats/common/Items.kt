@@ -22,9 +22,9 @@ object Items {
             DivingBottleItem,
             WaterborneConductorItem,
             WaterborneComparatorItem,
-            CreativeEngineItem,
-            ItemGoldenItinerary,
-            ItemMapWithPath
+            CreativeEngineItem//,
+           // ItemGoldenItinerary,
+           // ItemMapWithPath
     )
 
 }
