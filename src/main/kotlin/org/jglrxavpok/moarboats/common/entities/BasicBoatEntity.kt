@@ -423,26 +423,28 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
 
         var canControlItself = true
         if (hasLink(FrontLink)) { // is trailing boat, need to come closer to heading boat if needed
-            val heading = getLinkedTo(FrontLink)!!
-            val f = getDistance(heading)
-            if (f > 3.0f) {
-                canControlItself = false
+            val heading = getLinkedTo(FrontLink)
+            if(heading != null) {
+                val f = getDistance(heading)
+                if (f > 3.0f) {
+                    canControlItself = false
 
-                val d0 = (heading.posX - this.posX) / f.toDouble()
-                val d1 = (heading.posY - this.posY) / f.toDouble()
-                val d2 = (heading.posZ - this.posZ) / f.toDouble()
-                val alpha = 0.5f
+                    val d0 = (heading.posX - this.posX) / f.toDouble()
+                    val d1 = (heading.posY - this.posY) / f.toDouble()
+                    val d2 = (heading.posZ - this.posZ) / f.toDouble()
+                    val alpha = 0.5f
 
-                val anchorPos = calculateAnchorPosition(FrontLink)
-                val otherAnchorPos = if(heading is BasicBoatEntity) heading.calculateAnchorPosition(BackLink) else heading.positionVector
-                // FIXME: handle case where targetYaw is ~0-180 and rotationYaw is ~180+ (avoid doing a crazy flip)
-                val targetYaw = computeTargetYaw(rotationYaw, anchorPos, otherAnchorPos)
-                rotationYaw = alpha * rotationYaw + targetYaw * (1f - alpha)
+                    val anchorPos = calculateAnchorPosition(FrontLink)
+                    val otherAnchorPos = if(heading is BasicBoatEntity) heading.calculateAnchorPosition(BackLink) else heading.positionVector
+                    // FIXME: handle case where targetYaw is ~0-180 and rotationYaw is ~180+ (avoid doing a crazy flip)
+                    val targetYaw = computeTargetYaw(rotationYaw, anchorPos, otherAnchorPos)
+                    rotationYaw = alpha * rotationYaw + targetYaw * (1f - alpha)
 
-                val speed = 0.2
-                this.motionX += d0 * Math.abs(d0) * speed
-                this.motionY += d1 * Math.abs(d1) * speed
-                this.motionZ += d2 * Math.abs(d2) * speed
+                    val speed = 0.2
+                    this.motionX += d0 * Math.abs(d0) * speed
+                    this.motionY += d1 * Math.abs(d1) * speed
+                    this.motionZ += d2 * Math.abs(d2) * speed
+                }
             }
         }
         this.updateMotion()
@@ -848,7 +850,7 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
                 val idList = world.getEntities(BasicBoatEntity::class.java) { true }
                         .map { it.boatID.toString() }
                         .joinToString(", ")
-                error("NO LINK FOUND FOR SIDE $side (UUID was ${links[side].get()}) FOR BOAT $boatID \nHere's a list of all loaded boatIDs:\n$idList")
+                MoarBoats.logger.error("NO LINK FOUND FOR SIDE $side (UUID was ${links[side].get()}) FOR BOAT $boatID \nHere's a list of all loaded boatIDs:\n$idList")
             }
         }
         return world.getEntityByID(id) as? BasicBoatEntity

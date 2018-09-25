@@ -187,7 +187,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         }
         compound.setTag("modules", list)
         compound.setTag("state", moduleData)
-        compound.setString("color", color.dyeColorName)
+        compound.setString("color", color.name)
     }
 
     override fun readEntityFromNBT(compound: NBTTagCompound) {
@@ -206,7 +206,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         }
         moduleRNG = Random(boatID.leastSignificantBits)
         fun colorFromString(str: String): EnumDyeColor {
-            return EnumDyeColor.values().find { it.dyeColorName == str } ?: EnumDyeColor.WHITE
+            return EnumDyeColor.values().find { it.name == str } ?: EnumDyeColor.WHITE
         }
         color = if(compound.hasKey("color"))
             colorFromString(compound.getString("color"))
