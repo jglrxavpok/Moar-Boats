@@ -95,3 +95,10 @@ tile.boat_fluid_loader.name=Chargeur de fluides pour bateaux
 tile.boat_fluid_unloader.name=Déchargeur de fluides pour bateaux
 
 moarboats.tank_level=%s$1 / %s$2 mB de %s$3
+
+# 4.0.0.0
+moarboats.item_path.description=%s balises
+moarboats.item.golden_ticket.name.empty=Ticket d'or (Vide)
+item.golden_ticket.name=Ticket d'or
+item.map_with_path.name=Carte avec chemin
+moarboats.gui.helm.save_on_map=Sauvegarder sur la carte

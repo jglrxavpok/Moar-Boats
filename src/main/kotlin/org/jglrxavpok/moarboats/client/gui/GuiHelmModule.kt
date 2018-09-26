@@ -11,14 +11,18 @@ import net.minecraft.item.ItemMap
 import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.TextComponentTranslation
+import net.minecraft.world.storage.MapData
 import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.client.renders.HelmModuleRenderer
-import org.jglrxavpok.moarboats.common.containers.ContainerHelmModule
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
+import org.jglrxavpok.moarboats.client.renders.HelmModuleRenderer
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
+import org.jglrxavpok.moarboats.common.containers.ContainerHelmModule
+import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
+import org.jglrxavpok.moarboats.common.items.ItemMapWithPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 import org.jglrxavpok.moarboats.common.network.C20SaveItineraryToMap
+import org.jglrxavpok.moarboats.common.state.EmptyMapData
 import org.lwjgl.opengl.GL11
 
 class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: IControllable):
@@ -31,8 +35,9 @@ class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: 
     private val mapSize = 100.0
     private val mapStack = ItemStack(Items.FILLED_MAP)
     private val editButtonText = TextComponentTranslation("gui.helm.path_editor")
+    private val saveButtonText = TextComponentTranslation("moarboats.gui.helm.save_on_map")
     private val mapEditButton = GuiButton(0, 0, 0, editButtonText.unformattedText)
-    private val saveButton = GuiButton(1, 0, 0, editButtonText.unformattedText)
+    private val saveButton = GuiButton(1, 0, 0, saveButtonText.unformattedText)
 
     init {
         shouldRenderInventoryName = false
@@ -49,7 +54,12 @@ class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: 
 
     override fun actionPerformed(button: GuiButton) {
         when(button) {
-            mapEditButton -> playerInventory.player.openGui(MoarBoats, MoarBoatsGuiHandler.PathEditor, boat.world, boat.entityID, 0, 0)
+            mapEditButton -> {
+                val mapData = getMapData(container.getSlot(0).stack)
+                if(mapData != null && mapData != EmptyMapData) {
+                    playerInventory.player.openGui(MoarBoats, MoarBoatsGuiHandler.PathEditor, boat.world, boat.entityID, 0, 0)
+                }
+            }
             saveButton -> MoarBoats.network.sendToServer(C20SaveItineraryToMap(boat.entityID, HelmModule.id))
         }
     }
@@ -69,10 +79,8 @@ class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: 
         bufferbuilder.pos(x, y, 0.0).tex(0.0, 0.0).endVertex()
         tessellator.draw()
         val stack = container.getSlot(0).stack
-        val item = stack.item
         var hasMap = false
-        if(item is ItemMap) {
-            val mapdata = HelmModule.mapDataCopyProperty[boat]
+        getMapData(stack)?.let { mapdata ->
             val moduleState = boat.getState(module)
 
             HelmModuleRenderer.renderMap(mapdata, x, y, mapSize, boat.positionX, boat.positionZ, margins, moduleState)
@@ -97,28 +105,25 @@ class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: 
         GlStateManager.enableLighting()
     }
 
-    override fun mouseClicked(mouseX: Int, mouseY: Int, mouseButton: Int) {
-       /* val x = guiLeft.toDouble() + 22 + 4
-        val y = guiTop.toDouble() + 3 + 4
-        val pixelX = (mouseX-x-margins)
-        val pixelY = (mouseY-y-margins)
-        val stack = container.getSlot(0).stack
-        val item = stack.item
-        val hasMap = item is ItemMap && HelmModule.mapDataCopyProperty[boat] != EmptyMapData
-        if(hasMap && mouseX >= x+margins && mouseX <= x+mapSize-margins && mouseY >= y+margins && mouseY <= y+mapSize-margins) {
-            MoarBoats.network.sendToServer(C1MapClick(pixelX, pixelY, mapSize-margins*2, mouseButton))
-            if(mouseButton == 0) { // left click
-                mc.soundHandler.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 2.5f))
-            } else if(mouseButton == 1) {
-                mc.soundHandler.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 0.5f))
+    private fun getMapData(stack: ItemStack): MapData? {
+        return when (stack.item) {
+            is ItemMap -> HelmModule.mapDataCopyProperty[boat]
+            is ItemMapWithPath -> {
+                val mapID = stack.tagCompound?.getString("${MoarBoats.ModID}.mapID") ?: return null
+                MoarBoats.getLocalMapStorage().getOrLoadData(MapData::class.java, mapID) as? MapData
             }
-        } else {*/
-            super.mouseClicked(mouseX, mouseY, mouseButton)
-        //}
+            is ItemGoldenTicket -> {
+                val mapID = ItemGoldenTicket.getData(stack).mapID
+                MoarBoats.getLocalMapStorage().getOrLoadData(MapData::class.java, mapID) as? MapData
+            }
+            else -> null
+        }
     }
 
-    private fun pixel2map(pixel: Double, center: Int, mapSize: Double, margins: Double, mapScale: Float): Int {
-        val pixelsToMap = 128f/(mapSize-margins*2)
-        return Math.floor((center / mapScale + (pixel-(mapSize-margins*2)/2) * pixelsToMap) * mapScale).toInt()
+    override fun updateScreen() {
+        super.updateScreen()
+        val mapData = getMapData(container.getSlot(0).stack)
+        mapEditButton.enabled = mapData != null && mapData != EmptyMapData
     }
+
 }
