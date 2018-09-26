@@ -6,6 +6,7 @@ import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
 import net.minecraft.util.math.BlockPos
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
+import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 
@@ -38,6 +39,8 @@ class S24UpdateMapWithPathInMappingTable: SxxUpdateMapWithPath {
     }
 
     object Handler: SxxUpdateMapWithPath.Handler<S24UpdateMapWithPathInMappingTable>() {
+        override val packetClass = S24UpdateMapWithPathInMappingTable::class
+
         override fun updatePath(message: S24UpdateMapWithPathInMappingTable, ctx: MessageContext, list: NBTTagList) {
             with(message) {
                 val pos = BlockPos.PooledMutableBlockPos.retain(tileEntityX, tileEntityY, tileEntityZ)

@@ -4,8 +4,10 @@ import io.netty.buffer.ByteBuf
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
+import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
+import kotlin.reflect.KClass
 
 class C0OpenModuleGui(): IMessage {
     var boatID: Int = 0
@@ -26,7 +28,10 @@ class C0OpenModuleGui(): IMessage {
         buf.writeInt(boatID)
     }
 
-    object Handler: IMessageHandler<C0OpenModuleGui, IMessage> {
+    object Handler: MBMessageHandler<C0OpenModuleGui, IMessage> {
+        override val packetClass = C0OpenModuleGui::class
+        override val receiverSide = Side.SERVER
+
         override fun onMessage(message: C0OpenModuleGui, ctx: MessageContext): IMessage? {
             val player = ctx.serverHandler.player
             player.openGui(MoarBoats, MoarBoatsGuiHandler.ModulesGui, player.world, message.boatID, message.moduleIndex, 0)

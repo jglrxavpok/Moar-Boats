@@ -1,6 +1,5 @@
 package org.jglrxavpok.moarboats.client.gui
 
-import net.minecraft.client.audio.PositionedSoundRecord
 import net.minecraft.client.gui.Gui
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.renderer.GlStateManager
@@ -8,7 +7,6 @@ import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.entity.player.InventoryPlayer
 import net.minecraft.init.Items
-import net.minecraft.init.SoundEvents
 import net.minecraft.item.ItemMap
 import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
@@ -16,13 +14,11 @@ import net.minecraft.util.text.TextComponentTranslation
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.renders.HelmModuleRenderer
 import org.jglrxavpok.moarboats.common.containers.ContainerHelmModule
-import org.jglrxavpok.moarboats.common.network.C1MapClick
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 import org.jglrxavpok.moarboats.common.network.C20SaveItineraryToMap
-import org.jglrxavpok.moarboats.common.state.EmptyMapData
 import org.lwjgl.opengl.GL11
 
 class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: IControllable):

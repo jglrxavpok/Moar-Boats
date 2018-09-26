@@ -11,7 +11,7 @@ import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
-import org.jglrxavpok.moarboats.extensions.getObjectUniversal
+import net.minecraftforge.fml.relauncher.Side
 
 class S6PlaySound(): IMessage {
 
@@ -54,7 +54,10 @@ class S6PlaySound(): IMessage {
         ByteBufUtils.writeUTF8String(buf, soundCategory.getName())
     }
 
-    object Handler: IMessageHandler<S6PlaySound, IMessage> {
+    object Handler: MBMessageHandler<S6PlaySound, IMessage> {
+        override val packetClass = S6PlaySound::class
+        override val receiverSide = Side.CLIENT
+
         override fun onMessage(message: S6PlaySound, ctx: MessageContext): IMessage? {
             Minecraft.getMinecraft().world.playSound(
                     message.x,

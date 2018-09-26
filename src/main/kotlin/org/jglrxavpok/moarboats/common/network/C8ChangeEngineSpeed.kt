@@ -6,6 +6,7 @@ import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
+import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.BaseEngineModule
@@ -34,7 +35,10 @@ class C8ChangeEngineSpeed(): IMessage {
         buf.writeFloat(speed)
     }
 
-    object Handler: IMessageHandler<C8ChangeEngineSpeed, IMessage?> {
+    object Handler: MBMessageHandler<C8ChangeEngineSpeed, IMessage?> {
+        override val packetClass = C8ChangeEngineSpeed::class
+        override val receiverSide = Side.SERVER
+
         override fun onMessage(message: C8ChangeEngineSpeed, ctx: MessageContext): IMessage? {
             val player = ctx.serverHandler.player
             val world = player.world

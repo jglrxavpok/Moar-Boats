@@ -7,6 +7,7 @@ import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
+import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.common.data.MapImageStripe
 import org.jglrxavpok.moarboats.common.modules.HelmModule.StripeLength
 
@@ -41,7 +42,10 @@ class S11MapImageAnswer(): IMessage {
         }
     }
 
-    object Handler: IMessageHandler<S11MapImageAnswer, IMessage> {
+    object Handler: MBMessageHandler<S11MapImageAnswer, IMessage> {
+        override val packetClass = S11MapImageAnswer::class
+        override val receiverSide = Side.CLIENT
+
         override fun onMessage(message: S11MapImageAnswer, ctx: MessageContext): IMessage? {
             val mapID = message.mapName
             val id = "moarboats:map_preview/$mapID/${message.stripeIndex}"

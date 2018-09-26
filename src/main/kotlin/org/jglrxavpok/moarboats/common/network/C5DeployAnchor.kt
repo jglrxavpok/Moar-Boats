@@ -7,10 +7,12 @@ import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
+import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.AnchorModule
 import org.jglrxavpok.moarboats.common.modules.FurnaceEngineModule
+import kotlin.reflect.KClass
 
 class C5DeployAnchor(): IMessage {
 
@@ -32,7 +34,10 @@ class C5DeployAnchor(): IMessage {
         ByteBufUtils.writeUTF8String(buf, moduleLocation.toString())
     }
 
-    object Handler: IMessageHandler<C5DeployAnchor, IMessage?> {
+    object Handler: MBMessageHandler<C5DeployAnchor, IMessage?> {
+        override val packetClass = C5DeployAnchor::class
+        override val receiverSide = Side.SERVER
+
         override fun onMessage(message: C5DeployAnchor, ctx: MessageContext): IMessage? {
             val player = ctx.serverHandler.player
             val world = player.world

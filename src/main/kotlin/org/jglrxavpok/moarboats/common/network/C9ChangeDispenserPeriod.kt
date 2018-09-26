@@ -6,6 +6,7 @@ import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
+import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.DispensingModule
@@ -34,7 +35,10 @@ class C9ChangeDispenserPeriod(): IMessage {
         buf.writeDouble(period)
     }
 
-    object Handler: IMessageHandler<C9ChangeDispenserPeriod, IMessage?> {
+    object Handler: MBMessageHandler<C9ChangeDispenserPeriod, IMessage?> {
+        override val packetClass = C9ChangeDispenserPeriod::class
+        override val receiverSide = Side.SERVER
+
         override fun onMessage(message: C9ChangeDispenserPeriod, ctx: MessageContext): IMessage? {
             val player = ctx.serverHandler.player
             val world = player.world

@@ -9,6 +9,7 @@ import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
+import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.items.ItemPath
@@ -35,10 +36,11 @@ abstract class CxxAddWaypointToItemPath(): IMessage {
         buf.writeInt(z)
     }
 
-    abstract class Handler<T: CxxAddWaypointToItemPath, UpdateResponse: IMessage>: IMessageHandler<T, IMessage?> {
+    abstract class Handler<T: CxxAddWaypointToItemPath, UpdateResponse: IMessage>: MBMessageHandler<T, IMessage?> {
         abstract val item: ItemPath
         abstract fun getStack(message: T, ctx: MessageContext): ItemStack?
         abstract fun createResponse(message: T, ctx: MessageContext, waypointList: NBTTagList): UpdateResponse?
+        override val receiverSide = Side.SERVER
 
         override fun onMessage(message: T, ctx: MessageContext): IMessage? {
             val stack = getStack(message, ctx) ?: return null

@@ -11,6 +11,7 @@ import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
+import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
@@ -34,7 +35,10 @@ class C10MapImageRequest(): IMessage {
         ByteBufUtils.writeUTF8String(buf, mapName)
     }
 
-    object Handler: IMessageHandler<C10MapImageRequest, IMessage?> {
+    object Handler: MBMessageHandler<C10MapImageRequest, IMessage?> {
+        override val packetClass = C10MapImageRequest::class
+        override val receiverSide = Side.SERVER
+
         override fun onMessage(message: C10MapImageRequest, ctx: MessageContext): IMessage? {
             val player = ctx.serverHandler.player
             val world = player.world

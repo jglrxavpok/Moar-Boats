@@ -32,6 +32,7 @@ class C29RemoveWaypointFromGoldenTicketFromBoat: CxxRemoveWaypointToItemPath {
 
     object Handler: CxxRemoveWaypointToItemPath.Handler<C29RemoveWaypointFromGoldenTicketFromBoat, S21SetGoldenItinerary>() {
         override val item = ItemGoldenTicket
+        override val packetClass = C29RemoveWaypointFromGoldenTicketFromBoat::class
 
         override fun getStack(message: C29RemoveWaypointFromGoldenTicketFromBoat, ctx: MessageContext): ItemStack? {
             with(message) {

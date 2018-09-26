@@ -40,6 +40,7 @@ class C30AddWaypointToGoldenTicketFromMappingTable: CxxAddWaypointToItemPath {
 
     object Handler: CxxAddWaypointToItemPath.Handler<C30AddWaypointToGoldenTicketFromMappingTable, S21SetGoldenItinerary>() {
         override val item = ItemGoldenTicket
+        override val packetClass = C30AddWaypointToGoldenTicketFromMappingTable::class
 
         override fun getStack(message: C30AddWaypointToGoldenTicketFromMappingTable, ctx: MessageContext): ItemStack? {
             with(message) {

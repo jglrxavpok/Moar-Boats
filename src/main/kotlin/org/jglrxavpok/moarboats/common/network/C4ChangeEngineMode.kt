@@ -7,10 +7,12 @@ import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
+import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.BaseEngineModule
 import org.jglrxavpok.moarboats.common.modules.FurnaceEngineModule
+import kotlin.reflect.KClass
 
 class C4ChangeEngineMode(): IMessage {
 
@@ -32,7 +34,10 @@ class C4ChangeEngineMode(): IMessage {
         ByteBufUtils.writeUTF8String(buf, moduleLocation.toString())
     }
 
-    object Handler: IMessageHandler<C4ChangeEngineMode, IMessage?> {
+    object Handler: MBMessageHandler<C4ChangeEngineMode, IMessage?> {
+        override val packetClass = C4ChangeEngineMode::class
+        override val receiverSide = Side.SERVER
+
         override fun onMessage(message: C4ChangeEngineMode, ctx: MessageContext): IMessage? {
             val player = ctx.serverHandler.player
             val world = player.world

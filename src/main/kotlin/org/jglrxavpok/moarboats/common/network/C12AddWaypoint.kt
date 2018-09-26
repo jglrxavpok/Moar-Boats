@@ -7,6 +7,7 @@ import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
+import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 
@@ -35,7 +36,10 @@ class C12AddWaypoint(): IMessage {
         buf.writeInt(boatID)
     }
 
-    object Handler: IMessageHandler<C12AddWaypoint, IMessage> {
+    object Handler: MBMessageHandler<C12AddWaypoint, IMessage> {
+        override val packetClass = C12AddWaypoint::class
+        override val receiverSide = Side.SERVER
+
         override fun onMessage(message: C12AddWaypoint, ctx: MessageContext): IMessage? {
             val player = ctx.serverHandler.player
             val world = player.world

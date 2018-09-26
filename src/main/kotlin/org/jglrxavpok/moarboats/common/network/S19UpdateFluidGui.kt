@@ -7,6 +7,7 @@ import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
+import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.client.gui.GuiFluid
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
@@ -35,7 +36,10 @@ class S19UpdateFluidGui(): IMessage {
         ByteBufUtils.writeUTF8String(buf, fluidName)
     }
 
-    object Handler: IMessageHandler<S19UpdateFluidGui, IMessage> {
+    object Handler: MBMessageHandler<S19UpdateFluidGui, IMessage> {
+        override val packetClass = S19UpdateFluidGui::class
+        override val receiverSide = Side.CLIENT
+
         override fun onMessage(message: S19UpdateFluidGui, ctx: MessageContext): IMessage? {
             val screen = Minecraft.getMinecraft().currentScreen
             if(screen is GuiFluid) {

@@ -11,6 +11,7 @@ import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
+import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.FurnaceEngineModule
@@ -48,7 +49,10 @@ class S7SyncInventory(): IMessage {
         ByteBufUtils.writeTag(buf, nbt)
     }
 
-    object Handler: IMessageHandler<S7SyncInventory, IMessage?> {
+    object Handler: MBMessageHandler<S7SyncInventory, IMessage?> {
+        override val packetClass = S7SyncInventory::class
+        override val receiverSide = Side.CLIENT
+
         override fun onMessage(message: S7SyncInventory, ctx: MessageContext): IMessage? {
             val world = Minecraft.getMinecraft().world
             val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null

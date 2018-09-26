@@ -7,6 +7,7 @@ import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
+import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
@@ -37,7 +38,10 @@ class C18ChangeDispenserFacing(): IMessage {
         buf.writeInt(facing.ordinal)
     }
 
-    object Handler: IMessageHandler<C18ChangeDispenserFacing, IMessage?> {
+    object Handler: MBMessageHandler<C18ChangeDispenserFacing, IMessage?> {
+        override val packetClass = C18ChangeDispenserFacing::class
+        override val receiverSide = Side.SERVER
+
         override fun onMessage(message: C18ChangeDispenserFacing, ctx: MessageContext): IMessage? {
             val player = ctx.serverHandler.player
             val world = player.world

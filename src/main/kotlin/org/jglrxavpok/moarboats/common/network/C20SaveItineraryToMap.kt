@@ -7,6 +7,7 @@ import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
+import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
@@ -33,7 +34,10 @@ class C20SaveItineraryToMap(): IMessage {
         ByteBufUtils.writeUTF8String(buf, moduleID.toString())
     }
 
-    object Handler: IMessageHandler<C20SaveItineraryToMap, IMessage?> {
+    object Handler: MBMessageHandler<C20SaveItineraryToMap, IMessage?> {
+        override val packetClass = C20SaveItineraryToMap::class
+        override val receiverSide = Side.SERVER
+
         override fun onMessage(message: C20SaveItineraryToMap, ctx: MessageContext): IMessage? {
             val player = ctx.serverHandler.player
             val world = player.world

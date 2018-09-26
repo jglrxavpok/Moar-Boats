@@ -9,9 +9,11 @@ import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
+import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.HelmModule
+import kotlin.reflect.KClass
 
 class S3MapAnswer(): IMessage {
 
@@ -41,7 +43,10 @@ class S3MapAnswer(): IMessage {
         ByteBufUtils.writeUTF8String(buf, moduleLocation.toString())
     }
 
-    object Handler: IMessageHandler<S3MapAnswer, IMessage> {
+    object Handler: MBMessageHandler<S3MapAnswer, IMessage> {
+        override val packetClass = S3MapAnswer::class
+        override val receiverSide = Side.CLIENT
+
         override fun onMessage(message: S3MapAnswer, ctx: MessageContext): IMessage? {
             val mapID = message.mapName
             val data = MapData(mapID)

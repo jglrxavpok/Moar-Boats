@@ -1,6 +1,8 @@
 package org.jglrxavpok.moarboats.common
 
 import net.minecraftforge.fml.common.network.NetworkRegistry
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper
 import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.network.*
@@ -9,38 +11,45 @@ import org.jglrxavpok.moarboats.common.network.*
 open class MoarBoatsProxy {
     open fun init() {
         NetworkRegistry.INSTANCE.registerGuiHandler(MoarBoats, MoarBoatsGuiHandler)
-        MoarBoats.network.registerMessage(C0OpenModuleGui.Handler, C0OpenModuleGui::class.java, 0, Side.SERVER)
-        MoarBoats.network.registerMessage(C1MapClick.Handler, C1MapClick::class.java, 1, Side.SERVER)
-        MoarBoats.network.registerMessage(C2MapRequest.Handler, C2MapRequest::class.java, 2, Side.SERVER)
-        MoarBoats.network.registerMessage(S3MapAnswer.Handler, S3MapAnswer::class.java, 3, Side.CLIENT)
-        MoarBoats.network.registerMessage(C4ChangeEngineMode.Handler, C4ChangeEngineMode::class.java, 4, Side.SERVER)
-        MoarBoats.network.registerMessage(C5DeployAnchor.Handler, C5DeployAnchor::class.java, 5, Side.SERVER)
-        MoarBoats.network.registerMessage(S6PlaySound.Handler, S6PlaySound::class.java, 6, Side.CLIENT)
-        MoarBoats.network.registerMessage(S7SyncInventory.Handler, S7SyncInventory::class.java, 7, Side.CLIENT)
-        MoarBoats.network.registerMessage(C8ChangeEngineSpeed.Handler, C8ChangeEngineSpeed::class.java, 8, Side.SERVER)
-        MoarBoats.network.registerMessage(C9ChangeDispenserPeriod.Handler, C9ChangeDispenserPeriod::class.java, 9, Side.SERVER)
-        MoarBoats.network.registerMessage(C10MapImageRequest.Handler, C10MapImageRequest::class.java, 10, Side.SERVER)
-        MoarBoats.network.registerMessage(S11MapImageAnswer.Handler, S11MapImageAnswer::class.java, 11, Side.CLIENT)
-        MoarBoats.network.registerMessage(C12AddWaypoint.Handler, C12AddWaypoint::class.java, 12, Side.SERVER)
-        MoarBoats.network.registerMessage(C13RemoveWaypoint.Handler, C13RemoveWaypoint::class.java, 13, Side.SERVER)
-        MoarBoats.network.registerMessage(C14ChangeLoopingState.Handler, C14ChangeLoopingState::class.java, 14, Side.SERVER)
-        MoarBoats.network.registerMessage(S15ModuleData.Handler, S15ModuleData::class.java, 15, Side.CLIENT)
-        MoarBoats.network.registerMessage(S16ModuleLocations.Handler, S16ModuleLocations::class.java, 16, Side.CLIENT)
-        MoarBoats.network.registerMessage(C17RemoveModule.Handler, C17RemoveModule::class.java, 17, Side.SERVER)
-        MoarBoats.network.registerMessage(C18ChangeDispenserFacing.Handler, C18ChangeDispenserFacing::class.java, 18, Side.SERVER)
-        MoarBoats.network.registerMessage(S19UpdateFluidGui.Handler, S19UpdateFluidGui::class.java, 19, Side.CLIENT)
-        MoarBoats.network.registerMessage(C20SaveItineraryToMap.Handler, C20SaveItineraryToMap::class.java, 20, Side.SERVER)
-        MoarBoats.network.registerMessage(S21SetGoldenItinerary.Handler, S21SetGoldenItinerary::class.java, 21, Side.CLIENT)
-        MoarBoats.network.registerMessage(C22AddWaypointToItemPathFromMappingTable.Handler, C22AddWaypointToItemPathFromMappingTable::class.java, 22, Side.SERVER)
-        MoarBoats.network.registerMessage(C23AddWaypointToItemPathFromBoat.Handler, C23AddWaypointToItemPathFromBoat::class.java, 23, Side.SERVER)
-        MoarBoats.network.registerMessage(S24UpdateMapWithPathInMappingTable.Handler, S24UpdateMapWithPathInMappingTable::class.java, 24, Side.CLIENT)
-        MoarBoats.network.registerMessage(S25UpdateMapWithPathInBoat.Handler, S25UpdateMapWithPathInBoat::class.java, 25, Side.CLIENT)
-        MoarBoats.network.registerMessage(C26RemoveWaypointFromMapWithPathFromMappingTable.Handler, C26RemoveWaypointFromMapWithPathFromMappingTable::class.java, 26, Side.SERVER)
-        MoarBoats.network.registerMessage(C27RemoveWaypointFromMapWithPathFromBoat.Handler, C27RemoveWaypointFromMapWithPathFromBoat::class.java, 27, Side.SERVER)
-        MoarBoats.network.registerMessage(C28RemoveWaypointFromGoldenTicketFromMappingTable.Handler, C28RemoveWaypointFromGoldenTicketFromMappingTable::class.java, 28, Side.SERVER)
-        MoarBoats.network.registerMessage(C29RemoveWaypointFromGoldenTicketFromBoat.Handler, C29RemoveWaypointFromGoldenTicketFromBoat::class.java, 29, Side.SERVER)
-        MoarBoats.network.registerMessage(C30AddWaypointToGoldenTicketFromMappingTable.Handler, C30AddWaypointToGoldenTicketFromMappingTable::class.java, 30, Side.SERVER)
-        MoarBoats.network.registerMessage(C31AddWaypointToGoldenTicketFromBoat.Handler, C31AddWaypointToGoldenTicketFromBoat::class.java, 31, Side.SERVER)
+        registerMessages(
+                C0OpenModuleGui.Handler,
+                C2MapRequest.Handler,
+                S3MapAnswer.Handler,
+                C4ChangeEngineMode.Handler,
+                C5DeployAnchor.Handler,
+                S6PlaySound.Handler,
+                S7SyncInventory.Handler,
+                C8ChangeEngineSpeed.Handler,
+                C9ChangeDispenserPeriod.Handler,
+                C10MapImageRequest.Handler,
+                S11MapImageAnswer.Handler,
+                C12AddWaypoint.Handler,
+                C13RemoveWaypoint.Handler,
+                C14ChangeLoopingState.Handler,
+                S15ModuleData.Handler,
+                S16ModuleLocations.Handler,
+                C17RemoveModule.Handler,
+                C18ChangeDispenserFacing.Handler,
+                S19UpdateFluidGui.Handler,
+                C20SaveItineraryToMap.Handler,
+                S21SetGoldenItinerary.Handler,
+                C22AddWaypointToItemPathFromMappingTable.Handler,
+                C23AddWaypointToItemPathFromBoat.Handler,
+                S24UpdateMapWithPathInMappingTable.Handler,
+                S25UpdateMapWithPathInBoat.Handler,
+                C26RemoveWaypointFromMapWithPathFromMappingTable.Handler,
+                C27RemoveWaypointFromMapWithPathFromBoat.Handler,
+                C28RemoveWaypointFromGoldenTicketFromMappingTable.Handler,
+                C29RemoveWaypointFromGoldenTicketFromBoat.Handler,
+                C30AddWaypointToGoldenTicketFromMappingTable.Handler,
+                C31AddWaypointToGoldenTicketFromBoat.Handler
+                )
+    }
+
+    private fun registerMessages(vararg handlers: MBMessageHandler<out IMessage, out IMessage?>) {
+        for((packetID, handler) in handlers.withIndex()) {
+            handler.registerSelf(MoarBoats.network, packetID)
+        }
     }
 
     open fun preInit() {

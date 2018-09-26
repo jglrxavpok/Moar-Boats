@@ -8,6 +8,7 @@ import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
+import net.minecraftforge.fml.relauncher.Side
 
 abstract class SxxUpdateMapWithPath: IMessage {
 
@@ -29,8 +30,9 @@ abstract class SxxUpdateMapWithPath: IMessage {
         ByteBufUtils.writeTag(buf, tag)
     }
 
-    abstract class Handler<T: SxxUpdateMapWithPath>: IMessageHandler<T, IMessage?> {
+    abstract class Handler<T: SxxUpdateMapWithPath>: MBMessageHandler<T, IMessage?> {
         abstract fun updatePath(message: T, ctx: MessageContext, list: NBTTagList)
+        override val receiverSide = Side.CLIENT
 
         override fun onMessage(message: T, ctx: MessageContext): IMessage? {
             val list = message.list

@@ -5,7 +5,6 @@ import net.minecraft.client.gui.GuiScreen
 import net.minecraft.dispenser.BehaviorDefaultDispenseItem
 import net.minecraft.dispenser.IBehaviorDispenseItem
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.init.Blocks
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
@@ -13,7 +12,6 @@ import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
@@ -22,7 +20,6 @@ import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiDispenserModule
 import org.jglrxavpok.moarboats.common.MBConfig
 import org.jglrxavpok.moarboats.common.containers.ContainerDispenserModule
-import org.jglrxavpok.moarboats.common.modules.DispenserModule.getInventory
 import org.jglrxavpok.moarboats.common.state.ArrayBoatProperty
 import org.jglrxavpok.moarboats.common.state.BlockPosProperty
 import org.jglrxavpok.moarboats.common.state.DoubleBoatProperty

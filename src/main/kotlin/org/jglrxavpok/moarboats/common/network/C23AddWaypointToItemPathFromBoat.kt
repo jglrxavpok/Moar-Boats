@@ -8,6 +8,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.items.ItemMapWithPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
+import kotlin.reflect.KClass
 
 class C23AddWaypointToItemPathFromBoat: CxxAddWaypointToItemPath {
 
@@ -31,6 +32,7 @@ class C23AddWaypointToItemPathFromBoat: CxxAddWaypointToItemPath {
 
     object Handler: CxxAddWaypointToItemPath.Handler<C23AddWaypointToItemPathFromBoat, S25UpdateMapWithPathInBoat>() {
         override val item = ItemMapWithPath
+        override val packetClass = C23AddWaypointToItemPathFromBoat::class
 
         override fun getStack(message: C23AddWaypointToItemPathFromBoat, ctx: MessageContext): ItemStack? {
             with(message) {

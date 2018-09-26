@@ -7,6 +7,7 @@ import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
+import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 
@@ -30,7 +31,10 @@ class C14ChangeLoopingState(): IMessage {
         buf.writeBoolean(loops)
     }
 
-    object Handler: IMessageHandler<C14ChangeLoopingState, IMessage> {
+    object Handler: MBMessageHandler<C14ChangeLoopingState, IMessage> {
+        override val packetClass = C14ChangeLoopingState::class
+        override val receiverSide = Side.SERVER
+
         override fun onMessage(message: C14ChangeLoopingState, ctx: MessageContext): IMessage? {
             val player = ctx.serverHandler.player
             val world = player.world

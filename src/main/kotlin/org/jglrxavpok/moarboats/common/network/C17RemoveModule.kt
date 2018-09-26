@@ -7,6 +7,7 @@ import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
+import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
@@ -33,7 +34,10 @@ class C17RemoveModule(): IMessage {
         ByteBufUtils.writeUTF8String(buf, moduleLocation.toString())
     }
 
-    object Handler: IMessageHandler<C17RemoveModule, S3MapAnswer> {
+    object Handler: MBMessageHandler<C17RemoveModule, S3MapAnswer> {
+        override val packetClass = C17RemoveModule::class
+        override val receiverSide = Side.SERVER
+
         override fun onMessage(message: C17RemoveModule, ctx: MessageContext): S3MapAnswer? {
             val player = ctx.serverHandler.player
             val world = player.world

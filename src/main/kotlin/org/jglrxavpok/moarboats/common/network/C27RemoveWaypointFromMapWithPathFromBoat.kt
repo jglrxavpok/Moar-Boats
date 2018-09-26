@@ -31,6 +31,7 @@ class C27RemoveWaypointFromMapWithPathFromBoat: CxxRemoveWaypointToItemPath {
 
     object Handler: CxxRemoveWaypointToItemPath.Handler<C27RemoveWaypointFromMapWithPathFromBoat, S25UpdateMapWithPathInBoat>() {
         override val item = ItemMapWithPath
+        override val packetClass = C27RemoveWaypointFromMapWithPathFromBoat::class
 
         override fun getStack(message: C27RemoveWaypointFromMapWithPathFromBoat, ctx: MessageContext): ItemStack? {
             with(message) {

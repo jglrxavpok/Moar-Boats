@@ -5,6 +5,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagList
 import net.minecraft.util.math.BlockPos
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
+import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.items.ItemMapWithPath
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
@@ -39,6 +40,7 @@ class C22AddWaypointToItemPathFromMappingTable: CxxAddWaypointToItemPath {
 
     object Handler: CxxAddWaypointToItemPath.Handler<C22AddWaypointToItemPathFromMappingTable, S24UpdateMapWithPathInMappingTable>() {
         override val item = ItemMapWithPath
+        override val packetClass = C22AddWaypointToItemPathFromMappingTable::class
 
         override fun getStack(message: C22AddWaypointToItemPathFromMappingTable, ctx: MessageContext): ItemStack? {
             with(message) {

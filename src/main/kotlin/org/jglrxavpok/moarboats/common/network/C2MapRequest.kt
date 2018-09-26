@@ -7,9 +7,11 @@ import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
+import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.common.modules.HelmModule
+import kotlin.reflect.KClass
 
 class C2MapRequest(): IMessage {
 
@@ -35,7 +37,10 @@ class C2MapRequest(): IMessage {
         ByteBufUtils.writeUTF8String(buf, moduleLocation.toString())
     }
 
-    object Handler: IMessageHandler<C2MapRequest, S3MapAnswer> {
+    object Handler: MBMessageHandler<C2MapRequest, S3MapAnswer> {
+        override val packetClass = C2MapRequest::class
+        override val receiverSide = Side.SERVER
+
         override fun onMessage(message: C2MapRequest, ctx: MessageContext): S3MapAnswer? {
             val player = ctx.serverHandler.player
             val world = player.world
