@@ -52,6 +52,9 @@ interface IControllable: IBlockSource {
      */
     fun reorientate(overrideFacing: EnumFacing): EnumFacing
 
+    fun getOwnerIdOrNull(): UUID?
+    fun getOwnerNameOrNull(): String?
+
     fun calculateAnchorPosition(linkType: Int): Vec3d {
         val distanceFromCenter = 0.0625f * 17f * if(linkType == BasicBoatEntity.FrontLink) 1f else -1f
         val anchorX = positionX + MathHelper.cos((yaw + 90f).toRadians()) * distanceFromCenter

@@ -109,3 +109,4 @@ moarboats.item.golden_ticket.name.empty=Golden Ticket (Empty)
 item.golden_ticket.name=Golden Ticket
 item.map_with_path.name=Map with path
 moarboats.gui.helm.save_on_map=Save on map
+moarboats.locked_by_owner=Locked by owner (%s) !

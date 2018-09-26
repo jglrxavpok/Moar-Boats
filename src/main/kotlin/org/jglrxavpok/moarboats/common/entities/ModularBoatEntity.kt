@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.common.entities
 
+import com.mojang.authlib.GameProfile
 import io.netty.buffer.ByteBuf
 import net.minecraft.block.BlockDispenser
 import net.minecraft.block.state.IBlockState
@@ -31,6 +32,7 @@ import net.minecraftforge.fluids.FluidStack
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import net.minecraftforge.fluids.capability.IFluidHandler
 import net.minecraftforge.fluids.capability.IFluidTankProperties
+import net.minecraftforge.fml.common.FMLCommonHandler
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData
 import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.wrapper.InvWrapper
@@ -38,6 +40,7 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.api.BoatModuleInventory
+import org.jglrxavpok.moarboats.common.LockedByOwner
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.ResourceLocationsSerializer
 import org.jglrxavpok.moarboats.common.items.ModularBoatItem
@@ -56,6 +59,10 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
     private companion object {
         val MODULE_LOCATIONS = EntityDataManager.createKey(ModularBoatEntity::class.java, ResourceLocationsSerializer)
         val MODULE_DATA = EntityDataManager.createKey(ModularBoatEntity::class.java, DataSerializers.COMPOUND_TAG)
+    }
+
+    enum class OwningMode {
+        AllowAll, PlayerOwned
     }
 
     override val entityID: Int
@@ -84,13 +91,19 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
 
     var color = EnumDyeColor.WHITE // white by default
         private set
+    var owningMode = OwningMode.PlayerOwned
+        private set
+    var ownerUUID: UUID? = null
+        private set
+    var ownerName: String? = null
+        private set
 
     init {
         this.preventEntitySpawning = true
         this.setSize(1.375f, 0.5625f)
     }
 
-    constructor(world: World, x: Double, y: Double, z: Double, color: EnumDyeColor): this(world) {
+    constructor(world: World, x: Double, y: Double, z: Double, color: EnumDyeColor, owningMode: OwningMode, ownerUUID: UUID? = null): this(world) {
         this.setPosition(x, y, z)
         this.motionX = 0.0
         this.motionY = 0.0
@@ -99,6 +112,8 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         this.prevPosY = y
         this.prevPosZ = z
         this.color = color
+        this.owningMode = owningMode
+        this.ownerUUID = ownerUUID
     }
 
     /**
@@ -110,6 +125,10 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
 
         modules.forEach { it.update(this) }
         super.onUpdate()
+
+        if(ownerUUID != null && ownerName == null) {
+            ownerName = world.getPlayerEntityByUUID(ownerUUID)?.name
+        }
     }
 
     override fun controlBoat() {
@@ -158,13 +177,22 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
             }
         }
 
-        val canOpenGui = !modules.any { it.onInteract(this, player, hand, player.isSneaking) }
+        val validOwner = isValidOwner(player)
+        val canOpenGui = validOwner && !modules.any { it.onInteract(this, player, hand, player.isSneaking) }
         if(canOpenGui) {
             if(modules.isNotEmpty() && !world.isRemote) {
                 player.openGui(MoarBoats, MoarBoatsGuiHandler.ModulesGui, player.world, entityID, 0, 0)
             }
+        } else if(!validOwner) {
+            player.sendStatusMessage(TextComponentTranslation(LockedByOwner.key, ownerName ?: "<UNKNOWN>"), true)
         }
         return true
+    }
+
+    private fun isValidOwner(player: EntityPlayer): Boolean {
+        return owningMode == OwningMode.AllowAll
+                || ownerUUID == player.gameProfile.id
+                || FMLCommonHandler.instance().minecraftServerInstance.playerList.oppedPlayers.getPermissionLevel(player.gameProfile) >= 2
     }
 
     private fun canFitModule(module: ResourceLocation): Boolean {
@@ -188,6 +216,12 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         compound.setTag("modules", list)
         compound.setTag("state", moduleData)
         compound.setString("color", color.name)
+        if(owningMode == OwningMode.PlayerOwned) {
+            compound.setUniqueId("ownerUUID", ownerUUID ?: UUID.fromString("0000-0000-0000-0000"))
+        }
+        if(ownerName != null)
+            compound.setString("ownerName", ownerName)
+        compound.setString("owningMode", owningMode.name.toLowerCase())
     }
 
     override fun readEntityFromNBT(compound: NBTTagCompound) {
@@ -212,6 +246,23 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
             colorFromString(compound.getString("color"))
         else
             EnumDyeColor.WHITE
+
+        if(compound.hasUniqueId("ownerUUID")) {
+            ownerUUID = compound.getUniqueId("ownerUUID")
+        } else {
+            ownerUUID = null
+        }
+        if(compound.hasKey("ownerName"))
+            ownerName = compound.getString("ownerName")
+        owningMode = if(ownerUUID != null && compound.hasKey("owningMode")) {
+            val mode = compound.getString("owningMode")
+            when(mode) {
+                "allowall" -> OwningMode.AllowAll
+                else -> OwningMode.PlayerOwned
+            }
+        } else {
+            OwningMode.AllowAll
+        }
     }
 
     override fun saveState(module: BoatModule) {
@@ -525,6 +576,14 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
 
     override fun canDrain(): Boolean {
         return getFluidModuleOrNull()?.canBeDrained(this) ?: false
+    }
+
+    override fun getOwnerIdOrNull(): UUID? {
+        return ownerUUID
+    }
+
+    override fun getOwnerNameOrNull(): String? {
+        return ownerName
     }
 
 }

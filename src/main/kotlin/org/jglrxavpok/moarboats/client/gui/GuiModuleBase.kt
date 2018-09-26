@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.client.gui
 
+import com.mojang.authlib.GameProfile
 import net.minecraft.client.audio.PositionedSoundRecord
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.client.renderer.GlStateManager
@@ -10,6 +11,7 @@ import net.minecraft.inventory.Container
 import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.TextComponentTranslation
+import net.minecraftforge.fml.common.FMLCommonHandler
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.network.C0OpenModuleGui
 import org.jglrxavpok.moarboats.api.BoatModule
@@ -117,6 +119,13 @@ abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, va
         this.drawTexturedModalRect(i, j, 0, 0, this.xSize, ySize)
 
         drawModuleBackground(mouseX, mouseY)
+
+        val ownerUUID = boat.getOwnerIdOrNull()
+        if(ownerUUID != null) {
+            fontRenderer.drawString("Owned by UUID $ownerUUID (${boat.getOwnerNameOrNull()})", 0, 0, 0xFFFFFFFF.toInt())
+        } else {
+            fontRenderer.drawString("Not owned", 0, 0, 0xFFFFFFFF.toInt())
+        }
     }
 
     inner class ModuleTab(val tabModule: BoatModule, val x: Int, val y: Int) {

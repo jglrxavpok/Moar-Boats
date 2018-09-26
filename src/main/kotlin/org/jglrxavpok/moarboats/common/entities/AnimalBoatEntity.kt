@@ -25,9 +25,9 @@ import java.util.*
 class AnimalBoatEntity(world: World): BasicBoatEntity(world) {
     override val entityID: Int
         get() = entityId
+
     override val modules: List<BoatModule> = emptyList()
     override val moduleRNG: Random = Random()
-
     init {
         this.preventEntitySpawning = true
         this.setSize(1.375f *1.5f, 0.5625f)
@@ -41,6 +41,14 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(world) {
         this.prevPosX = x
         this.prevPosY = y
         this.prevPosZ = z
+    }
+
+    override fun getOwnerIdOrNull(): UUID? {
+        return null
+    }
+
+    override fun getOwnerNameOrNull(): String? {
+        return null
     }
 
     override fun getMountedYOffset(): Double {

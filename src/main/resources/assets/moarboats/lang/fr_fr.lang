@@ -102,3 +102,4 @@ moarboats.item.golden_ticket.name.empty=Ticket d'or (Vide)
 item.golden_ticket.name=Ticket d'or
 item.map_with_path.name=Carte avec chemin
 moarboats.gui.helm.save_on_map=Sauvegarder sur la carte
+moarboats.locked_by_owner=Verrouillé par le/la propriétaire (%s) !
