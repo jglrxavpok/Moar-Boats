@@ -78,7 +78,7 @@ class C10MapImageRequest(): IMessage {
                     val mapColor = if (j / 4 == 0) {
                         (i + i / 128 and 1) * 8 + 16 shl 24
                     } else {
-                        MapColor.COLORS[j / 4].getMapColor(j and 3)
+                        getMapColor(MapColor.COLORS[j / 4], j and 3)
                     }
                     val chunk = try {
                         world.chunkProvider.getLoadedChunk(chunkX, chunkZ)
@@ -121,6 +121,31 @@ class C10MapImageRequest(): IMessage {
             }
             blockPos.release()
             return textureData
+        }
+
+        private fun getMapColor(mapColor: MapColor, index: Int): Int {
+            var i = 220
+
+            if (index == 3) {
+                i = 135
+            }
+
+            if (index == 2) {
+                i = 255
+            }
+
+            if (index == 1) {
+                i = 220
+            }
+
+            if (index == 0) {
+                i = 180
+            }
+
+            val j = (mapColor.colorValue shr 16 and 255) * i / 255
+            val k = (mapColor.colorValue shr 8 and 255) * i / 255
+            val l = (mapColor.colorValue and 255) * i / 255
+            return -16777216 or (j shl 16) or (k shl 8) or l
         }
 
         private fun reduceBrightness(rgbColor: Int, depth: Int): Int {

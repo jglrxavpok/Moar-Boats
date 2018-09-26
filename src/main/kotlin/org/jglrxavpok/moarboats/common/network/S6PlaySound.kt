@@ -11,6 +11,7 @@ import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
+import org.jglrxavpok.moarboats.extensions.getObjectUniversal
 
 class S6PlaySound(): IMessage {
 
@@ -38,8 +39,8 @@ class S6PlaySound(): IMessage {
         z = buf.readDouble()
         volume = buf.readFloat()
         pitch = buf.readFloat()
-        val soundEventLoc = ResourceLocation(ByteBufUtils.readUTF8String(buf))
-        soundEvent = SoundEvent.REGISTRY.getObject(soundEventLoc)!!
+        val soundEventID = buf.readInt()
+        soundEvent = SoundEvent.REGISTRY.getObjectById(soundEventID)!!
         soundCategory = SoundCategory.getByName(ByteBufUtils.readUTF8String(buf))
     }
 
@@ -49,7 +50,7 @@ class S6PlaySound(): IMessage {
         buf.writeDouble(z)
         buf.writeFloat(volume)
         buf.writeFloat(pitch)
-        ByteBufUtils.writeUTF8String(buf, soundEvent.soundName.toString())
+        buf.writeInt(SoundEvent.REGISTRY.getIDForObject(soundEvent))
         ByteBufUtils.writeUTF8String(buf, soundCategory.getName())
     }
 

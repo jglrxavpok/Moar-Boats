@@ -94,6 +94,12 @@ object FishingModule : BoatModule() {
                 val storageInventory = from.getInventory(storageModule)
                 val damageAmount = 1
                 val broken = rodStack.attemptDamageItem(damageAmount, from.moduleRNG, null)
+                for(loot in result) {
+                    val remaining = storageInventory.add(loot)
+                    if(!remaining.isEmpty) {
+                        from.correspondingEntity.entityDropItem(loot, 0f)
+                    }
+                }
                 if(broken) {
                     breakRod(from)
                     changeRodIfPossible(from)
@@ -101,12 +107,6 @@ object FishingModule : BoatModule() {
                 } else if(rodStack.itemDamage >= rodStack.maxDamage - MBConfig.fishingRemainingUsesBeforeBreak) {
                     changeRodIfPossible(from)
                     return
-                }
-                for(loot in result) {
-                    val remaining = storageInventory.add(loot)
-                    if(!remaining.isEmpty) {
-                        from.correspondingEntity.entityDropItem(loot, 0f)
-                    }
                 }
             }
         }
