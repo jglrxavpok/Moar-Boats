@@ -1,19 +1,19 @@
 package org.jglrxavpok.moarboats.client.gui
 
-import com.mojang.authlib.GameProfile
 import net.minecraft.client.Minecraft
 import net.minecraft.client.audio.PositionedSoundRecord
 import net.minecraft.client.gui.Gui
 import net.minecraft.client.gui.inventory.GuiContainer
+import net.minecraft.client.network.NetworkPlayerInfo
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.RenderHelper
+import net.minecraft.client.resources.DefaultPlayerSkin
 import net.minecraft.entity.player.InventoryPlayer
 import net.minecraft.init.SoundEvents
 import net.minecraft.inventory.Container
 import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.TextComponentTranslation
-import net.minecraftforge.fml.common.FMLCommonHandler
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.network.C0OpenModuleGui
 import org.jglrxavpok.moarboats.api.BoatModule
@@ -132,8 +132,13 @@ abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, va
         if(ownerUUID != null) {
             mc.textureManager.bindTexture(BACKGROUND_TEXTURE)
             this.drawTexturedModalRect(i-21, j+3, 176, 57, 24, 26)
-            val info = Minecraft.getMinecraft().connection!!.getPlayerInfo(ownerUUID)
-            mc.textureManager.bindTexture(info.locationSkin)
+            val info: NetworkPlayerInfo? = Minecraft.getMinecraft().connection!!.getPlayerInfo(ownerUUID)
+            if(info != null) {
+                mc.textureManager.bindTexture(info.locationSkin)
+            } else {
+                val skinLocation = DefaultPlayerSkin.getDefaultSkin(ownerUUID)
+                mc.textureManager.bindTexture(skinLocation)
+            }
             GlStateManager.pushMatrix()
             GlStateManager.translate(i-21+5f, j.toFloat()+5f+3, 0f)
             GlStateManager.scale(2f, 2f, 2f)
