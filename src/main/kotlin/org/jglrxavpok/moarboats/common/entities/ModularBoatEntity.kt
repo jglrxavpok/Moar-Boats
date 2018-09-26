@@ -284,7 +284,9 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
     private fun updateModuleData() {
         dataManager[MODULE_DATA] = moduleData // uses the setter of 'moduleData' to update the state
         if(!world.isRemote) {
-            MoarBoats.network.sendToAll(S15ModuleData(entityID, moduleData))
+            moduleData?.let {
+                MoarBoats.network.sendToAll(S15ModuleData(entityID, moduleData))
+            }
         }
     }
 

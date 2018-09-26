@@ -1,7 +1,9 @@
 package org.jglrxavpok.moarboats.client.gui
 
 import com.mojang.authlib.GameProfile
+import net.minecraft.client.Minecraft
 import net.minecraft.client.audio.PositionedSoundRecord
+import net.minecraft.client.gui.Gui
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.RenderHelper
@@ -17,6 +19,7 @@ import org.jglrxavpok.moarboats.common.network.C0OpenModuleGui
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.api.IControllable
+import org.jglrxavpok.moarboats.common.LockedByOwner
 import org.jglrxavpok.moarboats.common.network.C17RemoveModule
 
 abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, val playerInventory: InventoryPlayer, val container: Container, val isLarge: Boolean = false): GuiContainer(container) {
@@ -93,6 +96,15 @@ abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, va
             this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2, 6, 4210752)
         this.fontRenderer.drawString(playerInventory.displayName.unformattedText, 8, this.ySize - 96 + 2, 4210752)
         drawModuleForeground(mouseX, mouseY)
+
+        if(mouseX in (guiLeft-24)..guiLeft && mouseY in (guiTop+3)..(guiTop+26)) {
+            if(boat.getOwnerNameOrNull() != null) {
+                drawHoveringText(
+                        TextComponentTranslation(LockedByOwner.key, boat.getOwnerNameOrNull()).unformattedText,
+                        mouseX-guiLeft,
+                        mouseY-guiTop)
+            }
+        }
     }
 
     open fun drawModuleForeground(mouseX: Int, mouseY: Int) {}
@@ -115,17 +127,25 @@ abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, va
             moduleTab.renderContents()
         }
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f)
+
+        val ownerUUID = boat.getOwnerIdOrNull()
+        if(ownerUUID != null) {
+            mc.textureManager.bindTexture(BACKGROUND_TEXTURE)
+            this.drawTexturedModalRect(i-21, j+3, 176, 57, 24, 26)
+            val info = Minecraft.getMinecraft().connection!!.getPlayerInfo(ownerUUID)
+            mc.textureManager.bindTexture(info.locationSkin)
+            GlStateManager.pushMatrix()
+            GlStateManager.translate(i-21+5f, j.toFloat()+5f+3, 0f)
+            GlStateManager.scale(2f, 2f, 2f)
+            Gui.drawModalRectWithCustomSizedTexture(0, 0, 8f, 8f, 8, 8, 64f, 64f)
+            GlStateManager.popMatrix()
+        }
+
+        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f)
         mc.textureManager.bindTexture(moduleBackground)
         this.drawTexturedModalRect(i, j, 0, 0, this.xSize, ySize)
 
         drawModuleBackground(mouseX, mouseY)
-
-        val ownerUUID = boat.getOwnerIdOrNull()
-        if(ownerUUID != null) {
-            fontRenderer.drawString("Owned by UUID $ownerUUID (${boat.getOwnerNameOrNull()})", 0, 0, 0xFFFFFFFF.toInt())
-        } else {
-            fontRenderer.drawString("Not owned", 0, 0, 0xFFFFFFFF.toInt())
-        }
     }
 
     inner class ModuleTab(val tabModule: BoatModule, val x: Int, val y: Int) {
@@ -151,7 +171,9 @@ abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, va
             val itemstack = ItemStack(BoatModuleRegistry[tabModule.id].correspondingItem)
             val itemX = width/2 - 10 + x + 1
             val itemY = height/2 - 8 + y
+            GlStateManager.pushMatrix()
             itemRender.renderItemAndEffectIntoGUI(itemstack, itemX, itemY)
+            GlStateManager.popMatrix()
             itemRender.zLevel = 0.0f
             zLevel = 0.0f
         }
