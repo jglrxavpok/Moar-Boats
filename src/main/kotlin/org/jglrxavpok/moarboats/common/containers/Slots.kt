@@ -11,6 +11,10 @@ class SlotMap(inventory: IInventory, index: Int, x: Int, y: Int): Slot(inventory
     override fun isItemValid(stack: ItemStack): Boolean {
         return stack.item == Items.FILLED_MAP || stack.item == ItemGoldenTicket || stack.item == ItemMapWithPath
     }
+
+    override fun getItemStackLimit(stack: ItemStack?): Int {
+        return 1
+    }
 }
 
 class SlotFishingRod(inventory: IInventory, index: Int, x: Int, y: Int): SlotOneItemType(inventory, index, x, y) {

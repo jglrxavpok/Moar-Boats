@@ -74,7 +74,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         get()= dataManager[MODULE_LOCATIONS]
         set(value) { dataManager[MODULE_LOCATIONS] = value }
 
-    var moduleData
+    var moduleData: NBTTagCompound
         get()= dataManager[MODULE_DATA]
         set(value) { dataManager[MODULE_DATA] = value; dataManager.setDirty(MODULE_DATA) }
     override val modules = mutableListOf<BoatModule>()
@@ -247,22 +247,23 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         else
             EnumDyeColor.WHITE
 
-        if(compound.hasUniqueId("ownerUUID")) {
-            ownerUUID = compound.getUniqueId("ownerUUID")
+        ownerUUID = if(compound.hasUniqueId("ownerUUID")) {
+            compound.getUniqueId("ownerUUID")
         } else {
-            ownerUUID = null
+            null
         }
         if(compound.hasKey("ownerName"))
             ownerName = compound.getString("ownerName")
-        owningMode = if(ownerUUID != null && compound.hasKey("owningMode")) {
-            val mode = compound.getString("owningMode")
-            when(mode) {
-                "allowall" -> OwningMode.AllowAll
-                else -> OwningMode.PlayerOwned
-            }
-        } else {
-            OwningMode.AllowAll
-        }
+        owningMode =
+                if(ownerUUID != null && compound.hasKey("owningMode")) {
+                    val mode = compound.getString("owningMode")
+                    when(mode) {
+                        "allowall" -> OwningMode.AllowAll
+                        else -> OwningMode.PlayerOwned
+                    }
+                } else {
+                    OwningMode.AllowAll
+                }
     }
 
     override fun saveState(module: BoatModule) {
@@ -284,7 +285,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
     private fun updateModuleData() {
         dataManager[MODULE_DATA] = moduleData // uses the setter of 'moduleData' to update the state
         if(!world.isRemote) {
-            moduleData?.let {
+            if(moduleData != null) {
                 MoarBoats.network.sendToAll(S15ModuleData(entityID, moduleData))
             }
         }

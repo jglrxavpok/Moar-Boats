@@ -10,6 +10,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
+import org.jglrxavpok.moarboats.common.containers.ContainerHelmModule
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.items.ItemMapWithPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
@@ -40,6 +41,10 @@ class C20SaveItineraryToMap(): IMessage {
 
         override fun onMessage(message: C20SaveItineraryToMap, ctx: MessageContext): IMessage? {
             val player = ctx.serverHandler.player
+            if(player.openContainer !is ContainerHelmModule) {
+                MoarBoats.logger.warn("Player $player tried to save an itinerary to a map while not in a helm container, they might be lagging or cheating")
+                return null
+            }
             val world = player.world
             val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
             val moduleLocation = message.moduleID
@@ -50,6 +55,7 @@ class C20SaveItineraryToMap(): IMessage {
             if(inv.getStackInSlot(0).item == Items.FILLED_MAP) {
                 val id = inv.getStackInSlot(0).itemDamage
                 inv.setInventorySlotContents(0, ItemMapWithPath.createStack(list, "map_$id", module.loopingProperty[boat]))
+                player.openContainer.detectAndSendChanges()
             }
             return null
         }

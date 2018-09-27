@@ -45,10 +45,14 @@ class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: 
 
     override fun initGui() {
         super.initGui()
-        mapEditButton.width = (xSize * .75).toInt()
-        mapEditButton.x = guiLeft + xSize/2 - mapEditButton.width/2
+        mapEditButton.width = (xSize * .75).toInt() /2
+        mapEditButton.x = guiLeft + xSize/2 - mapEditButton.width
         mapEditButton.y = guiTop + (mapSize + 7).toInt()
         addButton(mapEditButton)
+
+        saveButton.width = (xSize*.75).toInt() /2
+        saveButton.x = guiLeft + xSize/2
+        saveButton.y = guiTop + (mapSize + 7).toInt()
         addButton(saveButton)
     }
 
@@ -60,7 +64,12 @@ class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: 
                     playerInventory.player.openGui(MoarBoats, MoarBoatsGuiHandler.PathEditor, boat.world, boat.entityID, 0, 0)
                 }
             }
-            saveButton -> MoarBoats.network.sendToServer(C20SaveItineraryToMap(boat.entityID, HelmModule.id))
+            saveButton -> {
+                val mapData = getMapData(container.getSlot(0).stack)
+                if(mapData != null && mapData != EmptyMapData && container.getSlot(0).stack.item == Items.FILLED_MAP) {
+                    MoarBoats.network.sendToServer(C20SaveItineraryToMap(boat.entityID, HelmModule.id))
+                }
+            }
         }
     }
 
@@ -124,6 +133,7 @@ class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: 
         super.updateScreen()
         val mapData = getMapData(container.getSlot(0).stack)
         mapEditButton.enabled = mapData != null && mapData != EmptyMapData
+        saveButton.enabled = mapData != null && mapData != EmptyMapData && container.getSlot(0).stack.item == Items.FILLED_MAP
     }
 
 }
