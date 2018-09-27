@@ -74,13 +74,13 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
 
     override fun sendSlotContents(containerToSend: Container, slotInd: Int, stack: ItemStack) {
         println("hi")
-        resetList(stack)
+        if(slotInd == 0)
+            resetList(stack)
     }
 
     private fun resetList(stack: ItemStack) {
         list.slots.clear()
         if(stack.item is ItemPath) {
-            println("!!")
             val path = stack.item as ItemPath
             val list = path.getWaypointData(stack, MoarBoats.getLocalMapStorage())
             for(nbt in list) {

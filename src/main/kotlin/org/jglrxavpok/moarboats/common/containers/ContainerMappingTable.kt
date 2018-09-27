@@ -12,9 +12,8 @@ import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 class ContainerMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPlayer): ContainerBase(playerInv) {
 
     init {
-        addPlayerSlots(true)
-
         addSlotToContainer(SlotMappingTable(te.inventory, 0, 8, 8))
+        addPlayerSlots(true)
     }
 
     override fun putStackInSlot(slotID: Int, stack: ItemStack?) {
