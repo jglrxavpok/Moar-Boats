@@ -39,7 +39,8 @@ abstract class BaseEngineModule: BoatModule() {
 
     override fun controlBoat(from: IControllable) {
         if(hasFuel(from) && !isStationary(from) && from.inLiquid()) {
-            from.accelerate(speedProperty[from]+1f)
+            val speed = if(from.isSpeedImposed()) from.imposedSpeed else speedProperty[from]
+            from.accelerate(speed+1f)
         }
 
         if(lockedByRedstoneProperty[from]) {

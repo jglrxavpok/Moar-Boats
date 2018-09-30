@@ -16,12 +16,15 @@ import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.text.TextComponentTranslation
 import net.minecraft.world.storage.MapData
+import net.minecraftforge.fml.client.config.GuiSlider
+import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.gui.elements.GuiBinaryProperty
 import org.jglrxavpok.moarboats.client.gui.elements.GuiToolButton
 import org.jglrxavpok.moarboats.client.renders.HelmModuleRenderer
 import org.jglrxavpok.moarboats.common.data.MapImageStripe
 import org.jglrxavpok.moarboats.common.data.PathHolder
 import org.jglrxavpok.moarboats.common.modules.HelmModule.StripeLength
+import org.jglrxavpok.moarboats.common.network.C8ChangeEngineSpeed
 import org.lwjgl.input.Mouse
 import org.lwjgl.opengl.GL11.*
 
@@ -57,6 +60,7 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
     private val controlsText = TextComponentTranslation("gui.path_editor.controls")
     private val zoomText = TextComponentTranslation("gui.path_editor.controls.zoom")
     private val moveMapText = TextComponentTranslation("gui.path_editor.controls.move")
+    private val boostSetting = TextComponentTranslation("gui.path_editor.controls.boost")
 
     private var buttonId = 0
     private val refreshMapButton = GuiButton(buttonId++, 0, 0, refreshButtonText.unformattedText)
@@ -68,6 +72,11 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
     // Properties buttons
     private val loopingButton = GuiBinaryProperty(buttonId++, Pair(propertyLoopingText.unformattedText, propertyOneWayText.unformattedText), Pair(2, 3))
     private val linesButton = GuiBinaryProperty(buttonId++, Pair(propertyLinesText.unformattedText, propertyPathfindingText.unformattedText), Pair(4, 5))
+    private lateinit var boostSlider: GuiSlider
+    private val sliderCallback = GuiSlider.ISlider { slider ->
+
+    }
+
     private val propertyButtons = listOf(loopingButton/*, linesButton*/) // TODO: Pathfinding?
 
     init {
@@ -129,6 +138,9 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
         refreshMapButton.y = height-refreshMapButton.height-2
 
         loopingButton.inFirstState = pathHolder.pathLoops()
+
+        boostSlider = GuiSlider(1, menuX, yOffset+20, 125, 20, "${boostSetting.unformattedText}: ", "%", -50.0, 50.0, 0.0, false, true, sliderCallback)
+        addButton(boostSlider)
     }
 
     override fun actionPerformed(button: GuiButton) {
@@ -259,7 +271,8 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
 
     private fun addWaypointOnMap(x: Double, y: Double) {
         val pos = pixelsToWorldCoords(x, y)
-        pathHolder.addWaypoint(pos)
+        val boost = if(boostSlider.valueInt != 0) boostSlider.value/100.0 else null
+        pathHolder.addWaypoint(pos, boost)
         pos.release()
         mc.soundHandler.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 2.5f))
     }
@@ -427,6 +440,17 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
                 HelmModuleRenderer.renderSingleWaypoint(renderX, renderZ - 7.0)
             }
 
+            if(waypoint.getBoolean("hasBoost")) {
+                val boost = "("+(waypoint.getDouble("boost") * 100).toInt().toString()+"%)"
+                GlStateManager.pushMatrix()
+                val scale = 0.5
+                val w = fontRenderer.getStringWidth(boost)
+                GlStateManager.translate(renderX-w/2*scale, renderZ-12.0, 0.0)
+                GlStateManager.scale(scale, scale, 1.0)
+                fontRenderer.drawString(boost, 0, 0, 0xFFFFFFFF.toInt())
+                GlStateManager.popMatrix()
+            }
+
             if(hasPrevious)
                 HelmModuleRenderer.renderPath(previousX, previousZ, renderX, renderZ)
             hasPrevious = true
@@ -466,6 +490,7 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
 
     override fun updateScreen() {
         super.updateScreen()
+        boostSlider.updateSlider()
         if(!sentImageRequest) {
             pathHolder.sendWorldImageRequest(mapID)
             sentImageRequest = true

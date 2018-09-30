@@ -1,3 +1,4 @@
+#PARSE_ESCAPES
 inventory.chest.name=Coffre
 inventory.furnace_engine.name=Moteur thermique
 item.rope.name=Corde
@@ -34,7 +35,7 @@ inventory.anchor.name=Ancre
 inventory.solar_engine.name=Moteur solaire
 inventory.creative_engine.name=Moteur pour bateaux: mode créatif
 item.creative_engine.name=Moteur mode Créatif
-gui.engine.powerSetting=Puissance
+gui.engine.powerSetting=Boost de puissance
 gui.engine.power.max=Puissance maximale!
 gui.engine.power.min=Puissance minimale
 gui.engine.power.normal=Puissance normale
@@ -103,3 +104,5 @@ item.golden_ticket.name=Ticket d'or
 item.map_with_path.name=Carte avec chemin
 moarboats.gui.helm.save_on_map=Sauvegarder sur la carte
 moarboats.locked_by_owner=Verrouillé par le/la propriétaire (%s) !
+moarboats.gui.engine.imposed_boost=Boost de vitesse imposée: %s%%
+gui.path_editor.controls.boost=Boost de vitesse

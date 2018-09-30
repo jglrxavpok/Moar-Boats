@@ -19,7 +19,7 @@ interface PathHolder {
     fun setLoopingState(loops: Boolean)
     fun getWaypointNBTList(): NBTTagList
     fun removeWaypoint(closestIndex: Int)
-    fun addWaypoint(pos: BlockPos)
+    fun addWaypoint(pos: BlockPos, boost: Double?)
     fun getHolderLocation(): BlockPos?
     fun sendWorldImageRequest(mapID: String)
     fun getBaseMapID(): String
@@ -34,8 +34,8 @@ class BoatPathHolder(val boat: IControllable): PathHolder {
         MoarBoats.network.sendToServer(C10MapImageRequest(mapID))
     }
 
-    override fun addWaypoint(pos: BlockPos) {
-        MoarBoats.network.sendToServer(C12AddWaypoint(pos, boat.entityID))
+    override fun addWaypoint(pos: BlockPos, boost: Double?) {
+        MoarBoats.network.sendToServer(C12AddWaypoint(pos, boat.entityID, boost))
     }
 
     override fun removeWaypoint(closestIndex: Int) {
@@ -67,11 +67,11 @@ class MapWithPathHolder(stack: ItemStack, mappingTable: TileEntityMappingTable?,
         return stack.tagCompound!!
     }
 
-    override fun addWaypoint(pos: BlockPos) {
+    override fun addWaypoint(pos: BlockPos, boost: Double?) {
         if(mappingTable != null) {
-            MoarBoats.network.sendToServer(C22AddWaypointToItemPathFromMappingTable(pos, mappingTable))
+            MoarBoats.network.sendToServer(C22AddWaypointToItemPathFromMappingTable(pos, boost, mappingTable))
         } else if(boat != null) {
-            MoarBoats.network.sendToServer(C23AddWaypointToItemPathFromBoat(pos, boat.entityID))
+            MoarBoats.network.sendToServer(C23AddWaypointToItemPathFromBoat(pos, boost, boat.entityID))
         }
     }
 
@@ -89,11 +89,11 @@ class GoldenTicketPathHolder(stack: ItemStack, mappingTable: TileEntityMappingTa
         return ItemGoldenTicket.getData(stack).writeToNBT(NBTTagCompound())
     }
 
-    override fun addWaypoint(pos: BlockPos) {
+    override fun addWaypoint(pos: BlockPos, boost: Double?) {
         if(mappingTable != null) {
-            MoarBoats.network.sendToServer(C30AddWaypointToGoldenTicketFromMappingTable(pos, mappingTable))
+            MoarBoats.network.sendToServer(C30AddWaypointToGoldenTicketFromMappingTable(pos, boost, mappingTable))
         } else if(boat != null) {
-            MoarBoats.network.sendToServer(C31AddWaypointToGoldenTicketFromBoat(pos, boat.entityID))
+            MoarBoats.network.sendToServer(C31AddWaypointToGoldenTicketFromBoat(pos, boost, boat.entityID))
         }
     }
 

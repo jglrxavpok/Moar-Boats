@@ -30,6 +30,7 @@ interface IControllable: IBlockSource {
     val correspondingEntity: Entity
     val moduleRNG: Random
     val blockedReason: BlockReason
+    val imposedSpeed: Float
 
     fun inLiquid(): Boolean
     fun isEntityInLava(): Boolean
@@ -54,6 +55,9 @@ interface IControllable: IBlockSource {
 
     fun getOwnerIdOrNull(): UUID?
     fun getOwnerNameOrNull(): String?
+
+    fun isSpeedImposed(): Boolean
+    fun imposeSpeed(speed: Float)
 
     fun calculateAnchorPosition(linkType: Int): Vec3d {
         val distanceFromCenter = 0.0625f * 17f * if(linkType == BasicBoatEntity.FrontLink) 1f else -1f

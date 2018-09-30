@@ -1,3 +1,4 @@
+#PARSE_ESCAPES
 inventory.chest.name=Chest module
 inventory.furnace_engine.name=Furnace Engine
 item.rope.name=Rope
@@ -34,7 +35,7 @@ inventory.anchor.name=Anchor module
 inventory.solar_engine.name=Solar Engine
 inventory.creative_engine.name=Creative mode boat engine
 item.creative_engine.name=Creative mode Engine
-gui.engine.powerSetting=Power setting
+gui.engine.powerSetting=Power boost
 gui.engine.power.max=Unlimited power!
 gui.engine.power.min=Keep it cool
 gui.engine.power.normal=As usual
@@ -110,3 +111,5 @@ item.golden_ticket.name=Golden Ticket
 item.map_with_path.name=Map with path
 moarboats.gui.helm.save_on_map=Save on map
 moarboats.locked_by_owner=Locked by owner (%s) !
+moarboats.gui.engine.imposed_boost=Imposed speed boost: %s%%
+gui.path_editor.controls.boost=Speed boost

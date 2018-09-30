@@ -97,6 +97,8 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         private set
     var ownerName: String? = null
         private set
+    override var imposedSpeed = 0f
+    private var isSpeedImposed = false
 
     init {
         this.preventEntitySpawning = true
@@ -286,7 +288,11 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         dataManager[MODULE_DATA] = moduleData // uses the setter of 'moduleData' to update the state
         if(!world.isRemote) {
             if(moduleData != null) {
-                MoarBoats.network.sendToAll(S15ModuleData(entityID, moduleData))
+                try {
+                    MoarBoats.network.sendToAll(S15ModuleData(entityID, moduleData))
+                } catch (e: NullPointerException) {
+                    MoarBoats.logger.warn(e) // sometimes the data is sent even though the packet has no dispatcher
+                }
             }
         }
     }
@@ -589,4 +595,12 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         return ownerName
     }
 
+    override fun isSpeedImposed(): Boolean {
+        return isSpeedImposed
+    }
+
+    override fun imposeSpeed(speed: Float) {
+        isSpeedImposed = true
+        imposedSpeed = speed
+    }
 }

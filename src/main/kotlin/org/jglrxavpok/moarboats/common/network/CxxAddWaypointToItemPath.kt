@@ -20,20 +20,30 @@ abstract class CxxAddWaypointToItemPath(): IMessage {
     var x: Int = 0
     var z: Int = 0
 
-    constructor(pos: BlockPos): this() {
+    var boost: Double? = null
+
+    constructor(pos: BlockPos, boost: Double?): this() {
         x = pos.x
         z = pos.z
+        this.boost = boost
     }
 
 
     override fun fromBytes(buf: ByteBuf) {
         x = buf.readInt()
         z = buf.readInt()
+        if(buf.readBoolean())
+            boost = buf.readDouble()
+        else
+            boost = null
     }
 
     override fun toBytes(buf: ByteBuf) {
         buf.writeInt(x)
         buf.writeInt(z)
+        buf.writeBoolean(boost != null)
+        if(boost != null)
+            buf.writeDouble(boost!!)
     }
 
     abstract class Handler<T: CxxAddWaypointToItemPath, UpdateResponse: IMessage>: MBMessageHandler<T, IMessage?> {
@@ -47,7 +57,8 @@ abstract class CxxAddWaypointToItemPath(): IMessage {
             val data = item.getWaypointData(stack, MoarBoats.getLocalMapStorage())
             HelmModule.addWaypointToList(data,
                     message.x,
-                    message.z)
+                    message.z,
+                    message.boost)
             val answer = createResponse(message, ctx, data)
             MoarBoats.network.sendToAll(answer)
             return null

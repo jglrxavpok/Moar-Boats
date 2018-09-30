@@ -42,7 +42,7 @@ class C10MapImageRequest(): IMessage {
         override fun onMessage(message: C10MapImageRequest, ctx: MessageContext): IMessage? {
             val player = ctx.serverHandler.player
             val world = player.world
-            val mapData = world.loadData(MapData::class.java, message.mapName) as MapData
+            val mapData = world.loadData(MapData::class.java, message.mapName) as? MapData ?: return null
             val size = (1 shl mapData.scale.toInt())*128
             val stripes = size/ StripeLength
 

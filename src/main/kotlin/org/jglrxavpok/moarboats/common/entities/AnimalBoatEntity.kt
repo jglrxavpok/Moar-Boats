@@ -28,6 +28,8 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(world) {
 
     override val modules: List<BoatModule> = emptyList()
     override val moduleRNG: Random = Random()
+    override val imposedSpeed = 0f
+
     init {
         this.preventEntitySpawning = true
         this.setSize(1.375f *1.5f, 0.5625f)
@@ -151,4 +153,10 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(world) {
     override fun canFitPassenger(passenger: Entity): Boolean {
         return this.passengers.isEmpty() && passenger !is EntityPlayer
     }
+
+    override fun isSpeedImposed(): Boolean {
+        return false
+    }
+
+    override fun imposeSpeed(speed: Float) { }
 }

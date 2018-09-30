@@ -16,11 +16,13 @@ class C12AddWaypoint(): IMessage {
     var x: Int = 0
     var z: Int = 0
     var boatID: Int = 0
+    var boost: Double? = null
 
-    constructor(blockPos: BlockPos, boatID: Int): this() {
+    constructor(blockPos: BlockPos, boatID: Int, boost: Double?): this() {
         x = blockPos.x
         z = blockPos.z
         this.boatID = boatID
+        this.boost = boost
     }
 
 
@@ -28,12 +30,19 @@ class C12AddWaypoint(): IMessage {
         x = buf.readInt()
         z = buf.readInt()
         boatID = buf.readInt()
+        if(buf.readBoolean())
+            boost = buf.readDouble()
+        else
+            boost = null
     }
 
     override fun toBytes(buf: ByteBuf) {
         buf.writeInt(x)
         buf.writeInt(z)
         buf.writeInt(boatID)
+        buf.writeBoolean(boost != null)
+        if(boost != null)
+            buf.writeDouble(boost!!)
     }
 
     object Handler: MBMessageHandler<C12AddWaypoint, IMessage> {
@@ -55,7 +64,8 @@ class C12AddWaypoint(): IMessage {
                     message.x,
                     message.z,
                     renderPos(message.x, mapData.xCenter, size),
-                    renderPos(message.z, mapData.zCenter, size))
+                    renderPos(message.z, mapData.zCenter, size),
+                    message.boost)
             return null
         }
 

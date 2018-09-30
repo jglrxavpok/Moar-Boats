@@ -144,18 +144,21 @@ object HelmModule: BoatModule(), BlockReason {
         return GuiHelmModule(player.inventory, this, boat)
     }
 
-    fun addWaypoint(boat: IControllable, blockX: Int, blockZ: Int, renderX: Int, renderZ: Int) {
+    fun addWaypoint(boat: IControllable, blockX: Int, blockZ: Int, renderX: Int, renderZ: Int, boost: Double?) {
         val waypointsData = waypointsProperty[boat]
-        addWaypointToList(waypointsData, blockX, blockZ)
+        addWaypointToList(waypointsData, blockX, blockZ, boost)
         waypointsProperty[boat] = waypointsData
     }
 
-    fun addWaypointToList(waypointsData: NBTTagList, blockX: Int, blockZ: Int) {
+    fun addWaypointToList(waypointsData: NBTTagList, blockX: Int, blockZ: Int, boost: Double?) {
         val waypointNBT = NBTTagCompound()
         waypointNBT.setString("name", "Waypoint ${waypointsData.tagCount()+1}")
         waypointNBT.setInteger("x", blockX)
         waypointNBT.setInteger("z", blockZ)
-      // FIXME  waypointNBT.setInteger("renderX", renderX)
+        waypointNBT.setBoolean("hasBoost", boost != null)
+        if(boost != null)
+            waypointNBT.setDouble("boost", boost)
+        // FIXME  waypointNBT.setInteger("renderX", renderX)
       //  waypointNBT.setInteger("renderZ", renderZ)
         waypointsData.appendTag(waypointNBT)
     }
