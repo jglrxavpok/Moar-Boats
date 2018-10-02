@@ -106,3 +106,8 @@ moarboats.gui.helm.save_on_map=Sauvegarder sur la carte
 moarboats.locked_by_owner=Verrouillé par le/la propriétaire (%s) !
 moarboats.gui.engine.imposed_boost=Boost de vitesse imposée: %s%%
 gui.path_editor.controls.boost=Boost de vitesse
+
+moarboats.gui.mapping_table.remove=Retirer
+moarboats.gui.mapping_table.add=Ajouter
+moarboats.gui.mapping_table.edit=Editer
+moarboats.gui.mapping_table.insert=Inserer

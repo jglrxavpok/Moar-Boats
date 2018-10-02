@@ -61,7 +61,8 @@ abstract class CxxAddWaypointToItemPath(): IMessage {
                     message.boost)
             val answer = createResponse(message, ctx, data)
             MoarBoats.network.sendToAll(answer)
-            return null
+            println(">>>")
+            return SConfirmWaypointCreation(data)
         }
 
     }

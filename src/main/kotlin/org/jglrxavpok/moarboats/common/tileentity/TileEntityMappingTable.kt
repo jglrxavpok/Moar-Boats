@@ -15,7 +15,7 @@ class TileEntityMappingTable: TileEntity() {
     override fun writeToNBT(compound: NBTTagCompound): NBTTagCompound {
         val invList = NonNullList.withSize(inventory.sizeInventory, ItemStack.EMPTY)
         for(i in 0 until inventory.sizeInventory) {
-            invList += inventory.getStackInSlot(i)
+            invList[i] = inventory.getStackInSlot(i) ?: ItemStack.EMPTY
         }
         ItemStackHelper.saveAllItems(compound, invList)
         return super.writeToNBT(compound)
