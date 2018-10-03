@@ -38,8 +38,6 @@ class SConfirmWaypointCreation(): IMessage {
             if(Minecraft.getMinecraft().currentScreen is GuiMappingTable) {
                 val mappingTable = Minecraft.getMinecraft().currentScreen as GuiMappingTable
                 mappingTable.confirmWaypointCreation(message.data)
-            } else {
-                println(":c ${Minecraft.getMinecraft().currentScreen}")
             }
             return null
         }

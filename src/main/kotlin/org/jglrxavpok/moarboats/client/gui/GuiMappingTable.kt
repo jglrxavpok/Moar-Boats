@@ -15,6 +15,7 @@ import net.minecraft.util.NonNullList
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.TextComponentTranslation
 import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.containers.ContainerMappingTable
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import org.jglrxavpok.moarboats.common.items.ItemPath
@@ -172,8 +173,9 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
     }
 
     private fun edit(index: Int) {
-        // TODO: edit
-        println("HELLO, OPEN EDIT PLZ $index")
+        val player = playerInv.player
+        selectedIndex = index
+        player.openGui(MoarBoats, MoarBoatsGuiHandler.WaypointEditor, player.world, te.pos.x, te.pos.y, te.pos.z)
     }
 
 }

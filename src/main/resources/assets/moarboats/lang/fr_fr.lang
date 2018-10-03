@@ -98,7 +98,7 @@ tile.boat_fluid_unloader.name=Déchargeur de fluides pour bateaux
 moarboats.tank_level=%s$1 / %s$2 mB de %s$3
 
 # 4.0.0.0
-moarboats.item_path.description=%s balises
+moarboats.item_path.description=%s balise(s)
 moarboats.item.golden_ticket.name.empty=Ticket d'or (Vide)
 item.golden_ticket.name=Ticket d'or
 item.map_with_path.name=Carte avec chemin
@@ -110,4 +110,11 @@ gui.path_editor.controls.boost=Boost de vitesse
 moarboats.gui.mapping_table.remove=Retirer
 moarboats.gui.mapping_table.add=Ajouter
 moarboats.gui.mapping_table.edit=Editer
-moarboats.gui.mapping_table.insert=Inserer
+moarboats.gui.mapping_table.insert=Insérer
+moarboats.gui.waypoint_editor.has_boost=A un boost de vitesse
+moarboats.gui.waypoint_editor.name=Edition de la balise: %s
+moarboats.gui.waypoint_editor.position=Position
+
+moarboats.gui.generic.confirm=Confirmer
+moarboats.gui.generic.cancel=Annuler
+moarboats.gui.generic.misc=Autres

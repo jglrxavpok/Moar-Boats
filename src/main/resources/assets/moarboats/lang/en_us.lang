@@ -105,7 +105,7 @@ moarboats.tank_level=%1$s / %2$s mB of %3$s
 moarboats.only_usable_on_boat=Only usable on boats
 
 # 4.0.0.0
-moarboats.item_path.description=%s waypoints
+moarboats.item_path.description=%s waypoint(s)
 moarboats.item.golden_ticket.name.empty=Golden Ticket (Empty)
 item.golden_ticket.name=Golden Ticket
 item.map_with_path.name=Map with path
@@ -118,3 +118,10 @@ moarboats.gui.mapping_table.remove=Remove
 moarboats.gui.mapping_table.add=Add
 moarboats.gui.mapping_table.edit=Edit
 moarboats.gui.mapping_table.insert=Insert
+moarboats.gui.waypoint_editor.has_boost=Has speed boost
+moarboats.gui.waypoint_editor.name=Editing waypoint: %s
+moarboats.gui.waypoint_editor.position=Position
+
+moarboats.gui.generic.confirm=Confirm
+moarboats.gui.generic.cancel=Cancel
+moarboats.gui.generic.misc=Miscellaneous

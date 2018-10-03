@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.common
 
+import net.minecraft.client.Minecraft
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemMap
 import net.minecraft.util.math.BlockPos
@@ -8,10 +9,7 @@ import net.minecraft.world.storage.MapData
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import net.minecraftforge.fml.common.network.IGuiHandler
 import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.client.gui.GuiEnergy
-import org.jglrxavpok.moarboats.client.gui.GuiFluid
-import org.jglrxavpok.moarboats.client.gui.GuiMappingTable
-import org.jglrxavpok.moarboats.client.gui.GuiPathEditor
+import org.jglrxavpok.moarboats.client.gui.*
 import org.jglrxavpok.moarboats.common.containers.ContainerMappingTable
 import org.jglrxavpok.moarboats.common.containers.EnergyContainer
 import org.jglrxavpok.moarboats.common.containers.FluidContainer
@@ -106,6 +104,17 @@ object MoarBoatsGuiHandler: IGuiHandler {
                     else -> null
                 }
             }
+            WaypointEditor -> {
+                val pos = BlockPos.PooledMutableBlockPos.retain(x, y, z)
+                val te = world.getTileEntity(pos)
+                pos.release()
+                val index = (Minecraft.getMinecraft().currentScreen as? GuiMappingTable)?.selectedIndex ?: 0
+                when (te) {
+                    null -> null
+                    is TileEntityMappingTable -> GuiWaypointEditor(player, te, index)
+                    else -> null
+                }
+            }
             else -> null
         }
     }
@@ -151,6 +160,7 @@ object MoarBoatsGuiHandler: IGuiHandler {
                     else -> null
                 }
             }
+            WaypointEditor -> null
             else -> null
         }
     }
@@ -160,4 +170,5 @@ object MoarBoatsGuiHandler: IGuiHandler {
     val EnergyGui: Int = 2
     val FluidGui: Int = 3
     val MappingTableGui: Int = 4
+    val WaypointEditor: Int = 5
 }

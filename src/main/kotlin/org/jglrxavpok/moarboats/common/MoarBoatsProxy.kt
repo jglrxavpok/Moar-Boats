@@ -43,7 +43,8 @@ open class MoarBoatsProxy {
                 C29RemoveWaypointFromGoldenTicketFromBoat.Handler,
                 C30AddWaypointToGoldenTicketFromMappingTable.Handler,
                 C31AddWaypointToGoldenTicketFromBoat.Handler,
-                SConfirmWaypointCreation.Handler
+                SConfirmWaypointCreation.Handler,
+                CModifyWaypoint.Handler
                 )
     }
 

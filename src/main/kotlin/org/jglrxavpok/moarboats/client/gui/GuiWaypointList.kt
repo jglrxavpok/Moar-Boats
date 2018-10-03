@@ -27,8 +27,16 @@ class GuiWaypointList(val mc: Minecraft, val parent: GuiMappingTable, width: Int
         if(name.isEmpty()) {
             name = "Waypoint ${slotIdx+1}"
         }
-        mc.fontRenderer.drawString("SLOT $slotIdx", left+2, slotTop, 0xFFFFFF)
-        mc.fontRenderer.drawString(name, left+4, slotTop+10, 0xFFFFFF)
+        mc.fontRenderer.drawString(name, left+4, slotTop+1, 0xFFFFFF)
+        GlStateManager.pushMatrix()
+        GlStateManager.translate(left+4f, slotTop+10f, 0f)
+        val scale = 0.5f
+        GlStateManager.scale(scale, scale, 1f)
+        val text = "X: ${slot.getDouble("x")}, Z: ${slot.getDouble("z")}" +
+                if(slot.getBoolean("hasBoost")) " (${(slot.getDouble("boost")*100).toInt()}%)"
+                else ""
+        mc.fontRenderer.drawString(text, 0, 0, 0xFFFFFF)
+        GlStateManager.popMatrix()
     }
 
     override fun isSelected(index: Int): Boolean {

@@ -97,7 +97,7 @@ class GuiEngineModule(playerInventory: InventoryPlayer, engine: BoatModule, boat
 
 
         val infoY = 26
-        drawCenteredString(remainingCurrentItem.unformattedText, 88, infoY, 0xFFFFFFFF.toInt(), shadow = true)
+        fontRenderer.drawCenteredString(remainingCurrentItem.unformattedText, 88, infoY, 0xFFFFFFFF.toInt(), shadow = true)
 
         mc.renderEngine.bindTexture(barsTexture)
         val barIndex = 4
@@ -105,22 +105,22 @@ class GuiEngineModule(playerInventory: InventoryPlayer, engine: BoatModule, boat
         val x = xSize/2f - barSize/2f
         drawBar(x, infoY+10f, barIndex, barSize, fill = if(remaining.isFinite()) remaining else 1f)
         if(estimatedTime.isInfinite()) {
-            drawCenteredString(estimatedTimeText.unformattedText, 88, infoY+18, 0xFFF0F0F0.toInt(), shadow = true)
-            drawCenteredString(foreverText.unformattedText, 88, infoY+28, 0xFF50A050.toInt())
+            fontRenderer.drawCenteredString(estimatedTimeText.unformattedText, 88, infoY+18, 0xFFF0F0F0.toInt(), shadow = true)
+            fontRenderer.drawCenteredString(foreverText.unformattedText, 88, infoY+28, 0xFF50A050.toInt())
         } else if(!estimatedTime.isNaN()) {
-            drawCenteredString(estimatedTimeText.unformattedText, 88, infoY+18, 0xFFF0F0F0.toInt(), shadow = true)
-            drawCenteredString("${estimatedTime.toInt()}s", 88, infoY+28, 0xFF50A050.toInt())
+            fontRenderer.drawCenteredString(estimatedTimeText.unformattedText, 88, infoY+18, 0xFFF0F0F0.toInt(), shadow = true)
+            fontRenderer.drawCenteredString("${estimatedTime.toInt()}s", 88, infoY+28, 0xFF50A050.toInt())
         }
         renderBlockReason(infoY+38)
-        drawCenteredString(speedSetting.unformattedText, 88, infoY+52, 0xFFF0F0F0.toInt(), shadow = true)
-        //if(boat.isSpeedImposed()) {
-            drawCenteredString(imposedSpeedText("${(boat.imposedSpeed * 100).toInt()}").unformattedText, 88, infoY+42, 0xFFFFFF, shadow=true)
-        //}
+        fontRenderer.drawCenteredString(speedSetting.unformattedText, 88, infoY+52, 0xFFF0F0F0.toInt(), shadow = true)
+        if(boat.isSpeedImposed()) {
+            fontRenderer.drawCenteredString(imposedSpeedText("${(boat.imposedSpeed * 100).toInt()}").unformattedText, 88, infoY+42, 0xFFFFFF, shadow=true)
+        }
 
         when {
-            speedSlider.valueInt == -50 -> drawCenteredString(minimumSpeedText.unformattedText, 88, infoY + 70 + speedSlider.height, 0xFF0000F0.toInt())
-            speedSlider.valueInt == 50 -> drawCenteredString(maximumSpeedText.unformattedText, 88, infoY + 70 + speedSlider.height, 0xFF0000F0.toInt())
-            speedSlider.valueInt == 0 -> drawCenteredString(normalSpeedText.unformattedText, 88, infoY + 70 + speedSlider.height, 0xFF0000F0.toInt())
+            speedSlider.valueInt == -50 -> fontRenderer.drawCenteredString(minimumSpeedText.unformattedText, 88, infoY + 70 + speedSlider.height, 0xFF0000F0.toInt())
+            speedSlider.valueInt == 50 -> fontRenderer.drawCenteredString(maximumSpeedText.unformattedText, 88, infoY + 70 + speedSlider.height, 0xFF0000F0.toInt())
+            speedSlider.valueInt == 0 -> fontRenderer.drawCenteredString(normalSpeedText.unformattedText, 88, infoY + 70 + speedSlider.height, 0xFF0000F0.toInt())
         }
 
         renderSpeedIcon(0, 5, infoY + 40 + speedSlider.height)
@@ -137,14 +137,14 @@ class GuiEngineModule(playerInventory: InventoryPlayer, engine: BoatModule, boat
                     val itemstack = ItemStack(BoatModuleRegistry[blockingModule.id].correspondingItem)
                     renderPrettyReason(y, blockedByModuleText.unformattedText, itemstack)
                 } else {
-                    drawCenteredString(unknownBlockReasonText(boat.blockedReason.toString()).unformattedText, 88, y, 0xFF0000)
+                    fontRenderer.drawCenteredString(unknownBlockReasonText(boat.blockedReason.toString()).unformattedText, 88, y, 0xFF0000)
                 }
             }
         }
     }
 
     private fun renderPrettyReason(y: Int, text: String, itemStack: ItemStack) {
-        drawCenteredString(text, 88-16, y, 0xFF0000)
+        fontRenderer.drawCenteredString(text, 88-16, y, 0xFF0000)
         val textWidth = fontRenderer.getStringWidth(text)
         val textX = 88-16 - textWidth/2
         zLevel = 100.0f
@@ -209,12 +209,4 @@ class GuiEngineModule(playerInventory: InventoryPlayer, engine: BoatModule, boat
         GlStateManager.popMatrix()
     }
 
-    private fun drawCenteredString(text: String, x: Int, y: Int, color: Int, shadow: Boolean = false) {
-        val textWidth = fontRenderer.getStringWidth(text)
-        val textX = x - textWidth/2
-        if(shadow)
-            fontRenderer.drawStringWithShadow(text, textX.toFloat(), y.toFloat(), color)
-        else
-            fontRenderer.drawString(text, textX, y, color)
-    }
 }
