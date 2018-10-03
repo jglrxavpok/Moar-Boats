@@ -97,8 +97,6 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         private set
     var ownerName: String? = null
         private set
-    override var imposedSpeed = 0f
-    private var isSpeedImposed = false
 
     init {
         this.preventEntitySpawning = true
@@ -595,12 +593,4 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         return ownerName
     }
 
-    override fun isSpeedImposed(): Boolean {
-        return isSpeedImposed
-    }
-
-    override fun imposeSpeed(speed: Float) {
-        isSpeedImposed = true
-        imposedSpeed = speed
-    }
 }

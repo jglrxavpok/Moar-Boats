@@ -28,7 +28,6 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(world) {
 
     override val modules: List<BoatModule> = emptyList()
     override val moduleRNG: Random = Random()
-    override val imposedSpeed = 0f
 
     init {
         this.preventEntitySpawning = true

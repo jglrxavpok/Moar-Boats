@@ -19,7 +19,9 @@ import org.jglrxavpok.moarboats.common.network.C2MapRequest
 import org.jglrxavpok.moarboats.extensions.toDegrees
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
+import org.jglrxavpok.moarboats.common.Items
 import org.jglrxavpok.moarboats.common.containers.ContainerBase
+import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule.getInventory
 import org.jglrxavpok.moarboats.common.state.*
 
@@ -64,7 +66,13 @@ object HelmModule: BoatModule(), BlockReason {
     override fun controlBoat(from: IControllable) {
         if(!from.inLiquid())
             return
-        val waypoints = waypointsProperty[from]
+        val stack = from.getInventory().getStackInSlot(0)
+        val item = stack.item
+        val waypoints = when(item) {
+            net.minecraft.init.Items.FILLED_MAP -> waypointsProperty[from]
+            is ItemPath -> item.getWaypointData(stack, MoarBoats.getLocalMapStorage())
+            else -> return
+        }
         if(waypoints.tagCount() != 0) {
             val currentWaypoint = currentWaypointProperty[from] % waypoints.tagCount()
             val current = waypoints[currentWaypoint] as NBTTagCompound
@@ -75,6 +83,9 @@ object HelmModule: BoatModule(), BlockReason {
             val dz = from.positionZ - nextZ
             val nextWaypoint = (currentWaypoint+1) % waypoints.tagCount()
 
+            if(current.getBoolean("hasBoost")) {
+                from.imposeSpeed(current.getDouble("boost").toFloat())
+            }
             if(!loopingProperty[from] && currentWaypoint > nextWaypoint) {
                 if(dx*dx+dz*dz < MaxDistanceToWaypointSquared) { // close to the last waypoint
                     from.blockMovement(this)
@@ -94,10 +105,13 @@ object HelmModule: BoatModule(), BlockReason {
     }
 
     override fun update(from: IControllable) {
-        val inventory = from.getInventory()
-        val stack = inventory.getStackInSlot(0)
+        val stack = from.getInventory().getStackInSlot(0)
         val item = stack.item
-        val waypoints = waypointsProperty[from]
+        val waypoints = when(item) {
+            net.minecraft.init.Items.FILLED_MAP -> waypointsProperty[from]
+            is ItemPath -> item.getWaypointData(stack, MoarBoats.getLocalMapStorage())
+            else -> return
+        }
         if(waypoints.tagCount() != 0) {
             val currentWaypoint = currentWaypointProperty[from] % waypoints.tagCount()
             val nextWaypoint = (currentWaypoint+1) % waypoints.tagCount()

@@ -113,9 +113,9 @@ class GuiEngineModule(playerInventory: InventoryPlayer, engine: BoatModule, boat
         }
         renderBlockReason(infoY+38)
         fontRenderer.drawCenteredString(speedSetting.unformattedText, 88, infoY+52, 0xFFF0F0F0.toInt(), shadow = true)
-        if(boat.isSpeedImposed()) {
-            fontRenderer.drawCenteredString(imposedSpeedText("${(boat.imposedSpeed * 100).toInt()}").unformattedText, 88, infoY+42, 0xFFFFFF, shadow=true)
-        }
+//        if(boat.isSpeedImposed()) {
+            fontRenderer.drawCenteredString(imposedSpeedText("${(boat.imposedSpeed * 100.0).toInt()}").unformattedText, 88, infoY+42, 0xFFFFFF, shadow=true)
+  //      }
 
         when {
             speedSlider.valueInt == -50 -> fontRenderer.drawCenteredString(minimumSpeedText.unformattedText, 88, infoY + 70 + speedSlider.height, 0xFF0000F0.toInt())

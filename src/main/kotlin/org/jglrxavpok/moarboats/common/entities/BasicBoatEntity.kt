@@ -125,6 +125,9 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         get() = KNOT_LOCATIONS.map { dataManager[it] }
         set(value) { KNOT_LOCATIONS.forEachIndexed { index, dataParameter -> dataManager[dataParameter] = value[index] } }
 
+    override var imposedSpeed = 0f
+    private var isSpeedImposed = false
+
     init {
         this.preventEntitySpawning = true
         this.setSize(1.375f, 0.5625f)
@@ -449,6 +452,7 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         }
         this.updateMotion()
 
+        isSpeedImposed = false
         blockedReason = NoBlockReason
         blockedMotion = false
         blockedRotation = false
@@ -910,5 +914,15 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
     }
 
     abstract fun canStartRiding(player: EntityPlayer, heldItem: ItemStack, hand: EnumHand): Boolean
+
+    override fun isSpeedImposed(): Boolean {
+        return isSpeedImposed
+    }
+
+    override fun imposeSpeed(speed: Float) {
+        isSpeedImposed = true
+        imposedSpeed = speed
+    }
+
 
 }
