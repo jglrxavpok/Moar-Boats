@@ -61,7 +61,6 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
         list = GuiWaypointList(mc, this, listWidth, listHeight, listTop, listLeft, 20, width, height)
         list.registerScrollButtons(buttonList, 0, 1)
         // TODO:
-        // add buttons to add, remove, edit waypoints
         // add button to use GuiPathEditor
 
         this.inventorySlots.removeListener(this)

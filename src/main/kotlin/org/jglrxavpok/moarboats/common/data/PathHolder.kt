@@ -119,7 +119,11 @@ abstract class ItemPathHolder(val stack: ItemStack, val mappingTable: TileEntity
     }
 
     override fun setLoopingState(loops: Boolean) {
-        nbt().setBoolean("${MoarBoats.ModID}.loops", loops)
+        if(boat != null) {
+            MoarBoats.network.sendToServer(CChangeLoopingStateItemPathBoat(loops, boat.entityID))
+        } else {
+            MoarBoats.network.sendToServer(CChangeLoopingStateItemPathMappingTable(loops, mappingTable!!))
+        }
     }
 
     override fun getWaypointNBTList(): NBTTagList {

@@ -26,6 +26,8 @@ abstract class ItemPath: Item() {
 
     abstract fun getWaypointData(stack: ItemStack, mapStorage: MapStorage): NBTTagList
 
+    abstract fun isPathLooping(stack: ItemStack): Boolean
+
     override fun addInformation(stack: ItemStack, worldIn: World?, tooltip: MutableList<String>, flagIn: ITooltipFlag) {
         super.addInformation(stack, worldIn, tooltip, flagIn)
         if(worldIn != null) {
@@ -35,12 +37,26 @@ abstract class ItemPath: Item() {
         }
     }
 
+    abstract fun setLooping(stack: ItemStack, loops: Boolean)
+
 }
 
 object ItemMapWithPath: ItemPath() {
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "map_with_path")
         unlocalizedName = "map_with_path"
+    }
+
+    override fun setLooping(stack: ItemStack, loops: Boolean) {
+        if(stack.hasTagCompound()) {
+            stack.tagCompound!!.setBoolean("${MoarBoats.ModID}.loops", loops)
+        }
+    }
+
+    override fun isPathLooping(stack: ItemStack): Boolean {
+        if(!stack.hasTagCompound())
+            stack.tagCompound = NBTTagCompound()
+        return stack.tagCompound!!.getBoolean("${MoarBoats.ModID}.loops")
     }
 
     override fun getWaypointData(stack: ItemStack, mapStorage: MapStorage): NBTTagList {
@@ -93,6 +109,14 @@ object ItemGoldenTicket: ItemPath() {
             mapID = nbt.getString("${MoarBoats.ModID}.mapID")
         }
 
+    }
+
+    override fun setLooping(stack: ItemStack, loops: Boolean) {
+        getData(stack).loops = loops
+    }
+
+    override fun isPathLooping(stack: ItemStack): Boolean {
+        return getData(stack).loops
     }
 
     override fun addInformation(stack: ItemStack, worldIn: World?, tooltip: MutableList<String>, flagIn: ITooltipFlag) {

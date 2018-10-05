@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.item.ItemMap
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.NBTTagList
 import net.minecraft.util.ResourceLocation
 import net.minecraft.world.storage.MapData
 import net.minecraftforge.common.util.Constants
@@ -79,7 +80,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
 
             val mapdata = HelmModule.mapDataCopyProperty[boat]
             GlStateManager.translate(0f, 0f, 1f)
-            renderMap(mapdata, x, y, mapSize, boat.posX, boat.posZ, 7.0, moduleState)
+            renderMap(mapdata, x, y, mapSize, boat.posX, boat.posZ, 7.0, HelmModule.waypointsProperty[boat], HelmModule.loopingProperty[boat])
         }
         GlStateManager.popMatrix()
     }
@@ -90,7 +91,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         }
     }
 
-    fun renderMap(mapdata: MapData, x: Double, y: Double, mapSize: Double, worldX: Double, worldZ: Double, margins: Double = 7.0, moduleState: NBTTagCompound) {
+    fun renderMap(mapdata: MapData, x: Double, y: Double, mapSize: Double, worldX: Double, worldZ: Double, margins: Double = 7.0, waypointsData: NBTTagList, loops: Boolean) {
         val mc = Minecraft.getMinecraft()
         GlStateManager.pushMatrix()
         GlStateManager.translate(x+margins, y+margins, 0.0)
@@ -119,8 +120,6 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         GlStateManager.enableAlpha()
 
         // render waypoints and path
-        val waypointsData = moduleState.getTagList(HelmModule.waypointsProperty.id, Constants.NBT.TAG_COMPOUND)
-        val loops = moduleState.getBoolean(HelmModule.loopingProperty.id)
 
         var hasPrevious = false
         var previousX = 0.0
