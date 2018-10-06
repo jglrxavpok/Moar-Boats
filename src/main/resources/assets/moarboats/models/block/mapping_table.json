@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube",
+  "textures": {
+    "particle": "moarboats:blocks/mapping_table_side",
+    "down": "moarboats:blocks/mapping_table_bottom",
+    "up": "moarboats:blocks/mapping_table_top",
+    "north": "moarboats:blocks/mapping_table_side",
+    "east": "moarboats:blocks/mapping_table_side",
+    "south": "moarboats:blocks/mapping_table_side",
+    "west": "moarboats:blocks/mapping_table_side"
+  }
+}

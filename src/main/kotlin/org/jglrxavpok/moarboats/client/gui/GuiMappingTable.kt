@@ -60,7 +60,6 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
         val listLeft = xStart.toInt()
         val listTop = guiTop + 28 // margins
         list = GuiWaypointList(mc, this, listWidth, listHeight, listTop, listLeft, 20, width, height)
-        list.registerScrollButtons(buttonList, 0, 1)
         // TODO:
         // add button to use GuiPathEditor
 

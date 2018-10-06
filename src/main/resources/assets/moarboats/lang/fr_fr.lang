@@ -1,4 +1,4 @@
-#PARSE_ESCAPES
+# PARSE_ESCAPES
 inventory.chest.name=Coffre
 inventory.furnace_engine.name=Moteur thermique
 item.rope.name=Corde
@@ -49,6 +49,7 @@ general.spot.navigation=Navigation
 item.icebreaker.name=Brise glace
 inventory.icebreaker.name=Icebreaker
 inventory.sonar.name=Sonar Module
+
 gui.dispenser.bottom_row=Bas
 gui.dispenser.middle_row=Milieu
 gui.dispenser.top_row=Haut
@@ -94,8 +95,14 @@ tile.boat_energy_charger.name=Chargeur d'énergie pour bateaux
 tile.boat_energy_discharger.name=Déchargeur d'énergie pour bateaux
 tile.boat_fluid_loader.name=Chargeur de fluides pour bateaux
 tile.boat_fluid_unloader.name=Déchargeur de fluides pour bateaux
+tile.boat_tank.name=Réservoir de fluides pour bateaux
+
+moarboats.tile.waterborne_comparator.description=The increase of floatability made the device only capable of counting items
+
+item.waterborne_comparator.name=Comparateur flottant
 
 moarboats.tank_level=%s$1 / %s$2 mB de %s$3
+moarboats.only_usable_on_boat=Seulement utilisable sur les bateaux
 
 # 4.0.0.0
 moarboats.item_path.description=%s balise(s)
@@ -118,3 +125,5 @@ moarboats.gui.waypoint_editor.position=Position
 moarboats.gui.generic.confirm=Confirmer
 moarboats.gui.generic.cancel=Annuler
 moarboats.gui.generic.misc=Autres
+
+tile.mapping_table.name=Table de cartographie

@@ -125,3 +125,5 @@ moarboats.gui.waypoint_editor.position=Position
 moarboats.gui.generic.confirm=Confirm
 moarboats.gui.generic.cancel=Cancel
 moarboats.gui.generic.misc=Miscellaneous
+
+tile.mapping_table.name=Mapping table
