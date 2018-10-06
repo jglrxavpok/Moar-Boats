@@ -21,21 +21,27 @@ abstract class CxxAddWaypointToItemPath(): IMessage {
     var z: Int = 0
 
     var boost: Double? = null
+    var insertionIndex: Int? = null
 
-    constructor(pos: BlockPos, boost: Double?): this() {
+    constructor(pos: BlockPos, boost: Double?, insertionIndex: Int?): this() {
         x = pos.x
         z = pos.z
         this.boost = boost
+        this.insertionIndex = insertionIndex
     }
 
 
     override fun fromBytes(buf: ByteBuf) {
         x = buf.readInt()
         z = buf.readInt()
-        if(buf.readBoolean())
-            boost = buf.readDouble()
+        boost = if(buf.readBoolean())
+            buf.readDouble()
         else
-            boost = null
+            null
+        insertionIndex = if(buf.readBoolean())
+            buf.readInt()
+        else
+            null
     }
 
     override fun toBytes(buf: ByteBuf) {
@@ -44,6 +50,10 @@ abstract class CxxAddWaypointToItemPath(): IMessage {
         buf.writeBoolean(boost != null)
         if(boost != null)
             buf.writeDouble(boost!!)
+        buf.writeBoolean(insertionIndex != null)
+        if(insertionIndex != null) {
+            buf.writeInt(insertionIndex!!)
+        }
     }
 
     abstract class Handler<T: CxxAddWaypointToItemPath, UpdateResponse: IMessage>: MBMessageHandler<T, IMessage?> {
@@ -58,10 +68,10 @@ abstract class CxxAddWaypointToItemPath(): IMessage {
             HelmModule.addWaypointToList(data,
                     message.x,
                     message.z,
-                    message.boost)
+                    message.boost,
+                    message.insertionIndex)
             val answer = createResponse(message, ctx, data)
             MoarBoats.network.sendToAll(answer)
-            println(">>>")
             return SConfirmWaypointCreation(data)
         }
 

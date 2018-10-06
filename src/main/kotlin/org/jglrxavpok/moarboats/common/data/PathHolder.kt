@@ -69,9 +69,9 @@ class MapWithPathHolder(stack: ItemStack, mappingTable: TileEntityMappingTable?,
 
     override fun addWaypoint(pos: BlockPos, boost: Double?) {
         if(mappingTable != null) {
-            MoarBoats.network.sendToServer(C22AddWaypointToItemPathFromMappingTable(pos, boost, mappingTable))
+            MoarBoats.network.sendToServer(C22AddWaypointToItemPathFromMappingTable(pos, boost, null, mappingTable))
         } else if(boat != null) {
-            MoarBoats.network.sendToServer(C23AddWaypointToItemPathFromBoat(pos, boost, boat.entityID))
+            MoarBoats.network.sendToServer(C23AddWaypointToItemPathFromBoat(pos, boost, null, boat.entityID))
         }
     }
 
@@ -91,9 +91,9 @@ class GoldenTicketPathHolder(stack: ItemStack, mappingTable: TileEntityMappingTa
 
     override fun addWaypoint(pos: BlockPos, boost: Double?) {
         if(mappingTable != null) {
-            MoarBoats.network.sendToServer(C30AddWaypointToGoldenTicketFromMappingTable(pos, boost, mappingTable))
+            MoarBoats.network.sendToServer(C30AddWaypointToGoldenTicketFromMappingTable(pos, boost, null, mappingTable))
         } else if(boat != null) {
-            MoarBoats.network.sendToServer(C31AddWaypointToGoldenTicketFromBoat(pos, boost, boat.entityID))
+            MoarBoats.network.sendToServer(C31AddWaypointToGoldenTicketFromBoat(pos, boost, null, boat.entityID))
         }
     }
 

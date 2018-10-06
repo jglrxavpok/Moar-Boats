@@ -18,7 +18,7 @@ class C30AddWaypointToGoldenTicketFromMappingTable: CxxAddWaypointToItemPath {
     var tileEntityY: Int = 0
     var tileEntityZ: Int = 0
 
-    constructor(pos: BlockPos, boost: Double?, mappingTable: TileEntityMappingTable): super(pos, boost) {
+    constructor(pos: BlockPos, boost: Double?, insertionIndex: Int?, mappingTable: TileEntityMappingTable): super(pos, boost, insertionIndex) {
         this.tileEntityX = mappingTable.pos.x
         this.tileEntityY = mappingTable.pos.y
         this.tileEntityZ = mappingTable.pos.z

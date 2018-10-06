@@ -4,6 +4,7 @@ import net.minecraft.client.gui.GuiScreen
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemMap
 import net.minecraft.item.ItemStack
+import net.minecraft.nbt.NBTBase
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
 import net.minecraft.util.EnumHand
@@ -160,19 +161,35 @@ object HelmModule: BoatModule(), BlockReason {
 
     fun addWaypoint(boat: IControllable, blockX: Int, blockZ: Int, renderX: Int, renderZ: Int, boost: Double?) {
         val waypointsData = waypointsProperty[boat]
-        addWaypointToList(waypointsData, blockX, blockZ, boost)
+        addWaypointToList(waypointsData, blockX, blockZ, boost, insertionIndex = null)
         waypointsProperty[boat] = waypointsData
     }
 
-    fun addWaypointToList(waypointsData: NBTTagList, blockX: Int, blockZ: Int, boost: Double?) {
+    fun addWaypointToList(waypointsData: NBTTagList, blockX: Int, blockZ: Int, boost: Double?, insertionIndex: Int?) {
         val waypointNBT = NBTTagCompound()
-        waypointNBT.setString("name", "Waypoint ${waypointsData.tagCount()+1}")
+        if(insertionIndex != null) {
+            waypointNBT.setString("name", "${(waypointsData[insertionIndex] as NBTTagCompound).getString("name")}+")
+        } else {
+            waypointNBT.setString("name", "Waypoint ${waypointsData.tagCount()+1}")
+        }
         waypointNBT.setInteger("x", blockX)
         waypointNBT.setInteger("z", blockZ)
         waypointNBT.setBoolean("hasBoost", boost != null)
         if(boost != null)
             waypointNBT.setDouble("boost", boost)
-        waypointsData.appendTag(waypointNBT)
+        if(insertionIndex == null || insertionIndex >= waypointsData.tagCount() || insertionIndex < 0) {
+            waypointsData.appendTag(waypointNBT)
+        } else {
+            // insert
+            val tags = mutableListOf<NBTBase>()
+            repeat(waypointsData.tagCount()-insertionIndex) {
+                tags += waypointsData.removeTag(insertionIndex)
+            }
+            tags.firstOrNull()?.let { waypointsData.appendTag(it) }
+            waypointsData.appendTag(waypointNBT)
+            if(tags.size > 1)
+                tags.drop(1).forEach(waypointsData::appendTag)
+        }
     }
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {

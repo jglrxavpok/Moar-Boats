@@ -43,6 +43,7 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
     private val editWaypointButton = GuiButton(buttonId++, 0, 0, editWaypointText.unformattedText)
     private val removeWaypointButton = GuiButton(buttonId++, 0, 0, removeWaypointText.unformattedText)
     private val controls = listOf(addWaypointButton, insertWaypointButton, editWaypointButton, removeWaypointButton)
+    private var waypointToEditAfterCreation = 0
 
     lateinit var list: GuiWaypointList
     private var hasData = false
@@ -81,10 +82,19 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
         super.actionPerformed(button)
         when(button) {
             addWaypointButton -> {
+                waypointToEditAfterCreation = list.slots.size
                 if(inventorySlots.getSlot(0).stack.item == ItemGoldenTicket) {
-                    MoarBoats.network.sendToServer(C30AddWaypointToGoldenTicketFromMappingTable(te.pos, null, te))
+                    MoarBoats.network.sendToServer(C30AddWaypointToGoldenTicketFromMappingTable(te.pos, null, null, te))
                 } else {
-                    MoarBoats.network.sendToServer(C22AddWaypointToItemPathFromMappingTable(te.pos, null, te))
+                    MoarBoats.network.sendToServer(C22AddWaypointToItemPathFromMappingTable(te.pos, null, null, te))
+                }
+            }
+            insertWaypointButton -> {
+                waypointToEditAfterCreation = selectedIndex+1
+                if(inventorySlots.getSlot(0).stack.item == ItemGoldenTicket) {
+                    MoarBoats.network.sendToServer(C30AddWaypointToGoldenTicketFromMappingTable(te.pos, null, selectedIndex, te))
+                } else {
+                    MoarBoats.network.sendToServer(C22AddWaypointToItemPathFromMappingTable(te.pos, null, selectedIndex, te))
                 }
             }
             editWaypointButton -> {
@@ -103,7 +113,7 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
     override fun updateScreen() {
         super.updateScreen()
         addWaypointButton.enabled = hasData
-        insertWaypointButton.enabled = hasData
+        insertWaypointButton.enabled = hasData && list.slots.size > 1
         removeWaypointButton.enabled = hasData && selectedIndex < list.slots.size
         editWaypointButton.enabled = removeWaypointButton.enabled
     }
@@ -168,7 +178,7 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
             nbt as NBTTagCompound
             this.list.slots.add(nbt)
         }
-        edit(list.slots.size-1)
+        edit(waypointToEditAfterCreation)
     }
 
     private fun edit(index: Int) {

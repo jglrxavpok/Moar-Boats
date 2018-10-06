@@ -16,7 +16,7 @@ class C23AddWaypointToItemPathFromBoat: CxxAddWaypointToItemPath {
 
     constructor()
 
-    constructor(pos: BlockPos, boost: Double?, boatID: Int): super(pos, boost) {
+    constructor(pos: BlockPos, boost: Double?, insertionIndex: Int?, boatID: Int): super(pos, boost, insertionIndex) {
         this.boatID = boatID
     }
 
