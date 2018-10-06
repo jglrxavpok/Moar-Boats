@@ -8,7 +8,7 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLeashKnot
 import net.minecraft.entity.MoverType
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.init.Items
+import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.network.datasync.DataSerializers
@@ -512,14 +512,14 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         acceleration -= 0.005f * multiplier
     }
 
-    override fun blockMovement(reason: BlockReason) {
-        if(reason.blocksRotation()) {
+    override fun blockMovement(blockedReason: BlockReason) {
+        if(blockedReason.blocksRotation()) {
             blockedRotation = true
         }
-        if(reason.blocksSpeed()) {
+        if(blockedReason.blocksSpeed()) {
             blockedMotion = true
         }
-        blockedReason = reason
+        this.blockedReason = blockedReason
     }
 
     abstract fun controlBoat()
@@ -527,6 +527,8 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
     abstract fun dropItemsOnDeath(killedByPlayerInCreative: Boolean)
 
     abstract fun isValidLiquidBlock(blockstate: IBlockState): Boolean
+
+    abstract fun getBoatItem(): Item
 
     open fun getLiquidHeight(world: World, blockPos: BlockPos): Float {
         return Fluids.getLiquidHeight(world.getBlockState(blockPos), world, blockPos)
@@ -655,13 +657,7 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
                     this.setDead()
 
                     if (this.world.gameRules.getBoolean("doEntityDrops")) {
-                        for (i in 0..2) {
-                            // TODO this.entityDropItem(ItemStack(Item.getItemFromBlock(Blocks.PLANKS), 1, this.getBoatType().getMetadata()), 0.0f)
-                        }
-
-                        for (j in 0..1) {
-                            this.dropItemWithOffset(Items.STICK, 1, 0.0f)
-                        }
+                        dropItem(getBoatItem(), 1)
                     }
                 }
             }

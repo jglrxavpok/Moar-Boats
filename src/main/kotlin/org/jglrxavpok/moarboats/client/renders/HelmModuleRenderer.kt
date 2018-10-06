@@ -42,7 +42,6 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         GlStateManager.scale(-1f, -1f, 1f)
         GlStateManager.translate(0.2f, -0f/16f, 0.0f)
         renderManager.renderEngine.bindTexture(texture)
-        val moduleState = boat.getState(module)
 
         val frameAngle = module.rotationAngleProperty[boat].toRadians()
         rotate(frameAngle, model.frameCenter, model.left, model.radiusLeft, model.right, model.radiusRight, model.top, model.radiusTop, model.bottom, model.radiusBottom)

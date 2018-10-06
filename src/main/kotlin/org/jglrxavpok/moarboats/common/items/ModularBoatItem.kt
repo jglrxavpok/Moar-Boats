@@ -71,7 +71,6 @@ abstract class BaseBoatItem: Item() {
 
     override fun onItemRightClick(worldIn: World, playerIn: EntityPlayer, handIn: EnumHand): ActionResult<ItemStack> {
         val itemstack = playerIn.getHeldItem(handIn)
-        val f = 1.0f
         val f1 = playerIn.prevRotationPitch + (playerIn.rotationPitch - playerIn.prevRotationPitch) * 1.0f
         val f2 = playerIn.prevRotationYaw + (playerIn.rotationYaw - playerIn.prevRotationYaw) * 1.0f
         val d0 = playerIn.prevPosX + (playerIn.posX - playerIn.prevPosX) * 1.0
@@ -84,7 +83,6 @@ abstract class BaseBoatItem: Item() {
         val f6 = MathHelper.sin(-f1 * 0.017453292f)
         val f7 = f4 * f5
         val f8 = f3 * f5
-        val d3 = 5.0
         val vec3d1 = vec3d.addVector(f7.toDouble() * 5.0, f6.toDouble() * 5.0, f8.toDouble() * 5.0)
         val raytraceresult = worldIn.rayTraceBlocks(vec3d, vec3d1, true)
 

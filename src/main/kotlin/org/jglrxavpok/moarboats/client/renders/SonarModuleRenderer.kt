@@ -38,7 +38,6 @@ object SonarModuleRenderer : BoatModuleRenderer() {
             }
         }
 
-        // TODO: Debug only, remove
         // render gradient
         if(Minecraft.getMinecraft().gameSettings.showDebugInfo) {
             GlStateManager.rotate(-(180.0f - entityYaw - 90f), 0.0f, 1.0f, 0.0f)

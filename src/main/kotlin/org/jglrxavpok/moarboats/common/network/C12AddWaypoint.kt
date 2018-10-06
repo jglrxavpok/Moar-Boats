@@ -30,10 +30,10 @@ class C12AddWaypoint(): IMessage {
         x = buf.readInt()
         z = buf.readInt()
         boatID = buf.readInt()
-        if(buf.readBoolean())
-            boost = buf.readDouble()
+        boost = if(buf.readBoolean())
+            buf.readDouble()
         else
-            boost = null
+            null
     }
 
     override fun toBytes(buf: ByteBuf) {
@@ -54,25 +54,13 @@ class C12AddWaypoint(): IMessage {
             val world = player.world
             val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
 
-            val stack = boat.getInventory(HelmModule).getStackInSlot(0)
-            val item = stack.item as? ItemMap ?: error("Got click while there was no map!")
-            val mapData = item.getMapData(stack, boat.worldRef)!!
-
-            val mapScale = (1 shl mapData.scale.toInt())
-            val size = mapScale*128
             HelmModule.addWaypoint(boat,
                     message.x,
                     message.z,
-                    renderPos(message.x, mapData.xCenter, size),
-                    renderPos(message.z, mapData.zCenter, size),
                     message.boost)
             return null
         }
 
-        private fun renderPos(pos: Int, center: Int, size: Int): Int {
-            val pixel = ((pos-center+size/2).toDouble()/size) * 128f
-            return pixel.toInt()
-        }
 
     }
 }

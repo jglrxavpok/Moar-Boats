@@ -19,28 +19,6 @@ fun Float.toDegrees() = this * 180.0f / Math.PI.toFloat()
  */
 fun AxisAlignedBB.getCenterForAllSides() = Vec3d(this.minX + (this.maxX - this.minX) * 0.5, this.minY + (this.maxY - this.minY) * 0.5, this.minZ + (this.maxZ - this.minZ) * 0.5)
 
-fun Quaternion.lookAt(x: Double, y: Double, z: Double) {
-    val length = Math.sqrt(x*x + y*y + z*z)
-    val forwardVector = Vec3d(x/length, y/length, z/length)
-    val dot = forwardVector.z // forward is along Z
-
-    when {
-        Math.abs(dot - (-1.0f)) < 0.000001f -> set(0f, 1f, 0f, Math.PI.toFloat())
-        Math.abs(dot - (1.0f)) < 0.000001f -> setIdentity()
-        else -> {
-            // FIXME: don't use Vec3d and directly calculate quaternion
-            val angle = Math.acos(dot)
-            val axis = Vec3d(0.0, 0.0, -1.0).crossProduct(forwardVector).normalize()
-            val halfAngle = angle * .5f
-            val s = Math.sin(halfAngle)
-            this.x = (axis.x * s).toFloat()
-            this.y = (axis.y * s).toFloat()
-            this.z = (axis.z * s).toFloat()
-            this.w = Math.cos(halfAngle).toFloat()
-        }
-    }
-}
-
 fun Quaternion.setLookAlong(dirX: Float, dirY: Float, dirZ: Float, upX: Float, upY: Float, upZ: Float) {
     setIdentity()
     // Normalize direction

@@ -159,7 +159,7 @@ object HelmModule: BoatModule(), BlockReason {
         return GuiHelmModule(player.inventory, this, boat)
     }
 
-    fun addWaypoint(boat: IControllable, blockX: Int, blockZ: Int, renderX: Int, renderZ: Int, boost: Double?) {
+    fun addWaypoint(boat: IControllable, blockX: Int, blockZ: Int, boost: Double?) {
         val waypointsData = waypointsProperty[boat]
         addWaypointToList(waypointsData, blockX, blockZ, boost, insertionIndex = null)
         waypointsProperty[boat] = waypointsData

@@ -11,6 +11,7 @@ import net.minecraft.init.Blocks
 import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.InventoryHelper
 import net.minecraft.item.EnumDyeColor
+import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
@@ -115,6 +116,8 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         this.owningMode = owningMode
         this.ownerUUID = ownerUUID
     }
+
+    override fun getBoatItem() = ModularBoatItem
 
     /**
      * Called to update the entity's position/logic.

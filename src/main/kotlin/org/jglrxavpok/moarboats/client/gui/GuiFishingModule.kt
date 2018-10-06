@@ -20,7 +20,6 @@ class GuiFishingModule(playerInventory: InventoryPlayer, fishingModule: BoatModu
 
     override fun drawModuleForeground(mouseX: Int, mouseY: Int) {
         super.drawModuleForeground(mouseX, mouseY)
-        val state = boat.getState(module)
         if(!fishingModule.readyProperty[boat]) {
             drawCenteredString(fontRenderer, missingStorage.unformattedText, xSize/2, 20, 0xFF4040)
         }

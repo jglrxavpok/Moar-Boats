@@ -197,7 +197,6 @@ class GuiEngineModule(playerInventory: InventoryPlayer, engine: BoatModule, boat
 
     private fun drawBar(x: Float, y: Float, barIndex: Int, barSize: Float, fill: Float) {
         val barWidth = 182f
-        val filledSize = fill * barSize
         val filledWidth = fill * barWidth
 
         val scale = barSize/barWidth

@@ -18,6 +18,7 @@ import net.minecraft.world.World
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleInventory
 import org.jglrxavpok.moarboats.common.items.AnimalBoatItem
+import org.jglrxavpok.moarboats.common.items.ModularBoatItem
 import org.jglrxavpok.moarboats.extensions.Fluids
 import org.jglrxavpok.moarboats.extensions.toRadians
 import java.util.*
@@ -43,6 +44,8 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(world) {
         this.prevPosY = y
         this.prevPosZ = z
     }
+
+    override fun getBoatItem() = AnimalBoatItem
 
     override fun getOwnerIdOrNull(): UUID? {
         return null
