@@ -25,6 +25,7 @@ import org.jglrxavpok.moarboats.common.containers.ContainerBase
 import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule.getInventory
 import org.jglrxavpok.moarboats.common.state.*
+import org.jglrxavpok.moarboats.extensions.insert
 
 object HelmModule: BoatModule(), BlockReason {
     override val id: ResourceLocation = ResourceLocation(MoarBoats.ModID, "helm")
@@ -180,15 +181,7 @@ object HelmModule: BoatModule(), BlockReason {
         if(insertionIndex == null || insertionIndex >= waypointsData.tagCount() || insertionIndex < 0) {
             waypointsData.appendTag(waypointNBT)
         } else {
-            // insert
-            val tags = mutableListOf<NBTBase>()
-            repeat(waypointsData.tagCount()-insertionIndex) {
-                tags += waypointsData.removeTag(insertionIndex)
-            }
-            tags.firstOrNull()?.let { waypointsData.appendTag(it) }
-            waypointsData.appendTag(waypointNBT)
-            if(tags.size > 1)
-                tags.drop(1).forEach(waypointsData::appendTag)
+            waypointsData.insert(insertionIndex, waypointNBT)
         }
     }
 
