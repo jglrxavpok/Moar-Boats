@@ -15,6 +15,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
+import net.minecraftforge.common.ForgeChunkManager
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleInventory
 import org.jglrxavpok.moarboats.common.items.AnimalBoatItem
@@ -29,6 +30,7 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(world) {
 
     override val modules: List<BoatModule> = emptyList()
     override val moduleRNG: Random = Random()
+    override val chunkTicket = null
 
     init {
         this.preventEntitySpawning = true

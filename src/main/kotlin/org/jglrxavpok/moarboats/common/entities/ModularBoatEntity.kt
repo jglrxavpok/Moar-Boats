@@ -24,6 +24,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.text.TextComponentTranslation
 import net.minecraft.world.World
+import net.minecraftforge.common.ForgeChunkManager
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.common.capabilities.ICapabilityProvider
 import net.minecraftforge.common.util.Constants
@@ -98,6 +99,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         private set
     var ownerName: String? = null
         private set
+    override var chunkTicket: ForgeChunkManager.Ticket? = null
 
     init {
         this.preventEntitySpawning = true
@@ -126,6 +128,12 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         modules.clear()
         moduleLocations.forEach { modules.add(BoatModuleRegistry[it].module) }
 
+        if(!world.isRemote) {
+            if(chunkTicket == null) {
+                chunkTicket = ForgeChunkManager.requestTicket(MoarBoats, world, ForgeChunkManager.Type.ENTITY)
+                chunkTicket!!.bindEntity(this)
+            }
+        }
         modules.forEach { it.update(this) }
         super.onUpdate()
 

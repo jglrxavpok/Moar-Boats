@@ -23,6 +23,7 @@ import net.minecraft.network.datasync.DataSerializers
 import net.minecraft.util.NonNullList
 import net.minecraft.util.ResourceLocation
 import net.minecraft.world.storage.MapStorage
+import net.minecraftforge.common.ForgeChunkManager
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.config.Configuration
 import net.minecraftforge.fml.common.FMLCommonHandler
@@ -90,6 +91,13 @@ object MoarBoats {
         MinecraftForge.EVENT_BUS.register(this)
         MinecraftForge.EVENT_BUS.register(ItemEventHandler)
         proxy.preInit()
+        ForgeChunkManager.setForcedChunkLoadingCallback(MoarBoats) { tickets, world ->
+            for(ticket in tickets) {
+                for(pos in ticket.chunkList) {
+                    ForgeChunkManager.forceChunk(ticket, pos)
+                }
+            }
+        }
     }
 
     @Mod.EventHandler
@@ -127,6 +135,7 @@ object MoarBoats {
         event.registry.registerModule(DropperModule, Item.getItemFromBlock(MCBlocks.DROPPER), { boat, module -> SimpleModuleInventory(3*5, "dropper", boat, module) })
         event.registry.registerModule(BatteryModule, Item.getItemFromBlock(BlockBoatBattery))
         event.registry.registerModule(FluidTankModule, Item.getItemFromBlock(BlockBoatTank))
+        event.registry.registerModule(ChunkLoadingModule, Item.getItemFromBlock(MCBlocks.DEADBUSH))
     }
 
     @SubscribeEvent
