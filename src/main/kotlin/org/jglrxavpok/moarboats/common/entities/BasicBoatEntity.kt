@@ -3,11 +3,17 @@ package org.jglrxavpok.moarboats.common.entities
 import com.google.common.base.Optional
 import com.google.common.collect.Lists
 import io.netty.buffer.ByteBuf
+import net.minecraft.block.Block
+import net.minecraft.block.BlockLilyPad
 import net.minecraft.block.state.IBlockState
+import net.minecraft.crash.CrashReport
+import net.minecraft.crash.CrashReportCategory
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLeashKnot
 import net.minecraft.entity.MoverType
+import net.minecraft.entity.item.EntityItem
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.init.Blocks
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
@@ -23,6 +29,7 @@ import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
+import net.minecraftforge.registries.GameData
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.items.RopeItem
 import org.jglrxavpok.moarboats.extensions.toDegrees
@@ -460,6 +467,8 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
             this.controlBoat()
         }
 
+        breakLilypads()
+
         this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ)
 
         this.doBlockCollisions()
@@ -471,6 +480,49 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
                     this.applyEntityCollision(entity)
             }
         }
+    }
+
+    private fun breakLilypads() {
+        val axisalignedbb = this.entityBoundingBox
+        val min = BlockPos.PooledMutableBlockPos.retain(axisalignedbb.minX - 0.2, axisalignedbb.minY + 0.001, axisalignedbb.minZ - 0.2)
+        val max = BlockPos.PooledMutableBlockPos.retain(axisalignedbb.maxX + 0.2, axisalignedbb.maxY - 0.001, axisalignedbb.maxZ + 0.2)
+        val tmp = BlockPos.PooledMutableBlockPos.retain()
+
+        if (this.world.isAreaLoaded(min, max)) {
+            for (i in min.x..max.x) {
+                for (j in min.y..max.y) {
+                    for (k in min.z..max.z) {
+                        tmp.setPos(i, j, k)
+                        val iblockstate = this.world.getBlockState(tmp)
+
+                        try {
+                            if(iblockstate.block is BlockLilyPad) {
+                                world.setBlockToAir(tmp)
+                                world.spawnEntity(EntityItem(world, tmp.x+.5, tmp.y+.15, tmp.z+.5, ItemStack(net.minecraft.init.Blocks.WATERLILY)))
+                                val count = 15
+                                for(n in 0..count) {
+                                    val vx = Math.random() * 2.0 - 1.0
+                                    val vz = Math.random() * 2.0 - 1.0
+                                    val speed = 0.1
+                                    val vy = Math.random() * speed * 2.0
+                                    world.spawnParticle(EnumParticleTypes.BLOCK_DUST, tmp.x+.5, tmp.y+.5, tmp.z+.5, vx*speed, vy*speed, vz*speed, Block.getIdFromBlock(Blocks.WATERLILY))
+                                }
+                            }
+                        } catch (throwable: Throwable) {
+                            val crashreport = CrashReport.makeCrashReport(throwable, "Colliding entity with block")
+                            val crashreportcategory = crashreport.makeCategory("Block being collided with")
+                            CrashReportCategory.addBlockInfo(crashreportcategory, tmp, iblockstate)
+                            throw ReportedException(crashreport)
+                        }
+
+                    }
+                }
+            }
+        }
+
+        min.release()
+        max.release()
+        tmp.release()
     }
 
     private fun computeTargetYaw(currentYaw: Float, anchorPos: Vec3d, otherAnchorPos: Vec3d): Float {
