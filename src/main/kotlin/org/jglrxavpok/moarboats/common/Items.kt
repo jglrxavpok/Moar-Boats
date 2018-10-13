@@ -21,7 +21,8 @@ object Items {
             WaterborneComparatorItem,
             CreativeEngineItem,
             ItemGoldenTicket,
-            ItemMapWithPath
+            ItemMapWithPath,
+            ChunkLoaderItem
     )
 
 }
