@@ -41,7 +41,7 @@ object ChunkLoadingModuleRenderer : BoatModuleRenderer() {
             val length = 0.5f
             val width = .0625f * 15f
             GlStateManager.translate(x*width, yOffset, z*length)
-            GlStateManager.translate(0.025, 0.0, 0.0)
+            GlStateManager.translate(0.025, 0.5, 0.0)
             GlStateManager.enableRescaleNormal()
             GlStateManager.rotate(180.0f - entityYaw - 90f, 0.0f, -1.0f, 0.0f)
             GlStateManager.rotate(-renderManager.playerViewY, 0.0f, 1.0f, 0.0f)

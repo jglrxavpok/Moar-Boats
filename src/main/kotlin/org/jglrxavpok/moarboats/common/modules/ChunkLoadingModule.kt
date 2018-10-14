@@ -35,6 +35,10 @@ object ChunkLoadingModule: BoatModule() {
 
     override fun update(from: IControllable) {
         forceChunks(from)
+
+
+        if(!from.world.isRemote)
+            return
         val yaw = (from.yaw+90f).toRadians().toDouble()//Math.toRadians(from.yaw.toDouble())
         val width = .0625f * 15f
         val length = 0.5f
@@ -44,7 +48,7 @@ object ChunkLoadingModule: BoatModule() {
             val posZ = from.positionZ + x * width * Math.sin(yaw) - z * length * Math.cos(yaw)
             val posY = from.positionY
             val vx = (Math.random() * 2 -1) * 0.2
-            val vy = (Math.random() * 2 -1) * 0.2
+            val vy = 0.3
             val vz = (Math.random() * 2 -1) * 0.2
             world.spawnParticle(EnumParticleTypes.PORTAL, posX, posY, posZ, vx, vy, vz)
         }
