@@ -19,7 +19,7 @@
       "item": "minecraft:iron_block"
     },
     "W": {
-      "item": "minecraft:heavy_pressure_plate"
+      "item": "minecraft:heavy_weighted_pressure_plate"
     }
   },
   "result": {

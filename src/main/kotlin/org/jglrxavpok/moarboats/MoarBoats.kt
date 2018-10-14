@@ -42,6 +42,7 @@ import org.jglrxavpok.moarboats.common.blocks.*
 import org.jglrxavpok.moarboats.common.items.*
 import org.jglrxavpok.moarboats.common.modules.*
 import org.jglrxavpok.moarboats.common.tileentity.*
+import org.jglrxavpok.moarboats.integration.LoadIntegrationPlugins
 
 @Mod.EventBusSubscriber
 @Mod(modLanguageAdapter = "net.shadowfacts.forgelin.KotlinAdapter", modid = MoarBoats.ModID, dependencies = "required-after:forgelin;",
@@ -98,6 +99,8 @@ object MoarBoats {
                 }
             }
         }
+
+        LoadIntegrationPlugins(event)
     }
 
     @Mod.EventHandler
