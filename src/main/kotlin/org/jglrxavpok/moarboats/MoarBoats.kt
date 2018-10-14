@@ -27,6 +27,7 @@ import net.minecraftforge.common.ForgeChunkManager
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.config.Configuration
 import net.minecraftforge.fml.common.FMLCommonHandler
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper
 import net.minecraftforge.fml.common.registry.GameRegistry
 import net.minecraftforge.fml.relauncher.Side
@@ -43,6 +44,7 @@ import org.jglrxavpok.moarboats.common.items.*
 import org.jglrxavpok.moarboats.common.modules.*
 import org.jglrxavpok.moarboats.common.tileentity.*
 import org.jglrxavpok.moarboats.integration.LoadIntegrationPlugins
+import org.jglrxavpok.moarboats.integration.MoarBoatsPlugin
 
 @Mod.EventBusSubscriber
 @Mod(modLanguageAdapter = "net.shadowfacts.forgelin.KotlinAdapter", modid = MoarBoats.ModID, dependencies = "required-after:forgelin;",
@@ -83,6 +85,8 @@ object MoarBoats {
         }
     }
 
+    private lateinit var plugins: List<MoarBoatsPlugin>
+
     @Mod.EventHandler
     fun preInit(event: FMLPreInitializationEvent) {
         logger = event.modLog
@@ -100,7 +104,13 @@ object MoarBoats {
             }
         }
 
-        LoadIntegrationPlugins(event)
+        plugins = LoadIntegrationPlugins(event)
+        plugins.forEach(MoarBoatsPlugin::preInit)
+    }
+
+    @Mod.EventHandler
+    fun postInit(event: FMLPostInitializationEvent) {
+        plugins.forEach(MoarBoatsPlugin::postInit)
     }
 
     @Mod.EventHandler
@@ -108,6 +118,7 @@ object MoarBoats {
         proxy.init()
         DataSerializers.registerSerializer(ResourceLocationsSerializer)
         DataSerializers.registerSerializer(UniqueIDSerializer)
+        plugins.forEach(MoarBoatsPlugin::init)
     }
 
     @JvmStatic
@@ -139,6 +150,7 @@ object MoarBoats {
         event.registry.registerModule(BatteryModule, Item.getItemFromBlock(BlockBoatBattery))
         event.registry.registerModule(FluidTankModule, Item.getItemFromBlock(BlockBoatTank))
         event.registry.registerModule(ChunkLoadingModule, ChunkLoaderItem)
+        plugins.forEach { it.registerModules(event.registry) }
     }
 
     @SubscribeEvent

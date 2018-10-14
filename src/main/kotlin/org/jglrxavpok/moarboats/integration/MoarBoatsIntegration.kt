@@ -4,7 +4,9 @@ import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.common.Loader
 import net.minecraftforge.fml.common.discovery.ASMDataTable
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
+import net.minecraftforge.registries.IForgeRegistry
 import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.api.BoatModuleEntry
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
@@ -20,6 +22,7 @@ interface MoarBoatsPlugin {
     fun preInit() {}
     fun init() {}
     fun postInit() {}
+    fun registerModules(registry: IForgeRegistry<BoatModuleEntry>) {}
 
     fun registerAsEventSubscriber() {
         MinecraftForge.EVENT_BUS.register(this)
