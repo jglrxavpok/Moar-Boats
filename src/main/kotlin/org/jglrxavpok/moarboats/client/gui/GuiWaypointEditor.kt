@@ -14,6 +14,8 @@ import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.network.CModifyWaypoint
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
+import org.jglrxavpok.moarboats.integration.WaypointProviders
+import kotlin.concurrent.thread
 
 class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable, val index: Int) : GuiScreen() {
 
@@ -31,10 +33,11 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
     private val xInput by lazy { GuiTextField(id++, fontRenderer, 0, 0, 100, 20) }
     private val zInput by lazy { GuiTextField(id++, fontRenderer, 0, 0, 100, 20) }
     private val nameInput by lazy { GuiTextField(id++, fontRenderer, 0, 0, 200, 20) }
-    private lateinit var boostSlider: GuiSlider
     private val boostSliderCallback = GuiSlider.ISlider { slider ->
 
     }
+
+    private val boostSlider = GuiSlider(id++, 0, 0, 125, 20, "${boostSetting.unformattedText}: ", "%", -50.0, 50.0, 0.0, false, true, boostSliderCallback)
     private val confirmButton = GuiButton(id++, 0, 0, confirmText.unformattedText)
     private val cancelButton = GuiButton(id++, 0, 0, cancelText.unformattedText)
     private val hasBoostCheckbox = GuiCheckBox(id++, 0, 0, hasBoostSetting.unformattedText, waypointData.getBoolean("hasBoost"))
@@ -46,6 +49,20 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
     private val allInputs by lazy { intInputs+textInputs+doubleInputs }
     private val allButtons = listOf(confirmButton, cancelButton, hasBoostCheckbox)
 
+    private val updateThread: Thread = thread(start = true, isDaemon = true, block = this::updateProviders)
+
+    private fun updateProviders() {
+        while(true) {
+            WaypointProviders.forEach { it.updateList() }
+            Thread.sleep(500)
+        }
+    }
+
+    override fun onGuiClosed() {
+        super.onGuiClosed()
+        updateThread.interrupt()
+    }
+
     override fun initGui() {
         super.initGui()
 
@@ -53,7 +70,6 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
             it.text = ""
         }
 
-        boostSlider = GuiSlider(id++, 0, 0, 125, 20, "${boostSetting.unformattedText}: ", "%", -50.0, 50.0, 0.0, false, true, boostSliderCallback)
         addButton(boostSlider)
 
         nameInput.text = waypointData.getString("name")

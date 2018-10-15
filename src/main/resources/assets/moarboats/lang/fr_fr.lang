@@ -129,3 +129,5 @@ moarboats.gui.generic.misc=Autres
 tile.mapping_table.name=Table de cartographie
 inventory.chunk_loading.name=Chunk Loader pour bateaux
 item.boat_chunk_loader.name=Chunk Loader pour bateaux
+
+waypoint_provider.journeymap=JourneyMap
