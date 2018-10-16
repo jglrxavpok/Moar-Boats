@@ -52,7 +52,9 @@ abstract class BoatModuleInventory(val inventoryName: String, val slotCount: Int
     }
 
     fun syncToClient() {
-        MoarBoats.network.sendToAll(S7SyncInventory(boat.entityID, module.id, list))
+        if(!boat.worldRef.isRemote) {
+            MoarBoats.network.sendToAll(S7SyncInventory(boat.entityID, module.id, list))
+        }
     }
 
 }

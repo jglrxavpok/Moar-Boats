@@ -31,9 +31,24 @@ class GuiWaypointEditorList(val mc: Minecraft, val parent: GuiWaypointEditor, wi
 
     override fun drawSlot(slotIdx: Int, entryRight: Int, slotTop: Int, slotBuffer: Int, tess: Tessellator?) {
         GlStateManager.disableLighting()
+        // TODO: merge with rendering code of GuiWaypointList
+        GlStateManager.pushMatrix()
         GlStateManager.color(1f, 1f, 1f)
+        mc.textureManager.bindTexture(ArrowsTexture)
+        val hovered = if(mouseX >= left && mouseX < left+16 && mouseY >= slotTop && mouseY < slotTop+slotHeight) 1 else 0
+
+        val arrowScale = 0.75
+        GlStateManager.pushMatrix()
+        GlStateManager.translate(left.toFloat(), slotTop-4f, 0f)
+        GlStateManager.scale(arrowScale, arrowScale, arrowScale)
+        parent.drawTexturedModalRect(0, 0, 32, hovered*32, 32, 32) // top
+        GlStateManager.popMatrix()
+
         val slot = waypoints[slotIdx]
         val name = slot.name
+
+        GlStateManager.translate(16f, 0f, 0f)
+
         mc.fontRenderer.drawString(name, left+4, slotTop+1, 0xFFFFFF)
         GlStateManager.pushMatrix()
         GlStateManager.translate(left+4f, slotTop+10f, 0f)
@@ -45,11 +60,9 @@ class GuiWaypointEditorList(val mc: Minecraft, val parent: GuiWaypointEditor, wi
         mc.fontRenderer.drawString(text, 0, 0, 0xFFFFFF)
         GlStateManager.popMatrix()
         GlStateManager.color(1f, 1f, 1f)
-        mc.textureManager.bindTexture(ArrowsTexture)
-        if(mouseX >= left && mouseX < left+32) {
-            parent.drawTexturedModalRect(left, slotTop-5, 64+32, 0, 32, 32) // top
-        }
-        slotTops[slotIdx] = slotTop    }
+        slotTops[slotIdx] = slotTop
+        GlStateManager.popMatrix()
+    }
 
     override fun isSelected(index: Int): Boolean {
         return selectedIndex == index
@@ -61,7 +74,7 @@ class GuiWaypointEditorList(val mc: Minecraft, val parent: GuiWaypointEditor, wi
             parent.loadFromWaypointInfo(waypoints[index])
         } else {
             val slotTop = slotTops[index] ?: -10000
-            if(mouseX >= left && mouseX < left+32 && mouseY >= slotTop && mouseY <= slotTop+slotHeight) {
+            if(mouseX >= left && mouseX < left+16 && mouseY >= slotTop && mouseY <= slotTop+slotHeight) {
                 parent.loadFromWaypointInfo(waypoints[index])
             }
         }

@@ -58,7 +58,11 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
         while(true) {
             WaypointProviders.forEach { it.updateList(player) }
             waypointList.compileFromProviders()
-            Thread.sleep(500)
+            try {
+                Thread.sleep(500)
+            } catch(e: InterruptedException) {
+                // shh everything's okay
+            }
         }
     }
 
