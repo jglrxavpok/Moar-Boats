@@ -14,7 +14,9 @@ import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.network.CModifyWaypoint
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
+import org.jglrxavpok.moarboats.integration.WaypointInfo
 import org.jglrxavpok.moarboats.integration.WaypointProviders
+import org.lwjgl.input.Mouse
 import kotlin.concurrent.thread
 
 class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable, val index: Int) : GuiScreen() {
@@ -50,10 +52,12 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
     private val allButtons = listOf(confirmButton, cancelButton, hasBoostCheckbox)
 
     private val updateThread: Thread = thread(start = true, isDaemon = true, block = this::updateProviders)
+    private lateinit var waypointList: GuiWaypointEditorList
 
     private fun updateProviders() {
         while(true) {
-            WaypointProviders.forEach { it.updateList() }
+            WaypointProviders.forEach { it.updateList(player) }
+            waypointList.compileFromProviders()
             Thread.sleep(500)
         }
     }
@@ -111,6 +115,12 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
         allButtons.forEach {
             addButton(it)
         }
+
+        val listWidth = .20*width
+        val listHeight = 85
+        val listLeft = width-listWidth.toInt()
+        val listTop = 0 + 28 // margins
+        waypointList = GuiWaypointEditorList(mc, this, listWidth.toInt(), listHeight, listTop, listLeft, 20, width, height)
     }
 
     override fun updateScreen() {
@@ -118,6 +128,14 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
         boostSlider.updateSlider()
         boostSlider.enabled = hasBoostCheckbox.isChecked
         allInputs.forEach(GuiTextField::updateCursorCounter)
+    }
+
+    override fun handleMouseInput() {
+        super.handleMouseInput()
+        val mouseX = Mouse.getEventX() * this.width / this.mc.displayWidth
+        val mouseY = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1
+
+        waypointList.handleMouseInput(mouseX, mouseY)
     }
 
     override fun actionPerformed(button: GuiButton) {
@@ -153,6 +171,7 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
         drawDefaultBackground()
         super.drawScreen(mouseX, mouseY, partialTicks)
+        waypointList.drawScreen(mouseX, mouseY, partialTicks)
         allInputs.forEach(GuiTextField::drawTextBox)
 
         fontRenderer.drawCenteredString(TextFormatting.UNDERLINE.toString()+TextComponentTranslation("moarboats.gui.waypoint_editor.name", nameInput.text).unformattedText, width/2, 15, 0xFFFFFF, shadow = true)
@@ -176,5 +195,15 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
 
     override fun mouseReleased(mouseX: Int, mouseY: Int, state: Int) {
         super.mouseReleased(mouseX, mouseY, state)
+    }
+
+    fun loadFromWaypointInfo(waypointInfo: WaypointInfo) {
+        xInput.text = waypointInfo.x.toString()
+        zInput.text = waypointInfo.z.toString()
+        nameInput.text = waypointInfo.name
+        if(waypointInfo.boost != null) {
+            hasBoostCheckbox.setIsChecked(true)
+            boostSlider.value = waypointInfo.boost
+        }
     }
 }

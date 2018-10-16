@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.integration
 
+import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.text.TextComponentBase
 
 val WaypointProviders = mutableListOf<IWaypointProvider>()
@@ -12,7 +13,7 @@ interface IWaypointProvider {
     /**
      * Called every second by GuiWaypointEditor in a separate thread. You are free to not do anything there
      */
-    fun updateList() {}
+    fun updateList(player: EntityPlayer) {}
 }
 
 data class WaypointInfo(val name: String, val x: Int, val z: Int, val boost: Double?)
