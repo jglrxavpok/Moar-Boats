@@ -52,7 +52,7 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
     private val allButtons = listOf(confirmButton, cancelButton, hasBoostCheckbox)
 
     private val updateThread: Thread = thread(start = true, isDaemon = true, block = this::updateProviders)
-    private lateinit var waypointList: GuiWaypointEditorList
+    private var waypointList: GuiWaypointEditorList = GuiWaypointEditorList(mc, this, 1, 1, 0, 0, 1, 1, 1) // not using lateinit because sometimes drawScreen/updateScreen are called before initGui
 
     private fun updateProviders() {
         while(true) {

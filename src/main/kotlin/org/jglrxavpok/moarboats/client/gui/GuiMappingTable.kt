@@ -46,7 +46,8 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
     private val controls = listOf(addWaypointButton, insertWaypointButton, editWaypointButton, removeWaypointButton)
     private var waypointToEditAfterCreation = 0
 
-    lateinit var list: GuiWaypointList
+    var list: GuiWaypointList = GuiWaypointList(mc, this, 1, 1, 0, 0, 1, 1, 1) // not using lateinit because sometimes drawScreen/updateScreen are called before initGui
+
     private var hasData = false
     var selectedIndex: Int = 0
         private set
