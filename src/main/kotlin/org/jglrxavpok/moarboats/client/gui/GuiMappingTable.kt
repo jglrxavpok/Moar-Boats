@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.client.gui
 
+import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.client.renderer.GlStateManager
@@ -29,6 +30,10 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
     companion object {
         private val EmptyBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/helm.png")
         private val Background = ResourceLocation(MoarBoats.ModID, "textures/gui/default_background_large.png")
+    }
+
+    init {
+        mc = Minecraft.getMinecraft()
     }
 
     private val addWaypointText = TextComponentTranslation("moarboats.gui.mapping_table.add")

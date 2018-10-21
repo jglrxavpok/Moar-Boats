@@ -1,7 +1,9 @@
 package org.jglrxavpok.moarboats.common.containers
 
+import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.player.InventoryPlayer
 import net.minecraft.inventory.Slot
+import net.minecraft.item.ItemStack
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 
@@ -21,5 +23,9 @@ class ContainerDispenserModule(inventoryPlayer: InventoryPlayer, module: BoatMod
         }
 
         addPlayerSlots(isLarge = true)
+    }
+
+    override fun transferStackInSlot(playerIn: EntityPlayer, index: Int): ItemStack {
+        return ItemStack.EMPTY // for lack of a better shift click mechanism
     }
 }
