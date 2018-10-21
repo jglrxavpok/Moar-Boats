@@ -192,7 +192,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         val canOpenGui = validOwner && !modules.any { it.onInteract(this, player, hand, player.isSneaking) }
         if(canOpenGui) {
             if(modules.isNotEmpty() && !world.isRemote) {
-                player.openGui(MoarBoats, MoarBoatsGuiHandler.ModulesGui, player.world, entityID, 0, 0)
+                player.openGui(MoarBoats, MoarBoatsGuiHandler.ModulesGui, player.world, entityID, -1, 0)
             }
         } else if(!validOwner) {
             player.sendStatusMessage(TextComponentTranslation(LockedByOwner.key, ownerName ?: "<UNKNOWN>"), true)
@@ -602,6 +602,10 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
 
     override fun getOwnerNameOrNull(): String? {
         return ownerName
+    }
+
+    fun findFirstModuleToShowOnGui(): BoatModule {
+        return sortModulesByInterestingness().first()
     }
 
 }

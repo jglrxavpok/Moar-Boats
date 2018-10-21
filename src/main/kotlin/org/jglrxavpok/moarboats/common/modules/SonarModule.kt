@@ -19,6 +19,7 @@ object SonarModule: BoatModule() {
     override val id = ResourceLocation(MoarBoats.ModID, "sonar")
     override val usesInventory = false
     override val moduleSpot = Spot.Navigation
+    override val isMenuInteresting = false
 
     override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean): Boolean {
         return false

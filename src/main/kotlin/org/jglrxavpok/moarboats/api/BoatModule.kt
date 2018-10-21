@@ -27,6 +27,11 @@ abstract class BoatModule {
     abstract fun createContainer(player: EntityPlayer, boat: IControllable): ContainerBase?
 
     /**
+     * Set to false if you want the menu to be displayed at the bottom of the module tabs (no config modules use this)
+     */
+    open val isMenuInteresting: Boolean = true
+
+    /**
      * Priority for using a hopper: the higher, the strongest priority. Use 0 to disallow hopper interactions
      * eg. Chests have 20, furnace engines and helms have 0
      */

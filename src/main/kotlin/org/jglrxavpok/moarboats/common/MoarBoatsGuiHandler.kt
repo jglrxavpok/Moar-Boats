@@ -31,7 +31,8 @@ object MoarBoatsGuiHandler: IGuiHandler {
             ModulesGui -> {
                 val boatID = x
                 val boat = world.getEntityByID(boatID) as? ModularBoatEntity ?: return null
-                val module = boat.modules[y]
+                // y below 0 means that the menu should display the most interesting module first (generally engine > storage > navigation > misc.)
+                val module = if(y < 0) boat.findFirstModuleToShowOnGui() else boat.modules[y]
                 module.createGui(player, boat)
             }
             PathEditor -> {
@@ -124,7 +125,8 @@ object MoarBoatsGuiHandler: IGuiHandler {
             ModulesGui -> {
                 val boatID = x
                 val boat = world.getEntityByID(boatID) as? ModularBoatEntity ?: return null
-                val module = boat.modules[y]
+                // y below 0 means that the menu should display the most interesting module first (generally engine > storage > navigation > misc.)
+                val module = if(y < 0) boat.findFirstModuleToShowOnGui() else boat.modules[y]
                 module.createContainer(player, boat)
             }
             PathEditor -> null

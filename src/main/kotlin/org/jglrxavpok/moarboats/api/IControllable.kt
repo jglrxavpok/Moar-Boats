@@ -75,4 +75,15 @@ interface IControllable: IBlockSource {
     fun localToWorld(localVec: Vec3d): Vec3d {
         return localVec.rotateYaw((180f-yaw).toRadians()).addVector(positionX, positionY, positionZ)
     }
+
+    fun sortModulesByInterestingness(): Iterable<BoatModule> {
+        // automatically put non-interesting menus at the bottom of the tab list
+        return modules.sortedBy {
+            if(it.isMenuInteresting) {
+                it.moduleSpot.ordinal
+            } else {
+                +100
+            }
+        }
+    }
 }

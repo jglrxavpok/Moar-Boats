@@ -21,6 +21,7 @@ object ChunkLoadingModule: BoatModule() {
 
     override val usesInventory = false
     override val moduleSpot = Spot.Misc
+    override val isMenuInteresting = false
 
     private val corners = arrayOf(
             Pair(-1, -1),

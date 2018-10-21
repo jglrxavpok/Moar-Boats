@@ -41,7 +41,7 @@ abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, va
         val guiX = getGuiLeft()
         val guiY = getGuiTop()
         var yOffset = 10
-        for(module in boat.modules) {
+        for(module in boat.sortModulesByInterestingness()) {
             val tab = ModuleTab(module, guiX + xSize - 3, guiY + 3 + yOffset)
             tabs += tab
             yOffset += tab.height + 3
@@ -78,9 +78,10 @@ abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, va
     fun attemptTabChange(mouseX: Int, mouseY: Int): Boolean {
         val hoveredTabIndex = tabs.indexOfFirst { it.isMouseOn(mouseX, mouseY) }
         if(hoveredTabIndex != -1) {
-            if(tabs[hoveredTabIndex].tabModule != module) {
+            val tab = tabs[hoveredTabIndex]
+            if(tab.tabModule != module) {
                 mc.soundHandler.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f))
-                MoarBoats.network.sendToServer(C0OpenModuleGui(boat.entityID, hoveredTabIndex))
+                MoarBoats.network.sendToServer(C0OpenModuleGui(boat.entityID, tab.tabModule.id))
                 return true
             }
         }

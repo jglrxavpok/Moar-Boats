@@ -131,3 +131,4 @@ inventory.chunk_loading.name=Chunk Loader pour bateaux
 item.boat_chunk_loader.name=Chunk Loader pour bateaux
 
 waypoint_provider.journeymap=JourneyMap
+inventory.diving.name=Bouteille de plongée
