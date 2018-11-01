@@ -13,6 +13,7 @@ import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiNoConfigModule
 import org.jglrxavpok.moarboats.client.renders.ChunkLoadingModuleRenderer
+import org.jglrxavpok.moarboats.common.MBConfig
 import org.jglrxavpok.moarboats.common.containers.EmptyContainer
 import org.jglrxavpok.moarboats.extensions.toRadians
 
@@ -35,6 +36,8 @@ object ChunkLoadingModule: BoatModule() {
     override fun controlBoat(from: IControllable) { }
 
     override fun update(from: IControllable) {
+        if(!MBConfig.chunkloaderAllowed)
+            return
         forceChunks(from)
 
 
@@ -70,6 +73,8 @@ object ChunkLoadingModule: BoatModule() {
 
     override fun onInit(to: IControllable, fromItem: ItemStack?) {
         super.onInit(to, fromItem)
+        if(!MBConfig.chunkloaderAllowed)
+            return
         forceChunks(to)
     }
 

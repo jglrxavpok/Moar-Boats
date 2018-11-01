@@ -149,7 +149,7 @@ object MoarBoats {
         event.registry.registerModule(DropperModule, Item.getItemFromBlock(MCBlocks.DROPPER), { boat, module -> SimpleModuleInventory(3*5, "dropper", boat, module) })
         event.registry.registerModule(BatteryModule, Item.getItemFromBlock(BlockBoatBattery))
         event.registry.registerModule(FluidTankModule, Item.getItemFromBlock(BlockBoatTank))
-        event.registry.registerModule(ChunkLoadingModule, ChunkLoaderItem)
+        event.registry.registerModule(ChunkLoadingModule, ChunkLoaderItem, restriction = MBConfig::chunkloaderAllowed)
         plugins.forEach { it.registerModules(event.registry) }
     }
 

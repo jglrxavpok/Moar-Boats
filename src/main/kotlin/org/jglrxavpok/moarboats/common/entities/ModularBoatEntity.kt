@@ -1,7 +1,5 @@
 package org.jglrxavpok.moarboats.common.entities
 
-import com.mojang.authlib.GameProfile
-import io.netty.buffer.ByteBuf
 import net.minecraft.block.BlockDispenser
 import net.minecraft.block.state.IBlockState
 import net.minecraft.dispenser.IBehaviorDispenseItem
@@ -11,7 +9,6 @@ import net.minecraft.init.Blocks
 import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.InventoryHelper
 import net.minecraft.item.EnumDyeColor
-import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
@@ -45,6 +42,7 @@ import org.jglrxavpok.moarboats.api.BoatModuleInventory
 import org.jglrxavpok.moarboats.common.LockedByOwner
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.ResourceLocationsSerializer
+import org.jglrxavpok.moarboats.common.Restricted
 import org.jglrxavpok.moarboats.common.items.ModularBoatItem
 import org.jglrxavpok.moarboats.common.modules.IEnergyBoatModule
 import org.jglrxavpok.moarboats.common.modules.IFluidBoatModule
@@ -170,19 +168,24 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         if(world.isRemote)
             return true
         val heldItem = player.getHeldItem(hand)
-        val module = BoatModuleRegistry.findModule(heldItem)
-        if(module != null) {
-            if(canFitModule(module)) {
+        val moduleID = BoatModuleRegistry.findModule(heldItem)
+        if(moduleID != null) {
+            val entry = BoatModuleRegistry[moduleID]
+            if(!entry.restriction()) {
+                player.sendStatusMessage(Restricted, true)
+                return false
+            }
+            if(canFitModule(moduleID)) {
                 if(!player.capabilities.isCreativeMode) {
                     heldItem.shrink(1)
                     if (heldItem.isEmpty) {
                         player.inventory.deleteStack(heldItem)
                     }
                 }
-                addModule(module, fromItem = heldItem)
+                addModule(moduleID, fromItem = heldItem)
                 return true
             } else {
-                val correspondingModule = BoatModuleRegistry[module].module
+                val correspondingModule = BoatModuleRegistry[moduleID].module
                 player.sendStatusMessage(TextComponentTranslation("general.occupiedSpot", correspondingModule.moduleSpot.text), true)
                 return true
             }

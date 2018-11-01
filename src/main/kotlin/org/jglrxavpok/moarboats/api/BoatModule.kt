@@ -60,7 +60,7 @@ abstract class BoatModule {
     open fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {}
 }
 
-class BoatModuleEntry(val correspondingItem: Item, val module: BoatModule, val inventoryFactory: ((IControllable, BoatModule) -> BoatModuleInventory)?): IForgeRegistryEntry.Impl<BoatModuleEntry>()
+class BoatModuleEntry(val correspondingItem: Item, val module: BoatModule, val inventoryFactory: ((IControllable, BoatModule) -> BoatModuleInventory)?, val restriction: () -> Boolean): IForgeRegistryEntry.Impl<BoatModuleEntry>()
 
 object BoatModuleRegistry {
 
@@ -82,12 +82,12 @@ object BoatModuleRegistry {
 
 }
 
-fun IForgeRegistry<BoatModuleEntry>.registerModule(module: BoatModule, correspondingItem: Item, inventoryFactory: ((IControllable, BoatModule) -> BoatModuleInventory)? = null) {
-    registerModule(module.id, correspondingItem, module, inventoryFactory)
+fun IForgeRegistry<BoatModuleEntry>.registerModule(module: BoatModule, correspondingItem: Item, inventoryFactory: ((IControllable, BoatModule) -> BoatModuleInventory)? = null, restriction: (() -> Boolean)? = null) {
+    registerModule(module.id, correspondingItem, module, inventoryFactory, restriction)
 }
 
-fun IForgeRegistry<BoatModuleEntry>.registerModule(name: ResourceLocation, correspondingItem: Item, module: BoatModule, inventoryFactory: ((IControllable, BoatModule) -> BoatModuleInventory)? = null) {
-    val entry = BoatModuleEntry(correspondingItem, module, inventoryFactory)
+fun IForgeRegistry<BoatModuleEntry>.registerModule(name: ResourceLocation, correspondingItem: Item, module: BoatModule, inventoryFactory: ((IControllable, BoatModule) -> BoatModuleInventory)? = null, restriction: (() -> Boolean)? = null) {
+    val entry = BoatModuleEntry(correspondingItem, module, inventoryFactory, restriction ?: {true})
     entry.registryName = module.id
     this.register(entry)
     MoarBoats.logger.info("Registered module with ID $name")
