@@ -1,20 +1,16 @@
 package org.jglrxavpok.moarboats.common.network
 
 import io.netty.buffer.ByteBuf
-import net.minecraft.item.ItemMap
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import net.minecraftforge.fml.relauncher.Side
-import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
-import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
-import org.jglrxavpok.moarboats.common.modules.HelmModule
+import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
+import org.jglrxavpok.moarboats.common.modules.AnchorModule
 
-class C17RemoveModule(): IMessage {
+class CDeployAnchor(): IMessage {
 
     var boatID: Int = 0
     var moduleLocation: ResourceLocation = ResourceLocation("moarboats:none")
@@ -34,18 +30,20 @@ class C17RemoveModule(): IMessage {
         ByteBufUtils.writeUTF8String(buf, moduleLocation.toString())
     }
 
-    object Handler: MBMessageHandler<C17RemoveModule, S3MapAnswer> {
-        override val packetClass = C17RemoveModule::class
+    object Handler: MBMessageHandler<CDeployAnchor, IMessage?> {
+        override val packetClass = CDeployAnchor::class
         override val receiverSide = Side.SERVER
 
-        override fun onMessage(message: C17RemoveModule, ctx: MessageContext): S3MapAnswer? {
+        override fun onMessage(message: CDeployAnchor, ctx: MessageContext): IMessage? {
             val player = ctx.serverHandler.player
             val world = player.world
             val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
             val moduleLocation = message.moduleLocation
-            boat.removeModule(moduleLocation)
-            player.closeScreen()
+            val module = BoatModuleRegistry[moduleLocation].module
+            module as AnchorModule
+            module.deploy(boat, player)
             return null
         }
     }
+
 }

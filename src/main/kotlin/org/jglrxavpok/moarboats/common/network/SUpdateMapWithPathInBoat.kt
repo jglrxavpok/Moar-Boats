@@ -8,9 +8,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.HelmModule
-import kotlin.reflect.KClass
 
-class S25UpdateMapWithPathInBoat: SxxUpdateMapWithPath {
+class SUpdateMapWithPathInBoat: SxxUpdateMapWithPath {
 
     var boatID: Int = 0
 
@@ -30,10 +29,10 @@ class S25UpdateMapWithPathInBoat: SxxUpdateMapWithPath {
         buf.writeInt(boatID)
     }
 
-    object Handler: SxxUpdateMapWithPath.Handler<S25UpdateMapWithPathInBoat>() {
-        override val packetClass = S25UpdateMapWithPathInBoat::class
+    object Handler: SxxUpdateMapWithPath.Handler<SUpdateMapWithPathInBoat>() {
+        override val packetClass = SUpdateMapWithPathInBoat::class
 
-        override fun updatePath(message: S25UpdateMapWithPathInBoat, ctx: MessageContext, list: NBTTagList) {
+        override fun updatePath(message: SUpdateMapWithPathInBoat, ctx: MessageContext, list: NBTTagList) {
             with(message) {
                 val player = Minecraft.getMinecraft().player
                 val world = player.world

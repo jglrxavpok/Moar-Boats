@@ -17,14 +17,12 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.text.TextComponentTranslation
 import net.minecraft.world.storage.MapData
 import net.minecraftforge.fml.client.config.GuiSlider
-import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.gui.elements.GuiBinaryProperty
 import org.jglrxavpok.moarboats.client.gui.elements.GuiToolButton
 import org.jglrxavpok.moarboats.client.renders.HelmModuleRenderer
 import org.jglrxavpok.moarboats.common.data.MapImageStripe
 import org.jglrxavpok.moarboats.common.data.PathHolder
 import org.jglrxavpok.moarboats.common.modules.HelmModule.StripeLength
-import org.jglrxavpok.moarboats.common.network.C8ChangeEngineSpeed
 import org.lwjgl.input.Mouse
 import org.lwjgl.opengl.GL11.*
 

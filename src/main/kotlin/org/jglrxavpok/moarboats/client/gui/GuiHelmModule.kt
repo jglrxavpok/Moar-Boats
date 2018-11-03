@@ -22,8 +22,7 @@ import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import org.jglrxavpok.moarboats.common.items.ItemMapWithPath
 import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
-import org.jglrxavpok.moarboats.common.modules.HelmModule.getInventory
-import org.jglrxavpok.moarboats.common.network.C20SaveItineraryToMap
+import org.jglrxavpok.moarboats.common.network.CSaveItineraryToMap
 import org.jglrxavpok.moarboats.common.state.EmptyMapData
 import org.lwjgl.opengl.GL11
 
@@ -69,7 +68,7 @@ class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: 
             saveButton -> {
                 val mapData = getMapData(container.getSlot(0).stack)
                 if(mapData != null && mapData != EmptyMapData && container.getSlot(0).stack.item == Items.FILLED_MAP) {
-                    MoarBoats.network.sendToServer(C20SaveItineraryToMap(boat.entityID, HelmModule.id))
+                    MoarBoats.network.sendToServer(CSaveItineraryToMap(boat.entityID, HelmModule.id))
                 }
             }
         }

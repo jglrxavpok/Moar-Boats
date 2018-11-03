@@ -3,16 +3,14 @@ package org.jglrxavpok.moarboats.common.network
 import io.netty.buffer.ByteBuf
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.world.storage.MapStorage
-import net.minecraftforge.common.util.Constants
 import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 
-class S21SetGoldenItinerary(): IMessage {
+class SSetGoldenItinerary(): IMessage {
 
     lateinit var data: ItemGoldenTicket.WaypointData
 
@@ -33,11 +31,11 @@ class S21SetGoldenItinerary(): IMessage {
         ByteBufUtils.writeTag(buf, compound)
     }
 
-    object Handler: MBMessageHandler<S21SetGoldenItinerary, IMessage?> {
-        override val packetClass = S21SetGoldenItinerary::class
+    object Handler: MBMessageHandler<SSetGoldenItinerary, IMessage?> {
+        override val packetClass = SSetGoldenItinerary::class
         override val receiverSide = Side.CLIENT
 
-        override fun onMessage(message: S21SetGoldenItinerary, ctx: MessageContext): IMessage? {
+        override fun onMessage(message: SSetGoldenItinerary, ctx: MessageContext): IMessage? {
             val mapStorage: MapStorage = MoarBoats.getLocalMapStorage()
             mapStorage.setData(message.data.uuid, message.data)
             message.data.isDirty = true

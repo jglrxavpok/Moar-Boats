@@ -4,7 +4,6 @@ import net.minecraft.client.gui.GuiScreen
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemMap
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTBase
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
 import net.minecraft.util.EnumHand
@@ -16,14 +15,12 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.gui.GuiHelmModule
 import org.jglrxavpok.moarboats.common.containers.ContainerHelmModule
 import org.jglrxavpok.moarboats.common.items.HelmItem
-import org.jglrxavpok.moarboats.common.network.C2MapRequest
+import org.jglrxavpok.moarboats.common.network.CMapRequest
 import org.jglrxavpok.moarboats.extensions.toDegrees
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
-import org.jglrxavpok.moarboats.common.Items
 import org.jglrxavpok.moarboats.common.containers.ContainerBase
 import org.jglrxavpok.moarboats.common.items.ItemPath
-import org.jglrxavpok.moarboats.common.modules.HelmModule.getInventory
 import org.jglrxavpok.moarboats.common.state.*
 import org.jglrxavpok.moarboats.extensions.insert
 
@@ -60,7 +57,7 @@ object HelmModule: BoatModule(), BlockReason {
             val stack = to.getInventory().getStackInSlot(0)
             if(!stack.isEmpty && stack.item is ItemMap) {
                 val id = stack.itemDamage
-                MoarBoats.network.sendToServer(C2MapRequest("map_$id", to.entityID, this.id))
+                MoarBoats.network.sendToServer(CMapRequest("map_$id", to.entityID, this.id))
             }
         }
     }
@@ -140,7 +137,7 @@ object HelmModule: BoatModule(), BlockReason {
             zCenterProperty[from] = mapdata.zCenter
         } else if(mapdata == EmptyMapData || from.correspondingEntity.ticksExisted % MapUpdatePeriod == 0) {
             val id = stack.itemDamage
-            MoarBoats.network.sendToServer(C2MapRequest("map_$id", from.entityID, this.id))
+            MoarBoats.network.sendToServer(CMapRequest("map_$id", from.entityID, this.id))
         }
     }
 

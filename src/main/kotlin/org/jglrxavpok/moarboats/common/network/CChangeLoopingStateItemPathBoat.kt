@@ -10,7 +10,6 @@ import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import org.jglrxavpok.moarboats.common.items.ItemMapWithPath
 import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
-import kotlin.reflect.KClass
 
 class CChangeLoopingStateItemPathBoat: CChangeLoopingStateBase {
 
@@ -46,8 +45,8 @@ class CChangeLoopingStateItemPathBoat: CChangeLoopingStateBase {
                 if(item is ItemPath) {
                     item.setLooping(stack, message.loops)
                     when(item) {
-                        is ItemGoldenTicket -> return S21SetGoldenItinerary(item.getData(stack))
-                        is ItemMapWithPath -> return S25UpdateMapWithPathInBoat(item.getWaypointData(stack, MoarBoats.getLocalMapStorage()), boatID)
+                        is ItemGoldenTicket -> return SSetGoldenItinerary(item.getData(stack))
+                        is ItemMapWithPath -> return SUpdateMapWithPathInBoat(item.getWaypointData(stack, MoarBoats.getLocalMapStorage()), boatID)
                     }
                 }
                 return null

@@ -10,7 +10,7 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 
-class C0OpenModuleGui(): IMessage {
+class COpenModuleGui(): IMessage {
     var boatID: Int = 0
     lateinit var moduleID: ResourceLocation
 
@@ -29,11 +29,11 @@ class C0OpenModuleGui(): IMessage {
         buf.writeInt(boatID)
     }
 
-    object Handler: MBMessageHandler<C0OpenModuleGui, IMessage> {
-        override val packetClass = C0OpenModuleGui::class
+    object Handler: MBMessageHandler<COpenModuleGui, IMessage> {
+        override val packetClass = COpenModuleGui::class
         override val receiverSide = Side.SERVER
 
-        override fun onMessage(message: C0OpenModuleGui, ctx: MessageContext): IMessage? {
+        override fun onMessage(message: COpenModuleGui, ctx: MessageContext): IMessage? {
             val player = ctx.serverHandler.player
             val boat = player.world.getEntityByID(message.boatID) as? ModularBoatEntity
             if(boat == null) {

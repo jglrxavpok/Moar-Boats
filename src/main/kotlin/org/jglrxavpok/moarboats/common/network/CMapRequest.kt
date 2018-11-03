@@ -1,25 +1,19 @@
 package org.jglrxavpok.moarboats.common.network
 
 import io.netty.buffer.ByteBuf
-import net.minecraft.client.Minecraft
-import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.item.ItemMap
 import net.minecraft.util.ResourceLocation
-import net.minecraft.world.storage.MapData
 import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import net.minecraftforge.fml.relauncher.Side
-import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
+import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.common.modules.HelmModule
-import kotlin.reflect.KClass
 
-class S3MapAnswer(): IMessage {
+class CMapRequest(): IMessage {
 
-    var mapName = ""
-    var mapData = NBTTagCompound()
-
+    var mapName: String = ""
     var boatID: Int = 0
     var moduleLocation: ResourceLocation = ResourceLocation("moarboats:none")
 
@@ -31,34 +25,35 @@ class S3MapAnswer(): IMessage {
 
     override fun fromBytes(buf: ByteBuf) {
         mapName = ByteBufUtils.readUTF8String(buf)
-        mapData = ByteBufUtils.readTag(buf)!!
         boatID = buf.readInt()
         moduleLocation = ResourceLocation(ByteBufUtils.readUTF8String(buf))
     }
 
     override fun toBytes(buf: ByteBuf) {
         ByteBufUtils.writeUTF8String(buf, mapName)
-        ByteBufUtils.writeTag(buf, mapData)
         buf.writeInt(boatID)
         ByteBufUtils.writeUTF8String(buf, moduleLocation.toString())
     }
 
-    object Handler: MBMessageHandler<S3MapAnswer, IMessage> {
-        override val packetClass = S3MapAnswer::class
-        override val receiverSide = Side.CLIENT
+    object Handler: MBMessageHandler<CMapRequest, SMapAnswer> {
+        override val packetClass = CMapRequest::class
+        override val receiverSide = Side.SERVER
 
-        override fun onMessage(message: S3MapAnswer, ctx: MessageContext): IMessage? {
-            val mapID = message.mapName
-            val data = MapData(mapID)
-            data.readFromNBT(message.mapData)
-            val world = Minecraft.getMinecraft().world
+        override fun onMessage(message: CMapRequest, ctx: MessageContext): SMapAnswer? {
+            val player = ctx.serverHandler.player
+            val world = player.world
             val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
             val moduleLocation = message.moduleLocation
             val module = BoatModuleRegistry[moduleLocation].module
+            val stack = boat.getInventory(module).getStackInSlot(0)
+            val item = stack.item as? ItemMap ?: return null // Got request while there was no map!
+            val mapName = message.mapName
+            val mapdata = item.getMapData(stack, boat.worldRef)!!
+            val packet = SMapAnswer(mapName, message.boatID, message.moduleLocation)
+            mapdata.writeToNBT(packet.mapData)
             module as HelmModule
-            module.receiveMapData(boat, data)
-            //Minecraft.getMinecraft().world.setData(mapID, data)
-            return null
+            module.receiveMapData(boat, mapdata)
+            return packet
         }
     }
 }

@@ -3,8 +3,6 @@ package org.jglrxavpok.moarboats.client.gui
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.inventory.GuiContainer
-import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.player.InventoryPlayer
 import net.minecraft.inventory.Container
 import net.minecraft.inventory.IContainerListener
@@ -97,17 +95,17 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
             addWaypointButton -> {
                 waypointToEditAfterCreation = list.slots.size
                 if(inventorySlots.getSlot(0).stack.item == ItemGoldenTicket) {
-                    MoarBoats.network.sendToServer(C30AddWaypointToGoldenTicketFromMappingTable(te.pos, null, null, te))
+                    MoarBoats.network.sendToServer(CAddWaypointToGoldenTicketFromMappingTable(te.pos, null, null, te))
                 } else {
-                    MoarBoats.network.sendToServer(C22AddWaypointToItemPathFromMappingTable(te.pos, null, null, te))
+                    MoarBoats.network.sendToServer(CAddWaypointToItemPathFromMappingTable(te.pos, null, null, te))
                 }
             }
             insertWaypointButton -> {
                 waypointToEditAfterCreation = selectedIndex+1
                 if(inventorySlots.getSlot(0).stack.item == ItemGoldenTicket) {
-                    MoarBoats.network.sendToServer(C30AddWaypointToGoldenTicketFromMappingTable(te.pos, null, selectedIndex, te))
+                    MoarBoats.network.sendToServer(CAddWaypointToGoldenTicketFromMappingTable(te.pos, null, selectedIndex, te))
                 } else {
-                    MoarBoats.network.sendToServer(C22AddWaypointToItemPathFromMappingTable(te.pos, null, selectedIndex, te))
+                    MoarBoats.network.sendToServer(CAddWaypointToItemPathFromMappingTable(te.pos, null, selectedIndex, te))
                 }
             }
             editWaypointButton -> {
@@ -115,9 +113,9 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
             }
             removeWaypointButton -> {
                 if(inventorySlots.getSlot(0).stack.item == ItemGoldenTicket) {
-                    MoarBoats.network.sendToServer(C28RemoveWaypointFromGoldenTicketFromMappingTable(selectedIndex, te))
+                    MoarBoats.network.sendToServer(CRemoveWaypointFromGoldenTicketFromMappingTable(selectedIndex, te))
                 } else {
-                    MoarBoats.network.sendToServer(C26RemoveWaypointFromMapWithPathFromMappingTable(selectedIndex, te))
+                    MoarBoats.network.sendToServer(CRemoveWaypointFromMapWithPathFromMappingTable(selectedIndex, te))
                 }
             }
         }

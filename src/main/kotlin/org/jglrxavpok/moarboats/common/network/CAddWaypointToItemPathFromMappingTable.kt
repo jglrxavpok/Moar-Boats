@@ -5,12 +5,11 @@ import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagList
 import net.minecraft.util.math.BlockPos
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
-import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.items.ItemMapWithPath
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 
-class C22AddWaypointToItemPathFromMappingTable: CxxAddWaypointToItemPath {
+class CAddWaypointToItemPathFromMappingTable: CxxAddWaypointToItemPath {
 
     constructor()
 
@@ -39,11 +38,11 @@ class C22AddWaypointToItemPathFromMappingTable: CxxAddWaypointToItemPath {
         buf.writeInt(tileEntityZ)
     }
 
-    object Handler: CxxAddWaypointToItemPath.Handler<C22AddWaypointToItemPathFromMappingTable, S24UpdateMapWithPathInMappingTable>() {
+    object Handler: CxxAddWaypointToItemPath.Handler<CAddWaypointToItemPathFromMappingTable, SUpdateMapWithPathInMappingTable>() {
         override val item = ItemMapWithPath
-        override val packetClass = C22AddWaypointToItemPathFromMappingTable::class
+        override val packetClass = CAddWaypointToItemPathFromMappingTable::class
 
-        override fun getStack(message: C22AddWaypointToItemPathFromMappingTable, ctx: MessageContext): ItemStack? {
+        override fun getStack(message: CAddWaypointToItemPathFromMappingTable, ctx: MessageContext): ItemStack? {
             with(message) {
                 val pos = BlockPos.PooledMutableBlockPos.retain(tileEntityX, tileEntityY, tileEntityZ)
                 val te = ctx.serverHandler.player.world.getTileEntity(pos)
@@ -61,8 +60,8 @@ class C22AddWaypointToItemPathFromMappingTable: CxxAddWaypointToItemPath {
             }
         }
 
-        override fun createResponse(message: C22AddWaypointToItemPathFromMappingTable, ctx: MessageContext, waypointList: NBTTagList): S24UpdateMapWithPathInMappingTable? {
-            return S24UpdateMapWithPathInMappingTable(waypointList, message.tileEntityX, message.tileEntityY, message.tileEntityZ)
+        override fun createResponse(message: CAddWaypointToItemPathFromMappingTable, ctx: MessageContext, waypointList: NBTTagList): SUpdateMapWithPathInMappingTable? {
+            return SUpdateMapWithPathInMappingTable(waypointList, message.tileEntityX, message.tileEntityY, message.tileEntityZ)
         }
 
     }

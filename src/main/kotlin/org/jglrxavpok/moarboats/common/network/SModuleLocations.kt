@@ -5,13 +5,11 @@ import net.minecraft.client.Minecraft
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import net.minecraftforge.fml.relauncher.Side
-import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 
-class S16ModuleLocations(): IMessage {
+class SModuleLocations(): IMessage {
 
     var modules = emptyList<ResourceLocation>()
 
@@ -41,11 +39,11 @@ class S16ModuleLocations(): IMessage {
         }
     }
 
-    object Handler: MBMessageHandler<S16ModuleLocations, IMessage> {
-        override val packetClass = S16ModuleLocations::class
+    object Handler: MBMessageHandler<SModuleLocations, IMessage> {
+        override val packetClass = SModuleLocations::class
         override val receiverSide = Side.CLIENT
 
-        override fun onMessage(message: S16ModuleLocations, ctx: MessageContext): IMessage? {
+        override fun onMessage(message: SModuleLocations, ctx: MessageContext): IMessage? {
             val world = Minecraft.getMinecraft().world
             val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
             boat.moduleLocations.clear()

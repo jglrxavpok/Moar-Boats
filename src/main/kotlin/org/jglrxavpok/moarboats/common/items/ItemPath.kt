@@ -14,8 +14,7 @@ import net.minecraftforge.common.util.Constants
 import net.minecraftforge.fml.common.FMLCommonHandler
 import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.common.data.MapWithPathHolder
-import org.jglrxavpok.moarboats.common.network.S21SetGoldenItinerary
+import org.jglrxavpok.moarboats.common.network.SSetGoldenItinerary
 import java.util.*
 
 abstract class ItemPath: Item() {
@@ -167,7 +166,7 @@ object ItemGoldenTicket: ItemPath() {
         mapStorage.setData(uuid, data)
 
         if(FMLCommonHandler.instance().effectiveSide == Side.SERVER) {
-            MoarBoats.network.sendToAll(S21SetGoldenItinerary(data))
+            MoarBoats.network.sendToAll(SSetGoldenItinerary(data))
         }
     }
 

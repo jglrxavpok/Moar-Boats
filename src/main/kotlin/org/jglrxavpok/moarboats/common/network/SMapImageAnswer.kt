@@ -2,16 +2,13 @@ package org.jglrxavpok.moarboats.common.network
 
 import io.netty.buffer.ByteBuf
 import net.minecraft.client.Minecraft
-import net.minecraft.world.storage.MapData
 import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.common.data.MapImageStripe
-import org.jglrxavpok.moarboats.common.modules.HelmModule.StripeLength
 
-class S11MapImageAnswer(): IMessage {
+class SMapImageAnswer(): IMessage {
 
     var mapName = ""
     var stripeIndex = 0
@@ -42,11 +39,11 @@ class S11MapImageAnswer(): IMessage {
         }
     }
 
-    object Handler: MBMessageHandler<S11MapImageAnswer, IMessage> {
-        override val packetClass = S11MapImageAnswer::class
+    object Handler: MBMessageHandler<SMapImageAnswer, IMessage> {
+        override val packetClass = SMapImageAnswer::class
         override val receiverSide = Side.CLIENT
 
-        override fun onMessage(message: S11MapImageAnswer, ctx: MessageContext): IMessage? {
+        override fun onMessage(message: SMapImageAnswer, ctx: MessageContext): IMessage? {
             val mapID = message.mapName
             val id = "moarboats:map_preview/$mapID/${message.stripeIndex}"
             val data = MapImageStripe(id, message.stripeIndex, message.textureStripe)

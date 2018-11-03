@@ -2,24 +2,18 @@ package org.jglrxavpok.moarboats.common.network
 
 import io.netty.buffer.ByteBuf
 import net.minecraft.block.material.MapColor
-import net.minecraft.item.ItemMap
-import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import net.minecraft.world.storage.MapData
 import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
-import org.jglrxavpok.moarboats.api.BoatModuleRegistry
-import org.jglrxavpok.moarboats.client.gui.GuiPathEditor
 import org.jglrxavpok.moarboats.common.modules.HelmModule.StripeLength
 import kotlin.concurrent.thread
 
-class C10MapImageRequest(): IMessage {
+class CMapImageRequest(): IMessage {
 
     var mapName: String = ""
 
@@ -35,11 +29,11 @@ class C10MapImageRequest(): IMessage {
         ByteBufUtils.writeUTF8String(buf, mapName)
     }
 
-    object Handler: MBMessageHandler<C10MapImageRequest, IMessage?> {
-        override val packetClass = C10MapImageRequest::class
+    object Handler: MBMessageHandler<CMapImageRequest, IMessage?> {
+        override val packetClass = CMapImageRequest::class
         override val receiverSide = Side.SERVER
 
-        override fun onMessage(message: C10MapImageRequest, ctx: MessageContext): IMessage? {
+        override fun onMessage(message: CMapImageRequest, ctx: MessageContext): IMessage? {
             val player = ctx.serverHandler.player
             val world = player.world
             val mapData = world.loadData(MapData::class.java, message.mapName) as? MapData ?: return null
@@ -49,7 +43,7 @@ class C10MapImageRequest(): IMessage {
             repeat(stripes) { index ->
                 thread {
                     val textureData = takeScreenshotOfMapArea(index, mapData, world)
-                    MoarBoats.network.sendTo(S11MapImageAnswer(message.mapName, index, textureData), player)
+                    MoarBoats.network.sendTo(SMapImageAnswer(message.mapName, index, textureData), player)
                 }
             }
             return null

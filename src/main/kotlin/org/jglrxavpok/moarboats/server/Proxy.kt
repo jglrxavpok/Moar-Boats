@@ -1,15 +1,13 @@
 package org.jglrxavpok.moarboats.server
 
 import net.minecraft.entity.player.EntityPlayerMP
-import net.minecraft.item.ItemMapBase
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.event.entity.living.LivingEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
-import net.minecraftforge.fml.common.gameevent.PlayerEvent
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsProxy
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
-import org.jglrxavpok.moarboats.common.network.S21SetGoldenItinerary
+import org.jglrxavpok.moarboats.common.network.SSetGoldenItinerary
 
 class Proxy: MoarBoatsProxy() {
 
@@ -29,7 +27,7 @@ class Proxy: MoarBoatsProxy() {
                 if(!ItemGoldenTicket.isEmpty(itemstack)) {
                     if(player.ticksExisted % 5 == 0) { // send every 5 ticks
                         val data = ItemGoldenTicket.getData(itemstack)
-                        MoarBoats.network.sendTo(S21SetGoldenItinerary(data), player)
+                        MoarBoats.network.sendTo(SSetGoldenItinerary(data), player)
                     }
                 }
             }

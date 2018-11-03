@@ -20,8 +20,8 @@ import org.jglrxavpok.moarboats.common.containers.ContainerBase
 import org.jglrxavpok.moarboats.common.modules.BaseEngineModule
 import org.jglrxavpok.moarboats.common.modules.BlockedByRedstone
 import org.jglrxavpok.moarboats.common.modules.NoBlockReason
-import org.jglrxavpok.moarboats.common.network.C4ChangeEngineMode
-import org.jglrxavpok.moarboats.common.network.C8ChangeEngineSpeed
+import org.jglrxavpok.moarboats.common.network.CChangeEngineMode
+import org.jglrxavpok.moarboats.common.network.CChangeEngineSpeed
 import org.lwjgl.opengl.GL11
 
 class GuiEngineModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: IControllable, container: ContainerBase):
@@ -51,7 +51,7 @@ class GuiEngineModule(playerInventory: InventoryPlayer, engine: BoatModule, boat
     private lateinit var speedSlider: GuiSlider
     private val speedIconTexture = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/engines/speed_setting.png")
     private val sliderCallback = GuiSlider.ISlider { slider ->
-        MoarBoats.network.sendToServer(C8ChangeEngineSpeed(boat.entityID, module.id, slider.value.toFloat()/100f))
+        MoarBoats.network.sendToServer(CChangeEngineSpeed(boat.entityID, module.id, slider.value.toFloat()/100f))
     }
 
     override fun initGui() {
@@ -78,7 +78,7 @@ class GuiEngineModule(playerInventory: InventoryPlayer, engine: BoatModule, boat
         super.actionPerformed(button)
         when(button) {
             lockInPlaceButton -> {
-                MoarBoats.network.sendToServer(C4ChangeEngineMode(boat.entityID, module.id))
+                MoarBoats.network.sendToServer(CChangeEngineMode(boat.entityID, module.id))
             }
         }
     }

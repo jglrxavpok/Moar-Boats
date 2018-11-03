@@ -1,20 +1,14 @@
 package org.jglrxavpok.moarboats.common.network
 
 import io.netty.buffer.ByteBuf
-import net.minecraft.item.ItemMap
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import net.minecraftforge.fml.relauncher.Side
-import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
-import org.jglrxavpok.moarboats.common.modules.AnchorModule
-import org.jglrxavpok.moarboats.common.modules.FurnaceEngineModule
-import kotlin.reflect.KClass
 
-class C5DeployAnchor(): IMessage {
+class CRemoveModule(): IMessage {
 
     var boatID: Int = 0
     var moduleLocation: ResourceLocation = ResourceLocation("moarboats:none")
@@ -34,20 +28,18 @@ class C5DeployAnchor(): IMessage {
         ByteBufUtils.writeUTF8String(buf, moduleLocation.toString())
     }
 
-    object Handler: MBMessageHandler<C5DeployAnchor, IMessage?> {
-        override val packetClass = C5DeployAnchor::class
+    object Handler: MBMessageHandler<CRemoveModule, SMapAnswer> {
+        override val packetClass = CRemoveModule::class
         override val receiverSide = Side.SERVER
 
-        override fun onMessage(message: C5DeployAnchor, ctx: MessageContext): IMessage? {
+        override fun onMessage(message: CRemoveModule, ctx: MessageContext): SMapAnswer? {
             val player = ctx.serverHandler.player
             val world = player.world
             val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
             val moduleLocation = message.moduleLocation
-            val module = BoatModuleRegistry[moduleLocation].module
-            module as AnchorModule
-            module.deploy(boat, player)
+            boat.removeModule(moduleLocation)
+            player.closeScreen()
             return null
         }
     }
-
 }

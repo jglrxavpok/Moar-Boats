@@ -47,8 +47,8 @@ import org.jglrxavpok.moarboats.common.items.ModularBoatItem
 import org.jglrxavpok.moarboats.common.modules.IEnergyBoatModule
 import org.jglrxavpok.moarboats.common.modules.IFluidBoatModule
 import org.jglrxavpok.moarboats.common.modules.SeatModule
-import org.jglrxavpok.moarboats.common.network.S15ModuleData
-import org.jglrxavpok.moarboats.common.network.S16ModuleLocations
+import org.jglrxavpok.moarboats.common.network.SModuleData
+import org.jglrxavpok.moarboats.common.network.SModuleLocations
 import org.jglrxavpok.moarboats.extensions.Fluids
 import org.jglrxavpok.moarboats.extensions.loadInventory
 import org.jglrxavpok.moarboats.extensions.saveInventory
@@ -301,7 +301,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         if(!world.isRemote) {
             if(moduleData != null) {
                 try {
-                    MoarBoats.network.sendToAll(S15ModuleData(entityID, moduleData))
+                    MoarBoats.network.sendToAll(SModuleData(entityID, moduleData))
                 } catch (e: NullPointerException) {
                     MoarBoats.logger.warn(e) // sometimes the data is sent even though the packet has no dispatcher
                 }
@@ -312,7 +312,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
     private fun updateModuleLocations(sendUpdate: Boolean = true) {
         dataManager[MODULE_LOCATIONS] = moduleLocations // uses the setter of 'moduleLocations' to update the state
         if(!world.isRemote && sendUpdate) {
-            MoarBoats.network.sendToAll(S16ModuleLocations(entityID, moduleLocations))
+            MoarBoats.network.sendToAll(SModuleLocations(entityID, moduleLocations))
         }
     }
 

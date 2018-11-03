@@ -3,14 +3,12 @@ package org.jglrxavpok.moarboats.common.network
 import io.netty.buffer.ByteBuf
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagList
-import net.minecraft.util.math.BlockPos
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
-import org.jglrxavpok.moarboats.common.items.ItemMapWithPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 
-class C29RemoveWaypointFromGoldenTicketFromBoat: CxxRemoveWaypointToItemPath {
+class CRemoveWaypointFromGoldenTicketFromBoat: CxxRemoveWaypointToItemPath {
 
     var boatID = -1
 
@@ -30,11 +28,11 @@ class C29RemoveWaypointFromGoldenTicketFromBoat: CxxRemoveWaypointToItemPath {
         buf.writeInt(boatID)
     }
 
-    object Handler: CxxRemoveWaypointToItemPath.Handler<C29RemoveWaypointFromGoldenTicketFromBoat, S21SetGoldenItinerary>() {
+    object Handler: CxxRemoveWaypointToItemPath.Handler<CRemoveWaypointFromGoldenTicketFromBoat, SSetGoldenItinerary>() {
         override val item = ItemGoldenTicket
-        override val packetClass = C29RemoveWaypointFromGoldenTicketFromBoat::class
+        override val packetClass = CRemoveWaypointFromGoldenTicketFromBoat::class
 
-        override fun getStack(message: C29RemoveWaypointFromGoldenTicketFromBoat, ctx: MessageContext): ItemStack? {
+        override fun getStack(message: CRemoveWaypointFromGoldenTicketFromBoat, ctx: MessageContext): ItemStack? {
             with(message) {
                 val player = ctx.serverHandler.player
                 val world = player.world
@@ -43,10 +41,10 @@ class C29RemoveWaypointFromGoldenTicketFromBoat: CxxRemoveWaypointToItemPath {
             }
         }
 
-        override fun createResponse(message: C29RemoveWaypointFromGoldenTicketFromBoat, ctx: MessageContext, waypointList: NBTTagList): S21SetGoldenItinerary? {
+        override fun createResponse(message: CRemoveWaypointFromGoldenTicketFromBoat, ctx: MessageContext, waypointList: NBTTagList): SSetGoldenItinerary? {
             val stack = getStack(message, ctx) ?: return null
             val data = ItemGoldenTicket.getData(stack)
-            return S21SetGoldenItinerary(data)
+            return SSetGoldenItinerary(data)
         }
 
     }

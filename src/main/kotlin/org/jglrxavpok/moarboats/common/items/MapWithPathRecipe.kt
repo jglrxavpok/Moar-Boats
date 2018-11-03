@@ -63,7 +63,6 @@ object MapWithPathRecipe: IForgeRegistryEntry.Impl<IRecipe>(), IRecipe {
         var paperCount = 0
         for(i in 0 until inv.sizeInventory) {
             val stack = inv.getStackInSlot(i)
-            println(stack)
             when {
                 stack.item == Items.FILLED_MAP -> {
                     filledMap = stack

@@ -15,12 +15,12 @@ import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.TextComponentTranslation
 import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.common.network.C0OpenModuleGui
+import org.jglrxavpok.moarboats.common.network.COpenModuleGui
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.LockedByOwner
-import org.jglrxavpok.moarboats.common.network.C17RemoveModule
+import org.jglrxavpok.moarboats.common.network.CRemoveModule
 
 abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, val playerInventory: InventoryPlayer, val container: Container, val isLarge: Boolean = false): GuiContainer(container) {
 
@@ -68,7 +68,7 @@ abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, va
         if(hoveredTabIndex != -1) {
             if(tabs[hoveredTabIndex].tabModule == module) {
                 mc.soundHandler.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 0.5f))
-                MoarBoats.network.sendToServer(C17RemoveModule(boat.entityID, module.id))
+                MoarBoats.network.sendToServer(CRemoveModule(boat.entityID, module.id))
                 return true
             }
         }
@@ -81,7 +81,7 @@ abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, va
             val tab = tabs[hoveredTabIndex]
             if(tab.tabModule != module) {
                 mc.soundHandler.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f))
-                MoarBoats.network.sendToServer(C0OpenModuleGui(boat.entityID, tab.tabModule.id))
+                MoarBoats.network.sendToServer(COpenModuleGui(boat.entityID, tab.tabModule.id))
                 return true
             }
         }

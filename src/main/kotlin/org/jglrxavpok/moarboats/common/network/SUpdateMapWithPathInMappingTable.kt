@@ -6,11 +6,10 @@ import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
 import net.minecraft.util.math.BlockPos
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
-import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 
-class S24UpdateMapWithPathInMappingTable: SxxUpdateMapWithPath {
+class SUpdateMapWithPathInMappingTable: SxxUpdateMapWithPath {
 
     var tileEntityX: Int = 0
     var tileEntityY: Int = 0
@@ -38,10 +37,10 @@ class S24UpdateMapWithPathInMappingTable: SxxUpdateMapWithPath {
         buf.writeInt(tileEntityZ)
     }
 
-    object Handler: SxxUpdateMapWithPath.Handler<S24UpdateMapWithPathInMappingTable>() {
-        override val packetClass = S24UpdateMapWithPathInMappingTable::class
+    object Handler: SxxUpdateMapWithPath.Handler<SUpdateMapWithPathInMappingTable>() {
+        override val packetClass = SUpdateMapWithPathInMappingTable::class
 
-        override fun updatePath(message: S24UpdateMapWithPathInMappingTable, ctx: MessageContext, list: NBTTagList) {
+        override fun updatePath(message: SUpdateMapWithPathInMappingTable, ctx: MessageContext, list: NBTTagList) {
             with(message) {
                 val pos = BlockPos.PooledMutableBlockPos.retain(tileEntityX, tileEntityY, tileEntityZ)
                 val te = Minecraft.getMinecraft().world.getTileEntity(pos)

@@ -6,11 +6,10 @@ import net.minecraft.nbt.NBTTagList
 import net.minecraft.util.math.BlockPos
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
-import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import org.jglrxavpok.moarboats.common.items.ItemMapWithPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 
-class C31AddWaypointToGoldenTicketFromBoat: CxxAddWaypointToItemPath {
+class CAddWaypointToItemPathFromBoat: CxxAddWaypointToItemPath {
 
     var boatID = -1
 
@@ -30,11 +29,11 @@ class C31AddWaypointToGoldenTicketFromBoat: CxxAddWaypointToItemPath {
         buf.writeInt(boatID)
     }
 
-    object Handler: CxxAddWaypointToItemPath.Handler<C31AddWaypointToGoldenTicketFromBoat, S21SetGoldenItinerary>() {
-        override val item = ItemGoldenTicket
-        override val packetClass = C31AddWaypointToGoldenTicketFromBoat::class
+    object Handler: CxxAddWaypointToItemPath.Handler<CAddWaypointToItemPathFromBoat, SUpdateMapWithPathInBoat>() {
+        override val item = ItemMapWithPath
+        override val packetClass = CAddWaypointToItemPathFromBoat::class
 
-        override fun getStack(message: C31AddWaypointToGoldenTicketFromBoat, ctx: MessageContext): ItemStack? {
+        override fun getStack(message: CAddWaypointToItemPathFromBoat, ctx: MessageContext): ItemStack? {
             with(message) {
                 val player = ctx.serverHandler.player
                 val world = player.world
@@ -43,10 +42,8 @@ class C31AddWaypointToGoldenTicketFromBoat: CxxAddWaypointToItemPath {
             }
         }
 
-        override fun createResponse(message: C31AddWaypointToGoldenTicketFromBoat, ctx: MessageContext, waypointList: NBTTagList): S21SetGoldenItinerary? {
-            val stack = getStack(message, ctx) ?: return null
-            val data = ItemGoldenTicket.getData(stack)
-            return S21SetGoldenItinerary(data)
+        override fun createResponse(message: CAddWaypointToItemPathFromBoat, ctx: MessageContext, waypointList: NBTTagList): SUpdateMapWithPathInBoat? {
+            return SUpdateMapWithPathInBoat(waypointList, message.boatID)
         }
 
     }

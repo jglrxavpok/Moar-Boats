@@ -9,14 +9,12 @@ import net.minecraft.util.NonNullList
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
-import org.jglrxavpok.moarboats.common.modules.FurnaceEngineModule
 
-class S7SyncInventory(): IMessage {
+class SSyncInventory(): IMessage {
 
     var boatID: Int = 0
     var moduleLocation: ResourceLocation = ResourceLocation("moarboats:none")
@@ -49,11 +47,11 @@ class S7SyncInventory(): IMessage {
         ByteBufUtils.writeTag(buf, nbt)
     }
 
-    object Handler: MBMessageHandler<S7SyncInventory, IMessage?> {
-        override val packetClass = S7SyncInventory::class
+    object Handler: MBMessageHandler<SSyncInventory, IMessage?> {
+        override val packetClass = SSyncInventory::class
         override val receiverSide = Side.CLIENT
 
-        override fun onMessage(message: S7SyncInventory, ctx: MessageContext): IMessage? {
+        override fun onMessage(message: SSyncInventory, ctx: MessageContext): IMessage? {
             val world = Minecraft.getMinecraft().world
             val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
             val moduleLocation = message.moduleLocation

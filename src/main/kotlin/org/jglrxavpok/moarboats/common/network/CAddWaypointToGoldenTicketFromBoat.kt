@@ -6,11 +6,10 @@ import net.minecraft.nbt.NBTTagList
 import net.minecraft.util.math.BlockPos
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
-import org.jglrxavpok.moarboats.common.items.ItemMapWithPath
+import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import org.jglrxavpok.moarboats.common.modules.HelmModule
-import kotlin.reflect.KClass
 
-class C23AddWaypointToItemPathFromBoat: CxxAddWaypointToItemPath {
+class CAddWaypointToGoldenTicketFromBoat: CxxAddWaypointToItemPath {
 
     var boatID = -1
 
@@ -30,11 +29,11 @@ class C23AddWaypointToItemPathFromBoat: CxxAddWaypointToItemPath {
         buf.writeInt(boatID)
     }
 
-    object Handler: CxxAddWaypointToItemPath.Handler<C23AddWaypointToItemPathFromBoat, S25UpdateMapWithPathInBoat>() {
-        override val item = ItemMapWithPath
-        override val packetClass = C23AddWaypointToItemPathFromBoat::class
+    object Handler: CxxAddWaypointToItemPath.Handler<CAddWaypointToGoldenTicketFromBoat, SSetGoldenItinerary>() {
+        override val item = ItemGoldenTicket
+        override val packetClass = CAddWaypointToGoldenTicketFromBoat::class
 
-        override fun getStack(message: C23AddWaypointToItemPathFromBoat, ctx: MessageContext): ItemStack? {
+        override fun getStack(message: CAddWaypointToGoldenTicketFromBoat, ctx: MessageContext): ItemStack? {
             with(message) {
                 val player = ctx.serverHandler.player
                 val world = player.world
@@ -43,8 +42,10 @@ class C23AddWaypointToItemPathFromBoat: CxxAddWaypointToItemPath {
             }
         }
 
-        override fun createResponse(message: C23AddWaypointToItemPathFromBoat, ctx: MessageContext, waypointList: NBTTagList): S25UpdateMapWithPathInBoat? {
-            return S25UpdateMapWithPathInBoat(waypointList, message.boatID)
+        override fun createResponse(message: CAddWaypointToGoldenTicketFromBoat, ctx: MessageContext, waypointList: NBTTagList): SSetGoldenItinerary? {
+            val stack = getStack(message, ctx) ?: return null
+            val data = ItemGoldenTicket.getData(stack)
+            return SSetGoldenItinerary(data)
         }
 
     }

@@ -2,17 +2,13 @@ package org.jglrxavpok.moarboats.common.network
 
 import io.netty.buffer.ByteBuf
 import net.minecraft.client.Minecraft
-import net.minecraft.util.ResourceLocation
 import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import net.minecraftforge.fml.relauncher.Side
-import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.client.gui.GuiFluid
-import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 
-class S19UpdateFluidGui(): IMessage {
+class SUpdateFluidGui(): IMessage {
 
     var fluidAmount = 0
     var fluidCapacity = 0
@@ -36,11 +32,11 @@ class S19UpdateFluidGui(): IMessage {
         ByteBufUtils.writeUTF8String(buf, fluidName)
     }
 
-    object Handler: MBMessageHandler<S19UpdateFluidGui, IMessage> {
-        override val packetClass = S19UpdateFluidGui::class
+    object Handler: MBMessageHandler<SUpdateFluidGui, IMessage> {
+        override val packetClass = SUpdateFluidGui::class
         override val receiverSide = Side.CLIENT
 
-        override fun onMessage(message: S19UpdateFluidGui, ctx: MessageContext): IMessage? {
+        override fun onMessage(message: SUpdateFluidGui, ctx: MessageContext): IMessage? {
             val screen = Minecraft.getMinecraft().currentScreen
             if(screen is GuiFluid) {
                 screen.updateFluid(message.fluidName, message.fluidAmount, message.fluidCapacity)

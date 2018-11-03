@@ -5,7 +5,6 @@ import net.minecraft.init.Items
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.MoarBoats
@@ -15,7 +14,7 @@ import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.items.ItemMapWithPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 
-class C20SaveItineraryToMap(): IMessage {
+class CSaveItineraryToMap(): IMessage {
 
     private var boatID = 0
     private var moduleID = ResourceLocation(MoarBoats.ModID, "none")
@@ -35,11 +34,11 @@ class C20SaveItineraryToMap(): IMessage {
         ByteBufUtils.writeUTF8String(buf, moduleID.toString())
     }
 
-    object Handler: MBMessageHandler<C20SaveItineraryToMap, IMessage?> {
-        override val packetClass = C20SaveItineraryToMap::class
+    object Handler: MBMessageHandler<CSaveItineraryToMap, IMessage?> {
+        override val packetClass = CSaveItineraryToMap::class
         override val receiverSide = Side.SERVER
 
-        override fun onMessage(message: C20SaveItineraryToMap, ctx: MessageContext): IMessage? {
+        override fun onMessage(message: CSaveItineraryToMap, ctx: MessageContext): IMessage? {
             val player = ctx.serverHandler.player
             if(player.openContainer !is ContainerHelmModule) {
                 MoarBoats.logger.warn("Player $player tried to save an itinerary to a map while not in a helm container, they might be lagging or cheating")

@@ -5,16 +5,14 @@ import net.minecraft.util.EnumFacing
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
-import org.jglrxavpok.moarboats.common.modules.DispenserModule
 import org.jglrxavpok.moarboats.common.modules.DispensingModule
 
-class C18ChangeDispenserFacing(): IMessage {
+class CChangeDispenserFacing(): IMessage {
 
     private var boatID = 0
     private var moduleID = ResourceLocation(MoarBoats.ModID, "none")
@@ -38,11 +36,11 @@ class C18ChangeDispenserFacing(): IMessage {
         buf.writeInt(facing.ordinal)
     }
 
-    object Handler: MBMessageHandler<C18ChangeDispenserFacing, IMessage?> {
-        override val packetClass = C18ChangeDispenserFacing::class
+    object Handler: MBMessageHandler<CChangeDispenserFacing, IMessage?> {
+        override val packetClass = CChangeDispenserFacing::class
         override val receiverSide = Side.SERVER
 
-        override fun onMessage(message: C18ChangeDispenserFacing, ctx: MessageContext): IMessage? {
+        override fun onMessage(message: CChangeDispenserFacing, ctx: MessageContext): IMessage? {
             val player = ctx.serverHandler.player
             val world = player.world
             val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null

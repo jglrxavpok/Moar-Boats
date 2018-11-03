@@ -5,12 +5,11 @@ import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagList
 import net.minecraft.util.math.BlockPos
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
-import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.common.items.ItemMapWithPath
+import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 
-class C26RemoveWaypointFromMapWithPathFromMappingTable: CxxRemoveWaypointToItemPath {
+class CAddWaypointToGoldenTicketFromMappingTable: CxxAddWaypointToItemPath {
 
     constructor()
 
@@ -18,7 +17,7 @@ class C26RemoveWaypointFromMapWithPathFromMappingTable: CxxRemoveWaypointToItemP
     var tileEntityY: Int = 0
     var tileEntityZ: Int = 0
 
-    constructor(index: Int, mappingTable: TileEntityMappingTable): super(index) {
+    constructor(pos: BlockPos, boost: Double?, insertionIndex: Int?, mappingTable: TileEntityMappingTable): super(pos, boost, insertionIndex) {
         this.tileEntityX = mappingTable.pos.x
         this.tileEntityY = mappingTable.pos.y
         this.tileEntityZ = mappingTable.pos.z
@@ -38,11 +37,11 @@ class C26RemoveWaypointFromMapWithPathFromMappingTable: CxxRemoveWaypointToItemP
         buf.writeInt(tileEntityZ)
     }
 
-    object Handler: CxxRemoveWaypointToItemPath.Handler<C26RemoveWaypointFromMapWithPathFromMappingTable, S24UpdateMapWithPathInMappingTable>() {
-        override val item = ItemMapWithPath
-        override val packetClass = C26RemoveWaypointFromMapWithPathFromMappingTable::class
+    object Handler: CxxAddWaypointToItemPath.Handler<CAddWaypointToGoldenTicketFromMappingTable, SSetGoldenItinerary>() {
+        override val item = ItemGoldenTicket
+        override val packetClass = CAddWaypointToGoldenTicketFromMappingTable::class
 
-        override fun getStack(message: C26RemoveWaypointFromMapWithPathFromMappingTable, ctx: MessageContext): ItemStack? {
+        override fun getStack(message: CAddWaypointToGoldenTicketFromMappingTable, ctx: MessageContext): ItemStack? {
             with(message) {
                 val pos = BlockPos.PooledMutableBlockPos.retain(tileEntityX, tileEntityY, tileEntityZ)
                 val te = ctx.serverHandler.player.world.getTileEntity(pos)
@@ -60,8 +59,10 @@ class C26RemoveWaypointFromMapWithPathFromMappingTable: CxxRemoveWaypointToItemP
             }
         }
 
-        override fun createResponse(message: C26RemoveWaypointFromMapWithPathFromMappingTable, ctx: MessageContext, waypointList: NBTTagList): S24UpdateMapWithPathInMappingTable? {
-            return S24UpdateMapWithPathInMappingTable(waypointList, message.tileEntityX, message.tileEntityY, message.tileEntityZ)
+        override fun createResponse(message: CAddWaypointToGoldenTicketFromMappingTable, ctx: MessageContext, waypointList: NBTTagList): SSetGoldenItinerary? {
+            val stack = getStack(message, ctx) ?: return null
+            val data = ItemGoldenTicket.getData(stack)
+            return SSetGoldenItinerary(data)
         }
 
     }

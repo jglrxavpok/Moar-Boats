@@ -6,13 +6,10 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import org.jglrxavpok.moarboats.common.items.ItemMapWithPath
 import org.jglrxavpok.moarboats.common.items.ItemPath
-import org.jglrxavpok.moarboats.common.modules.HelmModule
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
-import kotlin.reflect.KClass
 
 class CChangeLoopingStateItemPathMappingTable: CChangeLoopingStateBase {
 
@@ -60,8 +57,8 @@ class CChangeLoopingStateItemPathMappingTable: CChangeLoopingStateBase {
                 if(item is ItemPath) {
                     item.setLooping(stack, message.loops)
                     when(item) {
-                        is ItemGoldenTicket -> return S21SetGoldenItinerary(item.getData(stack))
-                        is ItemMapWithPath -> return S24UpdateMapWithPathInMappingTable(item.getWaypointData(stack, MoarBoats.getLocalMapStorage()), teX, teY, teZ)
+                        is ItemGoldenTicket -> return SSetGoldenItinerary(item.getData(stack))
+                        is ItemMapWithPath -> return SUpdateMapWithPathInMappingTable(item.getWaypointData(stack, MoarBoats.getLocalMapStorage()), teX, teY, teZ)
                     }
                 }
                 return null

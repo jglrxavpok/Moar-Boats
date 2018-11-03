@@ -2,18 +2,14 @@ package org.jglrxavpok.moarboats.common.network
 
 import io.netty.buffer.ByteBuf
 import net.minecraft.client.Minecraft
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.util.ResourceLocation
 import net.minecraft.util.SoundCategory
 import net.minecraft.util.SoundEvent
-import net.minecraft.world.storage.MapData
 import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import net.minecraftforge.fml.relauncher.Side
 
-class S6PlaySound(): IMessage {
+class SPlaySound(): IMessage {
 
     var x: Double = 0.0
     var y: Double = 0.0
@@ -54,11 +50,11 @@ class S6PlaySound(): IMessage {
         ByteBufUtils.writeUTF8String(buf, soundCategory.getName())
     }
 
-    object Handler: MBMessageHandler<S6PlaySound, IMessage> {
-        override val packetClass = S6PlaySound::class
+    object Handler: MBMessageHandler<SPlaySound, IMessage> {
+        override val packetClass = SPlaySound::class
         override val receiverSide = Side.CLIENT
 
-        override fun onMessage(message: S6PlaySound, ctx: MessageContext): IMessage? {
+        override fun onMessage(message: SPlaySound, ctx: MessageContext): IMessage? {
             Minecraft.getMinecraft().world.playSound(
                     message.x,
                     message.y,
