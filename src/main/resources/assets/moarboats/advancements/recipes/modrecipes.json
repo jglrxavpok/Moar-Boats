@@ -5,16 +5,25 @@
       "moarboats:animal_boat",
       "moarboats:battery",
       "moarboats:boat_tank",
+      "moarboats:chunk_loader",
       "moarboats:diving_bottle",
+      "moarboats:energy_loader",
+      "moarboats:energy_unloader",
+      "moarboats:fluid_loader",
+      "moarboats:fluid_unloader",
+      "moarboats:golden_ticket",
       "moarboats:helm",
       "moarboats:icebreaker",
+      "moarboats:mapping_table",
       "moarboats:modular_boat",
       "moarboats:rope",
       "moarboats:rudder",
       "moarboats:seat",
       "moarboats:waterborne_comparator",
       "moarboats:waterborne_conductor",
-      "moarboats:modular_boat_coloring"
+
+      "moarboats:modular_boat_coloring",
+      "moarboats:map_with_path"
     ]
   },
   "criteria": {

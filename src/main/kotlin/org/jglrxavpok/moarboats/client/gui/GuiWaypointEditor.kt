@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.client.gui
 
+import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.gui.GuiTextField
@@ -20,6 +21,10 @@ import org.lwjgl.input.Mouse
 import kotlin.concurrent.thread
 
 class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable, val index: Int) : GuiScreen() {
+
+    init {
+        mc = Minecraft.getMinecraft() // forces 'mc' to hold a value when initializing the scrolling list below (waypointList)
+    }
 
     private val waypointData = te.inventory.getStackInSlot(0).let {
         (it.item as ItemPath).getWaypointData(it, MoarBoats.getLocalMapStorage())[index] as NBTTagCompound
@@ -175,7 +180,9 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
         drawDefaultBackground()
         super.drawScreen(mouseX, mouseY, partialTicks)
-        waypointList.drawScreen(mouseX, mouseY, partialTicks)
+        if(waypointList.isNotEmpty()) {
+            waypointList.drawScreen(mouseX, mouseY, partialTicks)
+        }
         allInputs.forEach(GuiTextField::drawTextBox)
 
         fontRenderer.drawCenteredString(TextFormatting.UNDERLINE.toString()+TextComponentTranslation("moarboats.gui.waypoint_editor.name", nameInput.text).unformattedText, width/2, 15, 0xFFFFFF, shadow = true)

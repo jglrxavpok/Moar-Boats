@@ -79,4 +79,6 @@ class GuiWaypointEditorList(val mc: Minecraft, val parent: GuiWaypointEditor, wi
             }
         }
     }
+
+    fun isNotEmpty() = waypoints.isNotEmpty()
 }

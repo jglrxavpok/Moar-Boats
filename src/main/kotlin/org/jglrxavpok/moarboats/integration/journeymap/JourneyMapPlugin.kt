@@ -29,7 +29,7 @@ class JourneyMapPlugin(): MoarBoatsPlugin, IWaypointProvider {
     override fun updateList(player: EntityPlayer) {
         waypointList.clear()
         val sessionType = if(Minecraft.getMinecraft().isIntegratedServerRunning) "sp" else "mp"
-        var worldName = (Minecraft.getMinecraft().integratedServer?.folderName ?: Minecraft.getMinecraft().world.minecraftServer?.worldName ?: "null")
+        var worldName = (Minecraft.getMinecraft().integratedServer?.folderName ?: Minecraft.getMinecraft().currentServerData?.serverName ?: "null")
         val addTilde = worldName.endsWith("-")
         while(worldName.endsWith("-")) {
             worldName = worldName.removeSuffix("-")
