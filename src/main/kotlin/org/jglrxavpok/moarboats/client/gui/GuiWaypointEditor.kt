@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.gui.GuiTextField
+import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.text.TextComponentTranslation
@@ -35,6 +36,8 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
     private val cancelText = TextComponentTranslation("moarboats.gui.generic.cancel")
     private val confirmText = TextComponentTranslation("moarboats.gui.generic.confirm")
     private val positionTitleText = TextComponentTranslation("moarboats.gui.waypoint_editor.position")
+    private val refreshText = TextComponentTranslation("moarboats.gui.waypoint_editor.refresh")
+    private val waypointsText = TextComponentTranslation("moarboats.gui.waypoint_editor.existing_waypoints")
     private val miscText = TextComponentTranslation("moarboats.gui.generic.misc")
     private var id = 0
     private val xInput by lazy { GuiTextField(id++, fontRenderer, 0, 0, 100, 20) }
@@ -47,6 +50,7 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
     private val boostSlider = GuiSlider(id++, 0, 0, 125, 20, "${boostSetting.unformattedText}: ", "%", -50.0, 50.0, 0.0, false, true, boostSliderCallback)
     private val confirmButton = GuiButton(id++, 0, 0, confirmText.unformattedText)
     private val cancelButton = GuiButton(id++, 0, 0, cancelText.unformattedText)
+    private val refreshButton = GuiButton(id++, 0, 0, refreshText.unformattedText)
     private val hasBoostCheckbox = GuiCheckBox(id++, 0, 0, hasBoostSetting.unformattedText, waypointData.getBoolean("hasBoost"))
 
 
@@ -54,26 +58,12 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
     private val doubleInputs by lazy { listOf<GuiTextField>() }
     private val textInputs by lazy { listOf(nameInput) }
     private val allInputs by lazy { intInputs+textInputs+doubleInputs }
-    private val allButtons = listOf(confirmButton, cancelButton, hasBoostCheckbox)
+    private val allButtons = listOf(confirmButton, cancelButton, hasBoostCheckbox, refreshButton)
 
-    private val updateThread: Thread = thread(start = true, isDaemon = true, block = this::updateProviders)
     private var waypointList: GuiWaypointEditorList = GuiWaypointEditorList(mc, this, 1, 1, 0, 0, 1, 1, 1) // not using lateinit because sometimes drawScreen/updateScreen are called before initGui
-
-    private fun updateProviders() {
-        while(true) {
-            WaypointProviders.forEach { it.updateList(player) }
-            waypointList.compileFromProviders()
-            try {
-                Thread.sleep(500)
-            } catch(e: InterruptedException) {
-                // shh everything's okay
-            }
-        }
-    }
 
     override fun onGuiClosed() {
         super.onGuiClosed()
-        updateThread.interrupt()
     }
 
     override fun initGui() {
@@ -126,14 +116,26 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
         }
 
         val listWidth = .20*width
-        val listHeight = 85
+        val listHeight = (height*.7).toInt()
         val listLeft = width-listWidth.toInt()
         val listTop = 0 + 28 // margins
         waypointList = GuiWaypointEditorList(mc, this, listWidth.toInt(), listHeight, listTop, listLeft, 20, width, height)
+
+        refreshButton.x = listLeft
+        refreshButton.y = listTop+listHeight
+        refreshButton.width = listWidth.toInt()
+
+        refreshList()
+    }
+
+    private fun refreshList() {
+        WaypointProviders.forEach { it.updateList(player) }
+        waypointList.compileFromProviders()
     }
 
     override fun updateScreen() {
         super.updateScreen()
+        refreshButton.visible = WaypointProviders.isNotEmpty()
         boostSlider.updateSlider()
         boostSlider.enabled = hasBoostCheckbox.isChecked
         allInputs.forEach(GuiTextField::updateCursorCounter)
@@ -157,6 +159,9 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
             }
             cancelButton -> {
                 player.openGui(MoarBoats, MoarBoatsGuiHandler.MappingTableGui, player.world, te.pos.x, te.pos.y, te.pos.z)
+            }
+            refreshButton -> {
+                refreshList()
             }
         }
     }
@@ -190,6 +195,13 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
         fontRenderer.drawString("X:", xInput.x-10, xInput.y+xInput.height/2-fontRenderer.FONT_HEIGHT/2, 0xFFFFFF)
         fontRenderer.drawString("Z:", zInput.x-10, xInput.y+xInput.height/2-fontRenderer.FONT_HEIGHT/2, 0xFFFFFF)
         fontRenderer.drawCenteredString(TextFormatting.UNDERLINE.toString()+miscText.unformattedText, width/2, 135, 0xFFFFFF, shadow = true)
+
+        GlStateManager.pushMatrix()
+        GlStateManager.translate((width-(width*.2f)/2f), 20f, 0f)
+        val scale = 0.75f
+        GlStateManager.scale(scale, scale, 1f)
+        fontRenderer.drawCenteredString(waypointsText.unformattedText, 0, 0, 0xFFFFFF, shadow = true)
+        GlStateManager.popMatrix()
     }
 
     override fun mouseClicked(mouseX: Int, mouseY: Int, mouseButton: Int) {

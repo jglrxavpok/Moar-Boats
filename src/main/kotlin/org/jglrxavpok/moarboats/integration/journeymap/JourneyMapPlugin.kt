@@ -38,8 +38,8 @@ class JourneyMapPlugin(): MoarBoatsPlugin, IWaypointProvider {
             worldName += "~"
         val folder = File("journeymap/data/$sessionType/$worldName/waypoints/")
         MoarBoats.logger.debug("[journeymap Plugin] Reading waypoints from ${folder.absolutePath} - folder really exists: ${folder.exists()}")
-        folder.listFiles()?.forEach {
-            it.bufferedReader().use {
+        folder.listFiles()?.forEach { file ->
+            file.bufferedReader().use {
                 val waypointObject = gson.fromJson(it, JsonObject::class.java)
                 val enabled = waypointObject.get("enable").asBoolean
                 if(!enabled)

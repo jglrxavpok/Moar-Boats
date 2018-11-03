@@ -12,7 +12,7 @@ import org.jglrxavpok.moarboats.integration.WaypointProviders
 class GuiWaypointEditorList(val mc: Minecraft, val parent: GuiWaypointEditor, width: Int, height: Int, top: Int, left: Int, entryHeight: Int, screenWidth: Int, screenHeight: Int):
         GuiScrollingList(mc, width, height, top, top+height, left, entryHeight, screenWidth, screenHeight) {
 
-    private val waypoints = mutableListOf<WaypointInfo>()
+    private var waypoints = mutableListOf<WaypointInfo>()
     val slotTops = hashMapOf<Int, Int>()
     val ArrowsTexture = ResourceLocation("minecraft", "textures/gui/resource_packs.png")
 
@@ -30,6 +30,8 @@ class GuiWaypointEditorList(val mc: Minecraft, val parent: GuiWaypointEditor, wi
     }
 
     override fun drawSlot(slotIdx: Int, entryRight: Int, slotTop: Int, slotBuffer: Int, tess: Tessellator?) {
+        if(slotIdx >= waypoints.size)
+            return
         GlStateManager.disableLighting()
         // TODO: merge with rendering code of GuiWaypointList
         GlStateManager.pushMatrix()

@@ -121,6 +121,8 @@ moarboats.gui.mapping_table.insert=Insert
 moarboats.gui.waypoint_editor.has_boost=Has speed boost
 moarboats.gui.waypoint_editor.name=Editing waypoint: %s
 moarboats.gui.waypoint_editor.position=Position
+moarboats.gui.waypoint_editor.refresh=Refresh list
+moarboats.gui.waypoint_editor.existing_waypoints=Waypoints from mods
 
 moarboats.gui.generic.confirm=Confirm
 moarboats.gui.generic.cancel=Cancel

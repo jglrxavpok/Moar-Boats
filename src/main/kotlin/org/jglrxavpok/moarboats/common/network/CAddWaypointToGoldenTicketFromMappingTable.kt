@@ -8,6 +8,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
+import java.util.*
 
 class CAddWaypointToGoldenTicketFromMappingTable: CxxAddWaypointToItemPath {
 
@@ -55,6 +56,11 @@ class CAddWaypointToGoldenTicketFromMappingTable: CxxAddWaypointToItemPath {
                     }
                 }
                 pos.release()
+                if(stack != null) {
+                    if(ItemGoldenTicket.isEmpty(stack)) {
+                        ItemGoldenTicket.initStack(stack, UUID.randomUUID())
+                    }
+                }
                 return stack
             }
         }

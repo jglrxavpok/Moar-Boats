@@ -191,7 +191,7 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
             nbt as NBTTagCompound
             this.list.slots.add(nbt)
         }
-        edit(waypointToEditAfterCreation)
+    //    edit(waypointToEditAfterCreation)
     }
 
     fun confirmSwap() {

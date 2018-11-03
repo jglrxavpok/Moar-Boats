@@ -121,6 +121,8 @@ moarboats.gui.mapping_table.insert=Insérer
 moarboats.gui.waypoint_editor.has_boost=A un boost de vitesse
 moarboats.gui.waypoint_editor.name=Edition de la balise: %s
 moarboats.gui.waypoint_editor.position=Position
+moarboats.gui.waypoint_editor.refresh=Rafraîchir
+moarboats.gui.waypoint_editor.existing_waypoints=Balises d'autres mods
 
 moarboats.gui.generic.confirm=Confirmer
 moarboats.gui.generic.cancel=Annuler
@@ -132,4 +134,5 @@ item.boat_chunk_loader.name=Chunk Loader pour bateaux
 
 waypoint_provider.journeymap=JourneyMap
 inventory.diving.name=Bouteille de plongée
+
 moarboats.restricted=Option désactivée par votre administrateur de serveur.

@@ -131,6 +131,10 @@ object ItemGoldenTicket: ItemPath() {
         return data.backingList
     }
 
+    fun initStack(stack: ItemStack, uuid: UUID) {
+        stack.getOrCreateSubCompound("${MoarBoats.ModID}.path").setUniqueId("path_uuid", uuid)
+    }
+
     fun getUUID(stack: ItemStack): UUID? {
         return stack.getSubCompound("${MoarBoats.ModID}.path")?.getUniqueId("path_uuid")
     }
@@ -172,12 +176,14 @@ object ItemGoldenTicket: ItemPath() {
 
     fun getData(stack: ItemStack): WaypointData {
         val mapStorage = MoarBoats.getLocalMapStorage()
-        val uuid = getUUID(stack).toString()
-        var data = mapStorage.getOrLoadData(WaypointData::class.java, uuid) as? WaypointData
+        val uuid = getUUID(stack)
+        val uuidString = uuid.toString()
+        var data = mapStorage.getOrLoadData(WaypointData::class.java, uuidString) as? WaypointData
         if(data == null) {
-            data = WaypointData(uuid)
-            mapStorage.setData(uuid, data)
+            data = WaypointData(uuidString)
+            mapStorage.setData(uuidString, data)
         }
         return data
     }
+
 }
