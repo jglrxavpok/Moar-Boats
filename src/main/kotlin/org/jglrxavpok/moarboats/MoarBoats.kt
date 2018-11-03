@@ -48,7 +48,7 @@ import org.jglrxavpok.moarboats.integration.MoarBoatsPlugin
 
 @Mod.EventBusSubscriber
 @Mod(modLanguageAdapter = "net.shadowfacts.forgelin.KotlinAdapter", modid = MoarBoats.ModID, dependencies = "required-after:forgelin;",
-        name = "Moar Boats", version = "4.0.0.0b4", updateJSON = "https://raw.githubusercontent.com/jglrxavpok/Moar-Boats/master/updateCheck.json")
+        name = "Moar Boats", version = "4.0.0.0b5", updateJSON = "https://raw.githubusercontent.com/jglrxavpok/Moar-Boats/master/updateCheck.json")
 object MoarBoats {
     const val ModID = "moarboats"
 
