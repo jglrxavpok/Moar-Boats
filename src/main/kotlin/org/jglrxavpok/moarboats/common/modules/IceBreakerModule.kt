@@ -22,6 +22,7 @@ object IceBreakerModule: BoatModule() {
     override val id = ResourceLocation(MoarBoats.ModID, "icebreaker")
     override val usesInventory = false
     override val moduleSpot = Spot.Misc
+    override val isMenuInteresting = false
 
     override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean) = false
     override fun controlBoat(from: IControllable) { }

@@ -1,31 +1,28 @@
 package org.jglrxavpok.moarboats.client.renders
 
 import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.entity.Render
 import net.minecraft.client.renderer.entity.RenderManager
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.entity.Entity
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
 import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.client.models.ModelBoatLink
 import org.jglrxavpok.moarboats.client.models.ModelBoatLinkerAnchor
 import org.jglrxavpok.moarboats.client.models.ModelModularBoat
 import org.jglrxavpok.moarboats.common.entities.AnimalBoatEntity
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
-import org.jglrxavpok.moarboats.extensions.setLookAlong
-import org.lwjgl.util.vector.Quaternion
 
 class RenderAnimalBoat(renderManager: RenderManager): Render<AnimalBoatEntity>(renderManager) {
 
     companion object {
         val TextureLocation = ResourceLocation(MoarBoats.ModID, "textures/entity/animal_boat.png")
         val RopeAnchorTextureLocation = ResourceLocation(MoarBoats.ModID, "textures/entity/ropeanchor.png")
-        val RopeTextureLocation = ResourceLocation(MoarBoats.ModID, "textures/entity/rope.png")
     }
 
     val model = ModelModularBoat()
     val ropeAnchorModel = ModelBoatLinkerAnchor()
-    val ropeModel = ModelBoatLink()
 
     override fun getEntityTexture(entity: AnimalBoatEntity) = TextureLocation
 
@@ -87,24 +84,44 @@ class RenderAnimalBoat(renderManager: RenderManager): Render<AnimalBoatEntity>(r
         val offsetY = anchorOther.y - anchorThis.y
         val offsetZ = anchorOther.z - anchorThis.z
 
-        val rotQuat by lazy { Quaternion() }
-        //rotQuat.lookAt(offsetX, offsetY, offsetZ)
-        rotQuat.setLookAlong(offsetX.toFloat(), offsetY.toFloat(), offsetZ.toFloat(), 0f, 1f, 0f)
-
         GlStateManager.pushMatrix()
-        GlStateManager.rotate(rotQuat)
-        GlStateManager.rotate(-thisBoat.rotationYaw-90f, 0f, 1f, 0f)
-        val dist = Math.sqrt(offsetX*offsetX+offsetY*offsetY+offsetZ*offsetZ) / 0.0625f // account for scaling
-        GlStateManager.scale(1.0, 1.0, dist)
-        GlStateManager.translate(0f, 0f, 0.5f)
-        bindTexture(RopeTextureLocation)
-        ropeModel.render(thisBoat, 0f, 0f, thisBoat.ticksExisted.toFloat(), 0f, 0f, 1f)
+        removeScale()
+        GlStateManager.scale(-1.0f, 1.0f, 1f)
+        GlStateManager.rotate((180.0f - entityYaw - 90f), 0.0f, -1.0f, 0.0f)
+        GlStateManager.disableTexture2D()
+        GlStateManager.disableLighting()
+        val tess = Tessellator.getInstance()
+        val bufferbuilder = tess.buffer
+        bufferbuilder.begin(3, DefaultVertexFormats.POSITION_COLOR)
+        val l = 32
+
+        for (i1 in 0..l) {
+            val f11 = i1.toFloat() / l
+            bufferbuilder
+                    .pos(offsetX * f11.toDouble(), offsetY * (f11 * f11 + f11).toDouble() * 0.5, offsetZ * f11.toDouble())
+            bufferbuilder.color(138, 109, 68, 255)
+
+            bufferbuilder.endVertex()
+        }
+
+        GlStateManager.glLineWidth(5f)
+        tess.draw()
+        GlStateManager.glLineWidth(1f)
+        GlStateManager.enableLighting()
+        GlStateManager.enableTexture2D()
         GlStateManager.popMatrix()
     }
 
     private fun setScale() {
         val scale = 0.0625f
         GlStateManager.scale(scale*1.5f, scale, scale*1.5f)
+        GlStateManager.scale(1.0f, -1.0f, 1.0f)
+    }
+
+    private fun removeScale() {
+        val scale = 0.0625f
+        val invScale = 1f/(scale*1.5f)
+        GlStateManager.scale(invScale, invScale, invScale)
         GlStateManager.scale(1.0f, -1.0f, 1.0f)
     }
 

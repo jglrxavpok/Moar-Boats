@@ -15,9 +15,11 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
+import net.minecraftforge.common.ForgeChunkManager
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleInventory
 import org.jglrxavpok.moarboats.common.items.AnimalBoatItem
+import org.jglrxavpok.moarboats.common.items.ModularBoatItem
 import org.jglrxavpok.moarboats.extensions.Fluids
 import org.jglrxavpok.moarboats.extensions.toRadians
 import java.util.*
@@ -25,8 +27,10 @@ import java.util.*
 class AnimalBoatEntity(world: World): BasicBoatEntity(world) {
     override val entityID: Int
         get() = entityId
+
     override val modules: List<BoatModule> = emptyList()
     override val moduleRNG: Random = Random()
+    override val chunkTicket = null
 
     init {
         this.preventEntitySpawning = true
@@ -41,6 +45,16 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(world) {
         this.prevPosX = x
         this.prevPosY = y
         this.prevPosZ = z
+    }
+
+    override fun getBoatItem() = AnimalBoatItem
+
+    override fun getOwnerIdOrNull(): UUID? {
+        return null
+    }
+
+    override fun getOwnerNameOrNull(): String? {
+        return null
     }
 
     override fun getMountedYOffset(): Double {
@@ -143,4 +157,10 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(world) {
     override fun canFitPassenger(passenger: Entity): Boolean {
         return this.passengers.isEmpty() && passenger !is EntityPlayer
     }
+
+    override fun isSpeedImposed(): Boolean {
+        return false
+    }
+
+    override fun imposeSpeed(speed: Float) { }
 }

@@ -23,8 +23,6 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
         GlStateManager.pushMatrix()
         val anchor = module as AnchorModule
 
-        val state = boat.getState(module)
-
         var anchorX = anchor.anchorXProperty[boat]
         var anchorY = anchor.anchorYProperty[boat]
         var anchorZ = anchor.anchorZProperty[boat]

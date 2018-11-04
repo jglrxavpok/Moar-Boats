@@ -5,6 +5,7 @@ import net.minecraft.entity.player.InventoryPlayer
 import net.minecraft.init.Items
 import net.minecraft.inventory.*
 import net.minecraft.item.ItemStack
+import net.minecraft.item.crafting.FurnaceRecipes
 import net.minecraft.tileentity.TileEntityFurnace
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
@@ -60,15 +61,15 @@ class ContainerFurnaceEngine(playerInventory: InventoryPlayer, val engine: BoatM
             itemstack = itemstack1.copy()
 
             if (index != 0) {
-                if (FurnaceEngineModule.isItemFuel(itemstack1)) {
+                if (TileEntityFurnace.isItemFuel(itemstack1)) {
                     if (!this.mergeItemStack(itemstack1, 0, 1, false)) {
                         return ItemStack.EMPTY
                     }
-                } else if (index in 1..27) {
+                } else if (index in 1..28) {
                     if (!this.mergeItemStack(itemstack1, 28, 37, false)) {
                         return ItemStack.EMPTY
                     }
-                } else if (index in 28..36 && !this.mergeItemStack(itemstack1, 1, 37, false)) {
+                } else if (index in 28..36 && !this.mergeItemStack(itemstack1, 1, 27, false)) {
                     return ItemStack.EMPTY
                 }
             } else if (!this.mergeItemStack(itemstack1, 1, 37, false)) {

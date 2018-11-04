@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "GGG",
+    "PPP",
+    "RRR"
+  ],
+  "key": {
+    "G": {
+      "item": "minecraft:gold_nugget"
+    },
+    "P": {
+      "item": "minecraft:paper"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "result": {
+    "item": "moarboats:golden_ticket",
+    "count": 1
+  }
+}

@@ -5,12 +5,11 @@ import net.minecraft.entity.player.InventoryPlayer
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.TextComponentTranslation
 import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.common.containers.ContainerChestModule
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.containers.EmptyContainer
 import org.jglrxavpok.moarboats.common.modules.AnchorModule
-import org.jglrxavpok.moarboats.common.network.C5DeployAnchor
+import org.jglrxavpok.moarboats.common.network.CDeployAnchor
 
 class GuiAnchorModule(playerInventory: InventoryPlayer, anchor: BoatModule, boat: IControllable):
         GuiModuleBase(anchor, boat, playerInventory, EmptyContainer(playerInventory)) {
@@ -51,7 +50,7 @@ class GuiAnchorModule(playerInventory: InventoryPlayer, anchor: BoatModule, boat
     override fun actionPerformed(button: GuiButton) {
         when(button) {
             deployButton -> {
-                MoarBoats.network.sendToServer(C5DeployAnchor(boat.entityID, module.id))
+                MoarBoats.network.sendToServer(CDeployAnchor(boat.entityID, module.id))
             }
         }
     }

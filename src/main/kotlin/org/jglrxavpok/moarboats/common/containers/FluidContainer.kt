@@ -2,13 +2,9 @@ package org.jglrxavpok.moarboats.common.containers
 
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.player.EntityPlayerMP
-import net.minecraft.tileentity.TileEntity
-import net.minecraftforge.fluids.FluidRegistry
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import net.minecraftforge.fluids.capability.IFluidHandler
 import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.common.network.S19UpdateFluidGui
-import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergy
+import org.jglrxavpok.moarboats.common.network.SUpdateFluidGui
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityListenable
 
 class FluidContainer(val te: TileEntityListenable, val fluidCapability: IFluidHandler, val player: EntityPlayer): EmptyContainer(player.inventory) {
@@ -42,7 +38,7 @@ class FluidContainer(val te: TileEntityListenable, val fluidCapability: IFluidHa
             teFluidCapacity = 1
             teFluidName = ""
         }
-        MoarBoats.network.sendTo(S19UpdateFluidGui(teFluidName, teFluidAmount, teFluidCapacity), player)
+        MoarBoats.network.sendTo(SUpdateFluidGui(teFluidName, teFluidAmount, teFluidCapacity), player)
         fluidAmount = teFluidAmount
         fluidName = teFluidName
         fluidCapacity = teFluidCapacity

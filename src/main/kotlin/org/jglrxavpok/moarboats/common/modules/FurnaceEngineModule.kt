@@ -8,7 +8,9 @@ import net.minecraft.item.Item
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemFishingRod
 import net.minecraft.item.ItemStack
+import net.minecraft.item.crafting.FurnaceRecipes
 import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.tileentity.TileEntityFurnace
 import net.minecraft.util.EnumHand
 import net.minecraft.util.EnumParticleTypes
 import net.minecraft.util.ResourceLocation
@@ -47,7 +49,7 @@ object FurnaceEngineModule : BaseEngineModule() {
         val inv = boat.getInventory()
         val diff = remainingTimeInTicks(boat)
         val currentStack = inv.getStackInSlot(0)
-        return diff + currentStack.count * getFuelTime(currentStack.item)
+        return diff + currentStack.count * getFuelTime(currentStack)
     }
 
     override fun onAddition(to: IControllable) {
@@ -78,7 +80,7 @@ object FurnaceEngineModule : BaseEngineModule() {
                 stack = inv.getStackInSlot(0)
             }
             val fuelItem = stack.item
-            val itemFuelTime = getFuelTime(fuelItem)
+            val itemFuelTime = getFuelTime(stack)
             if (itemFuelTime > 0 && !isStationary(boat)) { // don't consume a new item if you are not moving
                 if(fuelItem == Items.LAVA_BUCKET)
                     inv.setInventorySlotContents(0, ItemStack(Items.BUCKET))
@@ -115,14 +117,14 @@ object FurnaceEngineModule : BaseEngineModule() {
         }
     }
 
-    override fun getFuelTime(fuelItem: Item): Int {
-        return when(fuelItem) {
+    override fun getFuelTime(fuelItem: ItemStack): Int {
+        return when(fuelItem.item) {
             Item.getItemFromBlock(Blocks.TORCH) -> 1*SECONDS_TO_TICKS
             Items.COAL -> 60*3*SECONDS_TO_TICKS
             Items.LAVA_BUCKET -> 60*15*SECONDS_TO_TICKS
             Item.getItemFromBlock(Blocks.MAGMA) -> 60*30*SECONDS_TO_TICKS
             Item.getItemFromBlock(Blocks.COAL_BLOCK) -> 30*30*SECONDS_TO_TICKS
-            else -> 0
+            else -> (TileEntityFurnace.getItemBurnTime(fuelItem)*.9).toInt() // scale time to make lava bucket burn time the same duration as the one above
         }
     }
 

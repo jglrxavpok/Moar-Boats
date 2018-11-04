@@ -43,6 +43,7 @@ class Proxy: MoarBoatsProxy() {
         BoatModuleRenderingRegistry.register(DropperModuleRenderer)
         BoatModuleRenderingRegistry.register(BatteryModuleRenderer)
         BoatModuleRenderingRegistry.register(TankModuleRenderer)
+        BoatModuleRenderingRegistry.register(ChunkLoadingModuleRenderer)
 
         Minecraft.getMinecraft().itemColors.registerItemColorHandler({ stack, tint ->
             EnumDyeColor.values()[stack.metadata % EnumDyeColor.values().size].colorValue

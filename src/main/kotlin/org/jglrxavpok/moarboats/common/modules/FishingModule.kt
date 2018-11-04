@@ -25,7 +25,7 @@ import org.jglrxavpok.moarboats.client.gui.GuiFishingModule
 import org.jglrxavpok.moarboats.common.MBConfig
 import org.jglrxavpok.moarboats.common.containers.ContainerBase
 import org.jglrxavpok.moarboats.common.containers.ContainerFishingModule
-import org.jglrxavpok.moarboats.common.network.S6PlaySound
+import org.jglrxavpok.moarboats.common.network.SPlaySound
 import org.jglrxavpok.moarboats.common.state.BooleanBoatProperty
 import org.jglrxavpok.moarboats.common.state.IntBoatProperty
 import org.jglrxavpok.moarboats.common.state.NBTListBoatProperty
@@ -94,6 +94,12 @@ object FishingModule : BoatModule() {
                 val storageInventory = from.getInventory(storageModule)
                 val damageAmount = 1
                 val broken = rodStack.attemptDamageItem(damageAmount, from.moduleRNG, null)
+                for(loot in result) {
+                    val remaining = storageInventory.add(loot)
+                    if(!remaining.isEmpty) {
+                        from.correspondingEntity.entityDropItem(loot, 0f)
+                    }
+                }
                 if(broken) {
                     breakRod(from)
                     changeRodIfPossible(from)
@@ -101,12 +107,6 @@ object FishingModule : BoatModule() {
                 } else if(rodStack.itemDamage >= rodStack.maxDamage - MBConfig.fishingRemainingUsesBeforeBreak) {
                     changeRodIfPossible(from)
                     return
-                }
-                for(loot in result) {
-                    val remaining = storageInventory.add(loot)
-                    if(!remaining.isEmpty) {
-                        from.correspondingEntity.entityDropItem(loot, 0f)
-                    }
                 }
             }
         }
@@ -152,7 +152,7 @@ object FishingModule : BoatModule() {
 
     private fun breakRod(from: IControllable) {
         from.getInventory().setInventorySlotContents(0, ItemStack.EMPTY)
-        MoarBoats.network.sendToAll(S6PlaySound(from.positionX, from.positionY, from.positionZ, SoundEvents.ITEM_SHIELD_BREAK, SoundCategory.PLAYERS, 0.8f, 0.8f + Math.random().toFloat() * 0.4f))
+        MoarBoats.network.sendToAll(SPlaySound(from.positionX, from.positionY, from.positionZ, SoundEvents.ITEM_SHIELD_BREAK, SoundCategory.PLAYERS, 0.8f, 0.8f + Math.random().toFloat() * 0.4f))
     }
 
     override fun onAddition(to: IControllable) {

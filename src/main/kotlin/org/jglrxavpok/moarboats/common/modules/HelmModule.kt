@@ -15,13 +15,14 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.gui.GuiHelmModule
 import org.jglrxavpok.moarboats.common.containers.ContainerHelmModule
 import org.jglrxavpok.moarboats.common.items.HelmItem
-import org.jglrxavpok.moarboats.common.network.C2MapRequest
+import org.jglrxavpok.moarboats.common.network.CMapRequest
 import org.jglrxavpok.moarboats.extensions.toDegrees
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.containers.ContainerBase
-import org.jglrxavpok.moarboats.common.modules.HelmModule.getInventory
+import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.state.*
+import org.jglrxavpok.moarboats.extensions.insert
 
 object HelmModule: BoatModule(), BlockReason {
     override val id: ResourceLocation = ResourceLocation(MoarBoats.ModID, "helm")
@@ -56,7 +57,7 @@ object HelmModule: BoatModule(), BlockReason {
             val stack = to.getInventory().getStackInSlot(0)
             if(!stack.isEmpty && stack.item is ItemMap) {
                 val id = stack.itemDamage
-                MoarBoats.network.sendToServer(C2MapRequest("map_$id", to.entityID, this.id))
+                MoarBoats.network.sendToServer(CMapRequest("map_$id", to.entityID, this.id))
             }
         }
     }
@@ -64,7 +65,13 @@ object HelmModule: BoatModule(), BlockReason {
     override fun controlBoat(from: IControllable) {
         if(!from.inLiquid())
             return
-        val waypoints = waypointsProperty[from]
+        val stack = from.getInventory().getStackInSlot(0)
+        val item = stack.item
+        val (waypoints, loops) = when(item) {
+            net.minecraft.init.Items.FILLED_MAP -> Pair(HelmModule.waypointsProperty[from], HelmModule.loopingProperty[from])
+            is ItemPath -> Pair(item.getWaypointData(stack, MoarBoats.getLocalMapStorage()), item.isPathLooping(stack))
+            else -> return
+        }
         if(waypoints.tagCount() != 0) {
             val currentWaypoint = currentWaypointProperty[from] % waypoints.tagCount()
             val current = waypoints[currentWaypoint] as NBTTagCompound
@@ -75,7 +82,10 @@ object HelmModule: BoatModule(), BlockReason {
             val dz = from.positionZ - nextZ
             val nextWaypoint = (currentWaypoint+1) % waypoints.tagCount()
 
-            if(!loopingProperty[from] && currentWaypoint > nextWaypoint) {
+            if(current.getBoolean("hasBoost")) {
+                from.imposeSpeed(current.getDouble("boost").toFloat())
+            }
+            if(!loops && currentWaypoint > nextWaypoint) {
                 if(dx*dx+dz*dz < MaxDistanceToWaypointSquared) { // close to the last waypoint
                     from.blockMovement(this)
                     return
@@ -94,14 +104,17 @@ object HelmModule: BoatModule(), BlockReason {
     }
 
     override fun update(from: IControllable) {
-        val inventory = from.getInventory()
-        val stack = inventory.getStackInSlot(0)
+        val stack = from.getInventory().getStackInSlot(0)
         val item = stack.item
-        val waypoints = waypointsProperty[from]
+        val (waypoints, loops) = when(item) {
+            net.minecraft.init.Items.FILLED_MAP -> Pair(HelmModule.waypointsProperty[from], HelmModule.loopingProperty[from])
+            is ItemPath -> Pair(item.getWaypointData(stack, MoarBoats.getLocalMapStorage()), item.isPathLooping(stack))
+            else -> return
+        }
         if(waypoints.tagCount() != 0) {
             val currentWaypoint = currentWaypointProperty[from] % waypoints.tagCount()
             val nextWaypoint = (currentWaypoint+1) % waypoints.tagCount()
-            if(loopingProperty[from] || currentWaypoint <= nextWaypoint) { // next one is further from the start of the list
+            if(loops || currentWaypoint <= nextWaypoint) { // next one is further from the start of the list
                 val current = waypoints[currentWaypoint] as NBTTagCompound
                 val currentX = current.getInteger("x")
                 val currentZ = current.getInteger("z")
@@ -124,7 +137,7 @@ object HelmModule: BoatModule(), BlockReason {
             zCenterProperty[from] = mapdata.zCenter
         } else if(mapdata == EmptyMapData || from.correspondingEntity.ticksExisted % MapUpdatePeriod == 0) {
             val id = stack.itemDamage
-            MoarBoats.network.sendToServer(C2MapRequest("map_$id", from.entityID, this.id))
+            MoarBoats.network.sendToServer(CMapRequest("map_$id", from.entityID, this.id))
         }
     }
 
@@ -144,27 +157,34 @@ object HelmModule: BoatModule(), BlockReason {
         return GuiHelmModule(player.inventory, this, boat)
     }
 
-    fun addWaypoint(boat: IControllable, blockX: Int, blockZ: Int, renderX: Int, renderZ: Int) {
+    fun addWaypoint(boat: IControllable, blockX: Int, blockZ: Int, boost: Double?) {
         val waypointsData = waypointsProperty[boat]
+        addWaypointToList(waypointsData, blockX, blockZ, boost, insertionIndex = null)
+        waypointsProperty[boat] = waypointsData
+    }
+
+    fun addWaypointToList(waypointsData: NBTTagList, blockX: Int, blockZ: Int, boost: Double?, insertionIndex: Int?) {
         val waypointNBT = NBTTagCompound()
+        if(insertionIndex != null) {
+            waypointNBT.setString("name", "${(waypointsData[insertionIndex] as NBTTagCompound).getString("name")}+")
+        } else {
+            waypointNBT.setString("name", "Waypoint ${waypointsData.tagCount()+1}")
+        }
         waypointNBT.setInteger("x", blockX)
         waypointNBT.setInteger("z", blockZ)
-        waypointNBT.setInteger("renderX", renderX)
-        waypointNBT.setInteger("renderZ", renderZ)
-        waypointsData.appendTag(waypointNBT)
-        waypointsProperty[boat] = waypointsData
+        waypointNBT.setBoolean("hasBoost", boost != null)
+        if(boost != null)
+            waypointNBT.setDouble("boost", boost)
+        if(insertionIndex == null || insertionIndex >= waypointsData.tagCount() || insertionIndex < 0) {
+            waypointsData.appendTag(waypointNBT)
+        } else {
+            waypointsData.insert(insertionIndex, waypointNBT)
+        }
     }
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
             boat.correspondingEntity.dropItem(HelmItem, 1)
-    }
-
-    fun removeLastWaypoint(boat: IControllable) {
-        val waypointsData = waypointsProperty[boat]
-        if(waypointsData.tagCount() > 0) {
-            waypointsData.removeTag(waypointsData.tagCount()-1)
-        }
     }
 
     fun receiveMapData(boat: IControllable, data: MapData) {

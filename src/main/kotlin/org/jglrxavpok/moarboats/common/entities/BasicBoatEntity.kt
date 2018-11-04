@@ -3,12 +3,18 @@ package org.jglrxavpok.moarboats.common.entities
 import com.google.common.base.Optional
 import com.google.common.collect.Lists
 import io.netty.buffer.ByteBuf
+import net.minecraft.block.Block
+import net.minecraft.block.BlockLilyPad
 import net.minecraft.block.state.IBlockState
+import net.minecraft.crash.CrashReport
+import net.minecraft.crash.CrashReportCategory
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLeashKnot
 import net.minecraft.entity.MoverType
+import net.minecraft.entity.item.EntityItem
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.init.Items
+import net.minecraft.init.Blocks
+import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.network.datasync.DataSerializers
@@ -23,6 +29,7 @@ import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
+import net.minecraftforge.registries.GameData
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.items.RopeItem
 import org.jglrxavpok.moarboats.extensions.toDegrees
@@ -124,6 +131,9 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
     var knotLocations
         get() = KNOT_LOCATIONS.map { dataManager[it] }
         set(value) { KNOT_LOCATIONS.forEachIndexed { index, dataParameter -> dataManager[dataParameter] = value[index] } }
+
+    override var imposedSpeed = 0f
+    private var isSpeedImposed = false
 
     init {
         this.preventEntitySpawning = true
@@ -449,12 +459,15 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         }
         this.updateMotion()
 
+        isSpeedImposed = false
         blockedReason = NoBlockReason
         blockedMotion = false
         blockedRotation = false
         if (canControlItself) {
             this.controlBoat()
         }
+
+        breakLilypads()
 
         this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ)
 
@@ -467,6 +480,49 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
                     this.applyEntityCollision(entity)
             }
         }
+    }
+
+    private fun breakLilypads() {
+        val axisalignedbb = this.entityBoundingBox
+        val min = BlockPos.PooledMutableBlockPos.retain(axisalignedbb.minX - 0.2, axisalignedbb.minY + 0.001, axisalignedbb.minZ - 0.2)
+        val max = BlockPos.PooledMutableBlockPos.retain(axisalignedbb.maxX + 0.2, axisalignedbb.maxY - 0.001, axisalignedbb.maxZ + 0.2)
+        val tmp = BlockPos.PooledMutableBlockPos.retain()
+
+        if (this.world.isAreaLoaded(min, max)) {
+            for (i in min.x..max.x) {
+                for (j in min.y..max.y) {
+                    for (k in min.z..max.z) {
+                        tmp.setPos(i, j, k)
+                        val iblockstate = this.world.getBlockState(tmp)
+
+                        try {
+                            if(iblockstate.block is BlockLilyPad) {
+                                world.setBlockToAir(tmp)
+                                world.spawnEntity(EntityItem(world, tmp.x+.5, tmp.y+.15, tmp.z+.5, ItemStack(net.minecraft.init.Blocks.WATERLILY)))
+                                val count = 15
+                                for(n in 0..count) {
+                                    val vx = Math.random() * 2.0 - 1.0
+                                    val vz = Math.random() * 2.0 - 1.0
+                                    val speed = 0.1
+                                    val vy = Math.random() * speed * 2.0
+                                    world.spawnParticle(EnumParticleTypes.BLOCK_DUST, tmp.x+.5, tmp.y+.5, tmp.z+.5, vx*speed, vy*speed, vz*speed, Block.getIdFromBlock(Blocks.WATERLILY))
+                                }
+                            }
+                        } catch (throwable: Throwable) {
+                            val crashreport = CrashReport.makeCrashReport(throwable, "Colliding entity with block")
+                            val crashreportcategory = crashreport.makeCategory("Block being collided with")
+                            CrashReportCategory.addBlockInfo(crashreportcategory, tmp, iblockstate)
+                            throw ReportedException(crashreport)
+                        }
+
+                    }
+                }
+            }
+        }
+
+        min.release()
+        max.release()
+        tmp.release()
     }
 
     private fun computeTargetYaw(currentYaw: Float, anchorPos: Vec3d, otherAnchorPos: Vec3d): Float {
@@ -508,14 +564,14 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         acceleration -= 0.005f * multiplier
     }
 
-    override fun blockMovement(reason: BlockReason) {
-        if(reason.blocksRotation()) {
+    override fun blockMovement(blockedReason: BlockReason) {
+        if(blockedReason.blocksRotation()) {
             blockedRotation = true
         }
-        if(reason.blocksSpeed()) {
+        if(blockedReason.blocksSpeed()) {
             blockedMotion = true
         }
-        blockedReason = reason
+        this.blockedReason = blockedReason
     }
 
     abstract fun controlBoat()
@@ -523,6 +579,8 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
     abstract fun dropItemsOnDeath(killedByPlayerInCreative: Boolean)
 
     abstract fun isValidLiquidBlock(blockstate: IBlockState): Boolean
+
+    abstract fun getBoatItem(): Item
 
     open fun getLiquidHeight(world: World, blockPos: BlockPos): Float {
         return Fluids.getLiquidHeight(world.getBlockState(blockPos), world, blockPos)
@@ -651,13 +709,7 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
                     this.setDead()
 
                     if (this.world.gameRules.getBoolean("doEntityDrops")) {
-                        for (i in 0..2) {
-                            // TODO this.entityDropItem(ItemStack(Item.getItemFromBlock(Blocks.PLANKS), 1, this.getBoatType().getMetadata()), 0.0f)
-                        }
-
-                        for (j in 0..1) {
-                            this.dropItemWithOffset(Items.STICK, 1, 0.0f)
-                        }
+                        dropItem(getBoatItem(), 1)
                     }
                 }
             }
@@ -910,5 +962,15 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
     }
 
     abstract fun canStartRiding(player: EntityPlayer, heldItem: ItemStack, hand: EnumHand): Boolean
+
+    override fun isSpeedImposed(): Boolean {
+        return isSpeedImposed
+    }
+
+    override fun imposeSpeed(speed: Float) {
+        isSpeedImposed = true
+        imposedSpeed = speed
+    }
+
 
 }

@@ -5,6 +5,7 @@ import net.minecraft.init.Blocks
 import net.minecraft.inventory.IInventory
 import net.minecraft.item.Item
 import net.minecraft.item.ItemBlock
+import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
@@ -49,7 +50,7 @@ object CreativeEngineModule : BaseEngineModule() {
         // NOP
     }
 
-    override fun getFuelTime(fuelItem: Item): Int {
+    override fun getFuelTime(fuelItem: ItemStack): Int {
         return 0
     }
 

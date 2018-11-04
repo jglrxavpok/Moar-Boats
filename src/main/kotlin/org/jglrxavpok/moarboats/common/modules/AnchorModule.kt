@@ -23,7 +23,7 @@ object AnchorModule: BoatModule(), BlockReason {
     override val id = ResourceLocation(MoarBoats.ModID, "anchor")
     override val usesInventory = false
     override val moduleSpot = Spot.Misc
-
+    override val isMenuInteresting = false
     val spawnPointSet = TextComponentTranslation("gui.anchor.spawnPointSet")
 
     val activeProperty = BooleanBoatProperty("active")

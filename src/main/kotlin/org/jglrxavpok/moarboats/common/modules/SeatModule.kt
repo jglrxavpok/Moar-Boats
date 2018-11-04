@@ -19,6 +19,7 @@ object SeatModule : BoatModule() {
 
     override val usesInventory = false
     override val moduleSpot = Spot.Storage
+    override val isMenuInteresting = false
 
     @SideOnly(Side.CLIENT)
     override fun createGui(player: EntityPlayer, boat: IControllable): GuiScreen {

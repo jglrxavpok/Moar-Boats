@@ -1,3 +1,4 @@
+# PARSE_ESCAPES
 inventory.chest.name=Coffre
 inventory.furnace_engine.name=Moteur thermique
 item.rope.name=Corde
@@ -34,7 +35,7 @@ inventory.anchor.name=Ancre
 inventory.solar_engine.name=Moteur solaire
 inventory.creative_engine.name=Moteur pour bateaux: mode créatif
 item.creative_engine.name=Moteur mode Créatif
-gui.engine.powerSetting=Puissance
+gui.engine.powerSetting=Boost de puissance
 gui.engine.power.max=Puissance maximale!
 gui.engine.power.min=Puissance minimale
 gui.engine.power.normal=Puissance normale
@@ -48,6 +49,7 @@ general.spot.navigation=Navigation
 item.icebreaker.name=Brise glace
 inventory.icebreaker.name=Icebreaker
 inventory.sonar.name=Sonar Module
+
 gui.dispenser.bottom_row=Bas
 gui.dispenser.middle_row=Milieu
 gui.dispenser.top_row=Haut
@@ -93,5 +95,44 @@ tile.boat_energy_charger.name=Chargeur d'énergie pour bateaux
 tile.boat_energy_discharger.name=Déchargeur d'énergie pour bateaux
 tile.boat_fluid_loader.name=Chargeur de fluides pour bateaux
 tile.boat_fluid_unloader.name=Déchargeur de fluides pour bateaux
+tile.boat_tank.name=Réservoir de fluides pour bateaux
+
+moarboats.tile.waterborne_comparator.description=The increase of floatability made the device only capable of counting items
+
+item.waterborne_comparator.name=Comparateur flottant
 
 moarboats.tank_level=%s$1 / %s$2 mB de %s$3
+moarboats.only_usable_on_boat=Seulement utilisable sur les bateaux
+
+# 4.0.0.0
+moarboats.item_path.description=%s balise(s)
+moarboats.item.golden_ticket.name.empty=Ticket d'or (Vide)
+item.golden_ticket.name=Ticket d'or
+item.map_with_path.name=Carte avec chemin
+moarboats.gui.helm.save_on_map=Sauvegarder sur la carte
+moarboats.locked_by_owner=Verrouillé par le/la propriétaire (%s) !
+moarboats.gui.engine.imposed_boost=Boost de vitesse imposée: %s%%
+gui.path_editor.controls.boost=Boost de vitesse
+
+moarboats.gui.mapping_table.remove=Retirer
+moarboats.gui.mapping_table.add=Ajouter
+moarboats.gui.mapping_table.edit=Editer
+moarboats.gui.mapping_table.insert=Insérer
+moarboats.gui.waypoint_editor.has_boost=A un boost de vitesse
+moarboats.gui.waypoint_editor.name=Edition de la balise: %s
+moarboats.gui.waypoint_editor.position=Position
+moarboats.gui.waypoint_editor.refresh=Rafraîchir
+moarboats.gui.waypoint_editor.existing_waypoints=Balises d'autres mods
+
+moarboats.gui.generic.confirm=Confirmer
+moarboats.gui.generic.cancel=Annuler
+moarboats.gui.generic.misc=Autres
+
+tile.mapping_table.name=Table de cartographie
+inventory.chunk_loading.name=Chunk Loader pour bateaux
+item.boat_chunk_loader.name=Chunk Loader pour bateaux
+
+waypoint_provider.journeymap=JourneyMap
+inventory.diving.name=Bouteille de plongée
+
+moarboats.restricted=Option désactivée par votre administrateur de serveur.

@@ -11,10 +11,9 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.containers.ContainerDispenserModule
-import org.jglrxavpok.moarboats.common.modules.DispenserModule
 import org.jglrxavpok.moarboats.common.modules.DispensingModule
-import org.jglrxavpok.moarboats.common.network.C18ChangeDispenserFacing
-import org.jglrxavpok.moarboats.common.network.C9ChangeDispenserPeriod
+import org.jglrxavpok.moarboats.common.network.CChangeDispenserFacing
+import org.jglrxavpok.moarboats.common.network.CChangeDispenserPeriod
 
 class GuiDispenserModule(inventoryPlayer: InventoryPlayer, module: BoatModule, boat: IControllable): GuiModuleBase(module, boat, inventoryPlayer, ContainerDispenserModule(inventoryPlayer, module, boat), isLarge = true) {
     override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/dispenser.png")
@@ -39,7 +38,7 @@ class GuiDispenserModule(inventoryPlayer: InventoryPlayer, module: BoatModule, b
 
     private lateinit var periodSlider: GuiSlider
     private val sliderCallback = GuiSlider.ISlider { slider ->
-        MoarBoats.network.sendToServer(C9ChangeDispenserPeriod(boat.entityID, module.id, slider.value))
+        MoarBoats.network.sendToServer(CChangeDispenserPeriod(boat.entityID, module.id, slider.value))
     }
 
     override fun initGui() {
@@ -99,7 +98,7 @@ class GuiDispenserModule(inventoryPlayer: InventoryPlayer, module: BoatModule, b
         super.actionPerformed(button)
         if(button.id in 0 until facings.size) {
             val selectedFacing = facings[button.id]
-            MoarBoats.network.sendToServer(C18ChangeDispenserFacing(boat.entityID, module.id, selectedFacing))
+            MoarBoats.network.sendToServer(CChangeDispenserFacing(boat.entityID, module.id, selectedFacing))
         }
     }
 }

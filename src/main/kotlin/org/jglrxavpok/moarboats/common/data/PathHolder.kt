@@ -1,37 +1,43 @@
 package org.jglrxavpok.moarboats.common.data
 
+import net.minecraft.item.ItemStack
+import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
 import net.minecraft.util.math.BlockPos
 import net.minecraftforge.common.util.Constants
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.IControllable
+import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import org.jglrxavpok.moarboats.common.modules.HelmModule
-import org.jglrxavpok.moarboats.common.network.C10MapImageRequest
-import org.jglrxavpok.moarboats.common.network.C12AddWaypoint
-import org.jglrxavpok.moarboats.common.network.C13RemoveWaypoint
-import org.jglrxavpok.moarboats.common.network.C14ChangeLoopingState
+import org.jglrxavpok.moarboats.common.network.*
+import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 
 interface PathHolder {
     fun pathLoops(): Boolean
     fun setLoopingState(loops: Boolean)
     fun getWaypointNBTList(): NBTTagList
     fun removeWaypoint(closestIndex: Int)
-    fun addWaypoint(pos: BlockPos)
-    fun getHolderLocation(): BlockPos
+    fun addWaypoint(pos: BlockPos, boost: Double?)
+    fun getHolderLocation(): BlockPos?
     fun sendWorldImageRequest(mapID: String)
+    fun getBaseMapID(): String
 }
 
 class BoatPathHolder(val boat: IControllable): PathHolder {
-    override fun sendWorldImageRequest(mapID: String) {
-        MoarBoats.network.sendToServer(C10MapImageRequest(mapID, boat.entityID, HelmModule.id))
+    override fun getBaseMapID(): String {
+        return HelmModule.mapDataCopyProperty[boat].mapName
     }
 
-    override fun addWaypoint(pos: BlockPos) {
-        MoarBoats.network.sendToServer(C12AddWaypoint(pos, boat.entityID))
+    override fun sendWorldImageRequest(mapID: String) {
+        MoarBoats.network.sendToServer(CMapImageRequest(mapID))
+    }
+
+    override fun addWaypoint(pos: BlockPos, boost: Double?) {
+        MoarBoats.network.sendToServer(CAddWaypoint(pos, boat.entityID, boost))
     }
 
     override fun removeWaypoint(closestIndex: Int) {
-        MoarBoats.network.sendToServer(C13RemoveWaypoint(closestIndex, boat.entityID))
+        MoarBoats.network.sendToServer(CRemoveWaypoint(closestIndex, boat.entityID))
     }
 
     override fun getWaypointNBTList(): NBTTagList {
@@ -43,10 +49,89 @@ class BoatPathHolder(val boat: IControllable): PathHolder {
     }
 
     override fun setLoopingState(loops: Boolean) {
-        MoarBoats.network.sendToServer(C14ChangeLoopingState(loops, boat.entityID))
+        MoarBoats.network.sendToServer(CChangeLoopingState(loops, boat.entityID))
     }
 
     override fun getHolderLocation(): BlockPos {
         return boat.blockPos
     }
+}
+
+class MapWithPathHolder(stack: ItemStack, mappingTable: TileEntityMappingTable?, boat: IControllable?): ItemPathHolder(stack, mappingTable, boat) {
+    override fun nbt(): NBTTagCompound {
+        if(stack.tagCompound == null) {
+            stack.tagCompound = NBTTagCompound()
+        }
+        return stack.tagCompound!!
+    }
+
+    override fun addWaypoint(pos: BlockPos, boost: Double?) {
+        if(mappingTable != null) {
+            MoarBoats.network.sendToServer(CAddWaypointToItemPathFromMappingTable(pos, boost, null, mappingTable))
+        } else if(boat != null) {
+            MoarBoats.network.sendToServer(CAddWaypointToItemPathFromBoat(pos, boost, null, boat.entityID))
+        }
+    }
+
+    override fun removeWaypoint(closestIndex: Int) {
+        if(mappingTable != null) {
+            MoarBoats.network.sendToServer(CRemoveWaypointFromMapWithPathFromMappingTable(closestIndex, mappingTable))
+        } else if(boat != null) {
+            MoarBoats.network.sendToServer(CRemoveWaypointFromMapWithPathFromBoat(closestIndex, boat.entityID))
+        }
+    }
+}
+
+class GoldenTicketPathHolder(stack: ItemStack, mappingTable: TileEntityMappingTable?, boat: IControllable?): ItemPathHolder(stack, mappingTable, boat) {
+    override fun nbt(): NBTTagCompound {
+        return ItemGoldenTicket.getData(stack).writeToNBT(NBTTagCompound())
+    }
+
+    override fun addWaypoint(pos: BlockPos, boost: Double?) {
+        if(mappingTable != null) {
+            MoarBoats.network.sendToServer(CAddWaypointToGoldenTicketFromMappingTable(pos, boost, null, mappingTable))
+        } else if(boat != null) {
+            MoarBoats.network.sendToServer(CAddWaypointToGoldenTicketFromBoat(pos, boost, null, boat.entityID))
+        }
+    }
+
+    override fun removeWaypoint(closestIndex: Int) {
+        if(mappingTable != null) {
+            MoarBoats.network.sendToServer(CRemoveWaypointFromGoldenTicketFromMappingTable(closestIndex, mappingTable))
+        } else if(boat != null) {
+            MoarBoats.network.sendToServer(CRemoveWaypointFromGoldenTicketFromBoat(closestIndex, boat.entityID))
+        }
+    }
+}
+
+abstract class ItemPathHolder(val stack: ItemStack, val mappingTable: TileEntityMappingTable?, val boat: IControllable?): PathHolder {
+
+    abstract fun nbt(): NBTTagCompound
+
+    override fun getBaseMapID(): String {
+        return nbt().getString("${MoarBoats.ModID}.mapID")
+    }
+
+    override fun pathLoops(): Boolean {
+        return nbt().getBoolean("${MoarBoats.ModID}.loops")
+    }
+
+    override fun setLoopingState(loops: Boolean) {
+        if(boat != null) {
+            MoarBoats.network.sendToServer(CChangeLoopingStateItemPathBoat(loops, boat.entityID))
+        } else {
+            MoarBoats.network.sendToServer(CChangeLoopingStateItemPathMappingTable(loops, mappingTable!!))
+        }
+    }
+
+    override fun getWaypointNBTList(): NBTTagList {
+        return nbt().getTagList("${MoarBoats.ModID}.path", Constants.NBT.TAG_COMPOUND)
+    }
+
+    override fun getHolderLocation() = null
+
+    override fun sendWorldImageRequest(mapID: String) {
+        MoarBoats.network.sendToServer(CMapImageRequest(mapID))
+    }
+
 }

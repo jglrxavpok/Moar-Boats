@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger
 import net.minecraft.block.Block
 import net.minecraft.block.material.MapColor
 import net.minecraft.block.material.Material
+import net.minecraft.client.Minecraft
 import net.minecraft.creativetab.CreativeTabs
 import net.minecraft.init.Items as MCItems
 import net.minecraft.init.Blocks as MCBlocks
@@ -21,10 +22,15 @@ import net.minecraft.item.crafting.IRecipe
 import net.minecraft.network.datasync.DataSerializers
 import net.minecraft.util.NonNullList
 import net.minecraft.util.ResourceLocation
+import net.minecraft.world.storage.MapStorage
+import net.minecraftforge.common.ForgeChunkManager
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.config.Configuration
+import net.minecraftforge.fml.common.FMLCommonHandler
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper
 import net.minecraftforge.fml.common.registry.GameRegistry
+import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.registries.RegistryBuilder
 import org.jglrxavpok.moarboats.api.BoatModuleEntry
 import org.jglrxavpok.moarboats.common.*
@@ -36,14 +42,13 @@ import org.jglrxavpok.moarboats.api.registerModule
 import org.jglrxavpok.moarboats.common.blocks.*
 import org.jglrxavpok.moarboats.common.items.*
 import org.jglrxavpok.moarboats.common.modules.*
-import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergyLoader
-import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergyUnloader
-import org.jglrxavpok.moarboats.common.tileentity.TileEntityFluidLoader
-import org.jglrxavpok.moarboats.common.tileentity.TileEntityFluidUnloader
+import org.jglrxavpok.moarboats.common.tileentity.*
+import org.jglrxavpok.moarboats.integration.LoadIntegrationPlugins
+import org.jglrxavpok.moarboats.integration.MoarBoatsPlugin
 
 @Mod.EventBusSubscriber
 @Mod(modLanguageAdapter = "net.shadowfacts.forgelin.KotlinAdapter", modid = MoarBoats.ModID, dependencies = "required-after:forgelin;",
-        name = "Moar Boats", version = "3.0.0.2", updateJSON = "https://raw.githubusercontent.com/jglrxavpok/Moar-Boats/master/updateCheck.json")
+        name = "Moar Boats", version = "4.0.0.0b5", updateJSON = "https://raw.githubusercontent.com/jglrxavpok/Moar-Boats/master/updateCheck.json")
 object MoarBoats {
     const val ModID = "moarboats"
 
@@ -80,6 +85,8 @@ object MoarBoats {
         }
     }
 
+    private lateinit var plugins: List<MoarBoatsPlugin>
+
     @Mod.EventHandler
     fun preInit(event: FMLPreInitializationEvent) {
         logger = event.modLog
@@ -89,6 +96,21 @@ object MoarBoats {
         MinecraftForge.EVENT_BUS.register(this)
         MinecraftForge.EVENT_BUS.register(ItemEventHandler)
         proxy.preInit()
+        ForgeChunkManager.setForcedChunkLoadingCallback(MoarBoats) { tickets, world ->
+            for(ticket in tickets) {
+                for(pos in ticket.chunkList) {
+                    ForgeChunkManager.forceChunk(ticket, pos)
+                }
+            }
+        }
+
+        plugins = LoadIntegrationPlugins(event)
+        plugins.forEach(MoarBoatsPlugin::preInit)
+    }
+
+    @Mod.EventHandler
+    fun postInit(event: FMLPostInitializationEvent) {
+        plugins.forEach(MoarBoatsPlugin::postInit)
     }
 
     @Mod.EventHandler
@@ -96,6 +118,7 @@ object MoarBoats {
         proxy.init()
         DataSerializers.registerSerializer(ResourceLocationsSerializer)
         DataSerializers.registerSerializer(UniqueIDSerializer)
+        plugins.forEach(MoarBoatsPlugin::init)
     }
 
     @JvmStatic
@@ -126,6 +149,8 @@ object MoarBoats {
         event.registry.registerModule(DropperModule, Item.getItemFromBlock(MCBlocks.DROPPER), { boat, module -> SimpleModuleInventory(3*5, "dropper", boat, module) })
         event.registry.registerModule(BatteryModule, Item.getItemFromBlock(BlockBoatBattery))
         event.registry.registerModule(FluidTankModule, Item.getItemFromBlock(BlockBoatTank))
+        event.registry.registerModule(ChunkLoadingModule, ChunkLoaderItem, restriction = MBConfig::chunkloaderAllowed)
+        plugins.forEach { it.registerModules(event.registry) }
     }
 
     @SubscribeEvent
@@ -135,6 +160,7 @@ object MoarBoats {
         GameRegistry.registerTileEntity(TileEntityEnergyLoader::class.java, BlockEnergyLoader.registryName)
         GameRegistry.registerTileEntity(TileEntityFluidUnloader::class.java, BlockFluidUnloader.registryName)
         GameRegistry.registerTileEntity(TileEntityFluidLoader::class.java, BlockFluidLoader.registryName)
+        GameRegistry.registerTileEntity(TileEntityMappingTable::class.java, BlockMappingTable.registryName)
     }
 
     @SubscribeEvent
@@ -153,7 +179,23 @@ object MoarBoats {
     @SubscribeEvent
     fun registerRecipes(e: RegistryEvent.Register<IRecipe>) {
         e.registry.register(ModularBoatColoringRecipe)
-        e.registry.register(GoldenItineraryCopyRecipe)
-        e.registry.register(UpgradeToGoldenItineraryRecipe)
+        e.registry.register(GoldenTicketCopyRecipe)
+        e.registry.register(UpgradeToGoldenTicketRecipe)
+        e.registry.register(MapWithPathRecipe)
+    }
+
+    fun getLocalMapStorage(): MapStorage {
+        val side = FMLCommonHandler.instance().side
+        try {
+            return when {
+                side == Side.CLIENT && FMLCommonHandler.instance().minecraftServerInstance == null -> Minecraft.getMinecraft().world.mapStorage!!
+                side == Side.CLIENT && FMLCommonHandler.instance().minecraftServerInstance != null || side == Side.SERVER
+                -> FMLCommonHandler.instance().minecraftServerInstance.getWorld(0).mapStorage!!
+                else -> throw RuntimeException("should not happen (side is null ?)")
+            }
+        } catch (e: Throwable) {
+            MoarBoats.logger.error("Something broke in MoarBoats#getLocalMapStorage(), something in the code might be very wrong! Please report.", e)
+            throw e
+        }
     }
 }

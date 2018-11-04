@@ -29,7 +29,7 @@ abstract class BaseEngineModule: BoatModule() {
     override val hopperPriority = 0
 
     abstract fun hasFuel(from: IControllable): Boolean
-    abstract fun getFuelTime(fuelItem: Item): Int
+    abstract fun getFuelTime(fuelItem: ItemStack): Int
     protected abstract fun updateFuelState(boat: IControllable, state: NBTTagCompound, inv: IInventory)
     abstract fun remainingTimeInTicks(from: IControllable): Float
     abstract fun remainingTimeInPercent(from: IControllable): Float
@@ -39,7 +39,8 @@ abstract class BaseEngineModule: BoatModule() {
 
     override fun controlBoat(from: IControllable) {
         if(hasFuel(from) && !isStationary(from) && from.inLiquid()) {
-            from.accelerate(speedProperty[from]+1f)
+            val speed = if(from.isSpeedImposed()) from.imposedSpeed else speedProperty[from]
+            from.accelerate(speed+1f)
         }
 
         if(lockedByRedstoneProperty[from]) {
@@ -105,7 +106,7 @@ abstract class BaseEngineModule: BoatModule() {
         speedProperty[boat] = speed
     }
 
-    fun isItemFuel(fuelItem: ItemStack) = getFuelTime(fuelItem.item) > 0
+    fun isItemFuel(fuelItem: ItemStack) = getFuelTime(fuelItem) > 0
 
     fun isLockedByRedstone(boat: IControllable) = lockedByRedstoneProperty[boat]
 

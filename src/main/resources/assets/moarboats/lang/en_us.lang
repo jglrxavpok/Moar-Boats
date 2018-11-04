@@ -1,3 +1,4 @@
+#PARSE_ESCAPES
 inventory.chest.name=Chest module
 inventory.furnace_engine.name=Furnace Engine
 item.rope.name=Rope
@@ -34,7 +35,7 @@ inventory.anchor.name=Anchor module
 inventory.solar_engine.name=Solar Engine
 inventory.creative_engine.name=Creative mode boat engine
 item.creative_engine.name=Creative mode Engine
-gui.engine.powerSetting=Power setting
+gui.engine.powerSetting=Power boost
 gui.engine.power.max=Unlimited power!
 gui.engine.power.min=Keep it cool
 gui.engine.power.normal=As usual
@@ -103,7 +104,35 @@ item.waterborne_comparator.name=Waterborne comparator
 moarboats.tank_level=%1$s / %2$s mB of %3$s
 moarboats.only_usable_on_boat=Only usable on boats
 
-# 3.1.0.0
-moarboats.item_path.description=%s waypoints
-moarboats.item.golden_itinerary.name.empty=Golden Itinerary (Empty)
-item.golden_itinerary.name=Golden Itinerary
+# 4.0.0.0
+moarboats.item_path.description=%s waypoint(s)
+moarboats.item.golden_ticket.name.empty=Golden Ticket (Empty)
+item.golden_ticket.name=Golden Ticket
+item.map_with_path.name=Map with path
+moarboats.gui.helm.save_on_map=Save on map
+moarboats.locked_by_owner=Locked by owner (%s) !
+moarboats.gui.engine.imposed_boost=Imposed speed boost: %s%%
+gui.path_editor.controls.boost=Speed boost
+
+moarboats.gui.mapping_table.remove=Remove
+moarboats.gui.mapping_table.add=Add
+moarboats.gui.mapping_table.edit=Edit
+moarboats.gui.mapping_table.insert=Insert
+moarboats.gui.waypoint_editor.has_boost=Has speed boost
+moarboats.gui.waypoint_editor.name=Editing waypoint: %s
+moarboats.gui.waypoint_editor.position=Position
+moarboats.gui.waypoint_editor.refresh=Refresh list
+moarboats.gui.waypoint_editor.existing_waypoints=Waypoints from mods
+
+moarboats.gui.generic.confirm=Confirm
+moarboats.gui.generic.cancel=Cancel
+moarboats.gui.generic.misc=Miscellaneous
+
+tile.mapping_table.name=Mapping table
+inventory.chunk_loading.name=Boat Chunk Loader
+item.boat_chunk_loader.name=Boat Chunk Loader
+
+waypoint_provider.journeymap=JourneyMap
+inventory.diving.name=Diving Bottle
+
+moarboats.restricted=This feature is disabled by your server admin.

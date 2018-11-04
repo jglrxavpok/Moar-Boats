@@ -21,6 +21,7 @@ object DivingModule: BoatModule() {
     override val id = ResourceLocation(MoarBoats.ModID, "diving")
     override val usesInventory = false
     override val moduleSpot = Spot.Misc
+    override val isMenuInteresting = false
 
     val maxDistSq = 20.0*20.0
 

@@ -5,6 +5,7 @@ import net.minecraft.entity.player.InventoryPlayer
 import net.minecraft.inventory.Container
 import net.minecraft.inventory.Slot
 import net.minecraft.item.ItemStack
+import net.minecraft.tileentity.TileEntityFurnace
 
 abstract class ContainerBase(val playerInventory: InventoryPlayer): Container() {
 
@@ -33,11 +34,11 @@ abstract class ContainerBase(val playerInventory: InventoryPlayer): Container() 
             val itemstack1 = slot.stack
             itemstack = itemstack1.copy()
 
-            if (index in 0..26) {
-                if (!this.mergeItemStack(itemstack1, 26, 36, false)) {
+            if (index in 0..27) {
+                if (!this.mergeItemStack(itemstack1, 27, 36, false)) {
                     return ItemStack.EMPTY
                 }
-            } else if (index in 27..35 && !this.mergeItemStack(itemstack1, 0, 36, false)) {
+            } else if (index in 27..35 && !this.mergeItemStack(itemstack1, 0, 26, false)) {
                 return ItemStack.EMPTY
             }
 

@@ -1,6 +1,5 @@
 package org.jglrxavpok.moarboats.common.entities
 
-import io.netty.buffer.ByteBuf
 import net.minecraft.block.BlockDispenser
 import net.minecraft.block.state.IBlockState
 import net.minecraft.dispenser.IBehaviorDispenseItem
@@ -22,6 +21,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.text.TextComponentTranslation
 import net.minecraft.world.World
+import net.minecraftforge.common.ForgeChunkManager
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.common.capabilities.ICapabilityProvider
 import net.minecraftforge.common.util.Constants
@@ -31,6 +31,7 @@ import net.minecraftforge.fluids.FluidStack
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import net.minecraftforge.fluids.capability.IFluidHandler
 import net.minecraftforge.fluids.capability.IFluidTankProperties
+import net.minecraftforge.fml.common.FMLCommonHandler
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData
 import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.wrapper.InvWrapper
@@ -38,14 +39,16 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.api.BoatModuleInventory
+import org.jglrxavpok.moarboats.common.LockedByOwner
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.ResourceLocationsSerializer
+import org.jglrxavpok.moarboats.common.Restricted
 import org.jglrxavpok.moarboats.common.items.ModularBoatItem
 import org.jglrxavpok.moarboats.common.modules.IEnergyBoatModule
 import org.jglrxavpok.moarboats.common.modules.IFluidBoatModule
 import org.jglrxavpok.moarboats.common.modules.SeatModule
-import org.jglrxavpok.moarboats.common.network.S15ModuleData
-import org.jglrxavpok.moarboats.common.network.S16ModuleLocations
+import org.jglrxavpok.moarboats.common.network.SModuleData
+import org.jglrxavpok.moarboats.common.network.SModuleLocations
 import org.jglrxavpok.moarboats.extensions.Fluids
 import org.jglrxavpok.moarboats.extensions.loadInventory
 import org.jglrxavpok.moarboats.extensions.saveInventory
@@ -58,6 +61,10 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         val MODULE_DATA = EntityDataManager.createKey(ModularBoatEntity::class.java, DataSerializers.COMPOUND_TAG)
     }
 
+    enum class OwningMode {
+        AllowAll, PlayerOwned
+    }
+
     override val entityID: Int
         get() = this.entityId
 
@@ -67,7 +74,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         get()= dataManager[MODULE_LOCATIONS]
         set(value) { dataManager[MODULE_LOCATIONS] = value }
 
-    var moduleData
+    var moduleData: NBTTagCompound
         get()= dataManager[MODULE_DATA]
         set(value) { dataManager[MODULE_DATA] = value; dataManager.setDirty(MODULE_DATA) }
     override val modules = mutableListOf<BoatModule>()
@@ -84,13 +91,20 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
 
     var color = EnumDyeColor.WHITE // white by default
         private set
+    var owningMode = OwningMode.PlayerOwned
+        private set
+    var ownerUUID: UUID? = null
+        private set
+    var ownerName: String? = null
+        private set
+    override var chunkTicket: ForgeChunkManager.Ticket? = null
 
     init {
         this.preventEntitySpawning = true
         this.setSize(1.375f, 0.5625f)
     }
 
-    constructor(world: World, x: Double, y: Double, z: Double, color: EnumDyeColor): this(world) {
+    constructor(world: World, x: Double, y: Double, z: Double, color: EnumDyeColor, owningMode: OwningMode, ownerUUID: UUID? = null): this(world) {
         this.setPosition(x, y, z)
         this.motionX = 0.0
         this.motionY = 0.0
@@ -99,7 +113,11 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         this.prevPosY = y
         this.prevPosZ = z
         this.color = color
+        this.owningMode = owningMode
+        this.ownerUUID = ownerUUID
     }
+
+    override fun getBoatItem() = ModularBoatItem
 
     /**
      * Called to update the entity's position/logic.
@@ -108,8 +126,18 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         modules.clear()
         moduleLocations.forEach { modules.add(BoatModuleRegistry[it].module) }
 
+        if(!world.isRemote) {
+            if(chunkTicket == null) {
+                chunkTicket = ForgeChunkManager.requestTicket(MoarBoats, world, ForgeChunkManager.Type.ENTITY)
+                chunkTicket!!.bindEntity(this)
+            }
+        }
         modules.forEach { it.update(this) }
         super.onUpdate()
+
+        if(ownerUUID != null && ownerName == null) {
+            ownerName = world.getPlayerEntityByUUID(ownerUUID)?.name
+        }
     }
 
     override fun controlBoat() {
@@ -140,31 +168,45 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         if(world.isRemote)
             return true
         val heldItem = player.getHeldItem(hand)
-        val module = BoatModuleRegistry.findModule(heldItem)
-        if(module != null) {
-            if(canFitModule(module)) {
+        val moduleID = BoatModuleRegistry.findModule(heldItem)
+        if(moduleID != null) {
+            val entry = BoatModuleRegistry[moduleID]
+            if(!entry.restriction()) {
+                player.sendStatusMessage(Restricted, true)
+                return false
+            }
+            if(canFitModule(moduleID)) {
                 if(!player.capabilities.isCreativeMode) {
                     heldItem.shrink(1)
                     if (heldItem.isEmpty) {
                         player.inventory.deleteStack(heldItem)
                     }
                 }
-                addModule(module, fromItem = heldItem)
+                addModule(moduleID, fromItem = heldItem)
                 return true
             } else {
-                val correspondingModule = BoatModuleRegistry[module].module
+                val correspondingModule = BoatModuleRegistry[moduleID].module
                 player.sendStatusMessage(TextComponentTranslation("general.occupiedSpot", correspondingModule.moduleSpot.text), true)
                 return true
             }
         }
 
-        val canOpenGui = !modules.any { it.onInteract(this, player, hand, player.isSneaking) }
+        val validOwner = isValidOwner(player)
+        val canOpenGui = validOwner && !modules.any { it.onInteract(this, player, hand, player.isSneaking) }
         if(canOpenGui) {
             if(modules.isNotEmpty() && !world.isRemote) {
-                player.openGui(MoarBoats, MoarBoatsGuiHandler.ModulesGui, player.world, entityID, 0, 0)
+                player.openGui(MoarBoats, MoarBoatsGuiHandler.ModulesGui, player.world, entityID, -1, 0)
             }
+        } else if(!validOwner) {
+            player.sendStatusMessage(TextComponentTranslation(LockedByOwner.key, ownerName ?: "<UNKNOWN>"), true)
         }
         return true
+    }
+
+    private fun isValidOwner(player: EntityPlayer): Boolean {
+        return owningMode == OwningMode.AllowAll
+                || ownerUUID == player.gameProfile.id
+                || FMLCommonHandler.instance().minecraftServerInstance.playerList.oppedPlayers.getPermissionLevel(player.gameProfile) >= 2
     }
 
     private fun canFitModule(module: ResourceLocation): Boolean {
@@ -188,6 +230,12 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         compound.setTag("modules", list)
         compound.setTag("state", moduleData)
         compound.setString("color", color.name)
+        if(owningMode == OwningMode.PlayerOwned) {
+            compound.setUniqueId("ownerUUID", ownerUUID ?: UUID.fromString("0000-0000-0000-0000"))
+        }
+        if(ownerName != null)
+            compound.setString("ownerName", ownerName)
+        compound.setString("owningMode", owningMode.name.toLowerCase())
     }
 
     override fun readEntityFromNBT(compound: NBTTagCompound) {
@@ -212,6 +260,24 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
             colorFromString(compound.getString("color"))
         else
             EnumDyeColor.WHITE
+
+        ownerUUID = if(compound.hasUniqueId("ownerUUID")) {
+            compound.getUniqueId("ownerUUID")
+        } else {
+            null
+        }
+        if(compound.hasKey("ownerName"))
+            ownerName = compound.getString("ownerName")
+        owningMode =
+                if(ownerUUID != null && compound.hasKey("owningMode")) {
+                    val mode = compound.getString("owningMode")
+                    when(mode) {
+                        "allowall" -> OwningMode.AllowAll
+                        else -> OwningMode.PlayerOwned
+                    }
+                } else {
+                    OwningMode.AllowAll
+                }
     }
 
     override fun saveState(module: BoatModule) {
@@ -233,14 +299,20 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
     private fun updateModuleData() {
         dataManager[MODULE_DATA] = moduleData // uses the setter of 'moduleData' to update the state
         if(!world.isRemote) {
-            MoarBoats.network.sendToAll(S15ModuleData(entityID, moduleData))
+            if(moduleData != null) {
+                try {
+                    MoarBoats.network.sendToAll(SModuleData(entityID, moduleData))
+                } catch (e: NullPointerException) {
+                    MoarBoats.logger.warn(e) // sometimes the data is sent even though the packet has no dispatcher
+                }
+            }
         }
     }
 
     private fun updateModuleLocations(sendUpdate: Boolean = true) {
         dataManager[MODULE_LOCATIONS] = moduleLocations // uses the setter of 'moduleLocations' to update the state
         if(!world.isRemote && sendUpdate) {
-            MoarBoats.network.sendToAll(S16ModuleLocations(entityID, moduleLocations))
+            MoarBoats.network.sendToAll(SModuleLocations(entityID, moduleLocations))
         }
     }
 
@@ -525,6 +597,18 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
 
     override fun canDrain(): Boolean {
         return getFluidModuleOrNull()?.canBeDrained(this) ?: false
+    }
+
+    override fun getOwnerIdOrNull(): UUID? {
+        return ownerUUID
+    }
+
+    override fun getOwnerNameOrNull(): String? {
+        return ownerName
+    }
+
+    fun findFirstModuleToShowOnGui(): BoatModule {
+        return sortModulesByInterestingness().first()
     }
 
 }

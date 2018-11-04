@@ -16,6 +16,7 @@ object RudderModule: BoatModule(), BlockReason {
     override val id = ResourceLocation(MoarBoats.ModID, "rudder")
     override val usesInventory = false
     override val moduleSpot = Spot.Navigation
+    override val isMenuInteresting = false
 
     val RudderAngleMultiplier = FloatBoatProperty("rudderAngleMultiplier")
 

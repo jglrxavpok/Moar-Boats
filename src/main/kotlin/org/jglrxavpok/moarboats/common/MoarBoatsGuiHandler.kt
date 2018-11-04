@@ -1,20 +1,24 @@
 package org.jglrxavpok.moarboats.common
 
+import net.minecraft.client.Minecraft
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemMap
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
+import net.minecraft.world.storage.MapData
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import net.minecraftforge.fml.common.network.IGuiHandler
-import org.jglrxavpok.moarboats.client.gui.GuiEnergy
-import org.jglrxavpok.moarboats.client.gui.GuiFluid
-import org.jglrxavpok.moarboats.client.gui.GuiMappingTable
-import org.jglrxavpok.moarboats.client.gui.GuiPathEditor
+import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.client.gui.*
 import org.jglrxavpok.moarboats.common.containers.ContainerMappingTable
 import org.jglrxavpok.moarboats.common.containers.EnergyContainer
 import org.jglrxavpok.moarboats.common.containers.FluidContainer
 import org.jglrxavpok.moarboats.common.data.BoatPathHolder
+import org.jglrxavpok.moarboats.common.data.GoldenTicketPathHolder
+import org.jglrxavpok.moarboats.common.data.MapWithPathHolder
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
+import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
+import org.jglrxavpok.moarboats.common.items.ItemMapWithPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 import org.jglrxavpok.moarboats.common.state.EmptyMapData
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergy
@@ -27,7 +31,8 @@ object MoarBoatsGuiHandler: IGuiHandler {
             ModulesGui -> {
                 val boatID = x
                 val boat = world.getEntityByID(boatID) as? ModularBoatEntity ?: return null
-                val module = boat.modules[y]
+                // y below 0 means that the menu should display the most interesting module first (generally engine > storage > navigation > misc.)
+                val module = if(y < 0) boat.findFirstModuleToShowOnGui() else boat.modules[y]
                 module.createGui(player, boat)
             }
             PathEditor -> {
@@ -36,16 +41,34 @@ object MoarBoatsGuiHandler: IGuiHandler {
                 if(HelmModule in boat.modules) {
                     val inventory = boat.getInventory(HelmModule)
                     val stack = inventory.list[0]
-                    val id = stack.itemDamage
-                    if(stack.item is ItemMap) {
-                        val mapData = HelmModule.mapDataCopyProperty[boat]
-                        if(mapData != EmptyMapData) {
-                            GuiPathEditor(player, BoatPathHolder(boat), mapData, "map_$id")
-                        } else {
-                            null
+                    when(stack.item) {
+                        is ItemMap -> {
+                            val mapData = HelmModule.mapDataCopyProperty[boat]
+                            if(mapData != EmptyMapData) {
+                                GuiPathEditor(player, BoatPathHolder(boat), mapData)
+                            } else {
+                                null
+                            }
                         }
-                    } else {
-                        null // NO MAP
+                        is ItemMapWithPath -> {
+                            val id = stack.tagCompound!!.getString("${MoarBoats.ModID}.mapID")
+                            val mapData = MoarBoats.getLocalMapStorage().getOrLoadData(MapData::class.java, id) as? MapData
+                            if(mapData != null && mapData != EmptyMapData) {
+                                GuiPathEditor(player, MapWithPathHolder(stack, null, boat), mapData)
+                            } else {
+                                null
+                            }
+                        }
+                        is ItemGoldenTicket -> {
+                            val id = ItemGoldenTicket.getData(stack).mapID
+                            val mapData = MoarBoats.getLocalMapStorage().getOrLoadData(MapData::class.java, id) as? MapData
+                            if(mapData != null && mapData != EmptyMapData) {
+                                GuiPathEditor(player, GoldenTicketPathHolder(stack, null, boat), mapData)
+                            } else {
+                                null
+                            }
+                        }
+                        else -> null
                     }
                 } else {
                     null // NO HELM
@@ -82,6 +105,17 @@ object MoarBoatsGuiHandler: IGuiHandler {
                     else -> null
                 }
             }
+            WaypointEditor -> {
+                val pos = BlockPos.PooledMutableBlockPos.retain(x, y, z)
+                val te = world.getTileEntity(pos)
+                pos.release()
+                val index = (Minecraft.getMinecraft().currentScreen as? GuiMappingTable)?.selectedIndex ?: 0
+                when (te) {
+                    null -> null
+                    is TileEntityMappingTable -> GuiWaypointEditor(player, te, index)
+                    else -> null
+                }
+            }
             else -> null
         }
     }
@@ -91,7 +125,8 @@ object MoarBoatsGuiHandler: IGuiHandler {
             ModulesGui -> {
                 val boatID = x
                 val boat = world.getEntityByID(boatID) as? ModularBoatEntity ?: return null
-                val module = boat.modules[y]
+                // y below 0 means that the menu should display the most interesting module first (generally engine > storage > navigation > misc.)
+                val module = if(y < 0) boat.findFirstModuleToShowOnGui() else boat.modules[y]
                 module.createContainer(player, boat)
             }
             PathEditor -> null
@@ -127,6 +162,7 @@ object MoarBoatsGuiHandler: IGuiHandler {
                     else -> null
                 }
             }
+            WaypointEditor -> null
             else -> null
         }
     }
@@ -136,4 +172,5 @@ object MoarBoatsGuiHandler: IGuiHandler {
     val EnergyGui: Int = 2
     val FluidGui: Int = 3
     val MappingTableGui: Int = 4
+    val WaypointEditor: Int = 5
 }

@@ -55,6 +55,8 @@ object MBConfig {
         get() = DispenserConfigMode.valueOf(backing.getString("configMode", "Dispenser module", "disallow", "Choose to either allow select items or disallow select items", arrayOf("allow", "disallow")).toUpperCase())
     val dispenserItems: Array<String>
         get() = backing.getStringList("items", "Dispenser module", emptyArray<String>(), "List of item IDs to allow/disallow, must match '^([a-z_]+:)?([a-z_]+)(\\/\\d+)?\$' (domain:name/metadata with 'domain:' and 'metadata' optional)")
+    val chunkloaderAllowed: Boolean
+        get() = backing.getBoolean("allowed", "Chunk Loader", true, "Do you want to allow the chunk loader module on your server?")
 
     fun loadAll() {
         backing.load()
@@ -73,6 +75,8 @@ object MBConfig {
 
         dispenserConfigMode
         dispenserItems
+
+        chunkloaderAllowed
 
         // allows for defaults to be saved on first load
         backing.save()

@@ -10,6 +10,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
+import net.minecraftforge.common.ForgeChunkManager
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.modules.BlockReason
 import org.jglrxavpok.moarboats.extensions.toRadians
@@ -30,6 +31,8 @@ interface IControllable: IBlockSource {
     val correspondingEntity: Entity
     val moduleRNG: Random
     val blockedReason: BlockReason
+    val imposedSpeed: Float
+    val chunkTicket: ForgeChunkManager.Ticket?
 
     fun inLiquid(): Boolean
     fun isEntityInLava(): Boolean
@@ -52,6 +55,12 @@ interface IControllable: IBlockSource {
      */
     fun reorientate(overrideFacing: EnumFacing): EnumFacing
 
+    fun getOwnerIdOrNull(): UUID?
+    fun getOwnerNameOrNull(): String?
+
+    fun isSpeedImposed(): Boolean
+    fun imposeSpeed(speed: Float)
+
     fun calculateAnchorPosition(linkType: Int): Vec3d {
         val distanceFromCenter = 0.0625f * 17f * if(linkType == BasicBoatEntity.FrontLink) 1f else -1f
         val anchorX = positionX + MathHelper.cos((yaw + 90f).toRadians()) * distanceFromCenter
@@ -65,5 +74,16 @@ interface IControllable: IBlockSource {
      */
     fun localToWorld(localVec: Vec3d): Vec3d {
         return localVec.rotateYaw((180f-yaw).toRadians()).addVector(positionX, positionY, positionZ)
+    }
+
+    fun sortModulesByInterestingness(): Iterable<BoatModule> {
+        // automatically put non-interesting menus at the bottom of the tab list
+        return modules.sortedBy {
+            if(it.isMenuInteresting) {
+                it.moduleSpot.ordinal
+            } else {
+                +100
+            }
+        }
     }
 }

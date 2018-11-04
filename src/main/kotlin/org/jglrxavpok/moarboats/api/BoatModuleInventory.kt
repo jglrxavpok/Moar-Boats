@@ -1,11 +1,10 @@
 package org.jglrxavpok.moarboats.api
 
-import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.InventoryBasic
 import net.minecraft.item.ItemStack
 import net.minecraft.util.NonNullList
 import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.common.network.S7SyncInventory
+import org.jglrxavpok.moarboats.common.network.SSyncInventory
 
 abstract class BoatModuleInventory(val inventoryName: String, val slotCount: Int, val boat: IControllable, val module: BoatModule, val list: NonNullList<ItemStack>):
         InventoryBasic(inventoryName, true, slotCount) {
@@ -52,7 +51,9 @@ abstract class BoatModuleInventory(val inventoryName: String, val slotCount: Int
     }
 
     fun syncToClient() {
-        MoarBoats.network.sendToAll(S7SyncInventory(boat.entityID, module.id, list))
+        if(!boat.worldRef.isRemote) {
+            MoarBoats.network.sendToAll(SSyncInventory(boat.entityID, module.id, list))
+        }
     }
 
 }
