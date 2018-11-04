@@ -1,6 +1,7 @@
 {
   "homepage": "https://minecraft.curseforge.com/projects/moar-boats",
   "1.12.2": {
+    "4.0.0.0": "Way too many changes to write them here but basically:\n+ Golden tickets, map with path to save boat paths\n* Mapping table\n* Chunk loader module",
     "3.0.0.2": "* Fixed crash on server with dye names\n* Fixed crash with linked boats in far away chunks (happened only on dev afaik)",
     "3.0.0.1": "* Fixed Diving Bottle and Boat Fluid Tank crafting recipes overlapping",
     "3.0.0.0": "+ Boat Fluid Tank\n	+ Transport fluids inside your boat! (uses the Forge capability system to ensure compatibility)\n	* Only works inside of boats\n+ Boat Energy Battery\n	+ Transport energy inside your boat! (RF/Forge Energy)\n	* Only works inside of boats\n\n+ Boat Fluid Loader\n	+ Combine a Boat Fluid Tank with a Dispenser to fill boats with a fluid!\n+ Boat Fluid Unloader\n	+ Combine a Boat Fluid Tank with a Hopper to empty boats of their fluid!\n\n+ Boat Energy Charger\n	+ Combine a Boat Energy Battery with a Dispenser to fill boats with energy!\n+ Boat Fluid Unloader\n	+ Combine a Boat Energy Battery with a Hopper to empty boats of energy!\n\n* Dyeable boats!\n	* Combine a Modular Boat with 3 dye items of the same color to change the color of your boat!\n\n+ Waterborne comparator\n	+ Count the number of items inside a boat!\n\n* (Technical) Moar Boats now uses a ForgeRegistry to register modules",
@@ -13,7 +14,7 @@
     "1.2.1": "+ Added configuration file\n* Fishing rods are now damaged when used in the fishing module\n* Added configuration options for fishing speed and rod removal before breaking"
   },
   "promos": {
-    "1.12.2-recommended": "3.0.0.2",
-    "1.12.2-latest": "3.0.0.2"
+    "1.12.2-recommended": "4.0.0.0",
+    "1.12.2-latest": "4.0.0.0"
   }
 }
