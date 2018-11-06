@@ -37,13 +37,20 @@ minecraft {
 
 repositories {
     jcenter()
+    mavenCentral()
 	maven {
 		url "http://maven.shadowfacts.net/"
 	}
+
+    maven {
+        url = 'https://minecraft.curseforge.com/api/maven/'
+    }
 }
 
 dependencies {
     compile group: "net.shadowfacts", name: "Forgelin", version: "1.6.0"
+
+    deobfCompile "journeymap:journeymap:1.12.2:5.5.2"
 }
 
 processResources {

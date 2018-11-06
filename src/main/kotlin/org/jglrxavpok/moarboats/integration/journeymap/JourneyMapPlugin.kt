@@ -3,6 +3,7 @@ package org.jglrxavpok.moarboats.integration.journeymap
 import com.google.gson.Gson
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import journeymap.client.io.FileHandler
 import net.minecraft.client.Minecraft
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.text.TextComponentBase
@@ -28,15 +29,7 @@ class JourneyMapPlugin(): MoarBoatsPlugin, IWaypointProvider {
 
     override fun updateList(player: EntityPlayer) {
         waypointList.clear()
-        val sessionType = if(Minecraft.getMinecraft().isIntegratedServerRunning) "sp" else "mp"
-        var worldName = (Minecraft.getMinecraft().integratedServer?.folderName ?: Minecraft.getMinecraft().currentServerData?.serverName ?: "null")
-        val addTilde = worldName.endsWith("-")
-        while(worldName.endsWith("-")) {
-            worldName = worldName.removeSuffix("-")
-        }
-        if(addTilde)
-            worldName += "~"
-        val folder = File("journeymap/data/$sessionType/$worldName/waypoints/")
+        val folder = FileHandler.getWaypointDir()
         MoarBoats.logger.debug("[journeymap Plugin] Reading waypoints from ${folder.absolutePath} - folder really exists: ${folder.exists()}")
         folder.listFiles()?.forEach { file ->
             file.bufferedReader().use {
