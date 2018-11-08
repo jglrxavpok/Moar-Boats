@@ -46,7 +46,8 @@ open class MoarBoatsProxy {
                 CChangeLoopingStateItemPathBoat.Handler,
                 CChangeLoopingStateItemPathMappingTable.Handler,
                 CSwapWaypoints.Handler,
-                SConfirmWaypointSwap.Handler
+                SConfirmWaypointSwap.Handler,
+                CChangeRudderBlocking.Handler
                 )
     }
 

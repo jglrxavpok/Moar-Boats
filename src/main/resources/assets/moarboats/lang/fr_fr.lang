@@ -136,3 +136,5 @@ waypoint_provider.journeymap=JourneyMap
 inventory.diving.name=Bouteille de plongée
 
 moarboats.restricted=Option désactivée par votre administrateur de serveur.
+moarboats.gui.rudder.blocking=Bloque le moteur
+moarboats.gui.rudder.nonblocking=Ne bloque pas le moteur

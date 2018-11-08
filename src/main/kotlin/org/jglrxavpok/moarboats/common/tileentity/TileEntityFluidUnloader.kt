@@ -41,7 +41,7 @@ class TileEntityFluidUnloader: TileEntityListenable(), ITickable, IFluidHandler,
                 if(fluid != null) {
                     forceFill(fluidCapa.drain(FluidStack(fluid, fluidToExtractFromASingleNeighbor), true) ?: FluidStack(fluid, 0), true)
                 } else {
-                    forceFill(fluidCapa.drain(fluidToExtractFromASingleNeighbor, true) ?: FluidStack(null as? Fluid, 0), true)
+                    forceFill(fluidCapa.drain(fluidToExtractFromASingleNeighbor, true) ?: FluidStack(FluidRegistry.WATER, 0), true)
                 }
             }
         }
