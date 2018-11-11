@@ -98,7 +98,6 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
     var ownerName: String? = null
         private set
     override var chunkTicket: ForgeChunkManager.Ticket? = null
-    private val userObjects = mutableMapOf<String, Any>()
 
     init {
         this.preventEntitySpawning = true
@@ -610,17 +609,6 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
 
     fun findFirstModuleToShowOnGui(): BoatModule {
         return sortModulesByInterestingness().first()
-    }
-
-    // === Handling of user objects (used for integration) ===
-    fun getUserObject(key: String) = userObjects[key]
-
-    /**
-     * Saves a user object to this boat.
-     * You HAVE to take care of client-server sync, loading, saving, etc. !
-     */
-    fun setUserObject(key: String, obj: Any) {
-        userObjects[key] = obj
     }
 
 }
