@@ -6,9 +6,7 @@ import net.minecraft.init.Items
 import net.minecraft.inventory.IInventory
 import net.minecraft.item.Item
 import net.minecraft.item.ItemBlock
-import net.minecraft.item.ItemFishingRod
 import net.minecraft.item.ItemStack
-import net.minecraft.item.crafting.FurnaceRecipes
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.tileentity.TileEntityFurnace
 import net.minecraft.util.EnumHand
@@ -16,10 +14,8 @@ import net.minecraft.util.EnumParticleTypes
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
 import org.jglrxavpok.moarboats.api.IControllable
-import org.jglrxavpok.moarboats.common.MBConfig
 import org.jglrxavpok.moarboats.common.containers.ContainerBase
 import org.jglrxavpok.moarboats.common.containers.ContainerFurnaceEngine
-import org.jglrxavpok.moarboats.common.modules.FishingModule.getInventory
 import org.jglrxavpok.moarboats.common.state.IntBoatProperty
 import org.jglrxavpok.moarboats.extensions.toRadians
 

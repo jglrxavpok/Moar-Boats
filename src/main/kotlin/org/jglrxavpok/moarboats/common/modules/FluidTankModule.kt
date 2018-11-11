@@ -2,19 +2,16 @@ package org.jglrxavpok.moarboats.common.modules
 
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.init.Blocks
 import net.minecraft.item.ItemBlock
-import net.minecraft.item.ItemBucket
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
-import net.minecraftforge.fluids.FluidRegistry
 import net.minecraftforge.fluids.FluidStack
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiTankModule
-import org.jglrxavpok.moarboats.common.MBConfig
+import org.jglrxavpok.moarboats.common.NewConfig
 import org.jglrxavpok.moarboats.common.blocks.BlockBoatTank
 import org.jglrxavpok.moarboats.common.containers.ContainerBase
 import org.jglrxavpok.moarboats.common.containers.EmptyContainer
@@ -68,7 +65,7 @@ object FluidTankModule: BoatModule(), IFluidBoatModule {
     }
 
     override fun getCapacity(boat: IControllable): Int {
-        return MBConfig.tankCapacity
+        return NewConfig.fluidTank.tankCapacity
     }
 
     override fun canBeFilled(boat: IControllable) = true

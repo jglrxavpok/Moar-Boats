@@ -58,8 +58,6 @@ object MoarBoats {
     lateinit var proxy: MoarBoatsProxy
 
     val network = SimpleNetworkWrapper(ModID)
-    lateinit var config: Configuration
-        private set
 
     val MachineMaterial = object: Material(MapColor.IRON) {
         init {
@@ -90,9 +88,6 @@ object MoarBoats {
     @Mod.EventHandler
     fun preInit(event: FMLPreInitializationEvent) {
         logger = event.modLog
-        config = Configuration(event.suggestedConfigurationFile)
-        MBConfig.backing = config
-        MBConfig.loadAll()
         MinecraftForge.EVENT_BUS.register(this)
         MinecraftForge.EVENT_BUS.register(ItemEventHandler)
         proxy.preInit()
@@ -149,7 +144,7 @@ object MoarBoats {
         event.registry.registerModule(DropperModule, Item.getItemFromBlock(MCBlocks.DROPPER), { boat, module -> SimpleModuleInventory(3*5, "dropper", boat, module) })
         event.registry.registerModule(BatteryModule, Item.getItemFromBlock(BlockBoatBattery))
         event.registry.registerModule(FluidTankModule, Item.getItemFromBlock(BlockBoatTank))
-        event.registry.registerModule(ChunkLoadingModule, ChunkLoaderItem, restriction = MBConfig::chunkloaderAllowed)
+        event.registry.registerModule(ChunkLoadingModule, ChunkLoaderItem, restriction = { NewConfig.chunkLoader.allowed })
         plugins.forEach { it.registerModules(event.registry) }
     }
 

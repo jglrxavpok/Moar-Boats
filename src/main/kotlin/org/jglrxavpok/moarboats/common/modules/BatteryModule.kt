@@ -8,12 +8,10 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiBatteryModule
-import org.jglrxavpok.moarboats.common.MBConfig
+import org.jglrxavpok.moarboats.common.NewConfig
 import org.jglrxavpok.moarboats.common.blocks.BlockBoatBattery
-import org.jglrxavpok.moarboats.common.blocks.BlockBoatTank
 import org.jglrxavpok.moarboats.common.containers.EmptyContainer
 import org.jglrxavpok.moarboats.common.state.IntBoatProperty
-import org.jglrxavpok.moarboats.extensions.k
 
 object BatteryModule: BoatModule(), IEnergyBoatModule {
     override val energyProperty = IntBoatProperty("energy")
@@ -22,7 +20,7 @@ object BatteryModule: BoatModule(), IEnergyBoatModule {
     override fun canGiveEnergy(boat: IControllable) = true
 
     override fun getMaxStorableEnergy(boat: IControllable): Int {
-        return MBConfig.batteryMaxEnergy
+        return NewConfig.boatBattery.maxEnergy
     }
 
     override val id: ResourceLocation = ResourceLocation(MoarBoats.ModID, "battery")

@@ -6,14 +6,13 @@ import net.minecraft.util.EnumFacing
 import net.minecraft.util.ITickable
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraftforge.common.capabilities.Capability
-import net.minecraftforge.energy.CapabilityEnergy
 import net.minecraftforge.fluids.Fluid
 import net.minecraftforge.fluids.FluidRegistry
 import net.minecraftforge.fluids.FluidStack
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import net.minecraftforge.fluids.capability.IFluidHandler
 import net.minecraftforge.fluids.capability.IFluidTankProperties
-import org.jglrxavpok.moarboats.common.MBConfig
+import org.jglrxavpok.moarboats.common.NewConfig
 import org.jglrxavpok.moarboats.common.blocks.Facing
 
 class TileEntityFluidLoader: TileEntityListenable(), ITickable, IFluidHandler, IFluidTankProperties {
@@ -33,7 +32,7 @@ class TileEntityFluidLoader: TileEntityListenable(), ITickable, IFluidHandler, I
         val aabb = AxisAlignedBB(pos.offset(blockFacing))
         val entities = world.getEntitiesWithinAABB(Entity::class.java, aabb) { e -> e != null && e.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null) }
 
-        val totalFluidToSend = minOf(MBConfig.fluidLoaderSendAmount, fluidAmount)
+        val totalFluidToSend = minOf(NewConfig.fluidLoader.sendAmount, fluidAmount)
         val entityCount = entities.size
         if(entityCount <= 0)
             return
@@ -102,7 +101,7 @@ class TileEntityFluidLoader: TileEntityListenable(), ITickable, IFluidHandler, I
     }
 
     override fun getCapacity(): Int {
-        return MBConfig.fluidLoaderCapacity
+        return NewConfig.fluidLoader.capacity
     }
 
     override fun canFillFluidType(fluidStack: FluidStack?): Boolean {

@@ -5,8 +5,7 @@ import net.minecraft.util.EnumFacing
 import net.minecraft.util.ITickable
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraftforge.energy.CapabilityEnergy
-import org.jglrxavpok.moarboats.common.MBConfig
-import org.jglrxavpok.moarboats.common.blocks.BlockEnergyLoader
+import org.jglrxavpok.moarboats.common.NewConfig
 import org.jglrxavpok.moarboats.common.blocks.Facing
 
 class TileEntityEnergyLoader: TileEntityEnergy(), ITickable {
@@ -22,12 +21,12 @@ class TileEntityEnergyLoader: TileEntityEnergy(), ITickable {
 
         val facings = EnumFacing.values().toMutableList()
         facings.remove(blockFacing)
-        pullEnergyFromNeighbors(MBConfig.energyLoaderPullAmount, facings)
+        pullEnergyFromNeighbors(NewConfig.energyLoader.pullAmount, facings)
 
         val aabb = AxisAlignedBB(pos.offset(blockFacing))
         val entities = world.getEntitiesWithinAABB(Entity::class.java, aabb) { e -> e != null && e.hasCapability(CapabilityEnergy.ENERGY, null) }
 
-        val totalEnergyToSend = minOf(MBConfig.energyLoaderSendAmount, energyStored)
+        val totalEnergyToSend = minOf(NewConfig.energyLoader.sendAmount, energyStored)
         val entityCount = entities.size
         if(entityCount <= 0)
             return
@@ -49,7 +48,7 @@ class TileEntityEnergyLoader: TileEntityEnergy(), ITickable {
 
     override fun canExtract() = false
 
-    override fun getMaxEnergyStored() = MBConfig.energyLoaderMaxEnergy
+    override fun getMaxEnergyStored() = NewConfig.energyLoader.maxEnergy
 
     override fun canReceive() = true
 }
