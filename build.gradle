@@ -45,10 +45,14 @@ repositories {
     maven {
         url = 'https://minecraft.curseforge.com/api/maven/'
     }
+
+    maven { url = "http://maven.cil.li/" }
 }
 
 dependencies {
     compile group: "net.shadowfacts", name: "Forgelin", version: "1.6.0"
+
+    compile "li.cil.oc:OpenComputers:MC1.12.2-1.7.+:api" // see https://github.com/MightyPirates/OpenComputers
 
     deobfCompile "journeymap:journeymap:1.12.2:5.5.2"
 }
