@@ -2,11 +2,12 @@ package org.jglrxavpok.moarboats.integration.opencomputers.architecture
 
 import li.cil.oc.api.machine.Architecture
 import li.cil.oc.api.machine.ExecutionResult
+import li.cil.oc.api.machine.Machine
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 
 @Architecture.Name("MoarBoats Architecture")
-class BoatArchitecture: Architecture {
+class BoatArchitecture(val machine: Machine): Architecture {
     override fun onConnect() {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }

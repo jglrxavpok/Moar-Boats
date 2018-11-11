@@ -83,7 +83,7 @@ object MoarBoats {
         }
     }
 
-    private lateinit var plugins: List<MoarBoatsPlugin>
+    lateinit var plugins: List<MoarBoatsPlugin>
 
     @Mod.EventHandler
     fun preInit(event: FMLPreInitializationEvent) {

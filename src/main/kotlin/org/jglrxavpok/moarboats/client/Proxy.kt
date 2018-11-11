@@ -2,7 +2,6 @@ package org.jglrxavpok.moarboats.client
 
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.block.model.ModelResourceLocation
-import net.minecraft.client.renderer.color.ItemColors
 import net.minecraft.item.EnumDyeColor
 import net.minecraft.item.ItemBlock
 import net.minecraftforge.client.event.ModelRegistryEvent
@@ -44,6 +43,9 @@ class Proxy: MoarBoatsProxy() {
         BoatModuleRenderingRegistry.register(BatteryModuleRenderer)
         BoatModuleRenderingRegistry.register(TankModuleRenderer)
         BoatModuleRenderingRegistry.register(ChunkLoadingModuleRenderer)
+        MoarBoats.plugins.forEach {
+            it.registerModuleRenderers(BoatModuleRenderingRegistry)
+        }
 
         Minecraft.getMinecraft().itemColors.registerItemColorHandler({ stack, tint ->
             EnumDyeColor.values()[stack.metadata % EnumDyeColor.values().size].colorValue
