@@ -22,5 +22,7 @@ class GuiComputerModule(val player: EntityPlayer, boat: IControllable): GuiModul
             itemRender.renderItemIntoGUI(elem, 0, y)
             y+=20
         }
+
+        host.buffer?.renderText()
     }
 }

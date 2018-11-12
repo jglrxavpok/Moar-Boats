@@ -11,6 +11,7 @@ import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 class MachineHostCapability(val boat: ModularBoatEntity) : ICapabilityProvider {
 
     val host = BoatMachineHost(boat)
+    val node = BoatOCNode(boat, host)
 
     override fun <T : Any?> getCapability(capability: Capability<T>, facing: EnumFacing?): T? {
         if(capability == OpenComputerPlugin.HostCapability) {
@@ -32,7 +33,7 @@ class MachineHostCapability(val boat: ModularBoatEntity) : ICapabilityProvider {
         }
 
         override fun writeNBT(capability: Capability<MachineHostCapability>?, instance: MachineHostCapability, side: EnumFacing?): NBTBase? {
-            return instance.host.save(NBTTagCompound())
+            return instance.host.saveToNBT(NBTTagCompound())
         }
     }
 

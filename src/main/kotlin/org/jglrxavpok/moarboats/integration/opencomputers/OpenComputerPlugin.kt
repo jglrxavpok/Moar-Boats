@@ -1,6 +1,7 @@
 package org.jglrxavpok.moarboats.integration.opencomputers
 
 import li.cil.oc.api.Machine
+import li.cil.oc.api.network.Node
 import net.minecraft.entity.Entity
 import net.minecraft.init.Blocks
 import net.minecraft.item.ItemBlock
@@ -24,7 +25,7 @@ import org.jglrxavpok.moarboats.integration.MoarBoatsPlugin
 import org.jglrxavpok.moarboats.integration.opencomputers.architecture.BoatArchitecture
 import org.jglrxavpok.moarboats.integration.opencomputers.client.OCRenderer
 
-//@MoarBoatsIntegration("opencomputers|core")
+@MoarBoatsIntegration("opencomputers|core")
 class OpenComputerPlugin: MoarBoatsPlugin {
 
     companion object {
@@ -36,6 +37,7 @@ class OpenComputerPlugin: MoarBoatsPlugin {
         val HostKey = ResourceLocation(MoarBoats.ModID, "opencomputer_host")
 
         fun getHost(boat: IControllable): BoatMachineHost? = boat.correspondingEntity.getCapability(HostCapability, null)?.host
+        fun getNode(boat: IControllable): Node? = boat.correspondingEntity.getCapability(HostCapability, null)?.node
     }
 
     override fun preInit() {
