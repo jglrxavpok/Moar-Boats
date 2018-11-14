@@ -24,9 +24,12 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     private val internalComponentList = mutableListOf(
             OreDictionary.getOres("oc:cpu3")[0], // CPU
             OreDictionary.getOres("oc:ram3")[0], // RAM
+            OCItems.get("openos").createItemStack(1), // OPENOS
+            OreDictionary.getOres("oc:hdd3")[0], // EMPTY DISK
             screenStack, // SCREEN
             gpuStack, // GPU
-            OCItems.get("luabios").createItemStack(1) // BIOS
+            OCItems.get("luabios").createItemStack(1), // BIOS
+            OreDictionary.getOres("oc:diskDrive")[0] // DISK DRIVE
     )
 
     val internalNode = Network.newNode(this, Visibility.Network)
@@ -42,6 +45,7 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
         Network.joinNewNetwork(internalNode)
         internalNode.network().connect(internalNode, machine.node())
         machine.onHostChanged()
+        machine.costPerTick = 0.0
         machine.start()
     }
 
@@ -109,8 +113,9 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     fun update() {
         if(world().isRemote)
             return
-        machine.update()
+        machine.costPerTick = 0.0
         internalNode.changeBuffer(1000000.0)
+        machine.update()
 
         if(boat.ticksExisted % 20 == 0) {
             if(machine.lastError() != null) {
@@ -120,6 +125,7 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
             for (j in 0 until buffer!!.height) {
                 for (i in 0 until buffer.width) {
                     val c = buffer[i, j]
+                    // TODO: print components
                     print(c)
                 }
                 println()
