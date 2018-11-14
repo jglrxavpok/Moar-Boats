@@ -7,6 +7,7 @@ import li.cil.oc.api.Items as OCItems
 import li.cil.oc.api.machine.Machine
 import li.cil.oc.api.machine.MachineHost
 import li.cil.oc.api.network.*
+import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
@@ -15,25 +16,34 @@ import net.minecraftforge.fml.common.registry.GameRegistry
 import net.minecraftforge.oredict.OreDictionary
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 
-class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, ManagedEnvironment {
+class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, EnvironmentHost {
 
-    val machine = li.cil.oc.api.Machine.create(this)
-    val gpuStack = OreDictionary.getOres("oc:graphicsCard3")[0]//OCItems.get("screen3").createItemStack(1)
+    val gpuStack = OreDictionary.getOres("oc:graphicsCard3")[0]
+    val screenStack = OCItems.get("screen1").createItemStack(1)
 
     private val internalComponentList = mutableListOf(
             OreDictionary.getOres("oc:cpu3")[0], // CPU
             OreDictionary.getOres("oc:ram3")[0], // RAM
+            screenStack, // SCREEN
             gpuStack, // GPU
             OCItems.get("luabios").createItemStack(1) // BIOS
     )
 
-    val internalNode = Network.newNode(this, Visibility.Network).withComponent("screen").create()
-    init {
+    val internalNode = Network.newNode(this, Visibility.Network)
+            .withComponent("modularboat")
+            .withConnector()
+            .create()
+    val machine = li.cil.oc.api.Machine.create(this)
+    val buffer = Driver.driverFor(screenStack).createEnvironment(screenStack, this) as? TextBuffer
+
+    fun start() {
+        if(this.world().isRemote)
+            return
         Network.joinNewNetwork(internalNode)
-
+        internalNode.network().connect(internalNode, machine.node())
+        machine.onHostChanged()
+        machine.start()
     }
-
-    val buffer = Driver.driverFor(gpuStack).createEnvironment(gpuStack, this) as? TextBuffer
 
     override fun xPosition() = boat.posX
 
@@ -65,40 +75,58 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, ManagedEnvironm
     override fun onMachineConnect(p0: Node?) {
     }
 
-    override fun load(compound: NBTTagCompound) {
-        machine().architecture()?.load(compound)
+    fun load(compound: NBTTagCompound) {
+        machine().save(compound)
+        machine().architecture()?.load(compound.getCompoundTag("_architecture"))
     }
 
-    override fun save(p0: NBTTagCompound) {
+    fun save(p0: NBTTagCompound) {
         saveToNBT(p0)
     }
 
     fun saveToNBT(compound: NBTTagCompound): NBTTagCompound {
-        machine().architecture()?.save(compound)
+        machine().save(compound)
+        machine().architecture()?.save(compound.getCompoundTag("_architecture"))
         return compound
     }
 
     override fun onConnect(p0: Node?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        println("onConnect($p0)")
     }
 
     override fun onMessage(p0: Message?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        println("onMessage($p0)")
     }
 
     override fun onDisconnect(p0: Node?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        println("onDisconnect($p0)")
     }
 
     override fun node(): Node {
         return internalNode
     }
 
-    override fun update() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    fun update() {
+        if(world().isRemote)
+            return
+        machine.update()
+        internalNode.changeBuffer(1000000.0)
+
+        if(boat.ticksExisted % 20 == 0) {
+            if(machine.lastError() != null) {
+                println(">>> "+machine.lastError())
+            }
+            println("=== CONTENTS ===")
+            for (j in 0 until buffer!!.height) {
+                for (i in 0 until buffer.width) {
+                    val c = buffer[i, j]
+                    print(c)
+                }
+                println()
+            }
+
+            println(" === END ===")
+        }
     }
 
-    override fun canUpdate(): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
 }

@@ -23,6 +23,6 @@ class GuiComputerModule(val player: EntityPlayer, boat: IControllable): GuiModul
             y+=20
         }
 
-        host.buffer?.renderText()
+        host.buffer?.renderText() ?: fontRenderer.drawString("no screen env :c", 0, y, 0xF0F0F0)
     }
 }

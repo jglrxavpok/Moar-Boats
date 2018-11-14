@@ -25,14 +25,16 @@ object ComputerModule: BoatModule() {
     override fun controlBoat(from: IControllable) { }
 
     override fun update(from: IControllable) {
+        val host = OpenComputerPlugin.getHost(from)
         if(!InitializedProperty[from]) {
-            val host = OpenComputerPlugin.getHost(from)
             val node = OpenComputerPlugin.getNode(from)
-            host?.machine?.onConnect(node)
-            host?.machine?.onHostChanged()
+            host?.start()
             host?.machine()?.architecture()?.initialize() ?: println("$host ${host?.machine()} ${host?.machine()?.architecture()}")
+
             InitializedProperty[from] = true
         }
+
+        host?.update()
     }
 
     override fun onAddition(to: IControllable) {
