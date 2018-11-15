@@ -2,17 +2,14 @@ package org.jglrxavpok.moarboats.integration.opencomputers
 
 import li.cil.oc.api.Driver
 import li.cil.oc.api.Network
+import li.cil.oc.api.driver.DriverItem
 import li.cil.oc.api.internal.TextBuffer
 import li.cil.oc.api.Items as OCItems
 import li.cil.oc.api.machine.Machine
 import li.cil.oc.api.machine.MachineHost
 import li.cil.oc.api.network.*
-import li.cil.oc.api.prefab.AbstractManagedEnvironment
-import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.world.World
-import net.minecraftforge.fml.common.registry.GameRegistry
 import net.minecraftforge.oredict.OreDictionary
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 
@@ -20,16 +17,20 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
 
     val gpuStack = OreDictionary.getOres("oc:graphicsCard3")[0]
     val screenStack = OCItems.get("screen1").createItemStack(1)
+    val biosStack = OCItems.get("luabios").createItemStack(1)
+    val osStack = OCItems.get("openos").createItemStack(1)
+    val hddStack = OreDictionary.getOres("oc:hdd3")[0]
+    val cpuStack = OreDictionary.getOres("oc:cpu3")[0]
+    val ramStack = OreDictionary.getOres("oc:ram3")[0]
 
     private val internalComponentList = mutableListOf(
-            OreDictionary.getOres("oc:cpu3")[0], // CPU
-            OreDictionary.getOres("oc:ram3")[0], // RAM
-            OCItems.get("openos").createItemStack(1), // OPENOS
-            OreDictionary.getOres("oc:hdd3")[0], // EMPTY DISK
+            cpuStack, // CPU
+            ramStack, // RAM
+            osStack, // OPENOS
+            hddStack, // EMPTY DISK
             screenStack, // SCREEN
             gpuStack, // GPU
-            OCItems.get("luabios").createItemStack(1), // BIOS
-            OreDictionary.getOres("oc:diskDrive")[0] // DISK DRIVE
+            biosStack // BIOS
     )
 
     val internalNode = Network.newNode(this, Visibility.Network)
@@ -39,14 +40,41 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     val machine = li.cil.oc.api.Machine.create(this)
     val buffer = Driver.driverFor(screenStack).createEnvironment(screenStack, this) as? TextBuffer
 
+    private val subComponents = mutableListOf<ManagedEnvironment>()
+
     fun start() {
         if(this.world().isRemote)
             return
         Network.joinNewNetwork(internalNode)
-        internalNode.network().connect(internalNode, machine.node())
+        internalNode.connect(machine.node())
+        connect(biosStack)
+        connect(osStack)
+        connect(hddStack)
+        connect(ramStack)
+        connect(cpuStack)
+        connect(gpuStack)
+        subComponents += buffer!!
+        buffer?.let {
+            machine.node().connect(it.node())
+        }
         machine.onHostChanged()
+        println(">>>>2 "+machine.architecture().initialize())
+        machine.architecture().onConnect()
         machine.costPerTick = 0.0
         machine.start()
+    }
+
+    private fun connect(stack: ItemStack) {
+        val driver = Driver.driverFor(stack)
+        val env = driver.createEnvironment(stack, this)
+        if(env == null) {
+            println("driver for $stack is null")
+            return
+        }
+        env.load(driver.dataTag(stack))
+        machine.node().connect(env.node())
+        machine.onConnect(env.node())
+        subComponents += env
     }
 
     override fun xPosition() = boat.posX
@@ -61,7 +89,9 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     }
 
     override fun componentSlot(p0: String?): Int {
-        return -1 // TODO
+        return subComponents.indexOfFirst {
+            it.node().address() == p0
+        }
     }
 
     override fun markChanged() {
@@ -76,7 +106,7 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
         return internalComponentList
     }
 
-    override fun onMachineConnect(p0: Node?) {
+    override fun onMachineConnect(p0: Node) {
     }
 
     fun load(compound: NBTTagCompound) {
@@ -94,16 +124,21 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
         return compound
     }
 
-    override fun onConnect(p0: Node?) {
-        println("onConnect($p0)")
+    override fun onConnect(p0: Node) {
+//        internalNode.network().connect(internalNode, p0)
+        if(p0 != machine.node())
+            machine.node().connect(p0)
+        machine.architecture()?.onConnect()
     }
 
-    override fun onMessage(p0: Message?) {
-        println("onMessage($p0)")
+    override fun onMessage(p0: Message) {
+        //machine.node().network().sendToNeighbors(p0.source(), p0.name(), p0.data())
     }
 
-    override fun onDisconnect(p0: Node?) {
-        println("onDisconnect($p0)")
+    override fun onDisconnect(p0: Node) {
+    //    internalNode.network().disconnect(internalNode, p0)
+        if(p0 != machine.node())
+            machine.node().disconnect(p0)
     }
 
     override fun node(): Node {
@@ -115,6 +150,7 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
             return
         machine.costPerTick = 0.0
         internalNode.changeBuffer(1000000.0)
+        subComponents.forEach(ManagedEnvironment::update)
         machine.update()
 
         if(boat.ticksExisted % 20 == 0) {
@@ -125,13 +161,21 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
             for (j in 0 until buffer!!.height) {
                 for (i in 0 until buffer.width) {
                     val c = buffer[i, j]
-                    // TODO: print components
                     print(c)
                 }
                 println()
             }
 
             println(" === END ===")
+
+           /* println("=== COMPONENTS ===")
+            for((key, value) in machine.components()) {
+                println("$key, $value")
+                val compNode = machine.node().network().node(key)
+                println(">> "+compNode.canBeReachedFrom(machine.node()))
+                println(">>> "+(compNode in machine.node().reachableNodes()))
+            }
+            println("=== END OF COMPONENTS ===")*/
         }
     }
 
