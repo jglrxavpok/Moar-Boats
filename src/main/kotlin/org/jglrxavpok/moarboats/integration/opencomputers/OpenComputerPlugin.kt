@@ -18,6 +18,7 @@ import net.minecraftforge.event.AttachCapabilitiesEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.fml.common.network.FMLEventChannel
 import net.minecraftforge.fml.common.network.FMLNetworkEvent
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import net.minecraftforge.registries.IForgeRegistry
@@ -27,10 +28,12 @@ import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.api.registerModule
 import org.jglrxavpok.moarboats.client.renders.BoatModuleRenderer
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
+import org.jglrxavpok.moarboats.common.network.MBMessageHandler
 import org.jglrxavpok.moarboats.integration.MoarBoatsIntegration
 import org.jglrxavpok.moarboats.integration.MoarBoatsPlugin
 import org.jglrxavpok.moarboats.integration.opencomputers.architecture.BoatArchitecture
 import org.jglrxavpok.moarboats.integration.opencomputers.client.OCRenderer
+import org.jglrxavpok.moarboats.integration.opencomputers.network.SSyncMachineData
 import java.lang.reflect.Modifier
 
 @MoarBoatsIntegration("opencomputers|core")
@@ -47,6 +50,8 @@ class OpenComputerPlugin: MoarBoatsPlugin {
         fun getHost(boat: IControllable): BoatMachineHost? = boat.correspondingEntity.getCapability(HostCapability, null)?.host
         fun getNode(boat: IControllable): Node? = boat.correspondingEntity.getCapability(HostCapability, null)?.node
     }
+
+    override fun handlers() = listOf(SSyncMachineData.Handler)
 
     override fun preInit() {
         super.preInit()

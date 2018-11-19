@@ -30,6 +30,7 @@ class GuiComputerModule(val player: EntityPlayer, boat: IControllable): GuiModul
         }
 
         GlStateManager.pushMatrix()
+        host.buffer.isRenderingEnabled = true
         host.buffer.renderText() ?: fontRenderer.drawString("no screen env :c", 0, y, 0xF0F0F0)
         GlStateManager.popMatrix()
 

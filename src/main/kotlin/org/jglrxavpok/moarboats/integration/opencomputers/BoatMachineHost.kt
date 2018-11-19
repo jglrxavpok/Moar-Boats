@@ -2,7 +2,6 @@ package org.jglrxavpok.moarboats.integration.opencomputers
 
 import li.cil.oc.api.Driver
 import li.cil.oc.api.Network
-import li.cil.oc.api.driver.DriverItem
 import li.cil.oc.api.internal.TextBuffer
 import li.cil.oc.api.Items as OCItems
 import li.cil.oc.api.machine.Machine
@@ -10,8 +9,12 @@ import li.cil.oc.api.machine.MachineHost
 import li.cil.oc.api.network.*
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.NBTTagList
+import net.minecraftforge.common.util.Constants
 import net.minecraftforge.oredict.OreDictionary
+import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
+import org.jglrxavpok.moarboats.integration.opencomputers.network.SSyncMachineData
 
 class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, EnvironmentHost {
 
@@ -45,10 +48,13 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     val buffer = Driver.driverFor(screenStack).createEnvironment(screenStack, this) as TextBuffer
 
     private val subComponents = mutableListOf<ManagedEnvironment>()
+    private var initialized = false
 
     // TODO: Send all data when added on server and process it in this method: (load drivers)
-    fun processInitialData(/*data*/) {
-
+    fun processInitialData(data: NBTTagCompound) {
+        buffer.load(data.getCompoundTag("buffer"))
+        println(">> ${data.getCompoundTag("buffer")}")
+        initialized = true
     }
 
     fun start() {
@@ -56,21 +62,40 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
         if(connectToNetwork) {
             Network.joinNewNetwork(internalNode)
             internalNode.connect(machine.node())
+            connect(biosStack, connectToNetwork)
+            connect(osStack, connectToNetwork)
+            connect(hddStack, connectToNetwork)
+            connect(ramStack, connectToNetwork)
+            connect(cpuStack, connectToNetwork)
+            connect(gpuStack, connectToNetwork)
+          //  connect(screenStack, connectToNetwork)
+
+            if(connectToNetwork) {
+                machine.node().connect(buffer.node())
+                machine.onConnect(buffer.node())
+            }
+            subComponents += buffer
         }
-        connect(biosStack, connectToNetwork)
-        connect(osStack, connectToNetwork)
-        connect(hddStack, connectToNetwork)
-        connect(ramStack, connectToNetwork)
-        connect(cpuStack, connectToNetwork)
-        connect(gpuStack, connectToNetwork)
-        connect(screenStack, connectToNetwork)
         buffer.isRenderingEnabled = true
-        machine.onHostChanged()
-        machine.architecture().initialize()
-        machine.architecture().onConnect()
-        buffer.energyCostPerTick = 0.0
-        machine.costPerTick = 0.0
-        machine.start()
+        if(connectToNetwork) {
+            machine.onHostChanged()
+            machine.architecture().initialize()
+            machine.architecture().onConnect()
+            buffer.energyCostPerTick = 0.0
+            machine.costPerTick = 0.0
+            machine.start()
+            sendInitialData()
+        }
+    }
+
+    private fun sendInitialData() {
+        val data = NBTTagCompound()
+        val bufferData = NBTTagCompound()
+        buffer.save(bufferData)
+        data.setTag("buffer", bufferData)
+
+        MoarBoats.network.sendToAll(SSyncMachineData(boat.entityID, data))
+        initialized = true
     }
 
     private fun connect(stack: ItemStack, connectToNetwork: Boolean = true) {
@@ -101,8 +126,6 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     }
 
     override fun componentSlot(p0: String?): Int {
-        if(p0 == "0000-0000-0000-0001")
-            return subComponents.indexOf(buffer)
         return subComponents.indexOfFirst {
             it.node().address() == p0
         }
@@ -125,7 +148,6 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
 
     fun load(compound: NBTTagCompound) {
         machine().load(compound)
-        buffer.load(compound.getCompoundTag("_buffer"))
         machine().architecture()?.load(compound.getCompoundTag("_architecture"))
     }
 
@@ -135,7 +157,6 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
 
     fun saveToNBT(compound: NBTTagCompound): NBTTagCompound {
         machine().save(compound)
-        buffer.save(compound.getCompoundTag("_buffer"))
         machine().architecture()?.save(compound.getCompoundTag("_architecture"))
         return compound
     }
@@ -163,7 +184,9 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
 
     fun update() {
         machine.costPerTick = 0.0
-        subComponents.forEach(ManagedEnvironment::update)
+        if(initialized) {
+            subComponents.forEach(ManagedEnvironment::update)
+        }
         if(world().isRemote)
             return
        // println("buffer at ${buffer.node()}")

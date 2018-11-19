@@ -4,12 +4,14 @@ import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.common.Loader
 import net.minecraftforge.fml.common.discovery.ASMDataTable
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import net.minecraftforge.registries.IForgeRegistry
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModuleEntry
 import org.jglrxavpok.moarboats.client.renders.BoatModuleRenderer
+import org.jglrxavpok.moarboats.common.network.MBMessageHandler
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
@@ -26,6 +28,7 @@ interface MoarBoatsPlugin {
     fun init() {}
     fun postInit() {}
     fun registerModules(registry: IForgeRegistry<BoatModuleEntry>) {}
+    fun handlers(): List<MBMessageHandler<out IMessage, out IMessage?>> = emptyList()
 
     fun registerAsEventSubscriber() {
         MinecraftForge.EVENT_BUS.register(this)
