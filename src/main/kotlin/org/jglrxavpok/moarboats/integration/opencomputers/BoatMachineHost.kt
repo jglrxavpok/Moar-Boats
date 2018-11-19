@@ -15,6 +15,10 @@ import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 
 class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, EnvironmentHost {
 
+
+    // CLIENT ONLY
+
+    // SERVER
     val gpuStack = OreDictionary.getOres("oc:graphicsCard3")[0]
     val screenStack = OCItems.get("screen1").createItemStack(1)
     val biosStack = OCItems.get("luabios").createItemStack(1)
@@ -38,33 +42,38 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
             .withConnector()
             .create()
     val machine = li.cil.oc.api.Machine.create(this)
-    val buffer = Driver.driverFor(screenStack).createEnvironment(screenStack, this) as? TextBuffer
+    val buffer = Driver.driverFor(screenStack).createEnvironment(screenStack, this) as TextBuffer
 
     private val subComponents = mutableListOf<ManagedEnvironment>()
 
+    // TODO: Send all data when added on server and process it in this method: (load drivers)
+    fun processInitialData(/*data*/) {
+
+    }
+
     fun start() {
-        if(this.world().isRemote)
-            return
-        Network.joinNewNetwork(internalNode)
-        internalNode.connect(machine.node())
-        connect(biosStack)
-        connect(osStack)
-        connect(hddStack)
-        connect(ramStack)
-        connect(cpuStack)
-        connect(gpuStack)
-        subComponents += buffer!!
-        buffer?.let {
-            machine.node().connect(it.node())
+        val connectToNetwork = !world().isRemote
+        if(connectToNetwork) {
+            Network.joinNewNetwork(internalNode)
+            internalNode.connect(machine.node())
         }
+        connect(biosStack, connectToNetwork)
+        connect(osStack, connectToNetwork)
+        connect(hddStack, connectToNetwork)
+        connect(ramStack, connectToNetwork)
+        connect(cpuStack, connectToNetwork)
+        connect(gpuStack, connectToNetwork)
+        connect(screenStack, connectToNetwork)
+        buffer.isRenderingEnabled = true
         machine.onHostChanged()
-        println(">>>>2 "+machine.architecture().initialize())
+        machine.architecture().initialize()
         machine.architecture().onConnect()
+        buffer.energyCostPerTick = 0.0
         machine.costPerTick = 0.0
         machine.start()
     }
 
-    private fun connect(stack: ItemStack) {
+    private fun connect(stack: ItemStack, connectToNetwork: Boolean = true) {
         val driver = Driver.driverFor(stack)
         val env = driver.createEnvironment(stack, this)
         if(env == null) {
@@ -72,8 +81,11 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
             return
         }
         env.load(driver.dataTag(stack))
-        machine.node().connect(env.node())
-        machine.onConnect(env.node())
+
+        if(connectToNetwork) {
+            machine.node().connect(env.node())
+            machine.onConnect(env.node())
+        }
         subComponents += env
     }
 
@@ -89,6 +101,8 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     }
 
     override fun componentSlot(p0: String?): Int {
+        if(p0 == "0000-0000-0000-0001")
+            return subComponents.indexOf(buffer)
         return subComponents.indexOfFirst {
             it.node().address() == p0
         }
@@ -110,7 +124,8 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     }
 
     fun load(compound: NBTTagCompound) {
-        machine().save(compound)
+        machine().load(compound)
+        buffer.load(compound.getCompoundTag("_buffer"))
         machine().architecture()?.load(compound.getCompoundTag("_architecture"))
     }
 
@@ -120,6 +135,7 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
 
     fun saveToNBT(compound: NBTTagCompound): NBTTagCompound {
         machine().save(compound)
+        buffer.save(compound.getCompoundTag("_buffer"))
         machine().architecture()?.save(compound.getCompoundTag("_architecture"))
         return compound
     }
@@ -146,19 +162,21 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     }
 
     fun update() {
+        machine.costPerTick = 0.0
+        subComponents.forEach(ManagedEnvironment::update)
         if(world().isRemote)
             return
-        machine.costPerTick = 0.0
+       // println("buffer at ${buffer.node()}")
+
         internalNode.changeBuffer(1000000.0)
-        subComponents.forEach(ManagedEnvironment::update)
         machine.update()
 
         if(boat.ticksExisted % 20 == 0) {
             if(machine.lastError() != null) {
                 println(">>> "+machine.lastError())
             }
-            println("=== CONTENTS ===")
-            for (j in 0 until buffer!!.height) {
+         /*   println("=== CONTENTS ===")
+            for (j in 0 until buffer.height) {
                 for (i in 0 until buffer.width) {
                     val c = buffer[i, j]
                     print(c)
@@ -166,7 +184,7 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
                 println()
             }
 
-            println(" === END ===")
+            println(" === END ===")*/
 
            /* println("=== COMPONENTS ===")
             for((key, value) in machine.components()) {
