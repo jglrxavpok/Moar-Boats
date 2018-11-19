@@ -2,6 +2,7 @@ package org.jglrxavpok.moarboats.integration.opencomputers
 
 import li.cil.oc.api.Driver
 import li.cil.oc.api.Network
+import li.cil.oc.api.internal.Keyboard
 import li.cil.oc.api.internal.TextBuffer
 import li.cil.oc.api.Items as OCItems
 import li.cil.oc.api.machine.Machine
@@ -29,6 +30,7 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     val hddStack = OreDictionary.getOres("oc:hdd3")[0]
     val cpuStack = OreDictionary.getOres("oc:cpu3")[0]
     val ramStack = OreDictionary.getOres("oc:ram3")[0]
+    val keyboardStack = OCItems.get("keyboard").createItemStack(1)
 
     private val internalComponentList = mutableListOf(
             cpuStack, // CPU
@@ -37,6 +39,7 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
             hddStack, // EMPTY DISK
             screenStack, // SCREEN
             gpuStack, // GPU
+            keyboardStack, // Keyboard
             biosStack // BIOS
     )
 
@@ -46,6 +49,7 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
             .create()
     val machine = li.cil.oc.api.Machine.create(this)
     val buffer = Driver.driverFor(screenStack).createEnvironment(screenStack, this) as TextBuffer
+    val keyboard = Driver.driverFor(keyboardStack).createEnvironment(keyboardStack, this)
 
     private val subComponents = mutableListOf<ManagedEnvironment>()
     private var initialized = false
@@ -53,7 +57,7 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     // TODO: Send all data when added on server and process it in this method: (load drivers)
     fun processInitialData(data: NBTTagCompound) {
         buffer.load(data.getCompoundTag("buffer"))
-        println(">> ${data.getCompoundTag("buffer")}")
+        keyboard.load(data.getCompoundTag("keyboard"))
         initialized = true
     }
 
@@ -68,13 +72,21 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
             connect(ramStack, connectToNetwork)
             connect(cpuStack, connectToNetwork)
             connect(gpuStack, connectToNetwork)
+          //  connect(keyboardStack, connectToNetwork)
           //  connect(screenStack, connectToNetwork)
 
             if(connectToNetwork) {
                 machine.node().connect(buffer.node())
                 machine.onConnect(buffer.node())
+
+                machine.node().connect(keyboard.node())
+                machine.onConnect(keyboard.node())
+
+                keyboard.node().connect(buffer.node())
+
             }
             subComponents += buffer
+            subComponents += keyboard
         }
         buffer.isRenderingEnabled = true
         if(connectToNetwork) {
@@ -91,8 +103,11 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     private fun sendInitialData() {
         val data = NBTTagCompound()
         val bufferData = NBTTagCompound()
+        val keyboardData = NBTTagCompound()
         buffer.save(bufferData)
+        keyboard.save(keyboardData)
         data.setTag("buffer", bufferData)
+        data.setTag("keyboard", keyboardData)
 
         MoarBoats.network.sendToAll(SSyncMachineData(boat.entityID, data))
         initialized = true
@@ -169,6 +184,7 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     }
 
     override fun onMessage(p0: Message) {
+        println("Message $p0")
         //machine.node().network().sendToNeighbors(p0.source(), p0.name(), p0.data())
     }
 

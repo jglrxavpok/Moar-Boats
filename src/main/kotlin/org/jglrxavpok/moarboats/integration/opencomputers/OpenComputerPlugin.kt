@@ -88,7 +88,7 @@ class OpenComputerPlugin: MoarBoatsPlugin {
         }
     }
 
-    @SubscribeEvent
+    /*@SubscribeEvent
     fun spyOCPackets(evt: FMLNetworkEvent.ClientCustomPacketEvent) {
         println("RECEIVED OC PACKET!!")
         val ocClass = Class.forName("li.cil.oc.common.ComponentTracker")
@@ -101,6 +101,6 @@ class OpenComputerPlugin: MoarBoatsPlugin {
         for((k, v) in components.asMap().entries) {
             println(">> '$k' = $v (${v.node()})")
         }
-    }
+    }*/
 
 }
