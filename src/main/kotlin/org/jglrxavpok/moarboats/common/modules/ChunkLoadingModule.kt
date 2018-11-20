@@ -1,6 +1,8 @@
 package org.jglrxavpok.moarboats.common.modules
 
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.init.Blocks
+import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
 import net.minecraft.util.EnumHand
 import net.minecraft.util.EnumParticleTypes
@@ -13,6 +15,7 @@ import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiNoConfigModule
 import org.jglrxavpok.moarboats.common.NewConfig
 import org.jglrxavpok.moarboats.common.containers.EmptyContainer
+import org.jglrxavpok.moarboats.common.items.ChunkLoaderItem
 import org.jglrxavpok.moarboats.extensions.toRadians
 
 object ChunkLoadingModule: BoatModule() {
@@ -81,4 +84,9 @@ object ChunkLoadingModule: BoatModule() {
     override fun createContainer(player: EntityPlayer, boat: IControllable) = EmptyContainer(player.inventory)
 
     override fun createGui(player: EntityPlayer, boat: IControllable) = GuiNoConfigModule(player.inventory, this, boat)
+
+    override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
+        if(!killedByPlayerInCreative)
+            boat.correspondingEntity.dropItem(ChunkLoaderItem, 1)
+    }
 }

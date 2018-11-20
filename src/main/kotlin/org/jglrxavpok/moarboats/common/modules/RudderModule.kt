@@ -2,6 +2,8 @@ package org.jglrxavpok.moarboats.common.modules
 
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.init.Blocks
+import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
@@ -12,6 +14,7 @@ import org.jglrxavpok.moarboats.client.gui.GuiNoConfigModule
 import org.jglrxavpok.moarboats.client.gui.GuiRudderModule
 import org.jglrxavpok.moarboats.common.containers.ContainerBase
 import org.jglrxavpok.moarboats.common.containers.EmptyContainer
+import org.jglrxavpok.moarboats.common.items.RudderItem
 import org.jglrxavpok.moarboats.common.state.BooleanBoatProperty
 import org.jglrxavpok.moarboats.common.state.FloatBoatProperty
 
@@ -55,5 +58,10 @@ object RudderModule: BoatModule(), BlockReason {
 
     override fun createGui(player: EntityPlayer, boat: IControllable): GuiScreen {
         return GuiRudderModule(player.inventory, this, boat)
+    }
+
+    override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
+        if(!killedByPlayerInCreative)
+            boat.correspondingEntity.dropItem(RudderItem, 1)
     }
 }

@@ -5,7 +5,9 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLiving
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.init.Blocks
 import net.minecraft.init.MobEffects
+import net.minecraft.item.ItemBlock
 import net.minecraft.potion.Potion
 import net.minecraft.potion.PotionEffect
 import net.minecraft.potion.PotionType
@@ -16,6 +18,7 @@ import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiNoConfigModule
 import org.jglrxavpok.moarboats.common.containers.EmptyContainer
+import org.jglrxavpok.moarboats.common.items.DivingBottleItem
 
 object DivingModule: BoatModule() {
     override val id = ResourceLocation(MoarBoats.ModID, "diving")
@@ -46,4 +49,9 @@ object DivingModule: BoatModule() {
     override fun createContainer(player: EntityPlayer, boat: IControllable) = EmptyContainer(player.inventory)
 
     override fun createGui(player: EntityPlayer, boat: IControllable) = GuiNoConfigModule(player.inventory, this, boat)
+
+    override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
+        if(!killedByPlayerInCreative)
+            boat.correspondingEntity.dropItem(DivingBottleItem, 1)
+    }
 }
