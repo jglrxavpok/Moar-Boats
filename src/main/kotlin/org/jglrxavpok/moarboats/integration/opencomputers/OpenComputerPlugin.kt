@@ -63,7 +63,7 @@ class OpenComputerPlugin: MoarBoatsPlugin {
 
     override fun preInit() {
         super.preInit()
-        IMC.registerAssemblerTemplate("modularboat_module",
+        IMC.registerAssemblerTemplate("moarboats:module_assemble",
                 "org.jglrxavpok.moarboats.integration.opencomputers.ModuleTemplate.select",
                 "org.jglrxavpok.moarboats.integration.opencomputers.ModuleTemplate.validate",
                 "org.jglrxavpok.moarboats.integration.opencomputers.ModuleTemplate.assemble",
@@ -76,6 +76,9 @@ class OpenComputerPlugin: MoarBoatsPlugin {
                         Tuple.of(Slot.Floppy, 3),
                         Tuple.of("eeprom", 3)
                 ))
+        IMC.registerDisassemblerTemplate("moarboats:module_disassemble",
+                "org.jglrxavpok.moarboats.integration.opencomputers.ModuleTemplate.selectDisassembly",
+                "org.jglrxavpok.moarboats.integration.opencomputers.ModuleTemplate.disassemble")
         registerAsEventSubscriber()
         CapabilityManager.INSTANCE.register(MachineHostCapability::class.java, MachineHostCapability.Storage) {throw UnsupportedOperationException()};
     }
@@ -87,10 +90,10 @@ class OpenComputerPlugin: MoarBoatsPlugin {
 
     override fun postInit() {
         super.postInit()
-        val ocClass = Class.forName("li.cil.oc.OpenComputers")
+        /*val ocClass = Class.forName("li.cil.oc.OpenComputers")
         val channel: FMLEventChannel = ocClass.getMethod("channel").invoke(null /* static method */) as FMLEventChannel
         println("HOOKED INTO OC CHANNEL")
-        channel.register(this)
+        channel.register(this)*/
     }
 
     override fun init() {
@@ -99,7 +102,7 @@ class OpenComputerPlugin: MoarBoatsPlugin {
     }
 
     override fun registerModules(registry: IForgeRegistry<BoatModuleEntry>) {
-        registry.registerModule(ComputerModule, ItemBlock.getItemFromBlock(Blocks.DEADBUSH))
+        registry.registerModule(ComputerModule, ModuleHolderItem)
     }
 
     @SideOnly(Side.CLIENT)

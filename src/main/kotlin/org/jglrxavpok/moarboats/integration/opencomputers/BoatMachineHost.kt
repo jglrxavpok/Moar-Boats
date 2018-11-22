@@ -43,10 +43,8 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
             biosStack // BIOS
     )
 
-    val internalNode = Network.newNode(this, Visibility.Network)
-            .withComponent("modularboat")
-            .withConnector()
-            .create()
+    val boatComponent = ModularBoatComponent(this)
+    val internalNode = boatComponent.node
     val machine = li.cil.oc.api.Machine.create(this)
     val buffer = Driver.driverFor(screenStack).createEnvironment(screenStack, this) as TextBuffer
     val keyboard = Driver.driverFor(keyboardStack).createEnvironment(keyboardStack, this)
@@ -72,19 +70,17 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
             connect(ramStack, connectToNetwork)
             connect(cpuStack, connectToNetwork)
             connect(gpuStack, connectToNetwork)
-          //  connect(keyboardStack, connectToNetwork)
-          //  connect(screenStack, connectToNetwork)
 
-            if(connectToNetwork) {
-                machine.node().connect(buffer.node())
-                machine.onConnect(buffer.node())
+            // buffer & keyboard are loaded separately because they are initialized in the constructor
 
-                machine.node().connect(keyboard.node())
-                machine.onConnect(keyboard.node())
+            machine.node().connect(buffer.node())
+            machine.onConnect(buffer.node())
 
-                keyboard.node().connect(buffer.node())
+            machine.node().connect(keyboard.node())
+            machine.onConnect(keyboard.node())
 
-            }
+            keyboard.node().connect(buffer.node())
+
             subComponents += buffer
             subComponents += keyboard
         }
@@ -200,21 +196,21 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
 
     fun update() {
         machine.costPerTick = 0.0
-        if(initialized) {
+        if (initialized) {
             subComponents.forEach(ManagedEnvironment::update)
         }
-        if(world().isRemote)
+        if (world().isRemote)
             return
-       // println("buffer at ${buffer.node()}")
+        // println("buffer at ${buffer.node()}")
 
         internalNode.changeBuffer(1000000.0)
         machine.update()
 
-        if(boat.ticksExisted % 20 == 0) {
-            if(machine.lastError() != null) {
-                println(">>> "+machine.lastError())
+        if (boat.ticksExisted % 20 == 0) {
+            if (machine.lastError() != null) {
+                println(">>> " + machine.lastError())
             }
-         /*   println("=== CONTENTS ===")
+            /*   println("=== CONTENTS ===")
             for (j in 0 until buffer.height) {
                 for (i in 0 until buffer.width) {
                     val c = buffer[i, j]
@@ -225,11 +221,11 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
 
             println(" === END ===")*/
 
-           /* println("=== COMPONENTS ===")
+            /* println("=== COMPONENTS ===")
             for((key, value) in machine.components()) {
                 println("$key, $value")
                 val compNode = machine.node().network().node(key)
-                println(">> "+compNode.canBeReachedFrom(machine.node()))
+
                 println(">>> "+(compNode in machine.node().reachableNodes()))
             }
             println("=== END OF COMPONENTS ===")*/
