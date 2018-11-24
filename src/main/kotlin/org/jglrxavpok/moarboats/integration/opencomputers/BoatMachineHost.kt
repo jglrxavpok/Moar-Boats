@@ -4,9 +4,8 @@ import li.cil.oc.api.Driver
 import li.cil.oc.api.Network
 import li.cil.oc.api.internal.Keyboard
 import li.cil.oc.api.internal.TextBuffer
+import li.cil.oc.api.machine.*
 import li.cil.oc.api.Items as OCItems
-import li.cil.oc.api.machine.Machine
-import li.cil.oc.api.machine.MachineHost
 import li.cil.oc.api.network.*
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
@@ -14,10 +13,11 @@ import net.minecraft.nbt.NBTTagList
 import net.minecraftforge.common.util.Constants
 import net.minecraftforge.oredict.OreDictionary
 import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.integration.opencomputers.network.SSyncMachineData
 
-class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, EnvironmentHost {
+class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, EnvironmentHost, Context {
 
 
     // CLIENT ONLY
@@ -52,6 +52,12 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     private val subComponents = mutableListOf<ManagedEnvironment>()
     private var initialized = false
 
+    // Boat Controlling
+    var accelerationFactor: Float? = null
+    var decelerationFactor: Float? = null
+    var turnLeftFactor: Float? = null
+    var turnRightFactor: Float? = null
+
     // TODO: Send all data when added on server and process it in this method: (load drivers)
     fun processInitialData(data: NBTTagCompound) {
         buffer.load(data.getCompoundTag("buffer"))
@@ -59,7 +65,7 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
         initialized = true
     }
 
-    fun start() {
+    override fun start(): Boolean {
         val connectToNetwork = !world().isRemote
         if(connectToNetwork) {
             Network.joinNewNetwork(internalNode)
@@ -94,6 +100,7 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
             machine.start()
             sendInitialData()
         }
+        return true
     }
 
     private fun sendInitialData() {
@@ -232,4 +239,32 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
         }
     }
 
+    fun controlBoat(from: IControllable) {
+        if(accelerationFactor != null) {
+            from.accelerate(accelerationFactor!!)
+        }
+        if(turnLeftFactor != null) {
+            from.turnLeft(turnLeftFactor!!)
+        }
+        if(turnRightFactor != null) {
+            from.turnRight(turnRightFactor!!)
+        }
+        if(decelerationFactor != null) {
+            from.decelerate(decelerationFactor!!)
+        }
+    }
+
+    override fun isRunning() = machine.isRunning
+
+    override fun signal(p0: String?, vararg p1: Any?) = machine.signal(p0, p1)
+
+    override fun canInteract(p0: String?) = machine.canInteract(p0)
+
+    override fun stop() = machine.stop()
+
+    override fun pause(p0: Double) = machine.pause(p0)
+
+    override fun consumeCallBudget(p0: Double) = machine.consumeCallBudget(p0)
+
+    override fun isPaused() = machine.isPaused
 }

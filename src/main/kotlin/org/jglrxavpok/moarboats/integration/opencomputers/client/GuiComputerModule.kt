@@ -70,7 +70,11 @@ class GuiComputerModule(val player: EntityPlayer, boat: IControllable): GuiModul
             if (Keyboard.getEventKeyState()) {
                 val char = Keyboard.getEventCharacter()
                 if (!pressedKeys.contains(code) || !ignoreRepeat(char, code)) {
-                    buffer.keyDown(char, code, null)
+                    if (code == Keyboard.KEY_V && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
+                        buffer.clipboard(GuiScreen.getClipboardString(), null)
+                    } else {
+                        buffer.keyDown(char, code, null)
+                    }
                     pressedKeys += code to char
                 }
             } else {
@@ -80,9 +84,6 @@ class GuiComputerModule(val player: EntityPlayer, boat: IControllable): GuiModul
                 }
             }
 
-            if (code == Keyboard.KEY_V && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
-                buffer.clipboard(GuiScreen.getClipboardString(), null)
-            }
         } else if(code == Keyboard.KEY_ESCAPE) {
             mc.displayGuiScreen(null)
         }

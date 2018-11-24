@@ -1,14 +1,11 @@
 package org.jglrxavpok.moarboats.integration.opencomputers
 
-import li.cil.oc.api.network.Node
-import net.minecraft.client.gui.GuiScreen
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
-import org.jglrxavpok.moarboats.common.containers.ContainerBase
 import org.jglrxavpok.moarboats.common.containers.EmptyContainer
 import org.jglrxavpok.moarboats.common.state.BooleanBoatProperty
 import org.jglrxavpok.moarboats.integration.opencomputers.client.GuiComputerModule
@@ -22,7 +19,9 @@ object ComputerModule: BoatModule() {
 
     override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean) = false
 
-    override fun controlBoat(from: IControllable) { }
+    override fun controlBoat(from: IControllable) {
+        OpenComputerPlugin.getHost(from)?.controlBoat(from)
+    }
 
     override fun update(from: IControllable) {
         val host = OpenComputerPlugin.getHost(from)
