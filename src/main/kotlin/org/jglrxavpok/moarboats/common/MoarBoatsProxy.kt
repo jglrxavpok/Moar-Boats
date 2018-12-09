@@ -63,4 +63,7 @@ open class MoarBoatsProxy {
     open fun preInit() {
     }
 
+    open fun postInit() {
+    }
+
 }

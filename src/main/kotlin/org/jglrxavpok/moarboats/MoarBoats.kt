@@ -105,6 +105,7 @@ object MoarBoats {
 
     @Mod.EventHandler
     fun postInit(event: FMLPostInitializationEvent) {
+        proxy.postInit()
         plugins.forEach(MoarBoatsPlugin::postInit)
     }
 

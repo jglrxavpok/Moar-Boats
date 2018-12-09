@@ -2,6 +2,7 @@ package org.jglrxavpok.moarboats.client
 
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.AbstractClientPlayer
+import net.minecraft.client.entity.EntityOtherPlayerMP
 import net.minecraft.client.model.ModelBox
 import net.minecraft.client.model.ModelPlayer
 import net.minecraft.client.model.ModelRenderer
@@ -16,6 +17,7 @@ import net.minecraft.util.EnumHandSide
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
 import net.minecraftforge.client.event.ModelRegistryEvent
+import net.minecraftforge.client.event.RenderPlayerEvent
 import net.minecraftforge.client.event.RenderSpecificHandEvent
 import net.minecraftforge.client.model.ModelLoader
 import net.minecraftforge.common.MinecraftForge
@@ -82,6 +84,16 @@ class Proxy: MoarBoatsProxy() {
         }, arrayOf(ModularBoatItem))
     }
 
+    override fun postInit() {
+        val mc = Minecraft.getMinecraft()
+        mc.renderManager.skinMap["default"]!!.apply {
+            this.addLayer(MoarBoatsPatreonHookLayer(this))
+        }
+        mc.renderManager.skinMap["slim"]!!.apply {
+            this.addLayer(MoarBoatsPatreonHookLayer(this))
+        }
+    }
+
     override fun preInit() {
         MinecraftForge.EVENT_BUS.register(this)
         super.preInit()
@@ -107,10 +119,31 @@ class Proxy: MoarBoatsProxy() {
 
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
+    fun renderPlayer(event: RenderPlayerEvent) {
+        GlStateManager.pushMatrix()
+
+        val clientPlayer = Minecraft.getMinecraft().player
+
+        val scale = 1f/16f
+        fakePlayerModel.postRenderArm(scale, clientPlayer.primaryHand)
+
+        val hookScale = 4f/11f
+        GlStateManager.rotate(-90f, 0f, 1f, 0f)
+        GlStateManager.scale(hookScale, -hookScale, hookScale)
+        GlStateManager.translate(-1f/16f, 0f, -1f/16f)
+        //GlStateManager.rotate(clientPlayer.ticksExisted.toFloat() * 3, 0f, 0f, 1f)
+        GlStateManager.translate(0f, -1.25f, 0f)
+        Minecraft.getMinecraft().textureManager.bindTexture(HookTextureLocation)
+        hookModel.render(clientPlayer, 0f, 0f, 0f, 0f, 0f, scale)
+        GlStateManager.popMatrix()
+    }
+
+    @SideOnly(Side.CLIENT)
+    @SubscribeEvent
     fun renderHand(event: RenderSpecificHandEvent) {
         val mc = Minecraft.getMinecraft()
         val player = mc.player
-      //  if(mc.player.gameProfile.id.toString().toLowerCase() in patreonList) {
+      //  TODO if(mc.player.gameProfile.id.toString().toLowerCase() in patreonList) {
             if(event.hand == EnumHand.MAIN_HAND && player.getHeldItem(event.hand).isEmpty) {
                 val itemRenderer = Minecraft.getMinecraft().itemRenderer
                 event.isCanceled = true
@@ -119,7 +152,6 @@ class Proxy: MoarBoatsProxy() {
                 GlStateManager.pushMatrix()
                 renderArmFirstPerson(event.equipProgress, event.swingProgress, player.primaryHand)
                 GlStateManager.popMatrix()
-                // TODO: render hook instead
             }
      //   }
     }
