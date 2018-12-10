@@ -2,7 +2,6 @@ package org.jglrxavpok.moarboats.client
 
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.AbstractClientPlayer
-import net.minecraft.client.entity.EntityOtherPlayerMP
 import net.minecraft.client.model.ModelBox
 import net.minecraft.client.model.ModelPlayer
 import net.minecraft.client.model.ModelRenderer
@@ -35,26 +34,19 @@ import org.jglrxavpok.moarboats.common.MoarBoatsProxy
 import org.jglrxavpok.moarboats.common.entities.AnimalBoatEntity
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.items.ModularBoatItem
-import java.net.URL
 
 @Mod.EventBusSubscriber(value = arrayOf(Side.CLIENT), modid = MoarBoats.ModID)
 class Proxy: MoarBoatsProxy() {
 
-    val patreonList: List<String> by lazy {
-        try {
-            URL("https://gist.githubusercontent.com/jglrxavpok/07bcda98b7174f07b49fb0df1edda03a/raw/a07167925fab89205f1be16fbbfc628b8478de81/jglrxavpok_patreons_list_uuid")
-                    .readText()
-                    .lines() +
-                    "0d2e2d40-72c3-4b2d-b221-ab94a791d5bc" + // jglrxavpok
-                    "326e2676-d8bc-4b57-a859-5cb29cef0301" // FrenchUranoscopidae
-        } catch (any: Throwable) {
-            MoarBoats.logger.info("Could not retrieve Patreon list because of: ", any)
-            emptyList<String>()
-        }
-    }
-
     val HookTextureLocation = ResourceLocation(MoarBoats.ModID, "textures/hook.png")
-
+    val fakePlayerModel = ModelPlayer(0f, false)
+    val fakeArmRoot = ModelRenderer(fakePlayerModel, 32, 48)
+    val fakeArmwearRoot = ModelRenderer(fakePlayerModel, 48, 48)
+    val armBox = ModelBox(fakeArmRoot,
+            32, 48, -1.0f, -2.0f, -2.0f, 4, 9, 4, 0.0f)
+    val armwearBox = ModelBox(fakeArmwearRoot,
+            32, 48, -1.0f, -2.0f, -2.0f, 4, 9, 4, 0.0f + 0.25f)
+    val hookModel = ModelPatreonHook()
 
     override fun init() {
         super.init()
@@ -131,7 +123,6 @@ class Proxy: MoarBoatsProxy() {
         GlStateManager.rotate(-90f, 0f, 1f, 0f)
         GlStateManager.scale(hookScale, -hookScale, hookScale)
         GlStateManager.translate(-1f/16f, 0f, -1f/16f)
-        //GlStateManager.rotate(clientPlayer.ticksExisted.toFloat() * 3, 0f, 0f, 1f)
         GlStateManager.translate(0f, -1.25f, 0f)
         Minecraft.getMinecraft().textureManager.bindTexture(HookTextureLocation)
         hookModel.render(clientPlayer, 0f, 0f, 0f, 0f, 0f, scale)
@@ -143,23 +134,22 @@ class Proxy: MoarBoatsProxy() {
     fun renderHand(event: RenderSpecificHandEvent) {
         val mc = Minecraft.getMinecraft()
         val player = mc.player
-      //  TODO if(mc.player.gameProfile.id.toString().toLowerCase() in patreonList) {
+        if(mc.player.gameProfile.id.toString().toLowerCase() in MoarBoats.PatreonList) {
             if(event.hand == EnumHand.MAIN_HAND && player.getHeldItem(event.hand).isEmpty) {
-                val itemRenderer = Minecraft.getMinecraft().itemRenderer
                 event.isCanceled = true
-                val renderplayer = mc.renderManager.getEntityRenderObject<AbstractClientPlayer>(player) as RenderPlayer
 
                 GlStateManager.pushMatrix()
                 renderArmFirstPerson(event.equipProgress, event.swingProgress, player.primaryHand)
                 GlStateManager.popMatrix()
             }
-     //   }
+        }
     }
 
+    // COPY PASTED FROM RenderPlayer
     private fun renderArmFirstPerson(p_187456_1_: Float, swingProgress: Float, p_187456_3_: EnumHandSide) {
         val mc = Minecraft.getMinecraft()
-        val flag = p_187456_3_ != EnumHandSide.LEFT
-        val f = if (flag) 1.0f else -1.0f
+        val rightHanded = p_187456_3_ != EnumHandSide.LEFT
+        val f = if (rightHanded) 1.0f else -1.0f
         val f1 = MathHelper.sqrt(swingProgress)
         val f2 = -0.3f * MathHelper.sin(f1 * Math.PI.toFloat())
         val f3 = 0.4f * MathHelper.sin(f1 * (Math.PI.toFloat() * 2f))
@@ -170,46 +160,31 @@ class Proxy: MoarBoatsProxy() {
         val f6 = MathHelper.sin(f1 * Math.PI.toFloat())
         GlStateManager.rotate(f * f6 * 70.0f, 0.0f, 1.0f, 0.0f)
         GlStateManager.rotate(f * f5 * -20.0f, 0.0f, 0.0f, 1.0f)
-        val abstractclientplayer = mc.player
-        mc.getTextureManager().bindTexture(abstractclientplayer.getLocationSkin())
+        val player = mc.player
+        mc.textureManager.bindTexture(player.locationSkin)
         GlStateManager.translate(f * -1.0f, 3.6f, 3.5f)
         GlStateManager.rotate(f * 120.0f, 0.0f, 0.0f, 1.0f)
         GlStateManager.rotate(200.0f, 1.0f, 0.0f, 0.0f)
         GlStateManager.rotate(f * -135.0f, 0.0f, 1.0f, 0.0f)
         GlStateManager.translate(f * 5.6f, 0.0f, 0.0f)
-        val renderplayer = mc.renderManager.getEntityRenderObject<AbstractClientPlayer>(abstractclientplayer) as RenderPlayer
+        val renderplayer = mc.renderManager.getEntityRenderObject<AbstractClientPlayer>(player) as RenderPlayer
         val model = renderplayer.mainModel
         GlStateManager.disableCull()
 
-        val arm = if(flag) model.bipedRightArm else model.bipedLeftArm
-        val armWear = if(flag) model.bipedRightArmwear else model.bipedLeftArmwear
-        renderArm(arm, armWear, abstractclientplayer, model, renderplayer)
+        val arm = if(rightHanded) model.bipedRightArm else model.bipedLeftArm
+        renderArm(arm, player, model)
 
         GlStateManager.enableCull()
     }
 
-    val fakePlayerModel = ModelPlayer(0f, false)
-    val fakeArmRoot = ModelRenderer(fakePlayerModel, 32, 48)
-    val fakeArmwearRoot = ModelRenderer(fakePlayerModel, 48, 48)
-    val armBox = ModelBox(fakeArmRoot,
-            32, 48, -1.0f, -2.0f, -2.0f, 4, 9, 4, 0.0f)
-    val armwearBox = ModelBox(fakeArmwearRoot,
-            32, 48, -1.0f, -2.0f, -2.0f, 4, 9, 4, 0.0f + 0.25f)
-    val hookModel = ModelPatreonHook()
-
-    private fun renderArm(arm: ModelRenderer, armWear: ModelRenderer, clientPlayer: AbstractClientPlayer, modelplayer: ModelPlayer, renderPlayer: RenderPlayer) {
-        val f = 1.0f
+    private fun renderArm(arm: ModelRenderer, clientPlayer: AbstractClientPlayer, modelplayer: ModelPlayer) {
         GlStateManager.color(1.0f, 1.0f, 1.0f)
         val scale = 0.0625f
-        val visibilities = renderPlayer::class.java.getDeclaredMethod("setModelVisibilities", AbstractClientPlayer::class.java)
-        visibilities.isAccessible = true
-        visibilities(renderPlayer, clientPlayer) // TODO: use something else than reflection?
         GlStateManager.enableBlend()
         modelplayer.isSneak = false
         modelplayer.swingProgress = 0.0f
         modelplayer.setRotationAngles(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0625f, clientPlayer)
 
-        // TODO: replace with hook
         GlStateManager.pushMatrix()
         arm.rotateAngleX = 0.0f
         GlStateManager.translate(arm.offsetX, arm.offsetY, arm.offsetZ)
@@ -230,14 +205,9 @@ class Proxy: MoarBoatsProxy() {
         GlStateManager.rotate(-90f, 0f, 1f, 0f)
         GlStateManager.scale(hookScale, -hookScale, hookScale)
         GlStateManager.translate(-1f/16f, 0f, -1f/16f)
-        //GlStateManager.rotate(clientPlayer.ticksExisted.toFloat() * 3, 0f, 0f, 1f)
         GlStateManager.translate(0f, -1.25f, 0f)
         Minecraft.getMinecraft().textureManager.bindTexture(HookTextureLocation)
         hookModel.render(clientPlayer, 0f, 0f, 0f, 0f, 0f, scale)
-//        arm.rotateAngleX = 0.0f
-//        arm.render(scale)
-//        armWear.rotateAngleX = 0.0f
-//        armWear.render(scale)
         GlStateManager.popMatrix()
         GlStateManager.disableBlend()
     }

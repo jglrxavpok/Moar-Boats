@@ -6,11 +6,13 @@ import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.entity.RenderPlayer
 import net.minecraft.client.renderer.entity.layers.LayerRenderer
 import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.EnumHandSide
 import net.minecraft.util.ResourceLocation
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.models.ModelPatreonHook
 
+// based on LayerHeldItem
 class MoarBoatsPatreonHookLayer(val renderplayer: RenderPlayer) : LayerRenderer<EntityLivingBase> {
     val hookModel = ModelPatreonHook()
 
@@ -21,13 +23,15 @@ class MoarBoatsPatreonHookLayer(val renderplayer: RenderPlayer) : LayerRenderer<
     }
 
     override fun doRenderLayer(entitylivingbaseIn: EntityLivingBase, limbSwing: Float, limbSwingAmount: Float, partialTicks: Float, ageInTicks: Float, netHeadYaw: Float, headPitch: Float, scale: Float) {
+        if((entitylivingbaseIn as EntityPlayer).gameProfile.id.toString().toLowerCase() !in MoarBoats.PatreonList) {
+            return
+        }
         GlStateManager.pushMatrix()
 
         val handSide = entitylivingbaseIn.primaryHand
         if (entitylivingbaseIn.isSneaking) {
             GlStateManager.translate(0.0f, 0.2f, 0.0f)
         }
-        // Forge: moved this call down, fixes incorrect offset while sneaking.
         this.translateToHand(handSide)
         GlStateManager.rotate(-90.0f, 1.0f, 0.0f, 0.0f)
         GlStateManager.rotate(180.0f, 0.0f, 1.0f, 0.0f)
@@ -41,7 +45,6 @@ class MoarBoatsPatreonHookLayer(val renderplayer: RenderPlayer) : LayerRenderer<
         GlStateManager.translate(0f, -0.01f, 0.4f)
         Minecraft.getMinecraft().textureManager.bindTexture(HookTextureLocation)
         hookModel.render(entitylivingbaseIn, 0f, 0f, 0f, 0f, 0f, 1f/16f)
-      //  Minecraft.getMinecraft().itemRenderer.renderItemSide(p_188358_1_, p_188358_2_, p_188358_3_, flag)
         GlStateManager.popMatrix()
     }
 
