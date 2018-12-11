@@ -26,7 +26,6 @@ object ComputerModule: BoatModule() {
     override fun update(from: IControllable) {
         val host = OpenComputerPlugin.getHost(from)
         if(!InitializedProperty[from]) {
-            val node = OpenComputerPlugin.getNode(from)
             host?.start()
             host?.machine()?.architecture()?.initialize() ?: println("$host ${host?.machine()} ${host?.machine()?.architecture()}")
 

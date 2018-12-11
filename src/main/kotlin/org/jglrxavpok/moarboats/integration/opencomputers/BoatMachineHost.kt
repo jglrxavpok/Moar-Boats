@@ -52,7 +52,7 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     private val subComponents = mutableListOf<ManagedEnvironment>()
     private var initialized = false
 
-    // Boat Controlling
+    // Boat Control
     var accelerationFactor: Float? = null
     var decelerationFactor: Float? = null
     var turnLeftFactor: Float? = null

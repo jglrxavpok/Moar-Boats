@@ -38,7 +38,7 @@ import org.jglrxavpok.moarboats.common.items.ModularBoatItem
 @Mod.EventBusSubscriber(value = arrayOf(Side.CLIENT), modid = MoarBoats.ModID)
 class Proxy: MoarBoatsProxy() {
 
-    val HookTextureLocation = ResourceLocation(MoarBoats.ModID, "textures/hook.png")
+    val hookTextureLocation = ResourceLocation(MoarBoats.ModID, "textures/hook.png")
     val fakePlayerModel = ModelPlayer(0f, false)
     val fakeArmRoot = ModelRenderer(fakePlayerModel, 32, 48)
     val fakeArmwearRoot = ModelRenderer(fakePlayerModel, 48, 48)
@@ -124,7 +124,7 @@ class Proxy: MoarBoatsProxy() {
         GlStateManager.scale(hookScale, -hookScale, hookScale)
         GlStateManager.translate(-1f/16f, 0f, -1f/16f)
         GlStateManager.translate(0f, -1.25f, 0f)
-        Minecraft.getMinecraft().textureManager.bindTexture(HookTextureLocation)
+        Minecraft.getMinecraft().textureManager.bindTexture(hookTextureLocation)
         hookModel.render(clientPlayer, 0f, 0f, 0f, 0f, 0f, scale)
         GlStateManager.popMatrix()
     }
@@ -206,7 +206,7 @@ class Proxy: MoarBoatsProxy() {
         GlStateManager.scale(hookScale, -hookScale, hookScale)
         GlStateManager.translate(-1f/16f, 0f, -1f/16f)
         GlStateManager.translate(0f, -1.25f, 0f)
-        Minecraft.getMinecraft().textureManager.bindTexture(HookTextureLocation)
+        Minecraft.getMinecraft().textureManager.bindTexture(hookTextureLocation)
         hookModel.render(clientPlayer, 0f, 0f, 0f, 0f, 0f, scale)
         GlStateManager.popMatrix()
         GlStateManager.disableBlend()

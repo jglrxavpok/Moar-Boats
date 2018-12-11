@@ -9,16 +9,16 @@ import net.minecraft.tileentity.TileEntityFurnace
 
 abstract class ContainerBase(val playerInventory: InventoryPlayer): Container() {
 
-    protected fun addPlayerSlots(isLarge: Boolean) {
+    protected fun addPlayerSlots(isLarge: Boolean, xStart: Int = 8) {
         val yOffset = if(isLarge) 3 * 18 +2 else 0
         for (i in 0..2) {
             for (j in 0..8) {
-                this.addSlotToContainer(Slot(playerInventory, j + i * 9 + 9, 8 + j * 18, 84 + i * 18 + yOffset))
+                this.addSlotToContainer(Slot(playerInventory, j + i * 9 + 9, xStart + j * 18, 84 + i * 18 + yOffset))
             }
         }
 
         for (k in 0..8) {
-            this.addSlotToContainer(Slot(playerInventory, k, 8 + k * 18, 142 + yOffset))
+            this.addSlotToContainer(Slot(playerInventory, k, xStart + k * 18, 142 + yOffset))
         }
     }
 

@@ -21,19 +21,25 @@ import org.jglrxavpok.moarboats.integration.opencomputers.OpenComputerPlugin
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11
 
-class GuiComputerModule(val player: EntityPlayer, boat: IControllable): GuiModuleBase(ComputerModule, boat, player.inventory, EmptyContainer(player.inventory, true)) {
+class GuiComputerModule(val player: EntityPlayer, boat: IControllable): GuiModuleBase(ComputerModule, boat, player.inventory, EmptyContainer(player.inventory, true, 27)) {
     val host: BoatMachineHost = OpenComputerPlugin.getHost(boat)!!
 
     override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/opencomputer/background.png")
     private val pressedKeys = mutableMapOf<Int, Char>()
 
+    override fun renderBackground() {}
+
+    override fun computeSizeX(): Int {
+        return 214
+    }
+
+    override fun computeSizeY(): Int {
+        return 222
+    }
+
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
         super.drawScreen(mouseX, mouseY, partialTicks)
         var y = 50
-     /*   for(elem in host.internalComponents()) {
-            itemRender.renderItemIntoGUI(elem, 120, y)
-            y+=20
-        }*/
 
         GlStateManager.disableLighting()
 
@@ -43,6 +49,7 @@ class GuiComputerModule(val player: EntityPlayer, boat: IControllable): GuiModul
         val w = host.buffer.renderWidth().toDouble()
         val h = host.buffer.renderHeight().toDouble()
         GlStateManager.translate(guiLeft.toFloat(), guiTop.toFloat(), 0f)
+        GlStateManager.translate(7f, 7f, 0f)
 
         GlStateManager.disableTexture2D()
         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR)

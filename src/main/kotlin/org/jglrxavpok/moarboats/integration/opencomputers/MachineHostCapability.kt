@@ -11,7 +11,6 @@ import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 class MachineHostCapability(val boat: ModularBoatEntity) : ICapabilityProvider {
 
     val host = BoatMachineHost(boat)
-    val node = BoatOCNode(boat, host)
 
     override fun <T : Any?> getCapability(capability: Capability<T>, facing: EnumFacing?): T? {
         if(capability == OpenComputerPlugin.HostCapability) {
