@@ -1,6 +1,8 @@
 package org.jglrxavpok.moarboats.integration.opencomputers
 
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.item.ItemStack
+import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
 import org.jglrxavpok.moarboats.MoarBoats
@@ -15,7 +17,12 @@ object ComputerModule: BoatModule() {
     override val usesInventory = false
     override val moduleSpot = Spot.Navigation
 
-    val InitializedProperty = BooleanBoatProperty("initialize")
+    val InitializedProperty = BooleanBoatProperty("isInitialized").makeLocal()
+
+    override fun onInit(to: IControllable, fromItem: ItemStack?) {
+        super.onInit(to, fromItem)
+        OpenComputerPlugin.getHost(to)?.machine?.architecture()?.initialize()
+    }
 
     override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean) = false
 
@@ -42,4 +49,16 @@ object ComputerModule: BoatModule() {
     override fun createContainer(player: EntityPlayer, boat: IControllable) = EmptyContainer(player.inventory, true)
 
     override fun createGui(player: EntityPlayer, boat: IControllable) = GuiComputerModule(player, boat)
+
+    override fun readFromNBT(boat: IControllable, compound: NBTTagCompound) {
+        super.readFromNBT(boat, compound)
+        val host = OpenComputerPlugin.getHost(boat)
+        host?.load(compound)
+    }
+
+    override fun writeToNBT(boat: IControllable, compound: NBTTagCompound): NBTTagCompound {
+        val host = OpenComputerPlugin.getHost(boat)
+        host?.saveToNBT(compound)
+        return super.writeToNBT(boat, compound)
+    }
 }

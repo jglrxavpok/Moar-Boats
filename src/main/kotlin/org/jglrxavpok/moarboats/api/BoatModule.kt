@@ -4,6 +4,7 @@ import net.minecraft.client.gui.GuiScreen
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
+import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.TextComponentTranslation
@@ -41,6 +42,16 @@ abstract class BoatModule {
     abstract fun createGui(player: EntityPlayer, boat: IControllable): GuiScreen
 
     open fun onInit(to: IControllable, fromItem: ItemStack?) { }
+
+    /**
+     * Reads additional information from the boat entity NBT data. No need to read/store module state created via the BoatProperty objects
+     */
+    open fun readFromNBT(boat: IControllable, compound: NBTTagCompound) { }
+
+    /**
+     * Writes additional information to the boat entity NBT data. No need to read/store module state created via the BoatProperty objects
+     */
+    open fun writeToNBT(boat: IControllable, compound: NBTTagCompound) = compound
 
     val rng = Random()
 

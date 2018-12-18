@@ -44,8 +44,15 @@ interface IControllable: IBlockSource {
     fun decelerate(multiplier: Float = 1f)
     fun blockMovement(blockedReason: BlockReason)
 
-    fun saveState(module: BoatModule)
-    fun getState(module: BoatModule): NBTTagCompound
+    /**
+     * If 'isLocal' = true, then state will not be synchronised between client & server nor will it be saved to the disk
+     */
+    fun saveState(module: BoatModule, isLocal: Boolean = false)
+
+    /**
+     * If 'isLocal' = true, then state will not be synchronised between client & server nor will it be saved to the disk
+     */
+    fun getState(module: BoatModule, isLocal: Boolean = false): NBTTagCompound
     fun getInventory(module: BoatModule): BoatModuleInventory
 
     fun dispense(behavior: IBehaviorDispenseItem, stack: ItemStack, overridePosition: BlockPos? = null, overrideFacing: EnumFacing? = null): ItemStack

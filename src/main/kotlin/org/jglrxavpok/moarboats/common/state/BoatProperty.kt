@@ -15,12 +15,16 @@ abstract class BoatProperty<Type>(val module: BoatModule, val id: String) {
     abstract val readProperty: NBTTagCompound.(String) -> Type
     abstract val writeProperty: NBTTagCompound.(String, Type) -> Unit
 
+    private var isLocal = false
+
     operator fun get(boat: IControllable) = boat.getState(module).readProperty(id)
     operator fun set(boat: IControllable, value: Type) {
-        val state = boat.getState(module)
+        val state = boat.getState(module, isLocal)
         state.writeProperty(id, value)
-        boat.saveState(module)
+        boat.saveState(module, isLocal)
     }
+
+    fun makeLocal() = this.apply { isLocal = true }
 }
 
 class BooleanBoatProperty(module: BoatModule, id: String): BoatProperty<Boolean>(module, id) {
