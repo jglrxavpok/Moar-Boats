@@ -65,7 +65,7 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
         initialized = true
     }
 
-    override fun start(): Boolean {
+    fun initComponents() {
         val connectToNetwork = !world().isRemote
         if(connectToNetwork) {
             Network.joinNewNetwork(internalNode)
@@ -89,14 +89,20 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
 
             subComponents += buffer
             subComponents += keyboard
-        }
-        buffer.isRenderingEnabled = true
-        if(connectToNetwork) {
+
             machine.onHostChanged()
             machine.architecture().initialize()
             machine.architecture().onConnect()
             buffer.energyCostPerTick = 0.0
             machine.costPerTick = 0.0
+        }
+
+    }
+
+    override fun start(): Boolean {
+        val connectToNetwork = !world().isRemote
+        buffer.isRenderingEnabled = true
+        if(connectToNetwork) {
             machine.start()
             sendInitialData()
         }
@@ -165,8 +171,14 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     }
 
     fun load(compound: NBTTagCompound) {
-        machine().load(compound)
-        machine().architecture()?.load(compound.getCompoundTag("_architecture"))
+        machine().load(compound.getCompoundTag("machineNBT"))
+        machine.node().load(compound.getCompoundTag("machineNode"))
+        internalNode.load(compound.getCompoundTag("internalNBT"))
+        for ((index, subComponent) in subComponents.withIndex()) {
+            subComponent.load(compound.getCompoundTag("comp$index"))
+        }
+        println(">> $compound")
+  //      machine().architecture()?.load(compound.getCompoundTag("_architecture"))
     }
 
     fun save(p0: NBTTagCompound) {
@@ -174,8 +186,23 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     }
 
     fun saveToNBT(compound: NBTTagCompound): NBTTagCompound {
-        machine().save(compound)
-        machine().architecture()?.save(compound.getCompoundTag("_architecture"))
+        val machineNBT = NBTTagCompound()
+        machine().save(machineNBT)
+        compound.setTag("machineNBT", machineNBT)
+        val internalNodeNBT = NBTTagCompound()
+        internalNode.save(internalNodeNBT)
+        compound.setTag("internalNBT", internalNodeNBT)
+
+        val machineNodeNBT = NBTTagCompound()
+        machine.node().save(machineNodeNBT)
+        compound.setTag("machineNode", machineNodeNBT)
+        for ((index, subComponent) in subComponents.withIndex()) {
+            val tag = NBTTagCompound()
+            subComponent.save(tag)
+            compound.setTag("comp$index", tag)
+        }
+
+        //    machine().architecture()?.save(compound.getCompoundTag("_architecture"))
         return compound
     }
 
@@ -207,6 +234,9 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
             subComponents.forEach(ManagedEnvironment::update)
         }
         if (world().isRemote)
+            return
+
+        if(!initialized)
             return
         // println("buffer at ${buffer.node()}")
 
