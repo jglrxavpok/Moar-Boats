@@ -31,6 +31,7 @@ abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, va
     private val BACKGROUND_TEXTURE = ResourceLocation(MoarBoats.ModID, "textures/gui/default_background.png")
     private val BACKGROUND_TEXTURE_LARGE = ResourceLocation(MoarBoats.ModID, "textures/gui/default_background_large.png")
     protected var shouldRenderInventoryName = true
+    protected var renderPlayerInventoryName = true
 
     protected abstract val moduleBackground: ResourceLocation
 
@@ -104,7 +105,8 @@ abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, va
         val s = title.unformattedText
         if(shouldRenderInventoryName)
             this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2, 6, 4210752)
-        this.fontRenderer.drawString(playerInventory.displayName.unformattedText, 8, this.ySize - 96 + 2, 4210752)
+        if(renderPlayerInventoryName)
+            this.fontRenderer.drawString(playerInventory.displayName.unformattedText, 8, this.ySize - 96 + 2, 4210752)
         drawModuleForeground(mouseX, mouseY)
 
         if(mouseX in (guiLeft-24)..guiLeft && mouseY in (guiTop+3)..(guiTop+26)) {

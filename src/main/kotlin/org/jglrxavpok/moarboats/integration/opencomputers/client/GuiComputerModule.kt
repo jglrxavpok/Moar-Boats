@@ -24,6 +24,10 @@ import org.lwjgl.opengl.GL11
 class GuiComputerModule(val player: EntityPlayer, boat: IControllable): GuiModuleBase(ComputerModule, boat, player.inventory, EmptyContainer(player.inventory, true, 27)) {
     val host: BoatMachineHost = OpenComputerPlugin.getHost(boat)!!
 
+    init {
+        renderPlayerInventoryName = false
+    }
+
     override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/opencomputer/background.png")
     private val pressedKeys = mutableMapOf<Int, Char>()
 
