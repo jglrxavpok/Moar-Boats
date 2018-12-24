@@ -35,6 +35,8 @@ object ComputerModule: BoatModule() {
         if(!InitializedProperty[from]) {
             println("INIT OC MODULE!!")
             host?.initComponents()
+            host?.firstInit()
+            host?.initConnections()
             host?.start()
             host?.machine()?.architecture()?.initialize() ?: println("$host ${host?.machine()} ${host?.machine()?.architecture()}")
 
@@ -60,6 +62,7 @@ object ComputerModule: BoatModule() {
             println(">> load!!")
             host?.initComponents()
             host?.load(compound)
+            host?.initConnections()
             host?.start()
             host?.machine()?.architecture()?.initialize() ?: println("$host ${host?.machine()} ${host?.machine()?.architecture()}")
         }
@@ -67,7 +70,7 @@ object ComputerModule: BoatModule() {
 
     override fun writeToNBT(boat: IControllable, compound: NBTTagCompound): NBTTagCompound {
         val host = OpenComputerPlugin.getHost(boat)
-        host?.saveToNBT(compound)
+        host?.save(compound)
         return super.writeToNBT(boat, compound)
     }
 }

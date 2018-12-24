@@ -2,15 +2,13 @@ package org.jglrxavpok.moarboats.integration.opencomputers
 
 import li.cil.oc.api.Driver
 import li.cil.oc.api.Network
-import li.cil.oc.api.internal.Keyboard
+import li.cil.oc.api.driver.DriverItem
 import li.cil.oc.api.internal.TextBuffer
 import li.cil.oc.api.machine.*
 import li.cil.oc.api.Items as OCItems
 import li.cil.oc.api.network.*
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.nbt.NBTTagList
-import net.minecraftforge.common.util.Constants
 import net.minecraftforge.oredict.OreDictionary
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.IControllable
@@ -46,10 +44,14 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     val boatComponent = ModularBoatComponent(this)
     val internalNode = boatComponent.node
     val machine = li.cil.oc.api.Machine.create(this)
-    val buffer = Driver.driverFor(screenStack).createEnvironment(screenStack, this) as TextBuffer
-    val keyboard = Driver.driverFor(keyboardStack).createEnvironment(keyboardStack, this)
+    val screenDriver = Driver.driverFor(screenStack)
+    val buffer = screenDriver.createEnvironment(screenStack, this) as TextBuffer
+    val keyboardDriver = Driver.driverFor(keyboardStack)
+    val keyboard = keyboardDriver.createEnvironment(keyboardStack, this)
 
     private val subComponents = mutableListOf<ManagedEnvironment>()
+    private val drivers = mutableListOf<DriverItem>()
+    private val componentStacks = mutableListOf<ItemStack>()
     private var initialized = false
 
     // Boat Control
@@ -65,29 +67,50 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
         initialized = true
     }
 
+    fun firstInit() {
+        if(world().isRemote)
+            return
+        var index = 0
+        for(env in subComponents) {
+            if(env == buffer || env == keyboard)
+                continue
+            val driver = drivers[index]
+            val stack = componentStacks[index]
+            val data = driver.dataTag(stack)
+            env.load(data)
+
+            index++
+        }
+    }
+
+    fun initConnections() {
+        if(world().isRemote)
+            return
+        internalNode!!.connect(machine.node())
+        for(env in subComponents) {
+            machine.node().connect(env.node())
+            machine.onConnect(env.node())
+        }
+
+        keyboard.node().connect(buffer.node())
+    }
+
     fun initComponents() {
-        val connectToNetwork = !world().isRemote
-        if(connectToNetwork) {
+        val isServer = !world().isRemote
+        if(isServer) {
             Network.joinNewNetwork(internalNode)
-            internalNode!!.connect(machine.node())
-            connect(biosStack, connectToNetwork)
-            connect(osStack, connectToNetwork)
-            connect(hddStack, connectToNetwork)
-            connect(ramStack, connectToNetwork)
-            connect(cpuStack, connectToNetwork)
-            connect(gpuStack, connectToNetwork)
+
+            prepareComponent(biosStack)
+            prepareComponent(osStack)
+            prepareComponent(hddStack)
+            prepareComponent(ramStack)
+            prepareComponent(cpuStack)
+            prepareComponent(gpuStack)
 
             // buffer & keyboard are loaded separately because they are initialized in the constructor
-
-            machine.node().connect(buffer.node())
-            machine.onConnect(buffer.node())
-
-            machine.node().connect(keyboard.node())
-            machine.onConnect(keyboard.node())
-
-            keyboard.node().connect(buffer.node())
-
+            drivers += screenDriver
             subComponents += buffer
+            drivers += keyboardDriver
             subComponents += keyboard
 
             machine.onHostChanged()
@@ -122,19 +145,16 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
         initialized = true
     }
 
-    private fun connect(stack: ItemStack, connectToNetwork: Boolean = true) {
+    private fun prepareComponent(stack: ItemStack) {
         val driver = Driver.driverFor(stack)
         val env = driver.createEnvironment(stack, this)
         if(env == null) {
             println("driver for $stack is null")
             return
         }
-        env.load(driver.dataTag(stack))
 
-        if(connectToNetwork) {
-            machine.node().connect(env.node())
-            machine.onConnect(env.node())
-        }
+        componentStacks += stack
+        drivers += driver
         subComponents += env
     }
 
@@ -171,9 +191,8 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     }
 
     fun load(compound: NBTTagCompound) {
-        machine().load(compound.getCompoundTag("machineNBT"))
-        machine.node().load(compound.getCompoundTag("machineNode"))
         internalNode!!.load(compound.getCompoundTag("internalNBT"))
+        machine().load(compound.getCompoundTag("machineNBT"))
         for ((index, subComponent) in subComponents.withIndex()) {
             subComponent.load(compound.getCompoundTag("comp$index"))
         }
@@ -189,13 +208,11 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
         val machineNBT = NBTTagCompound()
         machine().save(machineNBT)
         compound.setTag("machineNBT", machineNBT)
+
         val internalNodeNBT = NBTTagCompound()
         internalNode!!.save(internalNodeNBT)
         compound.setTag("internalNBT", internalNodeNBT)
 
-        val machineNodeNBT = NBTTagCompound()
-        machine.node().save(machineNodeNBT)
-        compound.setTag("machineNode", machineNodeNBT)
         for ((index, subComponent) in subComponents.withIndex()) {
             val tag = NBTTagCompound()
             subComponent.save(tag)
@@ -247,7 +264,7 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
             if (machine.lastError() != null) {
                 println(">>> " + machine.lastError())
             }
-            /*   println("=== CONTENTS ===")
+               println("=== CONTENTS ===")
             for (j in 0 until buffer.height) {
                 for (i in 0 until buffer.width) {
                     val c = buffer[i, j]
@@ -256,9 +273,9 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
                 println()
             }
 
-            println(" === END ===")*/
+            println(" === END ===")
 
-            /* println("=== COMPONENTS ===")
+          /*   println("=== COMPONENTS ===")
             for((key, value) in machine.components()) {
                 println("$key, $value")
                 val compNode = machine.node().network().node(key)
