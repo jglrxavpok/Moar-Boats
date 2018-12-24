@@ -16,7 +16,7 @@ class ModularBoatComponent(val host: BoatMachineHost): AbstractManagedEnvironmen
     val node = li.cil.oc.api.Network.newNode(this, Visibility.Network)
             .withComponent("modularboat", Visibility.Neighbors)
             .withConnector()
-            .create()
+            .create()?.let { it }
     val boat = host.boat
 
     val deviceInfoMap = hashMapOf(

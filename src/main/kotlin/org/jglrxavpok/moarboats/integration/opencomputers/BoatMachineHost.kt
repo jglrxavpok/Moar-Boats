@@ -69,7 +69,7 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
         val connectToNetwork = !world().isRemote
         if(connectToNetwork) {
             Network.joinNewNetwork(internalNode)
-            internalNode.connect(machine.node())
+            internalNode!!.connect(machine.node())
             connect(biosStack, connectToNetwork)
             connect(osStack, connectToNetwork)
             connect(hddStack, connectToNetwork)
@@ -173,7 +173,7 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     fun load(compound: NBTTagCompound) {
         machine().load(compound.getCompoundTag("machineNBT"))
         machine.node().load(compound.getCompoundTag("machineNode"))
-        internalNode.load(compound.getCompoundTag("internalNBT"))
+        internalNode!!.load(compound.getCompoundTag("internalNBT"))
         for ((index, subComponent) in subComponents.withIndex()) {
             subComponent.load(compound.getCompoundTag("comp$index"))
         }
@@ -190,7 +190,7 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
         machine().save(machineNBT)
         compound.setTag("machineNBT", machineNBT)
         val internalNodeNBT = NBTTagCompound()
-        internalNode.save(internalNodeNBT)
+        internalNode!!.save(internalNodeNBT)
         compound.setTag("internalNBT", internalNodeNBT)
 
         val machineNodeNBT = NBTTagCompound()
@@ -225,7 +225,7 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     }
 
     override fun node(): Node {
-        return internalNode
+        return internalNode!!
     }
 
     fun update() {
@@ -240,7 +240,7 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
             return
         // println("buffer at ${buffer.node()}")
 
-        internalNode.changeBuffer(1000000.0)
+        internalNode!!.changeBuffer(1000000.0)
         machine.update()
 
         if (boat.ticksExisted % 20 == 0) {
