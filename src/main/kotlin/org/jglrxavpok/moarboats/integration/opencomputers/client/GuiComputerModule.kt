@@ -67,6 +67,8 @@ class GuiComputerModule(val player: EntityPlayer, boat: IControllable): GuiModul
         host.buffer.isRenderingEnabled = true
         host.buffer.renderText()
         GlStateManager.popMatrix()
+
+        //println(">> Buffer address: ${host.buffer.node()?.address()} / ${host.buffer}")
     }
 
     override fun keyTyped(typedChar: Char, keyCode: Int) {

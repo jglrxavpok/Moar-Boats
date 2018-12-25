@@ -55,16 +55,16 @@ object ComputerModule: BoatModule() {
     override fun createGui(player: EntityPlayer, boat: IControllable) = GuiComputerModule(player, boat)
 
     override fun readFromNBT(boat: IControllable, compound: NBTTagCompound) {
+        val host = OpenComputerPlugin.getHost(boat)
+        host?.initComponents()
+        host?.load(compound)
         super.readFromNBT(boat, compound)
         if(!boat.worldRef.isRemote) {
-            val host = OpenComputerPlugin.getHost(boat)
             InitializedProperty[boat] = true
             println(">> load!!")
-            host?.initComponents()
-            host?.load(compound)
             host?.initConnections()
             host?.start()
-            host?.machine()?.architecture()?.initialize() ?: println("$host ${host?.machine()} ${host?.machine()?.architecture()}")
+         //   host?.machine()?.architecture()?.initialize() ?: println("$host ${host?.machine()} ${host?.machine()?.architecture()}")
         }
     }
 

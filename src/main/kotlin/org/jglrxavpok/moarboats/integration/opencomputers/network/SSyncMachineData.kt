@@ -38,10 +38,11 @@ class SSyncMachineData(): IMessage {
         override fun onMessage(message: SSyncMachineData, ctx: MessageContext): IMessage? {
             with(message) {
                 val world = Minecraft.getMinecraft().world
+                println("RECEIVED SSYNC")
                 val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
-                OpenComputerPlugin.getHost(boat)?.let {
-                    it.processInitialData(data)
-                }
+                println("RECEIVED SSYNC 2")
+                OpenComputerPlugin.getHost(boat)?.processInitialData(data)
+                println("HOST OK SSYNC")
             }
             return null
         }

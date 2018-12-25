@@ -64,6 +64,7 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     fun processInitialData(data: NBTTagCompound) {
         buffer.load(data.getCompoundTag("buffer"))
         keyboard.load(data.getCompoundTag("keyboard"))
+        println("received: $data")
         initialized = true
     }
 
@@ -98,6 +99,9 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     fun initComponents() {
         val isServer = !world().isRemote
         if(isServer) {
+            subComponents.clear()
+            drivers.clear()
+            componentStacks.clear()
             Network.joinNewNetwork(internalNode)
 
             prepareComponent(biosStack)
@@ -132,7 +136,7 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
         return true
     }
 
-    private fun sendInitialData() {
+    private fun createInitialData(): NBTTagCompound {
         val data = NBTTagCompound()
         val bufferData = NBTTagCompound()
         val keyboardData = NBTTagCompound()
@@ -141,7 +145,13 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
         data.setTag("buffer", bufferData)
         data.setTag("keyboard", keyboardData)
 
+        return data
+    }
+
+    private fun sendInitialData() {
+        val data = createInitialData()
         MoarBoats.network.sendToAll(SSyncMachineData(boat.entityID, data))
+        println("sending initial data!!")
         initialized = true
     }
 
@@ -191,12 +201,15 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     }
 
     fun load(compound: NBTTagCompound) {
-        internalNode!!.load(compound.getCompoundTag("internalNBT"))
-        machine().load(compound.getCompoundTag("machineNBT"))
-        for ((index, subComponent) in subComponents.withIndex()) {
-            subComponent.load(compound.getCompoundTag("comp$index"))
+        processInitialData(compound.getCompoundTag("initial"))
+        if(!world().isRemote) {
+            internalNode!!.load(compound.getCompoundTag("internalNBT"))
+            machine().load(compound.getCompoundTag("machineNBT"))
+            for ((index, subComponent) in subComponents.withIndex()) {
+                subComponent.load(compound.getCompoundTag("comp$index"))
+            }
+            println(">> $compound")
         }
-        println(">> $compound")
   //      machine().architecture()?.load(compound.getCompoundTag("_architecture"))
     }
 
@@ -205,6 +218,8 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     }
 
     fun saveToNBT(compound: NBTTagCompound): NBTTagCompound {
+        val initialData = createInitialData()
+        compound.setTag("initial", initialData)
         val machineNBT = NBTTagCompound()
         machine().save(machineNBT)
         compound.setTag("machineNBT", machineNBT)
@@ -264,7 +279,7 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
             if (machine.lastError() != null) {
                 println(">>> " + machine.lastError())
             }
-               println("=== CONTENTS ===")
+        /*       println("=== CONTENTS ===")
             for (j in 0 until buffer.height) {
                 for (i in 0 until buffer.width) {
                     val c = buffer[i, j]
@@ -273,9 +288,9 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
                 println()
             }
 
-            println(" === END ===")
+            println(" === END ===")*/
 
-          /*   println("=== COMPONENTS ===")
+       /*      println("=== COMPONENTS ===")
             for((key, value) in machine.components()) {
                 println("$key, $value")
                 val compNode = machine.node().network().node(key)
