@@ -1,6 +1,7 @@
 package org.jglrxavpok.moarboats.integration.opencomputers
 
 import li.cil.oc.api.Driver
+import li.cil.oc.api.FileSystem
 import li.cil.oc.api.Network
 import li.cil.oc.api.driver.DriverItem
 import li.cil.oc.api.internal.TextBuffer
@@ -9,11 +10,15 @@ import li.cil.oc.api.Items as OCItems
 import li.cil.oc.api.network.*
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.NBTTagList
+import net.minecraft.nbt.NBTTagString
+import net.minecraftforge.common.util.Constants
 import net.minecraftforge.oredict.OreDictionary
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.integration.opencomputers.network.SSyncMachineData
+import java.util.*
 
 class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, EnvironmentHost, Context {
 
@@ -41,6 +46,8 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
             biosStack // BIOS
     )
 
+    val addresses = hashMapOf<ItemStack, String>()
+
     val boatComponent = ModularBoatComponent(this)
     val internalNode = boatComponent.node
     val machine = li.cil.oc.api.Machine.create(this)
@@ -59,6 +66,23 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     var decelerationFactor: Float? = null
     var turnLeftFactor: Float? = null
     var turnRightFactor: Float? = null
+
+    fun generateAddresses() {
+        for(comp in internalComponentList) {
+            var addr: String
+            do addr = UUID.randomUUID().toString()
+            while(addr in addresses.values)
+            setAddress(comp, addr)
+        }
+    }
+
+    private fun setAddress(comp: ItemStack, addr: String) {
+        val tag = Driver.driverFor(comp).dataTag(comp)
+        val nodeTag = tag.getCompoundTag("node")
+        nodeTag.setString("address", addr)
+        tag.setTag("node", nodeTag)
+        addresses[comp] = addr
+    }
 
     // TODO: Send all data when added on server and process it in this method: (load drivers)
     fun processInitialData(data: NBTTagCompound) {
@@ -107,6 +131,11 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
             prepareComponent(biosStack)
             prepareComponent(osStack)
             prepareComponent(hddStack)
+
+            val hardDiskDriver = drivers.last()
+            val hardDiskEnv = subComponents.last()
+            hardDiskEnv.load(hardDiskDriver.dataTag(hddStack)) // ensure correct address
+
             prepareComponent(ramStack)
             prepareComponent(cpuStack)
             prepareComponent(gpuStack)
@@ -180,8 +209,8 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     }
 
     override fun componentSlot(p0: String?): Int {
-        return subComponents.indexOfFirst {
-            it.node().address() == p0
+        return internalComponentList.indexOfFirst {
+            addresses[it] == p0
         }
     }
 
@@ -210,7 +239,17 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
             }
             println(">> $compound")
         }
+
   //      machine().architecture()?.load(compound.getCompoundTag("_architecture"))
+    }
+
+    fun readAddressMap(compound: NBTTagCompound) {
+        addresses.clear()
+        val addressMap = compound.getTagList("addressMap", Constants.NBT.TAG_STRING)
+        for((index, comp) in internalComponentList.withIndex()) {
+            val addr = addressMap.getStringTagAt(index)
+            setAddress(comp, addr)
+        }
     }
 
     fun save(p0: NBTTagCompound) {
@@ -233,6 +272,14 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
             subComponent.save(tag)
             compound.setTag("comp$index", tag)
         }
+
+        // save address map
+        val addressMap = NBTTagList()
+        for(comp in internalComponentList) {
+            addressMap.appendTag(NBTTagString(addresses[comp]!!))
+        }
+
+        compound.setTag("addressMap", addressMap)
 
         //    machine().architecture()?.save(compound.getCompoundTag("_architecture"))
         return compound
@@ -290,14 +337,14 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
 
             println(" === END ===")*/
 
-       /*      println("=== COMPONENTS ===")
+             println("=== COMPONENTS ===")
             for((key, value) in machine.components()) {
                 println("$key, $value")
                 val compNode = machine.node().network().node(key)
 
                 println(">>> "+(compNode in machine.node().reachableNodes()))
             }
-            println("=== END OF COMPONENTS ===")*/
+            println("=== END OF COMPONENTS ===")
         }
     }
 
@@ -329,4 +376,5 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     override fun consumeCallBudget(p0: Double) = machine.consumeCallBudget(p0)
 
     override fun isPaused() = machine.isPaused
+
 }

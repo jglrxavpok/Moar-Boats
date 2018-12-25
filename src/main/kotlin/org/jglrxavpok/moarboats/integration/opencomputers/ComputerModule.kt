@@ -18,6 +18,7 @@ object ComputerModule: BoatModule() {
     override val moduleSpot = Spot.Navigation
 
     val InitializedProperty = BooleanBoatProperty("isInitialized").makeLocal()
+    val HasDoneFirstInit = BooleanBoatProperty("hasDoneFirstInit")
 
     override fun onInit(to: IControllable, fromItem: ItemStack?) {
         super.onInit(to, fromItem)
@@ -34,8 +35,14 @@ object ComputerModule: BoatModule() {
         val host = OpenComputerPlugin.getHost(from)
         if(!InitializedProperty[from]) {
             println("INIT OC MODULE!!")
+            if(!HasDoneFirstInit[from]) {
+                host?.generateAddresses()
+            }
             host?.initComponents()
-            host?.firstInit()
+            if(!HasDoneFirstInit[from]) {
+                host?.firstInit()
+                HasDoneFirstInit[from] = true
+            }
             host?.initConnections()
             host?.start()
             host?.machine()?.architecture()?.initialize() ?: println("$host ${host?.machine()} ${host?.machine()?.architecture()}")
@@ -56,11 +63,13 @@ object ComputerModule: BoatModule() {
 
     override fun readFromNBT(boat: IControllable, compound: NBTTagCompound) {
         val host = OpenComputerPlugin.getHost(boat)
+        host?.readAddressMap(compound)
         host?.initComponents()
         host?.load(compound)
         super.readFromNBT(boat, compound)
         if(!boat.worldRef.isRemote) {
             InitializedProperty[boat] = true
+            HasDoneFirstInit[boat] = true
             println(">> load!!")
             host?.initConnections()
             host?.start()
