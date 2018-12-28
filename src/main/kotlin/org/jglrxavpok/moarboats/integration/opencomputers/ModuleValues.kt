@@ -12,11 +12,8 @@ import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.modules.BaseEngineModule
 
 open class ModuleValue(): AbstractValue() {
-    @JvmField
-    var id: String? = null
-
-    @JvmField
-    var spot: String? = null
+    private var id: String? = null
+    private var spot: String? = null
 
     constructor(module: BoatModule): this() {
         id = module.id.toString()
@@ -36,6 +33,12 @@ open class ModuleValue(): AbstractValue() {
         id = nbt.getString("id")
         spot = nbt.getString("spot")
     }
+
+    @Callback
+    fun getID(ctx: Context, args: Arguments) = result(id)
+
+    @Callback
+    fun getSpot(ctx: Context, args: Arguments) = result(spot)
 }
 
 open class StorageModuleValue(val boat: IControllable, val module: BoatModule): ModuleValue(module) {

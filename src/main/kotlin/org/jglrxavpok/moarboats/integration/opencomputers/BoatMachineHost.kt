@@ -318,16 +318,6 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
         internalNode!!.changeBuffer(1000000.0)
         machine.update()
 
-        if(boat.ticksExisted % 20 == 0) {
-            if(machine.lastError() != null)
-                println("OC Error: ${machine.lastError()}")
-
-            println("== START ==")
-            for((k,v) in machine.components()) {
-                println(">> COMP $k / $v")
-            }
-            println("== END ==")
-        }
     }
 
     fun controlBoat(from: IControllable) {
