@@ -84,7 +84,6 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
         addresses[comp] = addr
     }
 
-    // TODO: Send all data when added on server and process it in this method: (load drivers)
     fun processInitialData(data: NBTTagCompound) {
         buffer.load(data.getCompoundTag("buffer"))
         keyboard.load(data.getCompoundTag("keyboard"))
@@ -237,10 +236,8 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
             for ((index, subComponent) in subComponents.withIndex()) {
                 subComponent.load(compound.getCompoundTag("comp$index"))
             }
-            println(">> $compound")
         }
 
-  //      machine().architecture()?.load(compound.getCompoundTag("_architecture"))
     }
 
     fun readAddressMap(compound: NBTTagCompound) {
@@ -317,35 +314,9 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
 
         if(!initialized)
             return
-        // println("buffer at ${buffer.node()}")
 
         internalNode!!.changeBuffer(1000000.0)
         machine.update()
-
-        if (boat.ticksExisted % 20 == 0) {
-            if (machine.lastError() != null) {
-                println(">>> " + machine.lastError())
-            }
-        /*       println("=== CONTENTS ===")
-            for (j in 0 until buffer.height) {
-                for (i in 0 until buffer.width) {
-                    val c = buffer[i, j]
-                    print(c)
-                }
-                println()
-            }
-
-            println(" === END ===")*/
-
-             println("=== COMPONENTS ===")
-            for((key, value) in machine.components()) {
-                println("$key, $value")
-                val compNode = machine.node().network().node(key)
-
-                println(">>> "+(compNode in machine.node().reachableNodes()))
-            }
-            println("=== END OF COMPONENTS ===")
-        }
     }
 
     fun controlBoat(from: IControllable) {

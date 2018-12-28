@@ -16,6 +16,4 @@ object ModuleHolderItem: Item() {
         registryName = ResourceLocation(MoarBoats.ModID, "opencomputers_holder")
         maxStackSize = 1
     }
-
-
 }

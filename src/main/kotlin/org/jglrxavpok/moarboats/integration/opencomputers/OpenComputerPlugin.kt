@@ -4,6 +4,9 @@ import org.apache.commons.lang3.tuple.Pair as Tuple
 import li.cil.oc.api.IMC
 import li.cil.oc.api.Machine
 import li.cil.oc.api.driver.item.Slot
+import li.cil.oc.api.machine.Arguments
+import li.cil.oc.api.machine.Callback
+import li.cil.oc.api.machine.Context
 import li.cil.oc.api.network.Node
 import net.minecraft.entity.Entity
 import net.minecraft.item.Item
@@ -13,16 +16,16 @@ import net.minecraftforge.common.capabilities.CapabilityInject
 import net.minecraftforge.common.capabilities.CapabilityManager
 import net.minecraftforge.event.AttachCapabilitiesEvent
 import net.minecraftforge.event.RegistryEvent
+import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import net.minecraftforge.registries.IForgeRegistry
 import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.api.BoatModuleEntry
-import org.jglrxavpok.moarboats.api.IControllable
-import org.jglrxavpok.moarboats.api.registerModule
+import org.jglrxavpok.moarboats.api.*
 import org.jglrxavpok.moarboats.client.renders.BoatModuleRenderer
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
+import org.jglrxavpok.moarboats.common.modules.*
 import org.jglrxavpok.moarboats.integration.MoarBoatsIntegration
 import org.jglrxavpok.moarboats.integration.MoarBoatsPlugin
 import org.jglrxavpok.moarboats.integration.opencomputers.client.OCRenderer
@@ -39,8 +42,19 @@ class OpenComputerPlugin: MoarBoatsPlugin {
 
         @JvmStatic
         val HostKey = ResourceLocation(MoarBoats.ModID, "opencomputer_host")
+        val ModuleValueSuppliers = mutableMapOf<BoatModule, (IControllable, BoatModule) -> ModuleValue>()
+
+        fun registerModuleValueSupplier(module: BoatModule, supplier: (IControllable, BoatModule) -> ModuleValue) {
+            ModuleValueSuppliers += module to supplier
+        }
 
         fun getHost(boat: IControllable): BoatMachineHost? = boat.correspondingEntity.getCapability(HostCapability, null)?.host
+
+        fun createModuleValue(boat: IControllable, module: BoatModule): ModuleValue {
+            if(module in ModuleValueSuppliers)
+                return ModuleValueSuppliers[module]!!(boat, module)
+            return ModuleValue(module)
+        }
     }
 
     override fun handlers() = listOf(SSyncMachineData.Handler)
@@ -74,6 +88,13 @@ class OpenComputerPlugin: MoarBoatsPlugin {
 
     override fun registerModules(registry: IForgeRegistry<BoatModuleEntry>) {
         registry.registerModule(ComputerModule, ModuleHolderItem)
+
+        registerModuleValueSupplier(ChestModule, ::StorageModuleValue)
+        registerModuleValueSupplier(DispenserModule, ::StorageModuleValue)
+        registerModuleValueSupplier(DropperModule, ::StorageModuleValue)
+        registerModuleValueSupplier(FurnaceEngineModule, ::EngineModuleValue)
+        registerModuleValueSupplier(SolarEngineModule, ::EngineModuleValue)
+        registerModuleValueSupplier(CreativeEngineModule, ::EngineModuleValue)
     }
 
     @SideOnly(Side.CLIENT)

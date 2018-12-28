@@ -69,7 +69,7 @@ object ModuleTemplate {
     fun assemble(inv: IInventory): Array<Any> {
         val stack =
             if(validate(inv)[0] as Boolean) {
-                ItemStack(ModuleHolderItem) // TODO: NBT data
+                ItemStack(ModuleHolderItem)
             } else {
                 ItemStack.EMPTY
             }

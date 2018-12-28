@@ -28,8 +28,13 @@ class ModularBoatComponent(val host: BoatMachineHost): AbstractManagedEnvironmen
             DeviceInfo.DeviceAttribute.Product to "Modular Boats Series",
             DeviceInfo.DeviceAttribute.Vendor to "JGLR Technologies"
     )
+
     init {
         setNode(node)
+    }
+
+    fun getModuleValue(module: BoatModule): ModuleValue {
+        return OpenComputerPlugin.createModuleValue(boat, module)
     }
 
     override fun getDeviceInfo(): MutableMap<String, String> {
@@ -50,13 +55,13 @@ class ModularBoatComponent(val host: BoatMachineHost): AbstractManagedEnvironmen
 
     @Callback(direct = true)
     fun getModules(ctx: Context, args: Arguments): OCResult {
-        return result(host.boat.modules.map { Pair(it.moduleSpot.id, ModuleValue(it)) })
+        return result(host.boat.modules.map { Pair(it.moduleSpot.id, getModuleValue(it)) })
     }
 
     @Callback(direct = true)
     fun getModule(ctx: Context, args: Arguments): OCResult {
         val module = host.boat.modules.firstOrNull { it.moduleSpot.id == args.checkString(0) } ?: return result(null, "No module in spot")
-        return result(ModuleValue(module))
+        return result(getModuleValue(module))
     }
 
     @Callback(direct = true)
@@ -147,30 +152,4 @@ class ModularBoatComponent(val host: BoatMachineHost): AbstractManagedEnvironmen
         return result(boat.blockedReason)
     }
 
-    class ModuleValue(): AbstractValue() {
-        @JvmField
-        var id: String? = null
-
-        @JvmField
-        var spot: String? = null
-
-        constructor(module: BoatModule): this() {
-            id = module.id.toString()
-            spot = module.moduleSpot.id
-        }
-
-        override fun save(nbt: NBTTagCompound) {
-            id?.let {
-                nbt.setString("id", it)
-            }
-            spot?.let {
-                nbt.setString("spot", it)
-            }
-        }
-
-        override fun load(nbt: NBTTagCompound) {
-            id = nbt.getString("id")
-            spot = nbt.getString("spot")
-        }
-    }
 }

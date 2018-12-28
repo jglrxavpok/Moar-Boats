@@ -1,16 +1,11 @@
 package org.jglrxavpok.moarboats.integration.opencomputers.client
 
-import com.google.common.cache.Cache
-import li.cil.oc.api.internal.TextBuffer
-import li.cil.oc.api.network.ManagedEnvironment
-import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.ResourceLocation
-import net.minecraft.world.World
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiModuleBase
@@ -25,6 +20,7 @@ class GuiComputerModule(val player: EntityPlayer, boat: IControllable): GuiModul
     val host: BoatMachineHost = OpenComputerPlugin.getHost(boat)!!
 
     init {
+        renderPlayerInventoryName = false
         renderPlayerInventoryName = false
     }
 
@@ -41,10 +37,8 @@ class GuiComputerModule(val player: EntityPlayer, boat: IControllable): GuiModul
         return 222
     }
 
-    override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
-        super.drawScreen(mouseX, mouseY, partialTicks)
-        var y = 50
-
+    override fun drawModuleForeground(mouseX: Int, mouseY: Int) {
+        super.drawModuleForeground(mouseX, mouseY)
         GlStateManager.disableLighting()
 
         GlStateManager.pushMatrix()
@@ -52,7 +46,6 @@ class GuiComputerModule(val player: EntityPlayer, boat: IControllable): GuiModul
         val buffer = tess.buffer
         val w = host.buffer.renderWidth().toDouble()
         val h = host.buffer.renderHeight().toDouble()
-        GlStateManager.translate(guiLeft.toFloat(), guiTop.toFloat(), 0f)
         GlStateManager.translate(7f, 7f, 0f)
 
         GlStateManager.disableTexture2D()
@@ -67,8 +60,6 @@ class GuiComputerModule(val player: EntityPlayer, boat: IControllable): GuiModul
         host.buffer.isRenderingEnabled = true
         host.buffer.renderText()
         GlStateManager.popMatrix()
-
-        //println(">> Buffer address: ${host.buffer.node()?.address()} / ${host.buffer}")
     }
 
     override fun keyTyped(typedChar: Char, keyCode: Int) {

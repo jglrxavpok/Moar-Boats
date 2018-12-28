@@ -8,6 +8,7 @@ import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.TextComponentTranslation
+import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import net.minecraftforge.registries.IForgeRegistry
@@ -100,8 +101,10 @@ fun IForgeRegistry<BoatModuleEntry>.registerModule(module: BoatModule, correspon
 fun IForgeRegistry<BoatModuleEntry>.registerModule(name: ResourceLocation, correspondingItem: Item, module: BoatModule, inventoryFactory: ((IControllable, BoatModule) -> BoatModuleInventory)? = null, restriction: (() -> Boolean)? = null) {
     val entry = BoatModuleEntry(correspondingItem, module, inventoryFactory, restriction ?: {true})
     entry.registryName = module.id
-    this.register(entry)
-    MoarBoats.logger.info("Registered module with ID $name")
-    if(module.usesInventory && inventoryFactory == null)
-        error("Module $module uses an inventory but no inventory factory was provided!")
+    if(!MinecraftForge.EVENT_BUS.post(ModuleRegistryEvent(entry))) {
+        this.register(entry)
+        MoarBoats.logger.info("Registered module with ID $name")
+        if(module.usesInventory && inventoryFactory == null)
+            error("Module $module uses an inventory but no inventory factory was provided!")
+    }
 }
