@@ -9,8 +9,10 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.containers.EmptyContainer
+import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.state.BooleanBoatProperty
 import org.jglrxavpok.moarboats.integration.opencomputers.client.GuiComputerModule
+import org.jglrxavpok.moarboats.integration.opencomputers.items.ModuleHolderItem
 
 object ComputerModule: BoatModule() {
     override val id = ResourceLocation(MoarBoats.ModID, "occomputer")
@@ -22,17 +24,17 @@ object ComputerModule: BoatModule() {
 
     override fun onInit(to: IControllable, fromItem: ItemStack?) {
         super.onInit(to, fromItem)
-        OpenComputerPlugin.getHost(to)?.machine?.architecture()?.initialize()
+        OpenComputersPlugin.getHost(to)?.machine?.architecture()?.initialize()
     }
 
     override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean) = false
 
     override fun controlBoat(from: IControllable) {
-        OpenComputerPlugin.getHost(from)?.controlBoat(from)
+        OpenComputersPlugin.getHost(from)?.controlBoat(from)
     }
 
     override fun update(from: IControllable) {
-        val host = OpenComputerPlugin.getHost(from)
+        val host = OpenComputersPlugin.getHost(from)
         if(!InitializedProperty[from]) {
             println("INIT OC MODULE!!")
             if(!HasDoneFirstInit[from]) {
@@ -62,7 +64,7 @@ object ComputerModule: BoatModule() {
     override fun createGui(player: EntityPlayer, boat: IControllable) = GuiComputerModule(player, boat)
 
     override fun readFromNBT(boat: IControllable, compound: NBTTagCompound) {
-        val host = OpenComputerPlugin.getHost(boat)
+        val host = OpenComputersPlugin.getHost(boat)
         host?.readAddressMap(compound)
         host?.initComponents()
         host?.load(compound)
@@ -78,8 +80,18 @@ object ComputerModule: BoatModule() {
     }
 
     override fun writeToNBT(boat: IControllable, compound: NBTTagCompound): NBTTagCompound {
-        val host = OpenComputerPlugin.getHost(boat)
+        val host = OpenComputersPlugin.getHost(boat)
         host?.save(compound)
         return super.writeToNBT(boat, compound)
+    }
+
+    override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
+        if(!killedByPlayerInCreative)
+            boat.correspondingEntity.dropItem(ModuleHolderItem, 1)
+
+        val host = OpenComputersPlugin.getHost(boat)
+        host?.clear()
+        InitializedProperty[boat] = false
+        HasDoneFirstInit[boat] = false
     }
 }

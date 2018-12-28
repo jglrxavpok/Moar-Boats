@@ -111,7 +111,7 @@ class Proxy: MoarBoatsProxy() {
 
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
-    fun renderPlayer(event: RenderPlayerEvent) {
+    fun renderPlayer(event: RenderPlayerEvent.Post) {
         GlStateManager.pushMatrix()
 
         val clientPlayer = Minecraft.getMinecraft().player

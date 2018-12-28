@@ -7,8 +7,6 @@ import li.cil.oc.api.machine.Context
 import li.cil.oc.api.machine.Value
 import li.cil.oc.api.network.Visibility
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
-import li.cil.oc.api.prefab.AbstractValue
-import net.minecraft.nbt.NBTTagCompound
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.common.modules.NoBlockReason
 
@@ -34,7 +32,7 @@ class ModularBoatComponent(val host: BoatMachineHost): AbstractManagedEnvironmen
     }
 
     fun getModuleValue(module: BoatModule): ModuleValue {
-        return OpenComputerPlugin.createModuleValue(boat, module)
+        return OpenComputersPlugin.createModuleValue(boat, module)
     }
 
     override fun getDeviceInfo(): MutableMap<String, String> {

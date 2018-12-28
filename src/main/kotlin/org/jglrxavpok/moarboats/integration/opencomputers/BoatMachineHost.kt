@@ -317,6 +317,17 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
 
         internalNode!!.changeBuffer(1000000.0)
         machine.update()
+
+        if(boat.ticksExisted % 20 == 0) {
+            if(machine.lastError() != null)
+                println("OC Error: ${machine.lastError()}")
+
+            println("== START ==")
+            for((k,v) in machine.components()) {
+                println(">> COMP $k / $v")
+            }
+            println("== END ==")
+        }
     }
 
     fun controlBoat(from: IControllable) {
@@ -347,5 +358,30 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     override fun consumeCallBudget(p0: Double) = machine.consumeCallBudget(p0)
 
     override fun isPaused() = machine.isPaused
+
+    fun clear() {
+        initialized = false
+        drivers.clear()
+        subComponents.clear()
+        componentStacks.clear()
+        accelerationFactor = null
+        decelerationFactor = null
+        turnLeftFactor = null
+        turnRightFactor = null
+        addresses.clear()
+
+        // break existing connections
+        if(machine.node() != null) {
+            val nodes = machine.node().network().nodes()
+            for(n1 in nodes) {
+                for(n2 in nodes) {
+                    if(n1 != n2 && n1.isNeighborOf(n2)) {
+                        n1.disconnect(n2)
+                    }
+                }
+
+            }
+        }
+    }
 
 }

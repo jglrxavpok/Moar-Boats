@@ -8,9 +8,12 @@ import li.cil.oc.api.machine.Arguments
 import li.cil.oc.api.machine.Callback
 import li.cil.oc.api.machine.Context
 import li.cil.oc.api.network.Node
+import net.minecraft.client.renderer.block.model.ModelResourceLocation
 import net.minecraft.entity.Entity
 import net.minecraft.item.Item
 import net.minecraft.util.ResourceLocation
+import net.minecraftforge.client.event.ModelRegistryEvent
+import net.minecraftforge.client.model.ModelLoader
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.common.capabilities.CapabilityInject
 import net.minecraftforge.common.capabilities.CapabilityManager
@@ -24,6 +27,7 @@ import net.minecraftforge.registries.IForgeRegistry
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.*
 import org.jglrxavpok.moarboats.client.renders.BoatModuleRenderer
+import org.jglrxavpok.moarboats.common.Items
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.*
 import org.jglrxavpok.moarboats.integration.MoarBoatsIntegration
@@ -33,7 +37,7 @@ import org.jglrxavpok.moarboats.integration.opencomputers.items.ModuleHolderItem
 import org.jglrxavpok.moarboats.integration.opencomputers.network.SSyncMachineData
 
 @MoarBoatsIntegration("opencomputers|core")
-class OpenComputerPlugin: MoarBoatsPlugin {
+class OpenComputersPlugin: MoarBoatsPlugin {
 
     companion object {
         @CapabilityInject(MachineHostCapability::class)
@@ -49,6 +53,9 @@ class OpenComputerPlugin: MoarBoatsPlugin {
         }
 
         fun getHost(boat: IControllable): BoatMachineHost? = boat.correspondingEntity.getCapability(HostCapability, null)?.host
+        fun resetHost(boat: IControllable) {
+            boat.correspondingEntity.getCapability(HostCapability, null)?.resetHost()
+        }
 
         fun createModuleValue(boat: IControllable, module: BoatModule): ModuleValue {
             if(module in ModuleValueSuppliers)
@@ -98,6 +105,12 @@ class OpenComputerPlugin: MoarBoatsPlugin {
     }
 
     @SideOnly(Side.CLIENT)
+    @SubscribeEvent
+    fun registerModels(event: ModelRegistryEvent) {
+        ModelLoader.setCustomModelResourceLocation(ModuleHolderItem, 0, ModelResourceLocation(ModuleHolderItem.registryName.toString(), "inventory"))
+    }
+
+        @SideOnly(Side.CLIENT)
     override fun registerModuleRenderers(registry: IForgeRegistry<BoatModuleRenderer>) {
         registry.register(OCRenderer)
     }

@@ -12,12 +12,12 @@ import org.jglrxavpok.moarboats.client.gui.GuiModuleBase
 import org.jglrxavpok.moarboats.common.containers.EmptyContainer
 import org.jglrxavpok.moarboats.integration.opencomputers.BoatMachineHost
 import org.jglrxavpok.moarboats.integration.opencomputers.ComputerModule
-import org.jglrxavpok.moarboats.integration.opencomputers.OpenComputerPlugin
+import org.jglrxavpok.moarboats.integration.opencomputers.OpenComputersPlugin
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11
 
 class GuiComputerModule(val player: EntityPlayer, boat: IControllable): GuiModuleBase(ComputerModule, boat, player.inventory, EmptyContainer(player.inventory, true, 27)) {
-    val host: BoatMachineHost = OpenComputerPlugin.getHost(boat)!!
+    val host: BoatMachineHost = OpenComputersPlugin.getHost(boat)!!
 
     init {
         renderPlayerInventoryName = false

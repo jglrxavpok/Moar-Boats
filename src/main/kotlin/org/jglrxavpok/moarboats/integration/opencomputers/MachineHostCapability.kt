@@ -1,6 +1,5 @@
 package org.jglrxavpok.moarboats.integration.opencomputers
 
-import li.cil.oc.api.machine.MachineHost
 import net.minecraft.nbt.NBTBase
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.EnumFacing
@@ -10,20 +9,25 @@ import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 
 class MachineHostCapability(val boat: ModularBoatEntity) : ICapabilityProvider {
 
-    val host = BoatMachineHost(boat)
+    var host = BoatMachineHost(boat)
+        private set
 
     override fun <T : Any?> getCapability(capability: Capability<T>, facing: EnumFacing?): T? {
-        if(capability == OpenComputerPlugin.HostCapability) {
+        if(capability == OpenComputersPlugin.HostCapability) {
             return this as T?
         }
         return null
     }
 
     override fun hasCapability(capability: Capability<*>, facing: EnumFacing?): Boolean {
-        if(capability == OpenComputerPlugin.HostCapability) {
+        if(capability == OpenComputersPlugin.HostCapability) {
             return true
         }
         return false
+    }
+
+    fun resetHost() {
+        host = BoatMachineHost(boat)
     }
 
     object Storage: Capability.IStorage<MachineHostCapability> {

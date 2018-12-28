@@ -9,7 +9,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.network.MBMessageHandler
-import org.jglrxavpok.moarboats.integration.opencomputers.OpenComputerPlugin
+import org.jglrxavpok.moarboats.integration.opencomputers.OpenComputersPlugin
 
 class SSyncMachineData(): IMessage {
 
@@ -41,7 +41,7 @@ class SSyncMachineData(): IMessage {
                 println("RECEIVED SSYNC")
                 val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
                 println("RECEIVED SSYNC 2")
-                OpenComputerPlugin.getHost(boat)?.processInitialData(data)
+                OpenComputersPlugin.getHost(boat)?.processInitialData(data)
                 println("HOST OK SSYNC")
             }
             return null
