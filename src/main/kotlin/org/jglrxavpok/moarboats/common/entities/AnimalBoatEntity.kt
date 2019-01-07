@@ -107,9 +107,9 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(world) {
         return false
     }
 
-    override fun saveState(module: BoatModule) { /* NOP */ }
+    override fun saveState(module: BoatModule, isLocal: Boolean) { /* NOP */ }
 
-    override fun getState(module: BoatModule): NBTTagCompound {
+    override fun getState(module: BoatModule, isLocal: Boolean): NBTTagCompound {
         return NBTTagCompound()
     }
 

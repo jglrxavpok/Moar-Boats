@@ -155,3 +155,6 @@ moarboats.boatbattery.maxenergy=Max Energy
 moarboats.fishing=Fishing
 moarboats.fishing.speedmultiplier=Speed Multiplier
 moarboats.fishing.remainingusesbeforeremoval=Remaining uses before removal
+
+# 4.1.0.0
+item.opencomputers_holder.name=OpenComputers Module

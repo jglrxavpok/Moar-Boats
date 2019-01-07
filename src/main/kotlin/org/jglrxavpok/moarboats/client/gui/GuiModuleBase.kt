@@ -31,11 +31,13 @@ abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, va
     private val BACKGROUND_TEXTURE = ResourceLocation(MoarBoats.ModID, "textures/gui/default_background.png")
     private val BACKGROUND_TEXTURE_LARGE = ResourceLocation(MoarBoats.ModID, "textures/gui/default_background_large.png")
     protected var shouldRenderInventoryName = true
+    protected var renderPlayerInventoryName = true
 
     protected abstract val moduleBackground: ResourceLocation
 
     override fun initGui() {
-        this.ySize = 114 + (if(isLarge) 6 else 3) * 18
+        this.xSize = computeSizeX()
+        this.ySize = computeSizeY()
         super.initGui()
         tabs.clear()
         val guiX = getGuiLeft()
@@ -46,6 +48,14 @@ abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, va
             tabs += tab
             yOffset += tab.height + 3
         }
+    }
+
+    open fun computeSizeX(): Int {
+        return xSize // no change
+    }
+
+    open fun computeSizeY(): Int {
+        return 114 + (if(isLarge) 6 else 3) * 18
     }
 
     /**
@@ -95,7 +105,8 @@ abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, va
         val s = title.unformattedText
         if(shouldRenderInventoryName)
             this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2, 6, 4210752)
-        this.fontRenderer.drawString(playerInventory.displayName.unformattedText, 8, this.ySize - 96 + 2, 4210752)
+        if(renderPlayerInventoryName)
+            this.fontRenderer.drawString(playerInventory.displayName.unformattedText, 8, this.ySize - 96 + 2, 4210752)
         drawModuleForeground(mouseX, mouseY)
 
         if(mouseX in (guiLeft-24)..guiLeft && mouseY in (guiTop+3)..(guiTop+26)) {
@@ -110,12 +121,7 @@ abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, va
 
     open fun drawModuleForeground(mouseX: Int, mouseY: Int) {}
     open fun drawModuleBackground(mouseX: Int, mouseY: Int) {}
-
-    /**
-     * Draws the background layer of this container (behind the items).
-     */
-    override fun drawGuiContainerBackgroundLayer(partialTicks: Float, mouseX: Int, mouseY: Int) {
-        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f)
+    open fun renderBackground() {
         if(isLarge)
             mc.textureManager.bindTexture(BACKGROUND_TEXTURE_LARGE)
         else
@@ -123,6 +129,16 @@ abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, va
         val i = (this.width - this.xSize) / 2
         val j = (this.height - this.ySize) / 2
         this.drawTexturedModalRect(i, j, 0, 0, this.xSize, this.ySize)
+    }
+
+    /**
+     * Draws the background layer of this container (behind the items).
+     */
+    override fun drawGuiContainerBackgroundLayer(partialTicks: Float, mouseX: Int, mouseY: Int) {
+        val i = (this.width - this.xSize) / 2
+        val j = (this.height - this.ySize) / 2
+        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f)
+        renderBackground()
 
         for(moduleTab in tabs) {
             moduleTab.renderContents()

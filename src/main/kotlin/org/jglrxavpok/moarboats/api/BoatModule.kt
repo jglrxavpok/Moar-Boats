@@ -4,9 +4,11 @@ import net.minecraft.client.gui.GuiScreen
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
+import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.TextComponentTranslation
+import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import net.minecraftforge.registries.IForgeRegistry
@@ -41,6 +43,16 @@ abstract class BoatModule {
     abstract fun createGui(player: EntityPlayer, boat: IControllable): GuiScreen
 
     open fun onInit(to: IControllable, fromItem: ItemStack?) { }
+
+    /**
+     * Reads additional information from the boat entity NBT data. No need to read/store module state created via the BoatProperty objects
+     */
+    open fun readFromNBT(boat: IControllable, compound: NBTTagCompound) { }
+
+    /**
+     * Writes additional information to the boat entity NBT data. No need to read/store module state created via the BoatProperty objects
+     */
+    open fun writeToNBT(boat: IControllable, compound: NBTTagCompound) = compound
 
     val rng = Random()
 
@@ -89,8 +101,10 @@ fun IForgeRegistry<BoatModuleEntry>.registerModule(module: BoatModule, correspon
 fun IForgeRegistry<BoatModuleEntry>.registerModule(name: ResourceLocation, correspondingItem: Item, module: BoatModule, inventoryFactory: ((IControllable, BoatModule) -> BoatModuleInventory)? = null, restriction: (() -> Boolean)? = null) {
     val entry = BoatModuleEntry(correspondingItem, module, inventoryFactory, restriction ?: {true})
     entry.registryName = module.id
-    this.register(entry)
-    MoarBoats.logger.info("Registered module with ID $name")
-    if(module.usesInventory && inventoryFactory == null)
-        error("Module $module uses an inventory but no inventory factory was provided!")
+    if(!MinecraftForge.EVENT_BUS.post(ModuleRegistryEvent(entry))) {
+        this.register(entry)
+        MoarBoats.logger.info("Registered module with ID $name")
+        if(module.usesInventory && inventoryFactory == null)
+            error("Module $module uses an inventory but no inventory factory was provided!")
+    }
 }

@@ -45,10 +45,11 @@ import org.jglrxavpok.moarboats.common.modules.*
 import org.jglrxavpok.moarboats.common.tileentity.*
 import org.jglrxavpok.moarboats.integration.LoadIntegrationPlugins
 import org.jglrxavpok.moarboats.integration.MoarBoatsPlugin
+import java.net.URL
 
 @Mod.EventBusSubscriber
 @Mod(modLanguageAdapter = "net.shadowfacts.forgelin.KotlinAdapter", modid = MoarBoats.ModID, dependencies = "required-after:forgelin;",
-        name = "Moar Boats", version = "4.0.1.0", updateJSON = "https://raw.githubusercontent.com/jglrxavpok/Moar-Boats/master/updateCheck.json")
+        name = "Moar Boats", version = "4.1.0.0", updateJSON = "https://raw.githubusercontent.com/jglrxavpok/Moar-Boats/master/updateCheck.json")
 object MoarBoats {
     const val ModID = "moarboats"
 
@@ -58,6 +59,19 @@ object MoarBoats {
     lateinit var proxy: MoarBoatsProxy
 
     val network = SimpleNetworkWrapper(ModID)
+
+    val PatreonList: List<String> by lazy {
+        try {
+            URL("https://gist.githubusercontent.com/jglrxavpok/07bcda98b7174f07b49fb0df1edda03a/raw/a07167925fab89205f1be16fbbfc628b8478de81/jglrxavpok_patreons_list_uuid")
+                    .readText()
+                    .lines() +
+                    "0d2e2d40-72c3-4b2d-b221-ab94a791d5bc" + // jglrxavpok
+                    "326e2676-d8bc-4b57-a859-5cb29cef0301" // FrenchUranoscopidae
+        } catch (any: Throwable) {
+            MoarBoats.logger.info("Could not retrieve Patreon list because of: ", any)
+            emptyList<String>()
+        }
+    }
 
     val MachineMaterial = object: Material(MapColor.IRON) {
         init {
@@ -83,7 +97,7 @@ object MoarBoats {
         }
     }
 
-    private lateinit var plugins: List<MoarBoatsPlugin>
+    lateinit var plugins: List<MoarBoatsPlugin>
 
     @Mod.EventHandler
     fun preInit(event: FMLPreInitializationEvent) {
@@ -105,6 +119,7 @@ object MoarBoats {
 
     @Mod.EventHandler
     fun postInit(event: FMLPostInitializationEvent) {
+        proxy.postInit()
         plugins.forEach(MoarBoatsPlugin::postInit)
     }
 

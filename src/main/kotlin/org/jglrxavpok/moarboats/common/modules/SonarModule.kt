@@ -1,6 +1,8 @@
 package org.jglrxavpok.moarboats.common.modules
 
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.init.Blocks
+import net.minecraft.item.ItemBlock
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
@@ -80,4 +82,9 @@ object SonarModule: BoatModule() {
     }
 
     override fun createGui(player: EntityPlayer, boat: IControllable) = GuiNoConfigModule(player.inventory, this, boat)
+
+    override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
+        if(!killedByPlayerInCreative)
+            boat.correspondingEntity.dropItem(ItemBlock.getItemFromBlock(Blocks.NOTEBLOCK), 1)
+    }
 }

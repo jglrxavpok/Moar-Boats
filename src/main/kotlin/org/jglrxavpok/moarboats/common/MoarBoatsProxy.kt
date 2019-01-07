@@ -7,8 +7,10 @@ import org.jglrxavpok.moarboats.common.network.*
 
 
 open class MoarBoatsProxy {
+
     open fun init() {
         NetworkRegistry.INSTANCE.registerGuiHandler(MoarBoats, MoarBoatsGuiHandler)
+        val pluginHandlers = MoarBoats.plugins.flatMap { it.handlers() }
         registerMessages(
                 COpenModuleGui.Handler,
                 CMapRequest.Handler,
@@ -47,7 +49,8 @@ open class MoarBoatsProxy {
                 CChangeLoopingStateItemPathMappingTable.Handler,
                 CSwapWaypoints.Handler,
                 SConfirmWaypointSwap.Handler,
-                CChangeRudderBlocking.Handler
+                CChangeRudderBlocking.Handler,
+                *pluginHandlers.toTypedArray()
                 )
     }
 
@@ -58,6 +61,9 @@ open class MoarBoatsProxy {
     }
 
     open fun preInit() {
+    }
+
+    open fun postInit() {
     }
 
 }

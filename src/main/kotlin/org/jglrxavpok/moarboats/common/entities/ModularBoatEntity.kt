@@ -77,6 +77,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
     var moduleData: NBTTagCompound
         get()= dataManager[MODULE_DATA]
         set(value) { dataManager[MODULE_DATA] = value; dataManager.setDirty(MODULE_DATA) }
+    private var localModuleData = NBTTagCompound()
     override val modules = mutableListOf<BoatModule>()
 
     /**
@@ -225,7 +226,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
             if(module.usesInventory) {
                 saveInventory(data, getInventory(module))
             }
-            list.appendTag(data)
+            list.appendTag(module.writeToNBT(this, data))
         }
         compound.setTag("modules", list)
         compound.setTag("state", moduleData)
@@ -250,7 +251,9 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
             if(module.usesInventory) {
                 loadInventory(moduleNBT, getInventory(module))
             }
-            addModule(correspondingLocation, addedByNBT = true)
+            addModule(correspondingLocation, addedByNBT = true).apply {
+                this.readFromNBT(this@ModularBoatEntity, moduleNBT)
+            }
         }
         moduleRNG = Random(boatID.leastSignificantBits)
         fun colorFromString(str: String): EnumDyeColor {
@@ -280,18 +283,25 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
                 }
     }
 
-    override fun saveState(module: BoatModule) {
+    override fun saveState(module: BoatModule, isLocal: Boolean) {
         val state = getState(module)
-        moduleData.setTag(module.id.toString(), state)
-        updateModuleData()
+        if(isLocal) {
+            localModuleData.setTag(module.id.toString(), state)
+        } else {
+            moduleData.setTag(module.id.toString(), state)
+            updateModuleData()
+        }
     }
 
-    override fun getState(module: BoatModule): NBTTagCompound {
+    override fun getState(module: BoatModule, isLocal: Boolean): NBTTagCompound {
         val key = module.id.toString()
-        val state = moduleData.getCompoundTag(key)
-        if(!moduleData.hasKey(key)) {
-            moduleData.setTag(key, state)
-            updateModuleData()
+        val source = if(isLocal) localModuleData else moduleData
+        val state = source.getCompoundTag(key)
+        if(!source.hasKey(key)) {
+            source.setTag(key, state)
+
+            if(!isLocal)
+                updateModuleData()
         }
         return state
     }
