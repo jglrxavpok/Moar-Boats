@@ -59,6 +59,7 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     private val subComponents = mutableListOf<ManagedEnvironment>()
     private val drivers = mutableListOf<DriverItem>()
     private val componentStacks = mutableListOf<ItemStack>()
+    private val scheduledActions = mutableListOf<() -> Unit>()
     private var initialized = false
 
     // Boat Control
@@ -372,6 +373,26 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
 
             }
         }
+    }
+
+    private fun schedule(action: () -> Unit) {
+        synchronized(scheduledActions) {
+            scheduledActions.add(action)
+            println("added action ${scheduledActions.size} for $this")
+        }
+    }
+
+    fun turnOn() {
+        machine.start()
+        println("turning on $this")
+    }
+
+    fun turnOff() {
+        //machine.architecture().close()
+        //machine.signal("shutdown", "shutdown", true)
+        val res = machine.stop()
+        //machine.costPerTick = 50.0
+        println("turning off (running = ${machine.isRunning} / paused = ${machine.isPaused}) (ok = $res) $this")
     }
 
 }

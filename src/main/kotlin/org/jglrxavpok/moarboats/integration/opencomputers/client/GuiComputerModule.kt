@@ -1,5 +1,7 @@
 package org.jglrxavpok.moarboats.integration.opencomputers.client
 
+import net.minecraft.client.gui.GuiButton
+import net.minecraft.client.gui.GuiButtonImage
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.Tessellator
@@ -13,6 +15,8 @@ import org.jglrxavpok.moarboats.common.containers.EmptyContainer
 import org.jglrxavpok.moarboats.integration.opencomputers.BoatMachineHost
 import org.jglrxavpok.moarboats.integration.opencomputers.ComputerModule
 import org.jglrxavpok.moarboats.integration.opencomputers.OpenComputersPlugin
+import org.jglrxavpok.moarboats.integration.opencomputers.network.CPingComputer
+import org.jglrxavpok.moarboats.integration.opencomputers.network.CTurnOnOffComputer
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11
 
@@ -26,6 +30,36 @@ class GuiComputerModule(val player: EntityPlayer, boat: IControllable): GuiModul
 
     override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/opencomputer/background.png")
     private val pressedKeys = mutableMapOf<Int, Char>()
+    private val turnOffButton = GuiButtonImage(-1,0,0,24,26,214, 136,26, moduleBackground)
+    private val turnOnButton = GuiButtonImage(-2,0,0,24,26,214, 188,26, moduleBackground)
+    private var machineRunning = false
+
+    override fun initGui() {
+        super.initGui()
+        turnOnButton.setPosition(guiLeft-turnOnButton.width+3, guiTop+23+5)
+        turnOffButton.setPosition(guiLeft-turnOffButton.width+3, guiTop+23+5)
+        addButton(turnOnButton)
+        addButton(turnOffButton)
+
+        turnOffButton.visible = machineRunning
+        turnOnButton.visible = !turnOffButton.visible
+    }
+
+    override fun updateScreen() {
+        super.updateScreen()
+        if(boat.correspondingEntity.ticksExisted % 10 == 0) { // ping every 0.5s
+            MoarBoats.network.sendToServer(CPingComputer(boat.entityID))
+        }
+    }
+
+    override fun actionPerformed(button: GuiButton?) {
+        super.actionPerformed(button)
+        if(button == turnOnButton) {
+            MoarBoats.network.sendToServer(CTurnOnOffComputer(boat.entityID, turnOn = true))
+        } else if(button == turnOffButton) {
+            MoarBoats.network.sendToServer(CTurnOnOffComputer(boat.entityID, turnOn = false))
+        }
+    }
 
     override fun renderBackground() {}
 
@@ -102,5 +136,12 @@ class GuiComputerModule(val player: EntityPlayer, boat: IControllable): GuiModul
                 code == Keyboard.KEY_RSHIFT ||
                 code == Keyboard.KEY_LMETA ||
                 code == Keyboard.KEY_RMETA
+    }
+
+    fun pong(isRunning: Boolean) {
+        this.machineRunning = isRunning
+
+        turnOffButton.visible = machineRunning
+        turnOnButton.visible = !turnOffButton.visible
     }
 }

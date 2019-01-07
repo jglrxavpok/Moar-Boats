@@ -34,6 +34,9 @@ import org.jglrxavpok.moarboats.integration.MoarBoatsIntegration
 import org.jglrxavpok.moarboats.integration.MoarBoatsPlugin
 import org.jglrxavpok.moarboats.integration.opencomputers.client.OCRenderer
 import org.jglrxavpok.moarboats.integration.opencomputers.items.ModuleHolderItem
+import org.jglrxavpok.moarboats.integration.opencomputers.network.CPingComputer
+import org.jglrxavpok.moarboats.integration.opencomputers.network.CTurnOnOffComputer
+import org.jglrxavpok.moarboats.integration.opencomputers.network.SPongComputer
 import org.jglrxavpok.moarboats.integration.opencomputers.network.SSyncMachineData
 
 @MoarBoatsIntegration("opencomputers|core")
@@ -64,7 +67,7 @@ class OpenComputersPlugin: MoarBoatsPlugin {
         }
     }
 
-    override fun handlers() = listOf(SSyncMachineData.Handler)
+    override fun handlers() = listOf(SSyncMachineData.Handler, CTurnOnOffComputer.Handler, CPingComputer.Handler, SPongComputer.Handler)
 
     override fun preInit() {
         super.preInit()

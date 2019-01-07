@@ -2,8 +2,6 @@ package org.jglrxavpok.moarboats.integration.opencomputers.network
 
 import io.netty.buffer.ByteBuf
 import net.minecraft.client.Minecraft
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import net.minecraftforge.fml.relauncher.Side
@@ -11,35 +9,41 @@ import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.network.MBMessageHandler
 import org.jglrxavpok.moarboats.integration.opencomputers.OpenComputersPlugin
 
-class SSyncMachineData(): IMessage {
+class CTurnOnOffComputer(): IMessage {
 
     private var boatID = 0
-    private lateinit var data: NBTTagCompound
+    private var turnOn = false
 
-    constructor(boatID: Int, data: NBTTagCompound): this() {
+    constructor(boatID: Int, turnOn: Boolean): this() {
         this.boatID = boatID
-        this.data = data
+        this.turnOn = turnOn
     }
 
     override fun fromBytes(buf: ByteBuf) {
         boatID = buf.readInt()
-        data = ByteBufUtils.readTag(buf)!!
+        turnOn = buf.readBoolean()
     }
 
     override fun toBytes(buf: ByteBuf) {
         buf.writeInt(boatID)
-        ByteBufUtils.writeTag(buf, data)
+        buf.writeBoolean(turnOn)
     }
 
-    object Handler: MBMessageHandler<SSyncMachineData, IMessage?> {
-        override val packetClass = SSyncMachineData::class
-        override val receiverSide = Side.CLIENT
+    object Handler: MBMessageHandler<CTurnOnOffComputer, IMessage?> {
+        override val packetClass = CTurnOnOffComputer::class
+        override val receiverSide = Side.SERVER
 
-        override fun onMessage(message: SSyncMachineData, ctx: MessageContext): IMessage? {
+        override fun onMessage(message: CTurnOnOffComputer, ctx: MessageContext): IMessage? {
             with(message) {
-                val world = Minecraft.getMinecraft().world
+                val world = ctx.serverHandler.player.world
                 val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
-                OpenComputersPlugin.getHost(boat)?.processInitialData(data)
+                OpenComputersPlugin.getHost(boat)?.let {
+                    if(turnOn) {
+                        it.turnOn()
+                    } else {
+                        it.turnOff()
+                    }
+                }
             }
             return null
         }
