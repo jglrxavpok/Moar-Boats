@@ -36,7 +36,6 @@ object ComputerModule: BoatModule() {
     override fun update(from: IControllable) {
         val host = OpenComputersPlugin.getHost(from)
         if(!InitializedProperty[from]) {
-            println("INIT OC MODULE!!")
             if(!HasDoneFirstInit[from]) {
                 host?.generateAddresses()
             }
@@ -47,7 +46,7 @@ object ComputerModule: BoatModule() {
             }
             host?.initConnections()
             host?.start()
-            host?.machine()?.architecture()?.initialize() ?: println("$host ${host?.machine()} ${host?.machine()?.architecture()}")
+            host?.machine()?.architecture()?.initialize()// ?: println("$host ${host?.machine()} ${host?.machine()?.architecture()}")
 
             InitializedProperty[from] = true
         }
@@ -72,7 +71,6 @@ object ComputerModule: BoatModule() {
         if(!boat.worldRef.isRemote) {
             InitializedProperty[boat] = true
             HasDoneFirstInit[boat] = true
-            println(">> load!!")
             host?.initConnections()
             host?.start()
          //   host?.machine()?.architecture()?.initialize() ?: println("$host ${host?.machine()} ${host?.machine()?.architecture()}")

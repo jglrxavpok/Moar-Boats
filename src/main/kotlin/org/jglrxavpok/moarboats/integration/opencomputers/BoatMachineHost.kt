@@ -88,7 +88,6 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     fun processInitialData(data: NBTTagCompound) {
         buffer.load(data.getCompoundTag("buffer"))
         keyboard.load(data.getCompoundTag("keyboard"))
-        println("received: $data")
         initialized = true
     }
 
@@ -180,7 +179,6 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     private fun sendInitialData() {
         val data = createInitialData()
         MoarBoats.network.sendToAll(SSyncMachineData(boat.entityID, data))
-        println("sending initial data!!")
         initialized = true
     }
 
@@ -291,12 +289,9 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     }
 
     override fun onMessage(p0: Message) {
-        println("Message $p0")
-        //machine.node().network().sendToNeighbors(p0.source(), p0.name(), p0.data())
     }
 
     override fun onDisconnect(p0: Node) {
-    //    internalNode.network().disconnect(internalNode, p0)
         if(p0 != machine.node())
             machine.node().disconnect(p0)
     }
@@ -375,24 +370,12 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
         }
     }
 
-    private fun schedule(action: () -> Unit) {
-        synchronized(scheduledActions) {
-            scheduledActions.add(action)
-            println("added action ${scheduledActions.size} for $this")
-        }
-    }
-
     fun turnOn() {
         machine.start()
-        println("turning on $this")
     }
 
     fun turnOff() {
-        //machine.architecture().close()
-        //machine.signal("shutdown", "shutdown", true)
-        val res = machine.stop()
-        //machine.costPerTick = 50.0
-        println("turning off (running = ${machine.isRunning} / paused = ${machine.isPaused}) (ok = $res) $this")
+        machine.stop()
     }
 
 }
