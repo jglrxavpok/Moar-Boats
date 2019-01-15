@@ -1,6 +1,7 @@
 {
   "homepage": "https://minecraft.curseforge.com/projects/moar-boats",
   "1.12.2": {
+    "4.1.0.1": "* Fix Patreon hook appearing behind other players (and in F5 mode)",
     "4.1.0.0": "+ OpenComputers support!!",
     "4.0.1.0": "* Fixed crash with FluidStack\n* Better JourneyMap integration\n* Rudder can be non blocking",
     "4.0.0.0": "Way too many changes to write them here but basically:\n+ Golden tickets, map with path to save boat paths\n* Mapping table\n* Chunk loader module",
@@ -16,7 +17,7 @@
     "1.2.1": "+ Added configuration file\n* Fishing rods are now damaged when used in the fishing module\n* Added configuration options for fishing speed and rod removal before breaking"
   },
   "promos": {
-    "1.12.2-recommended": "4.1.0.0",
-    "1.12.2-latest": "4.1.0.0"
+    "1.12.2-recommended": "4.1.0.1",
+    "1.12.2-latest": "4.1.0.1"
   }
 }

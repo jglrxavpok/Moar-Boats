@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.entity.RenderPlayer
 import net.minecraft.client.renderer.entity.layers.LayerRenderer
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.util.EnumHand
 import net.minecraft.util.EnumHandSide
 import net.minecraft.util.ResourceLocation
 import org.jglrxavpok.moarboats.MoarBoats
@@ -24,6 +25,9 @@ class MoarBoatsPatreonHookLayer(val renderplayer: RenderPlayer) : LayerRenderer<
         if((entitylivingbaseIn as EntityPlayer).gameProfile.id.toString().toLowerCase() !in MoarBoats.PatreonList) {
             return
         }
+
+        if( ! entitylivingbaseIn.getHeldItem(EnumHand.MAIN_HAND).isEmpty)
+            return // don't show for non-empty hands
         GlStateManager.pushMatrix()
 
         val handSide = entitylivingbaseIn.primaryHand

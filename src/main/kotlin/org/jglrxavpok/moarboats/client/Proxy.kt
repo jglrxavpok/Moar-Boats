@@ -111,26 +111,6 @@ class Proxy: MoarBoatsProxy() {
 
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
-    fun renderPlayer(event: RenderPlayerEvent.Post) {
-        GlStateManager.pushMatrix()
-
-        val clientPlayer = Minecraft.getMinecraft().player
-
-        val scale = 1f/16f
-        fakePlayerModel.postRenderArm(scale, clientPlayer.primaryHand)
-
-        val hookScale = 4f/11f
-        GlStateManager.rotate(-90f, 0f, 1f, 0f)
-        GlStateManager.scale(hookScale, -hookScale, hookScale)
-        GlStateManager.translate(-1f/16f, 0f, -1f/16f)
-        GlStateManager.translate(0f, -1.25f, 0f)
-        Minecraft.getMinecraft().textureManager.bindTexture(hookTextureLocation)
-        hookModel.render(clientPlayer, 0f, 0f, 0f, 0f, 0f, scale)
-        GlStateManager.popMatrix()
-    }
-
-    @SideOnly(Side.CLIENT)
-    @SubscribeEvent
     fun renderHand(event: RenderSpecificHandEvent) {
         val mc = Minecraft.getMinecraft()
         val player = mc.player
