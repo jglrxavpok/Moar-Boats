@@ -11,7 +11,7 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiTankModule
-import org.jglrxavpok.moarboats.common.NewConfig
+import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.blocks.BlockBoatTank
 import org.jglrxavpok.moarboats.common.containers.ContainerBase
 import org.jglrxavpok.moarboats.common.containers.EmptyContainer
@@ -65,7 +65,7 @@ object FluidTankModule: BoatModule(), IFluidBoatModule {
     }
 
     override fun getCapacity(boat: IControllable): Int {
-        return NewConfig.fluidTank.tankCapacity
+        return MoarBoatsConfig.fluidTank.tankCapacity
     }
 
     override fun canBeFilled(boat: IControllable) = true

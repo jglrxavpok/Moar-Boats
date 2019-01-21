@@ -25,7 +25,6 @@ import net.minecraft.util.ResourceLocation
 import net.minecraft.world.storage.MapStorage
 import net.minecraftforge.common.ForgeChunkManager
 import net.minecraftforge.common.MinecraftForge
-import net.minecraftforge.common.config.Configuration
 import net.minecraftforge.fml.common.FMLCommonHandler
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper
@@ -49,7 +48,7 @@ import java.net.URL
 
 @Mod.EventBusSubscriber
 @Mod(modLanguageAdapter = "net.shadowfacts.forgelin.KotlinAdapter", modid = MoarBoats.ModID, dependencies = "required-after:forgelin;",
-        name = "Moar Boats", version = "4.1.0.1", updateJSON = "https://raw.githubusercontent.com/jglrxavpok/Moar-Boats/master/updateCheck.json")
+        name = "Moar Boats", version = "4.1.0.2", updateJSON = "https://raw.githubusercontent.com/jglrxavpok/Moar-Boats/master/updateCheck.json")
 object MoarBoats {
     const val ModID = "moarboats"
 
@@ -104,6 +103,7 @@ object MoarBoats {
         logger = event.modLog
         MinecraftForge.EVENT_BUS.register(this)
         MinecraftForge.EVENT_BUS.register(ItemEventHandler)
+        MinecraftForge.EVENT_BUS.register(MoarBoatsConfig::javaClass)
         proxy.preInit()
         ForgeChunkManager.setForcedChunkLoadingCallback(MoarBoats) { tickets, world ->
             for(ticket in tickets) {
@@ -159,7 +159,7 @@ object MoarBoats {
         event.registry.registerModule(DropperModule, Item.getItemFromBlock(MCBlocks.DROPPER), { boat, module -> SimpleModuleInventory(3*5, "dropper", boat, module) })
         event.registry.registerModule(BatteryModule, Item.getItemFromBlock(BlockBoatBattery))
         event.registry.registerModule(FluidTankModule, Item.getItemFromBlock(BlockBoatTank))
-        event.registry.registerModule(ChunkLoadingModule, ChunkLoaderItem, restriction = { NewConfig.chunkLoader.allowed })
+        event.registry.registerModule(ChunkLoadingModule, ChunkLoaderItem, restriction = { MoarBoatsConfig.chunkLoader.allowed })
         plugins.forEach { it.registerModules(event.registry) }
     }
 

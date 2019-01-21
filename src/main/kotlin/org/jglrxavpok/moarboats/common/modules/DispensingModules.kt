@@ -18,7 +18,7 @@ import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiDispenserModule
-import org.jglrxavpok.moarboats.common.NewConfig
+import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.containers.ContainerDispenserModule
 import org.jglrxavpok.moarboats.common.state.ArrayBoatProperty
 import org.jglrxavpok.moarboats.common.state.BlockPosProperty
@@ -82,8 +82,8 @@ abstract class DispensingModule: BoatModule() {
     private val pattern = Pattern.compile("^([a-z_]+:)?([a-z_]+)(\\/\\d+)?$")
 
     protected fun isAllowed(stack: ItemStack): Boolean {
-        val isInList = NewConfig.dispenserModule.items.any { id ->
-            val matcher = pattern.matcher(id.trim(' ', '\n', '\r', '\b', '\t'))
+        val isInList = MoarBoatsConfig.dispenserModule.items.any { id ->
+            val matcher = pattern.matcher(id!!.trim(' ', '\n', '\r', '\b', '\t'))
             if(!matcher.matches())
                 return@any false
             val domain = matcher.group(1)
@@ -103,8 +103,8 @@ abstract class DispensingModule: BoatModule() {
             location == stack.item.registryName
         }
         return when {
-            isInList && NewConfig.dispenserModule.configMode == "disallow" -> false
-            !isInList && NewConfig.dispenserModule.configMode == "allow" -> false
+            isInList && MoarBoatsConfig.dispenserModule.configMode == "disallow" -> false
+            !isInList && MoarBoatsConfig.dispenserModule.configMode == "allow" -> false
             else -> true
         }
     }
