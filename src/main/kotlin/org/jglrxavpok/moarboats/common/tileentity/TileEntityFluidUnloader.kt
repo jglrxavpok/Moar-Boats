@@ -12,7 +12,7 @@ import net.minecraftforge.fluids.FluidStack
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import net.minecraftforge.fluids.capability.IFluidHandler
 import net.minecraftforge.fluids.capability.IFluidTankProperties
-import org.jglrxavpok.moarboats.common.NewConfig
+import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.blocks.Facing
 
 class TileEntityFluidUnloader: TileEntityListenable(), ITickable, IFluidHandler, IFluidTankProperties {
@@ -29,7 +29,7 @@ class TileEntityFluidUnloader: TileEntityListenable(), ITickable, IFluidHandler,
         val aabb = AxisAlignedBB(pos.offset(blockFacing))
         val entities = world.getEntitiesWithinAABB(Entity::class.java, aabb) { e -> e != null && e.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null) }
 
-        val totalFluidToExtract = minOf(NewConfig.fluidUnloader.pullAmount, capacity-fluidAmount)
+        val totalFluidToExtract = minOf(MoarBoatsConfig.fluidUnloader.pullAmount, capacity-fluidAmount)
         val entityCount = entities.size
         if(entityCount <= 0)
             return
@@ -103,7 +103,7 @@ class TileEntityFluidUnloader: TileEntityListenable(), ITickable, IFluidHandler,
     }
 
     override fun getCapacity(): Int {
-        return NewConfig.fluidUnloader.capacity
+        return MoarBoatsConfig.fluidUnloader.capacity
     }
 
     override fun canFillFluidType(fluidStack: FluidStack?): Boolean {

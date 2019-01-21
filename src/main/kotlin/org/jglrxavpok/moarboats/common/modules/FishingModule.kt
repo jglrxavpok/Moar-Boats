@@ -22,7 +22,7 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiFishingModule
-import org.jglrxavpok.moarboats.common.NewConfig
+import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.containers.ContainerBase
 import org.jglrxavpok.moarboats.common.containers.ContainerFishingModule
 import org.jglrxavpok.moarboats.common.network.SPlaySound
@@ -74,7 +74,7 @@ object FishingModule : BoatModule() {
 
             val lureSpeed = EnchantmentHelper.getFishingSpeedBonus(rodStack)
 
-            val randNumber = from.moduleRNG.nextInt((400 - lureSpeed*50)*9) / NewConfig.fishing.speedMultiplier
+            val randNumber = from.moduleRNG.nextInt((400 - lureSpeed*50)*9) / MoarBoatsConfig.fishing.speedMultiplier
             if(randNumber <= 1f) {
                 val luck = EnchantmentHelper.getFishingLuckBonus(rodStack)
                 // catch fish
@@ -104,7 +104,7 @@ object FishingModule : BoatModule() {
                     breakRod(from)
                     changeRodIfPossible(from)
                     return
-                } else if(rodStack.itemDamage >= rodStack.maxDamage - NewConfig.fishing.remainingUsesBeforeRemoval) {
+                } else if(rodStack.itemDamage >= rodStack.maxDamage - MoarBoatsConfig.fishing.remainingUsesBeforeRemoval) {
                     changeRodIfPossible(from)
                     return
                 }
@@ -132,7 +132,7 @@ object FishingModule : BoatModule() {
             var foundReplacement = false
             for(index in 0 until storageInventory.sizeInventory) {
                 val stack = storageInventory.getStackInSlot(index)
-                if(stack.item is ItemFishingRod && stack.itemDamage < stack.maxDamage - NewConfig.fishing.remainingUsesBeforeRemoval) {
+                if(stack.item is ItemFishingRod && stack.itemDamage < stack.maxDamage - MoarBoatsConfig.fishing.remainingUsesBeforeRemoval) {
                     // Swap rods if possible
                     foundReplacement = true
                     storageInventory.setInventorySlotContents(index, inventory.getStackInSlot(0))
