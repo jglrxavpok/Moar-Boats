@@ -11,6 +11,7 @@ import net.minecraft.util.EnumHandSide
 import net.minecraft.util.ResourceLocation
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.models.ModelPatreonHook
+import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 
 // based on LayerHeldItem
 class MoarBoatsPatreonHookLayer(val renderplayer: RenderPlayer) : LayerRenderer<EntityLivingBase> {
@@ -22,6 +23,9 @@ class MoarBoatsPatreonHookLayer(val renderplayer: RenderPlayer) : LayerRenderer<
     }
 
     override fun doRenderLayer(entitylivingbaseIn: EntityLivingBase, limbSwing: Float, limbSwingAmount: Float, partialTicks: Float, ageInTicks: Float, netHeadYaw: Float, headPitch: Float, scale: Float) {
+        if(MoarBoatsConfig.misc.hidePatreonHook) {
+            return
+        }
         if((entitylivingbaseIn as EntityPlayer).gameProfile.id.toString().toLowerCase() !in MoarBoats.PatreonList) {
             return
         }

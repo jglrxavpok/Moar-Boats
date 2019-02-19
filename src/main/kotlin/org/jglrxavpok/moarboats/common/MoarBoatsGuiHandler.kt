@@ -109,10 +109,18 @@ object MoarBoatsGuiHandler: IGuiHandler {
                 val pos = BlockPos.PooledMutableBlockPos.retain(x, y, z)
                 val te = world.getTileEntity(pos)
                 pos.release()
-                val index = (Minecraft.getMinecraft().currentScreen as? GuiMappingTable)?.selectedIndex ?: 0
                 when (te) {
                     null -> null
-                    is TileEntityMappingTable -> GuiWaypointEditor(player, te, index)
+                    is TileEntityMappingTable -> {
+                        val stack = te.inventory.getStackInSlot(0)
+                        val index = (Minecraft.getMinecraft().currentScreen as? GuiMappingTable)?.selectedIndex ?: 0
+                        val pathNBT = (stack.item as org.jglrxavpok.moarboats.common.items.ItemPath).getWaypointData(stack, MoarBoats.getLocalMapStorage())
+                        if(index !in 0 until pathNBT.tagCount()) {
+                            null
+                        } else {
+                            GuiWaypointEditor(player, te, index)
+                        }
+                    }
                     else -> null
                 }
             }
