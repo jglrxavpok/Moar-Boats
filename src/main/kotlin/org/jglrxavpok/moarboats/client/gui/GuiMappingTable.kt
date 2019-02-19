@@ -171,8 +171,9 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
             loopingButton.inFirstState = path.isPathLooping(stack)
             val list = path.getWaypointData(stack, MoarBoats.getLocalMapStorage())
             for(nbt in list) {
-                nbt as NBTTagCompound
-                this.list.slots.add(nbt)
+                if(nbt is NBTTagCompound) {
+                    this.list.slots.add(nbt)
+                }
             }
         }
     }
@@ -188,8 +189,9 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
     fun confirmWaypointCreation(data: NBTTagList) {
         list.slots.clear()
         for(nbt in data) {
-            nbt as NBTTagCompound
-            this.list.slots.add(nbt)
+            if(nbt is NBTTagCompound) {
+                this.list.slots.add(nbt)
+            }
         }
     //    edit(waypointToEditAfterCreation)
     }

@@ -30,6 +30,7 @@ import org.jglrxavpok.moarboats.client.models.ModelPatreonHook
 import org.jglrxavpok.moarboats.client.renders.*
 import org.jglrxavpok.moarboats.common.Blocks
 import org.jglrxavpok.moarboats.common.Items
+import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.MoarBoatsProxy
 import org.jglrxavpok.moarboats.common.entities.AnimalBoatEntity
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
@@ -116,6 +117,10 @@ class Proxy: MoarBoatsProxy() {
         val player = mc.player
         if(mc.player.gameProfile.id.toString().toLowerCase() in MoarBoats.PatreonList) {
             if(event.hand == EnumHand.MAIN_HAND && player.getHeldItem(event.hand).isEmpty) {
+                if(MoarBoatsConfig.misc.hidePatreonHook) {
+                    return
+                }
+
                 event.isCanceled = true
 
                 GlStateManager.pushMatrix()
