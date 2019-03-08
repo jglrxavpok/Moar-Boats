@@ -61,4 +61,12 @@ object BlockEnergyUnloader: Block(MoarBoats.MachineMaterial) {
         return true
     }
 
+    override fun hasComparatorInputOverride(state: IBlockState): Boolean {
+        return true
+    }
+
+    override fun getComparatorInputOverride(blockState: IBlockState, worldIn: World, pos: BlockPos): Int {
+        return (worldIn.getTileEntity(pos) as? TileEntityEnergyUnloader)?.getRedstonePower() ?: 0
+    }
+
 }

@@ -156,7 +156,6 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
 
     override fun start(): Boolean {
         val connectToNetwork = !world().isRemote
-        buffer.isRenderingEnabled = true
         if(connectToNetwork) {
             machine.start()
             sendInitialData()

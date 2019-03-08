@@ -20,16 +20,18 @@ class TileEntityFluidLoader: TileEntityListenable(), ITickable, IFluidHandler, I
     val blockFacing: EnumFacing get()= world.getBlockState(pos).getValue(Facing)
     private var fluid: Fluid? = null
     private var fluidAmount: Int = 0
+    private var working: Boolean = false
 
     override fun update() {
         if(world.isRemote)
             return
+        working = false
         updateListeners()
 
         if(fluid == null)
             return
 
-        val aabb = AxisAlignedBB(pos.offset(blockFacing))
+        val aabb = create3x3AxisAlignedBB(pos.offset(blockFacing))
         val entities = world.getEntitiesWithinAABB(Entity::class.java, aabb) { e -> e != null && e.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null) }
 
         val totalFluidToSend = minOf(MoarBoatsConfig.fluidLoader.sendAmount, fluidAmount)
@@ -40,8 +42,20 @@ class TileEntityFluidLoader: TileEntityListenable(), ITickable, IFluidHandler, I
         entities.forEach {
             val fluidCapa = it.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null)
             if(fluidCapa != null) {
-                forceDrain(fluidCapa.fill(FluidStack(fluid, fluidToSendToASingleNeighbor), true), true)
+                val amountDrained = forceDrain(fluidCapa.fill(FluidStack(fluid, fluidToSendToASingleNeighbor), true), true)
+                working = working || (amountDrained?.amount ?: 0) > 0
+                println(">> $working")
             }
+        }
+    }
+
+    override fun getRedstonePower(): Int {
+        return if(working) {
+            val ratio = fluidAmount.toDouble()/capacity // signal is strongest when the buffer is full (transfer almost finished)
+            val redstonePower = (ratio * 15).toInt()
+            minOf(1, redstonePower) // give a signal of at least 1 if currently working
+        } else {
+            0
         }
     }
 

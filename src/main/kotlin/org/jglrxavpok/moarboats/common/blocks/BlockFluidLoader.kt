@@ -20,6 +20,7 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergyLoader
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityFluidLoader
+import org.jglrxavpok.moarboats.common.tileentity.TileEntityFluidUnloader
 
 object BlockFluidLoader: Block(MoarBoats.MachineMaterial) {
 
@@ -59,6 +60,14 @@ object BlockFluidLoader: Block(MoarBoats.MachineMaterial) {
 
     override fun getMetaFromState(state: IBlockState): Int {
         return state.getValue(Facing).ordinal
+    }
+
+    override fun hasComparatorInputOverride(state: IBlockState): Boolean {
+        return true
+    }
+
+    override fun getComparatorInputOverride(blockState: IBlockState, worldIn: World, pos: BlockPos): Int {
+        return (worldIn.getTileEntity(pos) as? TileEntityFluidLoader)?.getRedstonePower() ?: 0
     }
 
 }

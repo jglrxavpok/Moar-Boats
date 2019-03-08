@@ -8,6 +8,7 @@ import net.minecraft.block.state.BlockStateContainer
 import net.minecraft.block.state.IBlockState
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.inventory.Container
 import net.minecraft.item.Item
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.util.EnumFacing
@@ -59,6 +60,14 @@ object BlockFluidUnloader: Block(MoarBoats.MachineMaterial) {
 
     override fun getMetaFromState(state: IBlockState): Int {
         return state.getValue(Facing).ordinal
+    }
+
+    override fun hasComparatorInputOverride(state: IBlockState): Boolean {
+        return true
+    }
+
+    override fun getComparatorInputOverride(blockState: IBlockState, worldIn: World, pos: BlockPos): Int {
+        return (worldIn.getTileEntity(pos) as? TileEntityFluidUnloader)?.getRedstonePower() ?: 0
     }
 
 }

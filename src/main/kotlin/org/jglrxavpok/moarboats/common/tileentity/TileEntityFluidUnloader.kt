@@ -20,13 +20,15 @@ class TileEntityFluidUnloader: TileEntityListenable(), ITickable, IFluidHandler,
     val blockFacing: EnumFacing get()= world.getBlockState(pos).getValue(Facing)
     private var fluid: Fluid? = null
     private var fluidAmount: Int = 0
+    private var working: Boolean = false
 
     override fun update() {
         if(world.isRemote)
             return
+        working = false
         updateListeners()
 
-        val aabb = AxisAlignedBB(pos.offset(blockFacing))
+        val aabb = create3x3AxisAlignedBB(pos.offset(blockFacing))
         val entities = world.getEntitiesWithinAABB(Entity::class.java, aabb) { e -> e != null && e.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null) }
 
         val totalFluidToExtract = minOf(MoarBoatsConfig.fluidUnloader.pullAmount, capacity-fluidAmount)
@@ -37,12 +39,23 @@ class TileEntityFluidUnloader: TileEntityListenable(), ITickable, IFluidHandler,
         entities.forEach {
             val fluidCapa = it.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null)
             if(fluidCapa != null) {
-                if(fluid != null) {
+                val amountFilled = if(fluid != null) {
                     forceFill(fluidCapa.drain(FluidStack(fluid, fluidToExtractFromASingleNeighbor), true) ?: FluidStack(fluid, 0), true)
                 } else {
                     forceFill(fluidCapa.drain(fluidToExtractFromASingleNeighbor, true) ?: FluidStack(FluidRegistry.WATER, 0), true)
                 }
+                working = working || amountFilled > 0
             }
+        }
+    }
+
+    override fun getRedstonePower(): Int {
+        return if(working) {
+            val ratio = 1.0-(fluidAmount.toDouble()/capacity) // signal is strongest when the buffer is empty (transfer almost finished)
+            val redstonePower = (ratio * 15).toInt()
+            minOf(1, redstonePower) // give a signal of at least 1 if currently working
+        } else {
+            0
         }
     }
 
@@ -145,4 +158,5 @@ class TileEntityFluidUnloader: TileEntityListenable(), ITickable, IFluidHandler,
         fluid = FluidRegistry.getFluid(compound.getString("fluidName"))
         fluidAmount = compound.getInteger("fluidAmount")
     }
+
 }
