@@ -26,7 +26,7 @@ class TileEntityFluidUnloader: TileEntityListenable(), ITickable, IFluidHandler,
             return
         updateListeners()
 
-        val aabb = AxisAlignedBB(pos.offset(blockFacing))
+        val aabb = create3x3AxisAlignedBB(pos.offset(blockFacing))
         val entities = world.getEntitiesWithinAABB(Entity::class.java, aabb) { e -> e != null && e.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null) }
 
         val totalFluidToExtract = minOf(MoarBoatsConfig.fluidUnloader.pullAmount, capacity-fluidAmount)

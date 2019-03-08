@@ -23,7 +23,7 @@ class TileEntityEnergyLoader: TileEntityEnergy(), ITickable {
         facings.remove(blockFacing)
         pullEnergyFromNeighbors(MoarBoatsConfig.energyLoader.pullAmount, facings)
 
-        val aabb = AxisAlignedBB(pos.offset(blockFacing))
+        val aabb = create3x3AxisAlignedBB(pos.offset(blockFacing))
         val entities = world.getEntitiesWithinAABB(Entity::class.java, aabb) { e -> e != null && e.hasCapability(CapabilityEnergy.ENERGY, null) }
 
         val totalEnergyToSend = minOf(MoarBoatsConfig.energyLoader.sendAmount, energyStored)

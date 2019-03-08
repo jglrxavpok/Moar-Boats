@@ -151,6 +151,9 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         if(!blockedMotion) {
             this.motionX += (MathHelper.sin(-this.rotationYaw * 0.017453292f) * acceleration).toDouble()
             this.motionZ += (MathHelper.cos(this.rotationYaw * 0.017453292f) * acceleration).toDouble()
+        } else {
+            this.motionX = 0.0
+            this.motionZ = 0.0
         }
     }
 
