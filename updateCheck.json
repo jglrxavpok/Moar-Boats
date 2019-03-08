@@ -1,6 +1,7 @@
 {
   "homepage": "https://minecraft.curseforge.com/projects/moar-boats",
   "1.12.2": {
+    "4.1.1.0": "* Redstone signals now completely stop boats, no matter their speed\n* Loader and unloaders now output a comparator signal when transferring with boats\n** For loaders: the signal is proportionnal to the amount contained inside their internal buffer\n** For unloaders: the signal is proportionnal to the amount that can be store inside their internal buffer\n* Loaders and unloaders now have a 3x3 area effect\n* Ropes are now stackable\n* Fixed a crash on servers when using the OpenComputers module",
     "4.1.0.3": "* Added option to hide Patreon hook & should fix crash with mapping table",
     "4.1.0.2": "* Fix crash due to config",
     "4.1.0.1": "* Fix Patreon hook appearing behind other players (and in F5 mode)",
@@ -19,7 +20,7 @@
     "1.2.1": "+ Added configuration file\n* Fishing rods are now damaged when used in the fishing module\n* Added configuration options for fishing speed and rod removal before breaking"
   },
   "promos": {
-    "1.12.2-recommended": "4.1.0.3",
-    "1.12.2-latest": "4.1.0.3"
+    "1.12.2-recommended": "4.1.1.0",
+    "1.12.2-latest": "4.1.1.0"
   }
 }
