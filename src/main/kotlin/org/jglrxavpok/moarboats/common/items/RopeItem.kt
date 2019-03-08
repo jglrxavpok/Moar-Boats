@@ -30,7 +30,6 @@ object RopeItem : Item() {
         creativeTab = MoarBoats.CreativeTab
         unlocalizedName = "rope"
         registryName = ResourceLocation(MoarBoats.ModID, "rope")
-        //maxStackSize = 1
 
         addPropertyOverride(ResourceLocation("firstKnot")) { stack, _, _ ->
             if(getState(stack) == State.WAITING_NEXT) 1f else 0f

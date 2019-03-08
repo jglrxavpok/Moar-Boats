@@ -12,11 +12,13 @@ class TileEntityEnergyUnloader: TileEntityEnergy(), ITickable {
     override val maxReceivableEnergy = 0
     override val maxExtractableEnergy = maxEnergyStored
 
+    private var working: Boolean = false
     val blockFacing: EnumFacing get()= world.getBlockState(pos).getValue(Facing)
 
     override fun update() {
         if(world.isRemote)
             return
+        working = false
         updateListeners()
 
         val facings = EnumFacing.values().toMutableList()
@@ -36,10 +38,21 @@ class TileEntityEnergyUnloader: TileEntityEnergy(), ITickable {
             val energyCapa = it.getCapability(CapabilityEnergy.ENERGY, null)
             if(energyCapa != null) {
                 energyActuallyReceived += energyCapa.extractEnergy(energyToExtractFromASingleNeighbor, false)
+                working = working || energyActuallyReceived > 0
             }
         }
         energy += energyActuallyReceived
         markDirty()
+    }
+
+    override fun getRedstonePower(): Int {
+        return if(working) {
+            val ratio = 1.0-(energyStored.toDouble()/maxEnergyStored) // signal is strongest when the buffer is empty (transfer almost finished)
+            val redstonePower = (ratio * 15).toInt()
+            minOf(1, redstonePower) // give a signal of at least 1 if currently working
+        } else {
+            0
+        }
     }
 
     override fun isEnergyFacing(facing: EnumFacing?): Boolean {

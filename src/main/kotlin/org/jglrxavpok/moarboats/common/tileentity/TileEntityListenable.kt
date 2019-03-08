@@ -11,6 +11,8 @@ abstract class TileEntityListenable: TileEntity() {
     private val listenersToAdd = mutableListOf<Container>()
     private val listenersToRemove = mutableListOf<Container>()
 
+    abstract fun getRedstonePower(): Int
+
     fun removeContainerListener(container: Container) {
         listenersToRemove += container
     }
