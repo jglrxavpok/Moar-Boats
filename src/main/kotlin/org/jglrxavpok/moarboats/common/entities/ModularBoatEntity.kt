@@ -359,7 +359,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
 
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative) {
-            dropItem(ModularBoatItem, 1)
+            entityDropItem(ItemStack(ModularBoatItem, 1, color.metadata), 0.0f)
         }
         modules.forEach {
             dropItemsForModule(it, killedByPlayerInCreative)
