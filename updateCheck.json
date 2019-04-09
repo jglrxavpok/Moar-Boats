@@ -1,6 +1,7 @@
 {
   "homepage": "https://minecraft.curseforge.com/projects/moar-boats",
   "1.12.2": {
+    "4.1.2.0": "+ Added \"Reverse Course\" option in the Mapping Table and the Path Editor: boats will do their path in reverse when reaching the end\n* Fixed Mapping Table losing items when destroyed\n* Adjusted hardness of the Mapping Table to be the same of the Crafting Table\n* Destroyed boats now take into account the color of the boat when creating the item",
     "4.1.1.0": "* Redstone signals now completely stop boats, no matter their speed\n* Loader and unloaders now output a comparator signal when transferring with boats\n** For loaders: the signal is proportionnal to the amount contained inside their internal buffer\n** For unloaders: the signal is proportionnal to the amount that can be store inside their internal buffer\n* Loaders and unloaders now have a 3x3 area effect\n* Ropes are now stackable\n* Fixed a crash on servers when using the OpenComputers module",
     "4.1.0.3": "* Added option to hide Patreon hook & should fix crash with mapping table",
     "4.1.0.2": "* Fix crash due to config",
