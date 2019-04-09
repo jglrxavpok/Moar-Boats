@@ -20,6 +20,7 @@ import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleInventory
 import org.jglrxavpok.moarboats.common.items.AnimalBoatItem
 import org.jglrxavpok.moarboats.common.items.ModularBoatItem
+import org.jglrxavpok.moarboats.common.state.BoatProperty
 import org.jglrxavpok.moarboats.extensions.Fluids
 import org.jglrxavpok.moarboats.extensions.toRadians
 import java.util.*
@@ -163,4 +164,8 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(world) {
     }
 
     override fun imposeSpeed(speed: Float) { }
+
+    override fun <T> contains(property: BoatProperty<T>): Boolean {
+        return false
+    }
 }

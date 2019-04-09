@@ -15,7 +15,8 @@ abstract class BoatProperty<Type>(val module: BoatModule, val id: String) {
     abstract val readProperty: NBTTagCompound.(String) -> Type
     abstract val writeProperty: NBTTagCompound.(String, Type) -> Unit
 
-    private var isLocal = false
+    var isLocal = false
+        private set
 
     operator fun get(boat: IControllable) = boat.getState(module).readProperty(id)
     operator fun set(boat: IControllable, value: Type) {

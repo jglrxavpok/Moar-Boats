@@ -21,6 +21,7 @@ import org.jglrxavpok.moarboats.common.modules.HelmModule
 import org.jglrxavpok.moarboats.extensions.toDegrees
 import org.jglrxavpok.moarboats.extensions.toRadians
 import org.jglrxavpok.moarboats.api.BoatModule
+import org.jglrxavpok.moarboats.common.data.LoopingOptions
 import org.lwjgl.Sys
 
 object HelmModuleRenderer : BoatModuleRenderer() {
@@ -79,7 +80,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
 
             val mapdata = HelmModule.mapDataCopyProperty[boat]
             GlStateManager.translate(0f, 0f, 1f)
-            renderMap(mapdata, x, y, mapSize, boat.posX, boat.posZ, 7.0, HelmModule.waypointsProperty[boat], HelmModule.loopingProperty[boat])
+            renderMap(mapdata, x, y, mapSize, boat.posX, boat.posZ, 7.0, HelmModule.waypointsProperty[boat], HelmModule.loopingProperty[boat] == LoopingOptions.Loops)
         }
         GlStateManager.popMatrix()
     }

@@ -4,22 +4,23 @@ import io.netty.buffer.ByteBuf
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import net.minecraftforge.fml.relauncher.Side
+import org.jglrxavpok.moarboats.common.data.LoopingOptions
 import kotlin.reflect.KClass
 
 abstract class CChangeLoopingStateBase(): IMessage {
 
-    var loops: Boolean = false
+    var loopingOption: LoopingOptions = LoopingOptions.NoLoop
 
-    constructor(loops: Boolean): this() {
-        this.loops = loops
+    constructor(loopingOption: LoopingOptions): this() {
+        this.loopingOption = loopingOption
     }
 
     override fun fromBytes(buf: ByteBuf) {
-        loops = buf.readBoolean()
+        loopingOption = LoopingOptions.values()[buf.readInt().coerceIn(LoopingOptions.values().indices)]
     }
 
     override fun toBytes(buf: ByteBuf) {
-        buf.writeBoolean(loops)
+        buf.writeInt(loopingOption.ordinal)
     }
 
 }

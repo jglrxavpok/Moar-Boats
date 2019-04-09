@@ -13,6 +13,7 @@ import net.minecraft.world.World
 import net.minecraftforge.common.ForgeChunkManager
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.modules.BlockReason
+import org.jglrxavpok.moarboats.common.state.BoatProperty
 import org.jglrxavpok.moarboats.extensions.toRadians
 import java.util.*
 
@@ -93,4 +94,6 @@ interface IControllable: IBlockSource {
             }
         }
     }
+
+    operator fun <T> contains(property: BoatProperty<T>): Boolean
 }

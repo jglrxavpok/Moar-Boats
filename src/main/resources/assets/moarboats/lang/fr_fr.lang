@@ -141,3 +141,6 @@ moarboats.gui.rudder.nonblocking=Ne bloque pas le moteur
 
 # 4.1.0.0
 item.opencomputers_holder.name=Module OpenComputers
+
+# 4.1.2.0
+gui.path_editor.path_properties.reverse_course=Demi-tour au bout

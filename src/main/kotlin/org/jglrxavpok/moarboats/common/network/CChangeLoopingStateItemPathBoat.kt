@@ -5,6 +5,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.common.data.LoopingOptions
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import org.jglrxavpok.moarboats.common.items.ItemMapWithPath
@@ -17,7 +18,7 @@ class CChangeLoopingStateItemPathBoat: CChangeLoopingStateBase {
 
     var boatID: Int = -1
 
-    constructor(loops: Boolean, boatID: Int): super(loops) {
+    constructor(loopingOptions: LoopingOptions, boatID: Int): super(loopingOptions) {
         this.boatID = boatID
     }
 
@@ -43,7 +44,7 @@ class CChangeLoopingStateItemPathBoat: CChangeLoopingStateBase {
                 val stack = boat.getInventory(HelmModule).getStackInSlot(0)
                 val item = stack.item
                 if(item is ItemPath) {
-                    item.setLooping(stack, message.loops)
+                    item.setLoopingOptions(stack, message.loopingOption)
                     when(item) {
                         is ItemGoldenTicket -> return SSetGoldenItinerary(item.getData(stack))
                         is ItemMapWithPath -> return SUpdateMapWithPathInBoat(item.getWaypointData(stack, MoarBoats.getLocalMapStorage()), boatID)

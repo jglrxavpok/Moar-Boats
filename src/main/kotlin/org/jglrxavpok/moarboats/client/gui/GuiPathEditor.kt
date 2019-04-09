@@ -17,9 +17,11 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.text.TextComponentTranslation
 import net.minecraft.world.storage.MapData
 import net.minecraftforge.fml.client.config.GuiSlider
-import org.jglrxavpok.moarboats.client.gui.elements.GuiBinaryProperty
+import org.jglrxavpok.moarboats.client.gui.elements.GuiBinaryPropertyButton
+import org.jglrxavpok.moarboats.client.gui.elements.GuiPropertyButton
 import org.jglrxavpok.moarboats.client.gui.elements.GuiToolButton
 import org.jglrxavpok.moarboats.client.renders.HelmModuleRenderer
+import org.jglrxavpok.moarboats.common.data.LoopingOptions
 import org.jglrxavpok.moarboats.common.data.MapImageStripe
 import org.jglrxavpok.moarboats.common.data.PathHolder
 import org.jglrxavpok.moarboats.common.modules.HelmModule.StripeLength
@@ -53,6 +55,7 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
     private val propertyPathfindingText = TextComponentTranslation("gui.path_editor.path_properties.path_finding")
     private val propertyLoopingText = TextComponentTranslation("gui.path_editor.path_properties.looping")
     private val propertyOneWayText = TextComponentTranslation("gui.path_editor.path_properties.one_way")
+    private val propertyReverseCourseText = TextComponentTranslation("gui.path_editor.path_properties.reverse_course")
     private val toolMarkerText = TextComponentTranslation("gui.path_editor.tools.marker")
     private val toolEraserText = TextComponentTranslation("gui.path_editor.tools.eraser")
     private val controlsText = TextComponentTranslation("gui.path_editor.controls")
@@ -68,8 +71,8 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
     private val toolButtonList = listOf(markerButton, eraserButton)
 
     // Properties buttons
-    private val loopingButton = GuiBinaryProperty(buttonId++, Pair(propertyLoopingText.unformattedText, propertyOneWayText.unformattedText), Pair(2, 3))
-    private val linesButton = GuiBinaryProperty(buttonId++, Pair(propertyLinesText.unformattedText, propertyPathfindingText.unformattedText), Pair(4, 5))
+    private val loopingButton = GuiPropertyButton(buttonId++, listOf(Pair(propertyOneWayText.unformattedText, 3), Pair(propertyLoopingText.unformattedText, 2), Pair(propertyReverseCourseText.unformattedText, 4)))
+    private val linesButton = GuiBinaryPropertyButton(buttonId++, Pair(propertyLinesText.unformattedText, propertyPathfindingText.unformattedText), Pair(5, 6))
     private lateinit var boostSlider: GuiSlider
     private val sliderCallback = GuiSlider.ISlider { slider ->
 
@@ -135,7 +138,7 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
         refreshMapButton.x = width/2-refreshMapButton.width/2
         refreshMapButton.y = height-refreshMapButton.height-2
 
-        loopingButton.inFirstState = pathHolder.pathLoops()
+        loopingButton.propertyIndex = pathHolder.getLoopingOption().ordinal
 
         boostSlider = GuiSlider(1, menuX, yOffset+20, 125, 20, "${boostSetting.unformattedText}: ", "%", -50.0, 50.0, 0.0, false, true, sliderCallback)
         addButton(boostSlider)
@@ -151,7 +154,7 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
             }
 
             loopingButton -> {
-                pathHolder.setLoopingState(loopingButton.inFirstState)
+                pathHolder.setLoopingState(LoopingOptions.values()[loopingButton.propertyIndex])
             }
 
             in toolButtonList -> {
@@ -455,7 +458,7 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
             previousX = renderX
             previousZ = renderZ
 
-            if(first != null && index == waypointsData.tagCount()-1 && loopingButton.inFirstState) { // last one
+            if(first != null && index == waypointsData.tagCount()-1 && loopingButton.propertyIndex != LoopingOptions.NoLoop.ordinal) { // last one of the path, render a link to the first point
                 val firstBlockX = first.getInteger("x")
                 val firstBlockZ = first.getInteger("z")
                 val (firstWaypointX, firstWaypointZ) = worldCoordsToPixels(firstBlockX, firstBlockZ)

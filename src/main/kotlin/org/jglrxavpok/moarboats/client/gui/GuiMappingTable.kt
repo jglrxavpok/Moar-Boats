@@ -14,9 +14,10 @@ import net.minecraft.util.NonNullList
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.TextComponentTranslation
 import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.client.gui.elements.GuiBinaryProperty
+import org.jglrxavpok.moarboats.client.gui.elements.GuiPropertyButton
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.containers.ContainerMappingTable
+import org.jglrxavpok.moarboats.common.data.LoopingOptions
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.network.*
@@ -40,12 +41,13 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
     private val removeWaypointText = TextComponentTranslation("moarboats.gui.mapping_table.remove")
     private val propertyLoopingText = TextComponentTranslation("gui.path_editor.path_properties.looping")
     private val propertyOneWayText = TextComponentTranslation("gui.path_editor.path_properties.one_way")
+    private val propertyReverseCourseText = TextComponentTranslation("gui.path_editor.path_properties.reverse_course")
     private var buttonId = 0
     private val addWaypointButton = GuiButton(buttonId++, 0, 0, addWaypointText.unformattedText)
     private val insertWaypointButton = GuiButton(buttonId++, 0, 0, insertWaypointText.unformattedText)
     private val editWaypointButton = GuiButton(buttonId++, 0, 0, editWaypointText.unformattedText)
     private val removeWaypointButton = GuiButton(buttonId++, 0, 0, removeWaypointText.unformattedText)
-    private val loopingButton = GuiBinaryProperty(buttonId++, Pair(propertyLoopingText.unformattedText, propertyOneWayText.unformattedText), Pair(2, 3))
+    private val loopingButton = GuiPropertyButton(buttonId++, listOf(Pair(propertyOneWayText.unformattedText, 3), Pair(propertyLoopingText.unformattedText, 2), Pair(propertyReverseCourseText.unformattedText, 4)))
     private val controls = listOf(addWaypointButton, insertWaypointButton, editWaypointButton, removeWaypointButton)
     private var waypointToEditAfterCreation = 0
 
@@ -89,7 +91,7 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
         super.actionPerformed(button)
         when(button) {
             loopingButton -> {
-                MoarBoats.network.sendToServer(CChangeLoopingStateItemPathMappingTable(loopingButton.inFirstState, te))
+                MoarBoats.network.sendToServer(CChangeLoopingStateItemPathMappingTable(LoopingOptions.values()[loopingButton.propertyIndex], te))
             }
 
             addWaypointButton -> {
@@ -168,7 +170,7 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
         if(stack.item is ItemPath) {
             hasData = true
             val path = stack.item as ItemPath
-            loopingButton.inFirstState = path.isPathLooping(stack)
+            loopingButton.propertyIndex = path.getLoopingOptions(stack).ordinal
             val list = path.getWaypointData(stack, MoarBoats.getLocalMapStorage())
             for(nbt in list) {
                 if(nbt is NBTTagCompound) {

@@ -158,3 +158,6 @@ moarboats.fishing.remainingusesbeforeremoval=Remaining uses before removal
 
 # 4.1.0.0
 item.opencomputers_holder.name=OpenComputers Module
+
+# 4.1.2.0
+gui.path_editor.path_properties.reverse_course=Reverse course at end
