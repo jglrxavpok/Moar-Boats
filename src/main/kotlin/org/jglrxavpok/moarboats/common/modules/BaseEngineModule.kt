@@ -97,9 +97,9 @@ abstract class BaseEngineModule: BoatModule() {
         }
     }
 
-    fun changeStationaryState(boat: IControllable) {
+    fun setStationary(boat: IControllable, newState: Boolean) {
         val isStationary = stationaryProperty[boat]
-        stationaryProperty[boat] = !isStationary
+        stationaryProperty[boat] = newState
     }
 
     fun changeSpeed(boat: IControllable, speed: Float) {
