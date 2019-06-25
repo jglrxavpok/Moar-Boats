@@ -160,6 +160,7 @@ object MoarBoats {
         event.registry.registerModule(BatteryModule, Item.getItemFromBlock(BlockBoatBattery))
         event.registry.registerModule(FluidTankModule, Item.getItemFromBlock(BlockBoatTank))
         event.registry.registerModule(ChunkLoadingModule, ChunkLoaderItem, restriction = { MoarBoatsConfig.chunkLoader.allowed })
+        event.registry.registerModule(OarEngineModule, OarsItem)
         plugins.forEach { it.registerModules(event.registry) }
     }
 

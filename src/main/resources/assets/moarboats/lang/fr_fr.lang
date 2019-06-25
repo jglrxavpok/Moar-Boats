@@ -144,3 +144,5 @@ item.opencomputers_holder.name=Module OpenComputers
 
 # 4.1.2.0
 gui.path_editor.path_properties.reverse_course=Demi-tour au bout
+inventory.oar_engine.name=Rames
+item.oars.name=Rames

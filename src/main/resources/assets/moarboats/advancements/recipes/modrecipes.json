@@ -16,6 +16,7 @@
       "moarboats:icebreaker",
       "moarboats:mapping_table",
       "moarboats:modular_boat",
+      "moarboats:oars",
       "moarboats:rope",
       "moarboats:rudder",
       "moarboats:seat",
