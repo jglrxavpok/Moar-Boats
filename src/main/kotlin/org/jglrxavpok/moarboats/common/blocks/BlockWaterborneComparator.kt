@@ -36,7 +36,7 @@ open class BlockWaterborneComparator(val powered: Boolean): BlockRedstoneDiode(p
     }
 
     override fun canConnectRedstone(state: IBlockState, world: IBlockAccess, pos: BlockPos, side: EnumFacing?): Boolean {
-        return side != null && side != EnumFacing.DOWN && side != EnumFacing.UP
+        return side != null && side != EnumFacing.DOWN && side != EnumFacing.UP && (side == state.getValue(FACING) || side == state.getValue(FACING).opposite)
     }
 
     override fun getCollisionBoundingBox(blockState: IBlockState, worldIn: IBlockAccess, pos: BlockPos): AxisAlignedBB? {
@@ -70,7 +70,7 @@ open class BlockWaterborneComparator(val powered: Boolean): BlockRedstoneDiode(p
     }
 
     override fun getWeakPower(state: IBlockState, blockAccess: IBlockAccess, pos: BlockPos, side: EnumFacing): Int {
-        if(blockAccess is World) {
+        if(blockAccess is World && side == state.getValue(FACING)) {
             val world = blockAccess
             val aabb = AxisAlignedBB(pos.offset(state.getValue(BlockHorizontal.FACING)))
             val entities = world.getEntitiesWithinAABB(BasicBoatEntity::class.java, aabb) { e -> e != null && e.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null) }

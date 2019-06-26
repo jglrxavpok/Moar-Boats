@@ -163,3 +163,7 @@ item.opencomputers_holder.name=OpenComputers Module
 gui.path_editor.path_properties.reverse_course=Reverse course at end
 inventory.oar_engine.name=Paddles
 item.oars.name=Paddles
+
+# 4.1.2.1
+entity.moarboats.modular_boat.name=Modular Boat
+entity.moarboats.animal_boat.name=Animal Boat

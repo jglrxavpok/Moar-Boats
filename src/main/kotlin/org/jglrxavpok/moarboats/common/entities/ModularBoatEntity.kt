@@ -19,6 +19,7 @@ import net.minecraft.tileentity.TileEntityDispenser
 import net.minecraft.util.*
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
+import net.minecraft.util.math.RayTraceResult
 import net.minecraft.util.text.TextComponentTranslation
 import net.minecraft.world.World
 import net.minecraftforge.common.ForgeChunkManager
@@ -243,7 +244,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         compound.setString("owningMode", owningMode.name.toLowerCase())
     }
 
-    override fun readEntityFromNBT(compound: NBTTagCompound) {
+    public override fun readEntityFromNBT(compound: NBTTagCompound) {
         super.readEntityFromNBT(compound)
         moduleLocations.clear()
         moduleData = compound.getCompoundTag("state")
@@ -408,6 +409,15 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
     override fun reorientate(overrideFacing: EnumFacing): EnumFacing {
         val angle = overrideFacing.horizontalAngle // default angle is 0 (SOUTH)
         return EnumFacing.fromAngle(180f-(yaw.toDouble() + angle.toDouble()))
+    }
+
+    override fun getPickedResult(target: RayTraceResult): ItemStack {
+        val stack = ItemStack(ModularBoatItem, 1)
+        stack.setStackDisplayName(stack.displayName+" - Copy")
+        val boatData = stack.getOrCreateSubCompound("boat_data")
+        writeEntityToNBT(boatData)
+        stack.setTagInfo("boat_data", boatData)
+        return stack
     }
 
     // === START OF INVENTORY CODE FOR INTERACTIONS WITH HOPPERS === //
