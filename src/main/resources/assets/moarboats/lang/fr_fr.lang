@@ -150,3 +150,6 @@ item.oars.name=Rames
 # 4.1.2.1
 entity.moarboats.modular_boat.name=Bâteau modulaire
 entity.moarboats.animal_boat.name=Bâteau pour animaux
+
+item.cargo_stopper.name=Stoppeur de cargo
+moarboats.tile.cargo_stopper.description=Similaire au Comparateur Flottant. Emet dans toutes les directions (peut stopper les bâteaux)

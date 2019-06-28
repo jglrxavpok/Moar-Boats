@@ -23,7 +23,8 @@ object Items {
             ItemGoldenTicket,
             ItemMapWithPath,
             ChunkLoaderItem,
-            OarsItem
+            OarsItem,
+            CargoStopperItem
     )
 
 }

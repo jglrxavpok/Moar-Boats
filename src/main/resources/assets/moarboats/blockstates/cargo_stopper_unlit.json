@@ -1,0 +1,79 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "facing": "north"
+      },
+      "apply": {
+        "model": "waterlily",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "north"
+      },
+      "apply": {
+        "model": "moarboats:cargo_stopper_unlit",
+        "y": 180
+      }
+    },
+
+    {
+      "when": {
+        "facing": "east"
+      },
+      "apply": {
+        "model": "waterlily",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "east"
+      },
+      "apply": {
+        "model": "moarboats:cargo_stopper_unlit",
+        "y": 270
+      }
+    },
+
+    {
+      "when": {
+        "facing": "south"
+      },
+      "apply": {
+        "model": "waterlily",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "south"
+      },
+      "apply": {
+        "model": "moarboats:cargo_stopper_unlit",
+        "y": 0
+      }
+    },
+
+    {
+      "when": {
+        "facing": "west"
+      },
+      "apply": {
+        "model": "waterlily",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "west"
+      },
+      "apply": {
+        "model": "moarboats:cargo_stopper_unlit",
+        "y": 90
+      }
+    }
+  ]
+}
