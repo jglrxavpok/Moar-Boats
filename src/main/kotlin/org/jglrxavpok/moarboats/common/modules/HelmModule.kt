@@ -8,6 +8,7 @@ import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
+import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
 import net.minecraft.world.storage.MapData
 import net.minecraftforge.common.util.Constants
@@ -24,8 +25,12 @@ import org.jglrxavpok.moarboats.common.data.LoopingOptions
 import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.state.*
 import org.jglrxavpok.moarboats.extensions.insert
+import kotlin.math.atan2
 
 object HelmModule: BoatModule(), BlockReason {
+
+    private val noOverridePos = BlockPos.PooledMutableBlockPos.retain()
+
     override val id: ResourceLocation = ResourceLocation(MoarBoats.ModID, "helm")
     override val usesInventory = true
     override val moduleSpot = Spot.Navigation
@@ -51,6 +56,11 @@ object HelmModule: BoatModule(), BlockReason {
 
     val StripeLength = 64
 
+    val isEngineOn = BooleanBoatProperty("engineRunning").makeLocal()
+    val wasEngineOn = BooleanBoatProperty("wasEngineRunning").makeLocal()
+    val overrideWaypoint = BooleanBoatProperty("overrideWaypoint").makeLocal()
+    val overridingWaypointPos = BlockPosProperty("overrideWaypointPos").makeLocal()
+
     override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean): Boolean {
         return false
     }
@@ -59,6 +69,8 @@ object HelmModule: BoatModule(), BlockReason {
         if(oldLoopingProperty in boat) { // retro compatibility
             loopingProperty[boat] = if(oldLoopingProperty[boat]) LoopingOptions.Loops else LoopingOptions.NoLoop
         }
+        overrideWaypoint[boat] = false
+        overridingWaypointPos[boat] = noOverridePos
         super.onInit(boat, fromItem)
         if(boat.worldRef.isRemote) {
             val stack = boat.getInventory().getStackInSlot(0)
@@ -103,7 +115,7 @@ object HelmModule: BoatModule(), BlockReason {
                 }
             }
 
-            val targetAngle = Math.atan2(dz, dx).toDegrees() + 90f
+            val targetAngle = atan2(dz, dx).toDegrees() + 90f
             val yaw = from.yaw
             if(MathHelper.wrapDegrees(targetAngle - yaw) > Epsilon) {
                 from.turnRight()
@@ -114,70 +126,138 @@ object HelmModule: BoatModule(), BlockReason {
         }
     }
 
-    override fun update(from: IControllable) {
-        val stack = from.getInventory().getStackInSlot(0)
+    override fun update(boat: IControllable) {
+        wasEngineOn[boat] = isEngineOn[boat]
+        val engine = boat.modules.firstOrNull { it.moduleSpot == Spot.Engine }
+        if(engine != null) {
+            isEngineOn[boat] = (engine as BaseEngineModule).hasFuel(boat)
+        }
+
+        val stack = boat.getInventory().getStackInSlot(0)
         val item = stack.item
         val (waypoints, loopingOption) = when(item) {
-            net.minecraft.init.Items.FILLED_MAP -> Pair(HelmModule.waypointsProperty[from], HelmModule.loopingProperty[from])
+            net.minecraft.init.Items.FILLED_MAP -> Pair(HelmModule.waypointsProperty[boat], HelmModule.loopingProperty[boat])
             is ItemPath -> Pair(item.getWaypointData(stack, MoarBoats.getLocalMapStorage()), item.getLoopingOptions(stack))
             else -> return
         }
         if(waypoints.tagCount() != 0) {
-            val currentWaypoint = currentWaypointProperty[from]
-            var newReverseCourse = reverseCourse[from]
-            val nextWaypoint = when(loopingOption) {
-                LoopingOptions.NoLoop -> {
-                    val value = (currentWaypoint+1)
-                    if(value >= waypoints.tagCount()) { // end of path
-                        return
-                    } else {
-                        value
-                    }
-                }
-                LoopingOptions.Loops -> (currentWaypoint+1) % waypoints.tagCount()
-
-                LoopingOptions.ReverseCourse -> {
-                    val next = if(reverseCourse[from]) currentWaypoint-1 else currentWaypoint+1
-                    when {
-                        next < 0 -> { // reversing course, reached beginning of path
-                            newReverseCourse = false
-                            currentWaypoint+1
-                        }
-                        next >= waypoints.tagCount() -> { // not reversing course, reached end
-                            newReverseCourse = true
-                            currentWaypoint-1
-                        }
-                        else -> next
-                    }
-                }
+            if( ! wasEngineOn[boat] && isEngineOn[boat]) { // engine has been reactivated, recalculate closest waypoint
+                overrideWaypointAfterEngineRestart(boat, waypoints)
             }
-            val current = waypoints[currentWaypoint % waypoints.tagCount()] as NBTTagCompound
-            val currentX = current.getInteger("x")
-            val currentZ = current.getInteger("z")
-            val dx = currentX - from.positionX
-            val dz = currentZ - from.positionZ
-            if(dx*dx+dz*dz < MaxDistanceToWaypointSquared) {
-                currentWaypointProperty[from] = nextWaypoint
-                if(loopingProperty[from] == LoopingOptions.ReverseCourse) {
-                    reverseCourse[from] = newReverseCourse
-                } else {
-                    reverseCourse[from] = false
-                }
-            }
+            updateWaypoints(boat, waypoints, loopingOption)
         }
 
         if(stack.isEmpty || item !is ItemMap) {
-            receiveMapData(from, EmptyMapData)
-            waypointsProperty[from] = NBTTagList() // reset waypoints
+            receiveMapData(boat, EmptyMapData)
+            waypointsProperty[boat] = NBTTagList() // reset waypoints
             return
         }
-        val mapdata = mapDataCopyProperty[from]
-        if (!from.worldRef.isRemote) {
-            xCenterProperty[from] = mapdata.xCenter
-            zCenterProperty[from] = mapdata.zCenter
-        } else if(mapdata == EmptyMapData || from.correspondingEntity.ticksExisted % MapUpdatePeriod == 0) {
+        val mapdata = mapDataCopyProperty[boat]
+        if (!boat.worldRef.isRemote) {
+            xCenterProperty[boat] = mapdata.xCenter
+            zCenterProperty[boat] = mapdata.zCenter
+        } else if(mapdata == EmptyMapData || boat.correspondingEntity.ticksExisted % MapUpdatePeriod == 0) {
             val id = stack.itemDamage
-            MoarBoats.network.sendToServer(CMapRequest("map_$id", from.entityID, this.id))
+            MoarBoats.network.sendToServer(CMapRequest("map_$id", boat.entityID, this.id))
+        }
+    }
+
+    private fun updateWaypoints(boat: IControllable, waypoints: NBTTagList, loopingOption: LoopingOptions) {
+        if( ! checkOverrideWaypoint(boat)) {
+            return
+        }
+        val currentWaypoint = currentWaypointProperty[boat]
+        var newReverseCourse = reverseCourse[boat]
+        val nextWaypoint = when(loopingOption) {
+            LoopingOptions.NoLoop -> {
+                val value = (currentWaypoint+1)
+                if(value >= waypoints.tagCount()) { // end of path
+                    return
+                } else {
+                    value
+                }
+            }
+            LoopingOptions.Loops -> (currentWaypoint+1) % waypoints.tagCount()
+
+            LoopingOptions.ReverseCourse -> {
+                val next = if(reverseCourse[boat]) currentWaypoint-1 else currentWaypoint+1
+                when {
+                    next < 0 -> { // reversing course, reached beginning of path
+                        newReverseCourse = false
+                        currentWaypoint+1
+                    }
+                    next >= waypoints.tagCount() -> { // not reversing course, reached end
+                        newReverseCourse = true
+                        currentWaypoint-1
+                    }
+                    else -> next
+                }
+            }
+        }
+        val current = waypoints[currentWaypoint % waypoints.tagCount()] as NBTTagCompound
+        val currentX = current.getInteger("x")
+        val currentZ = current.getInteger("z")
+        val dx = currentX - boat.positionX
+        val dz = currentZ - boat.positionZ
+        if(dx*dx+dz*dz < MaxDistanceToWaypointSquared) {
+            currentWaypointProperty[boat] = nextWaypoint
+            if(loopingProperty[boat] == LoopingOptions.ReverseCourse) {
+                reverseCourse[boat] = newReverseCourse
+            } else {
+                reverseCourse[boat] = false
+            }
+        }
+    }
+
+    /**
+     * Check if the boat arrived at the overriding position.
+     * Returns 'true' if it arrived, 'false' otherwise
+     */
+    private fun checkOverrideWaypoint(boat: IControllable): Boolean {
+        if( ! overrideWaypoint[boat]) {
+            return true
+        }
+        val pos = overridingWaypointPos[boat]
+        val dx = pos.x - boat.positionX
+        val dz = pos.z - boat.positionZ
+        pos.release()
+        if(dx*dx+dz*dz < MaxDistanceToWaypointSquared) {
+            overrideWaypoint[boat] = false
+            return true
+        }
+        return false
+    }
+
+    /**
+     * Recalculate current and next waypoints after an engine restart.
+     * This is used in case the boat moves when the engine is off, eg. a boat with a solar engine on a Streams river can move when it is night time
+     */
+    private fun overrideWaypointAfterEngineRestart(boat: IControllable, waypoints: NBTTagList) {
+        if(waypoints.tagCount() > 0) {
+            var closestIndex = 0
+            var closest = waypoints[0] as NBTTagCompound
+            var dx = closest.getInteger("x") - boat.positionX
+            var dz = closest.getInteger("z") - boat.positionZ
+            var closestDistanceSq = dx*dx+dz*dz
+            for(i in 1 until waypoints.tagCount()) {
+                val waypoint = waypoints[i] as NBTTagCompound
+                dx = waypoint.getInteger("x") - boat.positionX
+                dz = waypoint.getInteger("z") - boat.positionZ
+                val distanceSq = dx*dx+dz*dz
+                if(distanceSq < closestDistanceSq) {
+                    closest = waypoint
+                    closestDistanceSq = distanceSq
+                    closestIndex = i
+                }
+            }
+
+            currentWaypointProperty[boat] = closestIndex
+
+            overrideWaypoint[boat] = true
+            val pos = overridingWaypointPos[boat]
+            val newPos = BlockPos.PooledMutableBlockPos.retain(closest.getInteger("x"), 0, closest.getInteger("z"))
+            overridingWaypointPos[boat] = newPos
+            newPos.release()
         }
     }
 
