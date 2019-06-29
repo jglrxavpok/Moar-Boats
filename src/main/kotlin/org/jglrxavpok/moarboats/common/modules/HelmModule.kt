@@ -201,7 +201,7 @@ object HelmModule: BoatModule(), BlockReason {
         val dz = currentZ - boat.positionZ
         if(dx*dx+dz*dz < MaxDistanceToWaypointSquared) {
             currentWaypointProperty[boat] = nextWaypoint
-            if(loopingProperty[boat] == LoopingOptions.ReverseCourse) {
+            if(loopingOption == LoopingOptions.ReverseCourse) {
                 reverseCourse[boat] = newReverseCourse
             } else {
                 reverseCourse[boat] = false
