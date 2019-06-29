@@ -13,8 +13,8 @@ import org.jglrxavpok.moarboats.common.network.*
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 
 interface PathHolder {
-    fun pathLoops(): Boolean
-    fun setLoopingState(loops: Boolean)
+    fun getLoopingOption(): LoopingOptions
+    fun setLoopingState(loopingOptions: LoopingOptions)
     fun getWaypointNBTList(): NBTTagList
     fun removeWaypoint(closestIndex: Int)
     fun addWaypoint(pos: BlockPos, boost: Double?)
@@ -44,12 +44,12 @@ class BoatPathHolder(val boat: IControllable): PathHolder {
         return boat.getState(HelmModule).getTagList(HelmModule.waypointsProperty.id, Constants.NBT.TAG_COMPOUND)
     }
 
-    override fun pathLoops(): Boolean {
+    override fun getLoopingOption(): LoopingOptions {
         return HelmModule.loopingProperty[boat]
     }
 
-    override fun setLoopingState(loops: Boolean) {
-        MoarBoats.network.sendToServer(CChangeLoopingState(loops, boat.entityID))
+    override fun setLoopingState(loopingOptions: LoopingOptions) {
+        MoarBoats.network.sendToServer(CChangeLoopingState(loopingOptions, boat.entityID))
     }
 
     override fun getHolderLocation(): BlockPos {
@@ -58,6 +58,7 @@ class BoatPathHolder(val boat: IControllable): PathHolder {
 }
 
 class MapWithPathHolder(stack: ItemStack, mappingTable: TileEntityMappingTable?, boat: IControllable?): ItemPathHolder(stack, mappingTable, boat) {
+
     override fun nbt(): NBTTagCompound {
         if(stack.tagCompound == null) {
             stack.tagCompound = NBTTagCompound()
@@ -112,15 +113,22 @@ abstract class ItemPathHolder(val stack: ItemStack, val mappingTable: TileEntity
         return nbt().getString("${MoarBoats.ModID}.mapID")
     }
 
-    override fun pathLoops(): Boolean {
-        return nbt().getBoolean("${MoarBoats.ModID}.loops")
+    override fun getLoopingOption(): LoopingOptions {
+        var loopingOption = LoopingOptions.NoLoop
+        if(nbt().getBoolean("${MoarBoats.ModID}.loops")) { // retro-compatibility
+            loopingOption = LoopingOptions.Loops
+        }
+        if(nbt().hasKey("${MoarBoats.ModID}.loopingOption")) {
+            loopingOption = LoopingOptions.values()[nbt().getInteger("${MoarBoats.ModID}.loopingOption").coerceIn(LoopingOptions.values().indices)]
+        }
+        return loopingOption
     }
 
-    override fun setLoopingState(loops: Boolean) {
+    override fun setLoopingState(loopingOptions: LoopingOptions) {
         if(boat != null) {
-            MoarBoats.network.sendToServer(CChangeLoopingStateItemPathBoat(loops, boat.entityID))
+            MoarBoats.network.sendToServer(CChangeLoopingStateItemPathBoat(loopingOptions, boat.entityID))
         } else {
-            MoarBoats.network.sendToServer(CChangeLoopingStateItemPathMappingTable(loops, mappingTable!!))
+            MoarBoats.network.sendToServer(CChangeLoopingStateItemPathMappingTable(loopingOptions, mappingTable!!))
         }
     }
 

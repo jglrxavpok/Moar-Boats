@@ -25,6 +25,8 @@ class GuiWaypointList(val mc: Minecraft, val parent: GuiMappingTable, width: Int
     override fun drawSlot(slotIdx: Int, entryRight: Int, slotTop: Int, slotBuffer: Int, tess: Tessellator) {
         GlStateManager.disableLighting()
         GlStateManager.color(1f, 1f, 1f)
+        if(slotIdx >= slots.size)
+            return
         val slot = slots[slotIdx]
         var name = slot.getString("name")
         if(name.isEmpty()) {

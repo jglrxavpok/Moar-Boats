@@ -48,7 +48,7 @@ import java.net.URL
 
 @Mod.EventBusSubscriber
 @Mod(modLanguageAdapter = "net.shadowfacts.forgelin.KotlinAdapter", modid = MoarBoats.ModID, dependencies = "required-after:forgelin;",
-        name = "Moar Boats", version = "4.1.1.0", updateJSON = "https://raw.githubusercontent.com/jglrxavpok/Moar-Boats/master/updateCheck.json")
+        name = "Moar Boats", version = "4.1.2.1", updateJSON = "https://raw.githubusercontent.com/jglrxavpok/Moar-Boats/master/updateCheck.json")
 object MoarBoats {
     const val ModID = "moarboats"
 
@@ -160,6 +160,7 @@ object MoarBoats {
         event.registry.registerModule(BatteryModule, Item.getItemFromBlock(BlockBoatBattery))
         event.registry.registerModule(FluidTankModule, Item.getItemFromBlock(BlockBoatTank))
         event.registry.registerModule(ChunkLoadingModule, ChunkLoaderItem, restriction = { MoarBoatsConfig.chunkLoader.allowed })
+        event.registry.registerModule(OarEngineModule, OarsItem)
         plugins.forEach { it.registerModules(event.registry) }
     }
 

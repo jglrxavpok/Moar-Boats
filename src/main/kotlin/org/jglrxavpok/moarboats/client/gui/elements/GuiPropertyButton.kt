@@ -2,20 +2,23 @@ package org.jglrxavpok.moarboats.client.gui.elements
 
 import net.minecraft.client.Minecraft
 
-class GuiBinaryProperty(buttonID: Int, val textPair: Pair<String, String>, val iconPair: Pair<Int, Int>):
-        GuiToolButton(buttonID, textPair.first, iconPair.first) {
+open class GuiPropertyButton(buttonID: Int, val propertyRenderingInfo: List<Pair<String, Int>>):
+        GuiToolButton(buttonID, propertyRenderingInfo[0].first, propertyRenderingInfo[0].second) {
 
-    var inFirstState = true
+    var propertyIndex = 0
 
     override fun drawButton(mc: Minecraft, mouseX: Int, mouseY: Int, partialTicks: Float) {
-        text = if(inFirstState) textPair.first else textPair.second
-        toolIconIndex = if(inFirstState) iconPair.first else iconPair.second
+        text = propertyRenderingInfo[propertyIndex].first
+        toolIconIndex = propertyRenderingInfo[propertyIndex].second
         super.drawButton(mc, mouseX, mouseY, partialTicks)
     }
 
     override fun mousePressed(mc: Minecraft, mouseX: Int, mouseY: Int): Boolean {
         if (this.enabled && this.visible && mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height) {
-            this.inFirstState = !this.inFirstState
+            propertyIndex++
+            if(propertyIndex >= propertyRenderingInfo.size) {
+                propertyIndex = 0
+            }
             return true
         }
         return false

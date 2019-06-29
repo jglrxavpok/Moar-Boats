@@ -18,10 +18,12 @@ import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.renders.HelmModuleRenderer
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.containers.ContainerHelmModule
+import org.jglrxavpok.moarboats.common.data.LoopingOptions
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import org.jglrxavpok.moarboats.common.items.ItemMapWithPath
 import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
+import org.jglrxavpok.moarboats.common.network.CChangeEngineMode
 import org.jglrxavpok.moarboats.common.network.CSaveItineraryToMap
 import org.jglrxavpok.moarboats.common.state.EmptyMapData
 import org.lwjgl.opengl.GL11
@@ -62,6 +64,9 @@ class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: 
             mapEditButton -> {
                 val mapData = getMapData(container.getSlot(0).stack)
                 if(mapData != null && mapData != EmptyMapData) {
+                    boat.modules.firstOrNull() { it.moduleSpot == BoatModule.Spot.Engine }?.let {
+                        MoarBoats.network.sendToServer(CChangeEngineMode(boat.entityID, it.id, true))
+                    }
                     playerInventory.player.openGui(MoarBoats, MoarBoatsGuiHandler.PathEditor, boat.world, boat.entityID, 0, 0)
                 }
             }
@@ -92,12 +97,12 @@ class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: 
         var hasMap = false
         getMapData(stack)?.let { mapdata ->
             val item = stack.item
-            val (waypoints, loops) = when(item) {
+            val (waypoints, loopingOption) = when(item) {
                 net.minecraft.init.Items.FILLED_MAP -> Pair(HelmModule.waypointsProperty[boat], HelmModule.loopingProperty[boat])
-                is ItemPath -> Pair(item.getWaypointData(stack, MoarBoats.getLocalMapStorage()), item.isPathLooping(stack))
+                is ItemPath -> Pair(item.getWaypointData(stack, MoarBoats.getLocalMapStorage()), item.getLoopingOptions(stack))
                 else -> return@let
             }
-            HelmModuleRenderer.renderMap(mapdata, x, y, mapSize, boat.positionX, boat.positionZ, margins, waypoints, loops)
+            HelmModuleRenderer.renderMap(mapdata, x, y, mapSize, boat.positionX, boat.positionZ, margins, waypoints, loopingOption == LoopingOptions.Loops)
 
             if(mouseX >= x+margins && mouseX <= x+mapSize-margins && mouseY >= y+margins && mouseY <= y+mapSize-margins) {
                 HelmModuleRenderer.renderSingleWaypoint(mouseX.toDouble(), mouseY.toDouble()-6.0)

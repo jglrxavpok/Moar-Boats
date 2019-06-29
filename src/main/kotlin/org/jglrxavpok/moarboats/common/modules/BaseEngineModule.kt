@@ -1,6 +1,7 @@
 package org.jglrxavpok.moarboats.common.modules
 
 import net.minecraft.block.Block
+import net.minecraft.block.BlockHopper
 import net.minecraft.block.material.Material
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.entity.player.EntityPlayer
@@ -8,6 +9,7 @@ import net.minecraft.inventory.IInventory
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.tileentity.TileEntityHopper
 import net.minecraft.util.EnumParticleTypes
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
@@ -44,6 +46,21 @@ abstract class BaseEngineModule: BoatModule() {
         }
 
         if(lockedByRedstoneProperty[from]) {
+            if( ! from.worldRef.isRemote) {
+                // special case for full hoppers (see #81)
+                val storage = from.modules.firstOrNull { it.moduleSpot == Spot.Storage }
+                if(storage != null && storage.usesInventory) {
+                    val hopperPos = from.correspondingEntity.position.up()
+                    val blockState = from.worldRef.getBlockState(hopperPos)
+                    if(blockState.block is BlockHopper) {
+                        val te = from.worldRef.getTileEntity(hopperPos) as TileEntityHopper
+                        val storageInventory = from.getInventory(storage)
+                        if( ! storageInventory.canAddAnyFrom(te)) {
+                            return // bypass lock
+                        }
+                    }
+                }
+            }
             from.blockMovement(BlockedByRedstone)
         }
     }
@@ -97,9 +114,9 @@ abstract class BaseEngineModule: BoatModule() {
         }
     }
 
-    fun changeStationaryState(boat: IControllable) {
+    fun setStationary(boat: IControllable, newState: Boolean) {
         val isStationary = stationaryProperty[boat]
-        stationaryProperty[boat] = !isStationary
+        stationaryProperty[boat] = newState
     }
 
     fun changeSpeed(boat: IControllable, speed: Float) {

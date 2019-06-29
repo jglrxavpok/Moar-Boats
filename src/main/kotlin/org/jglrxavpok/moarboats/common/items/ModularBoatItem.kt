@@ -42,7 +42,9 @@ object ModularBoatItem: BaseBoatItem() {
                 raytraceresult.hitVec.z,
                 color,
                 ModularBoatEntity.OwningMode.PlayerOwned,
-                playerIn.gameProfile.id)
+                playerIn.gameProfile.id).apply {
+                    readEntityFromNBT(itemstack.getOrCreateSubCompound("boat_data"))
+                }
     }
 
     override fun getMetadata(damage: Int): Int {

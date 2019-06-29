@@ -44,7 +44,6 @@ class TileEntityFluidLoader: TileEntityListenable(), ITickable, IFluidHandler, I
             if(fluidCapa != null) {
                 val amountDrained = forceDrain(fluidCapa.fill(FluidStack(fluid, fluidToSendToASingleNeighbor), true), true)
                 working = working || (amountDrained?.amount ?: 0) > 0
-                println(">> $working")
             }
         }
     }

@@ -19,6 +19,7 @@ import net.minecraft.tileentity.TileEntityDispenser
 import net.minecraft.util.*
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
+import net.minecraft.util.math.RayTraceResult
 import net.minecraft.util.text.TextComponentTranslation
 import net.minecraft.world.World
 import net.minecraftforge.common.ForgeChunkManager
@@ -49,6 +50,7 @@ import org.jglrxavpok.moarboats.common.modules.IFluidBoatModule
 import org.jglrxavpok.moarboats.common.modules.SeatModule
 import org.jglrxavpok.moarboats.common.network.SModuleData
 import org.jglrxavpok.moarboats.common.network.SModuleLocations
+import org.jglrxavpok.moarboats.common.state.BoatProperty
 import org.jglrxavpok.moarboats.extensions.Fluids
 import org.jglrxavpok.moarboats.extensions.loadInventory
 import org.jglrxavpok.moarboats.extensions.saveInventory
@@ -242,7 +244,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         compound.setString("owningMode", owningMode.name.toLowerCase())
     }
 
-    override fun readEntityFromNBT(compound: NBTTagCompound) {
+    public override fun readEntityFromNBT(compound: NBTTagCompound) {
         super.readEntityFromNBT(compound)
         moduleLocations.clear()
         moduleData = compound.getCompoundTag("state")
@@ -309,15 +311,24 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         return state
     }
 
+    override fun <T> contains(property: BoatProperty<T>): Boolean {
+        val key = property.module.id.toString()
+        val source = if (property.isLocal) localModuleData else moduleData
+        val state = source.getCompoundTag(key)
+        if (!source.hasKey(key)) {
+            return false
+        } else {
+            return state.hasKey(property.id)
+        }
+    }
+
     private fun updateModuleData() {
         dataManager[MODULE_DATA] = moduleData // uses the setter of 'moduleData' to update the state
         if(!world.isRemote) {
-            if(moduleData != null) {
-                try {
-                    MoarBoats.network.sendToAll(SModuleData(entityID, moduleData))
-                } catch (e: NullPointerException) {
-                    MoarBoats.logger.warn(e) // sometimes the data is sent even though the packet has no dispatcher
-                }
+            try {
+                MoarBoats.network.sendToAll(SModuleData(entityID, moduleData))
+            } catch (t: Throwable) { // please don't crash
+                MoarBoats.logger.warn(t) // sometimes the data is sent even though the packet has no dispatcher
             }
         }
     }
@@ -359,7 +370,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
 
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative) {
-            dropItem(ModularBoatItem, 1)
+            entityDropItem(ItemStack(ModularBoatItem, 1, color.metadata), 0.0f)
         }
         modules.forEach {
             dropItemsForModule(it, killedByPlayerInCreative)
@@ -398,6 +409,15 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
     override fun reorientate(overrideFacing: EnumFacing): EnumFacing {
         val angle = overrideFacing.horizontalAngle // default angle is 0 (SOUTH)
         return EnumFacing.fromAngle(180f-(yaw.toDouble() + angle.toDouble()))
+    }
+
+    override fun getPickedResult(target: RayTraceResult): ItemStack {
+        val stack = ItemStack(ModularBoatItem, 1)
+        stack.setStackDisplayName(stack.displayName+" - Copy")
+        val boatData = stack.getOrCreateSubCompound("boat_data")
+        writeEntityToNBT(boatData)
+        stack.setTagInfo("boat_data", boatData)
+        return stack
     }
 
     // === START OF INVENTORY CODE FOR INTERACTIONS WITH HOPPERS === //

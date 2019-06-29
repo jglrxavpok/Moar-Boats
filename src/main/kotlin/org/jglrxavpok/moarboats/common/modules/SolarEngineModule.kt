@@ -15,6 +15,7 @@ import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.containers.ContainerBase
 import org.jglrxavpok.moarboats.common.containers.EmptyContainer
 import org.jglrxavpok.moarboats.common.state.BooleanBoatProperty
+import kotlin.math.roundToInt
 
 object SolarEngineModule : BaseEngineModule() {
 
@@ -49,7 +50,7 @@ object SolarEngineModule : BaseEngineModule() {
         if (diff > 0 && !invertedProperty[from]) {
             val f1 = if (angle < Math.PI.toFloat()) 0.0f else Math.PI.toFloat() * 2f
             angle += (f1 - angle) * 0.2f
-            diff = Math.round(diff.toFloat() * MathHelper.cos(angle))
+            diff = (diff.toFloat() * MathHelper.cos(angle)).roundToInt()
         }
 
         return MathHelper.clamp(diff, 0, 15) / 15f

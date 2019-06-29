@@ -11,6 +11,7 @@ import net.minecraft.world.World
 import net.minecraftforge.oredict.DyeUtils
 import net.minecraftforge.registries.IForgeRegistryEntry
 import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.common.data.LoopingOptions
 
 object MapWithPathRecipe: IForgeRegistryEntry.Impl<IRecipe>(), IRecipe {
 
@@ -53,7 +54,7 @@ object MapWithPathRecipe: IForgeRegistryEntry.Impl<IRecipe>(), IRecipe {
             return ItemStack.EMPTY
 
         val mapID = "map_${filledMap.metadata}"
-        return ItemMapWithPath.createStack(NBTTagList(), mapID, loops = false)
+        return ItemMapWithPath.createStack(NBTTagList(), mapID, LoopingOptions.NoLoop)
     }
 
     override fun matches(inv: InventoryCrafting, worldIn: World?): Boolean {

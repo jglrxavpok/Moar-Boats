@@ -4,27 +4,28 @@ import io.netty.buffer.ByteBuf
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import net.minecraftforge.fml.relauncher.Side
+import org.jglrxavpok.moarboats.common.data.LoopingOptions
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 
 class CChangeLoopingState(): IMessage {
 
     var boatID: Int = 0
-    var loops: Boolean = false
+    var loopingOption: LoopingOptions = LoopingOptions.NoLoop
 
-    constructor(loops: Boolean, boatID: Int): this() {
+    constructor(loopingOptions: LoopingOptions, boatID: Int): this() {
         this.boatID = boatID
-        this.loops = loops
+        this.loopingOption = loopingOptions
     }
 
     override fun fromBytes(buf: ByteBuf) {
         boatID = buf.readInt()
-        loops = buf.readBoolean()
+        loopingOption = LoopingOptions.values()[buf.readInt().coerceIn(LoopingOptions.values().indices)]
     }
 
     override fun toBytes(buf: ByteBuf) {
         buf.writeInt(boatID)
-        buf.writeBoolean(loops)
+        buf.writeInt(loopingOption.ordinal)
     }
 
     object Handler: MBMessageHandler<CChangeLoopingState, IMessage> {
@@ -36,7 +37,7 @@ class CChangeLoopingState(): IMessage {
             val world = player.world
             val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
 
-            HelmModule.loopingProperty[boat] = message.loops
+            HelmModule.loopingProperty[boat] = message.loopingOption
             return null
         }
     }

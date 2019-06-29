@@ -22,7 +22,9 @@ object Items {
             CreativeEngineItem,
             ItemGoldenTicket,
             ItemMapWithPath,
-            ChunkLoaderItem
+            ChunkLoaderItem,
+            OarsItem,
+            CargoStopperItem
     )
 
 }

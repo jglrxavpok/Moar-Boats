@@ -38,6 +38,7 @@ import org.jglrxavpok.moarboats.common.modules.BlockReason
 import org.jglrxavpok.moarboats.common.modules.NoBlockReason
 import org.jglrxavpok.moarboats.extensions.Fluids
 import java.util.*
+import kotlin.math.sqrt
 
 abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEntityAdditionalSpawnData {
 
@@ -66,7 +67,8 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
     /** How much of current speed to retain. Value zero to one.  */
     private var momentum = 0f
 
-    protected var deltaRotation = 0f
+    var deltaRotation = 0f
+        protected set
     private var waterLevel = 0.0
     /**
      * How much the boat should glide given the slippery blocks it's currently gliding over.
@@ -131,6 +133,9 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
     var knotLocations
         get() = KNOT_LOCATIONS.map { dataManager[it] }
         set(value) { KNOT_LOCATIONS.forEachIndexed { index, dataParameter -> dataManager[dataParameter] = value[index] } }
+
+    var distanceTravelled: Double = 0.0
+        private set
 
     override var imposedSpeed = 0f
     private var isSpeedImposed = false
@@ -422,6 +427,11 @@ abstract class BasicBoatEntity(world: World): Entity(world), IControllable, IEnt
         if (this.damageTaken > 0.0f) {
             damageTaken -= 1.0f
         }
+
+        val dx = posX-prevPosX;
+        val dy = posY-prevPosY;
+        val dz = posZ-prevPosZ;
+        distanceTravelled += sqrt(dz*dz+dy*dy+dx*dx)
 
         this.prevPosX = this.posX
         this.prevPosY = this.posY

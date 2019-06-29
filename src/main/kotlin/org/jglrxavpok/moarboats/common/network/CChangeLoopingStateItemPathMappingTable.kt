@@ -6,6 +6,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.common.data.LoopingOptions
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import org.jglrxavpok.moarboats.common.items.ItemMapWithPath
 import org.jglrxavpok.moarboats.common.items.ItemPath
@@ -19,7 +20,7 @@ class CChangeLoopingStateItemPathMappingTable: CChangeLoopingStateBase {
     var teY: Int = -1
     var teZ: Int = -1
 
-    constructor(loops: Boolean, mappingTable: TileEntityMappingTable): super(loops) {
+    constructor(loopingOption: LoopingOptions, mappingTable: TileEntityMappingTable): super(loopingOption) {
         this.teX = mappingTable.pos.x
         this.teY = mappingTable.pos.y
         this.teZ = mappingTable.pos.z
@@ -55,7 +56,7 @@ class CChangeLoopingStateItemPathMappingTable: CChangeLoopingStateBase {
                 val stack = te.inventory.getStackInSlot(0)
                 val item = stack.item
                 if(item is ItemPath) {
-                    item.setLooping(stack, message.loops)
+                    item.setLoopingOptions(stack, message.loopingOption)
                     when(item) {
                         is ItemGoldenTicket -> return SSetGoldenItinerary(item.getData(stack))
                         is ItemMapWithPath -> return SUpdateMapWithPathInMappingTable(item.getWaypointData(stack, MoarBoats.getLocalMapStorage()), teX, teY, teZ)
