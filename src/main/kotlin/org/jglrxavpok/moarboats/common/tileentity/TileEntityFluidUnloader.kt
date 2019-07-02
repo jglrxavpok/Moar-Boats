@@ -6,30 +6,32 @@ import net.minecraft.util.EnumFacing
 import net.minecraft.util.ITickable
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraftforge.common.capabilities.Capability
+import net.minecraftforge.common.util.LazyOptional
 import net.minecraftforge.fluids.Fluid
 import net.minecraftforge.fluids.FluidRegistry
 import net.minecraftforge.fluids.FluidStack
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import net.minecraftforge.fluids.capability.IFluidHandler
 import net.minecraftforge.fluids.capability.IFluidTankProperties
+import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.blocks.Facing
 
-class TileEntityFluidUnloader: TileEntityListenable(), ITickable, IFluidHandler, IFluidTankProperties {
+class TileEntityFluidUnloader: TileEntityListenable(MoarBoats.TileEntityFluidUnloader), ITickable, IFluidHandler, IFluidTankProperties {
 
-    val blockFacing: EnumFacing get()= world.getBlockState(pos).getValue(Facing)
+    val blockFacing: EnumFacing get()= world.getBlockState(pos).get(Facing)
     private var fluid: Fluid? = null
     private var fluidAmount: Int = 0
     private var working: Boolean = false
 
-    override fun update() {
+    override fun tick() {
         if(world.isRemote)
             return
         working = false
         updateListeners()
 
         val aabb = create3x3AxisAlignedBB(pos.offset(blockFacing))
-        val entities = world.getEntitiesWithinAABB(Entity::class.java, aabb) { e -> e != null && e.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null) }
+        val entities = world.getEntitiesWithinAABB(Entity::class.java, aabb) { e -> e != null && e.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null).isPresent }
 
         val totalFluidToExtract = minOf(MoarBoatsConfig.fluidUnloader.pullAmount, capacity-fluidAmount)
         val entityCount = entities.size
@@ -38,11 +40,12 @@ class TileEntityFluidUnloader: TileEntityListenable(), ITickable, IFluidHandler,
         val fluidToExtractFromASingleNeighbor = Math.ceil(totalFluidToExtract.toDouble()/entityCount).toInt()
         entities.forEach {
             val fluidCapa = it.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null)
-            if(fluidCapa != null) {
+            fluidCapa.ifPresent { storage ->
                 val amountFilled = if(fluid != null) {
-                    forceFill(fluidCapa.drain(FluidStack(fluid, fluidToExtractFromASingleNeighbor), true) ?: FluidStack(fluid, 0), true)
+                    forceFill(storage.drain(FluidStack(fluid, fluidToExtractFromASingleNeighbor), true) ?: FluidStack(fluid, 0), true)
                 } else {
-                    forceFill(fluidCapa.drain(fluidToExtractFromASingleNeighbor, true) ?: FluidStack(FluidRegistry.WATER, 0), true)
+                    // FIXME
+                    forceFill(storage.drain(fluidToExtractFromASingleNeighbor, true) ?: FluidStack(FluidRegistry.WATER, 0), true)
                 }
                 working = working || amountFilled > 0
             }
@@ -135,28 +138,22 @@ class TileEntityFluidUnloader: TileEntityListenable(), ITickable, IFluidHandler,
         return true
     }
 
-    override fun hasCapability(capability: Capability<*>, facing: EnumFacing?): Boolean {
+    override fun <T : Any?> getCapability(capability: Capability<T>, facing: EnumFacing?): LazyOptional<T> {
         if(capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY)
-            return true
-        return super.hasCapability(capability, facing)
-    }
-
-    override fun <T : Any?> getCapability(capability: Capability<T>, facing: EnumFacing?): T? {
-        if(capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY)
-            return this as T
+            return LazyOptional.of { this }.cast()
         return super.getCapability(capability, facing)
     }
 
-    override fun writeToNBT(compound: NBTTagCompound): NBTTagCompound {
-        compound.setInteger("fluidAmount", fluidAmount)
+    override fun write(compound: NBTTagCompound): NBTTagCompound {
+        compound.setInt("fluidAmount", fluidAmount)
         compound.setString("fluidName", fluid?.name ?: "")
-        return super.writeToNBT(compound)
+        return super.write(compound)
     }
 
-    override fun readFromNBT(compound: NBTTagCompound) {
-        super.readFromNBT(compound)
-        fluid = FluidRegistry.getFluid(compound.getString("fluidName"))
-        fluidAmount = compound.getInteger("fluidAmount")
+    override fun read(compound: NBTTagCompound) {
+        super.read(compound)
+// FIXME        fluid = FluidRegistry.getFluid(compound.getString("fluidName"))
+        fluidAmount = compound.getInt("fluidAmount")
     }
 
 }

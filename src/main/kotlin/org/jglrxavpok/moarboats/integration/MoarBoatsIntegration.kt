@@ -1,12 +1,10 @@
 package org.jglrxavpok.moarboats.integration
 
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.common.MinecraftForge
-import net.minecraftforge.fml.common.Loader
-import net.minecraftforge.fml.common.discovery.ASMDataTable
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.relauncher.Side
-import net.minecraftforge.fml.relauncher.SideOnly
+import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent
+import net.minecraftforge.fml.event.lifecycle.FMLModIdMappingEvent
 import net.minecraftforge.registries.IForgeRegistry
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModuleEntry
@@ -34,7 +32,7 @@ interface MoarBoatsPlugin {
         MinecraftForge.EVENT_BUS.register(this)
     }
 
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     fun registerModuleRenderers(registry: IForgeRegistry<BoatModuleRenderer>) {}
 
 }
@@ -43,8 +41,10 @@ interface MoarBoatsPlugin {
  * This method looks for classes that implement MoarBoatsPlugin & have @MoarBoatsIntegration, check to see if their dependency
  * (the mod for which the plugin is made) is present and loads the plugin if that's the case
  */
-fun LoadIntegrationPlugins(event: FMLPreInitializationEvent): List<MoarBoatsPlugin> {
+fun LoadIntegrationPlugins(event: FMLLoadCompleteEvent): List<MoarBoatsPlugin> {
 
+    // FIXME: Use IMC messages
+    
     /**
      * Tries to load the plugin from the given ASMData, also verifies that the dependency is present
      */

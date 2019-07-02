@@ -22,7 +22,7 @@ class MoarBoatsPatreonHookLayer(val renderplayer: RenderPlayer) : LayerRenderer<
         return false
     }
 
-    override fun doRenderLayer(entitylivingbaseIn: EntityLivingBase, limbSwing: Float, limbSwingAmount: Float, partialTicks: Float, ageInTicks: Float, netHeadYaw: Float, headPitch: Float, scale: Float) {
+    override fun render(entitylivingbaseIn: EntityLivingBase, limbSwing: Float, limbSwingAmount: Float, partialTicks: Float, ageInTicks: Float, netHeadYaw: Float, headPitch: Float, scale: Float) {
         if(MoarBoatsConfig.misc.hidePatreonHook) {
             return
         }
@@ -36,20 +36,20 @@ class MoarBoatsPatreonHookLayer(val renderplayer: RenderPlayer) : LayerRenderer<
 
         val handSide = entitylivingbaseIn.primaryHand
         if (entitylivingbaseIn.isSneaking) {
-            GlStateManager.translate(0.0f, 0.2f, 0.0f)
+            GlStateManager.translatef(0.0f, 0.2f, 0.0f)
         }
         this.translateToHand(handSide)
-        GlStateManager.rotate(-90.0f, 1.0f, 0.0f, 0.0f)
-        GlStateManager.rotate(180.0f, 0.0f, 1.0f, 0.0f)
+        GlStateManager.rotatef(-90.0f, 1.0f, 0.0f, 0.0f)
+        GlStateManager.rotatef(180.0f, 0.0f, 1.0f, 0.0f)
         val flag = handSide == EnumHandSide.LEFT
-        GlStateManager.translate((if (flag) -1 else 1).toFloat() / 16.0f, 0.125f, -0.625f)
+        GlStateManager.translatef((if (flag) -1 else 1).toFloat() / 16.0f, 0.125f, -0.625f)
 
         val scale = 4f/11f
-        GlStateManager.scale(scale, scale, scale)
+        GlStateManager.scalef(scale, scale, scale)
 
-        GlStateManager.rotate(90f, 1f, 0f, 0f)
-        GlStateManager.translate(0f, -0.01f, 0.4f)
-        Minecraft.getMinecraft().textureManager.bindTexture(hookTextureLocation)
+        GlStateManager.rotatef(90f, 1f, 0f, 0f)
+        GlStateManager.translatef(0f, -0.01f, 0.4f)
+        Minecraft.getInstance().textureManager.bindTexture(hookTextureLocation)
         hookModel.render(entitylivingbaseIn, 0f, 0f, 0f, 0f, 0f, 1f/16f)
         GlStateManager.popMatrix()
     }

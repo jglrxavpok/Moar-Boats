@@ -15,9 +15,9 @@ import net.minecraft.util.SoundCategory
 import net.minecraft.world.WorldServer
 import net.minecraft.world.storage.loot.LootContext
 import net.minecraft.world.storage.loot.LootTableList
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.common.util.Constants
-import net.minecraftforge.fml.relauncher.Side
-import net.minecraftforge.fml.relauncher.SideOnly
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
@@ -44,7 +44,7 @@ object FishingModule : BoatModule() {
     val lastLootProperty = NBTListBoatProperty("lastLoot", Constants.NBT.TAG_COMPOUND)
     val playingAnimationProperty = BooleanBoatProperty("playingAnimation")
 
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     override fun createGui(player: EntityPlayer, boat: IControllable): GuiScreen {
         return GuiFishingModule(player.inventory, this, boat)
     }
@@ -85,8 +85,8 @@ object FishingModule : BoatModule() {
                 result.forEach {
                     val info = NBTTagCompound()
                     info.setString("name", it.item.registryName.toString())
-                    info.setInteger("damage", it.itemDamage)
-                    lootList.appendTag(info)
+                    info.setInt("damage", it.damage)
+                    lootList.add(info)
                 }
                 lastLootProperty[from] = lootList
                 playingAnimationProperty[from] = true
@@ -104,14 +104,14 @@ object FishingModule : BoatModule() {
                     breakRod(from)
                     changeRodIfPossible(from)
                     return
-                } else if(rodStack.itemDamage >= rodStack.maxDamage - MoarBoatsConfig.fishing.remainingUsesBeforeRemoval) {
+                } else if(rodStack.damage >= rodStack.maxDamage - MoarBoatsConfig.fishing.remainingUsesBeforeRemoval) {
                     changeRodIfPossible(from)
                     return
                 }
             }
         }
 
-        if(lastLootProperty[from].tagCount() > 0) {
+        if(lastLootProperty[from].size > 0) {
             val animationTick = animationTickProperty[from]++
             if (animationTick >= MaxAnimationTicks) {
                 animationTickProperty[from] = 0
@@ -132,7 +132,7 @@ object FishingModule : BoatModule() {
             var foundReplacement = false
             for(index in 0 until storageInventory.sizeInventory) {
                 val stack = storageInventory.getStackInSlot(index)
-                if(stack.item is ItemFishingRod && stack.itemDamage < stack.maxDamage - MoarBoatsConfig.fishing.remainingUsesBeforeRemoval) {
+                if(stack.item is ItemFishingRod && stack.damage < stack.maxDamage - MoarBoatsConfig.fishing.remainingUsesBeforeRemoval) {
                     // Swap rods if possible
                     foundReplacement = true
                     storageInventory.setInventorySlotContents(index, inventory.getStackInSlot(0))
@@ -168,6 +168,6 @@ object FishingModule : BoatModule() {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.dropItem(Items.FISHING_ROD, 1)
+            boat.correspondingEntity.entityDropItem(Items.FISHING_ROD, 1)
     }
 }

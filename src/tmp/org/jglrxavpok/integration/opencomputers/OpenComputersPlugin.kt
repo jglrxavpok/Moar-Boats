@@ -72,9 +72,9 @@ class OpenComputersPlugin: MoarBoatsPlugin {
     override fun preInit() {
         super.preInit()
         IMC.registerAssemblerTemplate("moarboats:module_assemble",
-                "org.jglrxavpok.moarboats.integration.opencomputers.ModuleTemplate.select",
-                "org.jglrxavpok.moarboats.integration.opencomputers.ModuleTemplate.validate",
-                "org.jglrxavpok.moarboats.integration.opencomputers.ModuleTemplate.assemble",
+                "ModuleTemplate.select",
+                "ModuleTemplate.validate",
+                "ModuleTemplate.assemble",
                 BoatMachineHost::class.java, intArrayOf(0).apply { fill(3) }, intArrayOf(0),
                 arrayListOf(
                         Tuple.of(Slot.CPU, 3),
@@ -85,8 +85,8 @@ class OpenComputersPlugin: MoarBoatsPlugin {
                         Tuple.of("eeprom", 3)
                 ))
         IMC.registerDisassemblerTemplate("moarboats:module_disassemble",
-                "org.jglrxavpok.moarboats.integration.opencomputers.ModuleTemplate.selectDisassembly",
-                "org.jglrxavpok.moarboats.integration.opencomputers.ModuleTemplate.disassemble")
+                "ModuleTemplate.selectDisassembly",
+                "ModuleTemplate.disassemble")
         registerAsEventSubscriber()
         CapabilityManager.INSTANCE.register(MachineHostCapability::class.java, MachineHostCapability.Storage) {throw UnsupportedOperationException()}
     }

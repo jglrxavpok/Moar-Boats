@@ -1,14 +1,16 @@
 package org.jglrxavpok.moarboats.common.items
 
+import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.InventoryCrafting
 import net.minecraft.item.ItemStack
 import net.minecraft.item.crafting.IRecipe
 import net.minecraft.util.ResourceLocation
 import net.minecraft.world.World
+import net.minecraftforge.registries.ForgeRegistryEntry
 import net.minecraftforge.registries.IForgeRegistryEntry
 import org.jglrxavpok.moarboats.MoarBoats
 
-object GoldenTicketCopyRecipe: IForgeRegistryEntry.Impl<IRecipe>(), IRecipe {
+object GoldenTicketCopyRecipe: ForgeRegistryEntry<IRecipe>(), IRecipe {
 
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "golden_itinerary")
@@ -20,7 +22,7 @@ object GoldenTicketCopyRecipe: IForgeRegistryEntry.Impl<IRecipe>(), IRecipe {
 
     override fun getRecipeOutput() = ItemStack.EMPTY
 
-    override fun getCraftingResult(inv: InventoryCrafting): ItemStack {
+    override fun getCraftingResult(inv: IInventory): ItemStack {
         var emptyTickets = 0
         var fullTickets = 0
         var fullTicket: ItemStack? = null
@@ -45,7 +47,7 @@ object GoldenTicketCopyRecipe: IForgeRegistryEntry.Impl<IRecipe>(), IRecipe {
         return ItemStack.EMPTY
     }
 
-    override fun matches(inv: InventoryCrafting, worldIn: World?): Boolean {
+    override fun matches(inv: IInventory, worldIn: World?): Boolean {
         var emptyTickets = 0
         var fullTickets = 0
         for(i in 0 until inv.sizeInventory) {

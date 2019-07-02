@@ -9,11 +9,5 @@ import net.minecraft.util.text.TextComponentTranslation
 import net.minecraft.world.World
 import org.jglrxavpok.moarboats.MoarBoats
 
-object RudderItem : Item() {
-    init {
-        creativeTab = MoarBoats.CreativeTab
-        unlocalizedName = "rudder"
-        registryName = ResourceLocation(MoarBoats.ModID, "rudder")
-        maxStackSize = 64
-    }
+object RudderItem : MoarBoatsItem("rudder") {
 }

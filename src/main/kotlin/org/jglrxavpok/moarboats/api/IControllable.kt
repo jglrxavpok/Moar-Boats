@@ -10,7 +10,6 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
-import net.minecraftforge.common.ForgeChunkManager
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.modules.BlockReason
 import org.jglrxavpok.moarboats.common.state.BoatProperty
@@ -33,7 +32,6 @@ interface IControllable: IBlockSource {
     val moduleRNG: Random
     val blockedReason: BlockReason
     val imposedSpeed: Float
-    val chunkTicket: ForgeChunkManager.Ticket?
 
     fun inLiquid(): Boolean
     fun isEntityInLava(): Boolean
@@ -81,7 +79,7 @@ interface IControllable: IBlockSource {
      * Applies current yaw rotation to the vector
      */
     fun localToWorld(localVec: Vec3d): Vec3d {
-        return localVec.rotateYaw((180f-yaw).toRadians()).addVector(positionX, positionY, positionZ)
+        return localVec.rotateYaw((180f-yaw).toRadians()).add(positionX, positionY, positionZ)
     }
 
     fun sortModulesByInterestingness(): Iterable<BoatModule> {

@@ -57,9 +57,9 @@ abstract class DispensingModule: BoatModule() {
                 dispenseItem(BOTTOM, from)
                 dispenseItem(MIDDLE, from)
                 dispenseItem(TOP, from)
-                val newPos = BlockPos.PooledMutableBlockPos.retain(from.positionX, from.positionY, from.positionZ)
-                lastDispensePositionProperty[from] = newPos
-                newPos.release()
+                BlockPos.PooledMutableBlockPos.retain(from.positionX, from.positionY, from.positionZ).use {
+                    lastDispensePositionProperty[from] = it
+                }
             }
         }
     }
@@ -75,7 +75,7 @@ abstract class DispensingModule: BoatModule() {
                 .mapIndexed { index, itemStack -> Pair(startIndex+index, itemStack) }
                 .firstOrNull { val item = it.second.item
                     item is ItemBlock
-                            || BlockDispenser.DISPENSE_BEHAVIOR_REGISTRY.getObject(item) != IBehaviorDispenseItem.DEFAULT_BEHAVIOR
+                            || BlockDispenser.DISPENSE_BEHAVIOR_REGISTRY.getObject(item) !is BehaviorDefaultDispenseItem
                 }
     }
 
@@ -90,7 +90,7 @@ abstract class DispensingModule: BoatModule() {
             val name = matcher.group(2)
             val metadata = matcher.group(3)
             if(metadata?.isNotEmpty() == true) {
-                if(metadata.drop(1).toInt() != stack.metadata)
+                if(metadata.drop(1).toInt() != stack.damage)
                     return@any false
             }
             val location =
@@ -125,7 +125,7 @@ abstract class DispensingModule: BoatModule() {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.dropItem(BoatModuleRegistry.findEntry(this)!!.correspondingItem, 1)
+            boat.correspondingEntity.entityDropItem(BoatModuleRegistry.findEntry(this)!!.correspondingItem, 1)
     }
 }
 
@@ -143,7 +143,7 @@ object DropperModule: DispensingModule() {
             boat.getInventory().setInventorySlotContents(index, resultingStack)
             boat.getInventory().syncToClient()
         }
-        blockPos.release()
+        blockPos.close()
     }
 }
 object DispenserModule: DispensingModule() {
@@ -167,7 +167,7 @@ object DispenserModule: DispensingModule() {
                 dispenseWithDefaultBehavior(boat, behavior, stack, blockPos, index)
             }
         }
-        blockPos.release()
+        blockPos.close()
     }
 
     private fun dispenseWithDefaultBehavior(boat: IControllable, behavior: IBehaviorDispenseItem, stack: ItemStack, blockPos: BlockPos, index: Int) {
@@ -202,21 +202,21 @@ object DispenserModule: DispensingModule() {
 
     // adapted from ItemBlock.java
     private fun setTileEntityNBT(worldIn: World, pos: BlockPos, stackIn: ItemStack) {
-        val nbttagcompound = stackIn.getSubCompound("BlockEntityTag")
+        val nbttagcompound = stackIn.getOrCreateChildTag("BlockEntityTag")
 
         if (nbttagcompound != null) {
             val tileentity = worldIn.getTileEntity(pos)
 
             if (tileentity != null) {
-                val nbttagcompound1 = tileentity.writeToNBT(NBTTagCompound())
+                val nbttagcompound1 = tileentity.write(NBTTagCompound())
                 val nbttagcompound2 = nbttagcompound1.copy()
                 nbttagcompound1.merge(nbttagcompound)
-                nbttagcompound1.setInteger("x", pos.x)
-                nbttagcompound1.setInteger("y", pos.y)
-                nbttagcompound1.setInteger("z", pos.z)
+                nbttagcompound1.setInt("x", pos.x)
+                nbttagcompound1.setInt("z", pos.z)
+                nbttagcompound1.setInt("y", pos.y)
 
                 if (nbttagcompound1 != nbttagcompound2) {
-                    tileentity.readFromNBT(nbttagcompound1)
+                    tileentity.read(nbttagcompound1)
                     tileentity.markDirty()
                 }
             }

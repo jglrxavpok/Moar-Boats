@@ -14,6 +14,7 @@ import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
+import net.minecraft.world.chunk.BlockStateContainer
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergyLoader
@@ -21,14 +22,11 @@ import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergyUnloader
 
 val Facing = PropertyEnum.create("facing", EnumFacing::class.java)
 
-object BlockEnergyUnloader: Block(MoarBoats.MachineMaterial) {
+object BlockEnergyUnloader: MoarBoatsBlock() {
 
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "boat_energy_discharger")
-        unlocalizedName = "boat_energy_discharger"
-        setCreativeTab(MoarBoats.CreativeTab)
-        defaultState = blockState.baseState.withProperty(Facing, EnumFacing.UP)
-        setHardness(0.5f)
+        defaultState = stateContainer.baseState.withProperty(Facing, EnumFacing.UP)
     }
 
     override fun createBlockState(): BlockStateContainer {
@@ -43,21 +41,13 @@ object BlockEnergyUnloader: Block(MoarBoats.MachineMaterial) {
     }
 
     override fun getStateForPlacement(worldIn: World, pos: BlockPos, facing: EnumFacing, hitX: Float, hitY: Float, hitZ: Float, meta: Int, placer: EntityLivingBase): IBlockState {
-        return this.defaultState.withProperty(BlockDirectional.FACING, EnumFacing.getDirectionFromEntityLiving(pos, placer))
+        return this.defaultState.with(Facing, EnumFacing.getFacingDirections(placer))
     }
 
-    override fun getStateFromMeta(meta: Int): IBlockState {
-        return defaultState.withProperty(Facing, EnumFacing.values()[meta % EnumFacing.values().size])
-    }
-
-    override fun getMetaFromState(state: IBlockState): Int {
-        return state.getValue(Facing).ordinal
-    }
-
-    override fun onBlockActivated(worldIn: World, pos: BlockPos, state: IBlockState?, playerIn: EntityPlayer, hand: EnumHand?, facing: EnumFacing?, hitX: Float, hitY: Float, hitZ: Float): Boolean {
+    override fun onBlockActivated(state: IBlockState, worldIn: World, pos: BlockPos, playerIn: EntityPlayer, hand: EnumHand?, facing: EnumFacing?, hitX: Float, hitY: Float, hitZ: Float): Boolean {
         if(worldIn.isRemote)
             return true
-        playerIn.openGui(MoarBoats, MoarBoatsGuiHandler.EnergyGui, worldIn, pos.x, pos.y, pos.z)
+        playerIn.displayGui(MoarBoats, MoarBoatsGuiHandler.EnergyGui, worldIn, pos.x, pos.y, pos.z)
         return true
     }
 

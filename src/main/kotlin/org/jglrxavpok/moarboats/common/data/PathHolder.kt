@@ -25,7 +25,7 @@ interface PathHolder {
 
 class BoatPathHolder(val boat: IControllable): PathHolder {
     override fun getBaseMapID(): String {
-        return HelmModule.mapDataCopyProperty[boat].mapName
+        return HelmModule.mapDataCopyProperty[boat].name
     }
 
     override fun sendWorldImageRequest(mapID: String) {
@@ -41,7 +41,7 @@ class BoatPathHolder(val boat: IControllable): PathHolder {
     }
 
     override fun getWaypointNBTList(): NBTTagList {
-        return boat.getState(HelmModule).getTagList(HelmModule.waypointsProperty.id, Constants.NBT.TAG_COMPOUND)
+        return boat.getState(HelmModule).getList(HelmModule.waypointsProperty.id, Constants.NBT.TAG_COMPOUND)
     }
 
     override fun getLoopingOption(): LoopingOptions {
@@ -60,10 +60,10 @@ class BoatPathHolder(val boat: IControllable): PathHolder {
 class MapWithPathHolder(stack: ItemStack, mappingTable: TileEntityMappingTable?, boat: IControllable?): ItemPathHolder(stack, mappingTable, boat) {
 
     override fun nbt(): NBTTagCompound {
-        if(stack.tagCompound == null) {
-            stack.tagCompound = NBTTagCompound()
+        if(stack.tag == null) {
+            stack.tag = NBTTagCompound()
         }
-        return stack.tagCompound!!
+        return stack.tag!!
     }
 
     override fun addWaypoint(pos: BlockPos, boost: Double?) {
@@ -119,7 +119,7 @@ abstract class ItemPathHolder(val stack: ItemStack, val mappingTable: TileEntity
             loopingOption = LoopingOptions.Loops
         }
         if(nbt().hasKey("${MoarBoats.ModID}.loopingOption")) {
-            loopingOption = LoopingOptions.values()[nbt().getInteger("${MoarBoats.ModID}.loopingOption").coerceIn(LoopingOptions.values().indices)]
+            loopingOption = LoopingOptions.values()[nbt().getInt("${MoarBoats.ModID}.loopingOption").coerceIn(LoopingOptions.values().indices)]
         }
         return loopingOption
     }
@@ -133,7 +133,7 @@ abstract class ItemPathHolder(val stack: ItemStack, val mappingTable: TileEntity
     }
 
     override fun getWaypointNBTList(): NBTTagList {
-        return nbt().getTagList("${MoarBoats.ModID}.path", Constants.NBT.TAG_COMPOUND)
+        return nbt().getList("${MoarBoats.ModID}.path", Constants.NBT.TAG_COMPOUND)
     }
 
     override fun getHolderLocation() = null

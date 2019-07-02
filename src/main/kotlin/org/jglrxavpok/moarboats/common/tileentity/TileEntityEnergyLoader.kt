@@ -6,17 +6,18 @@ import net.minecraft.util.EnumFacing
 import net.minecraft.util.ITickable
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraftforge.energy.CapabilityEnergy
+import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.blocks.Facing
 
-class TileEntityEnergyLoader: TileEntityEnergy(), ITickable {
+class TileEntityEnergyLoader: TileEntityEnergy(MoarBoats.TileEntityEnergyLoader), ITickable {
     override val maxReceivableEnergy = maxEnergyStored
     override val maxExtractableEnergy = 0
     private var working: Boolean = false
 
-    val blockFacing: EnumFacing get()= world.getBlockState(pos).getValue(Facing)
+    val blockFacing: EnumFacing get()= world.getBlockState(pos).get(Facing)
 
-    override fun update() {
+    override fun tick() {
         if(world.isRemote)
             return
         working = false
@@ -27,7 +28,7 @@ class TileEntityEnergyLoader: TileEntityEnergy(), ITickable {
         pullEnergyFromNeighbors(MoarBoatsConfig.energyLoader.pullAmount, facings)
 
         val aabb = create3x3AxisAlignedBB(pos.offset(blockFacing))
-        val entities = world.getEntitiesWithinAABB(Entity::class.java, aabb) { e -> e != null && e.hasCapability(CapabilityEnergy.ENERGY, null) }
+        val entities = world.getEntitiesWithinAABB(Entity::class.java, aabb) { e -> e != null && e.getCapability(CapabilityEnergy.ENERGY, null).isPresent }
 
         val totalEnergyToSend = minOf(MoarBoatsConfig.energyLoader.sendAmount, energyStored)
         val entityCount = entities.size
@@ -37,8 +38,8 @@ class TileEntityEnergyLoader: TileEntityEnergy(), ITickable {
         var energyActuallySent = 0
         entities.forEach {
             val energyCapa = it.getCapability(CapabilityEnergy.ENERGY, null)
-            if(energyCapa != null) {
-                energyActuallySent += energyCapa.receiveEnergy(energyToSendToASingleNeighbor, false)
+            energyCapa.ifPresent { storage ->
+                energyActuallySent += storage.receiveEnergy(energyToSendToASingleNeighbor, false)
                 working = working || energyActuallySent > 0
             }
         }

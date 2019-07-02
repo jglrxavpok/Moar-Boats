@@ -19,14 +19,10 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 
-object BlockMappingTable: Block(MoarBoats.MachineMaterial) {
+object BlockMappingTable: MoarBoatsBlock({ sound(SoundType.STONE).hardnessAndResistance(2.5f, 20f)}) {
 
     init {
-        soundType = SoundType.STONE
-        blockHardness = 2.5f
         registryName = ResourceLocation(MoarBoats.ModID, "mapping_table")
-        unlocalizedName = "mapping_table"
-        setCreativeTab(MoarBoats.CreativeTab)
     }
 
     override fun hasTileEntity() = true
@@ -40,7 +36,8 @@ object BlockMappingTable: Block(MoarBoats.MachineMaterial) {
     /**
      * Called serverside after this block is replaced with another in Chunk, but before the Tile Entity is updated
      */
-    override fun breakBlock(worldIn: World, pos: BlockPos, state: IBlockState) {
+    //IBlockState state, World worldIn, BlockPos pos, IBlockState newState, boolean isMoving)
+    override fun onReplaced(state: IBlockState, worldIn: World, pos: BlockPos, newState: IBlockState, isMoving: Boolean) {
         val tileentity = worldIn.getTileEntity(pos)
 
         if (tileentity is TileEntityMappingTable) {
@@ -48,7 +45,7 @@ object BlockMappingTable: Block(MoarBoats.MachineMaterial) {
             worldIn.updateComparatorOutputLevel(pos, this)
         }
 
-        super.breakBlock(worldIn, pos, state)
+        super.onReplaced(state, worldIn, pos, newState, isMoving)
     }
 
     override fun hasComparatorInputOverride(state: IBlockState): Boolean {
@@ -61,11 +58,11 @@ object BlockMappingTable: Block(MoarBoats.MachineMaterial) {
         } ?: 0
     }
 
-    override fun onBlockActivated(worldIn: World, pos: BlockPos, state: IBlockState?, playerIn: EntityPlayer, hand: EnumHand?, facing: EnumFacing?, hitX: Float, hitY: Float, hitZ: Float): Boolean {
+    override fun onBlockActivated(state: IBlockState, worldIn: World, pos: BlockPos, playerIn: EntityPlayer, hand: EnumHand?, facing: EnumFacing?, hitX: Float, hitY: Float, hitZ: Float): Boolean {
         if(worldIn.isRemote) {
             return true
         }
-        playerIn.openGui(MoarBoats, MoarBoatsGuiHandler.MappingTableGui, worldIn, pos.x, pos.y, pos.z)
+        playerIn.displayGui(MoarBoats, MoarBoatsGuiHandler.MappingTableGui, worldIn, pos.x, pos.y, pos.z)
         return true
     }
 }

@@ -3,14 +3,13 @@ package org.jglrxavpok.moarboats.common.modules
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Blocks
 import net.minecraft.inventory.IInventory
-import net.minecraft.item.Item
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
-import net.minecraft.world.EnumSkyBlock
+import net.minecraft.world.EnumLightType
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.containers.ContainerBase
 import org.jglrxavpok.moarboats.common.containers.EmptyContainer
@@ -40,7 +39,7 @@ object SolarEngineModule : BaseEngineModule() {
     override fun remainingTimeInPercent(from: IControllable): Float {
         val worldIn = from.worldRef
         val pos = from.correspondingEntity.position
-        var diff = worldIn.getLightFor(EnumSkyBlock.SKY, pos) - worldIn.skylightSubtracted
+        var diff = worldIn.getLightFor(EnumLightType.SKY, pos) - worldIn.skylightSubtracted
         var angle = worldIn.getCelestialAngleRadians(1.0f)
 
         if (invertedProperty[from]) {
@@ -78,7 +77,7 @@ object SolarEngineModule : BaseEngineModule() {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.dropItem(ItemBlock.getItemFromBlock(Blocks.DAYLIGHT_DETECTOR), 1)
+            boat.correspondingEntity.entityDropItem(ItemBlock.getItemFromBlock(Blocks.DAYLIGHT_DETECTOR), 1)
     }
 
 }

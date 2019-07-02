@@ -1,15 +1,17 @@
 package org.jglrxavpok.moarboats.common.items
 
+import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.InventoryCrafting
 import net.minecraft.item.ItemStack
 import net.minecraft.item.crafting.IRecipe
 import net.minecraft.util.ResourceLocation
 import net.minecraft.world.World
 import net.minecraftforge.oredict.DyeUtils
+import net.minecraftforge.registries.ForgeRegistryEntry
 import net.minecraftforge.registries.IForgeRegistryEntry
 import org.jglrxavpok.moarboats.MoarBoats
 
-object ModularBoatColoringRecipe: IForgeRegistryEntry.Impl<IRecipe>(), IRecipe {
+object ModularBoatColoringRecipe: ForgeRegistryEntry<IRecipe>(), IRecipe {
 
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "modular_boat_coloring")
@@ -21,7 +23,7 @@ object ModularBoatColoringRecipe: IForgeRegistryEntry.Impl<IRecipe>(), IRecipe {
 
     override fun getRecipeOutput() = ItemStack.EMPTY
 
-    override fun getCraftingResult(inv: InventoryCrafting): ItemStack {
+    override fun getCraftingResult(inv: IInventory): ItemStack {
         var dyeColorIndex = -1
         var boatCount = 0
         var dyeCount = 0
@@ -51,7 +53,7 @@ object ModularBoatColoringRecipe: IForgeRegistryEntry.Impl<IRecipe>(), IRecipe {
         return ItemStack.EMPTY
     }
 
-    override fun matches(inv: InventoryCrafting, worldIn: World?): Boolean {
+    override fun matches(inv: IInventory, worldIn: World?): Boolean {
         var dyeColorIndex = -1
         var boatCount = 0
         var dyeCount = 0

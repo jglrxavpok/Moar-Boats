@@ -8,6 +8,7 @@ import net.minecraft.block.state.BlockStateContainer
 import net.minecraft.block.state.IBlockState
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.item.ItemStack
+import net.minecraft.state.properties.BlockStateProperties.FACING
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.AxisAlignedBB
@@ -23,6 +24,9 @@ import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.items.CargoStopperItem
 import java.util.*
 
+
+// TODO: Rewrite with blockstates
+
 object BlockPoweredCargoStopper: BlockCargoStopper(true)
 object BlockUnpoweredCargoStopper: BlockCargoStopper(false)
 
@@ -31,7 +35,7 @@ open class BlockCargoStopper(val powered: Boolean): BlockRedstoneDiode(powered) 
         val id = "cargo_stopper_${if(powered) "" else "un"}lit"
         registryName = ResourceLocation(MoarBoats.ModID, id)
         unlocalizedName = id
-        this.defaultState = this.blockState.baseState.withProperty(BlockHorizontal.FACING, EnumFacing.NORTH)
+        this.defaultState = this.stateContainer.baseState.withProperty(BlockHorizontal.FACING, EnumFacing.NORTH)
         tickRandomly = true
     }
 
@@ -60,8 +64,8 @@ open class BlockCargoStopper(val powered: Boolean): BlockRedstoneDiode(powered) 
     }
 
     override fun getUnpoweredState(poweredState: IBlockState): IBlockState {
-        val enumfacing = poweredState.getValue(FACING) as EnumFacing
-        return BlockUnpoweredCargoStopper.defaultState.withProperty(FACING, enumfacing)
+        val enumfacing = poweredState.get(FACING) as EnumFacing
+        return BlockUnpoweredCargoStopper.defaultState.with(FACING, enumfacing)
     }
 
     override fun getPoweredState(unpoweredState: IBlockState): IBlockState {

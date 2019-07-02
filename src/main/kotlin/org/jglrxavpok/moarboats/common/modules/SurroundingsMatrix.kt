@@ -3,7 +3,7 @@ package org.jglrxavpok.moarboats.common.modules
 import net.minecraft.block.state.IBlockState
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
-import org.lwjgl.util.vector.Vector2f
+import org.jglrxavpok.moarboats.common.math.MutableVec2
 
 class SurroundingsMatrix(val size: Int) {
 
@@ -25,7 +25,7 @@ class SurroundingsMatrix(val size: Int) {
                 internalMatrix[pos2index(xOffset, zOffset)] = blockState
             }
         }
-        pos.release()
+        pos.close()
         return this
     }
 
@@ -76,7 +76,7 @@ class SurroundingsMatrix(val size: Int) {
         return and(andMatrix)
     }
 
-    fun computeGradient(): Array<Vector2f> {
+    fun computeGradient(): Array<MutableVec2> {
         val distanceMap = IntArray(internalMatrix.size)
         val requiredState = this[0, 0]
         forEach { x, z, state ->
@@ -88,7 +88,7 @@ class SurroundingsMatrix(val size: Int) {
                 distanceMap[index] = -dist
             }
         }
-        val gradient = Array(internalMatrix.size) { i-> Vector2f() }
+        val gradient = Array(internalMatrix.size) { _ -> MutableVec2(0.0, 0.0) }
         forEach { x, z, state ->
 
             fun distance(dx: Int, dz: Int): Int {
@@ -117,7 +117,7 @@ class SurroundingsMatrix(val size: Int) {
             verticalContribution += distance(-1, +1) * 1
             verticalContribution += distance(0, +1) * 2
             verticalContribution += distance(+1, +1) * 1
-            gradient[pos2index(x, z)] = Vector2f(horizontalContribution.toFloat(), verticalContribution.toFloat())
+            gradient[pos2index(x, z)] = MutableVec2(horizontalContribution.toDouble(), verticalContribution.toDouble())
 
         }
         return gradient

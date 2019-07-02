@@ -2,10 +2,11 @@ package org.jglrxavpok.moarboats.common.tileentity
 
 import net.minecraft.inventory.Container
 import net.minecraft.tileentity.TileEntity
+import net.minecraft.tileentity.TileEntityType
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 
-abstract class TileEntityListenable: TileEntity() {
+abstract class TileEntityListenable(tileEntityType: TileEntityType<out TileEntityListenable>): TileEntity(tileEntityType) {
 
     private val listeners = mutableListOf<Container>()
     private val listenersToAdd = mutableListOf<Container>()

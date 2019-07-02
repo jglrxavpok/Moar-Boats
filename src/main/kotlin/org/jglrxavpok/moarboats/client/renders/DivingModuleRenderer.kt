@@ -24,13 +24,13 @@ object DivingModuleRenderer: BoatModuleRenderer() {
         val localX = -0.8
         val localY = 0.25
         val localZ = 0.74
-        GlStateManager.translate(localX, localY, localZ)
+        GlStateManager.translated(localX, localY, localZ)
 
         val anchorScale = 0.5
         GlStateManager.pushMatrix()
-        GlStateManager.scale(anchorScale, -anchorScale, anchorScale)
-        GlStateManager.rotate(90f, 0f, 1f, 0f)
-        renderManager.renderEngine.bindTexture(textureLocation)
+        GlStateManager.scaled(anchorScale, -anchorScale, anchorScale)
+        GlStateManager.rotatef(90f, 0f, 1f, 0f)
+        renderManager.textureManager.bindTexture(textureLocation)
         bottleModel.render(boat, 0f, 0f, 0f, 0f, 0f, 0.0625f)
 
 

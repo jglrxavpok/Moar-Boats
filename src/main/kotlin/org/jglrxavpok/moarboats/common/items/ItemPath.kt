@@ -6,11 +6,16 @@ import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
 import net.minecraft.util.ResourceLocation
+import net.minecraft.util.text.ITextComponent
+import net.minecraft.util.text.TextComponentString
 import net.minecraft.util.text.TextComponentTranslation
 import net.minecraft.world.World
 import net.minecraft.world.storage.MapStorage
 import net.minecraft.world.storage.WorldSavedData
+import net.minecraft.world.storage.WorldSavedDataStorage
+import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.common.util.Constants
+import net.minecraftforge.fml.DistExecutor
 import net.minecraftforge.fml.common.FMLCommonHandler
 import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.MoarBoats
@@ -24,16 +29,16 @@ abstract class ItemPath: Item() {
         maxStackSize = 1
     }
 
-    abstract fun getWaypointData(stack: ItemStack, mapStorage: MapStorage): NBTTagList
+    abstract fun getWaypointData(stack: ItemStack, mapStorage: WorldSavedDataStorage): NBTTagList
 
     abstract fun getLoopingOptions(stack: ItemStack): LoopingOptions
 
-    override fun addInformation(stack: ItemStack, worldIn: World?, tooltip: MutableList<String>, flagIn: ITooltipFlag) {
+    override fun addInformation(stack: ItemStack, worldIn: World?, tooltip: MutableList<ITextComponent>, flagIn: ITooltipFlag) {
         super.addInformation(stack, worldIn, tooltip, flagIn)
         if(worldIn != null) {
-            val mapStorage: MapStorage = MoarBoats.getLocalMapStorage()
+            val mapStorage: WorldSavedDataStorage = MoarBoats.getLocalMapStorage()
             val list = getWaypointData(stack, mapStorage)
-            tooltip.add(TextComponentTranslation(MoarBoats.ModID+".item_path.description", list.tagCount()).unformattedText)
+            tooltip.add(TextComponentTranslation(MoarBoats.ModID+".item_path.description", list.size))
         }
     }
 
@@ -48,32 +53,32 @@ object ItemMapWithPath: ItemPath() {
     }
 
     override fun setLoopingOptions(stack: ItemStack, options: LoopingOptions) {
-        if(stack.hasTagCompound()) {
-            stack.tagCompound!!.setInteger("${MoarBoats.ModID}.loopingOption", options.ordinal)
+        if(stack.hasTag()) {
+            stack.tag!!.setInt("${MoarBoats.ModID}.loopingOption", options.ordinal)
         }
     }
 
     override fun getLoopingOptions(stack: ItemStack): LoopingOptions {
-        if(!stack.hasTagCompound())
-            stack.tagCompound = NBTTagCompound()
-        if(stack.tagCompound!!.getBoolean("${MoarBoats.ModID}.loops") && ! stack.tagCompound!!.hasKey("${MoarBoats.ModID}.loopingOption")) { // retro-compatibility
+        if(!stack.hasTag())
+            stack.tag = NBTTagCompound()
+        if(stack.tag!!.getBoolean("${MoarBoats.ModID}.loops") && ! stack.tag!!.hasKey("${MoarBoats.ModID}.loopingOption")) { // retro-compatibility
             return LoopingOptions.Loops
         }
-        return LoopingOptions.values()[stack.tagCompound!!.getInteger("${MoarBoats.ModID}.loopingOption").coerceIn(LoopingOptions.values().indices)]
+        return LoopingOptions.values()[stack.tag!!.getInteger("${MoarBoats.ModID}.loopingOption").coerceIn(LoopingOptions.values().indices)]
     }
 
-    override fun getWaypointData(stack: ItemStack, mapStorage: MapStorage): NBTTagList {
-        if(!stack.hasTagCompound())
-            stack.tagCompound = NBTTagCompound()
-        return stack.tagCompound!!.getTagList("${MoarBoats.ModID}.path", Constants.NBT.TAG_COMPOUND)
+    override fun getWaypointData(stack: ItemStack, mapStorage: WorldSavedDataStorage): NBTTagList {
+        if(!stack.hasTag())
+            stack.tag = NBTTagCompound()
+        return stack.tag!!.getList("${MoarBoats.ModID}.path", Constants.NBT.TAG_COMPOUND)
     }
 
     fun createStack(list: NBTTagList, mapID: String, loopingOptions: LoopingOptions): ItemStack {
         val result = ItemStack(this)
-        result.tagCompound = NBTTagCompound().apply {
+        result.tag = NBTTagCompound().apply {
             setTag("${MoarBoats.ModID}.path", list)
             setString("${MoarBoats.ModID}.mapID", mapID)
-            setInteger("${MoarBoats.ModID}.loopingOption", loopingOptions.ordinal)
+            setInt("${MoarBoats.ModID}.loopingOption", loopingOptions.ordinal)
         }
         return result
     }
@@ -101,18 +106,18 @@ object ItemGoldenTicket: ItemPath() {
 
         override fun writeToNBT(compound: NBTTagCompound): NBTTagCompound {
             compound.setTag("${MoarBoats.ModID}.path", backingList)
-            compound.setInteger("${MoarBoats.ModID}.loopingOption", loopingOption.ordinal)
+            compound.setInt("${MoarBoats.ModID}.loopingOption", loopingOption.ordinal)
             compound.setString("${MoarBoats.ModID}.mapID", mapID)
             return compound
         }
 
         override fun readFromNBT(nbt: NBTTagCompound) {
-            backingList = nbt.getTagList("${MoarBoats.ModID}.path", Constants.NBT.TAG_COMPOUND)
+            backingList = nbt.getList("${MoarBoats.ModID}.path", Constants.NBT.TAG_COMPOUND)
             if(nbt.getBoolean("${MoarBoats.ModID}.loops")) { // retro-compatibility
                 loopingOption = LoopingOptions.Loops
             }
             if(nbt.hasKey("${MoarBoats.ModID}.loopingOption")) {
-                loopingOption = LoopingOptions.values()[nbt.getInteger("${MoarBoats.ModID}.loopingOption").coerceIn(LoopingOptions.values().indices)]
+                loopingOption = LoopingOptions.values()[nbt.getInt("${MoarBoats.ModID}.loopingOption").coerceIn(LoopingOptions.values().indices)]
             }
 
             mapID = nbt.getString("${MoarBoats.ModID}.mapID")
@@ -128,56 +133,56 @@ object ItemGoldenTicket: ItemPath() {
         return getData(stack).loopingOption
     }
 
-    override fun addInformation(stack: ItemStack, worldIn: World?, tooltip: MutableList<String>, flagIn: ITooltipFlag) {
+    override fun addInformation(stack: ItemStack, worldIn: World?, tooltip: MutableList<ITextComponent>, flagIn: ITooltipFlag) {
         super.addInformation(stack, worldIn, tooltip, flagIn)
         val uuid = getUUID(stack)
         if(uuid != null) {
-            tooltip.add("UUID: $uuid")
+            tooltip.add(TextComponentString("UUID: $uuid"))
         }
     }
 
-    override fun getWaypointData(stack: ItemStack, mapStorage: MapStorage): NBTTagList {
+    override fun getWaypointData(stack: ItemStack, mapStorage: WorldSavedDataStorage): NBTTagList {
         val data = getData(stack)
         return data.backingList
     }
 
     fun initStack(stack: ItemStack, uuid: UUID) {
-        stack.getOrCreateSubCompound("${MoarBoats.ModID}.path").setUniqueId("path_uuid", uuid)
+        stack.getOrCreateChildTag("${MoarBoats.ModID}.path").setUniqueId("path_uuid", uuid)
     }
 
     fun getUUID(stack: ItemStack): UUID? {
-        return stack.getSubCompound("${MoarBoats.ModID}.path")?.getUniqueId("path_uuid")
+        return stack.getChildTag("${MoarBoats.ModID}.path")?.getUniqueId("path_uuid")
     }
 
-    override fun getItemStackDisplayName(stack: ItemStack): String {
+    override fun getDisplayName(stack: ItemStack): ITextComponent {
         if(!isEmpty(stack)) {
-            return super.getItemStackDisplayName(stack)
+            return super.getDisplayName(stack)
         }
-        return EmptyName.unformattedText
+        return EmptyName
     }
 
     fun createStack(uuid: String): ItemStack {
         val result = ItemStack(this)
-        result.getOrCreateSubCompound("${MoarBoats.ModID}.path").setUniqueId("path_uuid", UUID.fromString(uuid))
+        result.getOrCreateChildTag("${MoarBoats.ModID}.path").setUniqueId("path_uuid", UUID.fromString(uuid))
         return result
     }
 
-    fun isEmpty(stack: ItemStack) = !stack.hasTagCompound() || stack.getSubCompound("${MoarBoats.ModID}.path") == null
+    fun isEmpty(stack: ItemStack) = !stack.hasTag() || stack.getChildTag("${MoarBoats.ModID}.path") == null
 
     fun updateItinerary(stack: ItemStack, map: ItemMapWithPath, mapStack: ItemStack) {
-        val mapStorage: MapStorage = MoarBoats.getLocalMapStorage()
-        val mapID = mapStack.tagCompound!!.getString("${MoarBoats.ModID}.mapID")
+        val mapStorage: WorldSavedDataStorage = MoarBoats.getLocalMapStorage()
+        val mapID = mapStack.tag!!.getString("${MoarBoats.ModID}.mapID")
         var loopingOption = LoopingOptions.NoLoop
-        if(mapStack.tagCompound!!.getBoolean("${MoarBoats.ModID}.loops")) { // retro-compatibility
+        if(mapStack.tag!!.getBoolean("${MoarBoats.ModID}.loops")) { // retro-compatibility
             loopingOption = LoopingOptions.Loops
         }
-        if(mapStack.tagCompound!!.hasKey("${MoarBoats.ModID}.loopingOption")) {
-            loopingOption = LoopingOptions.values()[mapStack.tagCompound!!.getInteger("${MoarBoats.ModID}.loopingOption").coerceIn(LoopingOptions.values().indices)]
+        if(mapStack.tag!!.hasKey("${MoarBoats.ModID}.loopingOption")) {
+            loopingOption = LoopingOptions.values()[mapStack.tag!!.getInt("${MoarBoats.ModID}.loopingOption").coerceIn(LoopingOptions.values().indices)]
         }
         updateItinerary(stack, map.getWaypointData(mapStack, mapStorage), mapID, loopingOption, mapStorage)
     }
 
-    fun updateItinerary(stack: ItemStack, list: NBTTagList, mapID: String, option: LoopingOptions, mapStorage: MapStorage) {
+    fun updateItinerary(stack: ItemStack, list: NBTTagList, mapID: String, option: LoopingOptions, mapStorage: WorldSavedDataStorage) {
         val uuid = getUUID(stack).toString()
         val data = WaypointData(uuid)
         data.backingList = list
@@ -185,7 +190,7 @@ object ItemGoldenTicket: ItemPath() {
         data.mapID = mapID
         mapStorage.setData(uuid, data)
 
-        if(FMLCommonHandler.instance().effectiveSide == Side.SERVER) {
+        DistExecutor.callWhenOn(Dist.DEDICATED_SERVER) {
             MoarBoats.network.sendToAll(SSetGoldenItinerary(data))
         }
     }

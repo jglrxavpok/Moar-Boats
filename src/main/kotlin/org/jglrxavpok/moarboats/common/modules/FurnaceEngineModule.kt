@@ -3,6 +3,7 @@ package org.jglrxavpok.moarboats.common.modules
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Blocks
 import net.minecraft.init.Items
+import net.minecraft.init.Particles
 import net.minecraft.inventory.IInventory
 import net.minecraft.item.Item
 import net.minecraft.item.ItemBlock
@@ -91,7 +92,7 @@ object FurnaceEngineModule : BaseEngineModule() {
             val cos = MathHelper.cos((boat.yaw + 90f).toRadians())
             val sin = MathHelper.sin((boat.yaw + 90f).toRadians())
             val dist = 0.5
-            boat.worldRef.spawnParticle(EnumParticleTypes.SMOKE_LARGE, boat.positionX + dist * cos, boat.positionY + 0.8, boat.positionZ + dist * sin, 0.0, 0.0, 0.0)
+            boat.worldRef.spawnParticle(Particles.LARGE_SMOKE, boat.positionX + dist * cos, boat.positionY + 0.8, boat.positionZ + dist * sin, 0.0, 0.0, 0.0)
         }
     }
 
@@ -115,17 +116,18 @@ object FurnaceEngineModule : BaseEngineModule() {
 
     override fun getFuelTime(fuelItem: ItemStack): Int {
         return when(fuelItem.item) {
-            Item.getItemFromBlock(Blocks.TORCH) -> 1*SECONDS_TO_TICKS
+            Blocks.TORCH.asItem() -> 1*SECONDS_TO_TICKS
             Items.COAL -> 60*3*SECONDS_TO_TICKS
             Items.LAVA_BUCKET -> 60*15*SECONDS_TO_TICKS
-            Item.getItemFromBlock(Blocks.MAGMA) -> 60*30*SECONDS_TO_TICKS
-            Item.getItemFromBlock(Blocks.COAL_BLOCK) -> 30*30*SECONDS_TO_TICKS
+            Blocks.MAGMA_BLOCK.asItem() -> 60*30*SECONDS_TO_TICKS
+            Blocks.COAL_BLOCK.asItem() -> 30*30*SECONDS_TO_TICKS
+            // TODO: AT for this
             else -> (TileEntityFurnace.getItemBurnTime(fuelItem)*.9).toInt() // scale time to make lava bucket burn time the same duration as the one above
         }
     }
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.dropItem(ItemBlock.getItemFromBlock(Blocks.FURNACE), 1)
+            boat.correspondingEntity.entityDropItem(ItemBlock.getItemFromBlock(Blocks.FURNACE), 1)
     }
 }

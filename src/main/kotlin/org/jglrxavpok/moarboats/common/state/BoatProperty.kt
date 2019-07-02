@@ -1,11 +1,9 @@
 package org.jglrxavpok.moarboats.common.state
 
-import com.google.common.collect.BiMap
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.storage.MapData
-import net.minecraftforge.common.util.Constants
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 
@@ -48,27 +46,27 @@ class FloatBoatProperty(module: BoatModule, id: String): BoatProperty<Float>(mod
 
 class IntBoatProperty(module: BoatModule, id: String): BoatProperty<Int>(module, id) {
     override val type = java.lang.Integer.TYPE
-    override val readProperty = NBTTagCompound::getInteger
-    override val writeProperty = NBTTagCompound::setInteger
+    override val readProperty = NBTTagCompound::getInt
+    override val writeProperty = NBTTagCompound::setInt
 }
 
 class StringBoatProperty(module: BoatModule, id: String): BoatProperty<String>(module, id) {
     override val type = String::class.java
-    override val readProperty = NBTTagCompound::getString
+    override val readProperty = { compound: NBTTagCompound, id: String -> compound.getString(id) }
     override val writeProperty = NBTTagCompound::setString
 }
 
 class NBTListBoatProperty(module: BoatModule, id: String, val elementType: Int): BoatProperty<NBTTagList>(module, id) {
     override val type = NBTTagList::class.java
 
-    override val readProperty: NBTTagCompound.(String) -> NBTTagList = { id -> this.getTagList(id, elementType) }
+    override val readProperty: NBTTagCompound.(String) -> NBTTagList = { id -> this.getList(id, elementType) }
     override val writeProperty: NBTTagCompound.(String, NBTTagList) -> Unit = { id, list -> this.setTag(id, list) }
 }
 
 class ArrayBoatProperty<T: Any>(module: BoatModule, id: String, val array: Array<T>): BoatProperty<T>(module, id) {
     override val type = array[0].javaClass
-    override val readProperty: NBTTagCompound.(String) -> T = { id -> array[this.getInteger(id)] }
-    override val writeProperty: NBTTagCompound.(String, T) -> Unit = { id, value -> setInteger(id, array.indexOf(value))}
+    override val readProperty: NBTTagCompound.(String) -> T = { id -> array[this.getInt(id)] }
+    override val writeProperty: NBTTagCompound.(String, T) -> Unit = { id, value -> setInt(id, array.indexOf(value))}
 }
 
 /**
@@ -78,13 +76,13 @@ class BlockPosProperty(module: BoatModule, id: String): BoatProperty<BlockPos.Po
     override val type: Class<out BlockPos.PooledMutableBlockPos> = BlockPos.PooledMutableBlockPos::class.java
     override val readProperty: NBTTagCompound.(String) -> BlockPos.PooledMutableBlockPos = { id ->
         val pos = BlockPos.PooledMutableBlockPos.retain()
-        pos.setPos(this.getInteger(id+"_X"), this.getInteger(id+"_Y"), this.getInteger(id+"_Z"))
+        pos.setPos(this.getInt(id+"_X"), this.getInt(id+"_Y"), this.getInt(id+"_Z"))
         pos
     }
     override val writeProperty: NBTTagCompound.(String, BlockPos.PooledMutableBlockPos) -> Unit = { id, pos ->
-        this.setInteger(id+"_X", pos.x)
-        this.setInteger(id+"_Y", pos.y)
-        this.setInteger(id+"_Z", pos.z)
+        this.setInt(id+"_X", pos.x)
+        this.setInt(id+"_Y", pos.y)
+        this.setInt(id+"_Z", pos.z)
     }
 }
 
@@ -98,14 +96,14 @@ class MapDataProperty(module: BoatModule, id: String): BoatProperty<MapData>(mod
             EmptyMapData
         else {
             val name = this.getString("mapName")
-            val data = this.getCompoundTag("mapData")
-            MapData(name).apply { readFromNBT(data) }
+            val data = this.getCompound("mapData")
+            MapData(name).apply { read(data) }
         }
     }
 
     override val writeProperty: NBTTagCompound.(String, MapData) -> Unit = { id, mapData ->
-        setString("mapName", mapData.mapName)
-        val mapDataNBT = mapData.writeToNBT(NBTTagCompound())
+        setString("mapName", mapData.name)
+        val mapDataNBT = mapData.write(NBTTagCompound())
         setTag("mapData", mapDataNBT)
     }
 }

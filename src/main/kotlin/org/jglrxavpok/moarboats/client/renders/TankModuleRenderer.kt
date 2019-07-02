@@ -21,20 +21,20 @@ object TankModuleRenderer : BoatModuleRenderer() {
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, renderManager: RenderManager) {
         module as FluidTankModule
         GlStateManager.pushMatrix()
-        GlStateManager.scale(0.75f, 0.75f, 0.75f)
-        GlStateManager.scale(-1f, 1f, 1f)
-        GlStateManager.translate(-0.15f, -4f/16f, 0.5f)
-        renderManager.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
+        GlStateManager.scalef(0.75f, 0.75f, 0.75f)
+        GlStateManager.scalef(-1f, 1f, 1f)
+        GlStateManager.translatef(-0.15f, -4f/16f, 0.5f)
+        renderManager.textureManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
         val block = BlockBoatTank
-        Minecraft.getMinecraft().blockRendererDispatcher.renderBlockBrightness(block.defaultState, boat.brightness)
+        Minecraft.getInstance().blockRendererDispatcher.renderBlockBrightness(block.defaultState, boat.brightness)
         val fluid = module.getFluidInside(boat)
         if(fluid != null && module.getFluidAmount(boat) > 0) {
             val scale = 1f/16f
-            GlStateManager.scale(scale, scale, scale)
+            GlStateManager.scalef(scale, scale, scale)
             val tessellator = Tessellator.getInstance()
             val buffer = tessellator.buffer
-            val sprite = Minecraft.getMinecraft().textureMapBlocks.getAtlasSprite(fluid.still.toString())
-            Minecraft.getMinecraft().textureManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
+            val sprite = Minecraft.getInstance().textureMap.getAtlasSprite(fluid.still.toString())
+            Minecraft.getInstance().textureManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
             buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX)
             val minU = sprite.minU.toDouble()
             val maxU = sprite.maxU.toDouble()

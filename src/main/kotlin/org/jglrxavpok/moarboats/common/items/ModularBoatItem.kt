@@ -17,24 +17,15 @@ import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.extensions.Fluids
 
-object ModularBoatItem: BaseBoatItem() {
+// FIXME: Change to class, with one instance per color
+class ModularBoatItem(val dyeColor: EnumDyeColor): BaseBoatItem() {
 
     init {
-        unlocalizedName = "modular_boat"
-        registryName = ResourceLocation(MoarBoats.ModID, "modular_boat")
-        setHasSubtypes(true)
-    }
-
-    override fun getSubItems(tab: CreativeTabs, items: NonNullList<ItemStack>) {
-        if(tab != creativeTab)
-            return
-        for(color in EnumDyeColor.values()) {
-            items += ItemStack(this, 1, color.ordinal)
-        }
+        registryName = ResourceLocation(MoarBoats.ModID, "modular_boat_${dyeColor.translationKey}")
     }
 
     override fun createBoat(worldIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: EntityPlayer): BasicBoatEntity {
-        val color = EnumDyeColor.values()[itemstack.metadata % EnumDyeColor.values().size] // TODO: use something else for 1.13
+        val color = dyeColor
         return ModularBoatEntity(
                 worldIn,
                 raytraceresult.hitVec.x,
@@ -43,12 +34,8 @@ object ModularBoatItem: BaseBoatItem() {
                 color,
                 ModularBoatEntity.OwningMode.PlayerOwned,
                 playerIn.gameProfile.id).apply {
-                    readEntityFromNBT(itemstack.getOrCreateSubCompound("boat_data"))
+                    readEntityFromNBT(itemstack.getOrCreateChildTag("boat_data"))
                 }
-    }
-
-    override fun getMetadata(damage: Int): Int {
-        return damage
     }
 
 }
@@ -56,7 +43,6 @@ object ModularBoatItem: BaseBoatItem() {
 object AnimalBoatItem: BaseBoatItem() {
 
     init {
-        unlocalizedName = "animal_boat"
         registryName = ResourceLocation(MoarBoats.ModID, "animal_boat")
     }
 
@@ -65,11 +51,7 @@ object AnimalBoatItem: BaseBoatItem() {
     }
 }
 
-abstract class BaseBoatItem: Item() {
-
-    init {
-        creativeTab = MoarBoats.CreativeTab
-    }
+abstract class BaseBoatItem: Item(Item.Properties().group(MoarBoats.CreativeTab).maxStackSize(1)) {
 
     override fun onItemRightClick(worldIn: World, playerIn: EntityPlayer, handIn: EnumHand): ActionResult<ItemStack> {
         val itemstack = playerIn.getHeldItem(handIn)
@@ -85,24 +67,24 @@ abstract class BaseBoatItem: Item() {
         val f6 = MathHelper.sin(-f1 * 0.017453292f)
         val f7 = f4 * f5
         val f8 = f3 * f5
-        val vec3d1 = vec3d.addVector(f7.toDouble() * 5.0, f6.toDouble() * 5.0, f8.toDouble() * 5.0)
+        val vec3d1 = vec3d.add(f7.toDouble() * 5.0, f6.toDouble() * 5.0, f8.toDouble() * 5.0)
         val raytraceresult = worldIn.rayTraceBlocks(vec3d, vec3d1, true)
 
         if (raytraceresult == null) {
             return ActionResult(EnumActionResult.PASS, itemstack)
         } else {
             val vec3d2 = playerIn.getLook(1.0f)
-            val list = worldIn.getEntitiesWithinAABBExcludingEntity(playerIn, playerIn.entityBoundingBox.expand(vec3d2.x * 5.0, vec3d2.y * 5.0, vec3d2.z * 5.0).grow(1.0))
+            val list = worldIn.getEntitiesWithinAABBExcludingEntity(playerIn, playerIn.boundingBox.expand(vec3d2.x * 5.0, vec3d2.y * 5.0, vec3d2.z * 5.0).grow(1.0))
 
             val flag = list.indices
                     .map { list[it] }
                     .filter { it.canBeCollidedWith() }
-                    .map { it.entityBoundingBox.grow(it.collisionBorderSize.toDouble()) }
+                    .map { it.boundingBox.grow(it.collisionBorderSize.toDouble()) }
                     .any { it.contains(vec3d) }
 
             if (flag) {
                 return ActionResult(EnumActionResult.PASS, itemstack)
-            } else if (raytraceresult.typeOfHit != RayTraceResult.Type.BLOCK) {
+            } else if (raytraceresult.type != RayTraceResult.Type.BLOCK) {
                 return ActionResult(EnumActionResult.PASS, itemstack)
             } else {
                 val block = worldIn.getBlockState(raytraceresult.blockPos)
@@ -110,18 +92,18 @@ abstract class BaseBoatItem: Item() {
                 val entityboat = createBoat(worldIn, raytraceresult, inUsualFluid, itemstack, playerIn)
                 entityboat.rotationYaw = playerIn.rotationYaw
 
-                return if (!worldIn.getCollisionBoxes(entityboat, entityboat.entityBoundingBox.grow(-0.1)).isEmpty()) {
+                return if (!worldIn.getCollisionBoxes(entityboat, entityboat.boundingBox.grow(-0.1), 0.0, 0.0, 0.0).isEmpty()) {
                     ActionResult(EnumActionResult.FAIL, itemstack)
                 } else {
                     if (!worldIn.isRemote) {
                         worldIn.spawnEntity(entityboat)
                     }
 
-                    if (!playerIn.capabilities.isCreativeMode) {
+                    if (!playerIn.isCreative) {
                         itemstack.shrink(1)
                     }
 
-                    playerIn.addStat(StatList.getObjectUseStats(this)!!)
+                    playerIn.addStat(StatList.ITEM_USED[this])
                     ActionResult(EnumActionResult.SUCCESS, itemstack)
                 }
             }

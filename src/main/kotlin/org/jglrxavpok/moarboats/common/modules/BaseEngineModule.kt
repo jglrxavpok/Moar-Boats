@@ -4,15 +4,22 @@ import net.minecraft.block.Block
 import net.minecraft.block.BlockHopper
 import net.minecraft.block.material.Material
 import net.minecraft.client.gui.GuiScreen
+import net.minecraft.client.particle.ParticleBreaking
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.init.Particles
 import net.minecraft.inventory.IInventory
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.particles.BlockParticleData
+import net.minecraft.particles.IParticleData
+import net.minecraft.particles.ItemParticleData
 import net.minecraft.tileentity.TileEntityHopper
 import net.minecraft.util.EnumParticleTypes
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import org.jglrxavpok.moarboats.api.BoatModule
@@ -65,7 +72,7 @@ abstract class BaseEngineModule: BoatModule() {
         }
     }
 
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     override fun createGui(player: EntityPlayer, boat: IControllable): GuiScreen {
         return GuiEngineModule(player.inventory, this, boat, createContainer(player, boat)!!)
     }
@@ -103,14 +110,14 @@ abstract class BaseEngineModule: BoatModule() {
                 val anchorX = posX + MathHelper.cos(angle) * distAlongLength + MathHelper.sin(angle) * distAlongWidth
                 val anchorY = posY + 0.0625f * 4f
                 val anchorZ = posZ + MathHelper.sin(angle) * distAlongLength - MathHelper.cos(angle) * distAlongWidth
-                val particleType = if(blockState.material == Material.WATER) {
-                    EnumParticleTypes.WATER_SPLASH
-                } else {
-                    EnumParticleTypes.BLOCK_CRACK
+                val particle = when {
+                    blockState.material == Material.WATER -> Particles.DRIPPING_WATER
+                    blockState.material == Material.LAVA -> Particles.DRIPPING_LAVA
+                    else -> BlockParticleData(Particles.BLOCK, blockState)
                 }
-                from.worldRef.spawnParticle(particleType, anchorX, anchorY, anchorZ, -from.velocityX, 1.0, -from.velocityZ, Block.getStateId(blockState))
+                from.worldRef.spawnParticle(particle, anchorX, anchorY, anchorZ, -from.velocityX, 1.0, -from.velocityZ)
             }
-            pos.release()
+            pos.close()
         }
     }
 

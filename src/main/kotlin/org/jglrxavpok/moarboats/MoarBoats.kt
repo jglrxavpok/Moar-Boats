@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats
 
+import net.alexwells.kottle.KotlinEventBusSubscriber
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.SidedProxy
 import net.minecraftforge.fml.common.event.FMLInitializationEvent
@@ -23,6 +24,7 @@ import net.minecraft.network.datasync.DataSerializers
 import net.minecraft.util.NonNullList
 import net.minecraft.util.ResourceLocation
 import net.minecraft.world.storage.MapStorage
+import net.minecraft.world.storage.WorldSavedDataStorage
 import net.minecraftforge.common.ForgeChunkManager
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.common.FMLCommonHandler
@@ -46,7 +48,7 @@ import org.jglrxavpok.moarboats.integration.LoadIntegrationPlugins
 import org.jglrxavpok.moarboats.integration.MoarBoatsPlugin
 import java.net.URL
 
-@Mod.EventBusSubscriber
+@KotlinEventBusSubscriber
 @Mod(modLanguageAdapter = "net.shadowfacts.forgelin.KotlinAdapter", modid = MoarBoats.ModID, dependencies = "required-after:forgelin;",
         name = "Moar Boats", version = "4.1.2.1", updateJSON = "https://raw.githubusercontent.com/jglrxavpok/Moar-Boats/master/updateCheck.json")
 object MoarBoats {
@@ -61,6 +63,7 @@ object MoarBoats {
 
     val PatreonList: List<String> by lazy {
         try {
+
             URL("https://gist.githubusercontent.com/jglrxavpok/07bcda98b7174f07b49fb0df1edda03a/raw/a07167925fab89205f1be16fbbfc628b8478de81/jglrxavpok_patreons_list_uuid")
                     .readText()
                     .lines() +
@@ -195,7 +198,7 @@ object MoarBoats {
         e.registry.register(MapWithPathRecipe)
     }
 
-    fun getLocalMapStorage(): MapStorage {
+    fun getLocalMapStorage(): WorldSavedDataStorage {
         val side = FMLCommonHandler.instance().side
         try {
             return when {

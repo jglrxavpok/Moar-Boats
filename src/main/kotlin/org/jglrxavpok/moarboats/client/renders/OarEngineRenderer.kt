@@ -25,9 +25,9 @@ object OarEngineRenderer : BoatModuleRenderer() {
         module as OarEngineModule
 
         GlStateManager.pushMatrix()
-        GlStateManager.translate(0f, 0.375f, 0f)
+        GlStateManager.translatef(0f, 0.375f, 0f)
 
-        renderManager.renderEngine.bindTexture(BOAT_TEXTURES[boat.entityID % BOAT_TEXTURES.size])
+        renderManager.textureManager.bindTexture(BOAT_TEXTURES[boat.entityID % BOAT_TEXTURES.size])
 
         paddles.paddles10.rotateAngleX = 0.5f
         paddles.paddles11.rotateAngleX = 0.5f

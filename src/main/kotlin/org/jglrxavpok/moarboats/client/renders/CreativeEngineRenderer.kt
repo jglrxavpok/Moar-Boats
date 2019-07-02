@@ -18,12 +18,12 @@ object CreativeEngineRenderer : BoatModuleRenderer() {
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, renderManager: RenderManager) {
         module as CreativeEngineModule
         GlStateManager.pushMatrix()
-        GlStateManager.scale(0.75f, 0.75f, 0.75f)
-        GlStateManager.translate(0.15f, -4f/16f, 0.5f)
-        renderManager.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
+        GlStateManager.scalef(0.75f, 0.75f, 0.75f)
+        GlStateManager.translatef(0.15f, -4f/16f, 0.5f)
+        renderManager.textureManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
         val block = Blocks.BEDROCK
 
-        Minecraft.getMinecraft().blockRendererDispatcher.renderBlockBrightness(block.defaultState, boat.brightness)
+        Minecraft.getInstance().blockRendererDispatcher.renderBlockBrightness(block.defaultState, boat.brightness)
 
         GlStateManager.popMatrix()
     }

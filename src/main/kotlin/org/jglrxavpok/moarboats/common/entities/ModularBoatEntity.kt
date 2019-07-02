@@ -130,6 +130,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(world), IInventory, ICapa
         moduleLocations.forEach { modules.add(BoatModuleRegistry[it].module) }
 
         if(!world.isRemote) {
+            // FIXME investigate World#func_212414_b(int, int, boolean), seems to be a force chunk load method (cf ForceLoadCommand)
             if(chunkTicket == null) {
                 chunkTicket = ForgeChunkManager.requestTicket(MoarBoats, world, ForgeChunkManager.Type.ENTITY)
                 chunkTicket!!.bindEntity(this)

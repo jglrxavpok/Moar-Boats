@@ -1,7 +1,6 @@
 package org.jglrxavpok.moarboats.common
 
-import net.minecraftforge.fml.common.network.NetworkRegistry
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage
+import net.minecraftforge.fml.network.NetworkRegistry
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.network.*
 

@@ -47,7 +47,7 @@ object BlockFluidUnloader: Block(MoarBoats.MachineMaterial) {
         return this.defaultState.withProperty(BlockDirectional.FACING, EnumFacing.getDirectionFromEntityLiving(pos, placer))
     }
 
-    override fun onBlockActivated(worldIn: World, pos: BlockPos, state: IBlockState?, playerIn: EntityPlayer, hand: EnumHand?, facing: EnumFacing?, hitX: Float, hitY: Float, hitZ: Float): Boolean {
+    override fun onBlockActivated(state: IBlockState, worldIn: World, pos: BlockPos, playerIn: EntityPlayer, hand: EnumHand?, facing: EnumFacing?, hitX: Float, hitY: Float, hitZ: Float): Boolean {
         if(worldIn.isRemote)
             return true
         playerIn.openGui(MoarBoats, MoarBoatsGuiHandler.FluidGui, worldIn, pos.x, pos.y, pos.z)

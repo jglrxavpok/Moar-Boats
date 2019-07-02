@@ -52,6 +52,6 @@ object DivingModule: BoatModule() {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.dropItem(DivingBottleItem, 1)
+            boat.correspondingEntity.entityDropItem(DivingBottleItem, 1)
     }
 }

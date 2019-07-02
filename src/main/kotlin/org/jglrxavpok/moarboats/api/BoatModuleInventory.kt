@@ -4,11 +4,12 @@ import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.InventoryBasic
 import net.minecraft.item.ItemStack
 import net.minecraft.util.NonNullList
+import net.minecraft.util.text.TextComponentString
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.network.SSyncInventory
 
 abstract class BoatModuleInventory(val inventoryName: String, val slotCount: Int, val boat: IControllable, val module: BoatModule, val list: NonNullList<ItemStack>):
-        InventoryBasic(inventoryName, true, slotCount) {
+        InventoryBasic(TextComponentString(inventoryName) /* TODO: change to TextComponent */, slotCount) {
 
     fun getModuleState() = boat.getState(module)
     fun saveModuleState() {

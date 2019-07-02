@@ -31,9 +31,9 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
             val dx = -(anchorX - boat.posX)
             val dy = anchorY - boat.posY
             val dz = -(anchorZ - boat.posZ)
-            GlStateManager.rotate(180f - entityYaw - 90f, 0f, -1f, 0f)
-            GlStateManager.translate(dx, dy, dz)
-            GlStateManager.rotate(180f - entityYaw - 90f, 0f, 1f, 0f)
+            GlStateManager.rotatef(180f - entityYaw - 90f, 0f, -1f, 0f)
+            GlStateManager.translated(dx, dy, dz)
+            GlStateManager.rotatef(180f - entityYaw - 90f, 0f, 1f, 0f)
         } else {
             anchorX = boat.posX
             anchorY = boat.posY
@@ -43,17 +43,17 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
         val localX = -0.6
         val localY = 0.0
         val localZ = 0.7
-        GlStateManager.translate(localX, localY, localZ)
+        GlStateManager.translated(localX, localY, localZ)
 
-        GlStateManager.translate(-0.5f, -0.5f, 0.5f)
+        GlStateManager.translatef(-0.5f, -0.5f, 0.5f)
         val anchorScale = 0.75
         GlStateManager.pushMatrix()
-        GlStateManager.scale(anchorScale, anchorScale, anchorScale)
-        renderManager.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
-        Minecraft.getMinecraft().blockRendererDispatcher.renderBlockBrightness(Blocks.ANVIL.defaultState, boat.brightness)
+        GlStateManager.scaled(anchorScale, anchorScale, anchorScale)
+        renderManager.textureManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
+        Minecraft.getInstance().blockRendererDispatcher.renderBlockBrightness(Blocks.ANVIL.defaultState, boat.brightness)
 
         GlStateManager.popMatrix()
-        GlStateManager.translate(+0.5f, +0.5f, -0.5f)
+        GlStateManager.translatef(+0.5f, +0.5f, -0.5f)
 
         val radangle = (90f-entityYaw).toRadians()
         val dx = (anchorX-boat.posX)
@@ -79,7 +79,7 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
         bufferbuilder.begin(3, DefaultVertexFormats.POSITION_COLOR)
         val segmentCount = 16
 
-        GlStateManager.translate(0f, yOffset, 0f)
+        GlStateManager.translatef(0f, yOffset, 0f)
 
         for (index in 0..segmentCount) {
             val step = index.toFloat() / segmentCount.toFloat()

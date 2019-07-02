@@ -6,11 +6,12 @@ import net.minecraft.world.World
 import java.util.*
 
 fun World.getEntityByUUID(id: UUID): Entity? {
-    return this.getLoadedEntityList().find { it.uniqueID == id }
+    return this.loadedEntityList.find { it.uniqueID == id }
 }
+
 
 fun <T> BlockPos.PooledMutableBlockPos.use(action: (BlockPos.PooledMutableBlockPos) -> T): T {
     val result = action(this)
-    this.release()
+    this.close()
     return result
 }

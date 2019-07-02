@@ -3,12 +3,11 @@ package org.jglrxavpok.moarboats.common.modules
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Blocks
-import net.minecraft.inventory.Container
 import net.minecraft.item.ItemBlock
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
-import net.minecraftforge.fml.relauncher.Side
-import net.minecraftforge.fml.relauncher.SideOnly
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.api.distmarker.OnlyIn
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.gui.GuiChestModule
 import org.jglrxavpok.moarboats.common.containers.ContainerChestModule
@@ -23,7 +22,7 @@ object ChestModule: BoatModule() {
     override val moduleSpot = Spot.Storage
     override val hopperPriority = 20
 
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     override fun createGui(player: EntityPlayer, boat: IControllable): GuiScreen {
         return GuiChestModule(player.inventory, this, boat)
     }
@@ -50,6 +49,6 @@ object ChestModule: BoatModule() {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.dropItem(ItemBlock.getItemFromBlock(Blocks.CHEST), 1)
+            boat.correspondingEntity.entityDropItem(ItemBlock.getItemFromBlock(Blocks.CHEST), 1)
     }
 }

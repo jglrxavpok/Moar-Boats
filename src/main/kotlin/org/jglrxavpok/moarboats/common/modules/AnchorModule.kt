@@ -62,12 +62,12 @@ object AnchorModule: BoatModule(), BlockReason {
             anchorYProperty[from] = nextY
             val pos = BlockPos.PooledMutableBlockPos.retain(anchorX, nextY, anchorZ)
             val world = from.worldRef
-            if(world.getBlockState(pos).isSideSolid(world, pos, EnumFacing.UP)) {
+            if(world.getBlockState(pos).isTopSolid(world, pos)) {
                 // stop descent
                 anchorDirectionProperty[from] = 0
                 activeProperty[from] = true
             }
-            pos.release()
+            pos.close()
         } else { // going up
             val dx = from.positionX - anchorX
             val dy = from.positionY - anchorY
@@ -123,6 +123,6 @@ object AnchorModule: BoatModule(), BlockReason {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.dropItem(ItemBlock.getItemFromBlock(Blocks.ANVIL), 1)
+            boat.correspondingEntity.entityDropItem(ItemBlock.getItemFromBlock(Blocks.ANVIL), 1)
     }
 }

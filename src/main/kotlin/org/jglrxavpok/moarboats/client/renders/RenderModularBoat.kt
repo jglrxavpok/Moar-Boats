@@ -40,9 +40,9 @@ class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>
         setScale()
         model.noWater.showModel = false
         val color = entity.color.colorComponentValues
-        GlStateManager.color(color[0], color[1], color[2])
+        GlStateManager.color3f(color[0], color[1], color[2])
         model.render(entity, 0f, 0f, entity.ticksExisted.toFloat(), 0f, 0f, 1f)
-        GlStateManager.color(1f, 1f, 1f)
+        GlStateManager.color3f(1f, 1f, 1f)
         renderLink(entity, x, y, z, entityYaw, partialTicks)
         removeScale()
         entity.modules.forEach {
@@ -59,7 +59,7 @@ class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>
         if(boatEntity.hasLink(BasicBoatEntity.FrontLink)) {
             boatEntity.getLinkedTo(BasicBoatEntity.FrontLink)?.let {
                 GlStateManager.pushMatrix()
-                GlStateManager.translate(17f, -4f, 0f)
+                GlStateManager.translatef(17f, -4f, 0f)
                 renderActualLink(boatEntity, it, BasicBoatEntity.FrontLink, entityYaw)
                 bindTexture(RopeAnchorTextureLocation)
                 ropeAnchorModel.render(boatEntity, 0f, 0f, boatEntity.ticksExisted.toFloat(), 0f, 0f, 1f)
@@ -71,7 +71,7 @@ class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>
         if(boatEntity.hasLink(BasicBoatEntity.BackLink)) {
             boatEntity.getLinkedTo(BasicBoatEntity.BackLink)?.let {
                 GlStateManager.pushMatrix()
-                GlStateManager.translate(-17f, -4f, 0f)
+                GlStateManager.translatef(-17f, -4f, 0f)
                 renderActualLink(boatEntity, it, BasicBoatEntity.BackLink, entityYaw)
                 bindTexture(RopeAnchorTextureLocation)
                 ropeAnchorModel.render(boatEntity, 0f, 0f, boatEntity.ticksExisted.toFloat(), 0f, 0f, 1f)
@@ -90,8 +90,8 @@ class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>
 
         GlStateManager.pushMatrix()
         removeScale()
-        GlStateManager.scale(-1.0f, 1.0f, 1f)
-        GlStateManager.rotate((180.0f - entityYaw - 90f), 0.0f, -1.0f, 0.0f)
+        GlStateManager.scalef(-1.0f, 1.0f, 1f)
+        GlStateManager.rotatef((180.0f - entityYaw - 90f), 0.0f, -1.0f, 0.0f)
         GlStateManager.disableTexture2D()
         GlStateManager.disableLighting()
         val tess = Tessellator.getInstance()
@@ -108,9 +108,9 @@ class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>
             bufferbuilder.endVertex()
         }
 
-        GlStateManager.glLineWidth(5f)
+        GlStateManager.lineWidth(5f)
         tess.draw()
-        GlStateManager.glLineWidth(1f)
+        GlStateManager.lineWidth(1f)
         GlStateManager.enableLighting()
         GlStateManager.enableTexture2D()
         GlStateManager.popMatrix()
@@ -119,22 +119,22 @@ class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>
     private fun removeScale() {
         val scale = 0.0625f
         val invScale = 1f/scale
-        GlStateManager.scale(invScale, invScale, invScale)
-        GlStateManager.scale(1.0f, -1.0f, 1.0f)
+        GlStateManager.scalef(invScale, invScale, invScale)
+        GlStateManager.scalef(1.0f, -1.0f, 1.0f)
     }
 
     private fun setScale() {
         val scale = 0.0625f
-        GlStateManager.scale(scale, scale, scale)
-        GlStateManager.scale(1.0f, -1.0f, 1.0f)
+        GlStateManager.scalef(scale, scale, scale)
+        GlStateManager.scalef(1.0f, -1.0f, 1.0f)
     }
 
     private fun setTranslation(entity: ModularBoatEntity, x: Double, y: Double, z: Double) {
-        GlStateManager.translate(x, y + 0.375f, z)
+        GlStateManager.translated(x, y + 0.375f, z)
     }
 
     private fun setRotation(entity: ModularBoatEntity, entityYaw: Float, partialTicks: Float) {
-        GlStateManager.rotate(180.0f - entityYaw - 90f, 0.0f, 1.0f, 0.0f)
+        GlStateManager.rotatef(180.0f - entityYaw - 90f, 0.0f, 1.0f, 0.0f)
         val timeSinceHit = entity.timeSinceHit - partialTicks
         var damage = entity.damageTaken - partialTicks
 
@@ -143,10 +143,10 @@ class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>
         }
 
         if (timeSinceHit > 0.0f) {
-            GlStateManager.rotate(MathHelper.sin(timeSinceHit) * timeSinceHit * damage / 10.0f * entity.forwardDirection, 1.0f, 0.0f, 0.0f)
+            GlStateManager.rotatef(MathHelper.sin(timeSinceHit) * timeSinceHit * damage / 10.0f * entity.forwardDirection, 1.0f, 0.0f, 0.0f)
         }
 
-        GlStateManager.scale(-1.0f, 1.0f, 1.0f)
+        GlStateManager.scalef(-1.0f, 1.0f, 1.0f)
     }
 
     override fun isMultipass() = true

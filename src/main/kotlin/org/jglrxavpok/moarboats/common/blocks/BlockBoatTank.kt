@@ -9,19 +9,18 @@ import net.minecraft.util.BlockRenderLayer
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.text.ITextComponent
 import net.minecraft.world.IBlockAccess
+import net.minecraft.world.IBlockReader
 import net.minecraft.world.World
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.OnlyUsableOnBoats
 
-object BlockBoatTank: Block(MoarBoats.MachineMaterial) {
+object BlockBoatTank: MoarBoatsBlock() {
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "boat_tank")
-        unlocalizedName = "boat_tank"
-        setCreativeTab(MoarBoats.CreativeTab)
-        setHardness(0.5f)
     }
 
     override fun isOpaqueCube(state: IBlockState?): Boolean {
@@ -36,9 +35,9 @@ object BlockBoatTank: Block(MoarBoats.MachineMaterial) {
         return false
     }
 
-    override fun addInformation(stack: ItemStack?, player: World?, tooltip: MutableList<String>, advanced: ITooltipFlag?) {
-        super.addInformation(stack, player, tooltip, advanced)
-        tooltip.add(OnlyUsableOnBoats.unformattedText)
+    override fun addInformation(stack: ItemStack, world: IBlockReader?, tooltip: MutableList<ITextComponent>, advanced: ITooltipFlag) {
+        super.addInformation(stack, world, tooltip, advanced)
+        tooltip.add(OnlyUsableOnBoats)
     }
 
 }

@@ -5,17 +5,18 @@ import net.minecraft.util.EnumFacing
 import net.minecraft.util.ITickable
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraftforge.energy.CapabilityEnergy
+import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.blocks.Facing
 
-class TileEntityEnergyUnloader: TileEntityEnergy(), ITickable {
+class TileEntityEnergyUnloader: TileEntityEnergy(MoarBoats.TileEntityEnergyUnloader), ITickable {
     override val maxReceivableEnergy = 0
     override val maxExtractableEnergy = maxEnergyStored
 
     private var working: Boolean = false
-    val blockFacing: EnumFacing get()= world.getBlockState(pos).getValue(Facing)
+    val blockFacing: EnumFacing get()= world.getBlockState(pos).get(Facing)
 
-    override fun update() {
+    override fun tick() {
         if(world.isRemote)
             return
         working = false
@@ -26,7 +27,7 @@ class TileEntityEnergyUnloader: TileEntityEnergy(), ITickable {
         pushEnergyToNeighbors(MoarBoatsConfig.energyUnloader.sendAmount, facings)
 
         val aabb = create3x3AxisAlignedBB(pos.offset(blockFacing))
-        val entities = world.getEntitiesWithinAABB(Entity::class.java, aabb) { e -> e != null && e.hasCapability(CapabilityEnergy.ENERGY, null) }
+        val entities = world.getEntitiesWithinAABB(Entity::class.java, aabb) { e -> e != null && e.getCapability(CapabilityEnergy.ENERGY, null).isPresent }
 
         val totalEnergyToPull = minOf(MoarBoatsConfig.energyUnloader.pullAmount, maxEnergyStored-energyStored)
         val entityCount = entities.size
@@ -36,8 +37,8 @@ class TileEntityEnergyUnloader: TileEntityEnergy(), ITickable {
         var energyActuallyReceived = 0
         entities.forEach {
             val energyCapa = it.getCapability(CapabilityEnergy.ENERGY, null)
-            if(energyCapa != null) {
-                energyActuallyReceived += energyCapa.extractEnergy(energyToExtractFromASingleNeighbor, false)
+            energyCapa.ifPresent { storage ->
+                energyActuallyReceived += storage.extractEnergy(energyToExtractFromASingleNeighbor, false)
                 working = working || energyActuallyReceived > 0
             }
         }

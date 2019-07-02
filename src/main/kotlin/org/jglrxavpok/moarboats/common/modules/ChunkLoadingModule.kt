@@ -1,12 +1,10 @@
 package org.jglrxavpok.moarboats.common.modules
 
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.init.Particles
 import net.minecraft.item.ItemStack
 import net.minecraft.util.EnumHand
-import net.minecraft.util.EnumParticleTypes
 import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.ChunkPos
-import net.minecraftforge.common.ForgeChunkManager
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
@@ -53,12 +51,12 @@ object ChunkLoadingModule: BoatModule() {
             val vx = (Math.random() * 2 -1) * 0.2
             val vy = 0.3
             val vz = (Math.random() * 2 -1) * 0.2
-            world.spawnParticle(EnumParticleTypes.PORTAL, posX, posY, posZ, vx, vy, vz)
+            world.spawnParticle(Particles.PORTAL, posX, posY, posZ, vx, vy, vz)
         }
     }
 
     private fun forceChunks(boat: IControllable) {
-        boat.chunkTicket?.let {
+        /*boat.chunkTicket?.let {
 
             val centerPos = ChunkPos(boat.correspondingEntity.chunkCoordX, boat.correspondingEntity.chunkCoordZ)
             for(i in -1..1) {
@@ -67,7 +65,7 @@ object ChunkLoadingModule: BoatModule() {
                     ForgeChunkManager.forceChunk(it, pos)
                 }
             }
-        }
+        } FIXME */
     }
 
     override fun onInit(to: IControllable, fromItem: ItemStack?) {
@@ -85,6 +83,6 @@ object ChunkLoadingModule: BoatModule() {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.dropItem(ChunkLoaderItem, 1)
+            boat.correspondingEntity.entityDropItem(ChunkLoaderItem, 1)
     }
 }

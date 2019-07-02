@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.client.renders
 
+import net.minecraft.block.BlockDaylightDetector
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.entity.RenderManager
@@ -18,15 +19,15 @@ object SolarEngineRenderer : BoatModuleRenderer() {
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, renderManager: RenderManager) {
         module as SolarEngineModule
         GlStateManager.pushMatrix()
-        GlStateManager.scale(0.75f, 0.75f, 0.75f)
-        GlStateManager.translate(0.15f, -4f/16f, 0.5f)
-        renderManager.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
+        GlStateManager.scalef(0.75f, 0.75f, 0.75f)
+        GlStateManager.translatef(0.15f, -4f/16f, 0.5f)
+        renderManager.textureManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
         val block = if(module.invertedProperty[boat]) {
-            Blocks.DAYLIGHT_DETECTOR_INVERTED
+            Blocks.DAYLIGHT_DETECTOR.defaultState.with(BlockDaylightDetector.INVERTED, true)
         } else {
-            Blocks.DAYLIGHT_DETECTOR
+            Blocks.DAYLIGHT_DETECTOR.defaultState
         }
-        Minecraft.getMinecraft().blockRendererDispatcher.renderBlockBrightness(block.defaultState, boat.brightness)
+        Minecraft.getInstance().blockRendererDispatcher.renderBlockBrightness(block, boat.brightness)
         GlStateManager.popMatrix()
     }
 }

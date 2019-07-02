@@ -62,6 +62,6 @@ object RudderModule: BoatModule(), BlockReason {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.dropItem(RudderItem, 1)
+            boat.correspondingEntity.entityDropItem(RudderItem, 1)
     }
 }

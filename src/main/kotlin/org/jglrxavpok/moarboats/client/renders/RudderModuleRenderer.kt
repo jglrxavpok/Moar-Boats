@@ -20,11 +20,11 @@ object RudderModuleRenderer : BoatModuleRenderer() {
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, renderManager: RenderManager) {
         module as RudderModule
         GlStateManager.pushMatrix()
-        GlStateManager.scale(-1f, -1f, -1f)
-        GlStateManager.translate(0.0f, 0f, -0.5f*0.0625f)
+        GlStateManager.scalef(-1f, -1f, -1f)
+        GlStateManager.translatef(0.0f, 0f, -0.5f*0.0625f)
         val angle = RudderModule.RudderAngleMultiplier[boat]*90f
         rudderModel.rudderBlade.rotateAngleY = angle
-        renderManager.renderEngine.bindTexture(textureLocation)
+        renderManager.textureManager.bindTexture(textureLocation)
         rudderModel.render(boat, 0f, 0f, 0f, 0f, 0f, 0.0625f)
         GlStateManager.popMatrix()
     }

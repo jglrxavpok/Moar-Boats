@@ -1,6 +1,7 @@
 package org.jglrxavpok.moarboats.common.items
 
 import net.minecraft.init.Items
+import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.InventoryCrafting
 import net.minecraft.item.EnumDyeColor
 import net.minecraft.item.ItemStack
@@ -9,11 +10,12 @@ import net.minecraft.nbt.NBTTagList
 import net.minecraft.util.ResourceLocation
 import net.minecraft.world.World
 import net.minecraftforge.oredict.DyeUtils
+import net.minecraftforge.registries.ForgeRegistryEntry
 import net.minecraftforge.registries.IForgeRegistryEntry
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.data.LoopingOptions
 
-object MapWithPathRecipe: IForgeRegistryEntry.Impl<IRecipe>(), IRecipe {
+object MapWithPathRecipe: ForgeRegistryEntry<IRecipe>(), IRecipe {
 
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "map_with_path")
@@ -25,7 +27,7 @@ object MapWithPathRecipe: IForgeRegistryEntry.Impl<IRecipe>(), IRecipe {
 
     override fun getRecipeOutput() = ItemStack.EMPTY
 
-    override fun getCraftingResult(inv: InventoryCrafting): ItemStack {
+    override fun getCraftingResult(inv: IInventory): ItemStack {
         var featherCount = 0
         var filledMap: ItemStack? = null
         var blackDyeCount = 0
@@ -53,11 +55,11 @@ object MapWithPathRecipe: IForgeRegistryEntry.Impl<IRecipe>(), IRecipe {
         if(filledMap == null || featherCount != 1 || paperCount != 1 || blackDyeCount != 1)
             return ItemStack.EMPTY
 
-        val mapID = "map_${filledMap.metadata}"
+        val mapID = "map_${filledMap.damage}"
         return ItemMapWithPath.createStack(NBTTagList(), mapID, LoopingOptions.NoLoop)
     }
 
-    override fun matches(inv: InventoryCrafting, worldIn: World?): Boolean {
+    override fun matches(inv: IInventory, worldIn: World?): Boolean {
         var featherCount = 0
         var filledMap: ItemStack? = null
         var blackDyeCount = 0

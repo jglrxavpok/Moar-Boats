@@ -8,9 +8,10 @@ import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.TextComponentTranslation
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.common.MinecraftForge
-import net.minecraftforge.fml.relauncher.Side
-import net.minecraftforge.fml.relauncher.SideOnly
+import net.minecraftforge.registries.ForgeRegistryEntry
 import net.minecraftforge.registries.IForgeRegistry
 import net.minecraftforge.registries.IForgeRegistryEntry
 import org.jglrxavpok.moarboats.MoarBoats
@@ -39,7 +40,7 @@ abstract class BoatModule {
      */
     open val hopperPriority = 1
 
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     abstract fun createGui(player: EntityPlayer, boat: IControllable): GuiScreen
 
     open fun onInit(to: IControllable, fromItem: ItemStack?) { }
@@ -72,7 +73,7 @@ abstract class BoatModule {
     open fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {}
 }
 
-class BoatModuleEntry(val correspondingItem: Item, val module: BoatModule, val inventoryFactory: ((IControllable, BoatModule) -> BoatModuleInventory)?, val restriction: () -> Boolean): IForgeRegistryEntry.Impl<BoatModuleEntry>()
+class BoatModuleEntry(val correspondingItem: Item, val module: BoatModule, val inventoryFactory: ((IControllable, BoatModule) -> BoatModuleInventory)?, val restriction: () -> Boolean): ForgeRegistryEntry<BoatModuleEntry>()
 
 object BoatModuleRegistry {
 
@@ -89,7 +90,7 @@ object BoatModuleRegistry {
     }
 
     fun findEntry(module: BoatModule): BoatModuleEntry? {
-        return forgeRegistry.valuesCollection.find { it.module == module }
+        return forgeRegistry.values.find { it.module == module }
     }
 
 }

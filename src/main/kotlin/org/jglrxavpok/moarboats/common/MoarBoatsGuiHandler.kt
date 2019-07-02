@@ -51,7 +51,7 @@ object MoarBoatsGuiHandler: IGuiHandler {
                             }
                         }
                         is ItemMapWithPath -> {
-                            val id = stack.tagCompound!!.getString("${MoarBoats.ModID}.mapID")
+                            val id = stack.tag!!.getString("${MoarBoats.ModID}.mapID")
                             val mapData = MoarBoats.getLocalMapStorage().getOrLoadData(MapData::class.java, id) as? MapData
                             if(mapData != null && mapData != EmptyMapData) {
                                 GuiPathEditor(player, MapWithPathHolder(stack, null, boat), mapData)
@@ -77,7 +77,7 @@ object MoarBoatsGuiHandler: IGuiHandler {
             EnergyGui -> {
                 val pos = BlockPos.PooledMutableBlockPos.retain(x, y, z)
                 val te = world.getTileEntity(pos)
-                pos.release()
+                pos.close()
                 if(te is TileEntityEnergy) {
                     GuiEnergy(te, player)
                 } else {
@@ -87,18 +87,18 @@ object MoarBoatsGuiHandler: IGuiHandler {
             FluidGui -> {
                 val pos = BlockPos.PooledMutableBlockPos.retain(x, y, z)
                 val te = world.getTileEntity(pos)
-                pos.release()
+                pos.close()
                 when {
                     te == null -> null
-                    te is TileEntityListenable && te.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null) ->
-                        GuiFluid(te, te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null)!!, player)
+                    te is TileEntityListenable && te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null).isPresent ->
+                        GuiFluid(te, te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null).orElseThrow(::NullPointerException), player)
                     else -> null
                 }
             }
             MappingTableGui -> {
                 val pos = BlockPos.PooledMutableBlockPos.retain(x, y, z)
                 val te = world.getTileEntity(pos)
-                pos.release()
+                pos.close()
                 when (te) {
                     null -> null
                     is TileEntityMappingTable -> GuiMappingTable(te, player.inventory)
@@ -108,14 +108,14 @@ object MoarBoatsGuiHandler: IGuiHandler {
             WaypointEditor -> {
                 val pos = BlockPos.PooledMutableBlockPos.retain(x, y, z)
                 val te = world.getTileEntity(pos)
-                pos.release()
+                pos.close()
                 when (te) {
                     null -> null
                     is TileEntityMappingTable -> {
                         val stack = te.inventory.getStackInSlot(0)
-                        val index = (Minecraft.getMinecraft().currentScreen as? GuiMappingTable)?.selectedIndex ?: 0
+                        val index = (Minecraft.getInstance().currentScreen as? GuiMappingTable)?.selectedIndex ?: 0
                         val pathNBT = (stack.item as org.jglrxavpok.moarboats.common.items.ItemPath).getWaypointData(stack, MoarBoats.getLocalMapStorage())
-                        if(index !in 0 until pathNBT.tagCount()) {
+                        if(index !in 0 until pathNBT.size) {
                             null
                         } else {
                             GuiWaypointEditor(player, te, index)
@@ -141,7 +141,7 @@ object MoarBoatsGuiHandler: IGuiHandler {
             EnergyGui -> {
                 val pos = BlockPos.PooledMutableBlockPos.retain(x, y, z)
                 val te = world.getTileEntity(pos)
-                pos.release()
+                pos.close()
                 if(te is TileEntityEnergy) {
                     EnergyContainer(te, player)
                 }
@@ -152,18 +152,18 @@ object MoarBoatsGuiHandler: IGuiHandler {
             FluidGui -> {
                 val pos = BlockPos.PooledMutableBlockPos.retain(x, y, z)
                 val te = world.getTileEntity(pos)
-                pos.release()
+                pos.close()
                 when {
                     te == null -> null
-                    te is TileEntityListenable && te.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null) ->
-                        FluidContainer(te, te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null)!!, player)
+                    te is TileEntityListenable && te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null).isPresent ->
+                        FluidContainer(te, te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null).orElseThrow(::NullPointerException), player)
                     else -> null
                 }
             }
             MappingTableGui -> {
                 val pos = BlockPos.PooledMutableBlockPos.retain(x, y, z)
                 val te = world.getTileEntity(pos)
-                pos.release()
+                pos.close()
                 when (te) {
                     null -> null
                     is TileEntityMappingTable -> ContainerMappingTable(te, player.inventory)

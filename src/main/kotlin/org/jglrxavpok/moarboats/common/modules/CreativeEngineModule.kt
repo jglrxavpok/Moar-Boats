@@ -1,21 +1,14 @@
 package org.jglrxavpok.moarboats.common.modules
 
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.init.Blocks
 import net.minecraft.inventory.IInventory
-import net.minecraft.item.Item
-import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.MathHelper
-import net.minecraft.world.EnumSkyBlock
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.containers.ContainerBase
 import org.jglrxavpok.moarboats.common.containers.EmptyContainer
-import org.jglrxavpok.moarboats.common.items.CreativeEngineItem
-import org.jglrxavpok.moarboats.common.state.BooleanBoatProperty
 
 object CreativeEngineModule : BaseEngineModule() {
     override fun createContainer(player: EntityPlayer, boat: IControllable): ContainerBase? {
