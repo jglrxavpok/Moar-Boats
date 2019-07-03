@@ -44,7 +44,7 @@ class GuiDispenserModule(inventoryPlayer: InventoryPlayer, module: BoatModule, b
     override fun initGui() {
         super.initGui()
         val sliderWidth = xSize-10
-        periodSlider = GuiSlider(-1, guiLeft+xSize/2-sliderWidth/2, guiTop + 100, sliderWidth, 20, "${sliderPrefix.unformattedText} ", sliderSuffix.unformattedText, 1.0, 100.0, 0.0, true, true, sliderCallback)
+        periodSlider = GuiSlider(-1, guiLeft+xSize/2-sliderWidth/2, guiTop + 100, sliderWidth, 20, "${sliderPrefix.formattedText} ", sliderSuffix.formattedText, 1.0, 100.0, 0.0, true, true, sliderCallback)
         periodSlider.value = dispensingModule.blockPeriodProperty[boat]
         addButton(periodSlider)
 
@@ -72,26 +72,26 @@ class GuiDispenserModule(inventoryPlayer: InventoryPlayer, module: BoatModule, b
         }
     }
 
-    override fun updateScreen() {
-        super.updateScreen()
+    override fun tick() {
+        super.tick()
         periodSlider.updateSlider()
     }
 
     override fun drawModuleForeground(mouseX: Int, mouseY: Int) {
         val maxX = 78
         val startY = 26
-        val topWidth = fontRenderer.getStringWidth(topRowText.unformattedText)
-        drawString(fontRenderer, topRowText.unformattedText, maxX - topWidth, startY, 0xF0F0F0)
+        val topWidth = fontRenderer.getStringWidth(topRowText.formattedText)
+        drawString(fontRenderer, topRowText.formattedText, maxX - topWidth, startY, 0xF0F0F0)
 
-        val middleWidth = fontRenderer.getStringWidth(middleRowText.unformattedText)
-        drawString(fontRenderer, middleRowText.unformattedText, maxX - middleWidth, startY + 20, 0xF0F0F0)
+        val middleWidth = fontRenderer.getStringWidth(middleRowText.formattedText)
+        drawString(fontRenderer, middleRowText.formattedText, maxX - middleWidth, startY + 20, 0xF0F0F0)
 
-        val bottomWidth = fontRenderer.getStringWidth(bottomRowText.unformattedText)
-        drawString(fontRenderer, bottomRowText.unformattedText, maxX - bottomWidth, startY + 40, 0xF0F0F0)
+        val bottomWidth = fontRenderer.getStringWidth(bottomRowText.formattedText)
+        drawString(fontRenderer, bottomRowText.formattedText, maxX - bottomWidth, startY + 40, 0xF0F0F0)
 
-        drawCenteredString(fontRenderer, periodText.unformattedText, 88, 90, 0xF0F0F0)
+        drawCenteredString(fontRenderer, periodText.formattedText, 88, 90, 0xF0F0F0)
 
-        drawCenteredString(fontRenderer, orientationText.unformattedText, 32, 25, 0xF0F0F0)
+        drawCenteredString(fontRenderer, orientationText.formattedText, 32, 25, 0xF0F0F0)
     }
 
     override fun actionPerformed(button: GuiButton) {

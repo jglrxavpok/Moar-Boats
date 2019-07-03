@@ -11,7 +11,6 @@ import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.tileentity.TileEntityFurnace
 import net.minecraft.util.EnumHand
-import net.minecraft.util.EnumParticleTypes
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
 import org.jglrxavpok.moarboats.api.IControllable

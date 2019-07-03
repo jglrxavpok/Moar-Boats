@@ -28,7 +28,7 @@ abstract class WaterborneItem : Item() {
         if (raytraceresult == null) {
             return ActionResult(EnumActionResult.PASS, itemstack)
         } else {
-            if (raytraceresult.typeOfHit == RayTraceResult.Type.BLOCK) {
+            if (raytraceresult.type == RayTraceResult.Type.BLOCK) {
                 val blockpos = raytraceresult.blockPos
 
                 if (!worldIn.isBlockModifiable(playerIn, blockpos) || !playerIn.canPlayerEdit(blockpos.offset(raytraceresult.sideHit), raytraceresult.sideHit, itemstack)) {
@@ -41,7 +41,7 @@ abstract class WaterborneItem : Item() {
                     // special case for handling block placement with water lilies
                     val blocksnapshot = net.minecraftforge.common.util.BlockSnapshot.getBlockSnapshot(worldIn, blockpos1)
                     worldIn.setBlockState(blockpos1, correspondingBlock.defaultState)
-                    if (net.minecraftforge.event.ForgeEventFactory.onPlayerBlockPlace(playerIn, blocksnapshot, net.minecraft.util.EnumFacing.UP, handIn).isCanceled) {
+                    if (net.minecraftforge.event.ForgeEventFactory.onBlockPlace(playerIn, blocksnapshot, net.minecraft.util.EnumFacing.UP)) {
                         blocksnapshot.restore(true, false)
                         return ActionResult(EnumActionResult.FAIL, itemstack)
                     }
@@ -56,12 +56,12 @@ abstract class WaterborneItem : Item() {
                         CriteriaTriggers.PLACED_BLOCK.trigger(playerIn, blockpos1, itemstack)
                     }
 
-                    if (!playerIn.capabilities.isCreativeMode) {
+                    if (!playerIn.isCreative) {
                         itemstack.shrink(1)
                     }
 
                     playerIn.addStat(StatList.getObjectUseStats(this)!!)
-                    worldIn.playSound(playerIn, blockpos, SoundEvents.BLOCK_WATERLILY_PLACE, SoundCategory.BLOCKS, 1.0f, 1.0f)
+                    worldIn.playSound(playerIn, blockpos, SoundEvents.BLOCK_LILY_PAD_PLACE, SoundCategory.BLOCKS, 1.0f, 1.0f)
                     return ActionResult(EnumActionResult.SUCCESS, itemstack)
                 }
             }

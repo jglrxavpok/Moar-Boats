@@ -78,7 +78,7 @@ object FluidTankModule: BoatModule(), IFluidBoatModule {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.dropItem(ItemBlock.getItemFromBlock(BlockBoatTank), 1)
+            boat.correspondingEntity.entityDropItem(ItemBlock.getItemFromBlock(BlockBoatTank), 1)
     }
 
 }

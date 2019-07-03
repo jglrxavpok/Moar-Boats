@@ -32,7 +32,7 @@ class GuiTankModule(playerInventory: InventoryPlayer, module: BoatModule, boat: 
         val localY = mouseY - guiTop
         if(localX in 60..(60+55) && localY in 6..(6+75)) {
             val fluidName = tankModule.getFluidInside(boat)?.getLocalizedName(tankModule.getContents(boat)!!) ?: "nothing"
-            drawHoveringText(TextComponentTranslation(MoarBoats.ModID+".tank_level", tankModule.getFluidAmount(boat), tankModule.getCapacity(boat), fluidName).unformattedText, localX, localY)
+            drawHoveringText(TextComponentTranslation(MoarBoats.ModID+".tank_level", tankModule.getFluidAmount(boat), tankModule.getCapacity(boat), fluidName).formattedText, localX, localY)
         }
     }
 
@@ -49,9 +49,9 @@ class GuiTankModule(playerInventory: InventoryPlayer, module: BoatModule, boat: 
     companion object {
         fun renderFluidInGui(leftX: Int, bottomY: Int, fluid: Fluid, fluidAmount: Int, fluidCapacity: Int, horizontalTilesCount: Int) {
             val energyHeight = (73 * (fluidAmount/fluidCapacity.toFloat())).toInt()
-            val mc = Minecraft.getMinecraft()
+            val mc = Minecraft.getInstance()
             mc.textureManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
-            val sprite = mc.textureMapBlocks.getAtlasSprite(fluid.still.toString())
+            val sprite = mc.textureMap.getAtlasSprite(fluid.still.toString())
             val tessellator = Tessellator.getInstance()
             val buffer = tessellator.buffer
             buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX)

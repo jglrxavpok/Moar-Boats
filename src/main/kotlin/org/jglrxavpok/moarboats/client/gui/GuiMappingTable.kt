@@ -22,7 +22,6 @@ import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.network.*
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
-import org.lwjgl.input.Mouse
 
 class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPlayer): GuiContainer(ContainerMappingTable(te, playerInv)), IContainerListener {
 
@@ -32,7 +31,7 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
     }
 
     init {
-        mc = Minecraft.getMinecraft()
+        mc = Minecraft.getInstance()
     }
 
     private val addWaypointText = TextComponentTranslation("moarboats.gui.mapping_table.add")
@@ -43,11 +42,11 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
     private val propertyOneWayText = TextComponentTranslation("gui.path_editor.path_properties.one_way")
     private val propertyReverseCourseText = TextComponentTranslation("gui.path_editor.path_properties.reverse_course")
     private var buttonId = 0
-    private val addWaypointButton = GuiButton(buttonId++, 0, 0, addWaypointText.unformattedText)
-    private val insertWaypointButton = GuiButton(buttonId++, 0, 0, insertWaypointText.unformattedText)
-    private val editWaypointButton = GuiButton(buttonId++, 0, 0, editWaypointText.unformattedText)
-    private val removeWaypointButton = GuiButton(buttonId++, 0, 0, removeWaypointText.unformattedText)
-    private val loopingButton = GuiPropertyButton(buttonId++, listOf(Pair(propertyOneWayText.unformattedText, 3), Pair(propertyLoopingText.unformattedText, 2), Pair(propertyReverseCourseText.unformattedText, 4)))
+    private val addWaypointButton = GuiButton(buttonId++, 0, 0, addWaypointText.formattedText)
+    private val insertWaypointButton = GuiButton(buttonId++, 0, 0, insertWaypointText.formattedText)
+    private val editWaypointButton = GuiButton(buttonId++, 0, 0, editWaypointText.formattedText)
+    private val removeWaypointButton = GuiButton(buttonId++, 0, 0, removeWaypointText.formattedText)
+    private val loopingButton = GuiPropertyButton(buttonId++, listOf(Pair(propertyOneWayText.formattedText, 3), Pair(propertyLoopingText.formattedText, 2), Pair(propertyReverseCourseText.formattedText, 4)))
     private val controls = listOf(addWaypointButton, insertWaypointButton, editWaypointButton, removeWaypointButton)
     private var waypointToEditAfterCreation = 0
 
@@ -123,8 +122,8 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
         }
     }
 
-    override fun updateScreen() {
-        super.updateScreen()
+    override fun tick() {
+        super.tick()
         loopingButton.enabled = hasData
         addWaypointButton.enabled = hasData
         insertWaypointButton.enabled = hasData && list.slots.size > 1
@@ -148,9 +147,9 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
         this.drawTexturedModalRect(guiLeft, guiTop, 0, 0, this.xSize, ySize)
     }
 
-    override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
-        super.drawScreen(mouseX, mouseY, partialTicks)
-        list.drawScreen(mouseX, mouseY, partialTicks)
+    override fun render(mouseX: Int, mouseY: Int, partialTicks: Float) {
+        super.render(mouseX, mouseY, partialTicks)
+        list.render(mouseX, mouseY, partialTicks)
 
         renderHoveredToolTip(mouseX, mouseY)
     }
@@ -205,7 +204,7 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
     fun edit(index: Int) {
         val player = playerInv.player
         selectedIndex = index
-        player.openGui(MoarBoats, MoarBoatsGuiHandler.WaypointEditor, player.world, te.pos.x, te.pos.y, te.pos.z)
+        player.displayGui(MoarBoats, MoarBoatsGuiHandler.WaypointEditor, player.world, te.pos.x, te.pos.y, te.pos.z)
     }
 
     fun swap(index1: Int, index2: Int) {

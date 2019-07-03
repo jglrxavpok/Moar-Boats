@@ -14,12 +14,13 @@ import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.*
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.RayTraceResult
+import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.TextComponentTranslation
 import net.minecraft.world.World
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 
-object RopeItem : Item() {
+object RopeItem : MoarBoatsItem("rope") {
 
     enum class State {
         WAITING_NEXT,
@@ -27,8 +28,6 @@ object RopeItem : Item() {
     }
 
     init {
-        creativeTab = MoarBoats.CreativeTab
-        unlocalizedName = "rope"
         registryName = ResourceLocation(MoarBoats.ModID, "rope")
 
         addPropertyOverride(ResourceLocation("firstKnot")) { stack, _, _ ->
@@ -39,18 +38,18 @@ object RopeItem : Item() {
     private val ropeInfo = TextComponentTranslation("item.rope.description")
 
     private fun setLinked(worldIn: World, stack: ItemStack, entity: BasicBoatEntity) {
-        nbt(stack).setInteger("linked", entity.entityId)
+        nbt(stack).setInt("linked", entity.entityId)
     }
 
     private fun getLinked(worldIn: World, stack: ItemStack): BasicBoatEntity? {
-        val id = nbt(stack).getInteger("linked")
+        val id = nbt(stack).getInt("linked")
         return worldIn.getEntityByID(id) as BasicBoatEntity?
     }
 
     private fun nbt(stack: ItemStack): NBTTagCompound {
-        if(stack.tagCompound == null)
-            stack.tagCompound = NBTTagCompound()
-        return stack.tagCompound!!
+        if(stack.tag == null)
+            stack.tag = NBTTagCompound()
+        return stack.tag!!
     }
 
     private fun resetLinked(itemstack: ItemStack) {
@@ -83,7 +82,7 @@ object RopeItem : Item() {
                     }
                 }
                 resetLinked(itemstack)
-                if(!playerIn.capabilities.isCreativeMode)
+                if(!playerIn.isCreative)
                     itemstack.shrink(1)
             }
             else -> {
@@ -114,9 +113,9 @@ object RopeItem : Item() {
         }
     }
 
-    override fun addInformation(stack: ItemStack, worldIn: World?, tooltip: MutableList<String>, flagIn: ITooltipFlag) {
+    override fun addInformation(stack: ItemStack, worldIn: World?, tooltip: MutableList<ITextComponent>, flagIn: ITooltipFlag) {
         super.addInformation(stack, worldIn, tooltip, flagIn)
-        tooltip.add(ropeInfo.unformattedText)
+        tooltip.add(ropeInfo)
     }
 
     fun onEntityInteract(player: EntityPlayer, stack: ItemStack, entity: Entity): EnumActionResult {
@@ -128,7 +127,7 @@ object RopeItem : Item() {
                     target.linkTo(entity, BasicBoatEntity.FrontLink)
                 }
                 resetLinked(stack)
-                if(!player.capabilities.isCreativeMode)
+                if(!player.isCreative)
                     stack.shrink(1)
                 return EnumActionResult.SUCCESS
             }

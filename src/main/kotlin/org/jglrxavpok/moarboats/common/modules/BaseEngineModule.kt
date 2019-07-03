@@ -15,13 +15,10 @@ import net.minecraft.particles.BlockParticleData
 import net.minecraft.particles.IParticleData
 import net.minecraft.particles.ItemParticleData
 import net.minecraft.tileentity.TileEntityHopper
-import net.minecraft.util.EnumParticleTypes
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
-import net.minecraftforge.fml.relauncher.Side
-import net.minecraftforge.fml.relauncher.SideOnly
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiEngineModule

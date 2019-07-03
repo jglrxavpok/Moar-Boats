@@ -15,7 +15,7 @@ import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.wrapper.InvWrapper
 import org.jglrxavpok.moarboats.MoarBoats
 
-class TileEntityMappingTable: TileEntity(MoarBoats.TileEntityMappingTable) {
+class TileEntityMappingTable: TileEntity(MoarBoats.TileEntityMappingTableType) {
 
     val inventory = InventoryBasic(TextComponentString("mapping_table"), 1)
     val invWrapper = InvWrapper(inventory)

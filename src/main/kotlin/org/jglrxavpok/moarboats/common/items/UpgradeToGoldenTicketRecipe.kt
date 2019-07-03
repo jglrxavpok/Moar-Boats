@@ -6,11 +6,12 @@ import net.minecraft.item.ItemStack
 import net.minecraft.item.crafting.IRecipe
 import net.minecraft.util.ResourceLocation
 import net.minecraft.world.World
+import net.minecraftforge.registries.ForgeRegistryEntry
 import net.minecraftforge.registries.IForgeRegistryEntry
 import org.jglrxavpok.moarboats.MoarBoats
 import java.util.*
 
-object UpgradeToGoldenTicketRecipe: IForgeRegistryEntry.Impl<IRecipe>(), IRecipe {
+object UpgradeToGoldenTicketRecipe: ForgeRegistryEntry<IRecipe>(), IRecipe {
 
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "upgrade_to_golden_itinerary")
@@ -22,7 +23,7 @@ object UpgradeToGoldenTicketRecipe: IForgeRegistryEntry.Impl<IRecipe>(), IRecipe
 
     override fun getRecipeOutput() = ItemStack.EMPTY
 
-    override fun getCraftingResult(inv: InventoryCrafting): ItemStack {
+    override fun getCraftingResult(inv: IInventory): ItemStack {
         var emptyTickets = 0
         var fullMaps = 0
         var fullMap: ItemStack? = null
@@ -49,11 +50,7 @@ object UpgradeToGoldenTicketRecipe: IForgeRegistryEntry.Impl<IRecipe>(), IRecipe
         return ItemStack.EMPTY
     }
 
-    override fun matches(inv: InventoryCrafting, worldIn: World?): Boolean {
-        return matches(inv as IInventory, worldIn)
-    }
-
-    fun matches(inv: IInventory, worldIn: World?): Boolean {
+    override fun matches(inv: IInventory, worldIn: World?): Boolean {
         var emptyTickets = 0
         var fullMaps = 0
         for(i in 0 until inv.sizeInventory) {

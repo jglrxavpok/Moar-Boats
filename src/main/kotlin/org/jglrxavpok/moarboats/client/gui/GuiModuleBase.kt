@@ -26,7 +26,7 @@ abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, va
 
     val tabs = mutableListOf<ModuleTab>()
 
-    val title = TextComponentTranslation("inventory.${module.id.resourcePath}.name")
+    val title = TextComponentTranslation("inventory.${module.id.path}.name")
 
     private val BACKGROUND_TEXTURE = ResourceLocation(MoarBoats.ModID, "textures/gui/default_background.png")
     private val BACKGROUND_TEXTURE_LARGE = ResourceLocation(MoarBoats.ModID, "textures/gui/default_background_large.png")
@@ -61,13 +61,13 @@ abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, va
     /**
      * Draws the screen and all the components in it.
      */
-    override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
+    override fun render(mouseX: Int, mouseY: Int, partialTicks: Float) {
         this.drawDefaultBackground()
-        super.drawScreen(mouseX, mouseY, partialTicks)
+        super.render(mouseX, mouseY, partialTicks)
         this.renderHoveredToolTip(mouseX, mouseY)
     }
 
-    override fun mouseClicked(mouseX: Int, mouseY: Int, mouseButton: Int) {
+    override fun cli(mouseX: Int, mouseY: Int, mouseButton: Int) {
         if(mouseButton != 0 || (!attemptTabChange(mouseX, mouseY) && !attemptModuleRemoval(mouseX, mouseY))) {
             super.mouseClicked(mouseX, mouseY, mouseButton)
         }
@@ -102,17 +102,17 @@ abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, va
      * Draw the foreground layer for the GuiContainer (everything in front of the items)
      */
     override fun drawGuiContainerForegroundLayer(mouseX: Int, mouseY: Int) {
-        val s = title.unformattedText
+        val s = title.formattedText
         if(shouldRenderInventoryName)
-            this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2, 6, 4210752)
+            this.fontRenderer.drawString(s, (this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2).toFloat(), 6f, 4210752)
         if(renderPlayerInventoryName)
-            this.fontRenderer.drawString(playerInventory.displayName.unformattedText, 8, this.ySize - 96 + 2, 4210752)
+            this.fontRenderer.drawString(playerInventory.displayName.formattedText, 8f, this.ySize - 96 + 2f, 4210752)
         drawModuleForeground(mouseX, mouseY)
 
         if(mouseX in (guiLeft-24)..guiLeft && mouseY in (guiTop+3)..(guiTop+26)) {
             if(boat.getOwnerNameOrNull() != null) {
                 drawHoveringText(
-                        TextComponentTranslation(LockedByOwner.key, boat.getOwnerNameOrNull()).unformattedText,
+                        TextComponentTranslation(LockedByOwner.key, boat.getOwnerNameOrNull()).formattedText,
                         mouseX-guiLeft,
                         mouseY-guiTop)
             }
@@ -137,19 +137,19 @@ abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, va
     override fun drawGuiContainerBackgroundLayer(partialTicks: Float, mouseX: Int, mouseY: Int) {
         val i = (this.width - this.xSize) / 2
         val j = (this.height - this.ySize) / 2
-        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f)
+        GlStateManager.color4f(1.0f, 1.0f, 1.0f, 1.0f)
         renderBackground()
 
         for(moduleTab in tabs) {
             moduleTab.renderContents()
         }
-        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f)
+        GlStateManager.color4f(1.0f, 1.0f, 1.0f, 1.0f)
 
         val ownerUUID = boat.getOwnerIdOrNull()
         if(ownerUUID != null) {
             mc.textureManager.bindTexture(BACKGROUND_TEXTURE)
             this.drawTexturedModalRect(i-21, j+3, 176, 57, 24, 26)
-            val info: NetworkPlayerInfo? = Minecraft.getMinecraft().connection!!.getPlayerInfo(ownerUUID)
+            val info: NetworkPlayerInfo? = Minecraft.getInstance().connection!!.getPlayerInfo(ownerUUID)
             if(info != null) {
                 mc.textureManager.bindTexture(info.locationSkin)
             } else {
@@ -157,13 +157,13 @@ abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, va
                 mc.textureManager.bindTexture(skinLocation)
             }
             GlStateManager.pushMatrix()
-            GlStateManager.translate(i-21+5f, j.toFloat()+5f+3, 0f)
-            GlStateManager.scale(2f, 2f, 2f)
+            GlStateManager.translatef(i-21+5f, j.toFloat()+5f+3, 0f)
+            GlStateManager.scalef(2f, 2f, 2f)
             Gui.drawModalRectWithCustomSizedTexture(0, 0, 8f, 8f, 8, 8, 64f, 64f)
             GlStateManager.popMatrix()
         }
 
-        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f)
+        GlStateManager.color4f(1.0f, 1.0f, 1.0f, 1.0f)
         mc.textureManager.bindTexture(moduleBackground)
         this.drawTexturedModalRect(i, j, 0, 0, this.xSize, ySize)
 
@@ -189,7 +189,7 @@ abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, va
             zLevel = 100.0f
             itemRender.zLevel = 100.0f
             RenderHelper.enableGUIStandardItemLighting()
-            GlStateManager.color(1f, 1f, 1f)
+            GlStateManager.color3f(1f, 1f, 1f)
             val itemstack = ItemStack(BoatModuleRegistry[tabModule.id].correspondingItem)
             val itemX = width/2 - 10 + x + 1
             val itemY = height/2 - 8 + y

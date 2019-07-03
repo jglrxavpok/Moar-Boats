@@ -31,7 +31,7 @@ class GuiEngineModule(playerInventory: InventoryPlayer, engine: BoatModule, boat
         val RedstoneDustStack = ItemStack(Items.REDSTONE)
     }
 
-    override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/${engine.id.resourcePath}.png")
+    override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/${engine.id.path}.png")
     val barsTexture = ResourceLocation("minecraft:textures/gui/bars.png")
     val remainingCurrentItem = TextComponentTranslation("gui.engine.remainingCurrent")
     val estimatedTimeText = TextComponentTranslation("gui.engine.estimatedTime")
@@ -63,13 +63,13 @@ class GuiEngineModule(playerInventory: InventoryPlayer, engine: BoatModule, boat
         val speedSettingMargins = 30
         val speedSettingHorizontalSize = xSize - speedSettingMargins*2
 
-        speedSlider = GuiSlider(1, guiLeft + speedSettingMargins, guiTop + 90, speedSettingHorizontalSize, 20, "${speedSetting.unformattedText}: ", "%", -50.0, 50.0, 0.0, false, true, sliderCallback)
+        speedSlider = GuiSlider(1, guiLeft + speedSettingMargins, guiTop + 90, speedSettingHorizontalSize, 20, "${speedSetting.formattedText}: ", "%", -50.0, 50.0, 0.0, false, true, sliderCallback)
         addButton(speedSlider)
         speedSlider.value = (engine.speedProperty[boat].toDouble()) * 100f
     }
 
-    override fun updateScreen() {
-        super.updateScreen()
+    override fun tick() {
+        super.tick()
         speedSlider.updateSlider()
         lockInPlaceButton.isLocked = engine.stationaryProperty[boat]
     }
@@ -85,7 +85,7 @@ class GuiEngineModule(playerInventory: InventoryPlayer, engine: BoatModule, boat
 
     override fun renderHoveredToolTip(mouseX: Int, mouseY: Int) {
         when {
-            lockInPlaceButton.mousePressed(mc, mouseX, mouseY) -> drawHoveringText(lockText.unformattedText, mouseX, mouseY)
+            lockInPlaceButton.mousePressed(mc, mouseX, mouseY) -> drawHoveringText(lockText.formattedText, mouseX, mouseY)
             else -> super.renderHoveredToolTip(mouseX, mouseY)
         }
     }
@@ -97,30 +97,30 @@ class GuiEngineModule(playerInventory: InventoryPlayer, engine: BoatModule, boat
 
 
         val infoY = 26
-        fontRenderer.drawCenteredString(remainingCurrentItem.unformattedText, 88, infoY, 0xFFFFFFFF.toInt(), shadow = true)
+        fontRenderer.drawCenteredString(remainingCurrentItem.formattedText, 88, infoY, 0xFFFFFFFF.toInt(), shadow = true)
 
-        mc.renderEngine.bindTexture(barsTexture)
+        mc.textureManager.bindTexture(barsTexture)
         val barIndex = 4
         val barSize = xSize*.85f
         val x = xSize/2f - barSize/2f
         drawBar(x, infoY+10f, barIndex, barSize, fill = if(remaining.isFinite()) remaining else 1f)
         if(estimatedTime.isInfinite()) {
-            fontRenderer.drawCenteredString(estimatedTimeText.unformattedText, 88, infoY+18, 0xFFF0F0F0.toInt(), shadow = true)
-            fontRenderer.drawCenteredString(foreverText.unformattedText, 88, infoY+28, 0xFF50A050.toInt())
+            fontRenderer.drawCenteredString(estimatedTimeText.formattedText, 88, infoY+18, 0xFFF0F0F0.toInt(), shadow = true)
+            fontRenderer.drawCenteredString(foreverText.formattedText, 88, infoY+28, 0xFF50A050.toInt())
         } else if(!estimatedTime.isNaN()) {
-            fontRenderer.drawCenteredString(estimatedTimeText.unformattedText, 88, infoY+18, 0xFFF0F0F0.toInt(), shadow = true)
+            fontRenderer.drawCenteredString(estimatedTimeText.formattedText, 88, infoY+18, 0xFFF0F0F0.toInt(), shadow = true)
             fontRenderer.drawCenteredString("${estimatedTime.toInt()}s", 88, infoY+28, 0xFF50A050.toInt())
         }
         renderBlockReason(infoY+38)
-        fontRenderer.drawCenteredString(speedSetting.unformattedText, 88, infoY+52, 0xFFF0F0F0.toInt(), shadow = true)
+        fontRenderer.drawCenteredString(speedSetting.formattedText, 88, infoY+52, 0xFFF0F0F0.toInt(), shadow = true)
 //        if(boat.isSpeedImposed()) {
-            fontRenderer.drawCenteredString(imposedSpeedText("${(boat.imposedSpeed * 100.0).toInt()}").unformattedText, 88, infoY+42, 0xFFFFFF, shadow=true)
+            fontRenderer.drawCenteredString(imposedSpeedText("${(boat.imposedSpeed * 100.0).toInt()}").formattedText, 88, infoY+42, 0xFFFFFF, shadow=true)
   //      }
 
         when {
-            speedSlider.valueInt == -50 -> fontRenderer.drawCenteredString(minimumSpeedText.unformattedText, 88, infoY + 70 + speedSlider.height, 0xFF0000F0.toInt())
-            speedSlider.valueInt == 50 -> fontRenderer.drawCenteredString(maximumSpeedText.unformattedText, 88, infoY + 70 + speedSlider.height, 0xFF0000F0.toInt())
-            speedSlider.valueInt == 0 -> fontRenderer.drawCenteredString(normalSpeedText.unformattedText, 88, infoY + 70 + speedSlider.height, 0xFF0000F0.toInt())
+            speedSlider.valueInt == -50 -> fontRenderer.drawCenteredString(minimumSpeedText.formattedText, 88, infoY + 70 + speedSlider.height, 0xFF0000F0.toInt())
+            speedSlider.valueInt == 50 -> fontRenderer.drawCenteredString(maximumSpeedText.formattedText, 88, infoY + 70 + speedSlider.height, 0xFF0000F0.toInt())
+            speedSlider.valueInt == 0 -> fontRenderer.drawCenteredString(normalSpeedText.formattedText, 88, infoY + 70 + speedSlider.height, 0xFF0000F0.toInt())
         }
 
         renderSpeedIcon(0, 5, infoY + 40 + speedSlider.height)
@@ -130,14 +130,14 @@ class GuiEngineModule(playerInventory: InventoryPlayer, engine: BoatModule, boat
     private fun renderBlockReason(y: Int) {
         when(boat.blockedReason) {
             NoBlockReason -> {}
-            BlockedByRedstone -> renderPrettyReason(y, lockedByRedstone.unformattedText, RedstoneDustStack)
+            BlockedByRedstone -> renderPrettyReason(y, lockedByRedstone.formattedText, RedstoneDustStack)
             else -> {
                 if(boat.blockedReason is BoatModule) {
                     val blockingModule = boat.blockedReason as BoatModule
                     val itemstack = ItemStack(BoatModuleRegistry[blockingModule.id].correspondingItem)
-                    renderPrettyReason(y, blockedByModuleText.unformattedText, itemstack)
+                    renderPrettyReason(y, blockedByModuleText.formattedText, itemstack)
                 } else {
-                    fontRenderer.drawCenteredString(unknownBlockReasonText(boat.blockedReason.toString()).unformattedText, 88, y, 0xFF0000)
+                    fontRenderer.drawCenteredString(unknownBlockReasonText(boat.blockedReason.toString()).formattedText, 88, y, 0xFF0000)
                 }
             }
         }
@@ -150,7 +150,7 @@ class GuiEngineModule(playerInventory: InventoryPlayer, engine: BoatModule, boat
         zLevel = 100.0f
         itemRender.zLevel = 100.0f
         RenderHelper.enableGUIStandardItemLighting()
-        GlStateManager.color(1f, 1f, 1f)
+        GlStateManager.color3f(1f, 1f, 1f)
         val itemX = textX+textWidth + 1
         val itemY = fontRenderer.FONT_HEIGHT/2 - 8 + y
         itemRender.renderItemAndEffectIntoGUI(itemStack, itemX, itemY)
@@ -159,7 +159,7 @@ class GuiEngineModule(playerInventory: InventoryPlayer, engine: BoatModule, boat
     }
 
     private fun renderSpeedIcon(ordinal: Int, x: Int, y: Int) {
-        GlStateManager.color(1f, 1f, 1f, 1f)
+        GlStateManager.color3f(1f, 1f, 1f, 1f)
         val width = 20
         val height = 20
         val tessellator = Tessellator.getInstance()
@@ -188,11 +188,11 @@ class GuiEngineModule(playerInventory: InventoryPlayer, engine: BoatModule, boat
                 .endVertex()
 
         mc.textureManager.bindTexture(speedIconTexture)
-        GlStateManager.disableDepth()
+        GlStateManager.disableDepthTest()
         GlStateManager.disableCull()
         tessellator.draw()
         GlStateManager.enableCull()
-        GlStateManager.enableDepth()
+        GlStateManager.enableDepthTest()
     }
 
     private fun drawBar(x: Float, y: Float, barIndex: Int, barSize: Float, fill: Float) {
@@ -201,8 +201,8 @@ class GuiEngineModule(playerInventory: InventoryPlayer, engine: BoatModule, boat
 
         val scale = barSize/barWidth
         GlStateManager.pushMatrix()
-        GlStateManager.scale(scale, scale, scale)
-        GlStateManager.translate((x/scale).toDouble(), (y/scale).toDouble(), 0.0)
+        GlStateManager.scalef(scale, scale, scale)
+        GlStateManager.translated((x/scale).toDouble(), (y/scale).toDouble(), 0.0)
         drawTexturedModalRect(0, 0, 0, barIndex*10+5, (filledWidth).toInt(), 5)
         drawTexturedModalRect(filledWidth.toInt(), 0, filledWidth.toInt(), barIndex*10, (barWidth-filledWidth+1).toInt(), 5)
         GlStateManager.popMatrix()

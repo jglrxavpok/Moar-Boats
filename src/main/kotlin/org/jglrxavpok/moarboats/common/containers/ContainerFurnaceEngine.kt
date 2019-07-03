@@ -5,10 +5,9 @@ import net.minecraft.entity.player.InventoryPlayer
 import net.minecraft.init.Items
 import net.minecraft.inventory.*
 import net.minecraft.item.ItemStack
-import net.minecraft.item.crafting.FurnaceRecipes
 import net.minecraft.tileentity.TileEntityFurnace
-import net.minecraftforge.fml.relauncher.Side
-import net.minecraftforge.fml.relauncher.SideOnly
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.api.distmarker.OnlyIn
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.modules.FurnaceEngineModule
@@ -20,7 +19,7 @@ class ContainerFurnaceEngine(playerInventory: InventoryPlayer, val engine: BoatM
     private var fuelTotalTime = engineInventory.getField(1)
 
     init {
-        this.addSlotToContainer(SlotEngineFuel(engineInventory, 0, 8, 8))
+        this.addSlot(SlotEngineFuel(engineInventory, 0, 8, 8))
 
         addPlayerSlots(isLarge = true)
     }
@@ -47,7 +46,7 @@ class ContainerFurnaceEngine(playerInventory: InventoryPlayer, val engine: BoatM
         this.fuelTotalTime = this.engineInventory.getField(1)
     }
 
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     override fun updateProgressBar(id: Int, data: Int) {
         this.engineInventory.setField(id, data)
     }

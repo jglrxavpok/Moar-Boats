@@ -24,7 +24,7 @@ import kotlin.concurrent.thread
 class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable, val index: Int) : GuiScreen() {
 
     init {
-        mc = Minecraft.getMinecraft() // forces 'mc' to hold a value when initializing the scrolling list below (waypointList)
+        mc = Minecraft.getInstance() // forces 'mc' to hold a value when initializing the scrolling list below (waypointList)
     }
 
     private val waypointData = te.inventory.getStackInSlot(0).let {
@@ -47,11 +47,11 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
 
     }
 
-    private val boostSlider = GuiSlider(id++, 0, 0, 125, 20, "${boostSetting.unformattedText}: ", "%", -50.0, 50.0, 0.0, false, true, boostSliderCallback)
-    private val confirmButton = GuiButton(id++, 0, 0, confirmText.unformattedText)
-    private val cancelButton = GuiButton(id++, 0, 0, cancelText.unformattedText)
-    private val refreshButton = GuiButton(id++, 0, 0, refreshText.unformattedText)
-    private val hasBoostCheckbox = GuiCheckBox(id++, 0, 0, hasBoostSetting.unformattedText, waypointData.getBoolean("hasBoost"))
+    private val boostSlider = GuiSlider(id++, 0, 0, 125, 20, "${boostSetting.formattedText}: ", "%", -50.0, 50.0, 0.0, false, true, boostSliderCallback)
+    private val confirmButton = GuiButton(id++, 0, 0, confirmText.formattedText)
+    private val cancelButton = GuiButton(id++, 0, 0, cancelText.formattedText)
+    private val refreshButton = GuiButton(id++, 0, 0, refreshText.formattedText)
+    private val hasBoostCheckbox = GuiCheckBox(id++, 0, 0, hasBoostSetting.formattedText, waypointData.getBoolean("hasBoost"))
 
 
     private val intInputs by lazy { listOf(xInput, zInput) }
@@ -76,8 +76,8 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
         addButton(boostSlider)
 
         nameInput.text = waypointData.getString("name")
-        xInput.text = waypointData.getInteger("x").toString()
-        zInput.text = waypointData.getInteger("z").toString()
+        xInput.text = waypointData.getInt("x").toString()
+        zInput.text = waypointData.getInt("z").toString()
 
         nameInput.x = width/2-nameInput.width/2
         nameInput.y = 15+nameInput.height
@@ -133,12 +133,12 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
         waypointList.compileFromProviders()
     }
 
-    override fun updateScreen() {
-        super.updateScreen()
+    override fun tick() {
+        super.tick()
         refreshButton.visible = WaypointProviders.isNotEmpty()
         boostSlider.updateSlider()
         boostSlider.enabled = hasBoostCheckbox.isChecked
-        allInputs.forEach(GuiTextField::updateCursorCounter)
+        allInputs.forEach(GuiTextField::tick)
     }
 
     override fun handleMouseInput() {
@@ -170,8 +170,8 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
         waypointData.setString("name", nameInput.text)
         waypointData.setBoolean("hasBoost", hasBoostCheckbox.isChecked)
         waypointData.setDouble("boost", boostSlider.value/100.0)
-        waypointData.setInteger("x", toInt(xInput.text))
-        waypointData.setInteger("z", toInt(zInput.text))
+        waypointData.setInt("x", toInt(xInput.text))
+        waypointData.setInt("z", toInt(zInput.text))
     }
 
     private fun toInt(txt: String): Int {
@@ -182,25 +182,25 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
         }
     }
 
-    override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
+    override fun render(mouseX: Int, mouseY: Int, partialTicks: Float) {
         drawDefaultBackground()
-        super.drawScreen(mouseX, mouseY, partialTicks)
+        super.render(mouseX, mouseY, partialTicks)
         if(waypointList.isNotEmpty()) {
-            waypointList.drawScreen(mouseX, mouseY, partialTicks)
+            waypointList.render(mouseX, mouseY, partialTicks)
         }
         allInputs.forEach(GuiTextField::drawTextBox)
 
-        fontRenderer.drawCenteredString(TextFormatting.UNDERLINE.toString()+TextComponentTranslation("moarboats.gui.waypoint_editor.name", nameInput.text).unformattedText, width/2, 15, 0xFFFFFF, shadow = true)
-        fontRenderer.drawCenteredString(TextFormatting.UNDERLINE.toString()+positionTitleText.unformattedText, width/2, 75, 0xFFFFFF, shadow = true)
-        fontRenderer.drawString("X:", xInput.x-10, xInput.y+xInput.height/2-fontRenderer.FONT_HEIGHT/2, 0xFFFFFF)
-        fontRenderer.drawString("Z:", zInput.x-10, xInput.y+xInput.height/2-fontRenderer.FONT_HEIGHT/2, 0xFFFFFF)
-        fontRenderer.drawCenteredString(TextFormatting.UNDERLINE.toString()+miscText.unformattedText, width/2, 135, 0xFFFFFF, shadow = true)
+        fontRenderer.drawCenteredString(TextFormatting.UNDERLINE.toString()+TextComponentTranslation("moarboats.gui.waypoint_editor.name", nameInput.text).formattedText, width/2, 15, 0xFFFFFF, shadow = true)
+        fontRenderer.drawCenteredString(TextFormatting.UNDERLINE.toString()+positionTitleText.formattedText, width/2, 75, 0xFFFFFF, shadow = true)
+        fontRenderer.drawString("X:", xInput.x-10f, xInput.y+xInput.height/2-fontRenderer.FONT_HEIGHT/2f, 0xFFFFFF)
+        fontRenderer.drawString("Z:", zInput.x-10f, xInput.y+xInput.height/2-fontRenderer.FONT_HEIGHT/2f, 0xFFFFFF)
+        fontRenderer.drawCenteredString(TextFormatting.UNDERLINE.toString()+miscText.formattedText, width/2, 135, 0xFFFFFF, shadow = true)
 
         GlStateManager.pushMatrix()
-        GlStateManager.translate((width-(width*.2f)/2f), 20f, 0f)
+        GlStateManager.translatef((width-(width*.2f)/2f), 20f, 0f)
         val scale = 0.75f
-        GlStateManager.scale(scale, scale, 1f)
-        fontRenderer.drawCenteredString(waypointsText.unformattedText, 0, 0, 0xFFFFFF, shadow = true)
+        GlStateManager.scalef(scale, scale, 1f)
+        fontRenderer.drawCenteredString(waypointsText.formattedText, 0, 0, 0xFFFFFF, shadow = true)
         GlStateManager.popMatrix()
     }
 

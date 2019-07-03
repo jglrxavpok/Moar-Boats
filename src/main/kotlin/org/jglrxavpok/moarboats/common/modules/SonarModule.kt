@@ -17,7 +17,6 @@ import org.jglrxavpok.moarboats.common.containers.EmptyContainer
 import org.jglrxavpok.moarboats.common.math.MutableVec2
 import org.jglrxavpok.moarboats.extensions.toDegrees
 import org.jglrxavpok.moarboats.extensions.toRadians
-import org.lwjgl.util.vector.Vector2f
 
 object SonarModule: BoatModule() {
 

@@ -13,12 +13,12 @@ abstract class ContainerBase(val playerInventory: InventoryPlayer): Container() 
         val yOffset = if(isLarge) 3 * 18 +2 else 0
         for (i in 0..2) {
             for (j in 0..8) {
-                this.addSlotToContainer(Slot(playerInventory, j + i * 9 + 9, xStart + j * 18, 84 + i * 18 + yOffset))
+                this.addSlot(Slot(playerInventory, j + i * 9 + 9, xStart + j * 18, 84 + i * 18 + yOffset))
             }
         }
 
         for (k in 0..8) {
-            this.addSlotToContainer(Slot(playerInventory, k, xStart + k * 18, 142 + yOffset))
+            this.addSlot(Slot(playerInventory, k, xStart + k * 18, 142 + yOffset))
         }
     }
 

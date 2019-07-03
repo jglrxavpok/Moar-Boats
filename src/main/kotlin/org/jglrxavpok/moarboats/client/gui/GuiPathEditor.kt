@@ -47,7 +47,7 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
     private val stripesReceived = BooleanArray(stripes)
     private val mapHeight = IntArray(size*size)
 
-    private val titleText = TextComponentTranslation("gui.path_editor.title", mapData.mapName)
+    private val titleText = TextComponentTranslation("gui.path_editor.title", mapData.name)
     private val refreshButtonText = TextComponentTranslation("gui.path_editor.refresh")
     private val toolsText = TextComponentTranslation("gui.path_editor.tools")
     private val pathPropsText = TextComponentTranslation("gui.path_editor.path_properties")
@@ -64,15 +64,15 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
     private val boostSetting = TextComponentTranslation("gui.path_editor.controls.boost")
 
     private var buttonId = 0
-    private val refreshMapButton = GuiButton(buttonId++, 0, 0, refreshButtonText.unformattedText)
+    private val refreshMapButton = GuiButton(buttonId++, 0, 0, refreshButtonText.formattedText)
     // Tools button
-    private val markerButton = GuiToolButton(buttonId++, toolMarkerText.unformattedText, 0)
-    private val eraserButton = GuiToolButton(buttonId++, toolEraserText.unformattedText, 1)
+    private val markerButton = GuiToolButton(buttonId++, toolMarkerText.formattedText, 0)
+    private val eraserButton = GuiToolButton(buttonId++, toolEraserText.formattedText, 1)
     private val toolButtonList = listOf(markerButton, eraserButton)
 
     // Properties buttons
-    private val loopingButton = GuiPropertyButton(buttonId++, listOf(Pair(propertyOneWayText.unformattedText, 3), Pair(propertyLoopingText.unformattedText, 2), Pair(propertyReverseCourseText.unformattedText, 4)))
-    private val linesButton = GuiBinaryPropertyButton(buttonId++, Pair(propertyLinesText.unformattedText, propertyPathfindingText.unformattedText), Pair(5, 6))
+    private val loopingButton = GuiPropertyButton(buttonId++, listOf(Pair(propertyOneWayText.formattedText, 3), Pair(propertyLoopingText.formattedText, 2), Pair(propertyReverseCourseText.formattedText, 4)))
+    private val linesButton = GuiBinaryPropertyButton(buttonId++, Pair(propertyLinesText.formattedText, propertyPathfindingText.formattedText), Pair(5, 6))
     private lateinit var boostSlider: GuiSlider
     private val sliderCallback = GuiSlider.ISlider { slider ->
 
@@ -81,7 +81,7 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
     private val propertyButtons = listOf(loopingButton/*, linesButton*/) // TODO: Pathfinding?
 
     init {
-        val textureManager = Minecraft.getMinecraft().textureManager
+        val textureManager = Minecraft.getInstance().textureManager
         areaResLocation = textureManager.getDynamicTextureLocation("moarboats:path_editor_preview", areaTexture)
         mapHeight.fill(-1)
     }
@@ -140,7 +140,7 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
 
         loopingButton.propertyIndex = pathHolder.getLoopingOption().ordinal
 
-        boostSlider = GuiSlider(1, menuX, yOffset+20, 125, 20, "${boostSetting.unformattedText}: ", "%", -50.0, 50.0, 0.0, false, true, sliderCallback)
+        boostSlider = GuiSlider(1, menuX, yOffset+20, 125, 20, "${boostSetting.formattedText}: ", "%", -50.0, 50.0, 0.0, false, true, sliderCallback)
         addButton(boostSlider)
     }
 
@@ -252,8 +252,8 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
         val waypointsData = pathHolder.getWaypointNBTList()
         for((index, waypoint) in waypointsData.withIndex()) {
             waypoint as NBTTagCompound
-            val blockX = waypoint.getInteger("x")
-            val blockZ = waypoint.getInteger("z")
+            val blockX = waypoint.getInt("x")
+            val blockZ = waypoint.getInt("z")
 
             val (waypointX, waypointZ) = worldCoordsToPixels(blockX, blockZ)
             val dx = x - waypointX
@@ -274,11 +274,11 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
         val pos = pixelsToWorldCoords(x, y)
         val boost = if(boostSlider.valueInt != 0) boostSlider.value/100.0 else null
         pathHolder.addWaypoint(pos, boost)
-        pos.release()
+        pos.close()
         mc.soundHandler.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 2.5f))
     }
 
-    override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
+    override fun render(mouseX: Int, mouseY: Int, partialTicks: Float) {
         drawDefaultBackground()
         val invZoom = 1.0/currentZoom
         val viewportSize = invZoom*size
@@ -289,14 +289,14 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
         val mapY = height/2-mapScreenSize/2
         renderMap(mapX, mapY, 0.0, mapScreenSize, mouseX, mouseY)
 
-        super.drawScreen(mouseX, mouseY, partialTicks)
-        fontRenderer.drawStringWithShadow(toolsText.unformattedText, menuX.toFloat(), menuY.toFloat(), 0xFFF0F0F0.toInt())
+        super.render(mouseX, mouseY, partialTicks)
+        fontRenderer.drawStringWithShadow(toolsText.formattedText, menuX.toFloat(), menuY.toFloat(), 0xFFF0F0F0.toInt())
 
         mc.textureManager.bindTexture(GuiToolButton.WidgetsTextureLocation)
         Gui.drawModalRectWithCustomSizedTexture(menuX, horizontalBarY, 0f, 100f, 120, 20, 120f, 120f)
-        fontRenderer.drawStringWithShadow(pathPropsText.unformattedText, menuX.toFloat(), toolButtonListEndY.toFloat(), 0xFFF0F0F0.toInt())
+        fontRenderer.drawStringWithShadow(pathPropsText.formattedText, menuX.toFloat(), toolButtonListEndY.toFloat(), 0xFFF0F0F0.toInt())
 
-        drawCenteredString(fontRenderer, titleText.unformattedText, width/2, 10, 0xFFF0F0F0.toInt())
+        drawCenteredString(fontRenderer, titleText.formattedText, width/2, 10, 0xFFF0F0F0.toInt())
 
         drawControls()
 
@@ -308,24 +308,24 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
                 && posOnMapY in 0.0..mapScreenSize) {
             val pos = pixelsToWorldCoords(posOnMapX, posOnMapY)
             drawHoveringText("X: ${pos.x} Z: ${pos.z}", mouseX, mouseY)
-            pos.release()
+            pos.close()
         }
 
 
-        GlStateManager.enableAlpha()
+        GlStateManager.enableAlphaTest()
     }
 
     private fun drawControls() {
         val borderX = width/2-mapScreenSize/2 - 5f
         val y = menuY.toFloat()
 
-        GlStateManager.color(1f, 1f, 1f, 1f)
+        GlStateManager.color4f(1f, 1f, 1f, 1f)
         val scale = 0.5f
         GlStateManager.pushMatrix()
-        GlStateManager.scale(scale, scale, 1f)
-        drawRightAligned(controlsText.unformattedText, borderX.toFloat()/scale, y/scale, 0xFFF0F0F0.toInt(), shadow = true)
-        drawRightAligned(zoomText.unformattedText, (borderX/scale).toFloat(), (y+20f)/scale, 0xFFF0F0F0.toInt())
-        drawRightAligned(moveMapText.unformattedText, (borderX/scale).toFloat(), (y+30f)/scale, 0xFFF0F0F0.toInt())
+        GlStateManager.scalef(scale, scale, 1f)
+        drawRightAligned(controlsText.formattedText, borderX.toFloat()/scale, y/scale, 0xFFF0F0F0.toInt(), shadow = true)
+        drawRightAligned(zoomText.formattedText, (borderX/scale).toFloat(), (y+20f)/scale, 0xFFF0F0F0.toInt())
+        drawRightAligned(moveMapText.formattedText, (borderX/scale).toFloat(), (y+30f)/scale, 0xFFF0F0F0.toInt())
         GlStateManager.popMatrix()
 
         mc.textureManager.bindTexture(GuiToolButton.WidgetsTextureLocation)
@@ -363,18 +363,18 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
     }
 
     private fun renderMap(x: Double, y: Double, margins: Double, mapSize: Double, mouseX: Int, mouseY: Int) {
-        val mc = Minecraft.getMinecraft()
+        val mc = Minecraft.getInstance()
         GlStateManager.pushMatrix()
-        GlStateManager.translate(x+margins, y+margins, 0.0)
-        GlStateManager.scale(0.0078125f, 0.0078125f, 0.0078125f)
-        GlStateManager.scale(mapSize-margins*2, mapSize-margins*2, 0.0)
+        GlStateManager.translated(x+margins, y+margins, 0.0)
+        GlStateManager.scalef(0.0078125f, 0.0078125f, 0.0078125f)
+        GlStateManager.scaled(mapSize-margins*2, mapSize-margins*2, 0.0)
 
         val tessellator = Tessellator.getInstance()
         val bufferbuilder = tessellator.buffer
         mc.textureManager.bindTexture(areaResLocation)
         GlStateManager.enableBlend()
-        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE)
-        GlStateManager.disableAlpha()
+        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE)
+        GlStateManager.disableAlphaTest()
 
         glEnable(GL_STENCIL_TEST)
         glStencilMask(0xFF)
@@ -393,7 +393,7 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
         bufferbuilder.pos(128.0, 0.0, -0.009999999776482582).tex(maxU, minV).endVertex()
         bufferbuilder.pos(0.0, 0.0, -0.009999999776482582).tex(minU, minV).endVertex()
         tessellator.draw()
-        GlStateManager.enableAlpha()
+        GlStateManager.enableAlphaTest()
 
         glStencilFunc(GL_EQUAL, 1, 0xFF) // needs to have 1 in stencil buffer to be rendered
 
@@ -409,8 +409,8 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
         if(eraserButton.selected) {
             for((index, waypoint) in waypointsData.withIndex()) {
                 waypoint as NBTTagCompound
-                val blockX = waypoint.getInteger("x")
-                val blockZ = waypoint.getInteger("z")
+                val blockX = waypoint.getInt("x")
+                val blockZ = waypoint.getInt("z")
 
                 val (waypointX, waypointZ) = worldCoordsToPixels(blockX, blockZ)
                 val dx = localMX - waypointX
@@ -429,8 +429,8 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
         val first = waypointsData.firstOrNull() as? NBTTagCompound
         for((index, waypoint) in waypointsData.withIndex()) {
             waypoint as NBTTagCompound
-            val blockX = waypoint.getInteger("x")
-            val blockZ = waypoint.getInteger("z")
+            val blockX = waypoint.getInt("x")
+            val blockZ = waypoint.getInt("z")
 
             val (waypointX, waypointZ) = worldCoordsToPixels(blockX, blockZ)
             val renderX = waypointX/mapScreenSize*128.0
@@ -446,9 +446,9 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
                 GlStateManager.pushMatrix()
                 val scale = 0.5
                 val w = fontRenderer.getStringWidth(boost)
-                GlStateManager.translate(renderX-w/2*scale, renderZ-12.0, 0.0)
-                GlStateManager.scale(scale, scale, 1.0)
-                fontRenderer.drawString(boost, 0, 0, 0xFFFFFFFF.toInt())
+                GlStateManager.translated(renderX-w/2*scale, renderZ-12.0, 0.0)
+                GlStateManager.scaled(scale, scale, 1.0)
+                fontRenderer.drawString(boost, 0f, 0f, 0xFFFFFFFF.toInt())
                 GlStateManager.popMatrix()
             }
 
@@ -458,9 +458,9 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
             previousX = renderX
             previousZ = renderZ
 
-            if(first != null && index == waypointsData.tagCount()-1 && loopingButton.propertyIndex != LoopingOptions.NoLoop.ordinal) { // last one of the path, render a link to the first point
-                val firstBlockX = first.getInteger("x")
-                val firstBlockZ = first.getInteger("z")
+            if(first != null && index == waypointsData.size-1 && loopingButton.propertyIndex != LoopingOptions.NoLoop.ordinal) { // last one of the path, render a link to the first point
+                val firstBlockX = first.getInt("x")
+                val firstBlockZ = first.getInt("z")
                 val (firstWaypointX, firstWaypointZ) = worldCoordsToPixels(firstBlockX, firstBlockZ)
                 val firstX = firstWaypointX/mapScreenSize*128.0
                 val firstZ = firstWaypointZ/mapScreenSize*128.0
@@ -473,12 +473,12 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
         val blockPos = pathHolder.getHolderLocation()
         if(blockPos != null) {
             GlStateManager.pushMatrix()
-            GlStateManager.scale(iconScale, iconScale, 1f)
-            GlStateManager.translate(-8f, -8f, 0f)
+            GlStateManager.scalef(iconScale, iconScale, 1f)
+            GlStateManager.translatef(-8f, -8f, 0f)
             val (boatPixelX, boatPixelZ) = worldCoordsToPixels(blockPos.x, blockPos.z)
             val boatRenderX = boatPixelX/mapScreenSize*128.0
             val boatRenderZ = boatPixelZ/mapScreenSize*128.0
-            mc.renderItem.renderItemAndEffectIntoGUI(HelmModuleRenderer.helmStack, (boatRenderX/iconScale).toInt(), (boatRenderZ/iconScale).toInt())
+            mc.itemRenderer.renderItemAndEffectIntoGUI(HelmModuleRenderer.helmStack, (boatRenderX/iconScale).toInt(), (boatRenderZ/iconScale).toInt())
 
             GlStateManager.popMatrix()
         }
@@ -489,8 +489,8 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
         GlStateManager.popMatrix()
     }
 
-    override fun updateScreen() {
-        super.updateScreen()
+    override fun tick() {
+        super.tick()
         boostSlider.updateSlider()
         if(!sentImageRequest) {
             pathHolder.sendWorldImageRequest(mapID)

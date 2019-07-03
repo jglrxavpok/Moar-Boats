@@ -10,24 +10,17 @@ import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.TextComponentString
 import net.minecraft.util.text.TextComponentTranslation
 import net.minecraft.world.World
-import net.minecraft.world.storage.MapStorage
 import net.minecraft.world.storage.WorldSavedData
 import net.minecraft.world.storage.WorldSavedDataStorage
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.common.util.Constants
 import net.minecraftforge.fml.DistExecutor
-import net.minecraftforge.fml.common.FMLCommonHandler
-import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.data.LoopingOptions
 import org.jglrxavpok.moarboats.common.network.SSetGoldenItinerary
 import java.util.*
 
-abstract class ItemPath: Item() {
-
-    init {
-        maxStackSize = 1
-    }
+abstract class ItemPath(id: String): MoarBoatsItem(id, { maxStackSize(1) }) {
 
     abstract fun getWaypointData(stack: ItemStack, mapStorage: WorldSavedDataStorage): NBTTagList
 
@@ -46,10 +39,9 @@ abstract class ItemPath: Item() {
 
 }
 
-object ItemMapWithPath: ItemPath() {
+object ItemMapWithPath: ItemPath("map_with_path") {
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "map_with_path")
-        unlocalizedName = "map_with_path"
     }
 
     override fun setLoopingOptions(stack: ItemStack, options: LoopingOptions) {
@@ -64,7 +56,7 @@ object ItemMapWithPath: ItemPath() {
         if(stack.tag!!.getBoolean("${MoarBoats.ModID}.loops") && ! stack.tag!!.hasKey("${MoarBoats.ModID}.loopingOption")) { // retro-compatibility
             return LoopingOptions.Loops
         }
-        return LoopingOptions.values()[stack.tag!!.getInteger("${MoarBoats.ModID}.loopingOption").coerceIn(LoopingOptions.values().indices)]
+        return LoopingOptions.values()[stack.tag!!.getInt("${MoarBoats.ModID}.loopingOption").coerceIn(LoopingOptions.values().indices)]
     }
 
     override fun getWaypointData(stack: ItemStack, mapStorage: WorldSavedDataStorage): NBTTagList {
@@ -84,14 +76,12 @@ object ItemMapWithPath: ItemPath() {
     }
 }
 
-object ItemGoldenTicket: ItemPath() {
+object ItemGoldenTicket: ItemPath("golden_ticket") {
 
     private val EmptyName = TextComponentTranslation(MoarBoats.ModID+".item.golden_ticket.name.empty")
 
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "golden_ticket")
-        unlocalizedName = "golden_ticket"
-        creativeTab = MoarBoats.CreativeTab
     }
 
     data class WaypointData(var uuid: String): WorldSavedData(uuid) {
@@ -104,14 +94,14 @@ object ItemGoldenTicket: ItemPath() {
             return true
         }
 
-        override fun writeToNBT(compound: NBTTagCompound): NBTTagCompound {
+        override fun write(compound: NBTTagCompound): NBTTagCompound {
             compound.setTag("${MoarBoats.ModID}.path", backingList)
             compound.setInt("${MoarBoats.ModID}.loopingOption", loopingOption.ordinal)
             compound.setString("${MoarBoats.ModID}.mapID", mapID)
             return compound
         }
 
-        override fun readFromNBT(nbt: NBTTagCompound) {
+        override fun read(nbt: NBTTagCompound) {
             backingList = nbt.getList("${MoarBoats.ModID}.path", Constants.NBT.TAG_COMPOUND)
             if(nbt.getBoolean("${MoarBoats.ModID}.loops")) { // retro-compatibility
                 loopingOption = LoopingOptions.Loops

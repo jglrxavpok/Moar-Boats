@@ -4,8 +4,6 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.player.InventoryPlayer
 import net.minecraft.inventory.*
 import net.minecraft.item.ItemStack
-import net.minecraft.tileentity.TileEntityFurnace
-import net.minecraft.world.World
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import org.jglrxavpok.moarboats.common.items.ItemMapWithPath
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
@@ -13,7 +11,7 @@ import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 class ContainerMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPlayer): ContainerBase(playerInv) {
 
     init {
-        addSlotToContainer(SlotMappingTable(te.inventory, 0, 8, 8))
+        addSlot(SlotMappingTable(te.inventory, 0, 8, 8))
         addPlayerSlots(true)
     }
 

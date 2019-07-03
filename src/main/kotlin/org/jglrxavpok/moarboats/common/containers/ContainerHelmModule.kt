@@ -5,8 +5,8 @@ import net.minecraft.entity.player.InventoryPlayer
 import net.minecraft.init.Items
 import net.minecraft.inventory.*
 import net.minecraft.item.ItemStack
-import net.minecraftforge.fml.relauncher.Side
-import net.minecraftforge.fml.relauncher.SideOnly
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.api.distmarker.OnlyIn
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 
@@ -15,7 +15,7 @@ class ContainerHelmModule(playerInventory: InventoryPlayer, val helm: BoatModule
     val helmInventory = boat.getInventory(helm)
 
     init {
-        this.addSlotToContainer(SlotMap(helmInventory, 0, 8, 8))
+        this.addSlot(SlotMap(helmInventory, 0, 8, 8))
 
         addPlayerSlots(isLarge = true)
     }
@@ -25,7 +25,7 @@ class ContainerHelmModule(playerInventory: InventoryPlayer, val helm: BoatModule
         listener.sendAllWindowProperties(this, helmInventory)
     }
 
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     override fun updateProgressBar(id: Int, data: Int) {
         this.helmInventory.setField(id, data)
     }

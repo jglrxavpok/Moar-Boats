@@ -41,7 +41,7 @@ object ModularBoatColoringRecipe: ForgeRegistryEntry<IRecipe>(), IRecipe {
                 } else {
                     return ItemStack.EMPTY
                 }
-            } else if(stack.item == ModularBoatItem) {
+            } else if(stack.item is ModularBoatItem) {
                 boatCount++
             } else if(!stack.isEmpty) {
                 return ItemStack.EMPTY
@@ -71,7 +71,7 @@ object ModularBoatColoringRecipe: ForgeRegistryEntry<IRecipe>(), IRecipe {
                 } else {
                     return false
                 }
-            } else if(stack.item == ModularBoatItem) {
+            } else if(stack.item is ModularBoatItem) {
                 boatCount++
             } else if(!stack.isEmpty) {
                 return false

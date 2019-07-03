@@ -17,7 +17,7 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.blocks.Facing
 
-class TileEntityFluidLoader: TileEntityListenable(MoarBoats.TileEntityFluidLoader), ITickable, IFluidHandler, IFluidTankProperties {
+class TileEntityFluidLoader: TileEntityListenable(MoarBoats.TileEntityFluidLoaderType), ITickable, IFluidHandler, IFluidTankProperties {
 
     val blockFacing: EnumFacing get()= world.getBlockState(pos).get(Facing)
     private var fluid: Fluid? = null

@@ -5,6 +5,7 @@ import net.minecraft.inventory.ItemStackHelper
 import net.minecraft.item.ItemStack
 import net.minecraft.util.NonNullList
 import net.minecraft.util.text.ITextComponent
+import net.minecraft.util.text.TextComponentString
 import net.minecraft.util.text.TextComponentTranslation
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleInventory
@@ -19,7 +20,7 @@ abstract class BaseModuleInventory(slotCount: Int, inventoryName: String, boat: 
     override fun getField(id: Int): Int {
         val key = id2key(id)
         if(key != null)
-            return getModuleState().getInteger(key)
+            return getModuleState().getInt(key)
         return -1
     }
 
@@ -42,7 +43,7 @@ abstract class BaseModuleInventory(slotCount: Int, inventoryName: String, boat: 
 
     override fun getSizeInventory() = list.size
 
-    override fun getName() = inventoryName
+    override fun getName() = TextComponentString(inventoryName)
 
     override fun isEmpty(): Boolean {
         return list.all { it.isEmpty }
@@ -69,7 +70,7 @@ abstract class BaseModuleInventory(slotCount: Int, inventoryName: String, boat: 
     override fun setField(id: Int, value: Int) {
         val key = id2key(id)
         if(key != null) {
-            getModuleState().setInteger(key, value)
+            getModuleState().setInt(key, value)
             saveModuleState()
         }
     }

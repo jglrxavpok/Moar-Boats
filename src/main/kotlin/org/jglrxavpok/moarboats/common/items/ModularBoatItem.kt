@@ -1,6 +1,5 @@
 package org.jglrxavpok.moarboats.common.items
 
-import net.minecraft.creativetab.CreativeTabs
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.EnumDyeColor
 import net.minecraft.item.Item
@@ -8,6 +7,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.stats.StatList
 import net.minecraft.util.*
 import net.minecraft.util.math.MathHelper
+import net.minecraft.util.math.RayTraceFluidMode
 import net.minecraft.util.math.RayTraceResult
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
@@ -68,7 +68,7 @@ abstract class BaseBoatItem: Item(Item.Properties().group(MoarBoats.CreativeTab)
         val f7 = f4 * f5
         val f8 = f3 * f5
         val vec3d1 = vec3d.add(f7.toDouble() * 5.0, f6.toDouble() * 5.0, f8.toDouble() * 5.0)
-        val raytraceresult = worldIn.rayTraceBlocks(vec3d, vec3d1, true)
+        val raytraceresult = worldIn.rayTraceBlocks(vec3d, vec3d1, RayTraceFluidMode.ALWAYS)
 
         if (raytraceresult == null) {
             return ActionResult(EnumActionResult.PASS, itemstack)

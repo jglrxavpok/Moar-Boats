@@ -22,6 +22,6 @@ object WaterborneComparatorItem : WaterborneItem() {
     }
 
     override fun addInformation(stack: ItemStack?, player: World?, tooltip: MutableList<String>, advanced: ITooltipFlag?) {
-        tooltip.add(descriptionText.unformattedText)
+        tooltip.add(descriptionText.formattedText)
     }
 }

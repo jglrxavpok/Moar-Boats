@@ -10,7 +10,7 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.blocks.Facing
 
-class TileEntityEnergyLoader: TileEntityEnergy(MoarBoats.TileEntityEnergyLoader), ITickable {
+class TileEntityEnergyLoader: TileEntityEnergy(MoarBoats.TileEntityEnergyLoaderType), ITickable {
     override val maxReceivableEnergy = maxEnergyStored
     override val maxExtractableEnergy = 0
     private var working: Boolean = false

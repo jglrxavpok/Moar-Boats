@@ -35,12 +35,12 @@ class GuiFluid(val te: TileEntityListenable, val fluidHandler: IFluidHandler, va
         val localX = mouseX - guiLeft
         val localY = mouseY - guiTop
         if(localX in 60..(60+55) && localY in 6..(6+75)) {
-            drawHoveringText(TextComponentTranslation(MoarBoats.ModID+".tank_level", fluidAmount, fluidCapacity, fluid?.name ?: "nothing").unformattedText, localX, localY)
+            drawHoveringText(TextComponentTranslation(MoarBoats.ModID+".tank_level", fluidAmount, fluidCapacity, fluid?.name ?: "nothing").formattedText, localX, localY)
         }
     }
 
     fun updateFluid(fluidName: String, fluidAmount: Int, fluidCapacity: Int) {
-        fluid = FluidRegistry.getFluid(fluidName)
+        fluid = null// FIXME FluidRegistry.getFluid(fluidName)
         this.fluidAmount = fluidAmount
         this.fluidCapacity = fluidCapacity
     }

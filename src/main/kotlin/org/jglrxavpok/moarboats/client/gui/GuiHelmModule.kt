@@ -39,8 +39,8 @@ class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: 
     private val mapStack = ItemStack(Items.FILLED_MAP)
     private val editButtonText = TextComponentTranslation("gui.helm.path_editor")
     private val saveButtonText = TextComponentTranslation("moarboats.gui.helm.save_on_map")
-    private val mapEditButton = GuiButton(0, 0, 0, editButtonText.unformattedText)
-    private val saveButton = GuiButton(1, 0, 0, saveButtonText.unformattedText)
+    private val mapEditButton = GuiButton(0, 0, 0, editButtonText.formattedText)
+    private val saveButton = GuiButton(1, 0, 0, saveButtonText.formattedText)
 
     init {
         shouldRenderInventoryName = false
@@ -67,7 +67,7 @@ class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: 
                     boat.modules.firstOrNull() { it.moduleSpot == BoatModule.Spot.Engine }?.let {
                         MoarBoats.network.sendToServer(CChangeEngineMode(boat.entityID, it.id, true))
                     }
-                    playerInventory.player.openGui(MoarBoats, MoarBoatsGuiHandler.PathEditor, boat.world, boat.entityID, 0, 0)
+                    playerInventory.player.displayGui(MoarBoats, MoarBoatsGuiHandler.PathEditor, boat.world, boat.entityID, 0, 0)
                 }
             }
             saveButton -> {
@@ -113,9 +113,9 @@ class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: 
 
         if(!hasMap) {
             GlStateManager.pushMatrix()
-            GlStateManager.translate(guiLeft.toFloat()+8f, guiTop.toFloat()+8f, 0f)
+            GlStateManager.translatef(guiLeft.toFloat()+8f, guiTop.toFloat()+8f, 0f)
             Gui.drawRect(0, 0, 16, 16, 0x30ff0000)
-            mc.renderItem.renderItemAndEffectIntoGUI(mapStack, 0, 0)
+            mc.textureManager.renderItemAndEffectIntoGUI(mapStack, 0, 0)
             GlStateManager.depthFunc(GL11.GL_GREATER)
             Gui.drawRect(0, 0, 16, 16, 0x30ffffff)
             GlStateManager.depthFunc(GL11.GL_LEQUAL)
@@ -128,7 +128,7 @@ class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: 
         return when (stack.item) {
             is ItemMap -> HelmModule.mapDataCopyProperty[boat]
             is ItemMapWithPath -> {
-                val mapID = stack.tagCompound?.getString("${MoarBoats.ModID}.mapID") ?: return null
+                val mapID = stack.tag?.getString("${MoarBoats.ModID}.mapID") ?: return null
                 MoarBoats.getLocalMapStorage().getOrLoadData(MapData::class.java, mapID) as? MapData
             }
             is ItemGoldenTicket -> {
@@ -139,8 +139,8 @@ class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: 
         }
     }
 
-    override fun updateScreen() {
-        super.updateScreen()
+    override fun tick() {
+        super.tick()
         val mapData = getMapData(container.getSlot(0).stack)
         mapEditButton.enabled = mapData != null && mapData != EmptyMapData
         saveButton.enabled = mapData != null && mapData != EmptyMapData && container.getSlot(0).stack.item == Items.FILLED_MAP

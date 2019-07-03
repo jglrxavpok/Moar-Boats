@@ -16,7 +16,11 @@ class GuiAnchorModule(playerInventory: InventoryPlayer, anchor: BoatModule, boat
 
     override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/nothing.png")
 
-    val deployButton = GuiButton(0,0,0, 140, 20, "")
+    val deployButton = object: GuiButton(0,0,0, 140, 20, "") {
+        override fun onClick(mouseX: Double, mouseY: Double) {
+            MoarBoats.network.sendToServer(CDeployAnchor(boat.entityID, module.id))
+        }
+    }
     val deployedText = TextComponentTranslation("gui.anchor.deployed")
     val undeployedText = TextComponentTranslation("gui.anchor.deploy")
     val movingAnchorText = TextComponentTranslation("gui.anchor.moving")
@@ -30,28 +34,21 @@ class GuiAnchorModule(playerInventory: InventoryPlayer, anchor: BoatModule, boat
         addButton(deployButton)
     }
 
-    override fun updateScreen() {
-        super.updateScreen()
+    override fun tick() {
+        super.tick()
         if(anchor.anchorDirectionProperty[boat] != 0) {
-            deployButton.displayString = movingAnchorText.unformattedText
+            deployButton.displayString = movingAnchorText.formattedText
             deployButton.enabled = false
         } else {
             val deployText = if(anchor.deployedProperty[boat]) deployedText else undeployedText
             deployButton.enabled = true
-            deployButton.displayString = deployText.unformattedText
+            deployButton.displayString = deployText.formattedText
         }
     }
 
     override fun drawModuleForeground(mouseX: Int, mouseY: Int) {
         super.drawModuleForeground(mouseX, mouseY)
-        fontRenderer.drawSplitString(descText.unformattedText, 0+20, 0+50, xSize-40, 0xF0F0F0)
+        fontRenderer.drawSplitString(descText.formattedText, 0+20, 0+50, xSize-40, 0xF0F0F0)
     }
 
-    override fun actionPerformed(button: GuiButton) {
-        when(button) {
-            deployButton -> {
-                MoarBoats.network.sendToServer(CDeployAnchor(boat.entityID, module.id))
-            }
-        }
-    }
 }

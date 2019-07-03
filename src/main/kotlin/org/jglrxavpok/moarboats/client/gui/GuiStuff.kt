@@ -8,5 +8,5 @@ fun FontRenderer.drawCenteredString(text: String, x: Int, y: Int, color: Int, sh
     if(shadow)
         drawStringWithShadow(text, textX.toFloat(), y.toFloat(), color)
     else
-        drawString(text, textX, y, color)
+        drawString(text, textX.toFloat(), y.toFloat(), color)
 }

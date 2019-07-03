@@ -4,8 +4,8 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.player.InventoryPlayer
 import net.minecraft.inventory.*
 import net.minecraft.item.ItemStack
-import net.minecraftforge.fml.relauncher.Side
-import net.minecraftforge.fml.relauncher.SideOnly
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.api.distmarker.OnlyIn
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 
@@ -17,7 +17,7 @@ class ContainerChestModule(playerInventory: InventoryPlayer, val engine: BoatMod
         val numRows = 3
         for (j in 0 until numRows) {
             for (k in 0..8) {
-                this.addSlotToContainer(Slot(chestInventory, k + j * 9, 8 + k * 18, 18 + j * 18 -2))
+                this.addSlot(Slot(chestInventory, k + j * 9, 8 + k * 18, 18 + j * 18 -2))
             }
         }
 
@@ -29,7 +29,7 @@ class ContainerChestModule(playerInventory: InventoryPlayer, val engine: BoatMod
         listener.sendAllWindowProperties(this, chestInventory)
     }
 
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     override fun updateProgressBar(id: Int, data: Int) {
         this.chestInventory.setField(id, data)
     }
