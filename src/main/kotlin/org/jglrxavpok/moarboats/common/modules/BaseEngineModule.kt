@@ -112,7 +112,7 @@ abstract class BaseEngineModule: BoatModule() {
                     blockState.material == Material.LAVA -> Particles.DRIPPING_LAVA
                     else -> BlockParticleData(Particles.BLOCK, blockState)
                 }
-                from.worldRef.spawnParticle(particle, anchorX, anchorY, anchorZ, -from.velocityX, 1.0, -from.velocityZ)
+                from.worldRef.addParticle(particle, anchorX, anchorY, anchorZ, -from.velocityX, 1.0, -from.velocityZ)
             }
             pos.close()
         }

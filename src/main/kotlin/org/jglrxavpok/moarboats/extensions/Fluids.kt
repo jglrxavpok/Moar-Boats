@@ -19,8 +19,8 @@ object Fluids {
     }
 
     fun getLiquidLocalLevel(blockstate: IBlockState) = when(blockstate.block) {
-        is BlockLiquid -> blockstate.getValue(BlockLiquid.LEVEL)
-        is BlockFluidBase -> blockstate.getValue(BlockFluidBase.LEVEL)
+        is BlockLiquid -> blockstate.get(BlockLiquid.LEVEL)
+        is BlockFluidBase -> blockstate.get(BlockFluidBase.LEVEL)
         else -> error("Unknown liquid type $blockstate (${blockstate.block}) in MoarBoats")
     }
 

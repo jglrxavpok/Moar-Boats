@@ -60,7 +60,7 @@ abstract class WaterborneItem : Item() {
                         itemstack.shrink(1)
                     }
 
-                    playerIn.addStat(StatList.getObjectUseStats(this)!!)
+                    playerIn.addStat(StatList.ITEM_USED[this])
                     worldIn.playSound(playerIn, blockpos, SoundEvents.BLOCK_LILY_PAD_PLACE, SoundCategory.BLOCKS, 1.0f, 1.0f)
                     return ActionResult(EnumActionResult.SUCCESS, itemstack)
                 }

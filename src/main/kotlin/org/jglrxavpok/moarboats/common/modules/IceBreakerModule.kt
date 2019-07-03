@@ -97,14 +97,14 @@ object IceBreakerModule: BoatModule() {
 
     private fun clearBreakProgress(boat: IControllable, pos: BlockPos) {
         val state = boat.getState()
-        state.removeTag("breakProgress_X${pos.x}_Y${pos.y}_Z${pos.z}")
-        state.removeTag("breakTimestamp_X${pos.x}_Y${pos.y}_Z${pos.z}")
+        state.remove("breakProgress_X${pos.x}_Y${pos.y}_Z${pos.z}")
+        state.remove("breakTimestamp_X${pos.x}_Y${pos.y}_Z${pos.z}")
     }
 
     private fun setBreakProgress(boat: IControllable, pos: BlockPos, progress: Float) {
         val state = boat.getState()
-        state.setFloat("breakProgress_X${pos.x}_Y${pos.y}_Z${pos.z}", progress)
-        state.setInt("breakTimestamp_X${pos.x}_Y${pos.y}_Z${pos.z}", boat.correspondingEntity.ticksExisted)
+        state.putFloat("breakProgress_X${pos.x}_Y${pos.y}_Z${pos.z}", progress)
+        state.putInt("breakTimestamp_X${pos.x}_Y${pos.y}_Z${pos.z}", boat.correspondingEntity.ticksExisted)
     }
 
     private fun getBreakProgress(boat: IControllable, pos: BlockPos): Float {

@@ -67,7 +67,7 @@ abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, va
         this.renderHoveredToolTip(mouseX, mouseY)
     }
 
-    override fun cli(mouseX: Int, mouseY: Int, mouseButton: Int) {
+    override fun mouseClicked(mouseX: Int, mouseY: Int, mouseButton: Int) {
         if(mouseButton != 0 || (!attemptTabChange(mouseX, mouseY) && !attemptModuleRemoval(mouseX, mouseY))) {
             super.mouseClicked(mouseX, mouseY, mouseButton)
         }

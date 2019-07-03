@@ -12,4 +12,8 @@ data class MutableVec2(var x: Double, var y: Double) {
         x += dx
         y += dy
     }
+
+    fun lengthSq() = x*x+y*y
+
+    fun length() = Math.sqrt(lengthSq())
 }

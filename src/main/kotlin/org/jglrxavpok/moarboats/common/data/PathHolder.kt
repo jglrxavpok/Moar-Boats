@@ -85,7 +85,7 @@ class MapWithPathHolder(stack: ItemStack, mappingTable: TileEntityMappingTable?,
 
 class GoldenTicketPathHolder(stack: ItemStack, mappingTable: TileEntityMappingTable?, boat: IControllable?): ItemPathHolder(stack, mappingTable, boat) {
     override fun nbt(): NBTTagCompound {
-        return ItemGoldenTicket.getData(stack).writeToNBT(NBTTagCompound())
+        return ItemGoldenTicket.getData(stack).write(NBTTagCompound())
     }
 
     override fun addWaypoint(pos: BlockPos, boost: Double?) {
@@ -118,7 +118,7 @@ abstract class ItemPathHolder(val stack: ItemStack, val mappingTable: TileEntity
         if(nbt().getBoolean("${MoarBoats.ModID}.loops")) { // retro-compatibility
             loopingOption = LoopingOptions.Loops
         }
-        if(nbt().hasKey("${MoarBoats.ModID}.loopingOption")) {
+        if(nbt().contains("${MoarBoats.ModID}.loopingOption")) {
             loopingOption = LoopingOptions.values()[nbt().getInt("${MoarBoats.ModID}.loopingOption").coerceIn(LoopingOptions.values().indices)]
         }
         return loopingOption

@@ -159,7 +159,7 @@ class GuiEngineModule(playerInventory: InventoryPlayer, engine: BoatModule, boat
     }
 
     private fun renderSpeedIcon(ordinal: Int, x: Int, y: Int) {
-        GlStateManager.color3f(1f, 1f, 1f, 1f)
+        GlStateManager.color4f(1f, 1f, 1f, 1f)
         val width = 20
         val height = 20
         val tessellator = Tessellator.getInstance()

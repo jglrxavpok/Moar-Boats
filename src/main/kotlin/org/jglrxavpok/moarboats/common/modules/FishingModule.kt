@@ -84,8 +84,8 @@ object FishingModule : BoatModule() {
                 val lootList = NBTTagList()
                 result.forEach {
                     val info = NBTTagCompound()
-                    info.setString("name", it.item.registryName.toString())
-                    info.setInt("damage", it.damage)
+                    info.putString("name", it.item.registryName.toString())
+                    info.putInt("damage", it.damage)
                     lootList.add(info)
                 }
                 lastLootProperty[from] = lootList

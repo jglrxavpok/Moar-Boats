@@ -2,18 +2,13 @@ package org.jglrxavpok.moarboats.common.items
 
 import net.minecraft.block.BlockFence
 import net.minecraft.client.util.ITooltipFlag
-import net.minecraft.creativetab.CreativeTabs
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLeashKnot
-import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.item.EnumAction
-import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.*
 import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.RayTraceResult
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.TextComponentTranslation
 import net.minecraft.world.World
@@ -38,7 +33,7 @@ object RopeItem : MoarBoatsItem("rope") {
     private val ropeInfo = TextComponentTranslation("item.rope.description")
 
     private fun setLinked(worldIn: World, stack: ItemStack, entity: BasicBoatEntity) {
-        nbt(stack).setInt("linked", entity.entityId)
+        nbt(stack).putInt("linked", entity.entityId)
     }
 
     private fun getLinked(worldIn: World, stack: ItemStack): BasicBoatEntity? {
@@ -53,11 +48,11 @@ object RopeItem : MoarBoatsItem("rope") {
     }
 
     private fun resetLinked(itemstack: ItemStack) {
-        nbt(itemstack).removeTag("linked")
+        nbt(itemstack).remove("linked")
     }
 
     fun getState(stack: ItemStack): State {
-        if(nbt(stack).hasKey("linked"))
+        if(nbt(stack).contains("linked"))
             return State.WAITING_NEXT
         return State.READY
     }

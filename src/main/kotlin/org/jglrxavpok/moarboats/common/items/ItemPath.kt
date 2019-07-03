@@ -10,6 +10,7 @@ import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.TextComponentString
 import net.minecraft.util.text.TextComponentTranslation
 import net.minecraft.world.World
+import net.minecraft.world.dimension.DimensionType
 import net.minecraft.world.storage.WorldSavedData
 import net.minecraft.world.storage.WorldSavedDataStorage
 import net.minecraftforge.api.distmarker.Dist
@@ -46,14 +47,14 @@ object ItemMapWithPath: ItemPath("map_with_path") {
 
     override fun setLoopingOptions(stack: ItemStack, options: LoopingOptions) {
         if(stack.hasTag()) {
-            stack.tag!!.setInt("${MoarBoats.ModID}.loopingOption", options.ordinal)
+            stack.tag!!.putInt("${MoarBoats.ModID}.loopingOption", options.ordinal)
         }
     }
 
     override fun getLoopingOptions(stack: ItemStack): LoopingOptions {
         if(!stack.hasTag())
             stack.tag = NBTTagCompound()
-        if(stack.tag!!.getBoolean("${MoarBoats.ModID}.loops") && ! stack.tag!!.hasKey("${MoarBoats.ModID}.loopingOption")) { // retro-compatibility
+        if(stack.tag!!.getBoolean("${MoarBoats.ModID}.loops") && ! stack.tag!!.contains("${MoarBoats.ModID}.loopingOption")) { // retro-compatibility
             return LoopingOptions.Loops
         }
         return LoopingOptions.values()[stack.tag!!.getInt("${MoarBoats.ModID}.loopingOption").coerceIn(LoopingOptions.values().indices)]
@@ -68,9 +69,9 @@ object ItemMapWithPath: ItemPath("map_with_path") {
     fun createStack(list: NBTTagList, mapID: String, loopingOptions: LoopingOptions): ItemStack {
         val result = ItemStack(this)
         result.tag = NBTTagCompound().apply {
-            setTag("${MoarBoats.ModID}.path", list)
-            setString("${MoarBoats.ModID}.mapID", mapID)
-            setInt("${MoarBoats.ModID}.loopingOption", loopingOptions.ordinal)
+            put("${MoarBoats.ModID}.path", list)
+            putString("${MoarBoats.ModID}.mapID", mapID)
+            putInt("${MoarBoats.ModID}.loopingOption", loopingOptions.ordinal)
         }
         return result
     }
@@ -95,9 +96,9 @@ object ItemGoldenTicket: ItemPath("golden_ticket") {
         }
 
         override fun write(compound: NBTTagCompound): NBTTagCompound {
-            compound.setTag("${MoarBoats.ModID}.path", backingList)
-            compound.setInt("${MoarBoats.ModID}.loopingOption", loopingOption.ordinal)
-            compound.setString("${MoarBoats.ModID}.mapID", mapID)
+            compound.put("${MoarBoats.ModID}.path", backingList)
+            compound.putInt("${MoarBoats.ModID}.loopingOption", loopingOption.ordinal)
+            compound.putString("${MoarBoats.ModID}.mapID", mapID)
             return compound
         }
 
@@ -106,7 +107,7 @@ object ItemGoldenTicket: ItemPath("golden_ticket") {
             if(nbt.getBoolean("${MoarBoats.ModID}.loops")) { // retro-compatibility
                 loopingOption = LoopingOptions.Loops
             }
-            if(nbt.hasKey("${MoarBoats.ModID}.loopingOption")) {
+            if(nbt.contains("${MoarBoats.ModID}.loopingOption")) {
                 loopingOption = LoopingOptions.values()[nbt.getInt("${MoarBoats.ModID}.loopingOption").coerceIn(LoopingOptions.values().indices)]
             }
 
@@ -137,7 +138,7 @@ object ItemGoldenTicket: ItemPath("golden_ticket") {
     }
 
     fun initStack(stack: ItemStack, uuid: UUID) {
-        stack.getOrCreateChildTag("${MoarBoats.ModID}.path").setUniqueId("path_uuid", uuid)
+        stack.getOrCreateChildTag("${MoarBoats.ModID}.path").putUniqueId("path_uuid", uuid)
     }
 
     fun getUUID(stack: ItemStack): UUID? {
@@ -153,7 +154,7 @@ object ItemGoldenTicket: ItemPath("golden_ticket") {
 
     fun createStack(uuid: String): ItemStack {
         val result = ItemStack(this)
-        result.getOrCreateChildTag("${MoarBoats.ModID}.path").setUniqueId("path_uuid", UUID.fromString(uuid))
+        result.getOrCreateChildTag("${MoarBoats.ModID}.path").putUniqueId("path_uuid", UUID.fromString(uuid))
         return result
     }
 
@@ -166,7 +167,7 @@ object ItemGoldenTicket: ItemPath("golden_ticket") {
         if(mapStack.tag!!.getBoolean("${MoarBoats.ModID}.loops")) { // retro-compatibility
             loopingOption = LoopingOptions.Loops
         }
-        if(mapStack.tag!!.hasKey("${MoarBoats.ModID}.loopingOption")) {
+        if(mapStack.tag!!.contains("${MoarBoats.ModID}.loopingOption")) {
             loopingOption = LoopingOptions.values()[mapStack.tag!!.getInt("${MoarBoats.ModID}.loopingOption").coerceIn(LoopingOptions.values().indices)]
         }
         updateItinerary(stack, map.getWaypointData(mapStack, mapStorage), mapID, loopingOption, mapStorage)
@@ -178,7 +179,7 @@ object ItemGoldenTicket: ItemPath("golden_ticket") {
         data.backingList = list
         data.loopingOption = option
         data.mapID = mapID
-        mapStorage.setData(uuid, data)
+        mapStorage.set(DimensionType.OVERWORLD, uuid, data)
 
         DistExecutor.callWhenOn(Dist.DEDICATED_SERVER) {
             MoarBoats.network.sendToAll(SSetGoldenItinerary(data))
@@ -189,10 +190,10 @@ object ItemGoldenTicket: ItemPath("golden_ticket") {
         val mapStorage = MoarBoats.getLocalMapStorage()
         val uuid = getUUID(stack)
         val uuidString = uuid.toString()
-        var data = mapStorage.getOrLoadData(WaypointData::class.java, uuidString) as? WaypointData
+        var data = mapStorage.get(DimensionType.OVERWORLD, ::WaypointData, uuidString)
         if(data == null) {
             data = WaypointData(uuidString)
-            mapStorage.setData(uuidString, data)
+            mapStorage.set(DimensionType.OVERWORLD, uuidString, data)
         }
         return data
     }

@@ -91,7 +91,7 @@ object FurnaceEngineModule : BaseEngineModule() {
             val cos = MathHelper.cos((boat.yaw + 90f).toRadians())
             val sin = MathHelper.sin((boat.yaw + 90f).toRadians())
             val dist = 0.5
-            boat.worldRef.spawnParticle(Particles.LARGE_SMOKE, boat.positionX + dist * cos, boat.positionY + 0.8, boat.positionZ + dist * sin, 0.0, 0.0, 0.0)
+            boat.worldRef.addParticle(Particles.LARGE_SMOKE, boat.positionX + dist * cos, boat.positionY + 0.8, boat.positionZ + dist * sin, 0.0, 0.0, 0.0)
         }
     }
 

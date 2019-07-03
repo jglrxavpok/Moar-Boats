@@ -64,11 +64,11 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(world) {
 
     override fun onUpdate() {
         super.onUpdate()
-        val list = this.world.getEntitiesInAABBexcluding(this, this.entityBoundingBox.grow(0.20000000298023224, 0.009999999776482582, 0.20000000298023224), EntitySelectors.getTeamCollisionPredicate(this))
+        val list = this.world.getEntitiesInAABBexcluding(this, this.boundingBox.grow(0.20000000298023224, 0.009999999776482582, 0.20000000298023224), EntitySelectors.getTeamCollisionPredicate(this))
 
         for (entity in list) {
             if (!entity.isPassenger(this)) {
-                if (this.passengers.isEmpty() && !entity.isRiding && entity.width < this.width && entity is EntityLivingBase && entity !is EntityWaterMob && entity !is EntityPlayer) {
+                if (this.passengers.isEmpty() && entity.ridingEntity == null && entity.width < this.width && entity is EntityLivingBase && entity !is EntityWaterMob && entity !is EntityPlayer) {
                     entity.startRiding(this)
                 }
             }
@@ -92,7 +92,7 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(world) {
 
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative) {
-            dropItem(AnimalBoatItem, 1)
+            entityDropItem(AnimalBoatItem, 1)
         }
     }
 
@@ -146,7 +146,7 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(world) {
 
     override fun updatePassenger(passenger: Entity) {
         if (this.isPassenger(passenger)) {
-            val f1 = ((if (this.isDead) 0.009999999776482582 else this.mountedYOffset) + passenger.yOffset).toFloat()
+            val f1 = ((if ( ! this.isAlive) 0.009999999776482582 else this.mountedYOffset) + passenger.yOffset).toFloat()
 
             passenger.setPosition(this.posX, this.posY + f1.toDouble(), this.posZ)
             passenger.rotationYaw += this.deltaRotation

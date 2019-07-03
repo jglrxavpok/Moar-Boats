@@ -5,6 +5,7 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemMap
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
+import net.minecraft.world.dimension.DimensionType
 import net.minecraft.world.storage.MapData
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import net.minecraftforge.fml.common.network.IGuiHandler
@@ -52,7 +53,7 @@ object MoarBoatsGuiHandler: IGuiHandler {
                         }
                         is ItemMapWithPath -> {
                             val id = stack.tag!!.getString("${MoarBoats.ModID}.mapID")
-                            val mapData = MoarBoats.getLocalMapStorage().getOrLoadData(MapData::class.java, id) as? MapData
+                            val mapData = MoarBoats.getLocalMapStorage().get(DimensionType.OVERWORLD, ::MapData, id) as? MapData
                             if(mapData != null && mapData != EmptyMapData) {
                                 GuiPathEditor(player, MapWithPathHolder(stack, null, boat), mapData)
                             } else {
@@ -61,7 +62,7 @@ object MoarBoatsGuiHandler: IGuiHandler {
                         }
                         is ItemGoldenTicket -> {
                             val id = ItemGoldenTicket.getData(stack).mapID
-                            val mapData = MoarBoats.getLocalMapStorage().getOrLoadData(MapData::class.java, id) as? MapData
+                            val mapData = MoarBoats.getLocalMapStorage().get(DimensionType.OVERWORLD, ::MapData, id) as? MapData
                             if(mapData != null && mapData != EmptyMapData) {
                                 GuiPathEditor(player, GoldenTicketPathHolder(stack, null, boat), mapData)
                             } else {

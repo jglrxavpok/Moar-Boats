@@ -5,7 +5,7 @@ import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.ResourceLocation
-import net.minecraftforge.fml.client.GuiScrollingList
+import net.minecraftforge.fml.client.config.GuiUtils.drawGradientRect
 
 class GuiWaypointList(val mc: Minecraft, val parent: GuiMappingTable, width: Int, height: Int, top: Int, left: Int, entryHeight: Int, screenWidth: Int, screenHeight: Int):
         GuiScrollingList(mc, width, height, top, top+height, left, entryHeight, screenWidth, screenHeight) {
@@ -24,7 +24,7 @@ class GuiWaypointList(val mc: Minecraft, val parent: GuiMappingTable, width: Int
 
     override fun drawSlot(slotIdx: Int, entryRight: Int, slotTop: Int, slotBuffer: Int, tess: Tessellator) {
         GlStateManager.disableLighting()
-        GlStateManager.color(1f, 1f, 1f)
+        GlStateManager.color3f(1f, 1f, 1f)
         if(slotIdx >= slots.size)
             return
         val slot = slots[slotIdx]
@@ -34,15 +34,15 @@ class GuiWaypointList(val mc: Minecraft, val parent: GuiMappingTable, width: Int
         }
         mc.fontRenderer.drawString(name, left+4, slotTop+1, 0xFFFFFF)
         GlStateManager.pushMatrix()
-        GlStateManager.translate(left+4f, slotTop+10f, 0f)
+        GlStateManager.translatef(left+4f, slotTop+10f, 0f)
         val scale = 0.5f
-        GlStateManager.scale(scale, scale, 1f)
+        GlStateManager.scalef(scale, scale, 1f)
         val text = "X: ${slot.getDouble("x")}, Z: ${slot.getDouble("z")}" +
                 if(slot.getBoolean("hasBoost")) " (${(slot.getDouble("boost")*100).toInt()}%)"
                 else ""
         mc.fontRenderer.drawString(text, 0, 0, 0xFFFFFF)
         GlStateManager.popMatrix()
-        GlStateManager.color(1f, 1f, 1f)
+        GlStateManager.color3f(1f, 1f, 1f)
         mc.textureManager.bindTexture(ArrowsTexture)
         if(mouseX >= entryRight-32 && mouseX < entryRight && mouseY >= slotTop && mouseY <= slotTop+slotHeight) {
             val hoveredOffsetBottom = if(mouseY-slotTop >= slotHeight/2) 1 else 0

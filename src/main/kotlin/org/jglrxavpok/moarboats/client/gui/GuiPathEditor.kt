@@ -41,7 +41,7 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
     private val mapScale = (1 shl mapData.scale.toInt())
     private val size = mapScale*128
     private val stripes = size/ StripeLength
-    private val areaTexture = DynamicTexture(size, size)
+    private val areaTexture = DynamicTexture(size, size, true)
     private val areaResLocation: ResourceLocation
     private var sentImageRequest = false
     private val stripesReceived = BooleanArray(stripes)

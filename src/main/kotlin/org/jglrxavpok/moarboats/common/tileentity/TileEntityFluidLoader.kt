@@ -142,8 +142,8 @@ class TileEntityFluidLoader: TileEntityListenable(MoarBoats.TileEntityFluidLoade
     }
 
     override fun write(compound: NBTTagCompound): NBTTagCompound {
-        compound.setInt("fluidAmount", fluidAmount)
-        compound.setString("fluidName", fluid?.name ?: "")
+        compound.putInt("fluidAmount", fluidAmount)
+        compound.putString("fluidName", fluid?.name ?: "")
         return super.write(compound)
     }
 

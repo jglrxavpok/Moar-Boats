@@ -286,15 +286,15 @@ object HelmModule: BoatModule(), BlockReason {
     fun addWaypointToList(waypointsData: NBTTagList, blockX: Int, blockZ: Int, boost: Double?, insertionIndex: Int?) {
         val waypointNBT = NBTTagCompound()
         if(insertionIndex != null) {
-            waypointNBT.setString("name", "${(waypointsData[insertionIndex] as NBTTagCompound).getString("name")}+")
+            waypointNBT.putString("name", "${(waypointsData[insertionIndex] as NBTTagCompound).getString("name")}+")
         } else {
-            waypointNBT.setString("name", "Waypoint ${waypointsData.size+1}")
+            waypointNBT.putString("name", "Waypoint ${waypointsData.size+1}")
         }
-        waypointNBT.setInt("x", blockX)
-        waypointNBT.setInt("z", blockZ)
-        waypointNBT.setBoolean("hasBoost", boost != null)
+        waypointNBT.putInt("x", blockX)
+        waypointNBT.putInt("z", blockZ)
+        waypointNBT.putBoolean("hasBoost", boost != null)
         if(boost != null)
-            waypointNBT.setDouble("boost", boost)
+            waypointNBT.putDouble("boost", boost)
         if(insertionIndex == null || insertionIndex >= waypointsData.size || insertionIndex < 0) {
             waypointsData.add(waypointNBT)
         } else {

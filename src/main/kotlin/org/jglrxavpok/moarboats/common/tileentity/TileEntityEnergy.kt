@@ -25,7 +25,7 @@ abstract class TileEntityEnergy(tileEntityType: TileEntityType<out TileEntityEne
     }
 
     override fun write(compound: NBTTagCompound): NBTTagCompound {
-        compound.setInt("energy", energy)
+        compound.putInt("energy", energy)
         return super.write(compound)
     }
 

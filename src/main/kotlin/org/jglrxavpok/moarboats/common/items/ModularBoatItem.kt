@@ -92,7 +92,7 @@ abstract class BaseBoatItem: Item(Item.Properties().group(MoarBoats.CreativeTab)
                 val entityboat = createBoat(worldIn, raytraceresult, inUsualFluid, itemstack, playerIn)
                 entityboat.rotationYaw = playerIn.rotationYaw
 
-                return if (!worldIn.getCollisionBoxes(entityboat, entityboat.boundingBox.grow(-0.1), 0.0, 0.0, 0.0).isEmpty()) {
+                return if (worldIn.getCollisionBoxes(entityboat, entityboat.boundingBox.grow(-0.1), 0.0, 0.0, 0.0).count() != 0L) {
                     ActionResult(EnumActionResult.FAIL, itemstack)
                 } else {
                     if (!worldIn.isRemote) {

@@ -70,7 +70,7 @@ abstract class BaseModuleInventory(slotCount: Int, inventoryName: String, boat: 
     override fun setField(id: Int, value: Int) {
         val key = id2key(id)
         if(key != null) {
-            getModuleState().setInt(key, value)
+            getModuleState().putInt(key, value)
             saveModuleState()
         }
     }

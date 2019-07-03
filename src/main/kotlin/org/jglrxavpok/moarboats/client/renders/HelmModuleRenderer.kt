@@ -96,8 +96,8 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         GlStateManager.translated(x+margins, y+margins, 0.0)
         GlStateManager.scalef(0.0078125f, 0.0078125f, 0.0078125f)
         GlStateManager.scaled(mapSize-margins*2, mapSize-margins*2, 0.0)
-        mc.entityRenderer.mapItemRenderer.updateMapTexture(mapdata)
-        mc.entityRenderer.mapItemRenderer.renderMap(mapdata, true)
+        mc.gameRenderer.mapItemRenderer.updateMapTexture(mapdata)
+        mc.gameRenderer.mapItemRenderer.renderMap(mapdata, true)
         GlStateManager.enableBlend()
         GlStateManager.translated(0.0, 0.0, 1.0)
 

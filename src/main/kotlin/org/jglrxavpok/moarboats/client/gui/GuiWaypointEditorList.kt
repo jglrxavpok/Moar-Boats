@@ -35,33 +35,33 @@ class GuiWaypointEditorList(val mc: Minecraft, val parent: GuiWaypointEditor, wi
         GlStateManager.disableLighting()
         // TODO: merge with rendering code of GuiWaypointList
         GlStateManager.pushMatrix()
-        GlStateManager.color(1f, 1f, 1f)
+        GlStateManager.color3f(1f, 1f, 1f)
         mc.textureManager.bindTexture(ArrowsTexture)
         val hovered = if(mouseX >= left && mouseX < left+16 && mouseY >= slotTop && mouseY < slotTop+slotHeight) 1 else 0
 
         val arrowScale = 0.75
         GlStateManager.pushMatrix()
-        GlStateManager.translate(left.toFloat(), slotTop-4f, 0f)
-        GlStateManager.scale(arrowScale, arrowScale, arrowScale)
+        GlStateManager.translatef(left.toFloat(), slotTop-4f, 0f)
+        GlStateManager.scaled(arrowScale, arrowScale, arrowScale)
         parent.drawTexturedModalRect(0, 0, 32, hovered*32, 32, 32) // top
         GlStateManager.popMatrix()
 
         val slot = waypoints[slotIdx]
         val name = slot.name
 
-        GlStateManager.translate(16f, 0f, 0f)
+        GlStateManager.translatef(16f, 0f, 0f)
 
         mc.fontRenderer.drawString(name, left+4, slotTop+1, 0xFFFFFF)
         GlStateManager.pushMatrix()
-        GlStateManager.translate(left+4f, slotTop+10f, 0f)
+        GlStateManager.translatef(left+4f, slotTop+10f, 0f)
         val scale = 0.5f
-        GlStateManager.scale(scale, scale, 1f)
+        GlStateManager.scalef(scale, scale, 1f)
         val text = "X: ${slot.x}, Z: ${slot.z}" +
                 if(slot.boost != null) " (${(slot.boost*100).toInt()}%)"
                 else ""
         mc.fontRenderer.drawString(text, 0, 0, 0xFFFFFF)
         GlStateManager.popMatrix()
-        GlStateManager.color(1f, 1f, 1f)
+        GlStateManager.color3f(1f, 1f, 1f)
         slotTops[slotIdx] = slotTop
         GlStateManager.popMatrix()
     }

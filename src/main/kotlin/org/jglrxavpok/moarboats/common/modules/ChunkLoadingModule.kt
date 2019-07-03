@@ -51,7 +51,7 @@ object ChunkLoadingModule: BoatModule() {
             val vx = (Math.random() * 2 -1) * 0.2
             val vy = 0.3
             val vz = (Math.random() * 2 -1) * 0.2
-            world.spawnParticle(Particles.PORTAL, posX, posY, posZ, vx, vy, vz)
+            world.addParticle(Particles.PORTAL, posX, posY, posZ, vx, vy, vz)
         }
     }
 

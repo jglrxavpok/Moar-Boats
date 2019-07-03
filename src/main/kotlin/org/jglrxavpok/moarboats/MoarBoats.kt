@@ -198,10 +198,10 @@ object MoarBoats {
         try {
             return DistExecutor.runForDist(
                     // client
-                    { Supplier<WorldSavedDataStorage>  {  ->
+                    { Supplier {  ->
                         when {
-                            Minecraft.getInstance().integratedServer == null /* Client only */ -> Minecraft.getInstance().world.mapStorage!!
-                            Minecraft.getInstance().integratedServer != null /* LAN */ -> Minecraft.getInstance().integratedServer!!.getWorld(dimensionType).mapStorage!!
+                            Minecraft.getInstance().integratedServer == null /* Client only */ -> Minecraft.getInstance().world.savedDataStorage!!
+                            Minecraft.getInstance().integratedServer != null /* LAN */ -> Minecraft.getInstance().integratedServer!!.getWorld(dimensionType).savedDataStorage!!
 
                             else -> throw IllegalStateException("The server instance is neither non-null nor null. Something deeply broke somewhere")
                         }
@@ -209,7 +209,7 @@ object MoarBoats {
 
                     // server
                     { Supplier<WorldSavedDataStorage> { ->
-                        Minecraft.getInstance().integratedServer!!.getWorld(dimensionType).mapStorage!!
+                        Minecraft.getInstance().integratedServer!!.getWorld(dimensionType).savedDataStorage!!
                     }}
             )
         } catch (e: Throwable) {
