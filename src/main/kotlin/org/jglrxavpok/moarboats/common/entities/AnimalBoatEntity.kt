@@ -15,23 +15,21 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
-import net.minecraftforge.common.ForgeChunkManager
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleInventory
+import org.jglrxavpok.moarboats.common.EntityEntries
 import org.jglrxavpok.moarboats.common.items.AnimalBoatItem
-import org.jglrxavpok.moarboats.common.items.ModularBoatItem
 import org.jglrxavpok.moarboats.common.state.BoatProperty
 import org.jglrxavpok.moarboats.extensions.Fluids
 import org.jglrxavpok.moarboats.extensions.toRadians
 import java.util.*
 
-class AnimalBoatEntity(world: World): BasicBoatEntity(world) {
+class AnimalBoatEntity(world: World): BasicBoatEntity(EntityEntries.AnimalBoat, world) {
     override val entityID: Int
         get() = entityId
 
     override val modules: List<BoatModule> = emptyList()
     override val moduleRNG: Random = Random()
-    override val chunkTicket = null
 
     init {
         this.preventEntitySpawning = true
@@ -62,9 +60,9 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(world) {
         return 0.0
     }
 
-    override fun onUpdate() {
-        super.onUpdate()
-        val list = this.world.getEntitiesInAABBexcluding(this, this.boundingBox.grow(0.20000000298023224, 0.009999999776482582, 0.20000000298023224), EntitySelectors.getTeamCollisionPredicate(this))
+    override fun tick() {
+        super.tick()
+        val list = this.world.getEntitiesInAABBexcluding(this, this.boundingBox.grow(0.20000000298023224, 0.009999999776482582, 0.20000000298023224), EntitySelectors.pushableBy(this))
 
         for (entity in list) {
             if (!entity.isPassenger(this)) {
@@ -96,7 +94,7 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(world) {
         }
     }
 
-    override fun isValidLiquidBlock(blockstate: IBlockState) = Fluids.isUsualLiquidBlock(blockstate)
+    override fun isValidLiquidBlock(pos: BlockPos) = Fluids.isUsualLiquidBlock(pos)
 
     override fun attackEntityFrom(source: DamageSource, amount: Float) = when(source) {
         DamageSource.LAVA, DamageSource.IN_FIRE, DamageSource.ON_FIRE -> false

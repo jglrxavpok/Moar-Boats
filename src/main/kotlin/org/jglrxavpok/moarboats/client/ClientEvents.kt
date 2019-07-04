@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.client
 
+import net.alexwells.kottle.KotlinEventBusSubscriber
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.AbstractClientPlayer
 import net.minecraft.client.renderer.GlStateManager
@@ -24,6 +25,7 @@ import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.client.registry.RenderingRegistry
 import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.models.ModelPatreonHook
 import org.jglrxavpok.moarboats.client.renders.*
@@ -35,8 +37,8 @@ import org.jglrxavpok.moarboats.common.entities.AnimalBoatEntity
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.items.ModularBoatItem
 
-@Mod.EventBusSubscriber(value = [Dist.CLIENT], modid = MoarBoats.ModID)
-class Proxy: MoarBoatsProxy() {
+@KotlinEventBusSubscriber(value = [Dist.CLIENT], modid = MoarBoats.ModID)
+object ClientEvents {
 
     val hookTextureLocation = ResourceLocation(MoarBoats.ModID, "textures/hook.png")
     val fakePlayerModel = ModelPlayer(0f, false)
@@ -48,8 +50,13 @@ class Proxy: MoarBoatsProxy() {
             32, 48, -1.0f, -2.0f, -2.0f, 4, 9, 4, 0.0f + 0.25f)
     val hookModel = ModelPatreonHook()
 
-    override fun init() {
-        super.init()
+    fun doClientStuff(event: FMLClientSetupEvent) {
+        MinecraftForge.EVENT_BUS.register(this)
+
+        val mc = event.minecraftSupplier.get()
+        RenderingRegistry.registerEntityRenderingHandler(ModularBoatEntity::class.java, ::RenderModularBoat)
+        RenderingRegistry.registerEntityRenderingHandler(AnimalBoatEntity::class.java, ::RenderAnimalBoat)
+
         BoatModuleRenderingRegistry.register(FurnaceEngineRenderer)
         BoatModuleRenderingRegistry.register(ChestModuleRenderer)
         BoatModuleRenderingRegistry.register(HelmModuleRenderer)
@@ -72,13 +79,13 @@ class Proxy: MoarBoatsProxy() {
             it.registerModuleRenderers(BoatModuleRenderingRegistry)
         }
 
-        Minecraft.getInstance().itemColors.register({ stack, tint ->
-            EnumDyeColor.values()[stack.damage % EnumDyeColor.values().size].colorValue
-        }, arrayOf(ModularBoatItem))
-    }
+        mc.itemColors.register({ stack, tint ->
+            (stack.item as ModularBoatItem).dyeColor.colorValue
+        }, *ModularBoatItem.AllVersions)
 
-    override fun postInit() {
-        val mc = Minecraft.getInstance()
+
+        // ex postInit()
+        // TODO: check if still works
         mc.renderManager.skinMap["default"]!!.apply {
             this.addLayer(MoarBoatsPatreonHookLayer(this))
         }
@@ -86,14 +93,7 @@ class Proxy: MoarBoatsProxy() {
             this.addLayer(MoarBoatsPatreonHookLayer(this))
         }
     }
-
-    override fun preInit() {
-        MinecraftForge.EVENT_BUS.register(this)
-        super.preInit()
-        RenderingRegistry.registerEntityRenderingHandler(ModularBoatEntity::class.java, ::RenderModularBoat)
-        RenderingRegistry.registerEntityRenderingHandler(AnimalBoatEntity::class.java, ::RenderAnimalBoat)
-    }
-
+/* FIXME: Still necessary ?
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     fun registerModels(event: ModelRegistryEvent) {
@@ -108,7 +108,7 @@ class Proxy: MoarBoatsProxy() {
         for(block in Blocks.list) {
             ModelLoader.setCustomModelResourceLocation(ItemBlock.getItemFromBlock(block), 0, ModelResourceLocation(block.registryName.toString(), "inventory"))
         }
-    }
+    }*/
 
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent

@@ -14,8 +14,8 @@ class MapImageStripe(val id: String): WorldSavedData(id) {
     }
 
     override fun write(compound: NBTTagCompound): NBTTagCompound {
-        compound.setInt("index", index)
-        compound.setIntArray("stripe", textureStripe)
+        compound.putInt("index", index)
+        compound.putIntArray("stripe", textureStripe)
         return compound
     }
 

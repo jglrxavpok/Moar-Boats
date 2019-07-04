@@ -20,6 +20,48 @@ import org.jglrxavpok.moarboats.extensions.Fluids
 // FIXME: Change to class, with one instance per color
 class ModularBoatItem(val dyeColor: EnumDyeColor): BaseBoatItem() {
 
+    companion object {
+        val White = ModularBoatItem(EnumDyeColor.WHITE)
+        val Orange = ModularBoatItem(EnumDyeColor.ORANGE)
+        val Magenta = ModularBoatItem(EnumDyeColor.MAGENTA)
+        val LightBlue = ModularBoatItem(EnumDyeColor.LIGHT_BLUE)
+        val Yellow = ModularBoatItem(EnumDyeColor.YELLOW)
+        val Lime = ModularBoatItem(EnumDyeColor.LIME)
+        val Pink = ModularBoatItem(EnumDyeColor.PINK)
+        val Gray = ModularBoatItem(EnumDyeColor.GRAY)
+        val LightGray = ModularBoatItem(EnumDyeColor.LIGHT_GRAY)
+        val Cyan = ModularBoatItem(EnumDyeColor.CYAN)
+        val Purple = ModularBoatItem(EnumDyeColor.PURPLE)
+        val Blue = ModularBoatItem(EnumDyeColor.BLUE)
+        val Brown = ModularBoatItem(EnumDyeColor.BROWN)
+        val Green = ModularBoatItem(EnumDyeColor.GREEN)
+        val Red = ModularBoatItem(EnumDyeColor.RED)
+        val Black = ModularBoatItem(EnumDyeColor.BLACK)
+        // in same order as EnumDyeColor
+        val AllVersions = arrayOf(
+                White,
+                Orange,
+                Magenta,
+                LightBlue,
+                Yellow,
+                Lime,
+                Pink,
+                Gray,
+                LightGray,
+                Cyan,
+                Purple,
+                Blue,
+                Brown,
+                Green,
+                Red,
+                Black
+        )
+
+        operator fun get(color: EnumDyeColor): ModularBoatItem {
+            return AllVersions[color.ordinal]
+        }
+    }
+
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "modular_boat_${dyeColor.translationKey}")
     }

@@ -3,6 +3,7 @@ package org.jglrxavpok.moarboats.integration
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.common.MinecraftForge
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent
 import net.minecraftforge.fml.event.lifecycle.FMLModIdMappingEvent
 import net.minecraftforge.registries.IForgeRegistry
@@ -41,7 +42,7 @@ interface MoarBoatsPlugin {
  * This method looks for classes that implement MoarBoatsPlugin & have @MoarBoatsIntegration, check to see if their dependency
  * (the mod for which the plugin is made) is present and loads the plugin if that's the case
  */
-fun LoadIntegrationPlugins(event: FMLLoadCompleteEvent): List<MoarBoatsPlugin> {
+fun LoadIntegrationPlugins(event: FMLCommonSetupEvent): List<MoarBoatsPlugin> {
 
     // FIXME: Use IMC messages
     

@@ -18,14 +18,14 @@ object Fluids {
         else -> error("Unknown liquid type $blockstate (${blockstate.block}) in MoarBoats")
     }
 
-    fun getLiquidLocalLevel(blockstate: IBlockState) = when(blockstate.block) {
+    fun getLiquidLocalLevel(pos: BlockPos) = when(blockstate.block) {
         is BlockLiquid -> blockstate.get(BlockLiquid.LEVEL)
         is BlockFluidBase -> blockstate.get(BlockFluidBase.LEVEL)
         else -> error("Unknown liquid type $blockstate (${blockstate.block}) in MoarBoats")
     }
 
     fun getBlockLiquidHeight(blockstate: IBlockState, world: World, pos: BlockPos): Float {
-        val level = getLiquidLocalLevel(blockstate)
+        val level = getLiquidLocalLevel(pos)
         val blockUp = world.getBlockState(pos.up())
         return if(blockUp.material.isLiquid || blockUp.block is IFluidBlock)
             1.0f
@@ -33,5 +33,5 @@ object Fluids {
             1.0f - BlockLiquid.getLiquidHeightPercent(level)
     }
 
-    fun isUsualLiquidBlock(blockstate: IBlockState) = blockstate.block is BlockFluidBase || blockstate.block is BlockLiquid
+    fun isUsualLiquidBlock(pos: BlockPos) = blockstate.block is BlockFluidBase || blockstate.block is BlockLiquid
 }

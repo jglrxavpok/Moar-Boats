@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats
 
+import net.alexwells.kottle.FMLKotlinModLoadingContext
 import net.alexwells.kottle.KotlinEventBusSubscriber
 import net.minecraft.block.Block
 import net.minecraft.block.material.EnumPushReaction
@@ -13,6 +14,7 @@ import net.minecraft.item.ItemGroup
 import net.minecraft.item.ItemStack
 import net.minecraft.item.crafting.IRecipe
 import net.minecraft.network.datasync.DataSerializers
+import net.minecraft.server.dedicated.DedicatedServer
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.tileentity.TileEntityType
 import net.minecraft.util.ResourceLocation
@@ -25,12 +27,16 @@ import net.minecraftforge.event.RegistryEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.DistExecutor
 import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
+import net.minecraftforge.fml.event.lifecycle.FMLDedicatedServerSetupEvent
+import net.minecraftforge.fml.network.NetworkRegistry
 import net.minecraftforge.registries.RegistryBuilder
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.jglrxavpok.moarboats.api.BoatModuleEntry
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.api.registerModule
+import org.jglrxavpok.moarboats.client.ClientEvents
 import org.jglrxavpok.moarboats.common.*
 import org.jglrxavpok.moarboats.common.blocks.*
 import org.jglrxavpok.moarboats.common.items.*
@@ -51,12 +57,17 @@ import net.minecraft.init.Items as MCItems
 object MoarBoats {
     const val ModID = "moarboats"
 
+    internal var dedicatedServerInstance: DedicatedServer? = null
+
     val logger: Logger = LogManager.getLogger()
+    val NetworkingProtocolVersion = "v1.0"
 
-    @SidedProxy(clientSide = "org.jglrxavpok.moarboats.client.Proxy", serverSide = "org.jglrxavpok.moarboats.server.Proxy")
-    lateinit var proxy: MoarBoatsProxy
-
-    val network = SimpleNetworkWrapper(ModID)
+    val network = NetworkRegistry.ChannelBuilder
+            .named(ResourceLocation(ModID, "network"))
+            .networkProtocolVersion { NetworkingProtocolVersion }
+            .clientAcceptedVersions { NetworkingProtocolVersion == it }
+            .serverAcceptedVersions { NetworkingProtocolVersion == it }
+            .simpleChannel()
 
     val PatreonList: List<String> by lazy {
         try {
@@ -83,42 +94,44 @@ object MoarBoats {
 
     lateinit var plugins: List<MoarBoatsPlugin>
 
+    /* FIXME: For when Forge reimplements fluids
     lateinit var TileEntityFluidLoaderType: TileEntityType<TileEntityFluidLoader>
     lateinit var TileEntityFluidUnloaderType: TileEntityType<TileEntityFluidUnloader>
+     */
     lateinit var TileEntityEnergyLoaderType: TileEntityType<TileEntityEnergyLoader>
     lateinit var TileEntityEnergyUnloaderType: TileEntityType<TileEntityEnergyUnloader>
     lateinit var TileEntityMappingTableType: TileEntityType<TileEntityMappingTable>
 
+    init {
+        FMLKotlinModLoadingContext.get().modEventBus.addListener(ClientEvents::doClientStuff)
+        FMLKotlinModLoadingContext.get().modEventBus.addListener(this::initDedicatedServer)
+    }
+
     @SubscribeEvent
-    fun preInit(event: FMLPreInitializationEvent) {
+    fun preInit(event: FMLCommonSetupEvent) {
         MinecraftForge.EVENT_BUS.register(this)
         MinecraftForge.EVENT_BUS.register(ItemEventHandler)
         MinecraftForge.EVENT_BUS.register(MoarBoatsConfig::javaClass)
         proxy.preInit()
-        ForgeChunkManager.setForcedChunkLoadingCallback(MoarBoats) { tickets, world ->
+/* FIXME        ForgeChunkManager.setForcedChunkLoadingCallback(MoarBoats) { tickets, world ->
             for(ticket in tickets) {
                 for(pos in ticket.chunkList) {
                     ForgeChunkManager.forceChunk(ticket, pos)
                 }
             }
-        }
+        }*/
 
         plugins = LoadIntegrationPlugins(event)
         plugins.forEach(MoarBoatsPlugin::preInit)
-    }
-
-    @SubscribeEvent
-    fun postInit(event: FMLPostInitializationEvent) {
-        proxy.postInit()
+        DataSerializers.registerSerializer(ResourceLocationsSerializer)
+        DataSerializers.registerSerializer(UniqueIDSerializer)
+        plugins.forEach(MoarBoatsPlugin::init)
         plugins.forEach(MoarBoatsPlugin::postInit)
     }
 
     @SubscribeEvent
     fun init(event: FMLInitializationEvent) {
-        proxy.init()
-        DataSerializers.registerSerializer(ResourceLocationsSerializer)
-        DataSerializers.registerSerializer(UniqueIDSerializer)
-        plugins.forEach(MoarBoatsPlugin::init)
+        proxy.init() // FIXME: Packet initialization
     }
 
     @JvmStatic
@@ -129,6 +142,11 @@ object MoarBoats {
                 .setName(ResourceLocation(ModID, "module_registry"))
                 .setType(BoatModuleEntry::class.java)
                 .create()
+    }
+
+    @SubscribeEvent
+    fun initDedicatedServer(event: FMLDedicatedServerSetupEvent) {
+        dedicatedServerInstance = event.serverSupplier.get()
     }
 
     @SubscribeEvent
@@ -164,8 +182,10 @@ object MoarBoats {
         TileEntityEnergyUnloaderType = evt.registerTE(::TileEntityEnergyUnloader, BlockEnergyUnloader.registryName)
         TileEntityEnergyUnloaderType = evt.registerTE(::TileEntityEnergyUnloader, BlockEnergyUnloader.registryName)
         TileEntityEnergyLoaderType = evt.registerTE(::TileEntityEnergyLoader, BlockEnergyLoader.registryName)
+        /* FIXME
         TileEntityFluidUnloaderType = evt.registerTE(::TileEntityFluidUnloader, BlockFluidUnloader.registryName)
         TileEntityFluidLoaderType = evt.registerTE(::TileEntityFluidLoader, BlockFluidLoader.registryName)
+         */
         TileEntityMappingTableType = evt.registerTE(::TileEntityMappingTable, BlockMappingTable.registryName)
     }
 
@@ -209,7 +229,7 @@ object MoarBoats {
 
                     // server
                     { Supplier<WorldSavedDataStorage> { ->
-                        Minecraft.getInstance().integratedServer!!.getWorld(dimensionType).savedDataStorage!!
+                        dedicatedServerInstance!!.getWorld(dimensionType).savedDataStorage!!
                     }}
             )
         } catch (e: Throwable) {

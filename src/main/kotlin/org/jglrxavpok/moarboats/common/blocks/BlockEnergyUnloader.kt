@@ -1,10 +1,5 @@
 package org.jglrxavpok.moarboats.common.blocks
 
-import net.minecraft.block.Block
-import net.minecraft.block.BlockDirectional
-import net.minecraft.block.material.Material
-import net.minecraft.block.properties.PropertyEnum
-import net.minecraft.block.state.BlockStateContainer
 import net.minecraft.block.state.IBlockState
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
@@ -17,7 +12,6 @@ import net.minecraft.world.World
 import net.minecraft.world.chunk.BlockStateContainer
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
-import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergyLoader
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergyUnloader
 
 val Facing = PropertyEnum.create("facing", EnumFacing::class.java)
@@ -26,7 +20,7 @@ object BlockEnergyUnloader: MoarBoatsBlock() {
 
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "boat_energy_discharger")
-        defaultState = stateContainer.baseState.withProperty(Facing, EnumFacing.UP)
+        defaultState = stateContainer.baseState.with(Facing, EnumFacing.UP)
     }
 
     override fun createBlockState(): BlockStateContainer {

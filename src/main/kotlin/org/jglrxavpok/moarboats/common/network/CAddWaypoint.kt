@@ -2,13 +2,15 @@ package org.jglrxavpok.moarboats.common.network
 
 import io.netty.buffer.ByteBuf
 import net.minecraft.util.math.BlockPos
+import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
+import net.minecraftforge.fml.network.NetworkEvent
 import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 
-class CAddWaypoint(): IMessage {
+class CAddWaypoint(): MoarBoatsPacket {
 
     var x: Int = 0
     var z: Int = 0
@@ -42,12 +44,12 @@ class CAddWaypoint(): IMessage {
             buf.writeDouble(boost!!)
     }
 
-    object Handler: MBMessageHandler<CAddWaypoint, IMessage> {
-        override val packetClass = CAddWaypoint::class
-        override val receiverSide = Side.SERVER
+    object Handler: MBMessageHandler<CAddWaypoint, MoarBoatsPacket> {
+        override val packetClass = CAddWaypoint::class.java
+        override val receiverSide = Dist.DEDICATED_SERVER
 
-        override fun onMessage(message: CAddWaypoint, ctx: MessageContext): IMessage? {
-            val player = ctx.serverHandler.player
+        override fun onMessage(message: CAddWaypoint, ctx: NetworkEvent.Context): MoarBoatsPacket? {
+            val player = ctx.sender!!
             val world = player.world
             val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
 

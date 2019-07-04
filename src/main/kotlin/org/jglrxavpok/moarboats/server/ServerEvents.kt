@@ -1,21 +1,19 @@
 package org.jglrxavpok.moarboats.server
 
+import net.alexwells.kottle.KotlinEventBusSubscriber
 import net.minecraft.entity.player.EntityPlayerMP
+import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.event.entity.living.LivingEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraftforge.fml.common.Mod
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsProxy
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import org.jglrxavpok.moarboats.common.network.SSetGoldenItinerary
 
-class Proxy: MoarBoatsProxy() {
-
-
-    override fun preInit() {
-        super.preInit()
-        MinecraftForge.EVENT_BUS.register(this)
-    }
+@KotlinEventBusSubscriber(modid = MoarBoats.ModID, value = [Dist.DEDICATED_SERVER])
+object ServerEvents: MoarBoatsProxy() {
 
     @SubscribeEvent
     fun onPlayerUpdate(event: LivingEvent.LivingUpdateEvent) {

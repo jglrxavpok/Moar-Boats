@@ -1,19 +1,16 @@
 package org.jglrxavpok.moarboats.common.blocks
 
-import net.minecraft.block.Block
 import net.minecraft.block.SoundType
-import net.minecraft.block.material.Material
 import net.minecraft.block.state.IBlockState
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.init.Blocks
 import net.minecraft.inventory.Container
-import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.InventoryHelper
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
+import net.minecraft.world.IBlockReader
 import net.minecraft.world.World
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
@@ -29,7 +26,7 @@ object BlockMappingTable: MoarBoatsBlock({ sound(SoundType.STONE).hardnessAndRes
 
     override fun hasTileEntity(state: IBlockState) = true
 
-    override fun createTileEntity(world: World, state: IBlockState): TileEntity {
+    override fun createTileEntity(state: IBlockState?, world: IBlockReader?): TileEntity? {
         return TileEntityMappingTable()
     }
 
