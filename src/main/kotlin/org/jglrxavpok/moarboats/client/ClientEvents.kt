@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.entity.model.ModelRenderer
 import net.minecraft.client.renderer.model.ModelResourceLocation
 import net.minecraft.item.EnumDyeColor
 import net.minecraft.item.ItemBlock
+import net.minecraft.item.ItemStack
 import net.minecraft.util.EnumHand
 import net.minecraft.util.EnumHandSide
 import net.minecraft.util.ResourceLocation
@@ -72,14 +73,14 @@ object ClientEvents {
         BoatModuleRenderingRegistry.register(RudderModuleRenderer)
         BoatModuleRenderingRegistry.register(DropperModuleRenderer)
         BoatModuleRenderingRegistry.register(BatteryModuleRenderer)
-        BoatModuleRenderingRegistry.register(TankModuleRenderer)
+       // FIXME BoatModuleRenderingRegistry.register(TankModuleRenderer)
         BoatModuleRenderingRegistry.register(ChunkLoadingModuleRenderer)
         BoatModuleRenderingRegistry.register(OarEngineRenderer)
         MoarBoats.plugins.forEach {
             it.registerModuleRenderers(BoatModuleRenderingRegistry)
         }
 
-        mc.itemColors.register({ stack, tint ->
+        mc.itemColors.register({ stack: ItemStack, tint: Int ->
             (stack.item as ModularBoatItem).dyeColor.colorValue
         }, *ModularBoatItem.AllVersions)
 

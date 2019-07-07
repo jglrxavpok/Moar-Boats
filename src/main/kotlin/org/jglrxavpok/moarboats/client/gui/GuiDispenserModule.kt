@@ -28,12 +28,20 @@ class GuiDispenserModule(inventoryPlayer: InventoryPlayer, module: BoatModule, b
     private val orientationText = TextComponentTranslation("gui.dispenser.orientation")
     private val facings = arrayOf(EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.EAST, EnumFacing.WEST, EnumFacing.UP, EnumFacing.DOWN)
     private val facingSelectionTexLocation = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/dispenser_facings.png")
-    private val frontFacingButton = GuiButtonImage(0, 0,0,16,16, 0, 0, 32, facingSelectionTexLocation)
-    private val backFacingButton = GuiButtonImage(1, 0,0,16,16, 16, 0, 32, facingSelectionTexLocation)
-    private val leftFacingButton = GuiButtonImage(2, 0,0,16,16, 48, 0, 32, facingSelectionTexLocation)
-    private val rightFacingButton = GuiButtonImage(3, 0,0,16,16, 32, 0, 32, facingSelectionTexLocation)
-    private val upFacingButton = GuiButtonImage(4, 0,0,16,16, 0, 16, 32, facingSelectionTexLocation)
-    private val downFacingButton = GuiButtonImage(5, 0,0,16,16, 16, 16, 32, facingSelectionTexLocation)
+
+    private inner class GuiFacingButton(val facing: EnumFacing, textureOffsetX: Int, textureOffsetY: Int):
+            GuiButtonImage(facing.ordinal, 0, 0, 16, 16, textureOffsetX, textureOffsetY, 32, facingSelectionTexLocation) {
+        override fun onClick(mouseX: Double, mouseY: Double) {
+            MoarBoats.network.sendToServer(CChangeDispenserFacing(boat.entityID, module.id, facing))
+        }
+    }
+
+    private val frontFacingButton = GuiFacingButton(EnumFacing.NORTH, 0, 0)
+    private val backFacingButton = GuiFacingButton(EnumFacing.SOUTH, 16, 0)
+    private val leftFacingButton = GuiFacingButton(EnumFacing.EAST, 48, 0)
+    private val rightFacingButton = GuiFacingButton(EnumFacing.WEST, 32, 0)
+    private val upFacingButton = GuiFacingButton(EnumFacing.UP, 0, 16)
+    private val downFacingButton = GuiFacingButton(EnumFacing.DOWN, 16, 16)
     private val facingButtons = arrayOf(frontFacingButton, backFacingButton, leftFacingButton, rightFacingButton, upFacingButton, downFacingButton)
 
     private lateinit var periodSlider: GuiSlider
@@ -94,11 +102,4 @@ class GuiDispenserModule(inventoryPlayer: InventoryPlayer, module: BoatModule, b
         drawCenteredString(fontRenderer, orientationText.formattedText, 32, 25, 0xF0F0F0)
     }
 
-    override fun actionPerformed(button: GuiButton) {
-        super.actionPerformed(button)
-        if(button.id in 0 until facings.size) {
-            val selectedFacing = facings[button.id]
-            MoarBoats.network.sendToServer(CChangeDispenserFacing(boat.entityID, module.id, selectedFacing))
-        }
-    }
 }

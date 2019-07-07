@@ -7,6 +7,7 @@ import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.event.entity.living.LivingEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.network.PacketDistributor
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsProxy
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
@@ -25,7 +26,7 @@ object ServerEvents: MoarBoatsProxy() {
                 if(!ItemGoldenTicket.isEmpty(itemstack)) {
                     if(player.ticksExisted % 5 == 0) { // send every 5 ticks
                         val data = ItemGoldenTicket.getData(itemstack)
-                        MoarBoats.network.sendTo(SSetGoldenItinerary(data), player)
+                        MoarBoats.network.send(PacketDistributor.PLAYER.with { player }, SSetGoldenItinerary(data))
                     }
                 }
             }

@@ -42,11 +42,45 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
     private val propertyOneWayText = TextComponentTranslation("gui.path_editor.path_properties.one_way")
     private val propertyReverseCourseText = TextComponentTranslation("gui.path_editor.path_properties.reverse_course")
     private var buttonId = 0
-    private val addWaypointButton = GuiButton(buttonId++, 0, 0, addWaypointText.formattedText)
-    private val insertWaypointButton = GuiButton(buttonId++, 0, 0, insertWaypointText.formattedText)
-    private val editWaypointButton = GuiButton(buttonId++, 0, 0, editWaypointText.formattedText)
-    private val removeWaypointButton = GuiButton(buttonId++, 0, 0, removeWaypointText.formattedText)
-    private val loopingButton = GuiPropertyButton(buttonId++, listOf(Pair(propertyOneWayText.formattedText, 3), Pair(propertyLoopingText.formattedText, 2), Pair(propertyReverseCourseText.formattedText, 4)))
+    private val addWaypointButton = object: GuiButton(buttonId++, 0, 0, addWaypointText.formattedText) {
+        override fun onClick(mouseX: Double, mouseY: Double) {
+            waypointToEditAfterCreation = list.slots.size
+            if(inventorySlots.getSlot(0).stack.item == ItemGoldenTicket) {
+                MoarBoats.network.sendToServer(CAddWaypointToGoldenTicketFromMappingTable(te.pos, null, null, te))
+            } else {
+                MoarBoats.network.sendToServer(CAddWaypointToItemPathFromMappingTable(te.pos, null, null, te))
+            }
+        }
+    }
+    private val insertWaypointButton = object: GuiButton(buttonId++, 0, 0, insertWaypointText.formattedText) {
+        override fun onClick(mouseX: Double, mouseY: Double) {
+            waypointToEditAfterCreation = selectedIndex+1
+            if(inventorySlots.getSlot(0).stack.item == ItemGoldenTicket) {
+                MoarBoats.network.sendToServer(CAddWaypointToGoldenTicketFromMappingTable(te.pos, null, selectedIndex, te))
+            } else {
+                MoarBoats.network.sendToServer(CAddWaypointToItemPathFromMappingTable(te.pos, null, selectedIndex, te))
+            }
+        }
+    }
+    private val editWaypointButton = object: GuiButton(buttonId++, 0, 0, editWaypointText.formattedText) {
+        override fun onClick(mouseX: Double, mouseY: Double) {
+            edit(selectedIndex)
+        }
+    }
+    private val removeWaypointButton = object: GuiButton(buttonId++, 0, 0, removeWaypointText.formattedText) {
+        override fun onClick(mouseX: Double, mouseY: Double) {
+            if(inventorySlots.getSlot(0).stack.item == ItemGoldenTicket) {
+                MoarBoats.network.sendToServer(CRemoveWaypointFromGoldenTicketFromMappingTable(selectedIndex, te))
+            } else {
+                MoarBoats.network.sendToServer(CRemoveWaypointFromMapWithPathFromMappingTable(selectedIndex, te))
+            }
+        }
+    }
+    private val loopingButton = object: GuiPropertyButton(buttonId++, listOf(Pair(propertyOneWayText.formattedText, 3), Pair(propertyLoopingText.formattedText, 2), Pair(propertyReverseCourseText.formattedText, 4))) {
+        override fun onClick(mouseX: Double, mouseY: Double) {
+            MoarBoats.network.sendToServer(CChangeLoopingStateItemPathMappingTable(LoopingOptions.values()[propertyIndex], te))
+        }
+    }
     private val controls = listOf(addWaypointButton, insertWaypointButton, editWaypointButton, removeWaypointButton)
     private var waypointToEditAfterCreation = 0
 
@@ -84,42 +118,6 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
         loopingButton.x = 8 + guiLeft + 30
         loopingButton.y = guiTop + 6
         addButton(loopingButton)
-    }
-
-    override fun actionPerformed(button: GuiButton) {
-        super.actionPerformed(button)
-        when(button) {
-            loopingButton -> {
-                MoarBoats.network.sendToServer(CChangeLoopingStateItemPathMappingTable(LoopingOptions.values()[loopingButton.propertyIndex], te))
-            }
-
-            addWaypointButton -> {
-                waypointToEditAfterCreation = list.slots.size
-                if(inventorySlots.getSlot(0).stack.item == ItemGoldenTicket) {
-                    MoarBoats.network.sendToServer(CAddWaypointToGoldenTicketFromMappingTable(te.pos, null, null, te))
-                } else {
-                    MoarBoats.network.sendToServer(CAddWaypointToItemPathFromMappingTable(te.pos, null, null, te))
-                }
-            }
-            insertWaypointButton -> {
-                waypointToEditAfterCreation = selectedIndex+1
-                if(inventorySlots.getSlot(0).stack.item == ItemGoldenTicket) {
-                    MoarBoats.network.sendToServer(CAddWaypointToGoldenTicketFromMappingTable(te.pos, null, selectedIndex, te))
-                } else {
-                    MoarBoats.network.sendToServer(CAddWaypointToItemPathFromMappingTable(te.pos, null, selectedIndex, te))
-                }
-            }
-            editWaypointButton -> {
-                edit(selectedIndex)
-            }
-            removeWaypointButton -> {
-                if(inventorySlots.getSlot(0).stack.item == ItemGoldenTicket) {
-                    MoarBoats.network.sendToServer(CRemoveWaypointFromGoldenTicketFromMappingTable(selectedIndex, te))
-                } else {
-                    MoarBoats.network.sendToServer(CRemoveWaypointFromMapWithPathFromMappingTable(selectedIndex, te))
-                }
-            }
-        }
     }
 
     override fun tick() {

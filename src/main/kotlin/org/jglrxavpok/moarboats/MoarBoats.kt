@@ -163,7 +163,7 @@ object MoarBoats {
         event.registry.registerModule(RudderModule, RudderItem)
         event.registry.registerModule(DropperModule, MCBlocks.DROPPER.asItem(), { boat, module -> SimpleModuleInventory(3*5, "dropper", boat, module) })
         event.registry.registerModule(BatteryModule, BlockBoatBattery.asItem())
-        event.registry.registerModule(FluidTankModule, BlockBoatTank.asItem())
+       // FIXME event.registry.registerModule(FluidTankModule, BlockBoatTank.asItem())
         event.registry.registerModule(ChunkLoadingModule, ChunkLoaderItem, restriction = { MoarBoatsConfig.chunkLoader.allowed })
         event.registry.registerModule(OarEngineModule, OarsItem)
         plugins.forEach { it.registerModules(event.registry) }

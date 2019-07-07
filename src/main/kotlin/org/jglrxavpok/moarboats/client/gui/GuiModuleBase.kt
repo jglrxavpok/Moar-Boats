@@ -1,7 +1,7 @@
 package org.jglrxavpok.moarboats.client.gui
 
 import net.minecraft.client.Minecraft
-import net.minecraft.client.audio.PositionedSoundRecord
+import net.minecraft.client.audio.SimpleSound
 import net.minecraft.client.gui.Gui
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.client.network.NetworkPlayerInfo
@@ -67,17 +67,18 @@ abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, va
         this.renderHoveredToolTip(mouseX, mouseY)
     }
 
-    override fun mouseClicked(mouseX: Int, mouseY: Int, mouseButton: Int) {
+    override fun mouseClicked(mouseX: Double, mouseY: Double, mouseButton: Int): Boolean {
         if(mouseButton != 0 || (!attemptTabChange(mouseX, mouseY) && !attemptModuleRemoval(mouseX, mouseY))) {
-            super.mouseClicked(mouseX, mouseY, mouseButton)
+            return super.mouseClicked(mouseX, mouseY, mouseButton)
         }
+        return true
     }
 
-    fun attemptModuleRemoval(mouseX: Int, mouseY: Int): Boolean {
+    fun attemptModuleRemoval(mouseX: Double, mouseY: Double): Boolean {
         val hoveredTabIndex = tabs.indexOfFirst { it.isMouseOn(mouseX - 26+4, mouseY) }
         if(hoveredTabIndex != -1) {
             if(tabs[hoveredTabIndex].tabModule == module) {
-                mc.soundHandler.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 0.5f))
+                mc.soundHandler.play(SimpleSound.master(SoundEvents.UI_BUTTON_CLICK, 0.5f))
                 MoarBoats.network.sendToServer(CRemoveModule(boat.entityID, module.id))
                 return true
             }
@@ -85,12 +86,12 @@ abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, va
         return false
     }
 
-    fun attemptTabChange(mouseX: Int, mouseY: Int): Boolean {
+    fun attemptTabChange(mouseX: Double, mouseY: Double): Boolean {
         val hoveredTabIndex = tabs.indexOfFirst { it.isMouseOn(mouseX, mouseY) }
         if(hoveredTabIndex != -1) {
             val tab = tabs[hoveredTabIndex]
             if(tab.tabModule != module) {
-                mc.soundHandler.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f))
+                mc.soundHandler.play(SimpleSound.master(SoundEvents.UI_BUTTON_CLICK, 1.0f))
                 MoarBoats.network.sendToServer(COpenModuleGui(boat.entityID, tab.tabModule.id))
                 return true
             }
@@ -175,7 +176,7 @@ abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, va
         val width = 26
         val height = 26
 
-        fun isMouseOn(mouseX: Int, mouseY: Int) = mouseX >= x && mouseY >= y && mouseX < x+width && mouseY < y+height
+        fun isMouseOn(mouseX: Double, mouseY: Double) = mouseX >= x && mouseY >= y && mouseX < x+width && mouseY < y+height
 
         fun renderContents() {
             val selected = tabModule == module

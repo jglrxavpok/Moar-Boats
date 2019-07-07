@@ -32,10 +32,15 @@ class GuiEngineModule(playerInventory: InventoryPlayer, engine: BoatModule, boat
     }
 
     override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/${engine.id.path}.png")
+    private val engine = module as BaseEngineModule
     val barsTexture = ResourceLocation("minecraft:textures/gui/bars.png")
     val remainingCurrentItem = TextComponentTranslation("gui.engine.remainingCurrent")
     val estimatedTimeText = TextComponentTranslation("gui.engine.estimatedTime")
-    private val lockInPlaceButton = GuiLockIconButton(0, 0, 0)
+    private val lockInPlaceButton = object: GuiLockIconButton(0, 0, 0) {
+        override fun onClick(mouseX: Double, mouseY: Double) {
+            MoarBoats.network.sendToServer(CChangeEngineMode(boat.entityID, module.id, !(engine as BaseEngineModule).stationaryProperty[boat]))
+        }
+    }
     private val lockText = TextComponentTranslation("gui.engine.lock")
     private val lockedByRedstone = TextComponentTranslation("gui.engine.blocked.redstone")
     private val foreverText = TextComponentTranslation("gui.engine.forever")
@@ -46,7 +51,6 @@ class GuiEngineModule(playerInventory: InventoryPlayer, engine: BoatModule, boat
     private val blockedByModuleText = TextComponentTranslation("gui.engine.blocked.module")
     private val unknownBlockReasonText = { str: String -> TextComponentTranslation("gui.engine.blocked.unknown", str) }
     private val imposedSpeedText = { str: String -> TextComponentTranslation("moarboats.gui.engine.imposed_boost", str) }
-    private val engine = module as BaseEngineModule
 
     private lateinit var speedSlider: GuiSlider
     private val speedIconTexture = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/engines/speed_setting.png")
@@ -74,18 +78,9 @@ class GuiEngineModule(playerInventory: InventoryPlayer, engine: BoatModule, boat
         lockInPlaceButton.isLocked = engine.stationaryProperty[boat]
     }
 
-    override fun actionPerformed(button: GuiButton) {
-        super.actionPerformed(button)
-        when(button) {
-            lockInPlaceButton -> {
-                MoarBoats.network.sendToServer(CChangeEngineMode(boat.entityID, module.id, !engine.stationaryProperty[boat]))
-            }
-        }
-    }
-
     override fun renderHoveredToolTip(mouseX: Int, mouseY: Int) {
         when {
-            lockInPlaceButton.mousePressed(mc, mouseX, mouseY) -> drawHoveringText(lockText.formattedText, mouseX, mouseY)
+            lockInPlaceButton.isMouseOver -> drawHoveringText(lockText.formattedText, mouseX, mouseY)
             else -> super.renderHoveredToolTip(mouseX, mouseY)
         }
     }

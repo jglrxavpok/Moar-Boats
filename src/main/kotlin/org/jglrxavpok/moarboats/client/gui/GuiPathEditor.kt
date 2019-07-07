@@ -1,7 +1,7 @@
 package org.jglrxavpok.moarboats.client.gui
 
 import net.minecraft.client.Minecraft
-import net.minecraft.client.audio.PositionedSoundRecord
+import net.minecraft.client.audio.SimpleSound
 import net.minecraft.client.gui.Gui
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
@@ -15,6 +15,7 @@ import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.text.TextComponentTranslation
+import net.minecraft.world.dimension.DimensionType
 import net.minecraft.world.storage.MapData
 import net.minecraftforge.fml.client.config.GuiSlider
 import org.jglrxavpok.moarboats.client.gui.elements.GuiBinaryPropertyButton
@@ -25,7 +26,6 @@ import org.jglrxavpok.moarboats.common.data.LoopingOptions
 import org.jglrxavpok.moarboats.common.data.MapImageStripe
 import org.jglrxavpok.moarboats.common.data.PathHolder
 import org.jglrxavpok.moarboats.common.modules.HelmModule.StripeLength
-import org.lwjgl.input.Mouse
 import org.lwjgl.opengl.GL11.*
 
 class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val mapData: MapData): GuiScreen() {
@@ -64,14 +64,38 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
     private val boostSetting = TextComponentTranslation("gui.path_editor.controls.boost")
 
     private var buttonId = 0
-    private val refreshMapButton = GuiButton(buttonId++, 0, 0, refreshButtonText.formattedText)
+    private val refreshMapButton = object: GuiButton(buttonId++, 0, 0, refreshButtonText.formattedText) {
+        override fun onClick(mouseX: Double, mouseY: Double) {
+            sentImageRequest = false
+            mapHeight.fill(-1)
+            stripesReceived.fill(false)
+        }
+    }
     // Tools button
-    private val markerButton = GuiToolButton(buttonId++, toolMarkerText.formattedText, 0)
-    private val eraserButton = GuiToolButton(buttonId++, toolEraserText.formattedText, 1)
+    private val markerButton: GuiToolButton = object: GuiToolButton(buttonId++, toolMarkerText.formattedText, 0) {
+        override fun onClick(mouseX: Double, mouseY: Double) {
+            toolButtonList.forEach {
+                it.selected = false
+            }
+            selected = true
+        }
+    }
+    private val eraserButton: GuiToolButton = object: GuiToolButton(buttonId++, toolEraserText.formattedText, 1) {
+        override fun onClick(mouseX: Double, mouseY: Double) {
+            toolButtonList.forEach {
+                it.selected = false
+            }
+            selected = true
+        }
+    }
     private val toolButtonList = listOf(markerButton, eraserButton)
 
     // Properties buttons
-    private val loopingButton = GuiPropertyButton(buttonId++, listOf(Pair(propertyOneWayText.formattedText, 3), Pair(propertyLoopingText.formattedText, 2), Pair(propertyReverseCourseText.formattedText, 4)))
+    private val loopingButton = object: GuiPropertyButton(buttonId++, listOf(Pair(propertyOneWayText.formattedText, 3), Pair(propertyLoopingText.formattedText, 2), Pair(propertyReverseCourseText.formattedText, 4))) {
+        override fun onClick(mouseX: Double, mouseY: Double) {
+            pathHolder.setLoopingState(LoopingOptions.values()[propertyIndex])
+        }
+    }
     private val linesButton = GuiBinaryPropertyButton(buttonId++, Pair(propertyLinesText.formattedText, propertyPathfindingText.formattedText), Pair(5, 6))
     private lateinit var boostSlider: GuiSlider
     private val sliderCallback = GuiSlider.ISlider { slider ->
@@ -86,8 +110,8 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
         mapHeight.fill(-1)
     }
 
-    private var lastMouseX = 0
-    private var lastMouseY = 0
+    private var lastMouseX = 0.0
+    private var lastMouseY = 0.0
     private var scrollX = size.toDouble()/2
     private var scrollZ = size.toDouble()/2
     private val world = player.world
@@ -144,30 +168,9 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
         addButton(boostSlider)
     }
 
-    override fun actionPerformed(button: GuiButton) {
-        super.actionPerformed(button)
-        when(button) {
-            refreshMapButton -> {
-                sentImageRequest = false
-                mapHeight.fill(-1)
-                stripesReceived.fill(false)
-            }
-
-            loopingButton -> {
-                pathHolder.setLoopingState(LoopingOptions.values()[loopingButton.propertyIndex])
-            }
-
-            in toolButtonList -> {
-                toolButtonList.forEach {
-                    it.selected = false
-                }
-                (button as GuiToolButton).selected = true
-            }
-        }
-    }
-
-    override fun mouseClicked(mouseX: Int, mouseY: Int, mouseButton: Int) {
-        super.mouseClicked(mouseX, mouseY, mouseButton)
+    override fun mouseClicked(mouseX: Double, mouseY: Double, mouseButton: Int): Boolean {
+        if(super.mouseClicked(mouseX, mouseY, mouseButton))
+            return true
 
         if(mouseButton == 1) {
             lastMouseX = mouseX
@@ -182,10 +185,12 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
                 handleClickOnMap(posOnMapX, posOnMapY)
             }
         }
+        return true
     }
 
-    override fun mouseClickMove(mouseX: Int, mouseY: Int, clickedMouseButton: Int, timeSinceLastClick: Long) {
-        super.mouseClickMove(mouseX, mouseY, clickedMouseButton, timeSinceLastClick)
+    override fun mouseDragged(mouseX: Double, mouseY: Double, clickedMouseButton: Int, dx: Double, dy: Double): Boolean {
+        if(super.mouseDragged(mouseX, mouseY, clickedMouseButton, dx, dy))
+            return true
 
         if(clickedMouseButton == 1) {
 
@@ -196,7 +201,9 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
             scrollZ -= dy/currentZoom
             lastMouseX = mouseX
             lastMouseY = mouseY
+            return true
         }
+        return false
     }
 
     private fun handleClickOnMap(x: Double, y: Double) {
@@ -266,7 +273,7 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
         }
         if(closestIndex >= 0) {
             pathHolder.removeWaypoint(closestIndex)
-            mc.soundHandler.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 0.5f))
+            mc.soundHandler.play(SimpleSound.master(SoundEvents.UI_BUTTON_CLICK, 0.5f))
         }
     }
 
@@ -275,7 +282,7 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
         val boost = if(boostSlider.valueInt != 0) boostSlider.value/100.0 else null
         pathHolder.addWaypoint(pos, boost)
         pos.close()
-        mc.soundHandler.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 2.5f))
+        mc.soundHandler.play(SimpleSound.master(SoundEvents.UI_BUTTON_CLICK, 2.5f))
     }
 
     override fun render(mouseX: Int, mouseY: Int, partialTicks: Float) {
@@ -336,7 +343,11 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
     private fun drawRightAligned(text: String, x: Float, textY: Float, color: Int, shadow: Boolean = false) {
         val width = fontRenderer.getStringWidth(text)
         val textX = x-width
-        fontRenderer.drawString(text, textX, textY, color, shadow)
+        if(shadow) {
+            fontRenderer.drawStringWithShadow(text, textX, textY, color)
+        } else {
+            fontRenderer.drawString(text, textX, textY, color)
+        }
     }
 
     private fun renderTool(mouseX: Int, mouseY: Int, mapX: Double, mapY: Double) {
@@ -500,15 +511,17 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
         for(stripeIndex in 0 until stripes) {
             val received = stripesReceived[stripeIndex]
             if(!received) {
-                val storage = world.mapStorage
+                val storage = world.savedDataStorage
                 if(storage != null) {
                     val id = "moarboats:map_preview/$mapID/$stripeIndex"
-                    val stripe = storage.getOrLoadData(MapImageStripe::class.java, id) as? MapImageStripe
+                    val stripe = storage.get(DimensionType.OVERWORLD, ::MapImageStripe, id)
                     if(stripe != null) {
                         val textureStripe = stripe.textureStripe
                         val offset = stripeIndex * StripeLength * size
                         for(i in 0 until StripeLength * size) {
-                            areaTexture.textureData[i+offset] = textureStripe[i]
+                            val x = i % size
+                            val y = i / size
+                            areaTexture.textureData!!.setPixelRGBA(x, y, textureStripe[i])
                         }
                         areaTexture.updateDynamicTexture()
                         stripesReceived[stripeIndex] = true
@@ -522,9 +535,7 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
         return false
     }
 
-    override fun handleMouseInput() {
-        super.handleMouseInput()
-        val dwheel = Mouse.getEventDWheel()
+    override fun mouseScrolled(dwheel: Double): Boolean {
         val zoomFactor = when {
             dwheel > 0 -> 1f+5f/20f
             dwheel < 0 -> 1f-5f/20f
@@ -532,5 +543,6 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
         }
         currentZoom *= zoomFactor
         currentZoom = currentZoom.coerceIn(minZoom..maxZoom)
+        return true
     }
 }

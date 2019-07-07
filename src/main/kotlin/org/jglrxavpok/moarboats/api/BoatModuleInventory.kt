@@ -5,6 +5,7 @@ import net.minecraft.inventory.InventoryBasic
 import net.minecraft.item.ItemStack
 import net.minecraft.util.NonNullList
 import net.minecraft.util.text.TextComponentString
+import net.minecraftforge.fml.network.PacketDistributor
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.network.SSyncInventory
 
@@ -54,7 +55,7 @@ abstract class BoatModuleInventory(val inventoryName: String, val slotCount: Int
 
     fun syncToClient() {
         if(!boat.worldRef.isRemote) {
-            MoarBoats.network.sendToAll(SSyncInventory(boat.entityID, module.id, list))
+            MoarBoats.network.send(PacketDistributor.ALL.noArg(), SSyncInventory(boat.entityID, module.id, list))
         }
     }
 

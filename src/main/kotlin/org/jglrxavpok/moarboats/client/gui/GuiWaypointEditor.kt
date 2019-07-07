@@ -18,8 +18,6 @@ import org.jglrxavpok.moarboats.common.network.CModifyWaypoint
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 import org.jglrxavpok.moarboats.integration.WaypointInfo
 import org.jglrxavpok.moarboats.integration.WaypointProviders
-import org.lwjgl.input.Mouse
-import kotlin.concurrent.thread
 
 class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable, val index: Int) : GuiScreen() {
 
@@ -48,9 +46,23 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
     }
 
     private val boostSlider = GuiSlider(id++, 0, 0, 125, 20, "${boostSetting.formattedText}: ", "%", -50.0, 50.0, 0.0, false, true, boostSliderCallback)
-    private val confirmButton = GuiButton(id++, 0, 0, confirmText.formattedText)
-    private val cancelButton = GuiButton(id++, 0, 0, cancelText.formattedText)
-    private val refreshButton = GuiButton(id++, 0, 0, refreshText.formattedText)
+    private val confirmButton = object: GuiButton(id++, 0, 0, confirmText.formattedText) {
+        override fun onClick(mouseX: Double, mouseY: Double) {
+            storeIntoNBT()
+            MoarBoats.network.sendToServer(CModifyWaypoint(te, index, waypointData))
+            player.displayGui(MoarBoats, MoarBoatsGuiHandler.MappingTableGui, player.world, te.pos.x, te.pos.y, te.pos.z)
+        }
+    }
+    private val cancelButton = object: GuiButton(id++, 0, 0, cancelText.formattedText) {
+        override fun onClick(mouseX: Double, mouseY: Double) {
+            player.displayGui(MoarBoats, MoarBoatsGuiHandler.MappingTableGui, player.world, te.pos.x, te.pos.y, te.pos.z)
+        }
+    }
+    private val refreshButton = object: GuiButton(id++, 0, 0, refreshText.formattedText) {
+        override fun onClick(mouseX: Double, mouseY: Double) {
+            refreshList()
+        }
+    }
     private val hasBoostCheckbox = GuiCheckBox(id++, 0, 0, hasBoostSetting.formattedText, waypointData.getBoolean("hasBoost"))
 
 
@@ -149,29 +161,12 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
         waypointList.handleMouseInput(mouseX, mouseY)
     }
 
-    override fun actionPerformed(button: GuiButton) {
-        super.actionPerformed(button)
-        when(button) {
-            confirmButton -> {
-                storeIntoNBT()
-                MoarBoats.network.sendToServer(CModifyWaypoint(te, index, waypointData))
-                player.openGui(MoarBoats, MoarBoatsGuiHandler.MappingTableGui, player.world, te.pos.x, te.pos.y, te.pos.z)
-            }
-            cancelButton -> {
-                player.openGui(MoarBoats, MoarBoatsGuiHandler.MappingTableGui, player.world, te.pos.x, te.pos.y, te.pos.z)
-            }
-            refreshButton -> {
-                refreshList()
-            }
-        }
-    }
-
     private fun storeIntoNBT() {
-        waypointData.setString("name", nameInput.text)
-        waypointData.setBoolean("hasBoost", hasBoostCheckbox.isChecked)
-        waypointData.setDouble("boost", boostSlider.value/100.0)
-        waypointData.setInt("x", toInt(xInput.text))
-        waypointData.setInt("z", toInt(zInput.text))
+        waypointData.putString("name", nameInput.text)
+        waypointData.putBoolean("hasBoost", hasBoostCheckbox.isChecked)
+        waypointData.putDouble("boost", boostSlider.value/100.0)
+        waypointData.putInt("x", toInt(xInput.text))
+        waypointData.putInt("z", toInt(zInput.text))
     }
 
     private fun toInt(txt: String): Int {
@@ -209,15 +204,15 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
         allInputs.forEach { it.mouseClicked(mouseX, mouseY, mouseButton) }
     }
 
-    override fun keyTyped(typedChar: Char, keyCode: Int) {
-        super.keyTyped(typedChar, keyCode)
+    override fun charTyped(typedChar: Char, keyCode: Int): Boolean {
+        if(super.charTyped(typedChar, keyCode))
+            return true
         allInputs.forEach {
-            it.textboxKeyTyped(typedChar, keyCode)
+            if(it.charTyped(typedChar, keyCode)) {
+                return true
+            }
         }
-    }
-
-    override fun mouseReleased(mouseX: Int, mouseY: Int, state: Int) {
-        super.mouseReleased(mouseX, mouseY, state)
+        return false
     }
 
     fun loadFromWaypointInfo(waypointInfo: WaypointInfo) {
