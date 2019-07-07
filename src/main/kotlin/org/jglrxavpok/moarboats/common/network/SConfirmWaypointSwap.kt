@@ -1,25 +1,19 @@
 package org.jglrxavpok.moarboats.common.network
 
-import io.netty.buffer.ByteBuf
 import net.minecraft.client.Minecraft
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
-import net.minecraftforge.fml.relauncher.Side
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.fml.network.NetworkEvent
 import org.jglrxavpok.moarboats.client.gui.GuiMappingTable
-import kotlin.reflect.KClass
 
-class SConfirmWaypointSwap: IMessage {
-    override fun fromBytes(buf: ByteBuf?) { }
+class SConfirmWaypointSwap: MoarBoatsPacket {
 
-    override fun toBytes(buf: ByteBuf?) { }
+    object Handler: MBMessageHandler<SConfirmWaypointSwap, MoarBoatsPacket?> {
+        override val packetClass = SConfirmWaypointSwap::class.java
+        override val receiverSide = Dist.CLIENT
 
-    object Handler: MBMessageHandler<SConfirmWaypointSwap, IMessage?> {
-        override val packetClass = SConfirmWaypointSwap::class
-        override val receiverSide = Side.CLIENT
-
-        override fun onMessage(message: SConfirmWaypointSwap, ctx: MessageContext): IMessage? {
-            if(Minecraft.getMinecraft().currentScreen is GuiMappingTable) {
-                val mappingTable = Minecraft.getMinecraft().currentScreen as GuiMappingTable
+        override fun onMessage(message: SConfirmWaypointSwap, ctx: NetworkEvent.Context): MoarBoatsPacket? {
+            if(Minecraft.getInstance().currentScreen is GuiMappingTable) {
+                val mappingTable = Minecraft.getInstance().currentScreen as GuiMappingTable
                 mappingTable.confirmSwap()
             }
             return null

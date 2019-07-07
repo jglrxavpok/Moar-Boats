@@ -1,16 +1,14 @@
 package org.jglrxavpok.moarboats.common.network
 
-import io.netty.buffer.ByteBuf
 import net.minecraft.util.math.BlockPos
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
-import net.minecraftforge.fml.relauncher.Side
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.fml.network.NetworkEvent
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 import org.jglrxavpok.moarboats.extensions.swap
 
-class CSwapWaypoints(): IMessage {
+class CSwapWaypoints(): MoarBoatsPacket {
 
     private var index1 = -1
     private var index2 = -1
@@ -26,33 +24,17 @@ class CSwapWaypoints(): IMessage {
         this.z = pos.z
     }
 
-    override fun fromBytes(buf: ByteBuf) {
-        index1 = buf.readInt()
-        index2 = buf.readInt()
-        x = buf.readInt()
-        y = buf.readInt()
-        z = buf.readInt()
-    }
-
-    override fun toBytes(buf: ByteBuf) {
-        buf.writeInt(index1)
-        buf.writeInt(index2)
-        buf.writeInt(x)
-        buf.writeInt(y)
-        buf.writeInt(z)
-    }
-
     object Handler: MBMessageHandler<CSwapWaypoints, SConfirmWaypointSwap?> {
-        override val packetClass = CSwapWaypoints::class
-        override val receiverSide = Side.SERVER
+        override val packetClass = CSwapWaypoints::class.java
+        override val receiverSide = Dist.DEDICATED_SERVER
 
-        override fun onMessage(message: CSwapWaypoints, ctx: MessageContext): SConfirmWaypointSwap? {
+        override fun onMessage(message: CSwapWaypoints, ctx: NetworkEvent.Context): SConfirmWaypointSwap? {
             with(message) {
-                val player = ctx.serverHandler.player
+                val player = ctx.sender!!
                 val world = player.world
                 val pos = BlockPos.PooledMutableBlockPos.retain(x, y, z)
                 val te = world.getTileEntity(pos)
-                pos.release()
+                pos.close()
                 return when(te) {
                     is TileEntityMappingTable -> {
                         val stack = te.inventory.getStackInSlot(0)

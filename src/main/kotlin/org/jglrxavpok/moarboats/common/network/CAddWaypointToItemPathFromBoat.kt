@@ -1,10 +1,9 @@
 package org.jglrxavpok.moarboats.common.network
 
-import io.netty.buffer.ByteBuf
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagList
 import net.minecraft.util.math.BlockPos
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
+import net.minecraftforge.fml.network.NetworkEvent
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.items.ItemMapWithPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
@@ -19,30 +18,20 @@ class CAddWaypointToItemPathFromBoat: CxxAddWaypointToItemPath {
         this.boatID = boatID
     }
 
-    override fun fromBytes(buf: ByteBuf) {
-        super.fromBytes(buf)
-        boatID = buf.readInt()
-    }
-
-    override fun toBytes(buf: ByteBuf) {
-        super.toBytes(buf)
-        buf.writeInt(boatID)
-    }
-
     object Handler: CxxAddWaypointToItemPath.Handler<CAddWaypointToItemPathFromBoat, SUpdateMapWithPathInBoat>() {
         override val item = ItemMapWithPath
-        override val packetClass = CAddWaypointToItemPathFromBoat::class
+        override val packetClass = CAddWaypointToItemPathFromBoat::class.java
 
-        override fun getStack(message: CAddWaypointToItemPathFromBoat, ctx: MessageContext): ItemStack? {
+        override fun getStack(message: CAddWaypointToItemPathFromBoat, ctx: NetworkEvent.Context): ItemStack? {
             with(message) {
-                val player = ctx.serverHandler.player
+                val player = ctx.sender!!
                 val world = player.world
                 val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
                 return boat.getInventory(HelmModule).getStackInSlot(0)
             }
         }
 
-        override fun createResponse(message: CAddWaypointToItemPathFromBoat, ctx: MessageContext, waypointList: NBTTagList): SUpdateMapWithPathInBoat? {
+        override fun createResponse(message: CAddWaypointToItemPathFromBoat, ctx: NetworkEvent.Context, waypointList: NBTTagList): SUpdateMapWithPathInBoat? {
             return SUpdateMapWithPathInBoat(waypointList, message.boatID)
         }
 

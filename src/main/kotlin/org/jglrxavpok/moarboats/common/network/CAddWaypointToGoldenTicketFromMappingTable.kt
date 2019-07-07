@@ -1,10 +1,9 @@
 package org.jglrxavpok.moarboats.common.network
 
-import io.netty.buffer.ByteBuf
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagList
 import net.minecraft.util.math.BlockPos
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
+import net.minecraftforge.fml.network.NetworkEvent
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
@@ -24,28 +23,14 @@ class CAddWaypointToGoldenTicketFromMappingTable: CxxAddWaypointToItemPath {
         this.tileEntityZ = mappingTable.pos.z
     }
 
-    override fun fromBytes(buf: ByteBuf) {
-        super.fromBytes(buf)
-        tileEntityX = buf.readInt()
-        tileEntityY = buf.readInt()
-        tileEntityZ = buf.readInt()
-    }
-
-    override fun toBytes(buf: ByteBuf) {
-        super.toBytes(buf)
-        buf.writeInt(tileEntityX)
-        buf.writeInt(tileEntityY)
-        buf.writeInt(tileEntityZ)
-    }
-
     object Handler: CxxAddWaypointToItemPath.Handler<CAddWaypointToGoldenTicketFromMappingTable, SSetGoldenItinerary>() {
         override val item = ItemGoldenTicket
-        override val packetClass = CAddWaypointToGoldenTicketFromMappingTable::class
+        override val packetClass = CAddWaypointToGoldenTicketFromMappingTable::class.java
 
-        override fun getStack(message: CAddWaypointToGoldenTicketFromMappingTable, ctx: MessageContext): ItemStack? {
+        override fun getStack(message: CAddWaypointToGoldenTicketFromMappingTable, ctx: NetworkEvent.Context): ItemStack? {
             with(message) {
                 val pos = BlockPos.PooledMutableBlockPos.retain(tileEntityX, tileEntityY, tileEntityZ)
-                val te = ctx.serverHandler.player.world.getTileEntity(pos)
+                val te = ctx.sender!!.world.getTileEntity(pos)
                 val stack = when(te) {
                     is TileEntityMappingTable -> {
                         te.inventory.getStackInSlot(0)
@@ -55,7 +40,7 @@ class CAddWaypointToGoldenTicketFromMappingTable: CxxAddWaypointToItemPath {
                         null
                     }
                 }
-                pos.release()
+                pos.close()
                 if(stack != null) {
                     if(ItemGoldenTicket.isEmpty(stack)) {
                         ItemGoldenTicket.initStack(stack, UUID.randomUUID())
@@ -65,7 +50,7 @@ class CAddWaypointToGoldenTicketFromMappingTable: CxxAddWaypointToItemPath {
             }
         }
 
-        override fun createResponse(message: CAddWaypointToGoldenTicketFromMappingTable, ctx: MessageContext, waypointList: NBTTagList): SSetGoldenItinerary? {
+        override fun createResponse(message: CAddWaypointToGoldenTicketFromMappingTable, ctx: NetworkEvent.Context, waypointList: NBTTagList): SSetGoldenItinerary? {
             val stack = getStack(message, ctx) ?: return null
             val data = ItemGoldenTicket.getData(stack)
             return SSetGoldenItinerary(data)

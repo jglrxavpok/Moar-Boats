@@ -1,15 +1,12 @@
 package org.jglrxavpok.moarboats.common.network
 
-import io.netty.buffer.ByteBuf
 import net.minecraft.client.Minecraft
 import net.minecraft.nbt.NBTTagCompound
-import net.minecraftforge.fml.common.network.ByteBufUtils
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
-import net.minecraftforge.fml.relauncher.Side
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.fml.network.NetworkEvent
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 
-class SModuleData(): IMessage {
+class SModuleData(): MoarBoatsPacket {
 
     var data = NBTTagCompound()
 
@@ -20,22 +17,12 @@ class SModuleData(): IMessage {
         this.data = data
     }
 
-    override fun fromBytes(buf: ByteBuf) {
-        boatID = buf.readInt()
-        data = ByteBufUtils.readTag(buf)!!
-    }
+    object Handler: MBMessageHandler<SModuleData, MoarBoatsPacket> {
+        override val packetClass = SModuleData::class.java
+        override val receiverSide = Dist.CLIENT
 
-    override fun toBytes(buf: ByteBuf) {
-        buf.writeInt(boatID)
-        ByteBufUtils.writeTag(buf, data)
-    }
-
-    object Handler: MBMessageHandler<SModuleData, IMessage> {
-        override val packetClass = SModuleData::class
-        override val receiverSide = Side.CLIENT
-
-        override fun onMessage(message: SModuleData, ctx: MessageContext): IMessage? {
-            val world = Minecraft.getMinecraft().world
+        override fun onMessage(message: SModuleData, ctx: NetworkEvent.Context): MoarBoatsPacket? {
+            val world = Minecraft.getInstance().world
             val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
             boat.moduleData = message.data
             return null

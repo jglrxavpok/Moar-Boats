@@ -8,10 +8,7 @@ import net.minecraft.block.material.Material
 import net.minecraft.block.material.MaterialColor
 import net.minecraft.client.Minecraft
 import net.minecraft.entity.EntityType
-import net.minecraft.item.Item
-import net.minecraft.item.ItemBlock
-import net.minecraft.item.ItemGroup
-import net.minecraft.item.ItemStack
+import net.minecraft.item.*
 import net.minecraft.item.crafting.IRecipe
 import net.minecraft.network.datasync.DataSerializers
 import net.minecraft.server.dedicated.DedicatedServer
@@ -88,7 +85,7 @@ object MoarBoats {
     val CreativeTab = object: ItemGroup("moarboats") {
         @OnlyIn(Dist.CLIENT)
         override fun createIcon(): ItemStack {
-            return ItemStack(ModularBoatItem)
+            return ItemStack(ModularBoatItem[EnumDyeColor.WHITE])
         }
     }
 

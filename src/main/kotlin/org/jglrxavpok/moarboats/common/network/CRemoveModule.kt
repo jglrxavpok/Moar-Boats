@@ -1,14 +1,11 @@
 package org.jglrxavpok.moarboats.common.network
 
-import io.netty.buffer.ByteBuf
 import net.minecraft.util.ResourceLocation
-import net.minecraftforge.fml.common.network.ByteBufUtils
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
-import net.minecraftforge.fml.relauncher.Side
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.fml.network.NetworkEvent
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 
-class CRemoveModule(): IMessage {
+class CRemoveModule(): MoarBoatsPacket {
 
     var boatID: Int = 0
     var moduleLocation: ResourceLocation = ResourceLocation("moarboats:none")
@@ -18,22 +15,12 @@ class CRemoveModule(): IMessage {
         this.moduleLocation = moduleLocation
     }
 
-    override fun fromBytes(buf: ByteBuf) {
-        boatID = buf.readInt()
-        moduleLocation = ResourceLocation(ByteBufUtils.readUTF8String(buf))
-    }
-
-    override fun toBytes(buf: ByteBuf) {
-        buf.writeInt(boatID)
-        ByteBufUtils.writeUTF8String(buf, moduleLocation.toString())
-    }
-
     object Handler: MBMessageHandler<CRemoveModule, SMapAnswer> {
-        override val packetClass = CRemoveModule::class
-        override val receiverSide = Side.SERVER
+        override val packetClass = CRemoveModule::class.java
+        override val receiverSide = Dist.DEDICATED_SERVER
 
-        override fun onMessage(message: CRemoveModule, ctx: MessageContext): SMapAnswer? {
-            val player = ctx.serverHandler.player
+        override fun onMessage(message: CRemoveModule, ctx: NetworkEvent.Context): SMapAnswer? {
+            val player = ctx.sender!!
             val world = player.world
             val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
             val moduleLocation = message.moduleLocation

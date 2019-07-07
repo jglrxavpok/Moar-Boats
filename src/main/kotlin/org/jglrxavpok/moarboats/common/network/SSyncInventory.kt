@@ -1,24 +1,20 @@
 package org.jglrxavpok.moarboats.common.network
 
-import io.netty.buffer.ByteBuf
 import net.minecraft.client.Minecraft
-import net.minecraft.inventory.ItemStackHelper
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.util.NonNullList
 import net.minecraft.util.ResourceLocation
-import net.minecraftforge.fml.common.network.ByteBufUtils
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
-import net.minecraftforge.fml.relauncher.Side
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.fml.network.NetworkEvent
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 
-class SSyncInventory(): IMessage {
+class SSyncInventory(): MoarBoatsPacket {
 
     var boatID: Int = 0
     var moduleLocation: ResourceLocation = ResourceLocation("moarboats:none")
-    val inventoryContents = mutableListOf<ItemStack>()
+
+    @MoarBoatsPacket.ItemStackList
+    var inventoryContents = mutableListOf<ItemStack>()
 
     constructor(boatID: Int, moduleLocation: ResourceLocation, inventoryContents: Collection<ItemStack>): this() {
         this.boatID = boatID
@@ -27,32 +23,12 @@ class SSyncInventory(): IMessage {
         this.inventoryContents.addAll(inventoryContents)
     }
 
-    override fun fromBytes(buf: ByteBuf) {
-        boatID = buf.readInt()
-        moduleLocation = ResourceLocation(ByteBufUtils.readUTF8String(buf))
-        inventoryContents.clear()
-        val tmpList = NonNullList.withSize(buf.readInt(), ItemStack.EMPTY)
-        val nbt = ByteBufUtils.readTag(buf) as NBTTagCompound
-        ItemStackHelper.loadAllItems(nbt, tmpList)
-        inventoryContents.addAll(tmpList)
-    }
+    object Handler: MBMessageHandler<SSyncInventory, MoarBoatsPacket?> {
+        override val packetClass = SSyncInventory::class.java
+        override val receiverSide = Dist.CLIENT
 
-    override fun toBytes(buf: ByteBuf) {
-        buf.writeInt(boatID)
-        ByteBufUtils.writeUTF8String(buf, moduleLocation.toString())
-        buf.writeInt(inventoryContents.size)
-        val nbt = NBTTagCompound()
-        val tmpList = NonNullList.from(ItemStack.EMPTY, *inventoryContents.toTypedArray())
-        ItemStackHelper.saveAllItems(nbt, tmpList)
-        ByteBufUtils.writeTag(buf, nbt)
-    }
-
-    object Handler: MBMessageHandler<SSyncInventory, IMessage?> {
-        override val packetClass = SSyncInventory::class
-        override val receiverSide = Side.CLIENT
-
-        override fun onMessage(message: SSyncInventory, ctx: MessageContext): IMessage? {
-            val world = Minecraft.getMinecraft().world
+        override fun onMessage(message: SSyncInventory, ctx: NetworkEvent.Context): MoarBoatsPacket? {
+            val world = Minecraft.getInstance().world
             val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
             val moduleLocation = message.moduleLocation
             val module = BoatModuleRegistry[moduleLocation].module

@@ -4,12 +4,11 @@ import io.netty.buffer.ByteBuf
 import net.minecraft.client.Minecraft
 import net.minecraft.util.SoundCategory
 import net.minecraft.util.SoundEvent
+import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.fml.common.network.ByteBufUtils
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
-import net.minecraftforge.fml.relauncher.Side
+import net.minecraftforge.fml.network.NetworkEvent
 
-class SPlaySound(): IMessage {
+class SPlaySound(): MoarBoatsPacket {
 
     var x: Double = 0.0
     var y: Double = 0.0
@@ -50,12 +49,12 @@ class SPlaySound(): IMessage {
         ByteBufUtils.writeUTF8String(buf, soundCategory.getName())
     }
 
-    object Handler: MBMessageHandler<SPlaySound, IMessage> {
-        override val packetClass = SPlaySound::class
-        override val receiverSide = Side.CLIENT
+    object Handler: MBMessageHandler<SPlaySound, MoarBoatsPacket> {
+        override val packetClass = SPlaySound::class.java
+        override val receiverSide = Dist.CLIENT
 
-        override fun onMessage(message: SPlaySound, ctx: MessageContext): IMessage? {
-            Minecraft.getMinecraft().world.playSound(
+        override fun onMessage(message: SPlaySound, ctx: NetworkEvent.Context): MoarBoatsPacket? {
+            Minecraft.getInstance().world.playSound(
                     message.x,
                     message.y,
                     message.z,

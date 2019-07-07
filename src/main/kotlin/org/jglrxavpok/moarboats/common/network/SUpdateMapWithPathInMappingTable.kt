@@ -1,11 +1,10 @@
 package org.jglrxavpok.moarboats.common.network
 
-import io.netty.buffer.ByteBuf
 import net.minecraft.client.Minecraft
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
 import net.minecraft.util.math.BlockPos
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
+import net.minecraftforge.fml.network.NetworkEvent
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 
@@ -23,38 +22,24 @@ class SUpdateMapWithPathInMappingTable: SxxUpdateMapWithPath {
         this.tileEntityZ = tileEntityZ
     }
 
-    override fun fromBytes(buf: ByteBuf) {
-        super.fromBytes(buf)
-        tileEntityX = buf.readInt()
-        tileEntityY = buf.readInt()
-        tileEntityZ = buf.readInt()
-    }
-
-    override fun toBytes(buf: ByteBuf) {
-        super.toBytes(buf)
-        buf.writeInt(tileEntityX)
-        buf.writeInt(tileEntityY)
-        buf.writeInt(tileEntityZ)
-    }
-
     object Handler: SxxUpdateMapWithPath.Handler<SUpdateMapWithPathInMappingTable>() {
-        override val packetClass = SUpdateMapWithPathInMappingTable::class
+        override val packetClass = SUpdateMapWithPathInMappingTable::class.java
 
-        override fun updatePath(message: SUpdateMapWithPathInMappingTable, ctx: MessageContext, list: NBTTagList) {
+        override fun updatePath(message: SUpdateMapWithPathInMappingTable, ctx: NetworkEvent.Context, list: NBTTagList) {
             with(message) {
                 val pos = BlockPos.PooledMutableBlockPos.retain(tileEntityX, tileEntityY, tileEntityZ)
-                val te = Minecraft.getMinecraft().world.getTileEntity(pos)
+                val te = Minecraft.getInstance().world.getTileEntity(pos)
                 when(te) {
                     is TileEntityMappingTable -> {
                         val stack = te.inventory.getStackInSlot(0)
-                        if(stack.tagCompound == null) {
-                            stack.tagCompound = NBTTagCompound()
+                        if(stack.tag == null) {
+                            stack.tag = NBTTagCompound()
                         }
-                        stack.tagCompound!!.setTag("${MoarBoats.ModID}.path", list)
+                        stack.tag!!.put("${MoarBoats.ModID}.path", list)
                     }
                     else -> MoarBoats.logger.error("No mapping table at $pos")
                 }
-                pos.release()
+                pos.close()
             }
         }
 

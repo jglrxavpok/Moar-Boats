@@ -2,15 +2,14 @@ package org.jglrxavpok.moarboats.common.network
 
 import io.netty.buffer.ByteBuf
 import net.minecraft.util.ResourceLocation
+import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.fml.common.network.ByteBufUtils
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
-import net.minecraftforge.fml.relauncher.Side
+import net.minecraftforge.fml.network.NetworkEvent
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.BaseEngineModule
 
-class CChangeEngineSpeed(): IMessage {
+class CChangeEngineSpeed(): MoarBoatsPacket {
 
     var boatID: Int = 0
     var moduleLocation: ResourceLocation = ResourceLocation("moarboats:none")
@@ -22,24 +21,12 @@ class CChangeEngineSpeed(): IMessage {
         this.speed = speed
     }
 
-    override fun fromBytes(buf: ByteBuf) {
-        boatID = buf.readInt()
-        moduleLocation = ResourceLocation(ByteBufUtils.readUTF8String(buf))
-        speed = buf.readFloat()
-    }
+    object Handler: MBMessageHandler<CChangeEngineSpeed, MoarBoatsPacket?> {
+        override val packetClass = CChangeEngineSpeed::class.java
+        override val receiverSide = Dist.DEDICATED_SERVER
 
-    override fun toBytes(buf: ByteBuf) {
-        buf.writeInt(boatID)
-        ByteBufUtils.writeUTF8String(buf, moduleLocation.toString())
-        buf.writeFloat(speed)
-    }
-
-    object Handler: MBMessageHandler<CChangeEngineSpeed, IMessage?> {
-        override val packetClass = CChangeEngineSpeed::class
-        override val receiverSide = Side.SERVER
-
-        override fun onMessage(message: CChangeEngineSpeed, ctx: MessageContext): IMessage? {
-            val player = ctx.serverHandler.player
+        override fun onMessage(message: CChangeEngineSpeed, ctx: NetworkEvent.Context): MoarBoatsPacket? {
+            val player = ctx.sender!!
             val world = player.world
             val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
             val moduleLocation = message.moduleLocation
