@@ -7,6 +7,8 @@ import org.jglrxavpok.moarboats.common.math.MutableVec2
 
 class SurroundingsMatrix(val size: Int) {
 
+    // FIXME: Handle liquids
+
     private val halfSize = size/2
 
     private val internalMatrix = Array<IBlockState?>(size*size) {

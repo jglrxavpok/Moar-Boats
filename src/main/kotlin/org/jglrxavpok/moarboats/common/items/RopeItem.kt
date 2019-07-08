@@ -6,6 +6,7 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLeashKnot
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemStack
+import net.minecraft.item.ItemUseContext
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.*
 import net.minecraft.util.math.BlockPos
@@ -91,9 +92,11 @@ object RopeItem : MoarBoatsItem("rope") {
         }
     }
 
-    override fun onItemUse(player: EntityPlayer, worldIn: World, pos: BlockPos, hand: EnumHand, facing: EnumFacing, hitX: Float, hitY: Float, hitZ: Float): EnumActionResult {
+    override fun onItemUse(context: ItemUseContext): EnumActionResult {
+        val worldIn: World = context.world
+        val pos: BlockPos = context.pos
         val block = worldIn.getBlockState(pos).block
-        val stack = player.getHeldItem(hand)
+        val stack = context.item
         return when {
             block is BlockFence && getState(stack) == State.WAITING_NEXT -> {
                 if(!worldIn.isRemote) {

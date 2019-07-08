@@ -127,17 +127,27 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
             addButton(it)
         }
 
+        allInputs.forEach {
+            children += it
+        }
+
         val listWidth = .20*width
         val listHeight = (height*.7).toInt()
         val listLeft = width-listWidth.toInt()
         val listTop = 0 + 28 // margins
-        waypointList = GuiWaypointEditorList(mc, this, listWidth.toInt(), listHeight, listTop, listLeft, 20, width, height)
+        waypointList = GuiWaypointEditorList(mc, this, listWidth.toInt(), listHeight, listTop, listLeft, 20)
 
         refreshButton.x = listLeft
         refreshButton.y = listTop+listHeight
         refreshButton.width = listWidth.toInt()
 
+        children.add(waypointList)
+
         refreshList()
+    }
+
+    override fun mouseScrolled(p_mouseScrolled_1_: Double): Boolean {
+        return waypointList.mouseScrolled(p_mouseScrolled_1_)
     }
 
     private fun refreshList() {
@@ -151,14 +161,6 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
         boostSlider.updateSlider()
         boostSlider.enabled = hasBoostCheckbox.isChecked
         allInputs.forEach(GuiTextField::tick)
-    }
-
-    override fun handleMouseInput() {
-        super.handleMouseInput()
-        val mouseX = Mouse.getEventX() * this.width / this.mc.displayWidth
-        val mouseY = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1
-
-        waypointList.handleMouseInput(mouseX, mouseY)
     }
 
     private fun storeIntoNBT() {
@@ -181,9 +183,9 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
         drawDefaultBackground()
         super.render(mouseX, mouseY, partialTicks)
         if(waypointList.isNotEmpty()) {
-            waypointList.render(mouseX, mouseY, partialTicks)
+            waypointList.drawScreen(mouseX, mouseY, partialTicks)
         }
-        allInputs.forEach(GuiTextField::drawTextBox)
+        //allInputs.forEach(GuiTextField::drawTextBox)
 
         fontRenderer.drawCenteredString(TextFormatting.UNDERLINE.toString()+TextComponentTranslation("moarboats.gui.waypoint_editor.name", nameInput.text).formattedText, width/2, 15, 0xFFFFFF, shadow = true)
         fontRenderer.drawCenteredString(TextFormatting.UNDERLINE.toString()+positionTitleText.formattedText, width/2, 75, 0xFFFFFF, shadow = true)
@@ -199,9 +201,10 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
         GlStateManager.popMatrix()
     }
 
-    override fun mouseClicked(mouseX: Int, mouseY: Int, mouseButton: Int) {
-        super.mouseClicked(mouseX, mouseY, mouseButton)
-        allInputs.forEach { it.mouseClicked(mouseX, mouseY, mouseButton) }
+    override fun mouseClicked(mouseX: Double, mouseY: Double, mouseButton: Int): Boolean {
+        if(super.mouseClicked(mouseX, mouseY, mouseButton))
+            return true
+        return allInputs.any { it.mouseClicked(mouseX, mouseY, mouseButton) }
     }
 
     override fun charTyped(typedChar: Char, keyCode: Int): Boolean {

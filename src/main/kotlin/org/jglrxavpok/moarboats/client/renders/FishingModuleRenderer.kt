@@ -4,7 +4,6 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.client.renderer.Tessellator
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms
 import net.minecraft.client.renderer.entity.RenderManager
 import net.minecraft.client.renderer.model.ItemCameraTransforms
 import net.minecraft.client.renderer.texture.TextureMap
@@ -15,6 +14,8 @@ import net.minecraft.item.ItemFishingRod
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.ResourceLocation
+import net.minecraftforge.registries.GameData
+import net.minecraftforge.registries.RegistryManager
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.common.modules.FishingModule
@@ -103,7 +104,7 @@ object FishingModuleRenderer : BoatModuleRenderer() {
             GlStateManager.rotatef(boat.ticksExisted.toFloat()*4f, 0f, 1f, 0f)
             for(lootInfo in lootList) {
                 lootInfo as NBTTagCompound
-                val item = Item.getByNameOrId(lootInfo.getString("name"))!!
+                val item = RegistryManager.ACTIVE.getRegistry<Item>(GameData.ITEMS).getValue(ResourceLocation(lootInfo.getString("name")))
                 val stack = ItemStack(item, 1)
                 stack.damage = lootInfo.getInt("damage")
                 mc.itemRenderer.renderItem(stack, ItemCameraTransforms.TransformType.FIXED)

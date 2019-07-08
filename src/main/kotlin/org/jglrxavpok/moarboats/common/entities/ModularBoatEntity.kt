@@ -34,6 +34,7 @@ import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import net.minecraftforge.fluids.capability.IFluidHandler
 import net.minecraftforge.fluids.capability.IFluidTankProperties
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData
+import net.minecraftforge.fml.network.PacketDistributor
 import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.wrapper.InvWrapper
 import org.jglrxavpok.moarboats.MoarBoats
@@ -323,7 +324,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
         dataManager[MODULE_DATA] = moduleData // uses the setter of 'moduleData' to update the state
         if(!world.isRemote) {
             try {
-                MoarBoats.network.sendToAll(SModuleData(entityID, moduleData))
+                MoarBoats.network.send(PacketDistributor.ALL.noArg(), SModuleData(entityID, moduleData))
             } catch (t: Throwable) { // please don't crash
                 MoarBoats.logger.warn(t) // sometimes the data is sent even though the packet has no dispatcher
             }
@@ -333,7 +334,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
     private fun updateModuleLocations(sendUpdate: Boolean = true) {
         dataManager[MODULE_LOCATIONS] = moduleLocations // uses the setter of 'moduleLocations' to update the state
         if(!world.isRemote && sendUpdate) {
-            MoarBoats.network.sendToAll(SModuleLocations(entityID, moduleLocations))
+            MoarBoats.network.send(PacketDistributor.ALL.noArg(), SModuleLocations(entityID, moduleLocations))
         }
     }
 
@@ -380,7 +381,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
         module.dropItemsOnDeath(this, killedByPlayerInCreative)
     }
 
-    override fun isValidLiquidBlock(pos: BlockPos) = Fluids.isUsualLiquidBlock(pos)
+    override fun isValidLiquidBlock(pos: BlockPos) = Fluids.isUsualLiquidBlock(world, pos)
 
     override fun attackEntityFrom(source: DamageSource, amount: Float) = when(source) {
         DamageSource.LAVA, DamageSource.IN_FIRE, DamageSource.ON_FIRE -> false

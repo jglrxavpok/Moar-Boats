@@ -147,7 +147,7 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
 
     override fun render(mouseX: Int, mouseY: Int, partialTicks: Float) {
         super.render(mouseX, mouseY, partialTicks)
-        list.render(mouseX, mouseY, partialTicks)
+        list.drawScreen(mouseX, mouseY, partialTicks)
 
         renderHoveredToolTip(mouseX, mouseY)
     }

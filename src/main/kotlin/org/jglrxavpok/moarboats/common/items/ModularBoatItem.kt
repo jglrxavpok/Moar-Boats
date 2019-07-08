@@ -76,7 +76,7 @@ class ModularBoatItem(val dyeColor: EnumDyeColor): BaseBoatItem() {
                 color,
                 ModularBoatEntity.OwningMode.PlayerOwned,
                 playerIn.gameProfile.id).apply {
-                    readEntityFromNBT(itemstack.getOrCreateChildTag("boat_data"))
+                    readAdditional(itemstack.getOrCreateChildTag("boat_data"))
                 }
     }
 
@@ -129,8 +129,7 @@ abstract class BaseBoatItem: Item(Item.Properties().group(MoarBoats.CreativeTab)
             } else if (raytraceresult.type != RayTraceResult.Type.BLOCK) {
                 return ActionResult(EnumActionResult.PASS, itemstack)
             } else {
-                val block = worldIn.getBlockState(raytraceresult.blockPos)
-                val inUsualFluid = Fluids.isUsualLiquidBlock(block)
+                val inUsualFluid = Fluids.isUsualLiquidBlock(worldIn, raytraceresult.blockPos)
                 val entityboat = createBoat(worldIn, raytraceresult, inUsualFluid, itemstack, playerIn)
                 entityboat.rotationYaw = playerIn.rotationYaw
 

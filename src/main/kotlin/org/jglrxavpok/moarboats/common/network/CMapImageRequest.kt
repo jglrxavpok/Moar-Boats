@@ -1,17 +1,13 @@
 package org.jglrxavpok.moarboats.common.network
 
-import io.netty.buffer.ByteBuf
-import net.minecraft.block.material.MapColor
+import net.minecraft.block.material.MaterialColor
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import net.minecraft.world.dimension.DimensionType
 import net.minecraft.world.storage.MapData
 import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.fml.common.network.ByteBufUtils
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import net.minecraftforge.fml.network.NetworkEvent
-import net.minecraftforge.fml.relauncher.Side
+import net.minecraftforge.fml.network.PacketDistributor
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.modules.HelmModule.StripeLength
 import kotlin.concurrent.thread
@@ -38,7 +34,7 @@ class CMapImageRequest(): MoarBoatsPacket {
             repeat(stripes) { index ->
                 thread {
                     val textureData = takeScreenshotOfMapArea(index, mapData, world)
-                    MoarBoats.network.sendTo(SMapImageAnswer(message.mapName, index, textureData), player)
+                    MoarBoats.network.send(PacketDistributor.PLAYER.with { player }, SMapImageAnswer(message.mapName, index, textureData))
                 }
             }
             return null
@@ -71,7 +67,7 @@ class CMapImageRequest(): MoarBoatsPacket {
                     val mapColor = if (j / 4 == 0) {
                         (i + i / 128 and 1) * 8 + 16 shl 24
                     } else {
-                        getMapColor(MapColor.COLORS[j / 4], j and 3)
+                        getMapColor(MaterialColor.COLORS[j / 4], j and 3)
                     }
                     val chunk = try {
                         world.chunkProvider.getChunk(chunkX, chunkZ, false, false)
@@ -90,8 +86,8 @@ class CMapImageRequest(): MoarBoatsPacket {
                     for(y in world.actualHeight downTo 0) {
                         blockPos.setPos(x, y, z)
                         val blockState = chunk.getBlockState(blockPos)
-                        val color = blockState.getMapColor(world, blockPos)
-                        if(color != MapColor.AIR) {
+                        val color = blockState.getMaterialColor(world, blockPos)
+                        if(color != MaterialColor.AIR) {
                             textureData[pixelZ*size+pixelX] = (color.colorValue) or 0xFF000000.toInt()
 
                             if(blockState.material.isLiquid) {
@@ -116,7 +112,7 @@ class CMapImageRequest(): MoarBoatsPacket {
             return textureData
         }
 
-        private fun getMapColor(mapColor: MapColor, index: Int): Int {
+        private fun getMapColor(mapColor: MaterialColor, index: Int): Int {
             var i = 220
 
             if (index == 3) {

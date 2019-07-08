@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.AbstractClientPlayer
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.Tessellator
+import net.minecraft.client.renderer.color.IItemColor
 import net.minecraft.client.renderer.entity.RenderPlayer
 import net.minecraft.client.renderer.entity.model.ModelBox
 import net.minecraft.client.renderer.entity.model.ModelPlayer
@@ -80,7 +81,7 @@ object ClientEvents {
             it.registerModuleRenderers(BoatModuleRenderingRegistry)
         }
 
-        mc.itemColors.register({ stack: ItemStack, tint: Int ->
+        mc.itemColors.register( IItemColor { stack: ItemStack, tint: Int ->
             (stack.item as ModularBoatItem).dyeColor.colorValue
         }, *ModularBoatItem.AllVersions)
 

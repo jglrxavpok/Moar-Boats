@@ -2,7 +2,6 @@ package org.jglrxavpok.moarboats.extensions
 
 import net.minecraft.block.BlockLiquid
 import net.minecraft.block.state.IBlockState
-import net.minecraft.util.EnumFacing
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import net.minecraftforge.fluids.BlockFluidBase
@@ -33,5 +32,5 @@ object Fluids {
             1.0f - BlockLiquid.getLiquidHeightPercent(level)
     }
 
-    fun isUsualLiquidBlock(pos: BlockPos) = blockstate.block is BlockFluidBase || blockstate.block is BlockLiquid
+    fun isUsualLiquidBlock(world: World, pos: BlockPos) = blockstate.block is BlockFluidBase || blockstate.block is BlockLiquid
 }

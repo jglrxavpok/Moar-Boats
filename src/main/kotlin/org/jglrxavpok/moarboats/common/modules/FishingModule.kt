@@ -18,6 +18,7 @@ import net.minecraft.world.storage.loot.LootTableList
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.common.util.Constants
+import net.minecraftforge.fml.network.PacketDistributor
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
@@ -80,7 +81,7 @@ object FishingModule : BoatModule() {
                 // catch fish
                 val builder = LootContext.Builder(from.worldRef as WorldServer)
                 builder.withLuck(luck.toFloat())
-                val result = from.worldRef.lootTableManager.getLootTableFromLocation(LootTableList.GAMEPLAY_FISHING).generateLootForPools(from.moduleRNG, builder.build())
+                val result = from.worldRef.server!!.lootTableManager.getLootTableFromLocation(LootTableList.GAMEPLAY_FISHING).generateLootForPools(from.moduleRNG, builder.build())
                 val lootList = NBTTagList()
                 result.forEach {
                     val info = NBTTagCompound()
@@ -152,7 +153,7 @@ object FishingModule : BoatModule() {
 
     private fun breakRod(from: IControllable) {
         from.getInventory().setInventorySlotContents(0, ItemStack.EMPTY)
-        MoarBoats.network.sendToAll(SPlaySound(from.positionX, from.positionY, from.positionZ, SoundEvents.ITEM_SHIELD_BREAK, SoundCategory.PLAYERS, 0.8f, 0.8f + Math.random().toFloat() * 0.4f))
+        MoarBoats.network.send(PacketDistributor.ALL.noArg(), SPlaySound(from.positionX, from.positionY, from.positionZ, SoundEvents.ITEM_SHIELD_BREAK, SoundCategory.PLAYERS, 0.8f, 0.8f + Math.random().toFloat() * 0.4f))
     }
 
     override fun onAddition(to: IControllable) {

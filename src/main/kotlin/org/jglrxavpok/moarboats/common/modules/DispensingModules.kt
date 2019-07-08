@@ -75,7 +75,7 @@ abstract class DispensingModule: BoatModule() {
                 .mapIndexed { index, itemStack -> Pair(startIndex+index, itemStack) }
                 .firstOrNull { val item = it.second.item
                     item is ItemBlock
-                            || BlockDispenser.DISPENSE_BEHAVIOR_REGISTRY.getObject(item) !is BehaviorDefaultDispenseItem
+                            || BlockDispenser.DISPENSE_BEHAVIOR_REGISTRY[item] !is BehaviorDefaultDispenseItem
                 }
     }
 
@@ -156,7 +156,7 @@ object DispenserModule: DispensingModule() {
         firstValidStack(inventoryRowStart, boat)?.let { (index, stack) ->
             val item = stack.item
             val world = boat.worldRef
-            val behavior = BlockDispenser.DISPENSE_BEHAVIOR_REGISTRY.getObject(item)
+            val behavior = BlockDispenser.DISPENSE_BEHAVIOR_REGISTRY[item]!!
             if(behavior.javaClass === BehaviorDefaultDispenseItem::class.java) {
                 if(item is ItemBlock) {
                     useItemBlock(item, world, stack, blockPos, boat, row)
@@ -180,9 +180,9 @@ object DispenserModule: DispensingModule() {
         val facing = boat.reorientate(facingProperty[boat]).opposite
         val blockPos = pos.offset(facing)
         val block = item.block
-        val newState = block.getStateFromMeta(stack.metadata)
-        if(world.isAirBlock(blockPos) || Fluids.isUsualLiquidBlock(world.getBlockState(blockPos))) {
-            if(world.mayPlace(block, blockPos, false, facing.opposite, boat.correspondingEntity)) {
+        val newState = block.defaultState // TODO: handle multiple types?
+        if(world.isAirBlock(blockPos) || Fluids.isUsualLiquidBlock(world, blockPos)) {
+            if(block.getStateForPlacement(block, blockPos, false, facing.opposite, boat.correspondingEntity)) {
                 val succeeded = world.setBlockState(blockPos, newState, 11)
                 if (succeeded) {
                     try {
@@ -211,9 +211,9 @@ object DispenserModule: DispensingModule() {
                 val nbttagcompound1 = tileentity.write(NBTTagCompound())
                 val nbttagcompound2 = nbttagcompound1.copy()
                 nbttagcompound1.merge(nbttagcompound)
-                nbttagcompound1.setInt("x", pos.x)
-                nbttagcompound1.setInt("z", pos.z)
-                nbttagcompound1.setInt("y", pos.y)
+                nbttagcompound1.putInt("x", pos.x)
+                nbttagcompound1.putInt("z", pos.z)
+                nbttagcompound1.putInt("y", pos.y)
 
                 if (nbttagcompound1 != nbttagcompound2) {
                     tileentity.read(nbttagcompound1)

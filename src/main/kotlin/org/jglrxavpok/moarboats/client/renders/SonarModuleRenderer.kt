@@ -11,6 +11,7 @@ import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.common.modules.SonarModule
 import org.jglrxavpok.moarboats.common.modules.SurroundingsMatrix
 import org.jglrxavpok.moarboats.extensions.toDegrees
+import kotlin.math.atan2
 
 object SonarModuleRenderer : BoatModuleRenderer() {
 
@@ -51,7 +52,7 @@ object SonarModuleRenderer : BoatModuleRenderer() {
                         GlStateManager.scalef(0.25f, 0.25f, 0.25f)
                         GlStateManager.translated(xOffset.toDouble(), 1.0, zOffset.toDouble())
 
-                        val angle = Math.atan2(gradientVal.y.toDouble(), gradientVal.x.toDouble()).toDegrees()
+                        val angle = atan2(gradientVal.y.toDouble(), gradientVal.x.toDouble()).toDegrees()
                         GlStateManager.rotatef(angle.toFloat(), 0f, 1f, 0f)
                         GlStateManager.scalef(0.1f, 0.1f, gradientVal.length().toFloat() * 0.1f)
                         if(potentialState.block is BlockLiquid) {

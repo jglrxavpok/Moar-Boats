@@ -10,6 +10,7 @@ import net.minecraft.client.Minecraft
 import net.minecraft.entity.EntityType
 import net.minecraft.item.*
 import net.minecraft.item.crafting.IRecipe
+import net.minecraft.item.crafting.RecipeManager
 import net.minecraft.network.datasync.DataSerializers
 import net.minecraft.server.dedicated.DedicatedServer
 import net.minecraft.tileentity.TileEntity
@@ -142,8 +143,19 @@ object MoarBoats {
     }
 
     @SubscribeEvent
+    fun setup(event: FMLCommonSetupEvent) {
+
+    }
+
+    @SubscribeEvent
     fun initDedicatedServer(event: FMLDedicatedServerSetupEvent) {
         dedicatedServerInstance = event.serverSupplier.get()
+        dedicatedServerInstance?.let {
+            it.recipeManager.addRecipe(ModularBoatColoringRecipe)
+            it.recipeManager.addRecipe(GoldenTicketCopyRecipe)
+            it.recipeManager.addRecipe(UpgradeToGoldenTicketRecipe)
+            it.recipeManager.addRecipe(MapWithPathRecipe)
+        }
     }
 
     @SubscribeEvent
@@ -201,14 +213,6 @@ object MoarBoats {
     @SubscribeEvent
     fun registerEntities(e: RegistryEvent.Register<EntityType<*>>) {
         e.registry.registerAll(*EntityEntries.list.toTypedArray())
-    }
-
-    @SubscribeEvent
-    fun registerRecipes(e: RegistryEvent.Register<IRecipe>) {
-        e.registry.register(ModularBoatColoringRecipe)
-        e.registry.register(GoldenTicketCopyRecipe)
-        e.registry.register(UpgradeToGoldenTicketRecipe)
-        e.registry.register(MapWithPathRecipe)
     }
 
     fun getLocalMapStorage(dimensionType: DimensionType = DimensionType.OVERWORLD): WorldSavedDataStorage {

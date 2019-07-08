@@ -16,10 +16,12 @@ import net.minecraft.world.storage.WorldSavedDataStorage
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.common.util.Constants
 import net.minecraftforge.fml.DistExecutor
+import net.minecraftforge.fml.network.PacketDistributor
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.data.LoopingOptions
 import org.jglrxavpok.moarboats.common.network.SSetGoldenItinerary
 import java.util.*
+import java.util.concurrent.Callable
 
 abstract class ItemPath(id: String): MoarBoatsItem(id, { maxStackSize(1) }) {
 
@@ -182,7 +184,9 @@ object ItemGoldenTicket: ItemPath("golden_ticket") {
         mapStorage.set(DimensionType.OVERWORLD, uuid, data)
 
         DistExecutor.callWhenOn(Dist.DEDICATED_SERVER) {
-            MoarBoats.network.sendToAll(SSetGoldenItinerary(data))
+            Callable<Unit> {
+                MoarBoats.network.send(PacketDistributor.ALL.noArg(), SSetGoldenItinerary(data))
+            }
         }
     }
 

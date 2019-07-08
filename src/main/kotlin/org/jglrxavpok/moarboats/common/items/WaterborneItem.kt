@@ -14,7 +14,7 @@ import net.minecraft.world.World
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.blocks.BlockUnpoweredWaterborneConductor
 
-abstract class WaterborneItem : Item() {
+abstract class WaterborneItem(id: String) : MoarBoatsItem(id) {
 
     abstract val correspondingBlock: Block
 

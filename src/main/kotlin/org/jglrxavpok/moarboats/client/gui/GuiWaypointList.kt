@@ -1,6 +1,7 @@
 package org.jglrxavpok.moarboats.client.gui
 
 import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.GuiListExtended
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.nbt.NBTTagCompound
@@ -8,7 +9,7 @@ import net.minecraft.util.ResourceLocation
 import net.minecraftforge.fml.client.config.GuiUtils.drawGradientRect
 
 class GuiWaypointList(val mc: Minecraft, val parent: GuiMappingTable, width: Int, height: Int, top: Int, left: Int, entryHeight: Int, screenWidth: Int, screenHeight: Int):
-        GuiScrollingList(mc, width, height, top, top+height, left, entryHeight, screenWidth, screenHeight) {
+        GuiListExtended/*TODO*/(mc, width, height, top, top+height, left, entryHeight, screenWidth, screenHeight) {
 
     val slots = mutableListOf<NBTTagCompound>()
     val slotTops = hashMapOf<Int, Int>()

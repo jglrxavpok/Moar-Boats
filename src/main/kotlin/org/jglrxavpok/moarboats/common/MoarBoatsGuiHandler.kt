@@ -7,13 +7,11 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import net.minecraft.world.dimension.DimensionType
 import net.minecraft.world.storage.MapData
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import net.minecraftforge.fml.common.network.IGuiHandler
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.gui.*
 import org.jglrxavpok.moarboats.common.containers.ContainerMappingTable
 import org.jglrxavpok.moarboats.common.containers.EnergyContainer
-import org.jglrxavpok.moarboats.common.containers.FluidContainer
 import org.jglrxavpok.moarboats.common.data.BoatPathHolder
 import org.jglrxavpok.moarboats.common.data.GoldenTicketPathHolder
 import org.jglrxavpok.moarboats.common.data.MapWithPathHolder
@@ -85,7 +83,7 @@ object MoarBoatsGuiHandler: IGuiHandler {
                     null
                 }
             }
-            FluidGui -> {
+           /* FluidGui -> {
                 val pos = BlockPos.PooledMutableBlockPos.retain(x, y, z)
                 val te = world.getTileEntity(pos)
                 pos.close()
@@ -95,7 +93,7 @@ object MoarBoatsGuiHandler: IGuiHandler {
                         GuiFluid(te, te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null).orElseThrow(::NullPointerException), player)
                     else -> null
                 }
-            }
+            }*/
             MappingTableGui -> {
                 val pos = BlockPos.PooledMutableBlockPos.retain(x, y, z)
                 val te = world.getTileEntity(pos)
@@ -150,7 +148,7 @@ object MoarBoatsGuiHandler: IGuiHandler {
                     null
                 }
             }
-            FluidGui -> {
+           /* FluidGui -> {
                 val pos = BlockPos.PooledMutableBlockPos.retain(x, y, z)
                 val te = world.getTileEntity(pos)
                 pos.close()
@@ -160,7 +158,7 @@ object MoarBoatsGuiHandler: IGuiHandler {
                         FluidContainer(te, te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null).orElseThrow(::NullPointerException), player)
                     else -> null
                 }
-            }
+            }*/
             MappingTableGui -> {
                 val pos = BlockPos.PooledMutableBlockPos.retain(x, y, z)
                 val te = world.getTileEntity(pos)

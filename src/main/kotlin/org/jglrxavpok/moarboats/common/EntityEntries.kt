@@ -12,10 +12,10 @@ object EntityEntries {
     val ModularBoat = EntityType.Builder.create(ModularBoatEntity::class.java, ::ModularBoatEntity)
             .tracker(64, 3, true)
             .build("moarboats.modular_boat")
-            .setRegistryName(ResourceLocation(MoarBoats.ModID, "modular_boat"))
+            .setRegistryName(ResourceLocation(MoarBoats.ModID, "modular_boat")) as EntityType<ModularBoatEntity>
     val AnimalBoat = EntityType.Builder.create(AnimalBoatEntity::class.java, ::AnimalBoatEntity)
             .tracker(64, 3, true)
             .build("moarboats.animal_boat")
-            .setRegistryName(ResourceLocation(MoarBoats.ModID, "animal_boat"))
+            .setRegistryName(ResourceLocation(MoarBoats.ModID, "animal_boat")) as EntityType<AnimalBoatEntity>
     val list = listOf(ModularBoat, AnimalBoat)
 }
