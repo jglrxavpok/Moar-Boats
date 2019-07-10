@@ -23,7 +23,7 @@ class MoarBoatsPatreonHookLayer(val renderplayer: RenderPlayer) : LayerRenderer<
     }
 
     override fun render(entitylivingbaseIn: EntityLivingBase, limbSwing: Float, limbSwingAmount: Float, partialTicks: Float, ageInTicks: Float, netHeadYaw: Float, headPitch: Float, scale: Float) {
-        if(MoarBoatsConfig.misc.hidePatreonHook) {
+        if(MoarBoatsConfig.misc.hidePatreonHook.get()) {
             return
         }
         if((entitylivingbaseIn as EntityPlayer).gameProfile.id.toString().toLowerCase() !in MoarBoats.PatreonList) {

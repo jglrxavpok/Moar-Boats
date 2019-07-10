@@ -75,7 +75,7 @@ object FishingModule : BoatModule() {
 
             val lureSpeed = EnchantmentHelper.getFishingSpeedBonus(rodStack)
 
-            val randNumber = from.moduleRNG.nextInt((400 - lureSpeed*50)*9) / MoarBoatsConfig.fishing.speedMultiplier
+            val randNumber = from.moduleRNG.nextInt((400 - lureSpeed*50)*9) / MoarBoatsConfig.fishing.speedMultiplier.get()
             if(randNumber <= 1f) {
                 val luck = EnchantmentHelper.getFishingLuckBonus(rodStack)
                 // catch fish
@@ -105,7 +105,7 @@ object FishingModule : BoatModule() {
                     breakRod(from)
                     changeRodIfPossible(from)
                     return
-                } else if(rodStack.damage >= rodStack.maxDamage - MoarBoatsConfig.fishing.remainingUsesBeforeRemoval) {
+                } else if(rodStack.damage >= rodStack.maxDamage - MoarBoatsConfig.fishing.remainingUsesBeforeRemoval.get()) {
                     changeRodIfPossible(from)
                     return
                 }
@@ -133,7 +133,7 @@ object FishingModule : BoatModule() {
             var foundReplacement = false
             for(index in 0 until storageInventory.sizeInventory) {
                 val stack = storageInventory.getStackInSlot(index)
-                if(stack.item is ItemFishingRod && stack.damage < stack.maxDamage - MoarBoatsConfig.fishing.remainingUsesBeforeRemoval) {
+                if(stack.item is ItemFishingRod && stack.damage < stack.maxDamage - MoarBoatsConfig.fishing.remainingUsesBeforeRemoval.get()) {
                     // Swap rods if possible
                     foundReplacement = true
                     storageInventory.setInventorySlotContents(index, inventory.getStackInSlot(0))

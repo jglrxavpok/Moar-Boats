@@ -119,7 +119,7 @@ object ClientEvents {
         val player = mc.player
         if(mc.player.gameProfile.id.toString().toLowerCase() in MoarBoats.PatreonList) {
             if(event.hand == EnumHand.MAIN_HAND && player.getHeldItem(event.hand).isEmpty) {
-                if(MoarBoatsConfig.misc.hidePatreonHook) {
+                if(MoarBoatsConfig.misc.hidePatreonHook.get()) {
                     return
                 }
 

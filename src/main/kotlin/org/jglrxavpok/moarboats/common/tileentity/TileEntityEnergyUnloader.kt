@@ -8,6 +8,7 @@ import net.minecraftforge.energy.CapabilityEnergy
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.blocks.Facing
+import kotlin.math.ceil
 
 class TileEntityEnergyUnloader: TileEntityEnergy(MoarBoats.TileEntityEnergyUnloaderType), ITickable {
     override val maxReceivableEnergy = 0
@@ -24,16 +25,16 @@ class TileEntityEnergyUnloader: TileEntityEnergy(MoarBoats.TileEntityEnergyUnloa
 
         val facings = EnumFacing.values().toMutableList()
         facings.remove(blockFacing)
-        pushEnergyToNeighbors(MoarBoatsConfig.energyUnloader.sendAmount, facings)
+        pushEnergyToNeighbors(MoarBoatsConfig.energyUnloader.sendAmount.get(), facings)
 
         val aabb = create3x3AxisAlignedBB(pos.offset(blockFacing))
         val entities = world.getEntitiesWithinAABB(Entity::class.java, aabb) { e -> e != null && e.getCapability(CapabilityEnergy.ENERGY, null).isPresent }
 
-        val totalEnergyToPull = minOf(MoarBoatsConfig.energyUnloader.pullAmount, maxEnergyStored-energyStored)
+        val totalEnergyToPull = minOf(MoarBoatsConfig.energyUnloader.pullAmount.get(), maxEnergyStored-energyStored)
         val entityCount = entities.size
         if(entityCount <= 0)
             return
-        val energyToExtractFromASingleNeighbor = Math.ceil(totalEnergyToPull.toDouble()/entityCount).toInt()
+        val energyToExtractFromASingleNeighbor = ceil(totalEnergyToPull.toDouble()/entityCount).toInt()
         var energyActuallyReceived = 0
         entities.forEach {
             val energyCapa = it.getCapability(CapabilityEnergy.ENERGY, null)
@@ -48,7 +49,7 @@ class TileEntityEnergyUnloader: TileEntityEnergy(MoarBoats.TileEntityEnergyUnloa
 
     override fun getRedstonePower(): Int {
         return if(working) {
-            val ratio = 1.0-(energyStored.toDouble()/maxEnergyStored) // signal is strongest when the buffer is empty (transfer almost finished)
+            val ratio = 1.0-(energyStored.toDouble()/maxEnergyStored.get()) // signal is strongest when the buffer is empty (transfer almost finished)
             val redstonePower = (ratio * 15).toInt()
             minOf(1, redstonePower) // give a signal of at least 1 if currently working
         } else {
@@ -62,7 +63,7 @@ class TileEntityEnergyUnloader: TileEntityEnergy(MoarBoats.TileEntityEnergyUnloa
 
     override fun canExtract() = true
 
-    override fun getMaxEnergyStored() = MoarBoatsConfig.energyUnloader.maxEnergy
+    override fun getMaxEnergyStored() = MoarBoatsConfig.energyUnloader.maxEnergy.get()
 
     override fun canReceive() = false
 }

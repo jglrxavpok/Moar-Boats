@@ -11,17 +11,10 @@ import org.jglrxavpok.moarboats.common.blocks.BlockUnpoweredCargoStopper
 import org.jglrxavpok.moarboats.common.blocks.BlockUnpoweredWaterborneComparator
 import org.jglrxavpok.moarboats.common.blocks.BlockUnpoweredWaterborneConductor
 
-object CargoStopperItem : WaterborneItem() {
+object CargoStopperItem : WaterborneItem("cargo_stopper") {
 
     override val correspondingBlock = BlockUnpoweredCargoStopper
     private val descriptionText = TextComponentTranslation(MoarBoats.ModID+".tile.cargo_stopper.description")
-
-    init {
-        creativeTab = MoarBoats.CreativeTab
-        unlocalizedName = "cargo_stopper"
-        registryName = ResourceLocation(MoarBoats.ModID, "cargo_stopper")
-        maxStackSize = 64
-    }
 
     override fun addInformation(stack: ItemStack?, player: World?, tooltip: MutableList<ITextComponent>, advanced: ITooltipFlag?) {
         tooltip.add(descriptionText)

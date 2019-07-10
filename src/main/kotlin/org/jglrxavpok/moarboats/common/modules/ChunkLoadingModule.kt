@@ -33,7 +33,7 @@ object ChunkLoadingModule: BoatModule() {
     override fun controlBoat(from: IControllable) { }
 
     override fun update(from: IControllable) {
-        if(!MoarBoatsConfig.chunkLoader.allowed)
+        if(!MoarBoatsConfig.chunkLoader.allowed.get())
             return
         forceChunks(from)
 
@@ -70,7 +70,7 @@ object ChunkLoadingModule: BoatModule() {
 
     override fun onInit(to: IControllable, fromItem: ItemStack?) {
         super.onInit(to, fromItem)
-        if(!MoarBoatsConfig.chunkLoader.allowed)
+        if(!MoarBoatsConfig.chunkLoader.allowed.get())
             return
         forceChunks(to)
     }

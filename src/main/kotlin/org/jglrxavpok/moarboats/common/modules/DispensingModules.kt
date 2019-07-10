@@ -82,7 +82,7 @@ abstract class DispensingModule: BoatModule() {
     private val pattern = Pattern.compile("^([a-z_]+:)?([a-z_]+)(\\/\\d+)?$")
 
     protected fun isAllowed(stack: ItemStack): Boolean {
-        val isInList = MoarBoatsConfig.dispenserModule.items.any { id ->
+        val isInList = MoarBoatsConfig.dispenserModule.items.get().any { id ->
             val matcher = pattern.matcher(id!!.trim(' ', '\n', '\r', '\b', '\t'))
             if(!matcher.matches())
                 return@any false
@@ -103,8 +103,8 @@ abstract class DispensingModule: BoatModule() {
             location == stack.item.registryName
         }
         return when {
-            isInList && MoarBoatsConfig.dispenserModule.configMode == "disallow" -> false
-            !isInList && MoarBoatsConfig.dispenserModule.configMode == "allow" -> false
+            isInList && MoarBoatsConfig.dispenserModule.configMode.get() == "disallow" -> false
+            !isInList && MoarBoatsConfig.dispenserModule.configMode.get() == "allow" -> false
             else -> true
         }
     }

@@ -20,7 +20,7 @@ object BatteryModule: BoatModule(), IEnergyBoatModule {
     override fun canGiveEnergy(boat: IControllable) = true
 
     override fun getMaxStorableEnergy(boat: IControllable): Int {
-        return MoarBoatsConfig.boatBattery.maxEnergy
+        return MoarBoatsConfig.boatBattery.maxEnergy.get()
     }
 
     override val id: ResourceLocation = ResourceLocation(MoarBoats.ModID, "battery")
