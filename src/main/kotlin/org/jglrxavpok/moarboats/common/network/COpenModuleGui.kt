@@ -4,7 +4,6 @@ import net.minecraft.util.ResourceLocation
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.fml.network.NetworkEvent
 import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 
 class COpenModuleGui(): MoarBoatsPacket {
@@ -27,8 +26,8 @@ class COpenModuleGui(): MoarBoatsPacket {
                 MoarBoats.logger.debug("$player tried to open boat menu while the boat with ID ${message.boatID} is not loaded (or doesn't exist?)")
                 return null
             }
-            val moduleIndex = boat.modules.indexOfFirst { it.id == message.moduleID }
-            player.displayGui(MoarBoats, MoarBoatsGuiHandler.ModulesGui, player.world, message.boatID, moduleIndex, 0)
+            val module = boat.modules.first { it.id == message.moduleID }
+            player.displayGui(module.generateInteractionObject(boat))
             return null
         }
     }

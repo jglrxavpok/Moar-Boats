@@ -3,6 +3,7 @@ package org.jglrxavpok.moarboats.client
 import net.alexwells.kottle.KotlinEventBusSubscriber
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.AbstractClientPlayer
+import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.color.IItemColor
@@ -25,19 +26,21 @@ import net.minecraftforge.client.event.RenderSpecificHandEvent
 import net.minecraftforge.client.model.ModelLoader
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraftforge.fml.ExtensionPoint
+import net.minecraftforge.fml.ModLoadingContext
 import net.minecraftforge.fml.client.registry.RenderingRegistry
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
+import net.minecraftforge.fml.network.FMLPlayMessages
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.models.ModelPatreonHook
 import org.jglrxavpok.moarboats.client.renders.*
-import org.jglrxavpok.moarboats.common.Blocks
-import org.jglrxavpok.moarboats.common.Items
-import org.jglrxavpok.moarboats.common.MoarBoatsConfig
-import org.jglrxavpok.moarboats.common.MoarBoatsProxy
+import org.jglrxavpok.moarboats.common.*
 import org.jglrxavpok.moarboats.common.entities.AnimalBoatEntity
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.items.ModularBoatItem
+import java.util.function.Function
+import java.util.function.Supplier
 
 @KotlinEventBusSubscriber(value = [Dist.CLIENT], modid = MoarBoats.ModID)
 object ClientEvents {
@@ -52,7 +55,14 @@ object ClientEvents {
             32, 48, -1.0f, -2.0f, -2.0f, 4, 9, 4, 0.0f + 0.25f)
     val hookModel = ModelPatreonHook()
 
+    private fun dispatch(container: FMLPlayMessages.OpenContainer): GuiScreen? {
+        return null
+    }
+
     fun doClientStuff(event: FMLClientSetupEvent) {
+        ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.GUIFACTORY) {
+            Function<FMLPlayMessages.OpenContainer, GuiScreen?> { container: FMLPlayMessages.OpenContainer -> dispatch(container) }
+        }
         MinecraftForge.EVENT_BUS.register(this)
 
         val mc = event.minecraftSupplier.get()

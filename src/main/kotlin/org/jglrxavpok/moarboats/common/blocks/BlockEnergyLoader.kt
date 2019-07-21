@@ -47,7 +47,7 @@ object BlockEnergyLoader: MoarBoatsBlock() {
     override fun onBlockActivated(state: IBlockState, worldIn: World, pos: BlockPos, playerIn: EntityPlayer, hand: EnumHand?, facing: EnumFacing?, hitX: Float, hitY: Float, hitZ: Float): Boolean {
         if(worldIn.isRemote)
             return true
-        playerIn.displayGui(MoarBoats, MoarBoatsGuiHandler.EnergyGui, worldIn, pos.x, pos.y, pos.z)
+        playerIn.displayGui(MoarBoatsGuiHandler.EnergyGuiInteraction(pos.x, pos.y, pos.z))
         return true
     }
 

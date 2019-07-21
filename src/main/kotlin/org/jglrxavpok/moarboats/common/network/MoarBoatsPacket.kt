@@ -1,14 +1,15 @@
 package org.jglrxavpok.moarboats.common.network
 
+import net.minecraft.init.SoundEvents
 import net.minecraft.inventory.ItemStackHelper
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
 import net.minecraft.network.PacketBuffer
-import net.minecraft.util.EnumFacing
-import net.minecraft.util.NonNullList
-import net.minecraft.util.ResourceLocation
+import net.minecraft.util.*
+import net.minecraft.util.registry.IRegistry
 import net.minecraftforge.fml.common.network.ByteBufUtils
+import net.minecraftforge.registries.GameData
 import org.jglrxavpok.moarboats.common.data.LoopingOptions
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import java.lang.UnsupportedOperationException
@@ -104,6 +105,15 @@ interface MoarBoatsPacket {
                     }
                 }
 
+                IntArray::class.java -> {
+                    val array = value as IntArray
+                    buffer.writeInt(array.size)
+                    for(i in 0 until array.size) {
+                        buffer.writeInt(array[i])
+                    }
+                }
+
+                // MC Types
                 NBTTagList::class.java -> {
                     val container = NBTTagCompound()
                     val list = value as NBTTagList
@@ -125,12 +135,12 @@ interface MoarBoatsPacket {
                     buffer.writeInt((value as EnumFacing).ordinal)
                 }
 
-                IntArray::class.java -> {
-                    val array = value as IntArray
-                    buffer.writeInt(array.size)
-                    for(i in 0 until array.size) {
-                        buffer.writeInt(array[i])
-                    }
+                SoundEvent::class.java -> {
+                    buffer.writeString((value as SoundEvent).registryName.toString())
+                }
+
+                SoundCategory::class.java -> {
+                    buffer.writeInt((value as SoundCategory).ordinal)
                 }
 
                 // Moar Boats special types
@@ -204,6 +214,14 @@ interface MoarBoatsPacket {
                     container.getList("_", type)
                 }
 
+                IntArray::class.java -> {
+                    val size = buffer.readInt()
+                    val array = IntArray(size) {
+                        buffer.readInt()
+                    }
+                }
+
+                // MC Types
                 NBTTagCompound::class.java -> {
                     buffer.readCompoundTag()!!
                 }
@@ -216,12 +234,14 @@ interface MoarBoatsPacket {
                     EnumFacing.values()[buffer.readInt() % EnumFacing.values().size]
                 }
 
-                IntArray::class.java -> {
-                    val size = buffer.readInt()
-                    val array = IntArray(size) {
-                        buffer.readInt()
-                    }
+                SoundEvent::class.java -> {
+                    GameData.getWrapper(SoundEvent::class.java).get(ResourceLocation(buffer.readString(200)))
                 }
+
+                SoundCategory::class.java -> {
+                    SoundCategory.values()[buffer.readInt() % SoundCategory.values().size]
+                }
+
 
                 // Moar Boats special types
                 ItemGoldenTicket.WaypointData::class.java -> {

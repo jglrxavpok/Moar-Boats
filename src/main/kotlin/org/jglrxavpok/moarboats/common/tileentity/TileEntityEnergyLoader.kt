@@ -12,7 +12,7 @@ import org.jglrxavpok.moarboats.common.blocks.Facing
 import kotlin.math.ceil
 
 class TileEntityEnergyLoader: TileEntityEnergy(MoarBoats.TileEntityEnergyLoaderType), ITickable {
-    override val maxReceivableEnergy = maxEnergyStored.get()
+    override val maxReceivableEnergy = maxEnergyStored
     override val maxExtractableEnergy = 0
     private var working: Boolean = false
 
@@ -31,7 +31,7 @@ class TileEntityEnergyLoader: TileEntityEnergy(MoarBoats.TileEntityEnergyLoaderT
         val aabb = create3x3AxisAlignedBB(pos.offset(blockFacing))
         val entities = world.getEntitiesWithinAABB(Entity::class.java, aabb) { e -> e != null && e.getCapability(CapabilityEnergy.ENERGY, null).isPresent }
 
-        val totalEnergyToSend = minOf(MoarBoatsConfig.energyLoader.sendAmount, energyStored)
+        val totalEnergyToSend = minOf(MoarBoatsConfig.energyLoader.sendAmount.get(), energyStored)
         val entityCount = entities.size
         if(entityCount <= 0)
             return

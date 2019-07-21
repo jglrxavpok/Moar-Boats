@@ -49,7 +49,7 @@ class TileEntityEnergyUnloader: TileEntityEnergy(MoarBoats.TileEntityEnergyUnloa
 
     override fun getRedstonePower(): Int {
         return if(working) {
-            val ratio = 1.0-(energyStored.toDouble()/maxEnergyStored.get()) // signal is strongest when the buffer is empty (transfer almost finished)
+            val ratio = 1.0-(energyStored.toDouble()/maxEnergyStored) // signal is strongest when the buffer is empty (transfer almost finished)
             val redstonePower = (ratio * 15).toInt()
             minOf(1, redstonePower) // give a signal of at least 1 if currently working
         } else {

@@ -199,7 +199,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
         val canOpenGui = validOwner && !modules.any { it.onInteract(this, player, hand, player.isSneaking) }
         if(canOpenGui) {
             if(modules.isNotEmpty() && !world.isRemote) {
-                player.displayGui(MoarBoats, MoarBoatsGuiHandler.ModulesGui, player.world, entityID, -1, 0)
+                player.displayGui(MoarBoatsGuiHandler.ModulesGuiInteraction(entityID, -1))
             }
         } else if(!validOwner) {
             player.sendStatusMessage(TextComponentTranslation(LockedByOwner.key, ownerName ?: "<UNKNOWN>"), true)

@@ -50,12 +50,12 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
         override fun onClick(mouseX: Double, mouseY: Double) {
             storeIntoNBT()
             MoarBoats.network.sendToServer(CModifyWaypoint(te, index, waypointData))
-            player.displayGui(MoarBoats, MoarBoatsGuiHandler.MappingTableGui, player.world, te.pos.x, te.pos.y, te.pos.z)
+            player.displayGui(MoarBoatsGuiHandler.MappingTableGuiInteraction(te.pos.x, te.pos.y, te.pos.z))
         }
     }
     private val cancelButton = object: GuiButton(id++, 0, 0, cancelText.formattedText) {
         override fun onClick(mouseX: Double, mouseY: Double) {
-            player.displayGui(MoarBoats, MoarBoatsGuiHandler.MappingTableGui, player.world, te.pos.x, te.pos.y, te.pos.z)
+            player.displayGui(MoarBoatsGuiHandler.MappingTableGuiInteraction(te.pos.x, te.pos.y, te.pos.z))
         }
     }
     private val refreshButton = object: GuiButton(id++, 0, 0, refreshText.formattedText) {
@@ -72,7 +72,7 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
     private val allInputs by lazy { intInputs+textInputs+doubleInputs }
     private val allButtons = listOf(confirmButton, cancelButton, hasBoostCheckbox, refreshButton)
 
-    private var waypointList: GuiWaypointEditorList = GuiWaypointEditorList(mc, this, 1, 1, 0, 0, 1, 1, 1) // not using lateinit because sometimes drawScreen/updateScreen are called before initGui
+    private var waypointList: GuiWaypointEditorList = GuiWaypointEditorList(mc, this, 1, 1, 0, 0, 1) // not using lateinit because sometimes drawScreen/updateScreen are called before initGui
 
     override fun onGuiClosed() {
         super.onGuiClosed()

@@ -4,6 +4,7 @@ import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.InventoryCrafting
 import net.minecraft.item.ItemStack
 import net.minecraft.item.crafting.IRecipe
+import net.minecraft.item.crafting.IRecipeSerializer
 import net.minecraft.util.ResourceLocation
 import net.minecraft.world.World
 import net.minecraftforge.oredict.DyeUtils
@@ -11,10 +12,14 @@ import net.minecraftforge.registries.ForgeRegistryEntry
 import net.minecraftforge.registries.IForgeRegistryEntry
 import org.jglrxavpok.moarboats.MoarBoats
 
-object ModularBoatColoringRecipe: ForgeRegistryEntry<IRecipe>(), IRecipe {
+object ModularBoatColoringRecipe: IRecipe {
 
-    init {
-        registryName = ResourceLocation(MoarBoats.ModID, "modular_boat_coloring")
+    override fun getId(): ResourceLocation {
+        return ResourceLocation(MoarBoats.ModID, "modular_boat_coloring")
+    }
+
+    override fun getSerializer(): IRecipeSerializer<*> {
+        return MBRecipeSerializers.BoatColoring
     }
 
     override fun canFit(width: Int, height: Int): Boolean {

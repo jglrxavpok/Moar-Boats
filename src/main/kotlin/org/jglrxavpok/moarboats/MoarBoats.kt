@@ -7,6 +7,8 @@ import net.minecraft.block.material.EnumPushReaction
 import net.minecraft.block.material.Material
 import net.minecraft.block.material.MaterialColor
 import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.GuiMainMenu
+import net.minecraft.client.gui.GuiScreen
 import net.minecraft.entity.EntityType
 import net.minecraft.item.*
 import net.minecraft.item.crafting.IRecipe
@@ -24,9 +26,12 @@ import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.event.RegistryEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.DistExecutor
+import net.minecraftforge.fml.ExtensionPoint
+import net.minecraftforge.fml.ModLoadingContext
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
 import net.minecraftforge.fml.event.lifecycle.FMLDedicatedServerSetupEvent
+import net.minecraftforge.fml.network.FMLPlayMessages
 import net.minecraftforge.fml.network.NetworkRegistry
 import net.minecraftforge.registries.RegistryBuilder
 import org.apache.logging.log4j.LogManager
@@ -46,6 +51,7 @@ import org.jglrxavpok.moarboats.common.tileentity.*
 import org.jglrxavpok.moarboats.integration.LoadIntegrationPlugins
 import org.jglrxavpok.moarboats.integration.MoarBoatsPlugin
 import java.net.URL
+import java.util.function.Function
 import java.util.function.Supplier
 import net.minecraft.init.Blocks as MCBlocks
 import net.minecraft.init.Items as MCItems
@@ -106,11 +112,10 @@ object MoarBoats {
     }
 
     @SubscribeEvent
-    fun preInit(event: FMLCommonSetupEvent) {
+    fun setup(event: FMLCommonSetupEvent) {
         MinecraftForge.EVENT_BUS.register(this)
         MinecraftForge.EVENT_BUS.register(ItemEventHandler)
         MinecraftForge.EVENT_BUS.register(MoarBoatsConfig::javaClass)
-        proxy.preInit()
 /* FIXME        ForgeChunkManager.setForcedChunkLoadingCallback(MoarBoats) { tickets, world ->
             for(ticket in tickets) {
                 for(pos in ticket.chunkList) {
@@ -124,12 +129,14 @@ object MoarBoats {
         DataSerializers.registerSerializer(ResourceLocationsSerializer)
         DataSerializers.registerSerializer(UniqueIDSerializer)
         plugins.forEach(MoarBoatsPlugin::init)
+        MoarBoatsPacketList.registerAll()
         plugins.forEach(MoarBoatsPlugin::postInit)
-    }
 
-    @SubscribeEvent
-    fun init(event: FMLInitializationEvent) {
-        proxy.init() // FIXME: Packet initialization
+        ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.GUIFACTORY) {
+            Function<FMLPlayMessages.OpenContainer, GuiScreen> {
+                container: FMLPlayMessages.OpenContainer -> TODO("Not implemented yet")
+            }
+        }
     }
 
     @JvmStatic
@@ -140,11 +147,6 @@ object MoarBoats {
                 .setName(ResourceLocation(ModID, "module_registry"))
                 .setType(BoatModuleEntry::class.java)
                 .create()
-    }
-
-    @SubscribeEvent
-    fun setup(event: FMLCommonSetupEvent) {
-
     }
 
     @SubscribeEvent
@@ -176,7 +178,7 @@ object MoarBoats {
         event.registry.registerModule(DropperModule, MCBlocks.DROPPER.asItem(), { boat, module -> SimpleModuleInventory(3*5, "dropper", boat, module) })
         event.registry.registerModule(BatteryModule, BlockBoatBattery.asItem())
        // FIXME event.registry.registerModule(FluidTankModule, BlockBoatTank.asItem())
-        event.registry.registerModule(ChunkLoadingModule, ChunkLoaderItem, restriction = { MoarBoatsConfig.chunkLoader.allowed })
+        event.registry.registerModule(ChunkLoadingModule, ChunkLoaderItem, restriction = MoarBoatsConfig.chunkLoader.allowed::get)
         event.registry.registerModule(OarEngineModule, OarsItem)
         plugins.forEach { it.registerModules(event.registry) }
     }

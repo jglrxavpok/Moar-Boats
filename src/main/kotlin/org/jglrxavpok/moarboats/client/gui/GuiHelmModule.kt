@@ -47,7 +47,7 @@ class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: 
                 boat.modules.firstOrNull() { it.moduleSpot == BoatModule.Spot.Engine }?.let {
                     MoarBoats.network.sendToServer(CChangeEngineMode(boat.entityID, it.id, true))
                 }
-                playerInventory.player.displayGui(MoarBoats, MoarBoatsGuiHandler.PathEditor, boat.world, boat.entityID, 0, 0)
+                playerInventory.player.displayGui(MoarBoatsGuiHandler.PathEditorInteraction(boat.world, boat.entityID))
             }
         }
     }

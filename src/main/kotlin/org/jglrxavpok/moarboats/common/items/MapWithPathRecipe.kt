@@ -2,23 +2,24 @@ package org.jglrxavpok.moarboats.common.items
 
 import net.minecraft.init.Items
 import net.minecraft.inventory.IInventory
-import net.minecraft.inventory.InventoryCrafting
 import net.minecraft.item.EnumDyeColor
 import net.minecraft.item.ItemStack
 import net.minecraft.item.crafting.IRecipe
+import net.minecraft.item.crafting.IRecipeSerializer
 import net.minecraft.nbt.NBTTagList
 import net.minecraft.util.ResourceLocation
 import net.minecraft.world.World
 import net.minecraftforge.oredict.DyeUtils
-import net.minecraftforge.registries.ForgeRegistryEntry
-import net.minecraftforge.registries.IForgeRegistryEntry
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.data.LoopingOptions
 
-object MapWithPathRecipe: ForgeRegistryEntry<IRecipe>(), IRecipe {
+object MapWithPathRecipe: IRecipe {
+    override fun getId(): ResourceLocation {
+        return ResourceLocation(MoarBoats.ModID, "map_with_path")
+    }
 
-    init {
-        registryName = ResourceLocation(MoarBoats.ModID, "map_with_path")
+    override fun getSerializer(): IRecipeSerializer<*> {
+        return MBRecipeSerializers.MapWithPath
     }
 
     override fun canFit(width: Int, height: Int): Boolean {

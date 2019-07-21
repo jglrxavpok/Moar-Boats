@@ -352,7 +352,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
                         val iblockstate = this.world.getBlockState(currentPosition)
 
                         if(isValidLiquidBlock(currentPosition))
-                            f = maxOf(f, Fluids.getBlockLiquidHeight(iblockstate, world, currentPosition))
+                            f = maxOf(f, Fluids.getBlockLiquidHeight(world, currentPosition))
 
                         if (f >= 1.0f) {
                             continue@label108
@@ -587,7 +587,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
     abstract fun getBoatItem(): Item
 
     open fun getLiquidHeight(world: World, blockPos: BlockPos): Float {
-        return Fluids.getLiquidHeight(world.getBlockState(blockPos), world, blockPos)
+        return Fluids.getLiquidHeight(world, blockPos)
     }
 
     /**
@@ -615,7 +615,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
                         if (isValidLiquidBlock(currentBlockPos)) {
                             val liquidLevel = getLiquidHeight(world, currentBlockPos).toDouble()
                             if(aboveMaxY < liquidLevel) {
-                                if (Fluids.getLiquidLocalLevel(currentBlockPos) != 0) {
+                                if (Fluids.getLiquidLocalLevel(world, currentBlockPos) != 0) {
                                     return Status.UNDER_FLOWING_LIQUID
                                 }
 

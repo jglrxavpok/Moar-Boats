@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.integration
 
+import com.google.common.reflect.ClassPath
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.common.MinecraftForge
@@ -11,6 +12,7 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModuleEntry
 import org.jglrxavpok.moarboats.client.renders.BoatModuleRenderer
 import org.jglrxavpok.moarboats.common.network.MBMessageHandler
+import org.jglrxavpok.moarboats.common.network.MoarBoatsPacket
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
@@ -27,7 +29,7 @@ interface MoarBoatsPlugin {
     fun init() {}
     fun postInit() {}
     fun registerModules(registry: IForgeRegistry<BoatModuleEntry>) {}
-    fun handlers(): List<MBMessageHandler<out IMessage, out IMessage?>> = emptyList()
+    fun handlers(): List<MBMessageHandler<out MoarBoatsPacket, out MoarBoatsPacket?>> = emptyList()
 
     fun registerAsEventSubscriber() {
         MinecraftForge.EVENT_BUS.register(this)
@@ -72,7 +74,7 @@ fun LoadIntegrationPlugins(event: FMLCommonSetupEvent): List<MoarBoatsPlugin> {
         }
         return null
     }
-
+    // TODO: Use Google Classpath
     // Go through all classes that have @MoarBoatsIntegration
     val classes = event.asmData.getAll(MoarBoatsIntegration::class.java.canonicalName)//ClassPath.from(MoarBoats::class.java.classLoader).allClasses
     val plugins = mutableListOf<MoarBoatsPlugin>()

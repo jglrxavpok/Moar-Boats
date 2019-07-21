@@ -4,6 +4,7 @@ import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.InventoryCrafting
 import net.minecraft.item.ItemStack
 import net.minecraft.item.crafting.IRecipe
+import net.minecraft.item.crafting.IRecipeSerializer
 import net.minecraft.util.ResourceLocation
 import net.minecraft.world.World
 import net.minecraftforge.registries.ForgeRegistryEntry
@@ -11,10 +12,13 @@ import net.minecraftforge.registries.IForgeRegistryEntry
 import org.jglrxavpok.moarboats.MoarBoats
 import java.util.*
 
-object UpgradeToGoldenTicketRecipe: ForgeRegistryEntry<IRecipe>(), IRecipe {
+object UpgradeToGoldenTicketRecipe: IRecipe {
+    override fun getId(): ResourceLocation {
+        return ResourceLocation(MoarBoats.ModID, "upgrade_to_golden_itinerary")
+    }
 
-    init {
-        registryName = ResourceLocation(MoarBoats.ModID, "upgrade_to_golden_itinerary")
+    override fun getSerializer(): IRecipeSerializer<*> {
+        return MBRecipeSerializers.UpgradeToGoldenTicket
     }
 
     override fun canFit(width: Int, height: Int): Boolean {

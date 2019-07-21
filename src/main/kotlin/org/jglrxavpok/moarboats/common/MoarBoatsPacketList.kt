@@ -1,14 +1,12 @@
 package org.jglrxavpok.moarboats.common
 
-import net.minecraftforge.fml.network.NetworkRegistry
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.network.*
 
 
-open class MoarBoatsProxy {
+object MoarBoatsPacketList {
 
-    open fun init() {
-        NetworkRegistry.INSTANCE.registerGuiHandler(MoarBoats, MoarBoatsGuiHandler)
+    fun registerAll() {
         val pluginHandlers = MoarBoats.plugins.flatMap { it.handlers() }
         registerMessages(
                 COpenModuleGui.Handler,
@@ -29,7 +27,7 @@ open class MoarBoatsProxy {
                 SModuleLocations.Handler,
                 CRemoveModule.Handler,
                 CChangeDispenserFacing.Handler,
-                SUpdateFluidGui.Handler,
+                // FIXME SUpdateFluidGui.Handler,
                 CSaveItineraryToMap.Handler,
                 SSetGoldenItinerary.Handler,
                 CAddWaypointToItemPathFromMappingTable.Handler,
@@ -53,7 +51,7 @@ open class MoarBoatsProxy {
                 )
     }
 
-    private fun registerMessages(vararg handlers: MBMessageHandler<out IMessage, out IMessage?>) {
+    private fun registerMessages(vararg handlers: MBMessageHandler<out MoarBoatsPacket, out MoarBoatsPacket?>) {
         for((packetID, handler) in handlers.withIndex()) {
             handler.registerSelf(MoarBoats.network, packetID)
         }

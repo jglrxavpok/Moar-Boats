@@ -2,12 +2,16 @@ package org.jglrxavpok.moarboats.api
 
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.player.InventoryPlayer
+import net.minecraft.inventory.Container
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
+import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.TextComponentTranslation
+import net.minecraft.world.IInteractionObject
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.common.MinecraftForge
@@ -71,6 +75,10 @@ abstract class BoatModule {
     }
 
     open fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {}
+
+    fun generateInteractionObject(boat: IControllable): IInteractionObject {
+        return BoatModuleInteractionObject(this, boat)
+    }
 }
 
 class BoatModuleEntry(val correspondingItem: Item, val module: BoatModule, val inventoryFactory: ((IControllable, BoatModule) -> BoatModuleInventory)?, val restriction: () -> Boolean): ForgeRegistryEntry<BoatModuleEntry>()

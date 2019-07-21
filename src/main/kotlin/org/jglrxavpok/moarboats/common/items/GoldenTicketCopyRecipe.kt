@@ -1,19 +1,25 @@
 package org.jglrxavpok.moarboats.common.items
 
+import com.google.gson.JsonObject
 import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.InventoryCrafting
 import net.minecraft.item.ItemStack
 import net.minecraft.item.crafting.IRecipe
+import net.minecraft.item.crafting.IRecipeSerializer
+import net.minecraft.network.PacketBuffer
 import net.minecraft.util.ResourceLocation
 import net.minecraft.world.World
 import net.minecraftforge.registries.ForgeRegistryEntry
 import net.minecraftforge.registries.IForgeRegistryEntry
 import org.jglrxavpok.moarboats.MoarBoats
 
-object GoldenTicketCopyRecipe: ForgeRegistryEntry<IRecipe>(), IRecipe {
+object GoldenTicketCopyRecipe: IRecipe {
+    override fun getSerializer(): IRecipeSerializer<*> {
+        return MBRecipeSerializers.CopyGoldenTicket
+    }
 
-    init {
-        registryName = ResourceLocation(MoarBoats.ModID, "golden_itinerary")
+    override fun getId(): ResourceLocation {
+        return ResourceLocation(MoarBoats.ModID, "golden_itinerary")
     }
 
     override fun canFit(width: Int, height: Int): Boolean {

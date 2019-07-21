@@ -59,7 +59,7 @@ object BlockMappingTable: MoarBoatsBlock({ sound(SoundType.STONE).hardnessAndRes
         if(worldIn.isRemote) {
             return true
         }
-        playerIn.displayGui(MoarBoats, MoarBoatsGuiHandler.MappingTableGui, worldIn, pos.x, pos.y, pos.z)
+        playerIn.displayGui(MoarBoatsGuiHandler.MappingTableGuiInteraction(pos.x, pos.y, pos.z))
         return true
     }
 }
