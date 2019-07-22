@@ -9,7 +9,6 @@ import net.minecraft.item.crafting.IRecipeSerializer
 import net.minecraft.nbt.NBTTagList
 import net.minecraft.util.ResourceLocation
 import net.minecraft.world.World
-import net.minecraftforge.oredict.DyeUtils
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.data.LoopingOptions
 
@@ -40,8 +39,8 @@ object MapWithPathRecipe: IRecipe {
                     filledMap = stack
                 }
                 stack.item == Items.PAPER -> paperCount++
-                DyeUtils.isDye(stack) -> {
-                    if(DyeUtils.colorFromStack(stack).orElse(null) == EnumDyeColor.BLACK) {
+                EnumDyeColor.getColor(stack) != null -> {
+                    if(EnumDyeColor.getColor(stack) == EnumDyeColor.BLACK) {
                         blackDyeCount++
                     } else {
                         return ItemStack.EMPTY // invalid dye
@@ -72,8 +71,8 @@ object MapWithPathRecipe: IRecipe {
                     filledMap = stack
                 }
                 stack.item == Items.PAPER -> paperCount++
-                DyeUtils.isDye(stack) -> {
-                    if(DyeUtils.colorFromStack(stack).orElse(null) == EnumDyeColor.BLACK) {
+                EnumDyeColor.getColor(stack) != null -> {
+                    if(EnumDyeColor.getColor(stack) == EnumDyeColor.BLACK) {
                         blackDyeCount++
                     } else {
                         return false // invalid dye

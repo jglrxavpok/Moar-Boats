@@ -5,10 +5,10 @@ import org.jglrxavpok.moarboats.common.blocks.*
 
 object Blocks {
 
-    val list = listOf<Block>(BlockUnpoweredWaterborneConductor, BlockPoweredWaterborneConductor,
+    val list = listOf<Block>(BlockWaterborneConductor,
             BlockBoatBattery, BlockEnergyLoader, BlockEnergyUnloader,
-            BlockPoweredWaterborneComparator, BlockUnpoweredWaterborneComparator,
-            BlockPoweredCargoStopper, BlockUnpoweredCargoStopper,
+            BlockWaterborneComparator,
+            BlockCargoStopper,
             BlockBoatTank,
             // FIXME Will be back when fluids are back BlockFluidLoader, BlockFluidUnloader,
             BlockMappingTable)

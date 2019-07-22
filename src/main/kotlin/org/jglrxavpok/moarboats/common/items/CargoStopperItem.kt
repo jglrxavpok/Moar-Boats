@@ -7,13 +7,11 @@ import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.TextComponentTranslation
 import net.minecraft.world.World
 import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.common.blocks.BlockUnpoweredCargoStopper
-import org.jglrxavpok.moarboats.common.blocks.BlockUnpoweredWaterborneComparator
-import org.jglrxavpok.moarboats.common.blocks.BlockUnpoweredWaterborneConductor
+import org.jglrxavpok.moarboats.common.blocks.BlockCargoStopper
 
 object CargoStopperItem : WaterborneItem("cargo_stopper") {
 
-    override val correspondingBlock = BlockUnpoweredCargoStopper
+    override val correspondingBlock = BlockCargoStopper
     private val descriptionText = TextComponentTranslation(MoarBoats.ModID+".tile.cargo_stopper.description")
 
     override fun addInformation(stack: ItemStack?, player: World?, tooltip: MutableList<ITextComponent>, advanced: ITooltipFlag?) {

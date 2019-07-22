@@ -182,7 +182,7 @@ object DispenserModule: DispensingModule() {
         val block = item.block
         val newState = block.defaultState // TODO: handle multiple types?
         if(world.isAirBlock(blockPos) || Fluids.isUsualLiquidBlock(world, blockPos)) {
-            if(block.getStateForPlacement(block, blockPos, false, facing.opposite, boat.correspondingEntity)) {
+            if(block.isValidPosition(newState, world, blockPos)) {
                 val succeeded = world.setBlockState(blockPos, newState, 11)
                 if (succeeded) {
                     try {

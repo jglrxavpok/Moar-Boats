@@ -2,21 +2,25 @@ package org.jglrxavpok.moarboats.common.blocks
 
 import net.minecraft.block.Block
 import net.minecraft.block.BlockHorizontal
-import net.minecraft.block.BlockLiquid
 import net.minecraft.block.BlockRedstoneDiode
-import net.minecraft.block.state.BlockStateContainer
+import net.minecraft.block.SoundType
+import net.minecraft.block.material.Material
 import net.minecraft.block.state.IBlockState
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.item.ItemStack
-import net.minecraft.state.properties.BlockStateProperties.FACING
+import net.minecraft.state.StateContainer
+import net.minecraft.tags.FluidTags
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
-import net.minecraft.world.IBlockAccess
+import net.minecraft.util.math.shapes.VoxelShape
+import net.minecraft.util.math.shapes.VoxelShapes
+import net.minecraft.world.IBlockReader
+import net.minecraft.world.IWorldReader
+import net.minecraft.world.IWorldReaderBase
 import net.minecraft.world.World
-import net.minecraftforge.fluids.BlockFluidBase
 import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.IItemHandler
 import org.jglrxavpok.moarboats.MoarBoats
@@ -27,74 +31,51 @@ import java.util.*
 
 // TODO: Rewrite with blockstates
 
-object BlockPoweredCargoStopper: BlockCargoStopper(true)
-object BlockUnpoweredCargoStopper: BlockCargoStopper(false)
-
-open class BlockCargoStopper(val powered: Boolean): BlockRedstoneDiode(powered) {
+object BlockCargoStopper: BlockRedstoneDiode(Block.Properties.create(Material.CIRCUITS).hardnessAndResistance(0f).sound(SoundType.WOOD)) {
     init {
-        val id = "cargo_stopper_${if(powered) "" else "un"}lit"
-        registryName = ResourceLocation(MoarBoats.ModID, id)
-        unlocalizedName = id
-        this.defaultState = this.stateContainer.baseState.withProperty(BlockHorizontal.FACING, EnumFacing.NORTH)
-        tickRandomly = true
+        registryName = ResourceLocation(MoarBoats.ModID, "cargo_stopper")
+        this.defaultState = this.stateContainer.baseState.with(BlockHorizontal.HORIZONTAL_FACING, EnumFacing.NORTH)
     }
 
-    override fun canConnectRedstone(state: IBlockState, world: IBlockAccess, pos: BlockPos, side: EnumFacing?): Boolean {
+    override fun ticksRandomly(state: IBlockState) = true
+
+    override fun canConnectRedstone(state: IBlockState?, world: IBlockReader?, pos: BlockPos?, side: EnumFacing?): Boolean {
         return side != null && side != EnumFacing.DOWN && side != EnumFacing.UP
     }
 
-    override fun getCollisionBoundingBox(blockState: IBlockState, worldIn: IBlockAccess, pos: BlockPos): AxisAlignedBB? {
-        return Block.NULL_AABB
+    override fun getCollisionShape(state: IBlockState, worldIn: IBlockReader, pos: BlockPos): VoxelShape {
+        return VoxelShapes.empty()
     }
 
-    /**
-     * Checks if this block can be placed exactly at the given position.
-     */
-    override fun canPlaceBlockAt(worldIn: World, pos: BlockPos): Boolean {
-        val blockBelow = worldIn.getBlockState(pos.down()).block
-        return blockBelow is BlockLiquid || blockBelow is BlockFluidBase
-    }
-
-    override fun canBlockStay(worldIn: World, pos: BlockPos): Boolean {
-        return canPlaceBlockAt(worldIn, pos)
+    override fun isValidPosition(state: IBlockState, worldIn: IWorldReaderBase, pos: BlockPos): Boolean {
+        return worldIn.getFluidState(pos.down()).isTagged(FluidTags.WATER)
     }
 
     override fun getDelay(state: IBlockState?): Int {
         return 0
     }
 
-    override fun getUnpoweredState(poweredState: IBlockState): IBlockState {
-        val enumfacing = poweredState.get(FACING) as EnumFacing
-        return BlockUnpoweredCargoStopper.defaultState.with(FACING, enumfacing)
-    }
-
-    override fun getPoweredState(unpoweredState: IBlockState): IBlockState {
-        val enumfacing = unpoweredState.getValue(FACING) as EnumFacing
-        return BlockPoweredCargoStopper.defaultState.withProperty(FACING, enumfacing)
-    }
-
-    override fun getWeakPower(state: IBlockState, blockAccess: IBlockAccess, pos: BlockPos, side: EnumFacing): Int {
+    override fun getWeakPower(state: IBlockState, blockAccess: IBlockReader, pos: BlockPos, side: EnumFacing): Int {
         if(blockAccess is World) {
             val world = blockAccess
-            val aabb = AxisAlignedBB(pos.offset(state.getValue(BlockHorizontal.FACING)))
-            val entities = world.getEntitiesWithinAABB(BasicBoatEntity::class.java, aabb) { e -> e != null && e.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null) }
+            val aabb = AxisAlignedBB(pos.offset(state.get(BlockHorizontal.HORIZONTAL_FACING)))
+            val entities = world.getEntitiesWithinAABB(BasicBoatEntity::class.java, aabb) { e -> e != null && e.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).isPresent }
             val first = entities.firstOrNull()
-            return first?.let { calcRedstoneFromInventory(it.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null)) } ?: 0
+            return first?.let {
+                it.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).map { capa -> calcRedstoneFromInventory(capa) }.orElse(0)
+            } ?: 0
         }
         return 0
     }
 
-    override fun requiresUpdates(): Boolean {
-        return true
-    }
-
-    override fun updateTick(worldIn: World, pos: BlockPos, state: IBlockState, rand: Random?) {
+    override fun tick(state: IBlockState, worldIn: World, pos: BlockPos, random: Random) {
+        super.tick(state, worldIn, pos, random)
         val produceSignal = shouldBePowered(worldIn, pos, state)
         when {
-            produceSignal && !isRepeaterPowered -> worldIn.setBlockState(pos, BlockPoweredCargoStopper.defaultState.withProperty(BlockHorizontal.FACING, state.getValue(BlockHorizontal.FACING)))
-            !produceSignal && isRepeaterPowered -> worldIn.setBlockState(pos, BlockUnpoweredCargoStopper.defaultState.withProperty(BlockHorizontal.FACING, state.getValue(BlockHorizontal.FACING)))
+            produceSignal && !state[POWERED] -> worldIn.setBlockState(pos, defaultState.with(BlockHorizontal.HORIZONTAL_FACING, state.get(BlockHorizontal.HORIZONTAL_FACING)))
+            !produceSignal && state[POWERED] -> worldIn.setBlockState(pos, defaultState.with(BlockHorizontal.HORIZONTAL_FACING, state.get(BlockHorizontal.HORIZONTAL_FACING)))
         }
-        worldIn.scheduleUpdate(pos, this, 2)
+        worldIn.pendingBlockTicks.scheduleTick(pos, this, 2)
         notifyNeighbors(worldIn, pos, state)
     }
 
@@ -122,62 +103,35 @@ open class BlockCargoStopper(val powered: Boolean): BlockRedstoneDiode(powered) 
     /**
      * Used to determine ambient occlusion and culling when rebuilding chunks for render
      */
-    override fun isOpaqueCube(state: IBlockState): Boolean {
+    override fun isFullCube(state: IBlockState): Boolean {
         return false
     }
 
-    override fun createBlockState(): BlockStateContainer {
-        return BlockStateContainer(this, BlockHorizontal.FACING)
+    override fun fillStateContainer(builder: StateContainer.Builder<Block, IBlockState>) {
+        builder.add(BlockHorizontal.HORIZONTAL_FACING, POWERED)
     }
 
-    /**
-     * Convert the given metadata into a BlockState for this Block
-     */
-    override fun getStateFromMeta(meta: Int): IBlockState {
-        return this.defaultState.withProperty(BlockHorizontal.FACING, EnumFacing.getHorizontal(meta))
-    }
-
-    /**
-     * Convert the BlockState into the correct metadata value
-     */
-    override fun getMetaFromState(state: IBlockState): Int {
-        return (state.getValue(BlockHorizontal.FACING) as EnumFacing).horizontalIndex
-    }
-
-    /**
-     * Called serverside after this block is replaced with another in Chunk, but before the Tile Entity is updated
-     */
-    override fun breakBlock(worldIn: World, pos: BlockPos, state: IBlockState) {
-        super.breakBlock(worldIn, pos, state)
+    override fun onReplaced(state: IBlockState, worldIn: World, pos: BlockPos, newState: IBlockState, isMoving: Boolean) {
+        super.onReplaced(state, worldIn, pos, newState, isMoving)
         this.notifyNeighbors(worldIn, pos, state)
     }
 
-    override fun onBlockPlacedBy(worldIn: World, pos: BlockPos, state: IBlockState, placer: EntityLivingBase, stack: ItemStack) {
+    /**
+     * Called by ItemBlocks after a block is set in the world, to allow post-place logic
+     */
+    override fun onBlockPlacedBy(worldIn: World, pos: BlockPos, state: IBlockState, placer: EntityLivingBase?, stack: ItemStack) {
         super.onBlockPlacedBy(worldIn, pos, state, placer, stack)
-        this.notifyNeighbors(worldIn, pos, state)
-    }
-
-    override fun onBlockAdded(worldIn: World, pos: BlockPos, state: IBlockState) {
-        super.onBlockAdded(worldIn, pos, state)
-        if(shouldBePowered(worldIn, pos, state) != isRepeaterPowered) {
-            when(!isRepeaterPowered) {
-                true -> worldIn.setBlockState(pos, BlockUnpoweredCargoStopper.defaultState.withProperty(BlockHorizontal.FACING, state.getValue(BlockHorizontal.FACING)), 2)
-                false -> worldIn.setBlockState(pos, BlockPoweredCargoStopper.defaultState.withProperty(BlockHorizontal.FACING, state.getValue(BlockHorizontal.FACING)), 2)
-            }
-            notifyNeighbors(worldIn, pos, state)
-        }
-        worldIn.scheduleUpdate(pos, this, 2)
     }
 
     override fun shouldBePowered(worldIn: World, pos: BlockPos, state: IBlockState): Boolean {
-        return getWeakPower(state, worldIn, pos, state.getValue(BlockHorizontal.FACING)) > 0
+        return getWeakPower(state, worldIn, pos, state.get(BlockHorizontal.HORIZONTAL_FACING)) > 0
     }
 
-    override fun getItemDropped(state: IBlockState?, rand: Random?, fortune: Int) = CargoStopperItem
+    override fun getItemDropped(state: IBlockState, worldIn: World, pos: BlockPos, fortune: Int) = CargoStopperItem
 
-    override fun getItem(worldIn: World?, pos: BlockPos?, state: IBlockState?) = ItemStack(CargoStopperItem, 1)
+    override fun getItem(worldIn: IBlockReader, pos: BlockPos, state: IBlockState) = ItemStack(CargoStopperItem, 1)
 
-    override fun getWeakChanges(world: IBlockAccess, pos: BlockPos): Boolean {
+    override fun getWeakChanges(state: IBlockState?, world: IWorldReader?, pos: BlockPos?): Boolean {
         return true
     }
 

@@ -89,9 +89,11 @@ class GuiWaypointEditorList(val mc: Minecraft, val parent: GuiWaypointEditor, wi
 
     fun compileFromProviders() {
         waypoints.clear()
+        children.clear()
         WaypointProviders.map(IWaypointProvider::getList).flatten().forEach {
             val entry = WaypointInfoEntry(parent, it, slotTops, waypoints)
             waypoints.add(entry)
+            children.add(entry)
         }
     }
 

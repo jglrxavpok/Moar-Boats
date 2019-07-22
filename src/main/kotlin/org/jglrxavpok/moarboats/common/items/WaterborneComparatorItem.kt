@@ -8,12 +8,11 @@ import net.minecraft.util.text.TextComponentBase
 import net.minecraft.util.text.TextComponentTranslation
 import net.minecraft.world.World
 import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.common.blocks.BlockUnpoweredWaterborneComparator
-import org.jglrxavpok.moarboats.common.blocks.BlockUnpoweredWaterborneConductor
+import org.jglrxavpok.moarboats.common.blocks.BlockWaterborneComparator
 
 object WaterborneComparatorItem : WaterborneItem("waterborne_comparator") {
 
-    override val correspondingBlock = BlockUnpoweredWaterborneComparator
+    override val correspondingBlock = BlockWaterborneComparator
     private val descriptionText = TextComponentTranslation(MoarBoats.ModID+".tile.waterborne_comparator.description")
 
     override fun addInformation(stack: ItemStack?, player: World?, tooltip: MutableList<ITextComponent>, advanced: ITooltipFlag?) {

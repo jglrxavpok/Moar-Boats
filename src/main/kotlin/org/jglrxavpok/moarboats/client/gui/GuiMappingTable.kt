@@ -44,7 +44,7 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
     private var buttonId = 0
     private val addWaypointButton = object: GuiButton(buttonId++, 0, 0, addWaypointText.formattedText) {
         override fun onClick(mouseX: Double, mouseY: Double) {
-            waypointToEditAfterCreation = list.slots.size
+            waypointToEditAfterCreation = list.children.size
             if(inventorySlots.getSlot(0).stack.item == ItemGoldenTicket) {
                 MoarBoats.network.sendToServer(CAddWaypointToGoldenTicketFromMappingTable(te.pos, null, null, te))
             } else {
@@ -84,7 +84,7 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
     private val controls = listOf(addWaypointButton, insertWaypointButton, editWaypointButton, removeWaypointButton)
     private var waypointToEditAfterCreation = 0
 
-    var list: GuiWaypointList = GuiWaypointList(mc, this, 1, 1, 0, 0, 1, 1, 1) // not using lateinit because sometimes drawScreen/updateScreen are called before initGui
+    var list: GuiWaypointList = GuiWaypointList(mc, this, 1, 1, 0, 0, 1) // not using lateinit because sometimes drawScreen/updateScreen are called before initGui
 
     private var hasData = false
     var selectedIndex: Int = 0
@@ -99,7 +99,7 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
         val listHeight = 85
         val listLeft = xStart.toInt()
         val listTop = guiTop + 28 // margins
-        list = GuiWaypointList(mc, this, listWidth, listHeight, listTop, listLeft, 20, width, height)
+        list = GuiWaypointList(mc, this, listWidth, listHeight, listTop, listLeft, 20)
         // TODO:
         // add button to use GuiPathEditor
 
@@ -124,17 +124,14 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
         super.tick()
         loopingButton.enabled = hasData
         addWaypointButton.enabled = hasData
-        insertWaypointButton.enabled = hasData && list.slots.size > 1
-        removeWaypointButton.enabled = hasData && selectedIndex < list.slots.size
+        insertWaypointButton.enabled = hasData && list.children.size > 1
+        removeWaypointButton.enabled = hasData && selectedIndex < list.children.size
         editWaypointButton.enabled = removeWaypointButton.enabled
     }
 
-    override fun handleMouseInput() {
-        val mouseX = Mouse.getEventX() * this.width / this.mc.displayWidth
-        val mouseY = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1
-
-        super.handleMouseInput()
-        list.handleMouseInput(mouseX, mouseY)
+    override fun mouseScrolled(p_mouseScrolled_1_: Double): Boolean {
+        list.mouseScrolled(p_mouseScrolled_1_)
+        return super.mouseScrolled(p_mouseScrolled_1_)
     }
 
     override fun drawGuiContainerBackgroundLayer(partialTicks: Float, mouseX: Int, mouseY: Int) {
@@ -162,8 +159,9 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
     }
 
     private fun resetList(stack: ItemStack) {
-        list.slots.clear()
+        list.children.clear()
         hasData = false
+        val tags = mutableListOf<NBTTagCompound>()
         if(stack.item is ItemPath) {
             hasData = true
             val path = stack.item as ItemPath
@@ -171,7 +169,8 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
             val list = path.getWaypointData(stack, MoarBoats.getLocalMapStorage())
             for(nbt in list) {
                 if(nbt is NBTTagCompound) {
-                    this.list.slots.add(nbt)
+                    tags.add(nbt)
+                    this.list.children.add(WaypointListEntry(this, nbt, this.list.slotTops, tags))
                 }
             }
         }
@@ -186,10 +185,12 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
     }
 
     fun confirmWaypointCreation(data: NBTTagList) {
-        list.slots.clear()
+        list.children.clear()
+        val tags = mutableListOf<NBTTagCompound>()
         for(nbt in data) {
             if(nbt is NBTTagCompound) {
-                this.list.slots.add(nbt)
+                tags.add(nbt)
+                this.list.children.add(WaypointListEntry(this, nbt, this.list.slotTops, tags))
             }
         }
     //    edit(waypointToEditAfterCreation)
@@ -206,7 +207,7 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
     }
 
     fun swap(index1: Int, index2: Int) {
-        if(index1 in 0 until list.slots.size && index2 in 0 until list.slots.size)
+        if(index1 in 0 until list.children.size && index2 in 0 until list.children.size)
             MoarBoats.network.sendToServer(CSwapWaypoints(index1, index2, te.pos))
     }
 
