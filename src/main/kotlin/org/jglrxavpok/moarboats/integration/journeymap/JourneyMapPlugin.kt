@@ -3,14 +3,12 @@ package org.jglrxavpok.moarboats.integration.journeymap
 import com.google.gson.Gson
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import journeymap.client.io.FileHandler
-import net.minecraft.client.Minecraft
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.util.text.TextComponentBase
 import net.minecraft.util.text.TextComponentTranslation
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.integration.*
 import java.io.File
+import java.util.logging.FileHandler
 
 @MoarBoatsIntegration("journeymap")
 class JourneyMapPlugin(): MoarBoatsPlugin, IWaypointProvider {
@@ -29,7 +27,9 @@ class JourneyMapPlugin(): MoarBoatsPlugin, IWaypointProvider {
 
     override fun updateList(player: EntityPlayer) {
         waypointList.clear()
-        val folder = FileHandler.getWaypointDir()
+        // FIXME: update when JourneyMap updates
+        val gameType = if(player.world.server != null) "sp" /* local game */ else "mp" /* multiplayer game */
+        val folder: File = File("journeymap/data/$gameType/", player.world.saveHandler.worldDirectory.name)//FileHandler.getWaypointDir()
         MoarBoats.logger.debug("[journeymap Plugin] Reading waypoints from ${folder.absolutePath} - folder really exists: ${folder.exists()}")
         folder.listFiles()?.forEach { file ->
             file.bufferedReader().use {
@@ -42,7 +42,7 @@ class JourneyMapPlugin(): MoarBoatsPlugin, IWaypointProvider {
                 val z = waypointObject.get("z").asInt
                 val dimensions = waypointObject.getAsJsonArray("dimensions").map(JsonElement::getAsInt)
                 val waypoint = WaypointInfo(name, x, z, null)
-                if(player.dimension in dimensions) {
+                if(player.dimension.id in dimensions) {
                     waypointList.add(waypoint)
                 }
             }

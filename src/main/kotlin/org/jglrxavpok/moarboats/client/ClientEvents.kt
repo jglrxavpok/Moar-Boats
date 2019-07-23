@@ -90,20 +90,22 @@ object ClientEvents {
         MoarBoats.plugins.forEach {
             it.registerModuleRenderers(BoatModuleRenderingRegistry)
         }
-
+/*
         mc.itemColors.register( IItemColor { stack: ItemStack, tint: Int ->
             (stack.item as ModularBoatItem).dyeColor.colorValue
         }, *ModularBoatItem.AllVersions)
 
-
+*/
         // ex postInit()
         // TODO: check if still works
-        mc.renderManager.skinMap["default"]!!.apply {
+        // FIXME: it doesn't
+        // at least not here
+        /*mc.renderManager.skinMap["default"]!!.apply {
             this.addLayer(MoarBoatsPatreonHookLayer(this))
         }
         mc.renderManager.skinMap["slim"]!!.apply {
             this.addLayer(MoarBoatsPatreonHookLayer(this))
-        }
+        }*/
     }
 /* FIXME: Still necessary ?
     @OnlyIn(Dist.CLIENT)
@@ -123,7 +125,6 @@ object ClientEvents {
     }*/
 
     @OnlyIn(Dist.CLIENT)
-    @SubscribeEvent
     fun renderHand(event: RenderSpecificHandEvent) {
         val mc = Minecraft.getInstance()
         val player = mc.player

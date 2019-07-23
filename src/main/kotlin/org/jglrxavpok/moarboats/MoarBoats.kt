@@ -29,8 +29,7 @@ import net.minecraftforge.fml.DistExecutor
 import net.minecraftforge.fml.ExtensionPoint
 import net.minecraftforge.fml.ModLoadingContext
 import net.minecraftforge.fml.common.Mod
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
-import net.minecraftforge.fml.event.lifecycle.FMLDedicatedServerSetupEvent
+import net.minecraftforge.fml.event.lifecycle.*
 import net.minecraftforge.fml.network.FMLPlayMessages
 import net.minecraftforge.fml.network.NetworkRegistry
 import net.minecraftforge.registries.RegistryBuilder
@@ -56,9 +55,10 @@ import java.util.function.Supplier
 import net.minecraft.init.Blocks as MCBlocks
 import net.minecraft.init.Items as MCItems
 
-@KotlinEventBusSubscriber
-@Mod(value = MoarBoats.ModID)
+@KotlinEventBusSubscriber(modid = MoarBoats.ModID)
+@Mod(MoarBoats.ModID)
 object MoarBoats {
+
     const val ModID = "moarboats"
 
     internal var dedicatedServerInstance: DedicatedServer? = null
@@ -107,11 +107,14 @@ object MoarBoats {
     lateinit var TileEntityMappingTableType: TileEntityType<TileEntityMappingTable>
 
     init {
-        FMLKotlinModLoadingContext.get().modEventBus.addListener(ClientEvents::doClientStuff)
-        FMLKotlinModLoadingContext.get().modEventBus.addListener(this::initDedicatedServer)
+        FMLKotlinModLoadingContext.get().modEventBus.addListener { event: FMLClientSetupEvent ->  ClientEvents.doClientStuff(event) }
+        FMLKotlinModLoadingContext.get().modEventBus.addListener { event: FMLCommonSetupEvent ->  setup(event) }
+        FMLKotlinModLoadingContext.get().modEventBus.addListener { event: FMLDedicatedServerSetupEvent -> initDedicatedServer(event) }
+        FMLKotlinModLoadingContext.get().modEventBus.addListener { event: FMLLoadCompleteEvent -> postLoad(event) }
+
+        MinecraftForge.EVENT_BUS.register(this)
     }
 
-    @SubscribeEvent
     fun setup(event: FMLCommonSetupEvent) {
         MinecraftForge.EVENT_BUS.register(this)
         MinecraftForge.EVENT_BUS.register(ItemEventHandler)
@@ -129,14 +132,16 @@ object MoarBoats {
         DataSerializers.registerSerializer(ResourceLocationsSerializer)
         DataSerializers.registerSerializer(UniqueIDSerializer)
         plugins.forEach(MoarBoatsPlugin::init)
-        MoarBoatsPacketList.registerAll()
-        plugins.forEach(MoarBoatsPlugin::postInit)
-
         ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.GUIFACTORY) {
             Function<FMLPlayMessages.OpenContainer, GuiScreen> {
                 container: FMLPlayMessages.OpenContainer -> TODO("Not implemented yet")
             }
         }
+    }
+
+    fun postLoad(event: FMLLoadCompleteEvent) {
+        MoarBoatsPacketList.registerAll()
+        plugins.forEach(MoarBoatsPlugin::postInit)
     }
 
     @JvmStatic
@@ -149,7 +154,6 @@ object MoarBoats {
                 .create()
     }
 
-    @SubscribeEvent
     fun initDedicatedServer(event: FMLDedicatedServerSetupEvent) {
         dedicatedServerInstance = event.serverSupplier.get()
         dedicatedServerInstance?.let {

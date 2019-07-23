@@ -43,9 +43,6 @@ abstract class ItemPath(id: String): MoarBoatsItem(id, { maxStackSize(1) }) {
 }
 
 object ItemMapWithPath: ItemPath("map_with_path") {
-    init {
-        registryName = ResourceLocation(MoarBoats.ModID, "map_with_path")
-    }
 
     override fun setLoopingOptions(stack: ItemStack, options: LoopingOptions) {
         if(stack.hasTag()) {
@@ -82,10 +79,6 @@ object ItemMapWithPath: ItemPath("map_with_path") {
 object ItemGoldenTicket: ItemPath("golden_ticket") {
 
     private val EmptyName = TextComponentTranslation(MoarBoats.ModID+".item.golden_ticket.name.empty")
-
-    init {
-        registryName = ResourceLocation(MoarBoats.ModID, "golden_ticket")
-    }
 
     data class WaypointData(var uuid: String): WorldSavedData(uuid) {
 
