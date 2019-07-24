@@ -24,9 +24,7 @@ object RopeItem : MoarBoatsItem("rope") {
     }
 
     init {
-        registryName = ResourceLocation(MoarBoats.ModID, "rope")
-
-        addPropertyOverride(ResourceLocation("firstKnot")) { stack, _, _ ->
+        addPropertyOverride(ResourceLocation("first_knot")) { stack, _, _ ->
             if(getState(stack) == State.WAITING_NEXT) 1f else 0f
         }
     }

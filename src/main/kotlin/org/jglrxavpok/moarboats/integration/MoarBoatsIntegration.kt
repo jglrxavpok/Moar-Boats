@@ -46,7 +46,7 @@ interface MoarBoatsPlugin {
  * This method looks for classes that implement MoarBoatsPlugin & have @MoarBoatsIntegration, check to see if their dependency
  * (the mod for which the plugin is made) is present and loads the plugin if that's the case
  */
-fun LoadIntegrationPlugins(event: FMLCommonSetupEvent): List<MoarBoatsPlugin> {
+fun LoadIntegrationPlugins(): List<MoarBoatsPlugin> {
 
     // FIXME: Use IMC messages
     

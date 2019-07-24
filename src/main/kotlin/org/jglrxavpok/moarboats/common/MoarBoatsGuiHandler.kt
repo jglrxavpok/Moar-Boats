@@ -37,6 +37,7 @@ import org.jglrxavpok.moarboats.extensions.use
 object MoarBoatsGuiHandler: IGuiHandler {
 
     fun dispathGui(container: FMLPlayMessages.OpenContainer): GuiScreen? {
+        println(">> Open: ${container.id}")
         return null
     }
 

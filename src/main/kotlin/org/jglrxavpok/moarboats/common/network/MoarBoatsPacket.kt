@@ -10,6 +10,7 @@ import net.minecraft.util.*
 import net.minecraft.util.registry.IRegistry
 import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.registries.GameData
+import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.data.LoopingOptions
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import java.lang.UnsupportedOperationException
@@ -55,8 +56,13 @@ interface MoarBoatsPacket {
                 if(field.isAnnotationPresent(Ignore::class.java)) {
                     continue
                 }
+                if(field.type != MoarBoatsPacket.Companion::javaClass) { // special case to avoid loading $Companion
+                    continue
+                }
+                MoarBoats.logger.debug("Enriching field cache for packet $withClass: ${field.name} (type: ${field.type.canonicalName})")
                 cachedFields += field
             }
+            fieldCache[withClass] = cachedFields
         }
 
         /**

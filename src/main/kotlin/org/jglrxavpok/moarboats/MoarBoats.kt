@@ -1,18 +1,14 @@
 package org.jglrxavpok.moarboats
 
 import net.alexwells.kottle.FMLKotlinModLoadingContext
-import net.alexwells.kottle.KotlinEventBusSubscriber
 import net.minecraft.block.Block
 import net.minecraft.block.material.EnumPushReaction
 import net.minecraft.block.material.Material
 import net.minecraft.block.material.MaterialColor
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.GuiMainMenu
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.entity.EntityType
 import net.minecraft.item.*
-import net.minecraft.item.crafting.IRecipe
-import net.minecraft.item.crafting.RecipeManager
 import net.minecraft.network.datasync.DataSerializers
 import net.minecraft.server.dedicated.DedicatedServer
 import net.minecraft.tileentity.TileEntity
@@ -32,6 +28,7 @@ import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.event.lifecycle.*
 import net.minecraftforge.fml.network.FMLPlayMessages
 import net.minecraftforge.fml.network.NetworkRegistry
+import net.minecraftforge.registries.GameData
 import net.minecraftforge.registries.RegistryBuilder
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -55,7 +52,7 @@ import java.util.function.Supplier
 import net.minecraft.init.Blocks as MCBlocks
 import net.minecraft.init.Items as MCItems
 
-@KotlinEventBusSubscriber(modid = MoarBoats.ModID)
+//@KotlinEventBusSubscriber(modid = MoarBoats.ModID)
 @Mod(MoarBoats.ModID)
 object MoarBoats {
 
@@ -66,6 +63,7 @@ object MoarBoats {
     val logger: Logger = LogManager.getLogger()
     val NetworkingProtocolVersion = "v1.0"
 
+    val registryID = ResourceLocation(ModID, "module_registry")
     val network = NetworkRegistry.ChannelBuilder
             .named(ResourceLocation(ModID, "network"))
             .networkProtocolVersion { NetworkingProtocolVersion }
@@ -111,14 +109,21 @@ object MoarBoats {
         FMLKotlinModLoadingContext.get().modEventBus.addListener { event: FMLCommonSetupEvent ->  setup(event) }
         FMLKotlinModLoadingContext.get().modEventBus.addListener { event: FMLDedicatedServerSetupEvent -> initDedicatedServer(event) }
         FMLKotlinModLoadingContext.get().modEventBus.addListener { event: FMLLoadCompleteEvent -> postLoad(event) }
+        FMLKotlinModLoadingContext.get().modEventBus.addListener { event: RegistryEvent.Register<Block> -> registerBlocks(event) }
+        FMLKotlinModLoadingContext.get().modEventBus.addListener { event: RegistryEvent.Register<Item> -> registerItems(event) }
+        FMLKotlinModLoadingContext.get().modEventBus.addListener { event: RegistryEvent.Register<EntityType<*>> -> registerEntities(event) }
+        FMLKotlinModLoadingContext.get().modEventBus.addListener { event: RegistryEvent.Register<TileEntityType<*>> -> registerTileEntities(event) }
+        FMLKotlinModLoadingContext.get().modEventBus.addListener { event: RegistryEvent.NewRegistry -> createRegistry(event) }
+        FMLKotlinModLoadingContext.get().modEventBus.addListener { event: RegistryEvent.Register<BoatModuleEntry> -> registerModules(event) }
 
-        MinecraftForge.EVENT_BUS.register(this)
+        //MinecraftForge.EVENT_BUS.register(this)
+        MinecraftForge.EVENT_BUS.register(ItemEventHandler)
+        MinecraftForge.EVENT_BUS.register(MoarBoatsConfig::javaClass)
+
+        plugins = LoadIntegrationPlugins()
     }
 
     fun setup(event: FMLCommonSetupEvent) {
-        MinecraftForge.EVENT_BUS.register(this)
-        MinecraftForge.EVENT_BUS.register(ItemEventHandler)
-        MinecraftForge.EVENT_BUS.register(MoarBoatsConfig::javaClass)
 /* FIXME        ForgeChunkManager.setForcedChunkLoadingCallback(MoarBoats) { tickets, world ->
             for(ticket in tickets) {
                 for(pos in ticket.chunkList) {
@@ -127,7 +132,7 @@ object MoarBoats {
             }
         }*/
 
-        plugins = LoadIntegrationPlugins(event)
+
         plugins.forEach(MoarBoatsPlugin::preInit)
         DataSerializers.registerSerializer(ResourceLocationsSerializer)
         DataSerializers.registerSerializer(UniqueIDSerializer)
@@ -144,12 +149,11 @@ object MoarBoats {
         plugins.forEach(MoarBoatsPlugin::postInit)
     }
 
-    @JvmStatic
     @SubscribeEvent
     fun createRegistry(e: RegistryEvent.NewRegistry) {
         BoatModuleRegistry.forgeRegistry = RegistryBuilder<BoatModuleEntry>()
                 .allowModification()
-                .setName(ResourceLocation(ModID, "module_registry"))
+                .setName(registryID)
                 .setType(BoatModuleEntry::class.java)
                 .create()
     }
@@ -166,6 +170,8 @@ object MoarBoats {
 
     @SubscribeEvent
     fun registerModules(event: RegistryEvent.Register<BoatModuleEntry>) {
+        if(event.registry.registryName != registryID)
+            return
         event.registry.registerModule(ResourceLocation("moarboats:furnace_engine"), Item.getItemFromBlock(MCBlocks.FURNACE), FurnaceEngineModule, { boat, module -> EngineModuleInventory(boat, module) })
         event.registry.registerModule(ResourceLocation("moarboats:chest"), Item.getItemFromBlock(MCBlocks.CHEST), ChestModule, { boat, module -> ChestModuleInventory(boat, module) })
         event.registry.registerModule(ResourceLocation("moarboats:helm"), HelmItem, HelmModule, { boat, module -> SimpleModuleInventory(1, "helm", boat, module) })
@@ -187,14 +193,26 @@ object MoarBoats {
         plugins.forEach { it.registerModules(event.registry) }
     }
 
-    @SubscribeEvent
     fun registerBlocks(e: RegistryEvent.Register<Block>) {
+        if(e.registry.registryName != GameData.BLOCKS)
+            return
         e.registry.registerAll(*Blocks.list.toTypedArray())
     }
 
-    @SubscribeEvent
+    fun registerItems(e: RegistryEvent.Register<Item>) {
+        if(e.registry.registryName != GameData.ITEMS)
+            return
+        e.registry.registerAll(*Items.list.toTypedArray())
+        for (block in Blocks.list) {
+            if(!e.registry.containsKey(block.registryName)) { // don't overwrite already existing items
+                e.registry.register(ItemBlock(block, Item.Properties().group(MoarBoats.CreativeTab)).setRegistryName(block.registryName))
+            }
+        }
+    }
+
     fun registerTileEntities(evt: RegistryEvent.Register<TileEntityType<*>>) {
-        TileEntityEnergyUnloaderType = evt.registerTE(::TileEntityEnergyUnloader, BlockEnergyUnloader.registryName)
+        if(evt.registry.registryName != GameData.TILEENTITIES)
+            return
         TileEntityEnergyUnloaderType = evt.registerTE(::TileEntityEnergyUnloader, BlockEnergyUnloader.registryName)
         TileEntityEnergyLoaderType = evt.registerTE(::TileEntityEnergyLoader, BlockEnergyLoader.registryName)
         /* FIXME
@@ -208,16 +226,10 @@ object MoarBoats {
         return TileEntityType.register(registryName.toString(), TileEntityType.Builder.create<TE>(constructor))
     }
 
-    @SubscribeEvent
-    fun registerItems(e: RegistryEvent.Register<Item>) {
-        e.registry.registerAll(*Items.list.toTypedArray())
-        for (block in Blocks.list) {
-            e.registry.register(ItemBlock(block, Item.Properties().group(MoarBoats.CreativeTab)).setRegistryName(block.registryName))
-        }
-    }
-
-    @SubscribeEvent
     fun registerEntities(e: RegistryEvent.Register<EntityType<*>>) {
+        if(e.registry.registryName != GameData.ENTITIES)
+            return
+
         e.registry.registerAll(*EntityEntries.list.toTypedArray())
     }
 

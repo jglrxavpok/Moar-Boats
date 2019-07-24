@@ -55,12 +55,12 @@ class MoarBoatsConfig {
 
             remainingUsesBeforeRemoval = builder
                     .comment("0 means the rods will break and the fishing module won't try to find a replacement in storage (server side only)")
-                    .translation(MoarBoats.ModID + ".fishing.remainingusesbeforeremoval")
+                    // TODO .translation(MoarBoats.ModID + ".fishing.remainingusesbeforeremoval")
                     .defineInRange("remainingUsesBeforeRemoval", 0, 0, 64)
 
             speedMultiplier = builder
                     .comment("The higher, the more frequent the fishing module will fish items (server side only)")
-                    .translation(MoarBoats.ModID + ".fishing.speedmultiplier")
+                    // TODO .translation(MoarBoats.ModID + ".fishing.speedmultiplier")
                     .defineInRange("speedMultiplier", 1.0, 10e-16, 100.0)
 
             builder.pop()
@@ -74,12 +74,12 @@ class MoarBoatsConfig {
         init {
             builder
                     .comment("Boat battery")
-                    .translation(MoarBoats.ModID + ".boatbattery")
+                    // TODO .translation(MoarBoats.ModID + ".boatbattery")
                     .push("boatBattery")
 
             maxEnergy = builder
                     .comment("The total amount of energy a single boat battery can hold at once")
-                    .translation(MoarBoats.ModID + ".boatbattery.maxenergy")
+                    // TODO .translation(MoarBoats.ModID + ".boatbattery.maxenergy")
                     .defineInRange("maxEnergy", 25000, 1, Int.MAX_VALUE)
             builder.pop()
         }
@@ -93,7 +93,7 @@ class MoarBoatsConfig {
         init {
             builder
                     .comment("Energy Unloader")
-                    .translation(MoarBoats.ModID + ".$id")
+                    // TODO .translation(MoarBoats.ModID + ".$id")
                     .push(id)
 
             maxEnergy = builder
@@ -116,7 +116,7 @@ class MoarBoatsConfig {
 
         init {
             builder
-                    .translation(MoarBoats.ModID + ".fluidtank")
+                    // TODO .translation(MoarBoats.ModID + ".fluidtank")
                     .comment("Fluid Tank")
                     .push("fluidTank")
 
@@ -133,7 +133,7 @@ class MoarBoatsConfig {
 
         init {
             builder
-                    .translation(MoarBoats.ModID + ".fluidloader")
+                    // TODO .translation(MoarBoats.ModID + ".fluidloader")
                     .comment("Fluid loader")
                     .push("fluidLoader")
 
@@ -155,7 +155,7 @@ class MoarBoatsConfig {
 
         init {
             builder
-                    .translation(MoarBoats.ModID + ".fluidunloader")
+                    // TODO .translation(MoarBoats.ModID + ".fluidunloader")
                     .comment("Fluid unloader")
                     .push("fluidUnloader")
 
@@ -177,7 +177,7 @@ class MoarBoatsConfig {
 
         init {
             builder
-                    .translation(MoarBoats.ModID + ".dispensermodule")
+                    // TODO .translation(MoarBoats.ModID + ".dispensermodule")
                     .comment("Dispenser module")
                     .push("dispenserModule")
 
@@ -197,13 +197,13 @@ class MoarBoatsConfig {
 
         init {
             builder
-                    .translation(MoarBoats.ModID + ".chunkloader")
+                    // TODO .translation(MoarBoats.ModID + ".chunkloader")
                     .comment("Chunk Loader")
                     .push("chunkLoader")
 
             allowed = builder
                     .comment("Do you want to allow the chunk loader module on your server?")
-                    .translation(MoarBoats.ModID + ".chunkloader.allowed")
+                    // TODO .translation(MoarBoats.ModID + ".chunkloader.allowed")
                     .define("allowed", true)
             builder.pop()
         }
@@ -214,14 +214,14 @@ class MoarBoatsConfig {
 
         init {
             builder
-                    .translation(MoarBoats.ModID + ".misc")
+                    // TODO .translation(MoarBoats.ModID + ".misc")
                     .comment("Misc")
                     .push("misc")
 
 
             hidePatreonHook = builder
                     .comment("Hide the Patreon hook?")
-                    .translation(MoarBoats.ModID + ".hide_patreon_hook")
+                    // TODO .translation(MoarBoats.ModID + ".hide_patreon_hook")
                     .define("hidePatreonHook", false)
             builder.pop()
         }
