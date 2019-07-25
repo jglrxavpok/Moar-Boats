@@ -17,6 +17,12 @@ import java.lang.UnsupportedOperationException
 import java.lang.reflect.Field
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.reflect.KClass
+import kotlin.reflect.KMutableProperty
+import kotlin.reflect.KProperty
+import kotlin.reflect.full.memberProperties
+import kotlin.reflect.full.staticProperties
+import kotlin.reflect.jvm.javaField
 
 interface MoarBoatsPacket {
 
@@ -45,21 +51,18 @@ interface MoarBoatsPacket {
         /**
          * Internal cache to avoid performing a reflection lookup at each packet transmission
          */
-        private val fieldCache = hashMapOf<Class<out MoarBoatsPacket>, List<Field>>()
+        private val fieldCache = hashMapOf<KClass<out MoarBoatsPacket>, List<KMutableProperty<*>>>()
 
         /**
          * Loads all fields from a packet class to prepare the cache
          */
-        private fun enrichCache(withClass: Class<out MoarBoatsPacket>) {
-            val cachedFields = mutableListOf<Field>()
-            for(field in withClass.fields) {
-                if(field.isAnnotationPresent(Ignore::class.java)) {
+        private fun enrichCache(withClass: KClass<out MoarBoatsPacket>) {
+            val cachedFields = mutableListOf<KMutableProperty<*>>()
+            for(field in withClass.memberProperties.filterIsInstance<KMutableProperty<*>>()) {
+                if(field.annotations.any { it.annotationClass == Ignore::class }) {
                     continue
                 }
-                if(field.type != MoarBoatsPacket.Companion::javaClass) { // special case to avoid loading $Companion
-                    continue
-                }
-                MoarBoats.logger.debug("Enriching field cache for packet $withClass: ${field.name} (type: ${field.type.canonicalName})")
+                MoarBoats.logger.debug("Enriching field cache for packet $withClass: ${field.name} (type: ${field.returnType})")
                 cachedFields += field
             }
             fieldCache[withClass] = cachedFields
@@ -68,17 +71,17 @@ interface MoarBoatsPacket {
         /**
          * Serializes a single field from a packet to a buffer
          */
-        private fun serialize(packet: MoarBoatsPacket, field: Field, buffer: PacketBuffer) {
-            if(field.isAnnotationPresent(Nullable::class.java)) {
-                val present = field[packet] != null
+        private fun serialize(packet: MoarBoatsPacket, field: KMutableProperty<*>, buffer: PacketBuffer) {
+            if(field.annotations.any { it.annotationClass == Nullable::class }) {
+                val present = field.getter.call(packet) != null
                 buffer.writeBoolean(present)
                 if( ! present) {
                     return
                 }
             }
 
-            if(field.isAnnotationPresent(ItemStackList::class.java)) {
-                val list = field[packet] as List<ItemStack>
+            if(field.annotations.any { it.annotationClass == ItemStackList::class }) {
+                val list = field.getter.call(packet) as List<ItemStack>
                 buffer.writeInt(list.size)
                 val nbt = NBTTagCompound()
                 val tmpList = NonNullList.from(ItemStack.EMPTY, *list.toTypedArray())
@@ -86,7 +89,7 @@ interface MoarBoatsPacket {
                 buffer.writeCompoundTag(nbt)
                 return
             }
-            write(field[packet], buffer)
+            write(field.getter.call(packet) as Any, buffer)
         }
 
         private fun <T: Any> write(value: T, buffer: PacketBuffer) {
@@ -169,25 +172,25 @@ interface MoarBoatsPacket {
         /**
          * Deserializes a single field from a buffer to a packet
          */
-        private fun deserialize(packet: MoarBoatsPacket, field: Field, buffer: PacketBuffer) {
-            if(field.isAnnotationPresent(Nullable::class.java)) {
+        private fun deserialize(packet: MoarBoatsPacket, field: KMutableProperty<*>, buffer: PacketBuffer) {
+            if(field.annotations.any { it.annotationClass == Nullable::class }) {
                 val present = buffer.readBoolean()
                 if(present) {
-                    field.set(packet, null)
+                    field.setter.call(packet, null)
                     return
                 }
             }
 
-            if(field.isAnnotationPresent(ItemStackList::class.java)) {
+            if(field.annotations.any { it.annotationClass == ItemStackList::class }) {
                 val size = buffer.readInt()
                 val tmpList = NonNullList.withSize(size, ItemStack.EMPTY)
                 val nbt = buffer.readCompoundTag()!!
                 ItemStackHelper.loadAllItems(nbt, tmpList)
                 tmpList.addAll(tmpList)
-                field.set(packet, mutableListOf<ItemStack>().apply { addAll(tmpList) })
+                field.setter.call(packet, mutableListOf<ItemStack>().apply { addAll(tmpList) })
                 return
             }
-            field.set(packet, read(field.type, buffer))
+            field.setter.call(packet, read(field.javaField!!.type, buffer))
         }
 
         @Suppress("IMPLICIT_CAST_TO_ANY")
@@ -267,24 +270,32 @@ interface MoarBoatsPacket {
     }
 
     fun encode(to: PacketBuffer) {
-        if(javaClass !in fieldCache) {
-           enrichCache(javaClass)
-        }
-        with(to) {
-            fieldCache[this@MoarBoatsPacket.javaClass]?.forEach {
-                serialize(this@MoarBoatsPacket, it, to)
+        try {
+            if(this::class !in fieldCache) {
+                enrichCache(this::class)
             }
+            with(to) {
+                fieldCache[this@MoarBoatsPacket::class]?.forEach {
+                    serialize(this@MoarBoatsPacket, it, to)
+                }
+            }
+        } catch (e: Exception) {
+            MoarBoats.logger.error("Error while encoding packet ${this::class}", e)
         }
     }
 
     fun decode(from: PacketBuffer): MoarBoatsPacket {
-        if(javaClass !in fieldCache) {
-            enrichCache(javaClass)
-        }
-        with(from) {
-            fieldCache[this@MoarBoatsPacket.javaClass]?.forEach {
-                deserialize(this@MoarBoatsPacket, it, from)
+        try {
+            if(this::class !in fieldCache) {
+                enrichCache(this::class)
             }
+            with(from) {
+                fieldCache[this@MoarBoatsPacket::class]?.forEach {
+                    deserialize(this@MoarBoatsPacket, it, from)
+                }
+            }
+        } catch (e: Exception) {
+            MoarBoats.logger.error("Error while decoding packet ${this::class}", e)
         }
         return this
     }
