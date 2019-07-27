@@ -109,6 +109,7 @@ object MoarBoats {
         FMLKotlinModLoadingContext.get().modEventBus.addListener { event: FMLCommonSetupEvent ->  setup(event) }
         FMLKotlinModLoadingContext.get().modEventBus.addListener { event: FMLDedicatedServerSetupEvent -> initDedicatedServer(event) }
         FMLKotlinModLoadingContext.get().modEventBus.addListener { event: FMLLoadCompleteEvent -> postLoad(event) }
+
         FMLKotlinModLoadingContext.get().modEventBus.addListener { event: RegistryEvent.Register<Block> -> registerBlocks(event) }
         FMLKotlinModLoadingContext.get().modEventBus.addListener { event: RegistryEvent.Register<Item> -> registerItems(event) }
         FMLKotlinModLoadingContext.get().modEventBus.addListener { event: RegistryEvent.Register<EntityType<*>> -> registerEntities(event) }
@@ -116,7 +117,7 @@ object MoarBoats {
         FMLKotlinModLoadingContext.get().modEventBus.addListener { event: RegistryEvent.NewRegistry -> createRegistry(event) }
         FMLKotlinModLoadingContext.get().modEventBus.addListener { event: RegistryEvent.Register<BoatModuleEntry> -> registerModules(event) }
 
-        //MinecraftForge.EVENT_BUS.register(this)
+//        MinecraftForge.EVENT_BUS.register(this)
         MinecraftForge.EVENT_BUS.register(ItemEventHandler)
         MinecraftForge.EVENT_BUS.register(MoarBoatsConfig::javaClass)
 

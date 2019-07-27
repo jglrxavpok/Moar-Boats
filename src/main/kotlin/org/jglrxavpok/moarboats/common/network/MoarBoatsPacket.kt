@@ -26,21 +26,21 @@ import kotlin.reflect.jvm.javaField
 
 interface MoarBoatsPacket {
 
-    @Target(AnnotationTarget.FIELD)
+    @Target(AnnotationTarget.PROPERTY, AnnotationTarget.FIELD)
     @Retention(AnnotationRetention.RUNTIME)
     /**
      * Allows a packet class to define fields that will not be serialized
      */
     annotation class Ignore
 
-    @Target(AnnotationTarget.FIELD)
+    @Target(AnnotationTarget.PROPERTY, AnnotationTarget.FIELD)
     @Retention(AnnotationRetention.RUNTIME)
     /**
      * Allows a packet class to define fields that will not be serialized
      */
     annotation class Nullable
 
-    @Target(AnnotationTarget.FIELD)
+    @Target(AnnotationTarget.PROPERTY, AnnotationTarget.FIELD)
     @Retention(AnnotationRetention.RUNTIME)
     /**
      * Allows a packet class to define fields that will not be serialized
@@ -72,7 +72,7 @@ interface MoarBoatsPacket {
          * Serializes a single field from a packet to a buffer
          */
         private fun serialize(packet: MoarBoatsPacket, field: KMutableProperty<*>, buffer: PacketBuffer) {
-            if(field.annotations.any { it.annotationClass == Nullable::class }) {
+            if(field.javaField!!.annotations.any { it.annotationClass == Nullable::class }) {
                 val present = field.getter.call(packet) != null
                 buffer.writeBoolean(present)
                 if( ! present) {
@@ -80,7 +80,7 @@ interface MoarBoatsPacket {
                 }
             }
 
-            if(field.annotations.any { it.annotationClass == ItemStackList::class }) {
+            if(field.javaField!!.annotations.any { it.annotationClass == ItemStackList::class }) {
                 val list = field.getter.call(packet) as List<ItemStack>
                 buffer.writeInt(list.size)
                 val nbt = NBTTagCompound()
@@ -136,7 +136,7 @@ interface MoarBoatsPacket {
                 }
 
                 ResourceLocation::class.java -> {
-                    val path = (value as ResourceLocation).path
+                    val path = (value as ResourceLocation).toString()
                     buffer.writeString(path)
                 }
 
@@ -173,7 +173,7 @@ interface MoarBoatsPacket {
          * Deserializes a single field from a buffer to a packet
          */
         private fun deserialize(packet: MoarBoatsPacket, field: KMutableProperty<*>, buffer: PacketBuffer) {
-            if(field.annotations.any { it.annotationClass == Nullable::class }) {
+            if(field.javaField!!.annotations.any { it.annotationClass == Nullable::class }) {
                 val present = buffer.readBoolean()
                 if(present) {
                     field.setter.call(packet, null)
@@ -181,16 +181,20 @@ interface MoarBoatsPacket {
                 }
             }
 
-            if(field.annotations.any { it.annotationClass == ItemStackList::class }) {
+            if(field.javaField!!.annotations.any { it.annotationClass == ItemStackList::class }) {
                 val size = buffer.readInt()
                 val tmpList = NonNullList.withSize(size, ItemStack.EMPTY)
                 val nbt = buffer.readCompoundTag()!!
                 ItemStackHelper.loadAllItems(nbt, tmpList)
-                tmpList.addAll(tmpList)
                 field.setter.call(packet, mutableListOf<ItemStack>().apply { addAll(tmpList) })
                 return
             }
-            field.setter.call(packet, read(field.javaField!!.type, buffer))
+            try {
+                field.setter.call(packet, read(field.javaField!!.type, buffer))
+            } catch (e: Exception) {
+                MoarBoats.logger.error("Failed to decode ${field.name} of packet ${packet.javaClass.canonicalName}: ${e.message}, annotations are ${field.javaField!!.annotations.joinToString(", ") { it.javaClass.canonicalName }}")
+                throw e
+            }
         }
 
         @Suppress("IMPLICIT_CAST_TO_ANY")
