@@ -18,7 +18,7 @@ object OarEngineRenderer : BoatModuleRenderer() {
         registryName = OarEngineModule.id
     }
 
-    private val BOAT_TEXTURES = arrayOf(ResourceLocation("textures/entity/boat/boat_oak.png"), ResourceLocation("textures/entity/boat/boat_spruce.png"), ResourceLocation("textures/entity/boat/boat_birch.png"), ResourceLocation("textures/entity/boat/boat_jungle.png"), ResourceLocation("textures/entity/boat/boat_acacia.png"), ResourceLocation("textures/entity/boat/boat_darkoak.png"))
+    private val BOAT_TEXTURES = arrayOf(ResourceLocation("textures/entity/boat/oak.png"), ResourceLocation("textures/entity/boat/spruce.png"), ResourceLocation("textures/entity/boat/birch.png"), ResourceLocation("textures/entity/boat/jungle.png"), ResourceLocation("textures/entity/boat/acacia.png"), ResourceLocation("textures/entity/boat/dark_oak.png"))
     private val paddles = ModelVanillaOars()
 
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, renderManager: RenderManager) {
