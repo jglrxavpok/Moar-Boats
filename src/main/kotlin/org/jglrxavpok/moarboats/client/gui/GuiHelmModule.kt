@@ -17,7 +17,6 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.renders.HelmModuleRenderer
-import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.containers.ContainerHelmModule
 import org.jglrxavpok.moarboats.common.data.LoopingOptions
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
@@ -47,7 +46,7 @@ class GuiHelmModule(playerInventory: InventoryPlayer, engine: BoatModule, boat: 
                 boat.modules.firstOrNull() { it.moduleSpot == BoatModule.Spot.Engine }?.let {
                     MoarBoats.network.sendToServer(CChangeEngineMode(boat.entityID, it.id, true))
                 }
-                playerInventory.player.displayGui(MoarBoatsGuiHandler.PathEditorInteraction(boat.world, boat.entityID))
+                mc.displayGuiScreen(HelmModule.createPathEditorGui(playerInventory.player, boat, mapData))
             }
         }
     }

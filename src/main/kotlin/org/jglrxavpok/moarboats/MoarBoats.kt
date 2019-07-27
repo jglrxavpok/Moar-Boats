@@ -139,9 +139,7 @@ object MoarBoats {
         DataSerializers.registerSerializer(UniqueIDSerializer)
         plugins.forEach(MoarBoatsPlugin::init)
         ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.GUIFACTORY) {
-            Function<FMLPlayMessages.OpenContainer, GuiScreen> {
-                container: FMLPlayMessages.OpenContainer -> TODO("Not implemented yet")
-            }
+            Function<FMLPlayMessages.OpenContainer, GuiScreen?> { container: FMLPlayMessages.OpenContainer -> MoarBoatsGuiHandler.dispatchGui(container) }
         }
     }
 

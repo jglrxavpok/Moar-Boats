@@ -1,17 +1,17 @@
 {
   "variants": {
     "facing=north": [
-      { "model": "moarboats:waterborne_redstone_unpowered" }
+      { "model": "moarboats:block/waterborne_redstone_unpowered" }
     ],
     "facing=south": [
-      { "model": "moarboats:waterborne_redstone_unpowered", "y": 180 }
+      { "model": "moarboats:block/waterborne_redstone_unpowered", "y": 180 }
     ],
     "facing=east": [
-      { "model": "moarboats:waterborne_redstone_unpowered", "y": 90 }
+      { "model": "moarboats:block/waterborne_redstone_unpowered", "y": 90 }
     ],
     "facing=west": [
-      { "model": "moarboats:waterborne_redstone_unpowered", "y": 270 }
+      { "model": "moarboats:block/waterborne_redstone_unpowered", "y": 270 }
     ],
-    "inventory": {"model": "moarboats:waterborne_redstone_unpowered"}
+    "inventory": {"model": "moarboats:block/waterborne_redstone_unpowered"}
   }
 }

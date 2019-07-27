@@ -3,6 +3,7 @@ package org.jglrxavpok.moarboats.common.blocks
 import net.minecraft.block.SoundType
 import net.minecraft.block.state.IBlockState
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.player.EntityPlayerMP
 import net.minecraft.inventory.Container
 import net.minecraft.inventory.InventoryHelper
 import net.minecraft.tileentity.TileEntity
@@ -12,6 +13,7 @@ import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.IBlockReader
 import net.minecraft.world.World
+import net.minecraftforge.fml.network.NetworkHooks
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
@@ -59,7 +61,7 @@ object BlockMappingTable: MoarBoatsBlock({ sound(SoundType.STONE).hardnessAndRes
         if(worldIn.isRemote) {
             return true
         }
-        playerIn.displayGui(MoarBoatsGuiHandler.MappingTableGuiInteraction(pos.x, pos.y, pos.z))
+        NetworkHooks.openGui(playerIn as EntityPlayerMP, MoarBoatsGuiHandler.MappingTableGuiInteraction(pos.x, pos.y, pos.z))
         return true
     }
 }

@@ -1,6 +1,6 @@
 {
   "variants": {
-    "normal": {"model": "moarboats:boat_tank"},
-    "inventory": {"model": "moarboats:boat_tank"}
+    "": {"model": "moarboats:block/boat_tank"},
+    "inventory": {"model": "moarboats:block/boat_tank"}
   }
 }

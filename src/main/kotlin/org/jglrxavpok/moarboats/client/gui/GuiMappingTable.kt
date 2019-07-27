@@ -203,7 +203,7 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
     fun edit(index: Int) {
         val player = playerInv.player
         selectedIndex = index
-        player.displayGui(MoarBoatsGuiHandler.WaypointEditorInteraction(te.pos.x, te.pos.y, te.pos.z))
+        mc.displayGuiScreen(GuiWaypointEditor(player, te, selectedIndex))
     }
 
     fun swap(index1: Int, index2: Int) {

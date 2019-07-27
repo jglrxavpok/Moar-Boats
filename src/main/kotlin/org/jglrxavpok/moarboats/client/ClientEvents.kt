@@ -55,14 +55,7 @@ object ClientEvents {
             32, 48, -1.0f, -2.0f, -2.0f, 4, 9, 4, 0.0f + 0.25f)
     val hookModel = ModelPatreonHook()
 
-    private fun dispatch(container: FMLPlayMessages.OpenContainer): GuiScreen? {
-        return null
-    }
-
     fun doClientStuff(event: FMLClientSetupEvent) {
-        ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.GUIFACTORY) {
-            Function<FMLPlayMessages.OpenContainer, GuiScreen?> { container: FMLPlayMessages.OpenContainer -> dispatch(container) }
-        }
         MinecraftForge.EVENT_BUS.register(this)
 
         val mc = event.minecraftSupplier.get()

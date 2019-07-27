@@ -3,6 +3,7 @@ package org.jglrxavpok.moarboats.common.network
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.fml.network.NetworkEvent
+import net.minecraftforge.fml.network.NetworkHooks
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 
@@ -27,7 +28,7 @@ class COpenModuleGui(): MoarBoatsPacket {
                 return null
             }
             val module = boat.modules.first { it.id == message.moduleID }
-            player.displayGui(module.generateInteractionObject(boat))
+            NetworkHooks.openGui(player, module.generateInteractionObject(boat))
             return null
         }
     }

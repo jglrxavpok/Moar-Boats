@@ -5,6 +5,7 @@ import net.minecraft.block.state.IBlockState
 import net.minecraft.dispenser.IBehaviorDispenseItem
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.player.EntityPlayerMP
 import net.minecraft.init.Blocks
 import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.InventoryHelper
@@ -34,6 +35,7 @@ import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import net.minecraftforge.fluids.capability.IFluidHandler
 import net.minecraftforge.fluids.capability.IFluidTankProperties
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData
+import net.minecraftforge.fml.network.NetworkHooks
 import net.minecraftforge.fml.network.PacketDistributor
 import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.wrapper.InvWrapper
@@ -199,7 +201,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
         val canOpenGui = validOwner && !modules.any { it.onInteract(this, player, hand, player.isSneaking) }
         if(canOpenGui) {
             if(modules.isNotEmpty() && !world.isRemote) {
-                player.displayGui(MoarBoatsGuiHandler.ModulesGuiInteraction(entityID, -1))
+                NetworkHooks.openGui(player as EntityPlayerMP, MoarBoatsGuiHandler.ModulesGuiInteraction(entityID, -1)) // TODO: use additional data?
             }
         } else if(!validOwner) {
             player.sendStatusMessage(TextComponentTranslation(LockedByOwner.key, ownerName ?: "<UNKNOWN>"), true)

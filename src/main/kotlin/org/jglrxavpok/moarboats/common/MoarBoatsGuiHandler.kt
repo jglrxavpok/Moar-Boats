@@ -2,6 +2,7 @@ package org.jglrxavpok.moarboats.common
 
 import io.netty.handler.codec.MessageToMessageEncoder
 import net.minecraft.client.Minecraft
+import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.player.InventoryPlayer
@@ -36,8 +37,33 @@ import org.jglrxavpok.moarboats.extensions.use
 
 object MoarBoatsGuiHandler: IGuiHandler {
 
-    fun dispathGui(container: FMLPlayMessages.OpenContainer): GuiScreen? {
-        println(">> Open: ${container.id}")
+    fun dispatchGui(container: FMLPlayMessages.OpenContainer): GuiScreen? {
+        println("Dispatch: ${container.id}")
+        val id = container.id
+        if(id.namespace == MoarBoats.ModID) {
+            val route = id.path.split("/")
+            println("route: ${route.joinToString("/")}")
+            when(route[0]) {
+                "gui" -> when(route[1]) {
+                    "modules" -> {
+                        val boatID = route[2].toInt()
+                        val moduleIndex = route[3].toInt()
+                        val mc = Minecraft.getInstance()
+                        val boat = mc.world.getEntityByID(boatID) as? ModularBoatEntity
+                        val player = mc.player
+                        boat?.let {
+                            val module =
+                            if(moduleIndex !in 0 until it.modules.size) {
+                                it.findFirstModuleToShowOnGui()
+                            } else {
+                                it.modules[moduleIndex]
+                            }
+                            return module.createGui(player as EntityPlayerSP, it)
+                        } ?: return null
+                    }
+                }
+            }
+        }
         return null
     }
 
@@ -86,7 +112,7 @@ object MoarBoatsGuiHandler: IGuiHandler {
         }
 
         override fun createContainer(playerInventory: InventoryPlayer, playerIn: EntityPlayer): Container? {
-            return BlockPos.PooledMutableBlockPos.retain().use {
+            return BlockPos.PooledMutableBlockPos.retain(x, y, z).use {
                 val te = playerIn.world.getTileEntity(it) as? TE
                 if(te != null) {
                     containerGenerator(te, playerInventory, playerIn)
@@ -131,37 +157,7 @@ object MoarBoatsGuiHandler: IGuiHandler {
                 val boatID = x
                 val boat = world.getEntityByID(boatID) as? ModularBoatEntity ?: return null
                 if(HelmModule in boat.modules) {
-                    val inventory = boat.getInventory(HelmModule)
-                    val stack = inventory.list[0]
-                    when(stack.item) {
-                        is ItemMap -> {
-                            val mapData = HelmModule.mapDataCopyProperty[boat]
-                            if(mapData != EmptyMapData) {
-                                GuiPathEditor(player, BoatPathHolder(boat), mapData)
-                            } else {
-                                null
-                            }
-                        }
-                        is ItemMapWithPath -> {
-                            val id = stack.tag!!.getString("${MoarBoats.ModID}.mapID")
-                            val mapData = MoarBoats.getLocalMapStorage().get(DimensionType.OVERWORLD, ::MapData, id) as? MapData
-                            if(mapData != null && mapData != EmptyMapData) {
-                                GuiPathEditor(player, MapWithPathHolder(stack, null, boat), mapData)
-                            } else {
-                                null
-                            }
-                        }
-                        is ItemGoldenTicket -> {
-                            val id = ItemGoldenTicket.getData(stack).mapID
-                            val mapData = MoarBoats.getLocalMapStorage().get(DimensionType.OVERWORLD, ::MapData, id) as? MapData
-                            if(mapData != null && mapData != EmptyMapData) {
-                                GuiPathEditor(player, GoldenTicketPathHolder(stack, null, boat), mapData)
-                            } else {
-                                null
-                            }
-                        }
-                        else -> null
-                    }
+
                 } else {
                     null // NO HELM
                 }

@@ -50,12 +50,12 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
         override fun onClick(mouseX: Double, mouseY: Double) {
             storeIntoNBT()
             MoarBoats.network.sendToServer(CModifyWaypoint(te, index, waypointData))
-            player.displayGui(MoarBoatsGuiHandler.MappingTableGuiInteraction(te.pos.x, te.pos.y, te.pos.z))
+            mc.displayGuiScreen(GuiMappingTable(te, player.inventory))
         }
     }
     private val cancelButton = object: GuiButton(id++, 0, 0, cancelText.formattedText) {
         override fun onClick(mouseX: Double, mouseY: Double) {
-            player.displayGui(MoarBoatsGuiHandler.MappingTableGuiInteraction(te.pos.x, te.pos.y, te.pos.z))
+            mc.displayGuiScreen(GuiMappingTable(te, player.inventory))
         }
     }
     private val refreshButton = object: GuiButton(id++, 0, 0, refreshText.formattedText) {

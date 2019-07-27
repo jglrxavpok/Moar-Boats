@@ -5,7 +5,7 @@
         "facing": "north"
       },
       "apply": {
-        "model": "waterlily",
+        "model": "block/waterlily",
         "y": 180
       }
     },
@@ -14,7 +14,7 @@
         "facing": "north"
       },
       "apply": {
-        "model": "comparator_lit",
+        "model": "block/comparator_lit",
         "y": 180
       }
     },
@@ -24,7 +24,7 @@
         "facing": "east"
       },
       "apply": {
-        "model": "waterlily",
+        "model": "block/waterlily",
         "y": 270
       }
     },
@@ -33,7 +33,7 @@
         "facing": "east"
       },
       "apply": {
-        "model": "comparator_lit",
+        "model": "block/comparator_lit",
         "y": 270
       }
     },
@@ -43,7 +43,7 @@
         "facing": "south"
       },
       "apply": {
-        "model": "waterlily",
+        "model": "block/waterlily",
         "y": 0
       }
     },
@@ -52,7 +52,7 @@
         "facing": "south"
       },
       "apply": {
-        "model": "comparator_lit",
+        "model": "block/comparator_lit",
         "y": 0
       }
     },
@@ -62,7 +62,7 @@
         "facing": "west"
       },
       "apply": {
-        "model": "waterlily",
+        "model": "block/waterlily",
         "y": 90
       }
     },
@@ -71,7 +71,7 @@
         "facing": "west"
       },
       "apply": {
-        "model": "comparator_lit",
+        "model": "block/comparator_lit",
         "y": 90
       }
     }

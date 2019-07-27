@@ -10,7 +10,10 @@ import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
+import net.minecraft.world.dimension.DimensionType
 import net.minecraft.world.storage.MapData
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.common.util.Constants
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.gui.GuiHelmModule
@@ -20,8 +23,11 @@ import org.jglrxavpok.moarboats.common.network.CMapRequest
 import org.jglrxavpok.moarboats.extensions.toDegrees
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
+import org.jglrxavpok.moarboats.client.gui.GuiPathEditor
 import org.jglrxavpok.moarboats.common.containers.ContainerBase
-import org.jglrxavpok.moarboats.common.data.LoopingOptions
+import org.jglrxavpok.moarboats.common.data.*
+import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
+import org.jglrxavpok.moarboats.common.items.ItemMapWithPath
 import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.state.*
 import org.jglrxavpok.moarboats.extensions.insert
@@ -314,5 +320,28 @@ object HelmModule: BoatModule(), BlockReason {
     fun removeWaypoint(boat: IControllable, index: Int) {
         val waypointsData = waypointsProperty[boat]
         waypointsData.removeTag(index)
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    fun createPathEditorGui(player: EntityPlayer, boat: IControllable, mapData: MapData): GuiPathEditor? {
+        if(mapData == EmptyMapData) {
+            return null
+        }
+        val inventory = boat.getInventory(HelmModule)
+        val stack = inventory.list[0]
+        return when(stack.item) {
+            is ItemMap -> {
+                GuiPathEditor(player, BoatPathHolder(boat), mapData)
+            }
+            is ItemMapWithPath -> {
+                val id = stack.tag!!.getString("${MoarBoats.ModID}.mapID")
+                GuiPathEditor(player, MapWithPathHolder(stack, null, boat), mapData)
+            }
+            is ItemGoldenTicket -> {
+                val id = ItemGoldenTicket.getData(stack).mapID
+                GuiPathEditor(player, GoldenTicketPathHolder(stack, null, boat), mapData)
+            }
+            else -> null
+        }
     }
 }
