@@ -1,0 +1,170 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "facing": "north",
+        "powered": "true"
+      },
+      "apply": {
+        "model": "block/lily_pad",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "powered": "true"
+      },
+      "apply": {
+        "model": "block/comparator_on",
+        "y": 180
+      }
+    },
+
+    {
+      "when": {
+        "facing": "east",
+        "powered": "true"
+      },
+      "apply": {
+        "model": "block/lily_pad",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "powered": "true"
+      },
+      "apply": {
+        "model": "block/comparator_on",
+        "y": 270
+      }
+    },
+
+    {
+      "when": {
+        "facing": "south",
+        "powered": "true"
+      },
+      "apply": {
+        "model": "block/lily_pad",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "powered": "true"
+      },
+      "apply": {
+        "model": "block/comparator_on",
+        "y": 0
+      }
+    },
+
+    {
+      "when": {
+        "facing": "west",
+        "powered": "true"
+      },
+      "apply": {
+        "model": "block/lily_pad",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "powered": "true"
+      },
+      "apply": {
+        "model": "block/comparator_on",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "powered": "false"
+      },
+      "apply": {
+        "model": "block/lily_pad",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "powered": "false"
+      },
+      "apply": {
+        "model": "block/comparator",
+        "y": 180
+      }
+    },
+
+    {
+      "when": {
+        "facing": "east",
+        "powered": "false"
+      },
+      "apply": {
+        "model": "block/lily_pad",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "powered": "false"
+      },
+      "apply": {
+        "model": "block/comparator",
+        "y": 270
+      }
+    },
+
+    {
+      "when": {
+        "facing": "south",
+        "powered": "false"
+      },
+      "apply": {
+        "model": "block/lily_pad",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "powered": "false"
+      },
+      "apply": {
+        "model": "block/comparator",
+        "y": 0
+      }
+    },
+
+    {
+      "when": {
+        "facing": "west",
+        "powered": "false"
+      },
+      "apply": {
+        "model": "block/lily_pad",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "powered": "false"
+      },
+      "apply": {
+        "model": "block/comparator",
+        "y": 90
+      }
+    }
+  ]
+}

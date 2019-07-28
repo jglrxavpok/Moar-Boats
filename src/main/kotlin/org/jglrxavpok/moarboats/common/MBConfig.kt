@@ -173,7 +173,7 @@ class MoarBoatsConfig {
 
     class DispenserModule(builder: ForgeConfigSpec.Builder) {
         val configMode: ForgeConfigSpec.ConfigValue<String>
-        val items: ForgeConfigSpec.ConfigValue<Array<String?>>
+        val items: ForgeConfigSpec.ConfigValue<List<String?>>
 
         init {
             builder
@@ -187,7 +187,7 @@ class MoarBoatsConfig {
 
             items = builder
                     .comment("List of item IDs to allow/disallow, must match '^([a-z_]+:)?([a-z_]+)(\\/\\d+)?$' (domain:name/metadata with 'domain:' and 'metadata' optional)")
-                    .define("items", arrayOfNulls<String>(0))
+                    .define("items", listOf())
             builder.pop()
         }
     }

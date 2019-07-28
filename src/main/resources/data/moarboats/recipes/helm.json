@@ -11,22 +11,7 @@
     },
     "|": [
       {
-        "item": "minecraft:acacia_fence"
-      },
-      {
-        "item": "minecraft:birch_fence"
-      },
-      {
-        "item": "minecraft:dark_oak_fence"
-      },
-      {
-        "item": "minecraft:jungle_fence"
-      },
-      {
-        "item": "minecraft:spruce_fence"
-      },
-      {
-        "item": "minecraft:fence"
+        "tag": "minecraft:fences"
       }
     ],
     "B": [

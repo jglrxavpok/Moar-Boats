@@ -1,8 +1,8 @@
 {
   "ambientocclusion": false,
   "textures": {
-    "particle": "blocks/waterlily",
-    "stopperTexture": "moarboats:blocks/cargo_stopper_unlit"
+    "particle": "block/lily_pad",
+    "stopperTexture": "moarboats:blocks/cargo_stopper_on"
   },
   "elements": [
     {

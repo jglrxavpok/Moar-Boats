@@ -25,7 +25,7 @@ import org.jglrxavpok.moarboats.common.items.WaterborneConductorItem
 object BlockWaterborneConductor: BlockRedstoneDiode(Block.Properties.create(Material.CIRCUITS).hardnessAndResistance(0f).sound(SoundType.WOOD)) {
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "waterborne_redstone")
-        this.defaultState = this.stateContainer.baseState.with(BlockHorizontal.HORIZONTAL_FACING, EnumFacing.NORTH)
+        this.defaultState = this.stateContainer.baseState.with(BlockHorizontal.HORIZONTAL_FACING, EnumFacing.NORTH).with(POWERED, false)
     }
 
     override fun canConnectRedstone(state: IBlockState?, world: IBlockReader?, pos: BlockPos?, side: EnumFacing?): Boolean {

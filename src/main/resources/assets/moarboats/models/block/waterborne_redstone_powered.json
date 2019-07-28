@@ -1,9 +1,9 @@
 {
   "ambientocclusion": false,
   "textures": {
-    "particle": "blocks/waterlily",
-    "cableTexture": "blocks/redstone_block",
-    "texture": "blocks/waterlily"
+    "particle": "block/lily_pad",
+    "cableTexture": "block/redstone_block",
+    "texture": "block/lily_pad"
   },
   "elements": [
     {   "from": [ 0, 0.25, 0 ],

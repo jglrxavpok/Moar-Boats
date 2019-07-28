@@ -10,27 +10,11 @@
     },
     "B": [
       {
-        "item": "minecraft:acacia_boat"
-      },
-      {
-        "item": "minecraft:birch_boat"
-      },
-      {
-        "item": "minecraft:dark_oak_boat"
-      },
-      {
-        "item": "minecraft:jungle_boat"
-      },
-      {
-        "item": "minecraft:spruce_boat"
-      },
-      {
-        "item": "minecraft:boat"
+        "tag": "minecraft:boats"
       }
     ]
   },
   "result": {
-    "item": "moarboats:modular_boat",
-    "data": 0
+    "item": "moarboats:modular_boat_white"
   }
 }

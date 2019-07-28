@@ -1,37 +1,28 @@
 package org.jglrxavpok.moarboats.common
 
-import io.netty.handler.codec.MessageToMessageEncoder
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.player.InventoryPlayer
 import net.minecraft.inventory.Container
-import net.minecraft.item.ItemMap
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.TextComponentTranslation
 import net.minecraft.world.IInteractionObject
 import net.minecraft.world.World
-import net.minecraft.world.dimension.DimensionType
-import net.minecraft.world.storage.MapData
 import net.minecraftforge.fml.common.network.IGuiHandler
 import net.minecraftforge.fml.network.FMLPlayMessages
 import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.client.gui.*
+import org.jglrxavpok.moarboats.client.gui.GuiEnergy
+import org.jglrxavpok.moarboats.client.gui.GuiMappingTable
+import org.jglrxavpok.moarboats.client.gui.GuiWaypointEditor
 import org.jglrxavpok.moarboats.common.containers.ContainerMappingTable
-import org.jglrxavpok.moarboats.common.containers.EnergyContainer
-import org.jglrxavpok.moarboats.common.data.BoatPathHolder
-import org.jglrxavpok.moarboats.common.data.GoldenTicketPathHolder
-import org.jglrxavpok.moarboats.common.data.MapWithPathHolder
+import org.jglrxavpok.moarboats.common.containers.EmptyContainer
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
-import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
-import org.jglrxavpok.moarboats.common.items.ItemMapWithPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
-import org.jglrxavpok.moarboats.common.state.EmptyMapData
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergy
-import org.jglrxavpok.moarboats.common.tileentity.TileEntityListenable
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 import org.jglrxavpok.moarboats.extensions.use
 
@@ -43,14 +34,15 @@ object MoarBoatsGuiHandler: IGuiHandler {
         if(id.namespace == MoarBoats.ModID) {
             val route = id.path.split("/")
             println("route: ${route.joinToString("/")}")
+            val mc = Minecraft.getInstance()
+            val player = mc.player
+            val world = mc.world
             when(route[0]) {
                 "gui" -> when(route[1]) {
                     "modules" -> {
                         val boatID = route[2].toInt()
                         val moduleIndex = route[3].toInt()
-                        val mc = Minecraft.getInstance()
-                        val boat = mc.world.getEntityByID(boatID) as? ModularBoatEntity
-                        val player = mc.player
+                        val boat = world.getEntityByID(boatID) as? ModularBoatEntity
                         boat?.let {
                             val module =
                             if(moduleIndex !in 0 until it.modules.size) {
@@ -60,6 +52,26 @@ object MoarBoatsGuiHandler: IGuiHandler {
                             }
                             return module.createGui(player as EntityPlayerSP, it)
                         } ?: return null
+                    }
+
+                    "mapping_table" -> {
+                        val x = route[2].toInt()
+                        val y = route[3].toInt()
+                        val z = route[4].toInt()
+                        return BlockPos.PooledMutableBlockPos.retain(x, y, z).use {
+                            val te = world.getTileEntity(it) as? TileEntityMappingTable ?: throw IllegalArgumentException("No Mapping Table at location!")
+                            return@use GuiMappingTable(te, player.inventory)
+                        }
+                    }
+
+                    "energy" -> {
+                        val x = route[2].toInt()
+                        val y = route[3].toInt()
+                        val z = route[4].toInt()
+                        return BlockPos.PooledMutableBlockPos.retain(x, y, z).use {
+                            val te = world.getTileEntity(it) as? TileEntityEnergy ?: throw IllegalArgumentException("No Mapping Table at location!")
+                            return@use GuiEnergy(te, player)
+                        }
                     }
                 }
             }
@@ -124,32 +136,8 @@ object MoarBoatsGuiHandler: IGuiHandler {
 
     }
 
-    class EnergyGuiInteraction(x: Int, y: Int, z: Int): TileEntityInteraction<TileEntityEnergy>("energy", x, y, z, { te, inv, player -> ContainerMappingTable(te as TileEntityMappingTable, inv) })
+    class EnergyGuiInteraction(x: Int, y: Int, z: Int): TileEntityInteraction<TileEntityEnergy>("energy", x, y, z, { te, inv, player -> EmptyContainer(inv) })
     class MappingTableGuiInteraction(x: Int, y: Int, z: Int): TileEntityInteraction<TileEntityMappingTable>("mapping_table", x, y, z, { te, inv, player -> ContainerMappingTable(te as TileEntityMappingTable, inv) })
-    class WaypointEditorInteraction(x: Int, y: Int, z: Int): TileEntityInteraction<TileEntityMappingTable>("waypoint_editor", x, y, z)
-
-    class PathEditorInteraction(val world: World, val boatID: Int): IInteractionObject {
-        override fun hasCustomName(): Boolean {
-            return false // TODO: Renamable
-        }
-
-        override fun getCustomName(): ITextComponent? {
-            return null
-        }
-
-        override fun getName(): ITextComponent {
-            return TextComponentTranslation("gui.path_editor.title", "<unknown>")
-        }
-
-        override fun getGuiID(): String {
-            return "${MoarBoats.ModID}:gui/patheditor/$boatID"
-        }
-
-        override fun createContainer(playerInventory: InventoryPlayer, playerIn: EntityPlayer): Container? {
-            return null
-        }
-
-    }
 
     override fun getClientGuiElement(ID: Int, player: EntityPlayer, world: World, x: Int, y: Int, z: Int): Any? {
         return when(ID) {

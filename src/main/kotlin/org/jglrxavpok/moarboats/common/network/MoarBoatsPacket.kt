@@ -1,27 +1,21 @@
 package org.jglrxavpok.moarboats.common.network
 
-import net.minecraft.init.SoundEvents
 import net.minecraft.inventory.ItemStackHelper
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
 import net.minecraft.network.PacketBuffer
 import net.minecraft.util.*
-import net.minecraft.util.registry.IRegistry
-import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.registries.GameData
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.data.LoopingOptions
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
-import java.lang.UnsupportedOperationException
-import java.lang.reflect.Field
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty
-import kotlin.reflect.KProperty
 import kotlin.reflect.full.memberProperties
-import kotlin.reflect.full.staticProperties
+import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaField
 
 interface MoarBoatsPacket {
@@ -72,7 +66,7 @@ interface MoarBoatsPacket {
          * Serializes a single field from a packet to a buffer
          */
         private fun serialize(packet: MoarBoatsPacket, field: KMutableProperty<*>, buffer: PacketBuffer) {
-            if(field.javaField!!.annotations.any { it.annotationClass == Nullable::class }) {
+            if(field.javaField!!.annotations.any { it.annotationClass == Nullable::class } || field.returnType.isMarkedNullable) {
                 val present = field.getter.call(packet) != null
                 buffer.writeBoolean(present)
                 if( ! present) {
@@ -89,7 +83,7 @@ interface MoarBoatsPacket {
                 buffer.writeCompoundTag(nbt)
                 return
             }
-            write(field.getter.call(packet) as Any, buffer)
+            write(field[packet] as Any, buffer)
         }
 
         private fun <T: Any> write(value: T, buffer: PacketBuffer) {
@@ -173,10 +167,10 @@ interface MoarBoatsPacket {
          * Deserializes a single field from a buffer to a packet
          */
         private fun deserialize(packet: MoarBoatsPacket, field: KMutableProperty<*>, buffer: PacketBuffer) {
-            if(field.javaField!!.annotations.any { it.annotationClass == Nullable::class }) {
+            if(field.javaField!!.annotations.any { it.annotationClass == Nullable::class } || field.returnType.isMarkedNullable) {
                 val present = buffer.readBoolean()
-                if(present) {
-                    field.setter.call(packet, null)
+                if( ! present) {
+                    field[packet] = null
                     return
                 }
             }
@@ -186,11 +180,11 @@ interface MoarBoatsPacket {
                 val tmpList = NonNullList.withSize(size, ItemStack.EMPTY)
                 val nbt = buffer.readCompoundTag()!!
                 ItemStackHelper.loadAllItems(nbt, tmpList)
-                field.setter.call(packet, mutableListOf<ItemStack>().apply { addAll(tmpList) })
+                field[packet] = mutableListOf<ItemStack>().apply { addAll(tmpList) }
                 return
             }
             try {
-                field.setter.call(packet, read(field.javaField!!.type, buffer))
+                field[packet] = read(field.javaField!!.type, buffer)
             } catch (e: Exception) {
                 MoarBoats.logger.error("Failed to decode ${field.name} of packet ${packet.javaClass.canonicalName}: ${e.message}, annotations are ${field.javaField!!.annotations.joinToString(", ") { it.javaClass.canonicalName }}")
                 throw e
@@ -270,6 +264,19 @@ interface MoarBoatsPacket {
 
                 else -> throw UnsupportedOperationException("I don't know how to deal with type ${type.canonicalName}")
             } as T
+        }
+
+        private operator fun KMutableProperty<*>.get(packet: MoarBoatsPacket): Any? {
+            this.isAccessible = true
+            val p = this.getter.call(packet)
+            this.isAccessible = false
+            return p
+        }
+
+        private operator fun KMutableProperty<*>.set(packet: MoarBoatsPacket, value: Any?) {
+            this.isAccessible = true
+            val p = this.setter.call(packet, value)
+            this.isAccessible = false
         }
     }
 

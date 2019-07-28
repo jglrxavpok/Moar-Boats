@@ -25,6 +25,7 @@ import net.minecraftforge.fml.DistExecutor
 import net.minecraftforge.fml.ExtensionPoint
 import net.minecraftforge.fml.ModLoadingContext
 import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.config.ModConfig
 import net.minecraftforge.fml.event.lifecycle.*
 import net.minecraftforge.fml.network.FMLPlayMessages
 import net.minecraftforge.fml.network.NetworkRegistry
@@ -117,6 +118,7 @@ object MoarBoats {
         FMLKotlinModLoadingContext.get().modEventBus.addListener { event: RegistryEvent.NewRegistry -> createRegistry(event) }
         FMLKotlinModLoadingContext.get().modEventBus.addListener { event: RegistryEvent.Register<BoatModuleEntry> -> registerModules(event) }
 
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, MoarBoatsConfig.spec)
 //        MinecraftForge.EVENT_BUS.register(this)
         MinecraftForge.EVENT_BUS.register(ItemEventHandler)
         MinecraftForge.EVENT_BUS.register(MoarBoatsConfig::javaClass)

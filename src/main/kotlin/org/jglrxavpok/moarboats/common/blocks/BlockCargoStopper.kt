@@ -31,10 +31,10 @@ import java.util.*
 
 // TODO: Rewrite with blockstates
 
-object BlockCargoStopper: BlockRedstoneDiode(Block.Properties.create(Material.CIRCUITS).hardnessAndResistance(0f).sound(SoundType.WOOD)) {
+object BlockCargoStopper: BlockRedstoneDiode(Block.Properties.create(Material.CIRCUITS).tickRandomly().hardnessAndResistance(0f).sound(SoundType.WOOD)) {
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "cargo_stopper")
-        this.defaultState = this.stateContainer.baseState.with(BlockHorizontal.HORIZONTAL_FACING, EnumFacing.NORTH)
+        this.defaultState = this.stateContainer.baseState.with(BlockHorizontal.HORIZONTAL_FACING, EnumFacing.NORTH).with(POWERED, false)
     }
 
     override fun ticksRandomly(state: IBlockState) = true
@@ -69,11 +69,10 @@ object BlockCargoStopper: BlockRedstoneDiode(Block.Properties.create(Material.CI
     }
 
     override fun tick(state: IBlockState, worldIn: World, pos: BlockPos, random: Random) {
-        super.tick(state, worldIn, pos, random)
         val produceSignal = shouldBePowered(worldIn, pos, state)
         when {
-            produceSignal && !state[POWERED] -> worldIn.setBlockState(pos, defaultState.with(BlockHorizontal.HORIZONTAL_FACING, state.get(BlockHorizontal.HORIZONTAL_FACING)))
-            !produceSignal && state[POWERED] -> worldIn.setBlockState(pos, defaultState.with(BlockHorizontal.HORIZONTAL_FACING, state.get(BlockHorizontal.HORIZONTAL_FACING)))
+            produceSignal && !state[POWERED] -> worldIn.setBlockState(pos, state.with(POWERED, true).with(BlockHorizontal.HORIZONTAL_FACING, state.get(BlockHorizontal.HORIZONTAL_FACING)))
+            !produceSignal && state[POWERED] -> worldIn.setBlockState(pos, state.with(POWERED, false).with(BlockHorizontal.HORIZONTAL_FACING, state.get(BlockHorizontal.HORIZONTAL_FACING)))
         }
         worldIn.pendingBlockTicks.scheduleTick(pos, this, 2)
         notifyNeighbors(worldIn, pos, state)
@@ -121,6 +120,8 @@ object BlockCargoStopper: BlockRedstoneDiode(Block.Properties.create(Material.CI
      */
     override fun onBlockPlacedBy(worldIn: World, pos: BlockPos, state: IBlockState, placer: EntityLivingBase?, stack: ItemStack) {
         super.onBlockPlacedBy(worldIn, pos, state, placer, stack)
+        //worldIn.pendingBlockTicks.scheduleTick(pos, this, 2)
+        this.notifyNeighbors(worldIn, pos, state)
     }
 
     override fun shouldBePowered(worldIn: World, pos: BlockPos, state: IBlockState): Boolean {
