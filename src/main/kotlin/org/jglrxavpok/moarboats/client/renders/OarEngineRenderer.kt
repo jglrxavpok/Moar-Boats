@@ -1,15 +1,12 @@
 package org.jglrxavpok.moarboats.client.renders
 
-import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.entity.RenderManager
-import net.minecraft.client.renderer.texture.TextureMap
-import net.minecraft.init.Blocks
 import net.minecraft.util.ResourceLocation
+import net.minecraft.util.math.MathHelper
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.client.models.ModelVanillaOars
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
-import org.jglrxavpok.moarboats.common.modules.CreativeEngineModule
 import org.jglrxavpok.moarboats.common.modules.OarEngineModule
 
 object OarEngineRenderer : BoatModuleRenderer() {
@@ -25,22 +22,24 @@ object OarEngineRenderer : BoatModuleRenderer() {
         module as OarEngineModule
 
         GlStateManager.pushMatrix()
-        GlStateManager.translatef(0f, 0.375f, 0f)
+        GlStateManager.translatef(-0.25f, 0.575f, 0f)
 
         renderManager.textureManager.bindTexture(BOAT_TEXTURES[boat.entityID % BOAT_TEXTURES.size])
 
-        paddles.paddles10.rotateAngleX = 0.5f
-        paddles.paddles11.rotateAngleX = 0.5f
-
-        paddles.paddles20.rotateAngleX = 0.5f
-        paddles.paddles21.rotateAngleX = 0.5f
-
         val angle = if(boat.controllingPassenger != null) -boat.distanceTravelled.toFloat()*2f else 0f
-        paddles.paddles10.rotateAngleZ = angle
-        paddles.paddles11.rotateAngleZ = angle
 
-        paddles.paddles20.rotateAngleZ = angle
-        paddles.paddles21.rotateAngleZ = angle
+        // from ModelBoat
+        paddles.paddles10.rotateAngleX = MathHelper.clampedLerp((-Math.PI.toFloat() / 3f).toDouble(), (-0.2617994f).toDouble(), ((MathHelper.sin(-angle) + 1.0f) / 2.0f).toDouble()).toFloat()
+        paddles.paddles10.rotateAngleY = MathHelper.clampedLerp((-Math.PI.toFloat() / 4f).toDouble(), (Math.PI.toFloat() / 4f).toDouble(), ((MathHelper.sin(-angle + 1.0f) + 1.0f) / 2.0f).toDouble()).toFloat()
+        paddles.paddles11.rotateAngleX = paddles.paddles10.rotateAngleX
+        paddles.paddles11.rotateAngleY = paddles.paddles10.rotateAngleY
+        paddles.paddles11.rotateAngleZ = paddles.paddles10.rotateAngleZ
+
+        paddles.paddles20.rotateAngleX = paddles.paddles10.rotateAngleX
+        paddles.paddles20.rotateAngleY = Math.PI.toFloat() - paddles.paddles10.rotateAngleY
+        paddles.paddles21.rotateAngleX = paddles.paddles20.rotateAngleX
+        paddles.paddles21.rotateAngleY = paddles.paddles20.rotateAngleY
+        paddles.paddles21.rotateAngleZ = paddles.paddles20.rotateAngleZ
 
         paddles.render(boat, 0f, 0f, 0f, 0f, 0f, 1f/16f)
 

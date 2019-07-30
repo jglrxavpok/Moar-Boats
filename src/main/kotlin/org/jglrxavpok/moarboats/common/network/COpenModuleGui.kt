@@ -28,6 +28,7 @@ class COpenModuleGui(): MoarBoatsPacket {
                 return null
             }
             val module = boat.modules.first { it.id == message.moduleID }
+            println(">> ${module}")
             NetworkHooks.openGui(player, module.generateInteractionObject(boat))
             return null
         }

@@ -9,6 +9,8 @@ import net.minecraft.util.ResourceLocation
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.containers.ContainerBase
 import org.jglrxavpok.moarboats.common.containers.EmptyContainer
+import org.jglrxavpok.moarboats.common.items.OarsItem
+import org.jglrxavpok.moarboats.common.items.SeatItem
 
 object OarEngineModule: BaseEngineModule(), BlockReason {
     override fun createContainer(player: EntityPlayer, boat: IControllable): ContainerBase? {
@@ -86,5 +88,7 @@ object OarEngineModule: BaseEngineModule(), BlockReason {
     }
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
+        if(!killedByPlayerInCreative)
+            boat.correspondingEntity.entityDropItem(OarsItem, 1)
     }
 }

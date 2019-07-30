@@ -21,7 +21,7 @@ object SeatModuleRenderer : BoatModuleRenderer() {
     }
 
     val model = ModelSeat()
-    val texture = ResourceLocation("minecraft:textures/blocks/oak_planks.png") // TODO: Variants, like paddles
+    val texture = ResourceLocation("minecraft:textures/block/oak_planks.png") // TODO: Variants, like paddles
 
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, renderManager: RenderManager) {
         GlStateManager.pushMatrix()

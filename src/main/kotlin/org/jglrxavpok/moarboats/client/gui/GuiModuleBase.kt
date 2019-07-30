@@ -26,7 +26,7 @@ abstract class GuiModuleBase(val module: BoatModule, val boat: IControllable, va
 
     val tabs = mutableListOf<ModuleTab>()
 
-    val title = TextComponentTranslation("inventory.${module.id.path}.name")
+    val title = TextComponentTranslation("inventory.${module.id.path}")
 
     private val BACKGROUND_TEXTURE = ResourceLocation(MoarBoats.ModID, "textures/gui/default_background.png")
     private val BACKGROUND_TEXTURE_LARGE = ResourceLocation(MoarBoats.ModID, "textures/gui/default_background_large.png")
