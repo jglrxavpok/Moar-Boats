@@ -12,7 +12,6 @@ import net.minecraft.util.text.TextFormatting
 import net.minecraftforge.fml.client.config.GuiCheckBox
 import net.minecraftforge.fml.client.config.GuiSlider
 import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.network.CModifyWaypoint
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
@@ -127,10 +126,6 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
             addButton(it)
         }
 
-        allInputs.forEach {
-            children += it
-        }
-
         val listWidth = .20*width
         val listHeight = (height*.7).toInt()
         val listLeft = width-listWidth.toInt()
@@ -185,7 +180,9 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
         if(waypointList.isNotEmpty()) {
             waypointList.drawScreen(mouseX, mouseY, partialTicks)
         }
-        //allInputs.forEach(GuiTextField::drawTextBox)
+        allInputs.forEach {
+            it.drawTextField(mouseX, mouseY, partialTicks)
+        }
 
         fontRenderer.drawCenteredString(TextFormatting.UNDERLINE.toString()+TextComponentTranslation("moarboats.gui.waypoint_editor.name", nameInput.text).formattedText, width/2, 15, 0xFFFFFF, shadow = true)
         fontRenderer.drawCenteredString(TextFormatting.UNDERLINE.toString()+positionTitleText.formattedText, width/2, 75, 0xFFFFFF, shadow = true)
@@ -205,6 +202,28 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
         if(super.mouseClicked(mouseX, mouseY, mouseButton))
             return true
         return allInputs.any { it.mouseClicked(mouseX, mouseY, mouseButton) }
+    }
+
+    override fun keyReleased(key: Int, scanCode: Int, modifiers: Int): Boolean {
+        if(super.keyReleased(key, scanCode, modifiers))
+            return true
+        allInputs.forEach {
+            if(it.keyReleased(key, scanCode, modifiers)) {
+                return true
+            }
+        }
+        return false
+    }
+
+    override fun keyPressed(key: Int, keyCode: Int, modifiers: Int): Boolean {
+        if(super.keyPressed(key, keyCode, modifiers))
+            return true
+        allInputs.forEach {
+            if(it.keyPressed(key, keyCode, modifiers)) {
+                return true
+            }
+        }
+        return false
     }
 
     override fun charTyped(typedChar: Char, keyCode: Int): Boolean {

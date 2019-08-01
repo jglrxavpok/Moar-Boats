@@ -10,6 +10,7 @@ import net.minecraft.entity.EntityLivingBase
 import net.minecraft.item.ItemStack
 import net.minecraft.state.StateContainer
 import net.minecraft.tags.FluidTags
+import net.minecraft.util.BlockRenderLayer
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.IItemProvider
 import net.minecraft.util.ResourceLocation
@@ -82,4 +83,8 @@ object BlockWaterborneConductor: BlockRedstoneDiode(Block.Properties.create(Mate
     }
 
     override fun getItem(worldIn: IBlockReader, pos: BlockPos, state: IBlockState) = ItemStack(WaterborneConductorItem, 1)
+
+    override fun getRenderLayer(): BlockRenderLayer {
+        return BlockRenderLayer.CUTOUT
+    }
 }

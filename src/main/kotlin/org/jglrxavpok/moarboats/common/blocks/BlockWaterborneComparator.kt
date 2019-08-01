@@ -10,6 +10,7 @@ import net.minecraft.entity.EntityLivingBase
 import net.minecraft.item.ItemStack
 import net.minecraft.state.StateContainer
 import net.minecraft.tags.FluidTags
+import net.minecraft.util.BlockRenderLayer
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.AxisAlignedBB
@@ -135,6 +136,10 @@ object BlockWaterborneComparator: BlockRedstoneDiode(Block.Properties.create(Mat
 
     override fun getWeakChanges(state: IBlockState?, world: IWorldReader?, pos: BlockPos?): Boolean {
         return true
+    }
+
+    override fun getRenderLayer(): BlockRenderLayer {
+        return BlockRenderLayer.CUTOUT
     }
 
 }

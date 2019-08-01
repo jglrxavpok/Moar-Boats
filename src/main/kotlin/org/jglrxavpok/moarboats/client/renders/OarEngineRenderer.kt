@@ -29,7 +29,7 @@ object OarEngineRenderer : BoatModuleRenderer() {
         val angle = if(boat.controllingPassenger != null) -boat.distanceTravelled.toFloat()*2f else 0f
 
         // from ModelBoat
-        paddles.paddles10.rotateAngleX = MathHelper.clampedLerp((-Math.PI.toFloat() / 3f).toDouble(), (-0.2617994f).toDouble(), ((MathHelper.sin(-angle) + 1.0f) / 2.0f).toDouble()).toFloat()
+        paddles.paddles10.rotateAngleX = MathHelper.clampedLerp((-Math.PI.toFloat() / 3f).toDouble(), (-0.2617994f).toDouble(), ((MathHelper.sin(-angle) + 1.0f) / 2.0f).toDouble()).toFloat() + Math.PI.toFloat()*1/4f
         paddles.paddles10.rotateAngleY = MathHelper.clampedLerp((-Math.PI.toFloat() / 4f).toDouble(), (Math.PI.toFloat() / 4f).toDouble(), ((MathHelper.sin(-angle + 1.0f) + 1.0f) / 2.0f).toDouble()).toFloat()
         paddles.paddles11.rotateAngleX = paddles.paddles10.rotateAngleX
         paddles.paddles11.rotateAngleY = paddles.paddles10.rotateAngleY
