@@ -4,12 +4,15 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiListExtended
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.Tessellator
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.Util
 import net.minecraftforge.fml.client.config.GuiUtils.drawGradientRect
 import org.jglrxavpok.moarboats.client.gui.WaypointInfoEntry.Companion.ArrowsTexture
 import org.jglrxavpok.moarboats.integration.WaypointInfo
+import org.lwjgl.opengl.GL11
+import org.lwjgl.opengl.GL11.*
 
 class WaypointListEntry(val parent: GuiMappingTable, val slot: NBTTagCompound, val slotTops: MutableMap<Int, Int>, val waypoints: List<NBTTagCompound>): GuiListExtended.IGuiListEntry<WaypointListEntry>() {
 
@@ -18,7 +21,7 @@ class WaypointListEntry(val parent: GuiMappingTable, val slot: NBTTagCompound, v
 
     override fun drawEntry(entryWidth: Int, entryHeight: Int, mouseX: Int, mouseY: Int, p_194999_5_: Boolean, partialTicks: Float) {
         val slotTop = y
-        val left = x
+        val left = this.list.left
         val slotHeight = entryHeight
         val entryRight = left+entryWidth
 
@@ -89,13 +92,59 @@ class GuiWaypointList(val mc: Minecraft, val parent: GuiMappingTable, width: Int
     val slotTops = hashMapOf<Int, Int>()
     val ArrowsTexture = ResourceLocation("minecraft", "textures/gui/resource_packs.png")
 
+
+    override fun drawContainerBackground(tessellator: Tessellator) { }
+
     override fun drawBackground() {
-        drawGradientRect(left, top, right, bottom, 0, 0)
+        GlStateManager.disableLighting()
+        drawGradientRect(left, top, right, bottom, 0xFFC0C0C0.toInt(), 0xFFC0C0C0.toInt())
+        GlStateManager.enableLighting()
     }
+
+    override fun drawSelectionBox(insideLeft: Int, insideTop: Int, mouseXIn: Int, mouseYIn: Int, partialTicks: Float) {
+        glEnable(GL11.GL_STENCIL_TEST)
+        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE)
+
+        val fb = Minecraft.getInstance().framebuffer
+        if(!fb.isStencilEnabled) {
+            fb.enableStencil()
+        }
+
+        glColorMask(false, false, false, false)
+        glStencilFunc(GL_ALWAYS, 1, 0xFF)
+        glStencilMask(0xFF)
+        glDisable(GL_TEXTURE_2D)
+        val tess = Tessellator.getInstance()
+        val buffer = tess.buffer
+        buffer.begin(GL_QUADS, DefaultVertexFormats.POSITION)
+        buffer.pos(left.toDouble(), top.toDouble(), 0.0).endVertex()
+        buffer.pos(left.toDouble(), (top+height).toDouble(), 0.0).endVertex()
+        buffer.pos((left+listWidth).toDouble(), (top+height).toDouble(), 0.0).endVertex()
+        buffer.pos((left+listWidth).toDouble(), top.toDouble(), 0.0).endVertex()
+        tess.draw()
+        glEnable(GL_TEXTURE_2D)
+
+        glColorMask(true, true, true, true)
+
+        glStencilMask(0x00)
+        //glStencilOp(GL_KEEP, GL_KEEP, GL_ZERO) // reset read values
+        glStencilFunc(GL_EQUAL, 1, 0xFF)
+        super.drawSelectionBox(insideLeft, insideTop, mouseXIn, mouseYIn, partialTicks)
+        glStencilMask(0xFF)
+        glDisable(GL11.GL_STENCIL_TEST)
+    }
+
+    override fun overlayBackground(startY: Int, endY: Int, startAlpha: Int, endAlpha: Int) { }
 
     override fun isSelected(index: Int): Boolean {
         return parent.selectedIndex == index
     }
 
+    override fun getListWidth(): Int {
+        return this.width
+    }
 
+    override fun getScrollBarX(): Int {
+        return left+width-6
+    }
 }

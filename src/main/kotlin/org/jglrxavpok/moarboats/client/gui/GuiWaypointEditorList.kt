@@ -97,12 +97,22 @@ class GuiWaypointEditorList(val mc: Minecraft, val parent: GuiWaypointEditor, wi
         }
     }
 
+    override fun drawContainerBackground(tessellator: Tessellator) { }
+
     override fun drawBackground() {
         drawGradientRect(left, top, right, bottom, 0, 0)
     }
 
     override fun isSelected(index: Int): Boolean {
         return selectedElement == index
+    }
+
+    override fun getListWidth(): Int {
+        return this.width
+    }
+
+    override fun getScrollBarX(): Int {
+        return left+width-6
     }
 
     fun isNotEmpty() = waypoints.isNotEmpty()
