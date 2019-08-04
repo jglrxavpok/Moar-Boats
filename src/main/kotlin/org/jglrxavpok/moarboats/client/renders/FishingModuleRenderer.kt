@@ -6,9 +6,11 @@ import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.entity.RenderManager
 import net.minecraft.client.renderer.model.ItemCameraTransforms
+import net.minecraft.client.renderer.model.ModelResourceLocation
 import net.minecraft.client.renderer.texture.TextureMap
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.init.Items
+import net.minecraft.init.Particles
 import net.minecraft.item.Item
 import net.minecraft.item.ItemFishingRod
 import net.minecraft.item.ItemStack
@@ -16,6 +18,7 @@ import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.registries.GameData
 import net.minecraftforge.registries.RegistryManager
+import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.common.modules.FishingModule
@@ -26,7 +29,7 @@ object FishingModuleRenderer : BoatModuleRenderer() {
         registryName = FishingModule.id
     }
 
-    val CastFishingRodLocation = "minecraft:item/fishing_rod_cast"
+    val CastFishingRodLocation = ModelResourceLocation(MoarBoats.ModID, "item/vanilla/fishing_rod_cast")
     private val StickStack = ItemStack(Items.STICK)
 
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, renderManager: RenderManager) {
@@ -49,7 +52,7 @@ object FishingModuleRenderer : BoatModuleRenderer() {
         val playingAnimation = module.playingAnimationProperty[boat]
 
         if(ready && hasRod && boat.inLiquid() && !boat.isEntityInLava()) {
-            val model = mc.itemRenderer.itemModelMesher.modelManager.getModel(net.minecraftforge.client.model.ModelLoader.getInventoryVariant(CastFishingRodLocation))
+            val model = mc.modelManager.getModel(CastFishingRodLocation)
 
             mc.textureManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
             GlStateManager.color4f(1.0f, 1.0f, 1.0f, 1.0f)
@@ -137,10 +140,10 @@ object FishingModuleRenderer : BoatModuleRenderer() {
         GlStateManager.rotatef((if (mc.renderManager.options.thirdPersonView == 2) -1 else 1).toFloat() * -mc.renderManager.playerViewX, 1.0f, 0.0f, 0.0f)
 
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_NORMAL)
-        bufferbuilder.pos(-0.5, -0.5, 0.0).tex(0.0625, 0.1875).normal(0.0f, 1.0f, 0.0f).endVertex()
-        bufferbuilder.pos(0.5, -0.5, 0.0).tex(0.125, 0.1875).normal(0.0f, 1.0f, 0.0f).endVertex()
-        bufferbuilder.pos(0.5, 0.5, 0.0).tex(0.125, 0.125).normal(0.0f, 1.0f, 0.0f).endVertex()
-        bufferbuilder.pos(-0.5, 0.5, 0.0).tex(0.0625, 0.125).normal(0.0f, 1.0f, 0.0f).endVertex()
+        bufferbuilder.pos(-0.5, -0.5, 0.0).tex(0.03125, 0.09375).normal(0.0f, 1.0f, 0.0f).endVertex()
+        bufferbuilder.pos(0.5, -0.5, 0.0).tex(0.0625, 0.09375).normal(0.0f, 1.0f, 0.0f).endVertex()
+        bufferbuilder.pos(0.5, 0.5, 0.0).tex(0.0625, 0.0625).normal(0.0f, 1.0f, 0.0f).endVertex()
+        bufferbuilder.pos(-0.5, 0.5, 0.0).tex(0.03125, 0.0625).normal(0.0f, 1.0f, 0.0f).endVertex()
         tessellator.draw()
 
         GlStateManager.disableRescaleNormal()

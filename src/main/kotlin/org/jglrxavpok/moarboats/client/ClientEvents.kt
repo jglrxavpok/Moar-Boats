@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.client
 
+import com.google.common.collect.ImmutableList
 import net.alexwells.kottle.KotlinEventBusSubscriber
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.AbstractClientPlayer
@@ -12,6 +13,7 @@ import net.minecraft.client.renderer.entity.model.ModelBox
 import net.minecraft.client.renderer.entity.model.ModelPlayer
 import net.minecraft.client.renderer.entity.model.ModelRenderer
 import net.minecraft.client.renderer.model.ModelResourceLocation
+import net.minecraft.client.renderer.model.ModelRotation
 import net.minecraft.item.EnumDyeColor
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
@@ -21,8 +23,10 @@ import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraftforge.client.event.ModelBakeEvent
 import net.minecraftforge.client.event.ModelRegistryEvent
 import net.minecraftforge.client.event.RenderSpecificHandEvent
+import net.minecraftforge.client.model.ItemLayerModel
 import net.minecraftforge.client.model.ModelLoader
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.eventbus.api.SubscribeEvent
@@ -41,6 +45,7 @@ import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.items.ModularBoatItem
 import java.util.function.Function
 import java.util.function.Supplier
+import javax.annotation.Resource
 
 @KotlinEventBusSubscriber(value = [Dist.CLIENT], modid = MoarBoats.ModID)
 object ClientEvents {
@@ -100,22 +105,13 @@ object ClientEvents {
             this.addLayer(MoarBoatsPatreonHookLayer(this))
         }*/
     }
-/* FIXME: Still necessary ?
+
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
-    fun registerModels(event: ModelRegistryEvent) {
-        for(item in Items.list) {
-            ModelLoader.setCustomModelResourceLocation(item, 0, ModelResourceLocation(item.registryName.toString(), "inventory"))
-        }
-
-        for(color in EnumDyeColor.values().drop(1)) {
-            ModelLoader.setCustomModelResourceLocation(ModularBoatItem, color.ordinal, ModelResourceLocation(ModularBoatItem.registryName.toString(), "inventory"))
-        }
-
-        for(block in Blocks.list) {
-            ModelLoader.setCustomModelResourceLocation(ItemBlock.getItemFromBlock(block), 0, ModelResourceLocation(block.registryName.toString(), "inventory"))
-        }
-    }*/
+    fun registerModels(event: ModelBakeEvent) {
+        val bakedModel = ItemLayerModel(ImmutableList.of(ResourceLocation("item/fishing_rod_cast"))).bake(ModelLoader.defaultModelGetter(), ModelLoader.defaultTextureGetter(), ModelRotation.X0_Y0, true, net.minecraft.client.renderer.vertex.DefaultVertexFormats.ITEM)
+        event.modelRegistry[FishingModuleRenderer.CastFishingRodLocation] = bakedModel
+    }
 
     @OnlyIn(Dist.CLIENT)
     fun renderHand(event: RenderSpecificHandEvent) {

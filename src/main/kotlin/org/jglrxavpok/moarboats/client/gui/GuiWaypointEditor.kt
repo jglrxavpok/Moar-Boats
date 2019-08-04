@@ -184,7 +184,7 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
             it.drawTextField(mouseX, mouseY, partialTicks)
         }
 
-        fontRenderer.drawCenteredString(TextFormatting.UNDERLINE.toString()+TextComponentTranslation("moarboats.gui.waypoint_editor.name", nameInput.text).formattedText, width/2, 15, 0xFFFFFF, shadow = true)
+        fontRenderer.drawCenteredString(TextFormatting.UNDERLINE.toString()+TextComponentTranslation("moarboats.gui.waypoint_editor", nameInput.text).formattedText, width/2, 15, 0xFFFFFF, shadow = true)
         fontRenderer.drawCenteredString(TextFormatting.UNDERLINE.toString()+positionTitleText.formattedText, width/2, 75, 0xFFFFFF, shadow = true)
         fontRenderer.drawString("X:", xInput.x-10f, xInput.y+xInput.height/2-fontRenderer.FONT_HEIGHT/2f, 0xFFFFFF)
         fontRenderer.drawString("Z:", zInput.x-10f, xInput.y+xInput.height/2-fontRenderer.FONT_HEIGHT/2f, 0xFFFFFF)

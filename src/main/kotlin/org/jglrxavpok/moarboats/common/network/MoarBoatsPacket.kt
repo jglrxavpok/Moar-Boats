@@ -146,6 +146,12 @@ interface MoarBoatsPacket {
                     buffer.writeInt((value as SoundCategory).ordinal)
                 }
 
+                ItemStack::class.java -> {
+                    val stack = value as ItemStack
+                    val nbt = stack.write(NBTTagCompound())
+                    buffer.writeCompoundTag(nbt)
+                }
+
                 // Moar Boats special types
                 ItemGoldenTicket.WaypointData::class.java -> {
                     val data = (value as ItemGoldenTicket.WaypointData)
@@ -249,6 +255,10 @@ interface MoarBoatsPacket {
                     SoundCategory.values()[buffer.readInt() % SoundCategory.values().size]
                 }
 
+                ItemStack::class.java -> {
+                    val nbt = buffer.readCompoundTag()
+                    ItemStack.read(nbt)
+                }
 
                 // Moar Boats special types
                 ItemGoldenTicket.WaypointData::class.java -> {

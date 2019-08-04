@@ -23,7 +23,7 @@ import org.jglrxavpok.moarboats.common.network.SSetGoldenItinerary
 import java.util.*
 import java.util.concurrent.Callable
 
-abstract class ItemPath(id: String): MoarBoatsItem(id, { maxStackSize(1) }) {
+abstract class ItemPath(id: String, putInItemGroup: Boolean = true): MoarBoatsItem(id, { maxStackSize(1) }, putInItemGroup) {
 
     abstract fun getWaypointData(stack: ItemStack, mapStorage: WorldSavedDataStorage): NBTTagList
 
@@ -42,7 +42,7 @@ abstract class ItemPath(id: String): MoarBoatsItem(id, { maxStackSize(1) }) {
 
 }
 
-object ItemMapWithPath: ItemPath("map_with_path") {
+object ItemMapWithPath: ItemPath("map_with_path", putInItemGroup = false) {
 
     override fun setLoopingOptions(stack: ItemStack, options: LoopingOptions) {
         if(stack.hasTag()) {
