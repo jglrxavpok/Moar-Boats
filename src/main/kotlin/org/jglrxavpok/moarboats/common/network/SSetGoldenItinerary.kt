@@ -1,6 +1,7 @@
 package org.jglrxavpok.moarboats.common.network
 
 import io.netty.buffer.ByteBuf
+import net.minecraft.client.Minecraft
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.world.storage.MapStorage
 import net.minecraftforge.fml.common.network.ByteBufUtils
@@ -8,6 +9,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import net.minecraftforge.fml.relauncher.Side
 import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.client.gui.GuiMappingTable
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 
 class SSetGoldenItinerary(): IMessage {
@@ -39,6 +41,11 @@ class SSetGoldenItinerary(): IMessage {
             val mapStorage: MapStorage = MoarBoats.getLocalMapStorage()
             mapStorage.setData(message.data.uuid, message.data)
             message.data.isDirty = true
+
+            val mc = Minecraft.getMinecraft()
+            if(mc.currentScreen is GuiMappingTable) {
+                (mc.currentScreen as GuiMappingTable).reload()
+            }
             return null
         }
     }
