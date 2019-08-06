@@ -35,7 +35,7 @@ object IceBreakerModule: BoatModule() {
         val bb = from.correspondingEntity.entityBoundingBox
                 .offset(from.calculateAnchorPosition(BasicBoatEntity.FrontLink))
                 .offset(-from.positionX, -from.positionY - .75f, -from.positionZ)
-                .expand(.5, .5, .5)
+                .expand(1.0, 1.0, 1.0)
         val collidedBB = world.getCollisionBoxes(from.correspondingEntity, bb)
         val blockPos = BlockPos.PooledMutableBlockPos.retain()
         for(box in collidedBB) {

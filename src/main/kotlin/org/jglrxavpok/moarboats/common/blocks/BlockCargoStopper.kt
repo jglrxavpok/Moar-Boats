@@ -20,15 +20,15 @@ import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.IItemHandler
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
-import org.jglrxavpok.moarboats.common.items.WaterborneComparatorItem
+import org.jglrxavpok.moarboats.common.items.CargoStopperItem
 import java.util.*
 
-object BlockPoweredWaterborneComparator: BlockWaterborneComparator(true)
-object BlockUnpoweredWaterborneComparator: BlockWaterborneComparator(false)
+object BlockPoweredCargoStopper: BlockCargoStopper(true)
+object BlockUnpoweredCargoStopper: BlockCargoStopper(false)
 
-open class BlockWaterborneComparator(val powered: Boolean): BlockRedstoneDiode(powered) {
+open class BlockCargoStopper(val powered: Boolean): BlockRedstoneDiode(powered) {
     init {
-        val id = "waterborne_comparator_${if(powered) "" else "un"}lit"
+        val id = "cargo_stopper_${if(powered) "" else "un"}lit"
         registryName = ResourceLocation(MoarBoats.ModID, id)
         unlocalizedName = id
         this.defaultState = this.blockState.baseState.withProperty(BlockHorizontal.FACING, EnumFacing.NORTH)
@@ -36,7 +36,7 @@ open class BlockWaterborneComparator(val powered: Boolean): BlockRedstoneDiode(p
     }
 
     override fun canConnectRedstone(state: IBlockState, world: IBlockAccess, pos: BlockPos, side: EnumFacing?): Boolean {
-        return side != null && side != EnumFacing.DOWN && side != EnumFacing.UP && (side == state.getValue(FACING) || side == state.getValue(FACING).opposite)
+        return side != null && side != EnumFacing.DOWN && side != EnumFacing.UP
     }
 
     override fun getCollisionBoundingBox(blockState: IBlockState, worldIn: IBlockAccess, pos: BlockPos): AxisAlignedBB? {
@@ -61,16 +61,16 @@ open class BlockWaterborneComparator(val powered: Boolean): BlockRedstoneDiode(p
 
     override fun getUnpoweredState(poweredState: IBlockState): IBlockState {
         val enumfacing = poweredState.getValue(FACING) as EnumFacing
-        return BlockUnpoweredWaterborneComparator.defaultState.withProperty(FACING, enumfacing)
+        return BlockUnpoweredCargoStopper.defaultState.withProperty(FACING, enumfacing)
     }
 
     override fun getPoweredState(unpoweredState: IBlockState): IBlockState {
         val enumfacing = unpoweredState.getValue(FACING) as EnumFacing
-        return BlockPoweredWaterborneComparator.defaultState.withProperty(FACING, enumfacing)
+        return BlockPoweredCargoStopper.defaultState.withProperty(FACING, enumfacing)
     }
 
     override fun getWeakPower(state: IBlockState, blockAccess: IBlockAccess, pos: BlockPos, side: EnumFacing): Int {
-        if(blockAccess is World && side == state.getValue(FACING)) {
+        if(blockAccess is World) {
             val world = blockAccess
             val aabb = AxisAlignedBB(pos.offset(state.getValue(BlockHorizontal.FACING)))
             val entities = world.getEntitiesWithinAABB(BasicBoatEntity::class.java, aabb) { e -> e != null && e.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null) }
@@ -87,8 +87,8 @@ open class BlockWaterborneComparator(val powered: Boolean): BlockRedstoneDiode(p
     override fun updateTick(worldIn: World, pos: BlockPos, state: IBlockState, rand: Random?) {
         val produceSignal = shouldBePowered(worldIn, pos, state)
         when {
-            produceSignal && !isRepeaterPowered -> worldIn.setBlockState(pos, BlockPoweredWaterborneComparator.defaultState.withProperty(BlockHorizontal.FACING, state.getValue(BlockHorizontal.FACING)))
-            !produceSignal && isRepeaterPowered -> worldIn.setBlockState(pos, BlockUnpoweredWaterborneComparator.defaultState.withProperty(BlockHorizontal.FACING, state.getValue(BlockHorizontal.FACING)))
+            produceSignal && !isRepeaterPowered -> worldIn.setBlockState(pos, BlockPoweredCargoStopper.defaultState.withProperty(BlockHorizontal.FACING, state.getValue(BlockHorizontal.FACING)))
+            !produceSignal && isRepeaterPowered -> worldIn.setBlockState(pos, BlockUnpoweredCargoStopper.defaultState.withProperty(BlockHorizontal.FACING, state.getValue(BlockHorizontal.FACING)))
         }
         worldIn.scheduleUpdate(pos, this, 2)
         notifyNeighbors(worldIn, pos, state)
@@ -157,8 +157,8 @@ open class BlockWaterborneComparator(val powered: Boolean): BlockRedstoneDiode(p
         super.onBlockAdded(worldIn, pos, state)
         if(shouldBePowered(worldIn, pos, state) != isRepeaterPowered) {
             when(!isRepeaterPowered) {
-                true -> worldIn.setBlockState(pos, BlockUnpoweredWaterborneComparator.defaultState.withProperty(BlockHorizontal.FACING, state.getValue(BlockHorizontal.FACING)), 2)
-                false -> worldIn.setBlockState(pos, BlockPoweredWaterborneComparator.defaultState.withProperty(BlockHorizontal.FACING, state.getValue(BlockHorizontal.FACING)), 2)
+                true -> worldIn.setBlockState(pos, BlockUnpoweredCargoStopper.defaultState.withProperty(BlockHorizontal.FACING, state.getValue(BlockHorizontal.FACING)), 2)
+                false -> worldIn.setBlockState(pos, BlockPoweredCargoStopper.defaultState.withProperty(BlockHorizontal.FACING, state.getValue(BlockHorizontal.FACING)), 2)
             }
             notifyNeighbors(worldIn, pos, state)
         }
@@ -169,9 +169,9 @@ open class BlockWaterborneComparator(val powered: Boolean): BlockRedstoneDiode(p
         return getWeakPower(state, worldIn, pos, state.getValue(BlockHorizontal.FACING)) > 0
     }
 
-    override fun getItemDropped(state: IBlockState?, rand: Random?, fortune: Int) = WaterborneComparatorItem
+    override fun getItemDropped(state: IBlockState?, rand: Random?, fortune: Int) = CargoStopperItem
 
-    override fun getItem(worldIn: World?, pos: BlockPos?, state: IBlockState?) = ItemStack(WaterborneComparatorItem, 1)
+    override fun getItem(worldIn: World?, pos: BlockPos?, state: IBlockState?) = ItemStack(CargoStopperItem, 1)
 
     override fun getWeakChanges(world: IBlockAccess, pos: BlockPos): Boolean {
         return true

@@ -27,7 +27,7 @@ open class BlockWaterborneConductor(powered: Boolean): BlockRedstoneDiode(powere
     }
 
     override fun canConnectRedstone(state: IBlockState, world: IBlockAccess, pos: BlockPos, side: EnumFacing?): Boolean {
-        return side != null && side != EnumFacing.DOWN && side != EnumFacing.UP
+        return side != null && side != EnumFacing.DOWN && side != EnumFacing.UP && (side == state.getValue(FACING) || side == state.getValue(FACING).opposite)
     }
 
     override fun getCollisionBoundingBox(blockState: IBlockState, worldIn: IBlockAccess, pos: BlockPos): AxisAlignedBB? {

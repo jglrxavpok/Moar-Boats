@@ -78,7 +78,7 @@ class GuiEngineModule(playerInventory: InventoryPlayer, engine: BoatModule, boat
         super.actionPerformed(button)
         when(button) {
             lockInPlaceButton -> {
-                MoarBoats.network.sendToServer(CChangeEngineMode(boat.entityID, module.id))
+                MoarBoats.network.sendToServer(CChangeEngineMode(boat.entityID, module.id, !engine.stationaryProperty[boat]))
             }
         }
     }

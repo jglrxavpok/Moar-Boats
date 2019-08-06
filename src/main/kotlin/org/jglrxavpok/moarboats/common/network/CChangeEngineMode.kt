@@ -15,18 +15,23 @@ class CChangeEngineMode(): IMessage {
     var boatID: Int = 0
     var moduleLocation: ResourceLocation = ResourceLocation("moarboats:none")
 
-    constructor(boatID: Int, moduleLocation: ResourceLocation): this() {
+    private var locked: Boolean = false
+
+    constructor(boatID: Int, moduleLocation: ResourceLocation, locked: Boolean): this() {
         this.boatID = boatID
         this.moduleLocation = moduleLocation
+        this.locked = locked
     }
 
     override fun fromBytes(buf: ByteBuf) {
         boatID = buf.readInt()
+        locked = buf.readBoolean()
         moduleLocation = ResourceLocation(ByteBufUtils.readUTF8String(buf))
     }
 
     override fun toBytes(buf: ByteBuf) {
         buf.writeInt(boatID)
+        buf.writeBoolean(locked)
         ByteBufUtils.writeUTF8String(buf, moduleLocation.toString())
     }
 
@@ -41,7 +46,7 @@ class CChangeEngineMode(): IMessage {
             val moduleLocation = message.moduleLocation
             val module = BoatModuleRegistry[moduleLocation].module
             module as BaseEngineModule
-            module.changeStationaryState(boat)
+            module.setStationary(boat, message.locked)
             return null
         }
     }

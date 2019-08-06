@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "moarboats:waterborne_comparator"
+    },
+    {
+      "item": "minecraft:light_weighted_pressure_plate"
+    }
+  ],
+  "result": {
+    "item": "moarboats:cargo_stopper"
+  }
+}

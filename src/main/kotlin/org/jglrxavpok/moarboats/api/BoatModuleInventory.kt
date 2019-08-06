@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.api
 
+import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.InventoryBasic
 import net.minecraft.item.ItemStack
 import net.minecraft.util.NonNullList
@@ -54,6 +55,37 @@ abstract class BoatModuleInventory(val inventoryName: String, val slotCount: Int
         if(!boat.worldRef.isRemote) {
             MoarBoats.network.sendToAll(SSyncInventory(boat.entityID, module.id, list))
         }
+    }
+
+    /**
+     * Checks that any item from the given inventory can be added or merged with one of the stacks inside this inventory.
+     * Used for special case of full hoppers above locked boats.
+     *
+     * WARNING: This only checks if a SINGLE item can fit, not a whole stack
+     */
+    fun canAddAnyFrom(inv: IInventory): Boolean {
+        for(i in 0 until inv.sizeInventory) {
+            val itemstack = inv.getStackInSlot(i)
+            if(itemstack.isEmpty)
+                continue
+            for (j in 0 until this.sizeInventory) {
+                val stackInSlot = this.getStackInSlot(j)
+
+                if (stackInSlot.isEmpty) {
+                    return true;
+                }
+
+                if (ItemStack.areItemsEqual(stackInSlot, itemstack)) {
+                    val maxStackSize = Math.min(this.inventoryStackLimit, stackInSlot.maxStackSize)
+                    val canFit = maxStackSize - stackInSlot.count > 0;
+
+                    if (canFit) {
+                        return true
+                    }
+                }
+            }
+        }
+        return false
     }
 
 }

@@ -68,6 +68,7 @@ class Proxy: MoarBoatsProxy() {
         BoatModuleRenderingRegistry.register(BatteryModuleRenderer)
         BoatModuleRenderingRegistry.register(TankModuleRenderer)
         BoatModuleRenderingRegistry.register(ChunkLoadingModuleRenderer)
+        BoatModuleRenderingRegistry.register(OarEngineRenderer)
         MoarBoats.plugins.forEach {
             it.registerModuleRenderers(BoatModuleRenderingRegistry)
         }

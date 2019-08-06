@@ -7,7 +7,9 @@ object Blocks {
 
     val list = listOf<Block>(BlockUnpoweredWaterborneConductor, BlockPoweredWaterborneConductor,
             BlockBoatBattery, BlockEnergyLoader, BlockEnergyUnloader,
-            BlockPoweredWaterborneComparator, BlockUnpoweredWaterborneComparator, BlockBoatTank,
+            BlockPoweredWaterborneComparator, BlockUnpoweredWaterborneComparator,
+            BlockPoweredCargoStopper, BlockUnpoweredCargoStopper,
+            BlockBoatTank,
             BlockFluidLoader, BlockFluidUnloader,
             BlockMappingTable)
 }
