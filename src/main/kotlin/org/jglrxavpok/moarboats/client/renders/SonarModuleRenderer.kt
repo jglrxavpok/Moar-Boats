@@ -54,11 +54,9 @@ object SonarModuleRenderer : BoatModuleRenderer() {
                         val angle = atan2(gradientVal.y.toDouble(), gradientVal.x.toDouble()).toDegrees()
                         GlStateManager.rotatef(angle.toFloat(), 0f, 1f, 0f)
                         GlStateManager.scalef(0.1f, 0.1f, gradientVal.length().toFloat() * 0.1f)
-                      /* FIXME  if(potentialState.block is BlockLiquid) {
+                        if(!potentialState.isEmpty) {
                             Minecraft.getInstance().blockRendererDispatcher.renderBlockBrightness(Blocks.EMERALD_BLOCK.defaultState, boat.brightness)
-                        } else {
-                            Minecraft.getInstance().blockRendererDispatcher.renderBlockBrightness(potentialState, boat.brightness)
-                        }*/
+                        }
 
                         GlStateManager.popMatrix()
                     }
