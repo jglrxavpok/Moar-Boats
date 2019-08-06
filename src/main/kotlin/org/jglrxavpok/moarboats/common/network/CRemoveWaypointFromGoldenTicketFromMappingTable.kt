@@ -35,7 +35,7 @@ class CRemoveWaypointFromGoldenTicketFromMappingTable: CxxRemoveWaypointToItemPa
                         te.inventory.getStackInSlot(0)
                     }
                     else -> {
-                        MoarBoats.logger.error("Invalid tile entity when trying to add waypoint at $pos")
+                        MoarBoats.logger.error("Invalid tile entity when trying to remove waypoint at $pos")
                         null
                     }
                 }

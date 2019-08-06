@@ -230,4 +230,8 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
             MoarBoats.network.sendToServer(CSwapWaypoints(index1, index2, te.pos))
     }
 
+    fun reload() {
+        resetList(te.inventory.getStackInSlot(0))
+    }
+
 }
