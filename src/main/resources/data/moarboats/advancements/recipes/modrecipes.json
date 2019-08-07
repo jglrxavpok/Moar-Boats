@@ -9,8 +9,6 @@
       "moarboats:diving_bottle",
       "moarboats:energy_loader",
       "moarboats:energy_unloader",
-      "moarboats:fluid_loader",
-      "moarboats:fluid_unloader",
       "moarboats:golden_ticket",
       "moarboats:helm",
       "moarboats:icebreaker",
@@ -28,16 +26,16 @@
     ]
   },
   "criteria": {
-    "has_the_boat_recipe": {
-      "trigger": "minecraft:recipe_unlocked",
+    "in_water": {
+      "trigger": "minecraft:enter_block",
       "conditions": {
-        "recipe": "boat"
+        "block": "minecraft:water"
       }
     }
   },
   "requirements": [
     [
-      "has_the_boat_recipe"
+      "in_water"
     ]
   ]
 }
