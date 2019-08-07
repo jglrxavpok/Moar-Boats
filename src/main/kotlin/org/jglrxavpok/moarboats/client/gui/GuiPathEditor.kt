@@ -106,7 +106,7 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
 
     init {
         val textureManager = Minecraft.getInstance().textureManager
-        areaResLocation = textureManager.getDynamicTextureLocation("moarboats:path_editor_preview", areaTexture)
+        areaResLocation = textureManager.getDynamicTextureLocation("moarboats_path_editor_preview", areaTexture)
         mapHeight.fill(-1)
     }
 
@@ -519,9 +519,15 @@ class GuiPathEditor(val player: EntityPlayer, val pathHolder: PathHolder, val ma
                         val textureStripe = stripe.textureStripe
                         val offset = stripeIndex * StripeLength * size
                         for(i in 0 until StripeLength * size) {
-                            val x = i % size
-                            val y = i / size
-                            areaTexture.textureData!!.setPixelRGBA(x, y, textureStripe[i])
+                            val x = (i+offset) % size
+                            val y = (i+offset) / size
+                            val argb = textureStripe[i]
+                            val alpha = (argb shr 24) and 0xFF
+                            val red = (argb shr 16) and 0xFF
+                            val green = (argb shr 8) and 0xFF
+                            val blue = argb and 0xFF
+                            val rgba = (alpha shl 24) or (blue shl 16) or (green shl 8) or red
+                            areaTexture.textureData!!.setPixelRGBA(x, y, rgba)
                         }
                         areaTexture.updateDynamicTexture()
                         stripesReceived[stripeIndex] = true

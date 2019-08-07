@@ -7,6 +7,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.ChunkPos
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
@@ -91,6 +92,13 @@ interface IControllable: IBlockSource {
                 +100
             }
         }
+    }
+
+    /**
+     * Forces a chunk to be force loaded. Will be effective for 10s. All forced chunks are unforced when the boat is destroyed
+     */
+    open fun forceChunkLoad(x: Int, z: Int) {
+        throw UnsupportedOperationException("This ($this) boat does not support chunk force-loading")
     }
 
     operator fun <T> contains(property: BoatProperty<T>): Boolean

@@ -19,6 +19,7 @@ import net.minecraft.tileentity.TileEntity
 import net.minecraft.tileentity.TileEntityDispenser
 import net.minecraft.util.*
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.ChunkPos
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.RayTraceResult
 import net.minecraft.util.text.TextComponentString
@@ -44,6 +45,7 @@ import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleInventory
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.common.*
+import org.jglrxavpok.moarboats.common.data.ForcedChunks
 import org.jglrxavpok.moarboats.common.items.ModularBoatItem
 import org.jglrxavpok.moarboats.common.modules.IEnergyBoatModule
 import org.jglrxavpok.moarboats.common.modules.SeatModule
@@ -92,6 +94,8 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
 
     private val moduleInventories = hashMapOf<ResourceLocation, BoatModuleInventory>()
 
+    private val forcedChunks = ForcedChunks(world)
+
     var color = EnumDyeColor.WHITE // white by default
         private set
     var owningMode = OwningMode.PlayerOwned
@@ -129,11 +133,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
         moduleLocations.forEach { modules.add(BoatModuleRegistry[it].module) }
 
         if(!world.isRemote) {
-            // FIXME investigate World#func_212414_b(int, int, boolean), seems to be a force chunk load method (cf ForceLoadCommand)
-            /*if(chunkTicket == null) {
-                chunkTicket = ForgeChunkManager.requestTicket(MoarBoats, world, ForgeChunkManager.Type.ENTITY)
-                chunkTicket!!.bindEntity(this)
-            }*/
+            forcedChunks.update()
         }
         modules.forEach { it.update(this) }
         super.tick()
@@ -377,6 +377,11 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
         }
     }
 
+    override fun remove() {
+        super.remove()
+        forcedChunks.removeAll()
+    }
+
     private fun dropItemsForModule(module: BoatModule, killedByPlayerInCreative: Boolean) {
         if(module.usesInventory)
             InventoryHelper.dropInventoryItems(world, this, getInventory(module))
@@ -418,6 +423,10 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
         writeAdditional(boatData)
         stack.setTagInfo("boat_data", boatData)
         return stack
+    }
+
+    override fun forceChunkLoad(x: Int, z: Int) {
+        forcedChunks.force(ChunkPos.asLong(x, z))
     }
 
     // === START OF INVENTORY CODE FOR INTERACTIONS WITH HOPPERS === //

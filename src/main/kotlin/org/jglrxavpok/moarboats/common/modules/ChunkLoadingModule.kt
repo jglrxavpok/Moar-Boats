@@ -5,6 +5,7 @@ import net.minecraft.init.Particles
 import net.minecraft.item.ItemStack
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ResourceLocation
+import net.minecraft.util.math.ChunkPos
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
@@ -56,16 +57,12 @@ object ChunkLoadingModule: BoatModule() {
     }
 
     private fun forceChunks(boat: IControllable) {
-        /*boat.chunkTicket?.let {
-
-            val centerPos = ChunkPos(boat.correspondingEntity.chunkCoordX, boat.correspondingEntity.chunkCoordZ)
-            for(i in -1..1) {
-                for(j in -1..1) {
-                    val pos = ChunkPos(centerPos.x+i, centerPos.z+j)
-                    ForgeChunkManager.forceChunk(it, pos)
-                }
+        val centerPos = ChunkPos(boat.correspondingEntity.chunkCoordX, boat.correspondingEntity.chunkCoordZ)
+        for(i in -2..2) {
+            for(j in -2..2) {
+                boat.forceChunkLoad(centerPos.x+i, centerPos.z+j)
             }
-        } FIXME */
+        }
     }
 
     override fun onInit(to: IControllable, fromItem: ItemStack?) {

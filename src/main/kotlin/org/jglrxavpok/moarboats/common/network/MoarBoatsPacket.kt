@@ -96,6 +96,7 @@ interface MoarBoatsPacket {
                 Short::class.java, java.lang.Short::class.java, java.lang.Short.TYPE -> buffer.writeShort((value as Short).toInt())
                 Double::class.java, java.lang.Double::class.java, java.lang.Double.TYPE -> buffer.writeDouble(value as Double)
                 Float::class.java, java.lang.Float::class.java, java.lang.Float.TYPE -> buffer.writeFloat(value as Float)
+                String::class.java -> buffer.writeString(value as String)
 
                 ArrayList::class.java, LinkedList::class.java, List::class.java, MutableList::class.java -> {
                     val list = value as List<out Any>
@@ -208,6 +209,7 @@ interface MoarBoatsPacket {
                 Short::class.java, java.lang.Short::class.java, java.lang.Short.TYPE -> buffer.readShort()
                 Double::class.java, java.lang.Double::class.java, java.lang.Double.TYPE -> buffer.readDouble()
                 Float::class.java, java.lang.Float::class.java, java.lang.Float.TYPE -> buffer.readFloat()
+                String::class.java -> buffer.readString(200)
 
                 ArrayList::class.java, List::class.java, MutableList::class.java -> {
                     mutableListOf<T>().apply {
@@ -229,7 +231,7 @@ interface MoarBoatsPacket {
 
                 IntArray::class.java -> {
                     val size = buffer.readInt()
-                    val array = IntArray(size) {
+                    IntArray(size) {
                         buffer.readInt()
                     }
                 }
