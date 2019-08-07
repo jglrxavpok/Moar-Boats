@@ -242,6 +242,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
         if(ownerName != null)
             compound.putString("ownerName", ownerName)
         compound.putString("owningMode", owningMode.name.toLowerCase())
+        compound.put("forcedChunks", forcedChunks.write(NBTTagCompound()))
     }
 
     public override fun readAdditional(compound: NBTTagCompound) {
@@ -286,6 +287,8 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
                 } else {
                     OwningMode.AllowAll
                 }
+
+        forcedChunks.read(compound.getCompound("forcedChunks"))
     }
 
     override fun saveState(module: BoatModule, isLocal: Boolean) {

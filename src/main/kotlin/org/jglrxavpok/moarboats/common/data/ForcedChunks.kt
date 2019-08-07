@@ -1,7 +1,10 @@
 package org.jglrxavpok.moarboats.common.data
 
+import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.NBTTagList
 import net.minecraft.util.math.ChunkPos
 import net.minecraft.world.World
+import net.minecraftforge.common.util.Constants
 
 private typealias ChunkCompactPosition = Long
 
@@ -54,6 +57,31 @@ class ForcedChunks(val world: World) {
     fun removeAll() {
         unforce(chunks.keys)
         chunks.clear()
+    }
+
+    fun write(tag: NBTTagCompound): NBTTagCompound {
+        val list = NBTTagList()
+        val now = System.currentTimeMillis()
+        chunks.forEach { (position, chunk) ->
+            val chunkInfo = NBTTagCompound()
+            chunkInfo.putLong("chunkCompactPosition", position)
+            chunkInfo.putLong("delta", now-chunk.timestamp)
+            list.add(chunkInfo)
+        }
+        tag.put("list", list)
+        return tag
+    }
+
+    fun read(tag: NBTTagCompound) {
+        val list = tag.getList("list", Constants.NBT.TAG_COMPOUND)
+        val now = System.currentTimeMillis()
+        list.forEach {
+            it as NBTTagCompound
+            val delta = it.getLong("delta")
+            val timestamp = now+delta
+            val position = it.getLong("chunkCompactPosition")
+            chunks[position] = ForcedChunk(position, timestamp)
+        }
     }
 
     private fun unforce(positions: Iterable<ChunkCompactPosition>) {

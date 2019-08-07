@@ -801,7 +801,6 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
     }
 
     private tailrec fun updateContentsToNextVersion(compound: NBTTagCompound, fromVersion: Int) {
-
         if (fromVersion < CurrentDataFormatVersion) {
             MoarBoats.logger.info("Found boat with old data format version ($fromVersion), current is $CurrentDataFormatVersion, converting NBT data...")
             if(fromVersion == 0)
