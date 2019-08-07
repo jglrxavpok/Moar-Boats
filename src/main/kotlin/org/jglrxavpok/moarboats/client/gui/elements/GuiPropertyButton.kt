@@ -18,6 +18,7 @@ open class GuiPropertyButton(buttonID: Int, val propertyRenderingInfo: List<Pair
                 if(propertyIndex >= propertyRenderingInfo.size) {
                     propertyIndex = 0
                 }
+                this.onClick(mouseX, mouseY)
                 return true
             }
         }
