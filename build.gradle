@@ -16,8 +16,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: "kotlin"
 apply plugin: 'maven-publish'
 
-
-version = "1.13.2-5.0.0.0"
+version = "1.13.2-5.0.0.0-beta1"
 group = "org.jglrxavpok.moarboats" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "moarboats"
 

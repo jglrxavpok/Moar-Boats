@@ -29,11 +29,11 @@ import org.jglrxavpok.moarboats.extensions.use
 object MoarBoatsGuiHandler: IGuiHandler {
 
     fun dispatchGui(container: FMLPlayMessages.OpenContainer): GuiScreen? {
-        println("Dispatch: ${container.id}")
+        MoarBoats.logger.debug("Dispatch: ${container.id}")
         val id = container.id
         if(id.namespace == MoarBoats.ModID) {
             val route = id.path.split("/")
-            println("route: ${route.joinToString("/")}")
+            MoarBoats.logger.debug("route: ${route.joinToString("/")}")
             val mc = Minecraft.getInstance()
             val player = mc.player
             val world = mc.world

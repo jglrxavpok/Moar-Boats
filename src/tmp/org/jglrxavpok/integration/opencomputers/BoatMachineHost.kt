@@ -185,7 +185,7 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
         val driver = Driver.driverFor(stack)
         val env = driver.createEnvironment(stack, this)
         if(env == null) {
-            println("driver for $stack is null")
+            MoarBoats.logger.debug("driver for $stack is null")
             return
         }
 
