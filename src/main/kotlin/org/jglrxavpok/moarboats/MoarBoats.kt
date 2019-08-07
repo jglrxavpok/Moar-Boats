@@ -1,6 +1,7 @@
 package org.jglrxavpok.moarboats
 
 import net.alexwells.kottle.FMLKotlinModLoadingContext
+import net.alexwells.kottle.KotlinEventBusSubscriber
 import net.minecraft.block.Block
 import net.minecraft.block.material.EnumPushReaction
 import net.minecraft.block.material.Material
@@ -18,7 +19,6 @@ import net.minecraft.world.dimension.DimensionType
 import net.minecraft.world.storage.WorldSavedDataStorage
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
-import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.event.RegistryEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.DistExecutor
@@ -26,10 +26,12 @@ import net.minecraftforge.fml.ExtensionPoint
 import net.minecraftforge.fml.ModLoadingContext
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.config.ModConfig
-import net.minecraftforge.fml.event.lifecycle.*
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
+import net.minecraftforge.fml.event.lifecycle.FMLDedicatedServerSetupEvent
+import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent
 import net.minecraftforge.fml.network.FMLPlayMessages
 import net.minecraftforge.fml.network.NetworkRegistry
-import net.minecraftforge.registries.GameData
 import net.minecraftforge.registries.RegistryBuilder
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -38,13 +40,18 @@ import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.api.registerModule
 import org.jglrxavpok.moarboats.client.ClientEvents
 import org.jglrxavpok.moarboats.common.*
-import org.jglrxavpok.moarboats.common.blocks.*
+import org.jglrxavpok.moarboats.common.blocks.BlockBoatBattery
+import org.jglrxavpok.moarboats.common.blocks.BlockEnergyLoader
+import org.jglrxavpok.moarboats.common.blocks.BlockEnergyUnloader
+import org.jglrxavpok.moarboats.common.blocks.BlockMappingTable
 import org.jglrxavpok.moarboats.common.items.*
 import org.jglrxavpok.moarboats.common.modules.*
 import org.jglrxavpok.moarboats.common.modules.inventories.ChestModuleInventory
 import org.jglrxavpok.moarboats.common.modules.inventories.EngineModuleInventory
 import org.jglrxavpok.moarboats.common.modules.inventories.SimpleModuleInventory
-import org.jglrxavpok.moarboats.common.tileentity.*
+import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergyLoader
+import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergyUnloader
+import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 import org.jglrxavpok.moarboats.integration.LoadIntegrationPlugins
 import org.jglrxavpok.moarboats.integration.MoarBoatsPlugin
 import java.net.URL
@@ -54,7 +61,6 @@ import java.util.function.Supplier
 import net.minecraft.init.Blocks as MCBlocks
 import net.minecraft.init.Items as MCItems
 
-//@KotlinEventBusSubscriber(modid = MoarBoats.ModID)
 @Mod(MoarBoats.ModID)
 object MoarBoats {
 
@@ -65,7 +71,7 @@ object MoarBoats {
     val logger: Logger = LogManager.getLogger()
     val NetworkingProtocolVersion = "v1.0"
 
-    val registryID = ResourceLocation(ModID, "module_registry")
+    val registryID = ResourceLocation(ModID, "modules")
     val network = NetworkRegistry.ChannelBuilder
             .named(ResourceLocation(ModID, "network"))
             .networkProtocolVersion { NetworkingProtocolVersion }
@@ -111,132 +117,9 @@ object MoarBoats {
         FMLKotlinModLoadingContext.get().modEventBus.addListener { event: FMLCommonSetupEvent ->  setup(event) }
         FMLKotlinModLoadingContext.get().modEventBus.addListener { event: FMLDedicatedServerSetupEvent -> initDedicatedServer(event) }
         FMLKotlinModLoadingContext.get().modEventBus.addListener { event: FMLLoadCompleteEvent -> postLoad(event) }
-
-        FMLKotlinModLoadingContext.get().modEventBus.addListener { event: RegistryEvent.Register<Block> -> registerBlocks(event) }
-        FMLKotlinModLoadingContext.get().modEventBus.addListener { event: RegistryEvent.Register<Item> -> registerItems(event) }
-        FMLKotlinModLoadingContext.get().modEventBus.addListener { event: RegistryEvent.Register<EntityType<*>> -> registerEntities(event) }
-        FMLKotlinModLoadingContext.get().modEventBus.addListener { event: RegistryEvent.Register<TileEntityType<*>> -> registerTileEntities(event) }
-        FMLKotlinModLoadingContext.get().modEventBus.addListener { event: RegistryEvent.NewRegistry -> createRegistry(event) }
-        FMLKotlinModLoadingContext.get().modEventBus.addListener { event: RegistryEvent.Register<BoatModuleEntry> -> registerModules(event) }
-
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, MoarBoatsConfig.spec)
-//        MinecraftForge.EVENT_BUS.register(this)
-        MinecraftForge.EVENT_BUS.register(ItemEventHandler)
-        MinecraftForge.EVENT_BUS.register(MoarBoatsConfig::javaClass)
 
         plugins = LoadIntegrationPlugins()
-    }
-
-    fun setup(event: FMLCommonSetupEvent) {
-/* FIXME        ForgeChunkManager.setForcedChunkLoadingCallback(MoarBoats) { tickets, world ->
-            for(ticket in tickets) {
-                for(pos in ticket.chunkList) {
-                    ForgeChunkManager.forceChunk(ticket, pos)
-                }
-            }
-        }*/
-
-
-        plugins.forEach(MoarBoatsPlugin::preInit)
-        DataSerializers.registerSerializer(ResourceLocationsSerializer)
-        DataSerializers.registerSerializer(UniqueIDSerializer)
-        plugins.forEach(MoarBoatsPlugin::init)
-        ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.GUIFACTORY) {
-            Function<FMLPlayMessages.OpenContainer, GuiScreen?> { container: FMLPlayMessages.OpenContainer -> MoarBoatsGuiHandler.dispatchGui(container) }
-        }
-    }
-
-    fun postLoad(event: FMLLoadCompleteEvent) {
-        MoarBoatsPacketList.registerAll()
-        plugins.forEach(MoarBoatsPlugin::postInit)
-
-        DistExecutor.callWhenOn(Dist.CLIENT) {
-            Callable<Unit> { ClientEvents.postInit(event) }
-        }
-    }
-
-    @SubscribeEvent
-    fun createRegistry(e: RegistryEvent.NewRegistry) {
-        BoatModuleRegistry.forgeRegistry = RegistryBuilder<BoatModuleEntry>()
-                .allowModification()
-                .setName(registryID)
-                .setType(BoatModuleEntry::class.java)
-                .create()
-    }
-
-    fun initDedicatedServer(event: FMLDedicatedServerSetupEvent) {
-        dedicatedServerInstance = event.serverSupplier.get()
-        dedicatedServerInstance?.let {
-            it.recipeManager.addRecipe(ModularBoatColoringRecipe)
-            it.recipeManager.addRecipe(GoldenTicketCopyRecipe)
-            it.recipeManager.addRecipe(UpgradeToGoldenTicketRecipe)
-            it.recipeManager.addRecipe(MapWithPathRecipe)
-        }
-    }
-
-    @SubscribeEvent
-    fun registerModules(event: RegistryEvent.Register<BoatModuleEntry>) {
-        if(event.registry.registryName != registryID)
-            return
-        event.registry.registerModule(ResourceLocation("moarboats:furnace_engine"), Item.getItemFromBlock(MCBlocks.FURNACE), FurnaceEngineModule, { boat, module -> EngineModuleInventory(boat, module) })
-        event.registry.registerModule(ResourceLocation("moarboats:chest"), Item.getItemFromBlock(MCBlocks.CHEST), ChestModule, { boat, module -> ChestModuleInventory(boat, module) })
-        event.registry.registerModule(ResourceLocation("moarboats:helm"), HelmItem, HelmModule, { boat, module -> SimpleModuleInventory(1, "helm", boat, module) })
-        event.registry.registerModule(ResourceLocation("moarboats:fishing"), MCItems.FISHING_ROD, FishingModule, { boat, module -> SimpleModuleInventory(1, "fishing", boat, module) })
-        event.registry.registerModule(SeatModule, SeatItem)
-        event.registry.registerModule(AnchorModule, MCBlocks.ANVIL.asItem())
-        event.registry.registerModule(SolarEngineModule, MCBlocks.DAYLIGHT_DETECTOR.asItem())
-        event.registry.registerModule(CreativeEngineModule, CreativeEngineItem)
-        event.registry.registerModule(IceBreakerModule, IceBreakerItem)
-        event.registry.registerModule(SonarModule, MCBlocks.NOTE_BLOCK.asItem())
-        event.registry.registerModule(DispenserModule, MCBlocks.DISPENSER.asItem(), { boat, module -> SimpleModuleInventory(3*5, "dispenser", boat, module) })
-        event.registry.registerModule(DivingModule, DivingBottleItem)
-        event.registry.registerModule(RudderModule, RudderItem)
-        event.registry.registerModule(DropperModule, MCBlocks.DROPPER.asItem(), { boat, module -> SimpleModuleInventory(3*5, "dropper", boat, module) })
-        event.registry.registerModule(BatteryModule, BlockBoatBattery.asItem())
-       // FIXME event.registry.registerModule(FluidTankModule, BlockBoatTank.asItem())
-        event.registry.registerModule(ChunkLoadingModule, ChunkLoaderItem, restriction = MoarBoatsConfig.chunkLoader.allowed::get)
-        event.registry.registerModule(OarEngineModule, OarsItem)
-        plugins.forEach { it.registerModules(event.registry) }
-    }
-
-    fun registerBlocks(e: RegistryEvent.Register<Block>) {
-        if(e.registry.registryName != GameData.BLOCKS)
-            return
-        e.registry.registerAll(*Blocks.list.toTypedArray())
-    }
-
-    fun registerItems(e: RegistryEvent.Register<Item>) {
-        if(e.registry.registryName != GameData.ITEMS)
-            return
-        e.registry.registerAll(*Items.list.toTypedArray())
-        for (block in Blocks.list) {
-            if(!e.registry.containsKey(block.registryName)) { // don't overwrite already existing items
-                e.registry.register(ItemBlock(block, Item.Properties().group(MoarBoats.CreativeTab)).setRegistryName(block.registryName))
-            }
-        }
-    }
-
-    fun registerTileEntities(evt: RegistryEvent.Register<TileEntityType<*>>) {
-        if(evt.registry.registryName != GameData.TILEENTITIES)
-            return
-        TileEntityEnergyUnloaderType = evt.registerTE(::TileEntityEnergyUnloader, BlockEnergyUnloader.registryName)
-        TileEntityEnergyLoaderType = evt.registerTE(::TileEntityEnergyLoader, BlockEnergyLoader.registryName)
-        /* FIXME
-        TileEntityFluidUnloaderType = evt.registerTE(::TileEntityFluidUnloader, BlockFluidUnloader.registryName)
-        TileEntityFluidLoaderType = evt.registerTE(::TileEntityFluidLoader, BlockFluidLoader.registryName)
-         */
-        TileEntityMappingTableType = evt.registerTE(::TileEntityMappingTable, BlockMappingTable.registryName)
-    }
-
-    private inline fun <reified TE: TileEntity> RegistryEvent.Register<TileEntityType<*>>.registerTE(noinline constructor: () -> TE, registryName: ResourceLocation?): TileEntityType<TE> {
-        return TileEntityType.register(registryName.toString(), TileEntityType.Builder.create<TE>(constructor))
-    }
-
-    fun registerEntities(e: RegistryEvent.Register<EntityType<*>>) {
-        if(e.registry.registryName != GameData.ENTITIES)
-            return
-
-        e.registry.registerAll(*EntityEntries.list.toTypedArray())
     }
 
     fun getLocalMapStorage(dimensionType: DimensionType = DimensionType.OVERWORLD): WorldSavedDataStorage {
@@ -261,5 +144,105 @@ object MoarBoats {
             MoarBoats.logger.error("Something broke in MoarBoats#getLocalMapStorage(), something in the code might be very wrong! Please report.", e)
             throw e
         }
+    }
+
+    fun setup(event: FMLCommonSetupEvent) {
+        plugins.forEach(MoarBoatsPlugin::preInit)
+        DataSerializers.registerSerializer(ResourceLocationsSerializer)
+        DataSerializers.registerSerializer(UniqueIDSerializer)
+        plugins.forEach(MoarBoatsPlugin::init)
+        ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.GUIFACTORY) {
+            Function<FMLPlayMessages.OpenContainer, GuiScreen?> { container: FMLPlayMessages.OpenContainer -> MoarBoatsGuiHandler.dispatchGui(container) }
+        }
+    }
+
+    fun postLoad(event: FMLLoadCompleteEvent) {
+        MoarBoatsPacketList.registerAll()
+        plugins.forEach(MoarBoatsPlugin::postInit)
+
+        DistExecutor.callWhenOn(Dist.CLIENT) {
+            Callable<Unit> { ClientEvents.postInit(event) }
+        }
+    }
+
+    fun initDedicatedServer(event: FMLDedicatedServerSetupEvent) {
+        dedicatedServerInstance = event.serverSupplier.get()
+        dedicatedServerInstance?.let {
+            it.recipeManager.addRecipe(ModularBoatColoringRecipe)
+            it.recipeManager.addRecipe(GoldenTicketCopyRecipe)
+            it.recipeManager.addRecipe(UpgradeToGoldenTicketRecipe)
+            it.recipeManager.addRecipe(MapWithPathRecipe)
+        }
+    }
+
+    @KotlinEventBusSubscriber(bus = KotlinEventBusSubscriber.Bus.MOD)
+    object RegistryEvents {
+        @SubscribeEvent
+        fun createRegistry(e: RegistryEvent.NewRegistry) {
+            BoatModuleRegistry.forgeRegistry = RegistryBuilder<BoatModuleEntry>()
+                    .allowModification()
+                    .setName(registryID)
+                    .setType(BoatModuleEntry::class.java)
+                    .create()
+        }
+
+        @SubscribeEvent
+        fun registerModules(event: RegistryEvent.Register<BoatModuleEntry>) {
+            event.registry.registerModule(ResourceLocation("moarboats:furnace_engine"), Item.getItemFromBlock(MCBlocks.FURNACE), FurnaceEngineModule, { boat, module -> EngineModuleInventory(boat, module) })
+            event.registry.registerModule(ResourceLocation("moarboats:chest"), Item.getItemFromBlock(MCBlocks.CHEST), ChestModule, { boat, module -> ChestModuleInventory(boat, module) })
+            event.registry.registerModule(ResourceLocation("moarboats:helm"), HelmItem, HelmModule, { boat, module -> SimpleModuleInventory(1, "helm", boat, module) })
+            event.registry.registerModule(ResourceLocation("moarboats:fishing"), MCItems.FISHING_ROD, FishingModule, { boat, module -> SimpleModuleInventory(1, "fishing", boat, module) })
+            event.registry.registerModule(SeatModule, SeatItem)
+            event.registry.registerModule(AnchorModule, MCBlocks.ANVIL.asItem())
+            event.registry.registerModule(SolarEngineModule, MCBlocks.DAYLIGHT_DETECTOR.asItem())
+            event.registry.registerModule(CreativeEngineModule, CreativeEngineItem)
+            event.registry.registerModule(IceBreakerModule, IceBreakerItem)
+            event.registry.registerModule(SonarModule, MCBlocks.NOTE_BLOCK.asItem())
+            event.registry.registerModule(DispenserModule, MCBlocks.DISPENSER.asItem(), { boat, module -> SimpleModuleInventory(3*5, "dispenser", boat, module) })
+            event.registry.registerModule(DivingModule, DivingBottleItem)
+            event.registry.registerModule(RudderModule, RudderItem)
+            event.registry.registerModule(DropperModule, MCBlocks.DROPPER.asItem(), { boat, module -> SimpleModuleInventory(3*5, "dropper", boat, module) })
+            event.registry.registerModule(BatteryModule, BlockBoatBattery.asItem())
+            // FIXME event.registry.registerModule(FluidTankModule, BlockBoatTank.asItem())
+            event.registry.registerModule(ChunkLoadingModule, ChunkLoaderItem, restriction = MoarBoatsConfig.chunkLoader.allowed::get)
+            event.registry.registerModule(OarEngineModule, OarsItem)
+            plugins.forEach { it.registerModules(event.registry) }
+        }
+
+        @SubscribeEvent
+        fun registerBlocks(e: RegistryEvent.Register<Block>) {
+            e.registry.registerAll(*Blocks.list.toTypedArray())
+        }
+
+        @SubscribeEvent
+        fun registerItems(e: RegistryEvent.Register<Item>) {
+            e.registry.registerAll(*Items.list.toTypedArray())
+            for (block in Blocks.list) {
+                if(!e.registry.containsKey(block.registryName)) { // don't overwrite already existing items
+                    e.registry.register(ItemBlock(block, Item.Properties().group(MoarBoats.CreativeTab)).setRegistryName(block.registryName))
+                }
+            }
+        }
+
+        @SubscribeEvent
+        fun registerTileEntities(evt: RegistryEvent.Register<TileEntityType<*>>) {
+            TileEntityEnergyUnloaderType = evt.registerTE(::TileEntityEnergyUnloader, BlockEnergyUnloader.registryName)
+            TileEntityEnergyLoaderType = evt.registerTE(::TileEntityEnergyLoader, BlockEnergyLoader.registryName)
+            /* FIXME
+            TileEntityFluidUnloaderType = evt.registerTE(::TileEntityFluidUnloader, BlockFluidUnloader.registryName)
+            TileEntityFluidLoaderType = evt.registerTE(::TileEntityFluidLoader, BlockFluidLoader.registryName)
+             */
+            TileEntityMappingTableType = evt.registerTE(::TileEntityMappingTable, BlockMappingTable.registryName)
+        }
+
+        private inline fun <reified TE: TileEntity> RegistryEvent.Register<TileEntityType<*>>.registerTE(noinline constructor: () -> TE, registryName: ResourceLocation?): TileEntityType<TE> {
+            return TileEntityType.register(registryName.toString(), TileEntityType.Builder.create<TE>(constructor))
+        }
+
+        @SubscribeEvent
+        fun registerEntities(e: RegistryEvent.Register<EntityType<*>>) {
+            e.registry.registerAll(*EntityEntries.list.toTypedArray())
+        }
+
     }
 }

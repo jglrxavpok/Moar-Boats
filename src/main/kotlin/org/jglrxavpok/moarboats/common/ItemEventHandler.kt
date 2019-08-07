@@ -8,16 +8,19 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.items.RopeItem
 
 @Mod.EventBusSubscriber(modid = MoarBoats.ModID)
-object ItemEventHandler {
+class ItemEventHandler {
 
-    @SubscribeEvent
-    fun onEntityInteract(event: PlayerInteractEvent.EntityInteract) {
-        val player = event.entityPlayer
-        val stack = event.itemStack
-        if(stack.item == RopeItem && event.target is EntityLeashKnot) {
-            if(RopeItem.getState(stack) == RopeItem.State.WAITING_NEXT) {
-                event.isCanceled = true
-                event.cancellationResult = RopeItem.onEntityInteract(player, stack, event.target)
+    companion object {
+        @JvmStatic
+        @SubscribeEvent
+        fun onEntityInteract(event: PlayerInteractEvent.EntityInteract) {
+            val player = event.entityPlayer
+            val stack = event.itemStack
+            if(stack.item == RopeItem && event.target is EntityLeashKnot) {
+                if(RopeItem.getState(stack) == RopeItem.State.WAITING_NEXT) {
+                    event.isCanceled = true
+                    event.cancellationResult = RopeItem.onEntityInteract(player, stack, event.target)
+                }
             }
         }
     }

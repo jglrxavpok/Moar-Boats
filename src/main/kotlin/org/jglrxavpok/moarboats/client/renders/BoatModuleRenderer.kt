@@ -43,7 +43,7 @@ abstract class BoatModuleRenderer: ForgeRegistryEntry<BoatModuleRenderer>() {
 }
 
 val BoatModuleRenderingRegistry = RegistryBuilder<BoatModuleRenderer>()
-        .setName(ResourceLocation(MoarBoats.ModID, "modules"))
+        .setName(ResourceLocation(MoarBoats.ModID, "module_renderers"))
         .setMaxID(512)
         .setType(BoatModuleRenderer::class.java)
     .create()
