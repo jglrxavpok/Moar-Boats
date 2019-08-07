@@ -48,7 +48,7 @@ interface MoarBoatsPlugin {
  */
 fun LoadIntegrationPlugins(): List<MoarBoatsPlugin> {
 
-    // FIXME: Use IMC messages
+    // TODO: Use IMC messages?
     
     /**
      * Tries to load the plugin from the given ASMData, also verifies that the dependency is present
@@ -76,7 +76,6 @@ fun LoadIntegrationPlugins(): List<MoarBoatsPlugin> {
         }
         return null
     }
-    // TODO: Use Google Classpath
     // Go through all classes that have @MoarBoatsIntegration
     val classpath = ClassPath.from(MoarBoats::class.java.classLoader)
     val classes = classpath.topLevelClasses.filter {

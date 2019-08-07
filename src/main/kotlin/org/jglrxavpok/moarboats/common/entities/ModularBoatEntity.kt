@@ -413,7 +413,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
 
     override fun getPickedResult(target: RayTraceResult): ItemStack {
         val stack = ItemStack(ModularBoatItem[color], 1)
-        stack.setDisplayName(TextComponentString(stack.displayName.formattedText+" - Copy")) // TODO: use TranslationTextComponent
+        stack.displayName = TextComponentString(stack.displayName.formattedText+" - Copy") // TODO: use TranslationTextComponent
         val boatData = stack.getOrCreateChildTag("boat_data")
         writeAdditional(boatData)
         stack.setTagInfo("boat_data", boatData)

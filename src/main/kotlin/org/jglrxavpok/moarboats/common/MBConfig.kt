@@ -55,12 +55,12 @@ class MoarBoatsConfig {
 
             remainingUsesBeforeRemoval = builder
                     .comment("0 means the rods will break and the fishing module won't try to find a replacement in storage (server side only)")
-                    // TODO .translation(MoarBoats.ModID + ".fishing.remainingusesbeforeremoval")
+                    .translation(MoarBoats.ModID + ".fishing.remainingusesbeforeremoval")
                     .defineInRange("remainingUsesBeforeRemoval", 0, 0, 64)
 
             speedMultiplier = builder
                     .comment("The higher, the more frequent the fishing module will fish items (server side only)")
-                    // TODO .translation(MoarBoats.ModID + ".fishing.speedmultiplier")
+                    .translation(MoarBoats.ModID + ".fishing.speedmultiplier")
                     .defineInRange("speedMultiplier", 1.0, 10e-16, 100.0)
 
             builder.pop()
@@ -79,7 +79,7 @@ class MoarBoatsConfig {
 
             maxEnergy = builder
                     .comment("The total amount of energy a single boat battery can hold at once")
-                    // TODO .translation(MoarBoats.ModID + ".boatbattery.maxenergy")
+                    .translation(MoarBoats.ModID + ".boatbattery.maxenergy")
                     .defineInRange("maxEnergy", 25000, 1, Int.MAX_VALUE)
             builder.pop()
         }
@@ -203,7 +203,7 @@ class MoarBoatsConfig {
 
             allowed = builder
                     .comment("Do you want to allow the chunk loader module on your server?")
-                    // TODO .translation(MoarBoats.ModID + ".chunkloader.allowed")
+                    .translation(MoarBoats.ModID + ".chunkloader.allowed")
                     .define("allowed", true)
             builder.pop()
         }
@@ -221,7 +221,7 @@ class MoarBoatsConfig {
 
             hidePatreonHook = builder
                     .comment("Hide the Patreon hook?")
-                    // TODO .translation(MoarBoats.ModID + ".hide_patreon_hook")
+                    .translation(MoarBoats.ModID + ".hide_patreon_hook")
                     .define("hidePatreonHook", false)
             builder.pop()
         }

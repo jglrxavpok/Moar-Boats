@@ -48,6 +48,7 @@ import org.jglrxavpok.moarboats.common.tileentity.*
 import org.jglrxavpok.moarboats.integration.LoadIntegrationPlugins
 import org.jglrxavpok.moarboats.integration.MoarBoatsPlugin
 import java.net.URL
+import java.util.concurrent.Callable
 import java.util.function.Function
 import java.util.function.Supplier
 import net.minecraft.init.Blocks as MCBlocks
@@ -148,6 +149,10 @@ object MoarBoats {
     fun postLoad(event: FMLLoadCompleteEvent) {
         MoarBoatsPacketList.registerAll()
         plugins.forEach(MoarBoatsPlugin::postInit)
+
+        DistExecutor.callWhenOn(Dist.CLIENT) {
+            Callable<Unit> { ClientEvents.postInit(event) }
+        }
     }
 
     @SubscribeEvent

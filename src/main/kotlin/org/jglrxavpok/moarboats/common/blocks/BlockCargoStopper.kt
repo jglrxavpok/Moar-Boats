@@ -28,9 +28,6 @@ import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.items.CargoStopperItem
 import java.util.*
 
-
-// TODO: Rewrite with blockstates
-
 object BlockCargoStopper: BlockRedstoneDiode(Block.Properties.create(Material.CIRCUITS).tickRandomly().hardnessAndResistance(0f).sound(SoundType.WOOD)) {
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "cargo_stopper")

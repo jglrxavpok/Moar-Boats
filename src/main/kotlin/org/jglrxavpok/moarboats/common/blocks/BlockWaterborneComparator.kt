@@ -30,9 +30,6 @@ import org.jglrxavpok.moarboats.common.items.CargoStopperItem
 import org.jglrxavpok.moarboats.common.items.WaterborneComparatorItem
 import java.util.*
 
-
-// TODO: Rewrite with blockstates
-
 object BlockWaterborneComparator: BlockRedstoneDiode(Block.Properties.create(Material.CIRCUITS).tickRandomly().hardnessAndResistance(0f).sound(SoundType.WOOD)) {
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "waterborne_comparator")

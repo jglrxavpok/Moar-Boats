@@ -120,7 +120,6 @@ object FurnaceEngineModule : BaseEngineModule() {
             Items.LAVA_BUCKET -> 60*15*SECONDS_TO_TICKS
             Blocks.MAGMA_BLOCK.asItem() -> 60*30*SECONDS_TO_TICKS
             Blocks.COAL_BLOCK.asItem() -> 30*30*SECONDS_TO_TICKS
-            // TODO: AT for this
             else -> (TileEntityFurnace.getItemBurnTime(fuelItem)*.9).toInt() // scale time to make lava bucket burn time the same duration as the one above
         }
     }

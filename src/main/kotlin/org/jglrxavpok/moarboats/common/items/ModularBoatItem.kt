@@ -17,7 +17,6 @@ import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.extensions.Fluids
 
-// FIXME: Change to class, with one instance per color
 class ModularBoatItem(val dyeColor: EnumDyeColor): BaseBoatItem() {
 
     companion object {
