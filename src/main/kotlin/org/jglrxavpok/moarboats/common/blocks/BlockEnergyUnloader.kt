@@ -3,14 +3,14 @@ package org.jglrxavpok.moarboats.common.blocks
 import net.minecraft.block.Block
 import net.minecraft.block.state.IBlockState
 import net.minecraft.entity.EntityLivingBase
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.entity.player.EntityPlayerMP
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.entity.player.PlayerEntityMP
 import net.minecraft.item.BlockItemUseContext
 import net.minecraft.state.DirectionProperty
 import net.minecraft.state.StateContainer
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.util.EnumFacing
-import net.minecraft.util.EnumHand
+import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.IBlockReader
@@ -46,10 +46,10 @@ object BlockEnergyUnloader: MoarBoatsBlock() {
         return this.defaultState.with(Facing, context.nearestLookingDirection)
     }
 
-    override fun onBlockActivated(state: IBlockState, worldIn: World, pos: BlockPos, playerIn: EntityPlayer, hand: EnumHand?, facing: EnumFacing?, hitX: Float, hitY: Float, hitZ: Float): Boolean {
-        if(worldIn.isRemote)
+    override fun onBlockActivated(state: IBlockState, worldIn: World, pos: BlockPos, playerIn: PlayerEntity, hand: Hand?, facing: EnumFacing?, hitX: Float, hitY: Float, hitZ: Float): Boolean {
+        if(worldIn.isClientSide)
             return true
-        NetworkHooks.openGui(playerIn as EntityPlayerMP, MoarBoatsGuiHandler.EnergyGuiInteraction(pos.x, pos.y, pos.z))
+        NetworkHooks.openGui(playerIn as PlayerEntityMP, MoarBoatsGuiHandler.EnergyGuiInteraction(pos.x, pos.y, pos.z))
         return true
     }
 
@@ -58,7 +58,7 @@ object BlockEnergyUnloader: MoarBoatsBlock() {
     }
 
     override fun getComparatorInputOverride(blockState: IBlockState, worldIn: World, pos: BlockPos): Int {
-        return (worldIn.getTileEntity(pos) as? TileEntityEnergyUnloader)?.getRedstonePower() ?: 0
+        return (worldIn.getBlockEntity(pos) as? TileEntityEnergyUnloader)?.getRedstonePower() ?: 0
     }
 
 }

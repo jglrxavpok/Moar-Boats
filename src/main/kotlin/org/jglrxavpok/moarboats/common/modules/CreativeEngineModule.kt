@@ -1,17 +1,17 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.inventory.IInventory
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.util.EnumHand
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.containers.ContainerBase
 import org.jglrxavpok.moarboats.common.containers.EmptyContainer
 
 object CreativeEngineModule : BaseEngineModule() {
-    override fun createContainer(player: EntityPlayer, boat: IControllable): ContainerBase? {
+    override fun createContainer(player: PlayerEntity, boat: IControllable): ContainerBase? {
         return EmptyContainer(player.inventory, isLarge = true)
     }
 
@@ -31,7 +31,7 @@ object CreativeEngineModule : BaseEngineModule() {
         return Float.POSITIVE_INFINITY
     }
 
-    override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean): Boolean {
+    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean): Boolean {
         return false
     }
 
@@ -39,7 +39,7 @@ object CreativeEngineModule : BaseEngineModule() {
         return true
     }
 
-    override fun updateFuelState(boat: IControllable, state: NBTTagCompound, inv: IInventory) {
+    override fun updateFuelState(boat: IControllable, state: CompoundNBT, inv: IInventory) {
         // NOP
     }
 

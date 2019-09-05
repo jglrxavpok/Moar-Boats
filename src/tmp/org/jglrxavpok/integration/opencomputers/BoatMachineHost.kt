@@ -9,8 +9,8 @@ import li.cil.oc.api.machine.*
 import li.cil.oc.api.Items as OCItems
 import li.cil.oc.api.network.*
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.nbt.NBTTagList
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.ListNBT
 import net.minecraft.nbt.NBTTagString
 import net.minecraftforge.common.util.Constants
 import net.minecraftforge.oredict.OreDictionary
@@ -85,14 +85,14 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
         addresses[comp] = addr
     }
 
-    fun processInitialData(data: NBTTagCompound) {
+    fun processInitialData(data: CompoundNBT) {
         buffer.load(data.getCompoundTag("buffer"))
         keyboard.load(data.getCompoundTag("keyboard"))
         initialized = true
     }
 
     fun firstInit() {
-        if(world().isRemote)
+        if(world().isClientSide)
             return
         var index = 0
         for(env in subComponents) {
@@ -108,7 +108,7 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     }
 
     fun initConnections() {
-        if(world().isRemote)
+        if(world().isClientSide)
             return
         internalNode!!.connect(machine.node())
         for(env in subComponents) {
@@ -120,7 +120,7 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     }
 
     fun initComponents() {
-        val isServer = !world().isRemote
+        val isServer = !world().isClientSide
         if(isServer) {
             subComponents.clear()
             drivers.clear()
@@ -155,7 +155,7 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     }
 
     override fun start(): Boolean {
-        val connectToNetwork = !world().isRemote
+        val connectToNetwork = !world().isClientSide
         if(connectToNetwork) {
             machine.start()
             sendInitialData()
@@ -163,10 +163,10 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
         return true
     }
 
-    private fun createInitialData(): NBTTagCompound {
-        val data = NBTTagCompound()
-        val bufferData = NBTTagCompound()
-        val keyboardData = NBTTagCompound()
+    private fun createInitialData(): CompoundNBT {
+        val data = CompoundNBT()
+        val bufferData = CompoundNBT()
+        val keyboardData = CompoundNBT()
         buffer.save(bufferData)
         keyboard.save(keyboardData)
         data.setTag("buffer", bufferData)
@@ -226,9 +226,9 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
     override fun onMachineConnect(p0: Node) {
     }
 
-    fun load(compound: NBTTagCompound) {
+    fun load(compound: CompoundNBT) {
         processInitialData(compound.getCompoundTag("initial"))
-        if(!world().isRemote) {
+        if(!world().isClientSide) {
             internalNode!!.load(compound.getCompoundTag("internalNBT"))
             machine().load(compound.getCompoundTag("machineNBT"))
             for ((index, subComponent) in subComponents.withIndex()) {
@@ -238,7 +238,7 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
 
     }
 
-    fun readAddressMap(compound: NBTTagCompound) {
+    fun readAddressMap(compound: CompoundNBT) {
         addresses.clear()
         val addressMap = compound.getTagList("addressMap", Constants.NBT.TAG_STRING)
         for((index, comp) in internalComponentList.withIndex()) {
@@ -247,29 +247,29 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
         }
     }
 
-    fun save(p0: NBTTagCompound) {
+    fun save(p0: CompoundNBT) {
         saveToNBT(p0)
     }
 
-    fun saveToNBT(compound: NBTTagCompound): NBTTagCompound {
+    fun saveToNBT(compound: CompoundNBT): CompoundNBT {
         val initialData = createInitialData()
         compound.setTag("initial", initialData)
-        val machineNBT = NBTTagCompound()
+        val machineNBT = CompoundNBT()
         machine().save(machineNBT)
         compound.setTag("machineNBT", machineNBT)
 
-        val internalNodeNBT = NBTTagCompound()
+        val internalNodeNBT = CompoundNBT()
         internalNode!!.save(internalNodeNBT)
         compound.setTag("internalNBT", internalNodeNBT)
 
         for ((index, subComponent) in subComponents.withIndex()) {
-            val tag = NBTTagCompound()
+            val tag = CompoundNBT()
             subComponent.save(tag)
             compound.setTag("comp$index", tag)
         }
 
         // save address map
-        val addressMap = NBTTagList()
+        val addressMap = ListNBT()
         for(comp in internalComponentList) {
             addressMap.appendTag(NBTTagString(addresses[comp]!!))
         }
@@ -304,7 +304,7 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
         if (initialized) {
             subComponents.forEach(ManagedEnvironment::update)
         }
-        if (world().isRemote)
+        if (world().isClientSide)
             return
 
         if(!initialized)

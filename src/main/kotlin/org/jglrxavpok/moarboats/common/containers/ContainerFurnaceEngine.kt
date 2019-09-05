@@ -1,8 +1,8 @@
 package org.jglrxavpok.moarboats.common.containers
 
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.entity.player.InventoryPlayer
-import net.minecraft.init.Items
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.entity.player.PlayerInventory
+import net.minecraft.item.Items
 import net.minecraft.inventory.*
 import net.minecraft.item.ItemStack
 import net.minecraft.tileentity.TileEntityFurnace
@@ -12,7 +12,7 @@ import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.modules.FurnaceEngineModule
 
-class ContainerFurnaceEngine(playerInventory: InventoryPlayer, val engine: BoatModule, val boat: IControllable): ContainerBase(playerInventory) {
+class ContainerFurnaceEngine(playerInventory: PlayerInventory, val engine: BoatModule, val boat: IControllable): ContainerBase(playerInventory) {
 
     val engineInventory = boat.getInventory(engine)
     private var fuelTime = engineInventory.getField(0)
@@ -51,12 +51,12 @@ class ContainerFurnaceEngine(playerInventory: InventoryPlayer, val engine: BoatM
         this.engineInventory.setField(id, data)
     }
 
-    override fun transferStackInSlot(playerIn: EntityPlayer, index: Int): ItemStack {
+    override fun transferStackInSlot(playerIn: PlayerEntity, index: Int): ItemStack {
         var itemstack = ItemStack.EMPTY
         val slot = this.inventorySlots[index]
 
         if (slot != null && slot.hasStack) {
-            val itemstack1 = slot.stack
+            val itemstack1 = slot.item
             itemstack = itemstack1.copy()
 
             if (index != 0) {

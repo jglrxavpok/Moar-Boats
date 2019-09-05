@@ -6,7 +6,7 @@ import li.cil.oc.api.machine.Context
 import li.cil.oc.api.prefab.AbstractValue
 import net.minecraft.inventory.IInventory
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.CompoundNBT
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.modules.BaseEngineModule
@@ -20,7 +20,7 @@ open class ModuleValue(): AbstractValue() {
         spot = module.moduleSpot.id
     }
 
-    override fun save(nbt: NBTTagCompound) {
+    override fun save(nbt: CompoundNBT) {
         id?.let {
             nbt.setString("id", it)
         }
@@ -29,7 +29,7 @@ open class ModuleValue(): AbstractValue() {
         }
     }
 
-    override fun load(nbt: NBTTagCompound) {
+    override fun load(nbt: CompoundNBT) {
         id = nbt.getString("id")
         spot = nbt.getString("spot")
     }
@@ -43,13 +43,13 @@ open class ModuleValue(): AbstractValue() {
 
 open class StorageModuleValue(val boat: IControllable, val module: BoatModule): ModuleValue(module) {
     @Callback
-    fun getInventorySize(ctx: Context, args: Arguments): OCResult {
-        return result(boat.getInventory(module).sizeInventory)
+    fun getInventorimageHeight(ctx: Context, args: Arguments): OCResult {
+        return result(boat.getInventory(module).containerSize)
     }
 
     @Callback
-    fun getStackInSlot(ctx: Context, args: Arguments): OCResult {
-        return result(boat.getInventory(module).getStackInSlot(args.checkInteger(0)))
+    fun getItem(ctx: Context, args: Arguments): OCResult {
+        return result(boat.getInventory(module).getItem(args.checkInteger(0)))
     }
 }
 

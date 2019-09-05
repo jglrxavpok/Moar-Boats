@@ -1,7 +1,7 @@
 package org.jglrxavpok.moarboats.integration.opencomputers
 
 import net.minecraft.nbt.NBTBase
-import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.CompoundNBT
 import net.minecraft.util.EnumFacing
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.common.capabilities.ICapabilityProvider
@@ -32,11 +32,11 @@ class MachineHostCapability(val boat: ModularBoatEntity) : ICapabilityProvider {
 
     object Storage: Capability.IStorage<MachineHostCapability> {
         override fun readNBT(capability: Capability<MachineHostCapability>?, instance: MachineHostCapability, side: EnumFacing?, nbt: NBTBase) {
-            instance.host.load(nbt as NBTTagCompound)
+            instance.host.load(nbt as CompoundNBT)
         }
 
         override fun writeNBT(capability: Capability<MachineHostCapability>?, instance: MachineHostCapability, side: EnumFacing?): NBTBase? {
-            return instance.host.saveToNBT(NBTTagCompound())
+            return instance.host.saveToNBT(CompoundNBT())
         }
     }
 

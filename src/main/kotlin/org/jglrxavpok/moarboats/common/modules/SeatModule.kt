@@ -1,8 +1,8 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.client.gui.GuiScreen
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.util.EnumHand
+import net.minecraft.client.gui.screen
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
@@ -22,15 +22,15 @@ object SeatModule : BoatModule() {
     override val isMenuInteresting = false
 
     @OnlyIn(Dist.CLIENT)
-    override fun createGui(player: EntityPlayer, boat: IControllable): GuiScreen {
+    override fun createGui(player: PlayerEntity, boat: IControllable): Screen {
         return GuiNoConfigModule(player.inventory, this, boat)
     }
 
-    override fun createContainer(player: EntityPlayer, boat: IControllable): ContainerBase? {
+    override fun createContainer(player: PlayerEntity, boat: IControllable): ContainerBase? {
         return EmptyContainer(player.inventory)
     }
 
-    override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean): Boolean {
+    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean): Boolean {
         return false
     }
 

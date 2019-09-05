@@ -1,15 +1,15 @@
 package org.jglrxavpok.moarboats.client.renders
 
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.GlStateManager
+import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.client.renderer.Tessellator
-import net.minecraft.client.renderer.entity.RenderManager
-import net.minecraft.client.renderer.entity.model.ModelRenderer
+import net.minecraft.client.renderer.entity.EntityRendererManager
+import net.minecraft.client.renderer.entity.model.RendererModel
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
-import net.minecraft.item.ItemMap
+import net.minecraft.item.MapItem
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.nbt.NBTTagList
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.ListNBT
 import net.minecraft.util.ResourceLocation
 import net.minecraft.world.storage.MapData
 import org.jglrxavpok.moarboats.MoarBoats
@@ -36,12 +36,12 @@ object HelmModuleRenderer : BoatModuleRenderer() {
     private val BoatPathTexture = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/helm/boat_path.png")
     val helmStack = ItemStack(HelmItem)
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, renderManager: RenderManager) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, EntityRendererManager: EntityRendererManager) {
         module as HelmModule
         GlStateManager.pushMatrix()
         GlStateManager.scalef(-1f, -1f, 1f)
         GlStateManager.translatef(0.2f, -0f/16f, 0.0f)
-        renderManager.textureManager.bindTexture(texture)
+        EntityRendererManager.textureManager.bind(texture)
 
         val frameAngle = module.rotationAngleProperty[boat].toRadians()
         rotate(frameAngle, model.frameCenter, model.left, model.radiusLeft, model.right, model.radiusRight, model.top, model.radiusTop, model.bottom, model.radiusBottom)
@@ -49,11 +49,11 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         rotate(-frameAngle, model.frameCenter, model.left, model.radiusLeft, model.right, model.radiusRight, model.top, model.radiusTop, model.bottom, model.radiusBottom)
 
         val inventory = boat.getInventory(module)
-        val stack = inventory.getStackInSlot(0)
+        val stack = inventory.getItem(0)
         val item = stack.item
-        if(item is ItemMap) {
+        if(item is MapItem) {
             val mc = Minecraft.getInstance()
-            mc.textureManager.bindTexture(RES_MAP_BACKGROUND)
+            mc.textureManager.bind(RES_MAP_BACKGROUND)
             val tessellator = Tessellator.getInstance()
             val bufferbuilder = tessellator.buffer
             val x = 0.0
@@ -84,13 +84,13 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         GlStateManager.popMatrix()
     }
 
-    private fun rotate(angle: Float, vararg modelParts: ModelRenderer) {
+    private fun rotate(angle: Float, vararg modelParts: RendererModel) {
         modelParts.forEach {
-            it.rotateAngleX -= angle
+            it.xRot -= angle
         }
     }
 
-    fun renderMap(mapdata: MapData, x: Double, y: Double, mapSize: Double, worldX: Double, worldZ: Double, margins: Double = 7.0, waypointsData: NBTTagList, loops: Boolean) {
+    fun renderMap(mapdata: MapData, x: Double, y: Double, mapSize: Double, worldX: Double, worldZ: Double, margins: Double = 7.0, waypointsData: ListNBT, loops: Boolean) {
         val mc = Minecraft.getInstance()
         GlStateManager.pushMatrix()
         GlStateManager.translated(x+margins, y+margins, 0.0)
@@ -123,9 +123,9 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         var hasPrevious = false
         var previousX = 0.0
         var previousZ = 0.0
-        val first = waypointsData.firstOrNull() as? NBTTagCompound
+        val first = waypointsData.firstOrNull() as? CompoundNBT
         for((index, waypoint) in waypointsData.withIndex()) {
-            waypoint as NBTTagCompound
+            waypoint as CompoundNBT
             val x = waypoint.getInt("renderX").toDouble()
             val z = waypoint.getInt("renderZ").toDouble()
             renderSingleWaypoint(x, z-7.0)
@@ -161,7 +161,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         val tessellator = Tessellator.getInstance()
         val bufferbuilder = tessellator.buffer
         val mc = Minecraft.getInstance()
-        mc.textureManager.bindTexture(BoatPathTexture)
+        mc.textureManager.bind(BoatPathTexture)
 
         val thickness = 0.5
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR)
@@ -175,7 +175,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
 
     fun renderSingleWaypoint(x: Double, y: Double, redModifier: Float = 1.0f, greenModifier: Float = 1.0f, blueModifier: Float = 1.0f) {
         val mc = Minecraft.getInstance()
-        mc.textureManager.bindTexture(WaypointIndicator)
+        mc.textureManager.bind(WaypointIndicator)
 
         val spriteSize = 8.0
         val tessellator = Tessellator.getInstance()

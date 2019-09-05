@@ -4,7 +4,7 @@ import net.minecraft.client.util.ITooltipFlag
 import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.TextComponentTranslation
+import net.minecraft.util.text.TranslationTextComponent
 import net.minecraft.world.World
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.blocks.BlockCargoStopper
@@ -12,7 +12,7 @@ import org.jglrxavpok.moarboats.common.blocks.BlockCargoStopper
 object CargoStopperItem : WaterborneItem("cargo_stopper") {
 
     override val correspondingBlock = BlockCargoStopper
-    private val descriptionText = TextComponentTranslation(MoarBoats.ModID+".tile.cargo_stopper.description")
+    private val descriptionText = TranslationTextComponent(MoarBoats.ModID+".tile.cargo_stopper.description")
 
     override fun addInformation(stack: ItemStack?, player: World?, tooltip: MutableList<ITextComponent>, advanced: ITooltipFlag?) {
         tooltip.add(descriptionText)

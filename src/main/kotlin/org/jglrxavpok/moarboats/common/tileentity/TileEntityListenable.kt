@@ -1,6 +1,6 @@
 package org.jglrxavpok.moarboats.common.tileentity
 
-import net.minecraft.inventory.Container
+import net.minecraft.inventory.container.Container
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.tileentity.TileEntityType
 import net.minecraft.util.math.AxisAlignedBB

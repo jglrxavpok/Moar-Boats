@@ -7,12 +7,12 @@ import net.minecraft.block.properties.PropertyEnum
 import net.minecraft.block.state.BlockStateContainer
 import net.minecraft.block.state.IBlockState
 import net.minecraft.entity.EntityLivingBase
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.inventory.Container
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.inventory.container.Container
 import net.minecraft.item.Item
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.util.EnumFacing
-import net.minecraft.util.EnumHand
+import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
@@ -47,8 +47,8 @@ object BlockFluidUnloader: Block(MoarBoats.MachineMaterial) {
         return this.defaultState.withProperty(BlockDirectional.FACING, EnumFacing.getDirectionFromEntityLiving(pos, placer))
     }
 
-    override fun onBlockActivated(state: IBlockState, worldIn: World, pos: BlockPos, playerIn: EntityPlayer, hand: EnumHand?, facing: EnumFacing?, hitX: Float, hitY: Float, hitZ: Float): Boolean {
-        if(worldIn.isRemote)
+    override fun onBlockActivated(state: IBlockState, worldIn: World, pos: BlockPos, playerIn: PlayerEntity, hand: Hand?, facing: EnumFacing?, hitX: Float, hitY: Float, hitZ: Float): Boolean {
+        if(worldIn.isClientSide)
             return true
         playerIn.openGui(MoarBoats, MoarBoatsGuiHandler.FluidGui, worldIn, pos.x, pos.y, pos.z)
         return true
@@ -67,7 +67,7 @@ object BlockFluidUnloader: Block(MoarBoats.MachineMaterial) {
     }
 
     override fun getComparatorInputOverride(blockState: IBlockState, worldIn: World, pos: BlockPos): Int {
-        return (worldIn.getTileEntity(pos) as? TileEntityFluidUnloader)?.getRedstonePower() ?: 0
+        return (worldIn.getBlockEntity(pos) as? TileEntityFluidUnloader)?.getRedstonePower() ?: 0
     }
 
 }

@@ -16,7 +16,7 @@ object BlockBoatTank: MoarBoatsBlock() {
         registryName = ResourceLocation(MoarBoats.ModID, "boat_tank")
     }
 
-    override fun getOpacity(state: IBlockState, world: IBlockReader, pos: BlockPos): Int {
+    override fun getOpacity(state: IBlockState, level: IBlockReader, pos: BlockPos): Int {
         return 0
     }
 
@@ -28,8 +28,8 @@ object BlockBoatTank: MoarBoatsBlock() {
         return false
     }
 
-    override fun addInformation(stack: ItemStack, world: IBlockReader?, tooltip: MutableList<ITextComponent>, advanced: ITooltipFlag) {
-        super.addInformation(stack, world, tooltip, advanced)
+    override fun addInformation(stack: ItemStack, level: IBlockReader?, tooltip: MutableList<ITextComponent>, advanced: ITooltipFlag) {
+        super.addInformation(stack, level, tooltip, advanced)
         tooltip.add(OnlyUsableOnBoats)
     }
 

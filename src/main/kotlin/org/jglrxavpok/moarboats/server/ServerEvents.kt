@@ -1,7 +1,7 @@
 package org.jglrxavpok.moarboats.server
 
 import net.alexwells.kottle.KotlinEventBusSubscriber
-import net.minecraft.entity.player.EntityPlayerMP
+import net.minecraft.entity.player.PlayerEntityMP
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.event.entity.living.LivingEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
@@ -16,13 +16,13 @@ object ServerEvents {
 
     @SubscribeEvent
     fun onPlayerUpdate(event: LivingEvent.LivingUpdateEvent) {
-        val player = event.entityLiving as? EntityPlayerMP ?: return
-        for (i in 0 until player.inventory.sizeInventory) {
-            val itemstack = player.inventory.getStackInSlot(i)
+        val player = event.entityLiving as? PlayerEntityMP ?: return
+        for (i in 0 until player.inventory.containerSize) {
+            val itemstack = player.inventory.getItem(i)
 
             if (!itemstack.isEmpty && itemstack.item == ItemGoldenTicket) {
                 if(!ItemGoldenTicket.isEmpty(itemstack)) {
-                    if(player.ticksExisted % 5 == 0) { // send every 5 ticks
+                    if(player.tickCount % 5 == 0) { // send every 5 ticks
                         val data = ItemGoldenTicket.getData(itemstack)
                         MoarBoats.network.send(PacketDistributor.PLAYER.with { player }, SSetGoldenItinerary(data))
                     }

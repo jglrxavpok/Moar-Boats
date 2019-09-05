@@ -322,7 +322,7 @@ User Product is transferred to the recipient in perpetuity or for a
 fixed term (regardless of how the transaction is characterized), the
 Corresponding Source conveyed under this section must be accompanied
 by the Installation Information.  But this requirement does not apply
-if neither you nor any third party retains the ability to install
+if neither you nor any third party acquires the ability to install
 modified object code on the User Product (for example, the work has
 been installed in ROM).
 
@@ -484,7 +484,7 @@ purposes of this definition, "control" includes the right to grant
 patent sublicenses in a manner consistent with the requirements of
 this License.
 
-  Each contributor grants you a non-exclusive, worldwide, royalty-free
+  Each contributor grants you a non-exclusive, levelwide, royalty-free
 patent license under the contributor's essential patent claims, to
 make, use, sell, offer for sale, import and otherwise run, modify and
 propagate the contents of its contributor version.

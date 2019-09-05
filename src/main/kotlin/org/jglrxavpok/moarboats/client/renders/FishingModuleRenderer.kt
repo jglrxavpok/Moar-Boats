@@ -1,20 +1,20 @@
 package org.jglrxavpok.moarboats.client.renders
 
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.GlStateManager
+import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.client.renderer.Tessellator
-import net.minecraft.client.renderer.entity.RenderManager
+import net.minecraft.client.renderer.entity.EntityRendererManager
 import net.minecraft.client.renderer.model.ItemCameraTransforms
 import net.minecraft.client.renderer.model.ModelResourceLocation
 import net.minecraft.client.renderer.texture.TextureMap
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
-import net.minecraft.init.Items
+import net.minecraft.item.Items
 import net.minecraft.init.Particles
 import net.minecraft.item.Item
 import net.minecraft.item.ItemFishingRod
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.CompoundNBT
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.registries.GameData
 import net.minecraftforge.registries.RegistryManager
@@ -32,7 +32,7 @@ object FishingModuleRenderer : BoatModuleRenderer() {
     val CastFishingRodLocation = ModelResourceLocation(MoarBoats.ModID, "item/vanilla/fishing_rod_cast")
     private val StickStack = ItemStack(Items.STICK)
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, renderManager: RenderManager) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, EntityRendererManager: EntityRendererManager) {
         module as FishingModule
         val mc = Minecraft.getInstance()
         GlStateManager.pushMatrix()
@@ -42,7 +42,7 @@ object FishingModuleRenderer : BoatModuleRenderer() {
         GlStateManager.translatef(-0.75f, 8f/16f, 0.58f)
 
         val inventory = boat.getInventory(module)
-        val rodStack = inventory.getStackInSlot(0)
+        val rodStack = inventory.getItem(0)
 
         GlStateManager.pushLightingAttrib()
         RenderHelper.enableStandardItemLighting()
@@ -54,7 +54,7 @@ object FishingModuleRenderer : BoatModuleRenderer() {
         if(ready && hasRod && boat.inLiquid() && !boat.isEntityInLava()) {
             val model = mc.modelManager.getModel(CastFishingRodLocation)
 
-            mc.textureManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
+            mc.textureManager.bind(TextureMap.LOCATION_BLOCKS_TEXTURE)
             GlStateManager.color4f(1.0f, 1.0f, 1.0f, 1.0f)
             GlStateManager.enableRescaleNormal()
             GlStateManager.enableBlend()
@@ -104,9 +104,9 @@ object FishingModuleRenderer : BoatModuleRenderer() {
             val fishScale = 0.25f
             GlStateManager.scalef(fishScale, fishScale, fishScale)
             val lootList = module.lastLootProperty[boat]
-            GlStateManager.rotatef(boat.ticksExisted.toFloat()*4f, 0f, 1f, 0f)
+            GlStateManager.rotatef(boat.tickCount.toFloat()*4f, 0f, 1f, 0f)
             for(lootInfo in lootList) {
-                lootInfo as NBTTagCompound
+                lootInfo as CompoundNBT
                 val item = RegistryManager.ACTIVE.getRegistry<Item>(GameData.ITEMS).getValue(ResourceLocation(lootInfo.getString("name")))
                 val stack = ItemStack(item, 1)
                 stack.damage = lootInfo.getInt("damage")
@@ -133,11 +133,11 @@ object FishingModuleRenderer : BoatModuleRenderer() {
         GlStateManager.translatef(x.toFloat(), y.toFloat(), z.toFloat())
         GlStateManager.enableRescaleNormal()
         GlStateManager.scalef(0.5f, 0.5f, 0.5f)
-        mc.textureManager.bindTexture(FISH_PARTICLES)
+        mc.textureManager.bind(FISH_PARTICLES)
         val tessellator = Tessellator.getInstance()
         val bufferbuilder = tessellator.buffer
-        GlStateManager.rotatef(180.0f + mc.renderManager.playerViewY - entityYaw + 90f, 0.0f, 1.0f, 0.0f)
-        GlStateManager.rotatef((if (mc.renderManager.options.thirdPersonView == 2) -1 else 1).toFloat() * -mc.renderManager.playerViewX, 1.0f, 0.0f, 0.0f)
+        GlStateManager.rotatef(180.0f + mc.EntityRendererManager.playerViewY - entityYaw + 90f, 0.0f, 1.0f, 0.0f)
+        GlStateManager.rotatef((if (mc.EntityRendererManager.options.thirdPersonView == 2) -1 else 1).toFloat() * -mc.EntityRendererManager.playerViewX, 1.0f, 0.0f, 0.0f)
 
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_NORMAL)
         bufferbuilder.pos(-0.5, -0.5, 0.0).tex(0.03125, 0.09375).normal(0.0f, 1.0f, 0.0f).endVertex()

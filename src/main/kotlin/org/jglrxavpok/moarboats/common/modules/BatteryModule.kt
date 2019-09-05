@@ -1,8 +1,8 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.item.ItemBlock
-import net.minecraft.util.EnumHand
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.item.BlockItem
+import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
@@ -27,7 +27,7 @@ object BatteryModule: BoatModule(), IEnergyBoatModule {
     override val usesInventory = false
     override val moduleSpot = Spot.Storage
 
-    override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean): Boolean {
+    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean): Boolean {
         return false
     }
 
@@ -39,12 +39,12 @@ object BatteryModule: BoatModule(), IEnergyBoatModule {
         energyProperty[to] = 0
     }
 
-    override fun createContainer(player: EntityPlayer, boat: IControllable) = EmptyContainer(player.inventory)
+    override fun createContainer(player: PlayerEntity, boat: IControllable) = EmptyContainer(player.inventory)
 
-    override fun createGui(player: EntityPlayer, boat: IControllable) = GuiBatteryModule(player.inventory, this, boat)
+    override fun createGui(player: PlayerEntity, boat: IControllable) = GuiBatteryModule(player.inventory, this, boat)
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.entityDropItem(ItemBlock.getItemFromBlock(BlockBoatBattery), 1)
+            boat.correspondingEntity.entityDropItem(BlockItem.getItemFromBlock(BlockBoatBattery), 1)
     }
 }

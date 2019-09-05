@@ -1,11 +1,11 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.client.gui.GuiScreen
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.client.gui.screen
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.init.Blocks
-import net.minecraft.item.ItemBlock
+import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
-import net.minecraft.util.EnumHand
+import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
@@ -27,11 +27,11 @@ object RudderModule: BoatModule(), BlockReason {
     val RudderAngleMultiplier = FloatBoatProperty("rudderAngleMultiplier")
     val BlockingProperty = BooleanBoatProperty("blocking")
 
-    override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean) = false
+    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean) = false
 
     override fun controlBoat(from: IControllable) {
         RudderAngleMultiplier[from] = 0f
-        val controllingEntity = from.correspondingEntity.controllingPassenger as? EntityPlayer ?: return
+        val controllingEntity = from.correspondingEntity.controllingPassenger as? PlayerEntity ?: return
         val forward = controllingEntity.moveForward
         val strafe = controllingEntity.moveStrafing
         if(forward <= 0.001f) {
@@ -52,11 +52,11 @@ object RudderModule: BoatModule(), BlockReason {
         BlockingProperty[to] = true
     }
 
-    override fun createContainer(player: EntityPlayer, boat: IControllable): ContainerBase? {
+    override fun createContainer(player: PlayerEntity, boat: IControllable): ContainerBase? {
         return EmptyContainer(player.inventory, isLarge = false)
     }
 
-    override fun createGui(player: EntityPlayer, boat: IControllable): GuiScreen {
+    override fun createGui(player: PlayerEntity, boat: IControllable): Screen {
         return GuiRudderModule(player.inventory, this, boat)
     }
 

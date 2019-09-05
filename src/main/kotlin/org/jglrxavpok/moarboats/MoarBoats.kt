@@ -3,11 +3,11 @@ package org.jglrxavpok.moarboats
 import net.alexwells.kottle.FMLKotlinModLoadingContext
 import net.alexwells.kottle.KotlinEventBusSubscriber
 import net.minecraft.block.Block
-import net.minecraft.block.material.EnumPushReaction
 import net.minecraft.block.material.Material
 import net.minecraft.block.material.MaterialColor
+import net.minecraft.block.material.PushReaction
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.GuiScreen
+import net.minecraft.client.gui.screen.Screen
 import net.minecraft.entity.EntityType
 import net.minecraft.item.*
 import net.minecraft.network.datasync.DataSerializers
@@ -16,7 +16,7 @@ import net.minecraft.tileentity.TileEntity
 import net.minecraft.tileentity.TileEntityType
 import net.minecraft.util.ResourceLocation
 import net.minecraft.world.dimension.DimensionType
-import net.minecraft.world.storage.WorldSavedDataStorage
+import net.minecraft.world.storage.DimensionSavedDataManager
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.event.RegistryEvent
@@ -58,8 +58,8 @@ import java.net.URL
 import java.util.concurrent.Callable
 import java.util.function.Function
 import java.util.function.Supplier
-import net.minecraft.init.Blocks as MCBlocks
-import net.minecraft.init.Items as MCItems
+import net.minecraft.block.Blocks as MCBlocks
+import net.minecraft.item.Items as MCItems
 
 @Mod(MoarBoats.ModID)
 object MoarBoats {
@@ -93,12 +93,12 @@ object MoarBoats {
         }
     }
 
-    val MachineMaterial = Material(MaterialColor.IRON, false, true, true, true, true, false, false, EnumPushReaction.BLOCK)
+    val MachineMaterial = Material(MaterialColor.METAL, false, true, true, true, true, false, false, PushReaction.BLOCK)
 
     val CreativeTab = object: ItemGroup("moarboats") {
         @OnlyIn(Dist.CLIENT)
-        override fun createIcon(): ItemStack {
-            return ItemStack(ModularBoatItem[EnumDyeColor.WHITE])
+        override fun makeIcon(): ItemStack {
+            return ItemStack(ModularBoatItem[DyeColor.WHITE])
         }
     }
 
@@ -122,22 +122,22 @@ object MoarBoats {
         plugins = LoadIntegrationPlugins()
     }
 
-    fun getLocalMapStorage(dimensionType: DimensionType = DimensionType.OVERWORLD): WorldSavedDataStorage {
+    fun getLocalMapStorage(dimensionType: DimensionType = DimensionType.OVERWORLD): DimensionSavedDataManager {
         try {
             return DistExecutor.runForDist(
                     // client
                     { Supplier {  ->
                         when {
-                            Minecraft.getInstance().integratedServer == null /* Client only */ -> Minecraft.getInstance().world.savedDataStorage!!
-                            Minecraft.getInstance().integratedServer != null /* LAN */ -> Minecraft.getInstance().integratedServer!!.getWorld(dimensionType).savedDataStorage!!
+                            Minecraft.getInstance().singleplayerServer == null /* Client only */ -> Minecraft.getInstance().level.savedDataStorage!!
+                            Minecraft.getInstance().singleplayerServer != null /* LAN */ -> Minecraft.getInstance().singleplayerServer!!.getLevel(dimensionType).savedDataStorage!!
 
                             else -> throw IllegalStateException("The server instance is neither non-null nor null. Something deeply broke somewhere")
                         }
                     }},
 
                     // server
-                    { Supplier<WorldSavedDataStorage> { ->
-                        dedicatedServerInstance!!.getWorld(dimensionType).savedDataStorage!!
+                    { Supplier<DimensionSavedDataManager> { ->
+                        dedicatedServerInstance!!.getLevel(dimensionType).savedDataStorage!!
                     }}
             )
         } catch (e: Throwable) {
@@ -152,7 +152,7 @@ object MoarBoats {
         DataSerializers.registerSerializer(UniqueIDSerializer)
         plugins.forEach(MoarBoatsPlugin::init)
         ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.GUIFACTORY) {
-            Function<FMLPlayMessages.OpenContainer, GuiScreen?> { container: FMLPlayMessages.OpenContainer -> MoarBoatsGuiHandler.dispatchGui(container) }
+            Function<FMLPlayMessages.OpenContainer, Screen?> { container: FMLPlayMessages.OpenContainer -> MoarBoatsGuiHandler.dispatchGui(container) }
         }
     }
 
@@ -188,8 +188,8 @@ object MoarBoats {
 
         @SubscribeEvent
         fun registerModules(event: RegistryEvent.Register<BoatModuleEntry>) {
-            event.registry.registerModule(ResourceLocation("moarboats:furnace_engine"), Item.getItemFromBlock(MCBlocks.FURNACE), FurnaceEngineModule, { boat, module -> EngineModuleInventory(boat, module) })
-            event.registry.registerModule(ResourceLocation("moarboats:chest"), Item.getItemFromBlock(MCBlocks.CHEST), ChestModule, { boat, module -> ChestModuleInventory(boat, module) })
+            event.registry.registerModule(ResourceLocation("moarboats:furnace_engine"), MCBlocks.FURNACE.asItem(), FurnaceEngineModule, { boat, module -> EngineModuleInventory(boat, module) })
+            event.registry.registerModule(ResourceLocation("moarboats:chest"), MCBlocks.CHEST.asItem(), ChestModule, { boat, module -> ChestModuleInventory(boat, module) })
             event.registry.registerModule(ResourceLocation("moarboats:helm"), HelmItem, HelmModule, { boat, module -> SimpleModuleInventory(1, "helm", boat, module) })
             event.registry.registerModule(ResourceLocation("moarboats:fishing"), MCItems.FISHING_ROD, FishingModule, { boat, module -> SimpleModuleInventory(1, "fishing", boat, module) })
             event.registry.registerModule(SeatModule, SeatItem)
@@ -219,7 +219,7 @@ object MoarBoats {
             e.registry.registerAll(*Items.list.toTypedArray())
             for (block in Blocks.list) {
                 if(!e.registry.containsKey(block.registryName)) { // don't overwrite already existing items
-                    e.registry.register(ItemBlock(block, Item.Properties().group(MoarBoats.CreativeTab)).setRegistryName(block.registryName))
+                    e.registry.register(BlockItem(block, Item.Properties().tab(MoarBoats.CreativeTab)).setRegistryName(block.registryName))
                 }
             }
         }

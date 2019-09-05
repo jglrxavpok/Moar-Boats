@@ -1,9 +1,9 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.init.Particles
 import net.minecraft.item.ItemStack
-import net.minecraft.util.EnumHand
+import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.ChunkPos
 import org.jglrxavpok.moarboats.MoarBoats
@@ -29,7 +29,7 @@ object ChunkLoadingModule: BoatModule() {
             Pair(1, -1)
     )
 
-    override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean) = false
+    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean) = false
 
     override fun controlBoat(from: IControllable) { }
 
@@ -39,7 +39,7 @@ object ChunkLoadingModule: BoatModule() {
         forceChunks(from)
 
 
-        if(!from.world.isRemote)
+        if(!from.world.isClientSide)
             return
         val yaw = (from.yaw+90f).toRadians().toDouble()//Math.toRadians(from.yaw.toDouble())
         val width = .0625f * 15f
@@ -74,9 +74,9 @@ object ChunkLoadingModule: BoatModule() {
 
     override fun onAddition(to: IControllable) { }
 
-    override fun createContainer(player: EntityPlayer, boat: IControllable) = EmptyContainer(player.inventory)
+    override fun createContainer(player: PlayerEntity, boat: IControllable) = EmptyContainer(player.inventory)
 
-    override fun createGui(player: EntityPlayer, boat: IControllable) = GuiNoConfigModule(player.inventory, this, boat)
+    override fun createGui(player: PlayerEntity, boat: IControllable) = GuiNoConfigModule(player.inventory, this, boat)
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)

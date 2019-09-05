@@ -7,7 +7,7 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.data.LoopingOptions
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
-import org.jglrxavpok.moarboats.common.items.ItemMapWithPath
+import org.jglrxavpok.moarboats.common.items.MapItemWithPath
 import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 
@@ -28,15 +28,15 @@ class CChangeLoopingStateItemPathBoat: CChangeLoopingStateBase {
         override fun onMessage(message: CChangeLoopingStateItemPathBoat, ctx: NetworkEvent.Context): MoarBoatsPacket? {
             with(message) {
                 val player = ctx.sender!!
-                val world = player.world
-                val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
-                val stack = boat.getInventory(HelmModule).getStackInSlot(0)
+                val level = player.level
+                val boat = level.getEntity(message.boatID) as? ModularBoatEntity ?: return null
+                val stack = boat.getInventory(HelmModule).getItem(0)
                 val item = stack.item
                 if(item is ItemPath) {
                     item.setLoopingOptions(stack, message.loopingOption)
                     when(item) {
                         is ItemGoldenTicket -> return SSetGoldenItinerary(item.getData(stack))
-                        is ItemMapWithPath -> return SUpdateMapWithPathInBoat(item.getWaypointData(stack, MoarBoats.getLocalMapStorage()), boatID)
+                        is MapItemWithPath -> return SUpdateMapWithPathInBoat(item.getWaypointData(stack, MoarBoats.getLocalMapStorage()), boatID)
                     }
                 }
                 return null

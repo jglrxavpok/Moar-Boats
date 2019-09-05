@@ -36,7 +36,7 @@ class CTurnOnOffComputer(): IMessage {
         override fun onMessage(message: CTurnOnOffComputer, ctx: MessageContext): IMessage? {
             with(message) {
                 val world = ctx.serverHandler.player.world
-                val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
+                val boat = world.getEntity(message.boatID) as? ModularBoatEntity ?: return null
                 OpenComputersPlugin.getHost(boat)?.let {
                     if(turnOn) {
                         it.turnOn()

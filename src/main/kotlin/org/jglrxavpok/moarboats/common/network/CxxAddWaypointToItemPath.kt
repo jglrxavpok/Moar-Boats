@@ -1,7 +1,7 @@
 package org.jglrxavpok.moarboats.common.network
 
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagList
+import net.minecraft.nbt.ListNBT
 import net.minecraft.util.math.BlockPos
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.fml.network.NetworkEvent
@@ -31,7 +31,7 @@ abstract class CxxAddWaypointToItemPath(): MoarBoatsPacket {
     abstract class Handler<T: CxxAddWaypointToItemPath, UpdateResponse: MoarBoatsPacket>: MBMessageHandler<T, MoarBoatsPacket?> {
         abstract val item: ItemPath
         abstract fun getStack(message: T, ctx: NetworkEvent.Context): ItemStack?
-        abstract fun createResponse(message: T, ctx: NetworkEvent.Context, waypointList: NBTTagList): UpdateResponse?
+        abstract fun createResponse(message: T, ctx: NetworkEvent.Context, waypointList: ListNBT): UpdateResponse?
         override val receiverSide = Dist.DEDICATED_SERVER
 
         override fun onMessage(message: T, ctx: NetworkEvent.Context): MoarBoatsPacket? {

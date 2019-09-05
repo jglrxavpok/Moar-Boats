@@ -1,18 +1,18 @@
 package org.jglrxavpok.moarboats.client.gui
 
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.GuiButton
+import net.minecraft.client.gui.widget.button.Button
 import net.minecraft.client.gui.inventory.GuiContainer
-import net.minecraft.entity.player.InventoryPlayer
-import net.minecraft.inventory.Container
+import net.minecraft.entity.player.PlayerInventory
+import net.minecraft.inventory.container.Container
 import net.minecraft.inventory.IContainerListener
 import net.minecraft.inventory.IInventory
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.nbt.NBTTagList
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.ListNBT
 import net.minecraft.util.NonNullList
 import net.minecraft.util.ResourceLocation
-import net.minecraft.util.text.TextComponentTranslation
+import net.minecraft.util.text.TranslationTextComponent
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.gui.elements.GuiPropertyButton
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
@@ -23,7 +23,7 @@ import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.network.*
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 
-class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPlayer): GuiContainer(ContainerMappingTable(te, playerInv)), IContainerListener {
+class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: PlayerInventory): GuiContainer<ContainerMappingTable>(ContainerMappingTable(te, playerInv)), IContainerListener {
 
     companion object {
         private val EmptyBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/helm.png")
@@ -34,42 +34,42 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
         mc = Minecraft.getInstance()
     }
 
-    private val addWaypointText = TextComponentTranslation("moarboats.gui.mapping_table.add")
-    private val insertWaypointText = TextComponentTranslation("moarboats.gui.mapping_table.insert")
-    private val editWaypointText = TextComponentTranslation("moarboats.gui.mapping_table.edit")
-    private val removeWaypointText = TextComponentTranslation("moarboats.gui.mapping_table.remove")
-    private val propertyLoopingText = TextComponentTranslation("gui.path_editor.path_properties.looping")
-    private val propertyOneWayText = TextComponentTranslation("gui.path_editor.path_properties.one_way")
-    private val propertyReverseCourseText = TextComponentTranslation("gui.path_editor.path_properties.reverse_course")
+    private val addWaypointText = TranslationTextComponent("moarboats.gui.mapping_table.add")
+    private val insertWaypointText = TranslationTextComponent("moarboats.gui.mapping_table.insert")
+    private val editWaypointText = TranslationTextComponent("moarboats.gui.mapping_table.edit")
+    private val removeWaypointText = TranslationTextComponent("moarboats.gui.mapping_table.remove")
+    private val propertyLoopingText = TranslationTextComponent("gui.path_editor.path_properties.looping")
+    private val propertyOneWayText = TranslationTextComponent("gui.path_editor.path_properties.one_way")
+    private val propertyReverseCourseText = TranslationTextComponent("gui.path_editor.path_properties.reverse_course")
     private var buttonId = 0
-    private val addWaypointButton = object: GuiButton(buttonId++, 0, 0, addWaypointText.formattedText) {
+    private val addWaypointButton = object: Button(buttonId++, 0, 0, addWaypointText.formattedText) {
         override fun onClick(mouseX: Double, mouseY: Double) {
             waypointToEditAfterCreation = list.children.size
-            if(inventorySlots.getSlot(0).stack.item == ItemGoldenTicket) {
+            if(inventorySlots.getSlot(0).item.item == ItemGoldenTicket) {
                 MoarBoats.network.sendToServer(CAddWaypointToGoldenTicketFromMappingTable(te.pos, null, null, te))
             } else {
                 MoarBoats.network.sendToServer(CAddWaypointToItemPathFromMappingTable(te.pos, null, null, te))
             }
         }
     }
-    private val insertWaypointButton = object: GuiButton(buttonId++, 0, 0, insertWaypointText.formattedText) {
+    private val insertWaypointButton = object: Button(buttonId++, 0, 0, insertWaypointText.formattedText) {
         override fun onClick(mouseX: Double, mouseY: Double) {
             waypointToEditAfterCreation = selectedIndex+1
-            if(inventorySlots.getSlot(0).stack.item == ItemGoldenTicket) {
+            if(inventorySlots.getSlot(0).item.item == ItemGoldenTicket) {
                 MoarBoats.network.sendToServer(CAddWaypointToGoldenTicketFromMappingTable(te.pos, null, selectedIndex, te))
             } else {
                 MoarBoats.network.sendToServer(CAddWaypointToItemPathFromMappingTable(te.pos, null, selectedIndex, te))
             }
         }
     }
-    private val editWaypointButton = object: GuiButton(buttonId++, 0, 0, editWaypointText.formattedText) {
+    private val editWaypointButton = object: Button(buttonId++, 0, 0, editWaypointText.formattedText) {
         override fun onClick(mouseX: Double, mouseY: Double) {
             edit(selectedIndex)
         }
     }
-    private val removeWaypointButton = object: GuiButton(buttonId++, 0, 0, removeWaypointText.formattedText) {
+    private val removeWaypointButton = object: Button(buttonId++, 0, 0, removeWaypointText.formattedText) {
         override fun onClick(mouseX: Double, mouseY: Double) {
-            if(inventorySlots.getSlot(0).stack.item == ItemGoldenTicket) {
+            if(inventorySlots.getSlot(0).item.item == ItemGoldenTicket) {
                 MoarBoats.network.sendToServer(CRemoveWaypointFromGoldenTicketFromMappingTable(selectedIndex, te))
             } else {
                 MoarBoats.network.sendToServer(CRemoveWaypointFromMapWithPathFromMappingTable(selectedIndex, te))
@@ -84,17 +84,17 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
     private val controls = listOf(addWaypointButton, insertWaypointButton, editWaypointButton, removeWaypointButton)
     private var waypointToEditAfterCreation = 0
 
-    var list: GuiWaypointList = GuiWaypointList(mc, this, 1, 1, 0, 0, 1) // not using lateinit because sometimes drawScreen/updateScreen are called before initGui
+    var list: GuiWaypointList = GuiWaypointList(mc, this, 1, 1, 0, 0, 1) // not using lateinit because sometimes drawScreen/updateScreen are called before init
 
     private var hasData = false
     var selectedIndex: Int = 0
         private set
 
-    override fun initGui() {
-        this.ySize = 114 + 6 * 18
-        super.initGui()
-        val totalWidth = xSize*.90f
-        val xStart = (xSize-totalWidth)/2f+guiLeft
+    override fun init() {
+        this.imageHeight = 114 + 6 * 18
+        super.init()
+        val totalWidth = imageWidth*.90f
+        val xStart = (imageWidth-totalWidth)/2f+guiLeft
         val listWidth = totalWidth.toInt()
         val listHeight = 85
         val listLeft = xStart.toInt()
@@ -154,11 +154,11 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
     }
 
     override fun drawGuiContainerBackgroundLayer(partialTicks: Float, mouseX: Int, mouseY: Int) {
-        mc.textureManager.bindTexture(Background)
-        this.drawTexturedModalRect(guiLeft, guiTop, 0, 0, this.xSize, this.ySize)
+        mc.textureManager.bind(Background)
+        this.drawTexturedModalRect(guiLeft, guiTop, 0, 0, this.imageWidth, this.imageHeight)
 
-        mc.textureManager.bindTexture(EmptyBackground)
-        this.drawTexturedModalRect(guiLeft, guiTop, 0, 0, this.xSize, ySize)
+        mc.textureManager.bind(EmptyBackground)
+        this.drawTexturedModalRect(guiLeft, guiTop, 0, 0, this.imageWidth, imageHeight)
     }
 
     override fun render(mouseX: Int, mouseY: Int, partialTicks: Float) {
@@ -180,14 +180,14 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
     private fun resetList(stack: ItemStack) {
         list.children.clear()
         hasData = false
-        val tags = mutableListOf<NBTTagCompound>()
+        val tags = mutableListOf<CompoundNBT>()
         if(stack.item is ItemPath) {
             hasData = true
             val path = stack.item as ItemPath
             loopingButton.propertyIndex = path.getLoopingOptions(stack).ordinal
             val list = path.getWaypointData(stack, MoarBoats.getLocalMapStorage())
             for(nbt in list) {
-                if(nbt is NBTTagCompound) {
+                if(nbt is CompoundNBT) {
                     tags.add(nbt)
                     this.list.children.add(WaypointListEntry(this, nbt, this.list.slotTops, tags))
                 }
@@ -200,14 +200,14 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
     override fun sendAllWindowProperties(containerIn: Container?, inventory: IInventory?) { }
 
     override fun sendAllContents(containerToSend: Container, itemsList: NonNullList<ItemStack>) {
-        this.sendSlotContents(containerToSend, 0, containerToSend.getSlot(0).stack)
+        this.sendSlotContents(containerToSend, 0, containerToSend.getSlot(0).item)
     }
 
-    fun confirmWaypointCreation(data: NBTTagList) {
+    fun confirmWaypointCreation(data: ListNBT) {
         list.children.clear()
-        val tags = mutableListOf<NBTTagCompound>()
+        val tags = mutableListOf<CompoundNBT>()
         for(nbt in data) {
-            if(nbt is NBTTagCompound) {
+            if(nbt is CompoundNBT) {
                 tags.add(nbt)
                 this.list.children.add(WaypointListEntry(this, nbt, this.list.slotTops, tags))
             }
@@ -222,7 +222,7 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
     fun edit(index: Int) {
         val player = playerInv.player
         selectedIndex = index
-        mc.displayGuiScreen(GuiWaypointEditor(player, te, selectedIndex))
+        mc.displayScreen(GuiWaypointEditor(player, te, selectedIndex))
     }
 
     fun swap(index1: Int, index2: Int) {
@@ -231,7 +231,7 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPl
     }
 
     fun reload() {
-        resetList(te.inventory.getStackInSlot(0))
+        resetList(te.inventory.getItem(0))
     }
 
 }

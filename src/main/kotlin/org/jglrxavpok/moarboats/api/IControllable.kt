@@ -1,10 +1,10 @@
 package org.jglrxavpok.moarboats.api
 
-import net.minecraft.dispenser.IBehaviorDispenseItem
+import net.minecraft.dispenser.IDispenseItemBehavior
 import net.minecraft.dispenser.IBlockSource
 import net.minecraft.entity.Entity
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.CompoundNBT
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.ChunkPos
@@ -52,10 +52,10 @@ interface IControllable: IBlockSource {
     /**
      * If 'isLocal' = true, then state will not be synchronised between client & server nor will it be saved to the disk
      */
-    fun getState(module: BoatModule, isLocal: Boolean = false): NBTTagCompound
+    fun getState(module: BoatModule, isLocal: Boolean = false): CompoundNBT
     fun getInventory(module: BoatModule): BoatModuleInventory
 
-    fun dispense(behavior: IBehaviorDispenseItem, stack: ItemStack, overridePosition: BlockPos? = null, overrideFacing: EnumFacing? = null): ItemStack
+    fun dispense(behavior: IDispenseItemBehavior, stack: ItemStack, overridePosition: BlockPos? = null, overrideFacing: EnumFacing? = null): ItemStack
 
     /**
      * Takes into account the rotation of the boat
@@ -80,7 +80,7 @@ interface IControllable: IBlockSource {
      * Applies current yaw rotation to the vector
      */
     fun localToWorld(localVec: Vec3d): Vec3d {
-        return localVec.rotateYaw((180f-yaw).toRadians()).add(positionX, positionY, positionZ)
+        return localVec.yRot((180f-yaw).toRadians()).add(positionX, positionY, positionZ)
     }
 
     fun sortModulesByInterestingness(): Iterable<BoatModule> {

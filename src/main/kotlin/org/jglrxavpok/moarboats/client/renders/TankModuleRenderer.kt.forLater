@@ -1,9 +1,9 @@
 package org.jglrxavpok.moarboats.client.renders
 
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.GlStateManager
+import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.client.renderer.Tessellator
-import net.minecraft.client.renderer.entity.RenderManager
+import net.minecraft.client.renderer.entity.EntityRendererManager
 import net.minecraft.client.renderer.texture.TextureMap
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
@@ -18,13 +18,13 @@ object TankModuleRenderer : BoatModuleRenderer() {
         registryName = FluidTankModule.id
     }
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, renderManager: RenderManager) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, EntityRendererManager: EntityRendererManager) {
         module as FluidTankModule
         GlStateManager.pushMatrix()
         GlStateManager.scalef(0.75f, 0.75f, 0.75f)
         GlStateManager.scalef(-1f, 1f, 1f)
         GlStateManager.translatef(-0.15f, -4f/16f, 0.5f)
-        renderManager.textureManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
+        EntityRendererManager.textureManager.bind(TextureMap.LOCATION_BLOCKS_TEXTURE)
         val block = BlockBoatTank
         Minecraft.getInstance().blockRendererDispatcher.renderBlockBrightness(block.defaultState, boat.brightness)
         val fluid = module.getFluidInside(boat)
@@ -34,7 +34,7 @@ object TankModuleRenderer : BoatModuleRenderer() {
             val tessellator = Tessellator.getInstance()
             val buffer = tessellator.buffer
             val sprite = Minecraft.getInstance().textureMap.getAtlasSprite(fluid.still.toString())
-            Minecraft.getInstance().textureManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
+            Minecraft.getInstance().textureManager.bind(TextureMap.LOCATION_BLOCKS_TEXTURE)
             buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX)
             val minU = sprite.minU.toDouble()
             val maxU = sprite.maxU.toDouble()

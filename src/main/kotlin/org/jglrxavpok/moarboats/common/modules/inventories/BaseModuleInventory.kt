@@ -1,12 +1,12 @@
 package org.jglrxavpok.moarboats.common.modules.inventories
 
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.inventory.ItemStackHelper
 import net.minecraft.item.ItemStack
 import net.minecraft.util.NonNullList
 import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.TextComponentString
-import net.minecraft.util.text.TextComponentTranslation
+import net.minecraft.util.text.StringTextComponent
+import net.minecraft.util.text.TranslationTextComponent
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleInventory
 import org.jglrxavpok.moarboats.api.IControllable
@@ -28,10 +28,10 @@ abstract class BaseModuleInventory(slotCount: Int, inventoryName: String, boat: 
         return false
     }
 
-    override fun markDirty() {
+    override fun setChanged() {
     }
 
-    override fun getStackInSlot(index: Int): ItemStack {
+    override fun getItem(index: Int): ItemStack {
         return list[index]
     }
 
@@ -41,29 +41,29 @@ abstract class BaseModuleInventory(slotCount: Int, inventoryName: String, boat: 
         list.clear()
     }
 
-    override fun getSizeInventory() = list.size
+    override fun getContainerSize() = list.size
 
-    override fun getName() = TextComponentString(inventoryName)
+    override fun getName() = StringTextComponent(inventoryName)
 
     override fun isEmpty(): Boolean {
         return list.all { it.isEmpty }
     }
 
     override fun getDisplayName(): ITextComponent {
-        return TextComponentTranslation("inventory.$inventoryName.name")
+        return TranslationTextComponent("inventory.$inventoryName.name")
     }
 
     override fun isItemValidForSlot(index: Int, stack: ItemStack): Boolean {
         return true
     }
 
-    override fun getInventoryStackLimit() = 64
+    override fun getmaxStackSize() = 64
 
-    override fun isUsableByPlayer(player: EntityPlayer): Boolean {
+    override fun isUsableByPlayer(player: PlayerEntity): Boolean {
         return true
     }
 
-    override fun openInventory(player: EntityPlayer?) {
+    override fun openInventory(player: PlayerEntity?) {
 
     }
 
@@ -75,11 +75,11 @@ abstract class BaseModuleInventory(slotCount: Int, inventoryName: String, boat: 
         }
     }
 
-    override fun closeInventory(player: EntityPlayer?) {
+    override fun closeInventory(player: PlayerEntity?) {
 
     }
 
-    override fun setInventorySlotContents(index: Int, stack: ItemStack) {
+    override fun setItem(index: Int, stack: ItemStack) {
         list[index] = stack
     }
 

@@ -27,8 +27,8 @@ class CAddWaypoint(): MoarBoatsPacket {
 
         override fun onMessage(message: CAddWaypoint, ctx: NetworkEvent.Context): MoarBoatsPacket? {
             val player = ctx.sender!!
-            val world = player.world
-            val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
+            val level = player.level
+            val boat = level.getEntity(message.boatID) as? ModularBoatEntity ?: return null
 
             HelmModule.addWaypoint(boat,
                     message.x,

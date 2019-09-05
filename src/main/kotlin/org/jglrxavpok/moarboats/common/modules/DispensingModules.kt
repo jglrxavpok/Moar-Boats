@@ -1,15 +1,15 @@
 package org.jglrxavpok.moarboats.common.modules
 
 import net.minecraft.block.BlockDispenser
-import net.minecraft.client.gui.GuiScreen
+import net.minecraft.client.gui.screen
 import net.minecraft.dispenser.BehaviorDefaultDispenseItem
-import net.minecraft.dispenser.IBehaviorDispenseItem
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.item.ItemBlock
+import net.minecraft.dispenser.IDispenseItemBehavior
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.CompoundNBT
 import net.minecraft.util.EnumFacing
-import net.minecraft.util.EnumHand
+import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
@@ -44,12 +44,12 @@ abstract class DispensingModule: BoatModule() {
     val MIDDLE = 0
     val BOTTOM = -1
 
-    override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean) = false
+    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean) = false
 
     override fun controlBoat(from: IControllable) { }
 
     override fun update(from: IControllable) {
-        if(!from.inLiquid() || from.worldRef.isRemote)
+        if(!from.inLiquid() || from.levelRef.isClientSide)
             return
         lastDispensePositionProperty[from].use { pos ->
             val period = blockPeriodProperty[from]
@@ -57,7 +57,7 @@ abstract class DispensingModule: BoatModule() {
                 dispenseItem(BOTTOM, from)
                 dispenseItem(MIDDLE, from)
                 dispenseItem(TOP, from)
-                BlockPos.PooledMutableBlockPos.retain(from.positionX, from.positionY, from.positionZ).use {
+                BlockPos.PooledMutableBlockPos.acquire(from.positionX, from.positionY, from.positionZ).use {
                     lastDispensePositionProperty[from] = it
                 }
             }
@@ -69,12 +69,12 @@ abstract class DispensingModule: BoatModule() {
     protected fun firstValidStack(startIndex: Int, boat: IControllable): Pair<Int, ItemStack>? {
         val inv = boat.getInventory()
         return (0..4)
-                .map { offset -> inv.getStackInSlot(startIndex+offset) }
+                .map { offset -> inv.getItem(startIndex+offset) }
                 .filter { !it.isEmpty }
                 .filter(this::isAllowed)
                 .mapIndexed { index, itemStack -> Pair(startIndex+index, itemStack) }
                 .firstOrNull { val item = it.second.item
-                    item is ItemBlock
+                    item is BlockItem
                             || BlockDispenser.DISPENSE_BEHAVIOR_REGISTRY[item] !is BehaviorDefaultDispenseItem
                 }
     }
@@ -117,9 +117,9 @@ abstract class DispensingModule: BoatModule() {
         blockPeriodProperty[boat] = period
     }
 
-    override fun createContainer(player: EntityPlayer, boat: IControllable) = ContainerDispenserModule(player.inventory, this, boat)
+    override fun createContainer(player: PlayerEntity, boat: IControllable) = ContainerDispenserModule(player.inventory, this, boat)
 
-    override fun createGui(player: EntityPlayer, boat: IControllable): GuiScreen {
+    override fun createGui(player: PlayerEntity, boat: IControllable): Screen {
         return GuiDispenserModule(player.inventory, this, boat)
     }
 
@@ -136,11 +136,11 @@ object DropperModule: DispensingModule() {
 
     override fun dispenseItem(row: Int, boat: IControllable) {
         val pos = boat.correspondingEntity.positionVector
-        val blockPos = BlockPos.PooledMutableBlockPos.retain(pos.x, pos.y+row + .75f, pos.z)
+        val blockPos = BlockPos.PooledMutableBlockPos.acquire(pos.x, pos.y+row + .75f, pos.z)
         val inventoryRowStart = (-row)*5 +5
         firstValidStack(inventoryRowStart, boat)?.let { (index, stack) ->
             val resultingStack = boat.dispense(dropBehavior, stack, overridePosition = blockPos, overrideFacing = facingProperty[boat])
-            boat.getInventory().setInventorySlotContents(index, resultingStack)
+            boat.getInventory().setItem(index, resultingStack)
             boat.getInventory().syncToClient()
         }
         blockPos.close()
@@ -151,15 +151,15 @@ object DispenserModule: DispensingModule() {
 
     override fun dispenseItem(row: Int, boat: IControllable) {
         val pos = boat.correspondingEntity.positionVector
-        val blockPos = BlockPos.PooledMutableBlockPos.retain(pos.x, pos.y+row + .75f, pos.z)
+        val blockPos = BlockPos.PooledMutableBlockPos.acquire(pos.x, pos.y+row + .75f, pos.z)
         val inventoryRowStart = (-row)*5 +5
         firstValidStack(inventoryRowStart, boat)?.let { (index, stack) ->
             val item = stack.item
-            val world = boat.worldRef
+            val level = boat.levelRef
             val behavior = BlockDispenser.DISPENSE_BEHAVIOR_REGISTRY[item]!!
             if(behavior.javaClass === BehaviorDefaultDispenseItem::class.java) {
-                if(item is ItemBlock) {
-                    useItemBlock(item, world, stack, blockPos, boat, row)
+                if(item is BlockItem) {
+                    useBlockItem(item, world, stack, blockPos, boat, row)
                 } else {
                     dispenseWithDefaultBehavior(boat, behavior, stack, blockPos, index)
                 }
@@ -170,13 +170,13 @@ object DispenserModule: DispensingModule() {
         blockPos.close()
     }
 
-    private fun dispenseWithDefaultBehavior(boat: IControllable, behavior: IBehaviorDispenseItem, stack: ItemStack, blockPos: BlockPos, index: Int) {
+    private fun dispenseWithDefaultBehavior(boat: IControllable, behavior: IDispenseItemBehavior, stack: ItemStack, blockPos: BlockPos, index: Int) {
         val resultingStack = boat.dispense(behavior, stack, overridePosition = blockPos, overrideFacing = facingProperty[boat])
-        boat.getInventory().setInventorySlotContents(index, resultingStack)
+        boat.getInventory().setItem(index, resultingStack)
         boat.getInventory().syncToClient()
     }
 
-    private fun useItemBlock(item: ItemBlock, world: World, stack: ItemStack, pos: BlockPos.PooledMutableBlockPos, boat: IControllable, row: Int) {
+    private fun useBlockItem(item: BlockItem, world: World, stack: ItemStack, pos: BlockPos.PooledMutableBlockPos, boat: IControllable, row: Int) {
         val facing = boat.reorientate(facingProperty[boat]).opposite
         val blockPos = pos.offset(facing)
         val block = item.block
@@ -200,24 +200,24 @@ object DispenserModule: DispensingModule() {
         }
     }
 
-    // adapted from ItemBlock.java
+    // adapted from BlockItem.java
     private fun setTileEntityNBT(worldIn: World, pos: BlockPos, stackIn: ItemStack) {
-        val nbttagcompound = stackIn.getOrCreateChildTag("BlockEntityTag")
+        val CompoundNBT = stackIn.getOrCreateChildTag("BlockEntityTag")
 
-        if (nbttagcompound != null) {
-            val tileentity = worldIn.getTileEntity(pos)
+        if (CompoundNBT != null) {
+            val tileentity = worldIn.getBlockEntity(pos)
 
             if (tileentity != null) {
-                val nbttagcompound1 = tileentity.write(NBTTagCompound())
-                val nbttagcompound2 = nbttagcompound1.copy()
-                nbttagcompound1.merge(nbttagcompound)
-                nbttagcompound1.putInt("x", pos.x)
-                nbttagcompound1.putInt("z", pos.z)
-                nbttagcompound1.putInt("y", pos.y)
+                val CompoundNBT1 = tileentity.write(CompoundNBT())
+                val CompoundNBT2 = CompoundNBT1.copy()
+                CompoundNBT1.merge(CompoundNBT)
+                CompoundNBT1.putInt("x", pos.x)
+                CompoundNBT1.putInt("z", pos.z)
+                CompoundNBT1.putInt("y", pos.y)
 
-                if (nbttagcompound1 != nbttagcompound2) {
-                    tileentity.read(nbttagcompound1)
-                    tileentity.markDirty()
+                if (CompoundNBT1 != CompoundNBT2) {
+                    tileentity.read(CompoundNBT1)
+                    tileentity.setChanged()
                 }
             }
         }

@@ -1,7 +1,7 @@
 package org.jglrxavpok.moarboats.client.renders
 
-import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.client.renderer.entity.RenderManager
+import com.mojang.blaze3d.platform.GlStateManager
+import net.minecraft.client.renderer.entity.EntityRendererManager
 import net.minecraft.util.ResourceLocation
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
@@ -18,7 +18,7 @@ object DivingModuleRenderer: BoatModuleRenderer() {
     val bottleModel = ModelDivingBottle()
     val textureLocation = ResourceLocation(MoarBoats.ModID, "textures/entity/diving_bottle.png")
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, renderManager: RenderManager) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, EntityRendererManager: EntityRendererManager) {
         GlStateManager.pushMatrix()
 
         val localX = -0.8
@@ -30,7 +30,7 @@ object DivingModuleRenderer: BoatModuleRenderer() {
         GlStateManager.pushMatrix()
         GlStateManager.scaled(anchorScale, -anchorScale, anchorScale)
         GlStateManager.rotatef(90f, 0f, 1f, 0f)
-        renderManager.textureManager.bindTexture(textureLocation)
+        EntityRendererManager.textureManager.bind(textureLocation)
         bottleModel.render(boat, 0f, 0f, 0f, 0f, 0f, 0.0625f)
 
 

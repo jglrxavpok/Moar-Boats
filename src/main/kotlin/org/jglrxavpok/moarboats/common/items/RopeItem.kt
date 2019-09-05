@@ -4,14 +4,14 @@ import net.minecraft.block.BlockFence
 import net.minecraft.client.util.ITooltipFlag
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLeashKnot
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.item.ItemUseContext
-import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.CompoundNBT
 import net.minecraft.util.*
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.TextComponentTranslation
+import net.minecraft.util.text.TranslationTextComponent
 import net.minecraft.world.World
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
@@ -29,20 +29,20 @@ object RopeItem : MoarBoatsItem("rope") {
         }
     }
 
-    private val ropeInfo = TextComponentTranslation("item.rope.description")
+    private val ropeInfo = TranslationTextComponent("item.rope.description")
 
-    private fun setLinked(worldIn: World, stack: ItemStack, entity: BasicBoatEntity) {
+    private fun setLinked(levelIn: World, stack: ItemStack, entity: BasicBoatEntity) {
         nbt(stack).putInt("linked", entity.entityId)
     }
 
-    private fun getLinked(worldIn: World, stack: ItemStack): BasicBoatEntity? {
+    private fun getLinked(levelIn: World, stack: ItemStack): BasicBoatEntity? {
         val id = nbt(stack).getInt("linked")
-        return worldIn.getEntityByID(id) as BasicBoatEntity?
+        return levelIn.getEntity(id) as BasicBoatEntity?
     }
 
-    private fun nbt(stack: ItemStack): NBTTagCompound {
+    private fun nbt(stack: ItemStack): CompoundNBT {
         if(stack.tag == null)
-            stack.tag = NBTTagCompound()
+            stack.tag = CompoundNBT()
         return stack.tag!!
     }
 
@@ -56,19 +56,19 @@ object RopeItem : MoarBoatsItem("rope") {
         return State.READY
     }
 
-    override fun onItemRightClick(worldIn: World, playerIn: EntityPlayer, handIn: EnumHand): ActionResult<ItemStack> {
+    override fun onItemRightClick(levelIn: World, playerIn: PlayerEntity, handIn: Hand): ActionResult<ItemStack> {
         resetLinked(playerIn.getHeldItem(handIn))
-        return super.onItemRightClick(worldIn, playerIn, handIn)
+        return super.onItemRightClick(levelIn, playerIn, handIn)
     }
 
-    fun onLinkUsed(itemstack: ItemStack, playerIn: EntityPlayer, handIn: EnumHand, worldIn: World, boatEntity: BasicBoatEntity) {
+    fun onLinkUsed(itemstack: ItemStack, playerIn: PlayerEntity, handIn: Hand, levelIn: World, boatEntity: BasicBoatEntity) {
         when(getState(itemstack)) {
             State.WAITING_NEXT -> {
-                val other = getLinked(worldIn, itemstack) ?: return
+                val other = getLinked(levelIn, itemstack) ?: return
                 val hit = boatEntity
                 when {
-                    other == hit -> playerIn.sendStatusMessage(TextComponentTranslation("item.rope.notToSelf"), true)
-                    hit.hasLink(BasicBoatEntity.BackLink) -> playerIn.sendStatusMessage(TextComponentTranslation("item.rope.backOccupied"), true)
+                    other == hit -> playerIn.sendStatusMessage(TranslationTextComponent("item.rope.notToSelf"), true)
+                    hit.hasLink(BasicBoatEntity.BackLink) -> playerIn.sendStatusMessage(TranslationTextComponent("item.rope.backOccupied"), true)
                     else -> {
                         // first boat gets its back attached to the second boat's front
                         hit.linkTo(other, BasicBoatEntity.BackLink)
@@ -81,25 +81,25 @@ object RopeItem : MoarBoatsItem("rope") {
             }
             else -> {
                 if(boatEntity.hasLink(BasicBoatEntity.Companion.FrontLink)) {
-                    playerIn.sendStatusMessage(TextComponentTranslation("item.rope.frontOccupied"), true)
+                    playerIn.sendStatusMessage(TranslationTextComponent("item.rope.frontOccupied"), true)
                     resetLinked(itemstack)
                 } else {
-                    setLinked(worldIn, itemstack, boatEntity)
+                    setLinked(levelIn, itemstack, boatEntity)
                 }
             }
         }
     }
 
     override fun onItemUse(context: ItemUseContext): EnumActionResult {
-        val worldIn: World = context.world
+        val levelIn: World = context.level
         val pos: BlockPos = context.pos
-        val block = worldIn.getBlockState(pos).block
+        val block = levelIn.getBlockState(pos).block
         val stack = context.item
         return when {
             block is BlockFence && getState(stack) == State.WAITING_NEXT -> {
-                if(!worldIn.isRemote) {
-                    val knot = EntityLeashKnot.getKnotForPosition(worldIn, pos) ?: EntityLeashKnot.createKnot(worldIn, pos)
-                    val target = getLinked(worldIn, stack) ?: return EnumActionResult.PASS
+                if(!levelIn.isClientSide) {
+                    val knot = EntityLeashKnot.getKnotForPosition(levelIn, pos) ?: EntityLeashKnot.createKnot(levelIn, pos)
+                    val target = getLinked(levelIn, stack) ?: return EnumActionResult.PASS
                     target.linkTo(knot, BasicBoatEntity.FrontLink)
                 }
                 resetLinked(stack)
@@ -109,17 +109,17 @@ object RopeItem : MoarBoatsItem("rope") {
         }
     }
 
-    override fun addInformation(stack: ItemStack, worldIn: World?, tooltip: MutableList<ITextComponent>, flagIn: ITooltipFlag) {
-        super.addInformation(stack, worldIn, tooltip, flagIn)
+    override fun addInformation(stack: ItemStack, levelIn: World?, tooltip: MutableList<ITextComponent>, flagIn: ITooltipFlag) {
+        super.addInformation(stack, levelIn, tooltip, flagIn)
         tooltip.add(ropeInfo)
     }
 
-    fun onEntityInteract(player: EntityPlayer, stack: ItemStack, entity: Entity): EnumActionResult {
+    fun onEntityInteract(player: PlayerEntity, stack: ItemStack, entity: Entity): EnumActionResult {
         if(getState(stack) == State.WAITING_NEXT) {
             if(entity is EntityLeashKnot) {
-                val world = player.world
-                if(!world.isRemote) {
-                    val target = getLinked(world, stack) ?: return EnumActionResult.PASS
+                val level = player.level
+                if(!level.isClientSide) {
+                    val target = getLinked(level, stack) ?: return EnumActionResult.PASS
                     target.linkTo(entity, BasicBoatEntity.FrontLink)
                 }
                 resetLinked(stack)

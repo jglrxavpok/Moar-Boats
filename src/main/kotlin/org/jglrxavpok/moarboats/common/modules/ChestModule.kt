@@ -1,10 +1,10 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.client.gui.GuiScreen
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.client.gui.screen
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.init.Blocks
-import net.minecraft.item.ItemBlock
-import net.minecraft.util.EnumHand
+import net.minecraft.item.BlockItem
+import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
@@ -23,15 +23,15 @@ object ChestModule: BoatModule() {
     override val hopperPriority = 20
 
     @OnlyIn(Dist.CLIENT)
-    override fun createGui(player: EntityPlayer, boat: IControllable): GuiScreen {
+    override fun createGui(player: PlayerEntity, boat: IControllable): Screen {
         return GuiChestModule(player.inventory, this, boat)
     }
 
-    override fun createContainer(player: EntityPlayer, boat: IControllable): ContainerBase {
+    override fun createContainer(player: PlayerEntity, boat: IControllable): ContainerBase {
         return ContainerChestModule(player.inventory, this, boat)
     }
 
-    override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean): Boolean {
+    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean): Boolean {
         return false
     }
 
@@ -49,6 +49,6 @@ object ChestModule: BoatModule() {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.entityDropItem(ItemBlock.getItemFromBlock(Blocks.CHEST), 1)
+            boat.correspondingEntity.entityDropItem(BlockItem.getItemFromBlock(Blocks.CHEST), 1)
     }
 }

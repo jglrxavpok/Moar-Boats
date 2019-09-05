@@ -1,9 +1,9 @@
 package org.jglrxavpok.moarboats.integration.opencomputers
 
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.util.EnumHand
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
@@ -27,7 +27,7 @@ object ComputerModule: BoatModule() {
         OpenComputersPlugin.getHost(to)?.machine?.architecture()?.initialize()
     }
 
-    override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean) = false
+    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean) = false
 
     override fun controlBoat(from: IControllable) {
         OpenComputersPlugin.getHost(from)?.controlBoat(from)
@@ -58,17 +58,17 @@ object ComputerModule: BoatModule() {
         InitializedProperty[to] = false
     }
 
-    override fun createContainer(player: EntityPlayer, boat: IControllable) = EmptyContainer(player.inventory, true)
+    override fun createContainer(player: PlayerEntity, boat: IControllable) = EmptyContainer(player.inventory, true)
 
-    override fun createGui(player: EntityPlayer, boat: IControllable) = GuiComputerModule(player, boat)
+    override fun createGui(player: PlayerEntity, boat: IControllable) = GuiComputerModule(player, boat)
 
-    override fun readFromNBT(boat: IControllable, compound: NBTTagCompound) {
+    override fun readFromNBT(boat: IControllable, compound: CompoundNBT) {
         val host = OpenComputersPlugin.getHost(boat)
         host?.readAddressMap(compound)
         host?.initComponents()
         host?.load(compound)
         super.readFromNBT(boat, compound)
-        if(!boat.worldRef.isRemote) {
+        if(!boat.worldRef.isClientSide) {
             InitializedProperty[boat] = true
             HasDoneFirstInit[boat] = true
             host?.initConnections()
@@ -77,7 +77,7 @@ object ComputerModule: BoatModule() {
         }
     }
 
-    override fun writeToNBT(boat: IControllable, compound: NBTTagCompound): NBTTagCompound {
+    override fun writeToNBT(boat: IControllable, compound: CompoundNBT): CompoundNBT {
         val host = OpenComputersPlugin.getHost(boat)
         host?.save(compound)
         return super.writeToNBT(boat, compound)

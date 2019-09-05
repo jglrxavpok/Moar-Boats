@@ -1,13 +1,12 @@
 package org.jglrxavpok.moarboats.client.gui
 
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.GuiButton
-import net.minecraft.client.gui.GuiScreen
-import net.minecraft.client.gui.GuiTextField
-import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.util.text.TextComponentTranslation
+import net.minecraft.client.gui.widget.button.Button
+import com.mojang.blaze3d.platform.GlStateManager
+import net.minecraft.client.gui.screen.Screen
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.util.text.TranslationTextComponent
 import net.minecraft.util.text.TextFormatting
 import net.minecraftforge.fml.client.config.GuiCheckBox
 import net.minecraftforge.fml.client.config.GuiSlider
@@ -18,46 +17,46 @@ import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 import org.jglrxavpok.moarboats.integration.WaypointInfo
 import org.jglrxavpok.moarboats.integration.WaypointProviders
 
-class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable, val index: Int) : GuiScreen() {
+class GuiWaypointEditor(val player: PlayerEntity, val te: TileEntityMappingTable, val index: Int) : Screen() {
 
     init {
         mc = Minecraft.getInstance() // forces 'mc' to hold a value when initializing the scrolling list below (waypointList)
     }
 
-    private val waypointData = te.inventory.getStackInSlot(0).let {
-        (it.item as ItemPath).getWaypointData(it, MoarBoats.getLocalMapStorage())[index] as NBTTagCompound
+    private val waypointData = te.inventory.getItem(0).let {
+        (it.item as ItemPath).getWaypointData(it, MoarBoats.getLocalMapStorage())[index] as CompoundNBT
     }
 
-    private val hasBoostSetting = TextComponentTranslation("moarboats.gui.waypoint_editor.has_boost")
-    private val boostSetting = TextComponentTranslation("gui.path_editor.controls.boost")
-    private val cancelText = TextComponentTranslation("moarboats.gui.generic.cancel")
-    private val confirmText = TextComponentTranslation("moarboats.gui.generic.confirm")
-    private val positionTitleText = TextComponentTranslation("moarboats.gui.waypoint_editor.position")
-    private val refreshText = TextComponentTranslation("moarboats.gui.waypoint_editor.refresh")
-    private val waypointsText = TextComponentTranslation("moarboats.gui.waypoint_editor.existing_waypoints")
-    private val miscText = TextComponentTranslation("moarboats.gui.generic.misc")
+    private val hasBoostSetting = TranslationTextComponent("moarboats.gui.waypoint_editor.has_boost")
+    private val boostSetting = TranslationTextComponent("gui.path_editor.controls.boost")
+    private val cancelText = TranslationTextComponent("moarboats.gui.generic.cancel")
+    private val confirmText = TranslationTextComponent("moarboats.gui.generic.confirm")
+    private val positionTitleText = TranslationTextComponent("moarboats.gui.waypoint_editor.position")
+    private val refreshText = TranslationTextComponent("moarboats.gui.waypoint_editor.refresh")
+    private val waypointsText = TranslationTextComponent("moarboats.gui.waypoint_editor.existing_waypoints")
+    private val miscText = TranslationTextComponent("moarboats.gui.generic.misc")
     private var id = 0
-    private val xInput by lazy { GuiTextField(id++, fontRenderer, 0, 0, 100, 20) }
-    private val zInput by lazy { GuiTextField(id++, fontRenderer, 0, 0, 100, 20) }
-    private val nameInput by lazy { GuiTextField(id++, fontRenderer, 0, 0, 200, 20) }
+    private val xInput by lazy { GuiTextField(id++, font, 0, 0, 100, 20) }
+    private val zInput by lazy { GuiTextField(id++, font, 0, 0, 100, 20) }
+    private val nameInput by lazy { GuiTextField(id++, font, 0, 0, 200, 20) }
     private val boostSliderCallback = GuiSlider.ISlider { slider ->
 
     }
 
     private val boostSlider = GuiSlider(id++, 0, 0, 125, 20, "${boostSetting.formattedText}: ", "%", -50.0, 50.0, 0.0, false, true, boostSliderCallback)
-    private val confirmButton = object: GuiButton(id++, 0, 0, confirmText.formattedText) {
+    private val confirmButton = object: Button(id++, 0, 0, confirmText.formattedText) {
         override fun onClick(mouseX: Double, mouseY: Double) {
             storeIntoNBT()
             MoarBoats.network.sendToServer(CModifyWaypoint(te, index, waypointData))
-            mc.displayGuiScreen(GuiMappingTable(te, player.inventory))
+            mc.displayScreen(GuiMappingTable(te, player.inventory))
         }
     }
-    private val cancelButton = object: GuiButton(id++, 0, 0, cancelText.formattedText) {
+    private val cancelButton = object: Button(id++, 0, 0, cancelText.formattedText) {
         override fun onClick(mouseX: Double, mouseY: Double) {
-            mc.displayGuiScreen(GuiMappingTable(te, player.inventory))
+            mc.displayScreen(GuiMappingTable(te, player.inventory))
         }
     }
-    private val refreshButton = object: GuiButton(id++, 0, 0, refreshText.formattedText) {
+    private val refreshButton = object: Button(id++, 0, 0, refreshText.formattedText) {
         override fun onClick(mouseX: Double, mouseY: Double) {
             refreshList()
         }
@@ -71,14 +70,14 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
     private val allInputs by lazy { intInputs+textInputs+doubleInputs }
     private val allButtons = listOf(confirmButton, cancelButton, hasBoostCheckbox, refreshButton)
 
-    private var waypointList: GuiWaypointEditorList = GuiWaypointEditorList(mc, this, 1, 1, 0, 0, 1) // not using lateinit because sometimes drawScreen/updateScreen are called before initGui
+    private var waypointList: GuiWaypointEditorList = GuiWaypointEditorList(mc, this, 1, 1, 0, 0, 1) // not using lateinit because sometimes drawScreen/updateScreen are called before init
 
     override fun onGuiClosed() {
         super.onGuiClosed()
     }
 
-    override fun initGui() {
-        super.initGui()
+    override fun init() {
+        super.init()
 
         allInputs.forEach {
             it.text = ""
@@ -184,17 +183,17 @@ class GuiWaypointEditor(val player: EntityPlayer, val te: TileEntityMappingTable
             it.drawTextField(mouseX, mouseY, partialTicks)
         }
 
-        fontRenderer.drawCenteredString(TextFormatting.UNDERLINE.toString()+TextComponentTranslation("moarboats.gui.waypoint_editor", nameInput.text).formattedText, width/2, 15, 0xFFFFFF, shadow = true)
-        fontRenderer.drawCenteredString(TextFormatting.UNDERLINE.toString()+positionTitleText.formattedText, width/2, 75, 0xFFFFFF, shadow = true)
-        fontRenderer.drawString("X:", xInput.x-10f, xInput.y+xInput.height/2-fontRenderer.FONT_HEIGHT/2f, 0xFFFFFF)
-        fontRenderer.drawString("Z:", zInput.x-10f, xInput.y+xInput.height/2-fontRenderer.FONT_HEIGHT/2f, 0xFFFFFF)
-        fontRenderer.drawCenteredString(TextFormatting.UNDERLINE.toString()+miscText.formattedText, width/2, 135, 0xFFFFFF, shadow = true)
+        font.drawCenteredString(TextFormatting.UNDERLINE.toString()+TranslationTextComponent("moarboats.gui.waypoint_editor", nameInput.text).formattedText, width/2, 15, 0xFFFFFF, shadow = true)
+        font.drawCenteredString(TextFormatting.UNDERLINE.toString()+positionTitleText.formattedText, width/2, 75, 0xFFFFFF, shadow = true)
+        font.drawString("X:", xInput.x-10f, xInput.y+xInput.height/2-font.FONT_HEIGHT/2f, 0xFFFFFF)
+        font.drawString("Z:", zInput.x-10f, xInput.y+xInput.height/2-font.FONT_HEIGHT/2f, 0xFFFFFF)
+        font.drawCenteredString(TextFormatting.UNDERLINE.toString()+miscText.formattedText, width/2, 135, 0xFFFFFF, shadow = true)
 
         GlStateManager.pushMatrix()
         GlStateManager.translatef((width-(width*.2f)/2f), 20f, 0f)
         val scale = 0.75f
         GlStateManager.scalef(scale, scale, 1f)
-        fontRenderer.drawCenteredString(waypointsText.formattedText, 0, 0, 0xFFFFFF, shadow = true)
+        font.drawCenteredString(waypointsText.formattedText, 0, 0, 0xFFFFFF, shadow = true)
         GlStateManager.popMatrix()
     }
 

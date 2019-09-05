@@ -26,7 +26,7 @@ class SMapImageAnswer(): MoarBoatsPacket {
             val mapID = message.mapName
             val id = "moarboats:map_preview/$mapID/${message.stripeIndex}"
             val data = MapImageStripe(id, message.stripeIndex, message.textureStripe)
-            Minecraft.getInstance().world.setSavedData(DimensionType.OVERWORLD, id, data)
+            Minecraft.getInstance().level.setSavedData(DimensionType.OVERWORLD, id, data)
             return null
         }
     }

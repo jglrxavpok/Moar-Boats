@@ -1,7 +1,7 @@
 package org.jglrxavpok.moarboats.common.network
 
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagList
+import net.minecraft.nbt.ListNBT
 import net.minecraft.util.math.BlockPos
 import net.minecraftforge.fml.network.NetworkEvent
 import org.jglrxavpok.moarboats.MoarBoats
@@ -29,11 +29,11 @@ class CAddWaypointToGoldenTicketFromMappingTable: CxxAddWaypointToItemPath {
 
         override fun getStack(message: CAddWaypointToGoldenTicketFromMappingTable, ctx: NetworkEvent.Context): ItemStack? {
             with(message) {
-                val pos = BlockPos.PooledMutableBlockPos.retain(tileEntityX, tileEntityY, tileEntityZ)
-                val te = ctx.sender!!.world.getTileEntity(pos)
+                val pos = BlockPos.PooledMutableBlockPos.acquire(tileEntityX, tileEntityY, tileEntityZ)
+                val te = ctx.sender!!.world.getBlockEntity(pos)
                 val stack = when(te) {
                     is TileEntityMappingTable -> {
-                        te.inventory.getStackInSlot(0)
+                        te.inventory.getItem(0)
                     }
                     else -> {
                         MoarBoats.logger.error("Invalid tile entity when trying to add waypoint at $pos")
@@ -50,7 +50,7 @@ class CAddWaypointToGoldenTicketFromMappingTable: CxxAddWaypointToItemPath {
             }
         }
 
-        override fun createResponse(message: CAddWaypointToGoldenTicketFromMappingTable, ctx: NetworkEvent.Context, waypointList: NBTTagList): SSetGoldenItinerary? {
+        override fun createResponse(message: CAddWaypointToGoldenTicketFromMappingTable, ctx: NetworkEvent.Context, waypointList: ListNBT): SSetGoldenItinerary? {
             val stack = getStack(message, ctx) ?: return null
             val data = ItemGoldenTicket.getData(stack)
             return SSetGoldenItinerary(data)

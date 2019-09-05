@@ -1,6 +1,6 @@
 package org.jglrxavpok.moarboats.common.modules.inventories
 
-import net.minecraft.init.Items
+import net.minecraft.item.Items
 import net.minecraft.inventory.SlotFurnaceFuel
 import net.minecraft.item.ItemStack
 import net.minecraft.tileentity.TileEntityFurnace

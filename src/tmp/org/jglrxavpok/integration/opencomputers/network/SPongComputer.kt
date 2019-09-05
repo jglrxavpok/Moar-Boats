@@ -34,7 +34,7 @@ class SPongComputer(): IMessage {
 
         override fun onMessage(message: SPongComputer, ctx: MessageContext): IMessage? {
             with(message) {
-                val screen = Minecraft.getMinecraft().currentScreen
+                val screen = Minecraft.getMinecraft().screen
                 if(screen is GuiComputerModule) {
                     if(screen.boat.entityID == boatID) {
                         screen.pong(running)

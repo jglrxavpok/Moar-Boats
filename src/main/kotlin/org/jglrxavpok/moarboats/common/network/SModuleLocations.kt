@@ -22,8 +22,8 @@ class SModuleLocations(): MoarBoatsPacket {
         override val receiverSide = Dist.CLIENT
 
         override fun onMessage(message: SModuleLocations, ctx: NetworkEvent.Context): MoarBoatsPacket? {
-            val world = Minecraft.getInstance().world
-            val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
+            val level = Minecraft.getInstance().level
+            val boat = level.getEntity(message.boatID) as? ModularBoatEntity ?: return null
             boat.moduleLocations.clear()
             boat.moduleLocations.addAll(message.modules)
             return null

@@ -28,7 +28,7 @@ class CChangeDispenserFacing(): MoarBoatsPacket {
         override fun onMessage(message: CChangeDispenserFacing, ctx: NetworkEvent.Context): MoarBoatsPacket? {
             val player = ctx.sender!!
             val world = player.world
-            val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
+            val boat = world.getEntity(message.boatID) as? ModularBoatEntity ?: return null
             val moduleLocation = message.moduleID
             val module = BoatModuleRegistry[moduleLocation].module
             module as DispensingModule

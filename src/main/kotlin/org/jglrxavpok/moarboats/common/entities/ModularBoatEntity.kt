@@ -2,17 +2,17 @@ package org.jglrxavpok.moarboats.common.entities
 
 import net.minecraft.block.BlockDispenser
 import net.minecraft.block.state.IBlockState
-import net.minecraft.dispenser.IBehaviorDispenseItem
+import net.minecraft.dispenser.IDispenseItemBehavior
 import net.minecraft.entity.Entity
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.entity.player.EntityPlayerMP
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.entity.player.PlayerEntityMP
 import net.minecraft.init.Blocks
 import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.InventoryHelper
-import net.minecraft.item.EnumDyeColor
+import net.minecraft.item.DyeColor
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.nbt.NBTTagList
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.ListNBT
 import net.minecraft.network.datasync.DataSerializers
 import net.minecraft.network.datasync.EntityDataManager
 import net.minecraft.tileentity.TileEntity
@@ -22,8 +22,8 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.ChunkPos
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.RayTraceResult
-import net.minecraft.util.text.TextComponentString
-import net.minecraft.util.text.TextComponentTranslation
+import net.minecraft.util.text.StringTextComponent
+import net.minecraft.util.text.TranslationTextComponent
 import net.minecraft.world.World
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.common.capabilities.ICapabilityProvider
@@ -58,7 +58,7 @@ import org.jglrxavpok.moarboats.extensions.saveInventory
 import org.jglrxavpok.moarboats.extensions.setDirty
 import java.util.*
 
-class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat, world), IInventory, ICapabilityProvider, IEnergyStorage, IFluidHandler, IFluidTankProperties, IEntityAdditionalSpawnData {
+class ModularBoatEntity(level: World): BasicBoatEntity(EntityEntries.ModularBoat, level), IInventory, ICapabilityProvider, IEnergyStorage, IFluidHandler, IFluidTankProperties, IEntityAdditionalSpawnData {
 
     private companion object {
         val MODULE_LOCATIONS = EntityDataManager.createKey(ModularBoatEntity::class.java, ResourceLocationsSerializer)
@@ -78,10 +78,10 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
         get()= dataManager[MODULE_LOCATIONS]
         set(value) { dataManager[MODULE_LOCATIONS] = value }
 
-    var moduleData: NBTTagCompound
+    var moduleData: CompoundNBT
         get()= dataManager[MODULE_DATA]
         set(value) { dataManager[MODULE_DATA] = value; dataManager.setDirty(MODULE_DATA) }
-    private var localModuleData = NBTTagCompound()
+    private var localModuleData = CompoundNBT()
     override val modules = mutableListOf<BoatModule>()
 
     /**
@@ -94,9 +94,9 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
 
     private val moduleInventories = hashMapOf<ResourceLocation, BoatModuleInventory>()
 
-    private val forcedChunks = ForcedChunks(world)
+    private val forcedChunks = ForcedChunks(level)
 
-    var color = EnumDyeColor.WHITE // white by default
+    var color = DyeColor.WHITE // white by default
         private set
     var owningMode = OwningMode.PlayerOwned
         private set
@@ -110,7 +110,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
         this.setSize(1.375f, 0.5625f)
     }
 
-    constructor(world: World, x: Double, y: Double, z: Double, color: EnumDyeColor, owningMode: OwningMode, ownerUUID: UUID? = null): this(world) {
+    constructor(level: World, x: Double, y: Double, z: Double, color: DyeColor, owningMode: OwningMode, ownerUUID: UUID? = null): this(level) {
         this.setPosition(x, y, z)
         this.motionX = 0.0
         this.motionY = 0.0
@@ -132,14 +132,14 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
         modules.clear()
         moduleLocations.forEach { modules.add(BoatModuleRegistry[it].module) }
 
-        if(!world.isRemote) {
+        if(!level.isClientSide) {
             forcedChunks.update()
         }
         modules.forEach { it.update(this) }
         super.tick()
 
         if(ownerUUID != null && ownerName == null) {
-            ownerName = world.getPlayerEntityByUUID(ownerUUID)?.name?.unformattedComponentText
+            ownerName = level.getPlayerEntityByUUID(ownerUUID)?.name?.unformattedComponentText
         }
     }
 
@@ -168,10 +168,10 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
         return moduleInventories[key]!!
     }
 
-    override fun processInitialInteract(player: EntityPlayer, hand: EnumHand): Boolean {
+    override fun processInitialInteract(player: PlayerEntity, hand: Hand): Boolean {
         if(super.processInitialInteract(player, hand))
             return true
-        if(world.isRemote)
+        if(level.isClientSide)
             return true
         val heldItem = player.getHeldItem(hand)
         val moduleID = BoatModuleRegistry.findModule(heldItem)
@@ -192,7 +192,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
                 return true
             } else {
                 val correspondingModule = BoatModuleRegistry[moduleID].module
-                player.sendStatusMessage(TextComponentTranslation("general.occupiedSpot", correspondingModule.moduleSpot.text), true)
+                player.sendStatusMessage(TranslationTextComponent("general.occupiedSpot", correspondingModule.moduleSpot.text), true)
                 return true
             }
         }
@@ -200,16 +200,16 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
         val validOwner = isValidOwner(player)
         val canOpenGui = validOwner && !modules.any { it.onInteract(this, player, hand, player.isSneaking) }
         if(canOpenGui) {
-            if(modules.isNotEmpty() && !world.isRemote) {
-                NetworkHooks.openGui(player as EntityPlayerMP, MoarBoatsGuiHandler.ModulesGuiInteraction(entityID, -1)) // TODO: use additional data?
+            if(modules.isNotEmpty() && !level.isClientSide) {
+                NetworkHooks.openGui(player as PlayerEntityMP, MoarBoatsGuiHandler.ModulesGuiInteraction(entityID, -1)) // TODO: use additional data?
             }
         } else if(!validOwner) {
-            player.sendStatusMessage(TextComponentTranslation(LockedByOwner.key, ownerName ?: "<UNKNOWN>"), true)
+            player.sendStatusMessage(TranslationTextComponent(LockedByOwner.key, ownerName ?: "<UNKNOWN>"), true)
         }
         return true
     }
 
-    private fun isValidOwner(player: EntityPlayer): Boolean {
+    private fun isValidOwner(player: PlayerEntity): Boolean {
         return owningMode == OwningMode.AllowAll
                 || ownerUUID == player.gameProfile.id
                 || player.hasPermissionLevel(2)
@@ -221,11 +221,11 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
         return correspondingModule.moduleSpot !in usedSpots && module !in moduleLocations
     }
 
-    override fun writeAdditional(compound: NBTTagCompound) {
+    override fun writeAdditional(compound: CompoundNBT) {
         super.writeAdditional(compound)
-        val list = NBTTagList()
+        val list = ListNBT()
         for(moduleID in moduleLocations) {
-            val data = NBTTagCompound()
+            val data = CompoundNBT()
             val module = BoatModuleRegistry[moduleID].module
             data.putString("moduleID", moduleID.toString())
             if(module.usesInventory) {
@@ -242,16 +242,16 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
         if(ownerName != null)
             compound.putString("ownerName", ownerName)
         compound.putString("owningMode", owningMode.name.toLowerCase())
-        compound.put("forcedChunks", forcedChunks.write(NBTTagCompound()))
+        compound.put("forcedChunks", forcedChunks.write(CompoundNBT()))
     }
 
-    public override fun readAdditional(compound: NBTTagCompound) {
+    public override fun readAdditional(compound: CompoundNBT) {
         super.readAdditional(compound)
         moduleLocations.clear()
         moduleData = compound.getCompound("state")
         val list = compound.getList("modules", Constants.NBT.TAG_COMPOUND)
         for(moduleNBT in list) {
-            moduleNBT as NBTTagCompound
+            moduleNBT as CompoundNBT
             val correspondingLocation = ResourceLocation(moduleNBT.getString("moduleID"))
             val module = BoatModuleRegistry[correspondingLocation].module
             if(module.usesInventory) {
@@ -262,13 +262,13 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
             }
         }
         moduleRNG = Random(boatID.leastSignificantBits)
-        fun colorFromString(str: String): EnumDyeColor {
-            return EnumDyeColor.values().find { it.name == str } ?: EnumDyeColor.WHITE
+        fun colorFromString(str: String): DyeColor {
+            return DyeColor.values().find { it.name == str } ?: DyeColor.WHITE
         }
         color = if(compound.contains("color"))
             colorFromString(compound.getString("color"))
         else
-            EnumDyeColor.WHITE
+            DyeColor.WHITE
 
         ownerUUID = if(compound.hasUniqueId("ownerUUID")) {
             compound.getUniqueId("ownerUUID")
@@ -301,7 +301,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
         }
     }
 
-    override fun getState(module: BoatModule, isLocal: Boolean): NBTTagCompound {
+    override fun getState(module: BoatModule, isLocal: Boolean): CompoundNBT {
         val key = module.id.toString()
         val source = if(isLocal) localModuleData else moduleData
         val state = source.getCompound(key)
@@ -327,7 +327,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
 
     private fun updateModuleData() {
         dataManager[MODULE_DATA] = moduleData // uses the setter of 'moduleData' to update the state
-        if(!world.isRemote) {
+        if(!level.isClientSide) {
             try {
                 MoarBoats.network.send(PacketDistributor.ALL.noArg(), SModuleData(entityID, moduleData))
             } catch (t: Throwable) { // please don't crash
@@ -338,7 +338,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
 
     private fun updateModuleLocations(sendUpdate: Boolean = true) {
         dataManager[MODULE_LOCATIONS] = moduleLocations // uses the setter of 'moduleLocations' to update the state
-        if(!world.isRemote && sendUpdate) {
+        if(!level.isClientSide && sendUpdate) {
             MoarBoats.network.send(PacketDistributor.ALL.noArg(), SModuleLocations(entityID, moduleLocations))
         }
     }
@@ -346,7 +346,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
     override fun registerData() {
         super.registerData()
         this.dataManager.register(MODULE_LOCATIONS, mutableListOf())
-        this.dataManager.register(MODULE_DATA, NBTTagCompound())
+        this.dataManager.register(MODULE_DATA, CompoundNBT())
     }
 
     fun addModule(location: ResourceLocation, addedByNBT: Boolean = false, fromItem: ItemStack? = null): BoatModule {
@@ -387,11 +387,11 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
 
     private fun dropItemsForModule(module: BoatModule, killedByPlayerInCreative: Boolean) {
         if(module.usesInventory)
-            InventoryHelper.dropInventoryItems(world, this, getInventory(module))
+            InventoryHelper.dropInventoryItems(level, this, getInventory(module))
         module.dropItemsOnDeath(this, killedByPlayerInCreative)
     }
 
-    override fun isValidLiquidBlock(pos: BlockPos) = Fluids.isUsualLiquidBlock(world, pos)
+    override fun isValidLiquidBlock(pos: BlockPos) = Fluids.isUsualLiquidBlock(level, pos)
 
     override fun attackEntityFrom(source: DamageSource, amount: Float) = when(source) {
         DamageSource.LAVA, DamageSource.IN_FIRE, DamageSource.ON_FIRE -> false
@@ -401,7 +401,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
 
     private fun defaultFacing() = EnumFacing.fromAngle(180f - yaw.toDouble())
 
-    override fun dispense(behavior: IBehaviorDispenseItem, stack: ItemStack, overridePosition: BlockPos?, overrideFacing: EnumFacing?): ItemStack {
+    override fun dispense(behavior: IDispenseItemBehavior, stack: ItemStack, overridePosition: BlockPos?, overrideFacing: EnumFacing?): ItemStack {
         moduleDispenseFacing = when(overrideFacing) {
             null -> defaultFacing()
             EnumFacing.WEST, EnumFacing.EAST, EnumFacing.NORTH, EnumFacing.SOUTH -> reorientate(overrideFacing)
@@ -421,7 +421,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
 
     override fun getPickedResult(target: RayTraceResult): ItemStack {
         val stack = ItemStack(ModularBoatItem[color], 1)
-        stack.displayName = TextComponentString(stack.displayName.formattedText+" - Copy") // TODO: use TranslationTextComponent
+        stack.displayName = StringTextComponent(stack.displayName.formattedText+" - Copy") // TODO: use TranslationTextComponent
         val boatData = stack.getOrCreateChildTag("boat_data")
         writeAdditional(boatData)
         stack.setTagInfo("boat_data", boatData)
@@ -439,7 +439,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
         val sortedModules = modules.filterNot { !it.usesInventory || it.hopperPriority == 0 }.sortedBy { -it.hopperPriority /* reverse list */ }
         for(m in sortedModules) {
             val inv = getInventory(m)
-            slotCount += inv.sizeInventory
+            slotCount += inv.containerSize
             if(slotCount > index)
                 return inv
         }
@@ -451,21 +451,21 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
         val sortedModules = modules.filterNot { !it.usesInventory || it.hopperPriority == 0 }.sortedBy { -it.hopperPriority /* reverse list */ }
         for(m in sortedModules) {
             val inv = getInventory(m)
-            slotCount += inv.sizeInventory
+            slotCount += inv.containerSize
             if(slotCount > index) {
-                return index - slotCount + inv.sizeInventory
+                return index - slotCount + inv.containerSize
             }
         }
         return -1
     }
 
     override fun getField(id: Int) = -1
-    override fun markDirty() { }
+    override fun setChanged() { }
 
-    override fun getStackInSlot(index: Int): ItemStack {
+    override fun getItem(index: Int): ItemStack {
         return indexToInventory(index)?.let { inv ->
             val i = globalIndexToLocalIndex(index)
-            inv.getStackInSlot(i)
+            inv.getItem(i)
         } ?: ItemStack.EMPTY
     }
 
@@ -478,8 +478,8 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
 
     override fun clear() { }
 
-    override fun getSizeInventory(): Int {
-        return modules.sumBy { if(it.usesInventory) getInventory(it).sizeInventory else 0 }
+    override fun getContainerSize(): Int {
+        return modules.sumBy { if(it.usesInventory) getInventory(it).containerSize else 0 }
     }
 
     override fun isEmpty(): Boolean {
@@ -493,22 +493,22 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
         } ?: false
     }
 
-    override fun getInventoryStackLimit() = 64
+    override fun getmaxStackSize() = 64
 
-    override fun isUsableByPlayer(player: EntityPlayer?): Boolean {
+    override fun isUsableByPlayer(player: PlayerEntity?): Boolean {
         return false
     }
 
-    override fun openInventory(player: EntityPlayer?) { }
+    override fun openInventory(player: PlayerEntity?) { }
 
     override fun setField(id: Int, value: Int) { }
 
-    override fun closeInventory(player: EntityPlayer?) { }
+    override fun closeInventory(player: PlayerEntity?) { }
 
-    override fun setInventorySlotContents(index: Int, stack: ItemStack) {
+    override fun setItem(index: Int, stack: ItemStack) {
         indexToInventory(index)?.let { inv ->
             val i = globalIndexToLocalIndex(index)
-            inv.setInventorySlotContents(i, stack)
+            inv.setItem(i, stack)
         }
     }
 
@@ -539,7 +539,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
     }
     // === Start of passengers code ===
 
-    override fun canStartRiding(player: EntityPlayer, heldItem: ItemStack, hand: EnumHand): Boolean {
+    override fun canStartRiding(player: PlayerEntity, heldItem: ItemStack, hand: Hand): Boolean {
         return heldItem.isEmpty && SeatModule in modules && player !in passengers
     }
 

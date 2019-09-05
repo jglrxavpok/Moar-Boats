@@ -1,7 +1,7 @@
 package org.jglrxavpok.moarboats.common.data
 
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.nbt.NBTTagList
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.ListNBT
 import net.minecraft.util.math.ChunkPos
 import net.minecraft.world.World
 import net.minecraftforge.common.util.Constants
@@ -59,11 +59,11 @@ class ForcedChunks(val world: World) {
         chunks.clear()
     }
 
-    fun write(tag: NBTTagCompound): NBTTagCompound {
-        val list = NBTTagList()
+    fun write(tag: CompoundNBT): CompoundNBT {
+        val list = ListNBT()
         val now = System.currentTimeMillis()
         chunks.forEach { (position, chunk) ->
-            val chunkInfo = NBTTagCompound()
+            val chunkInfo = CompoundNBT()
             chunkInfo.putLong("chunkCompactPosition", position)
             chunkInfo.putLong("delta", now-chunk.timestamp)
             list.add(chunkInfo)
@@ -72,11 +72,11 @@ class ForcedChunks(val world: World) {
         return tag
     }
 
-    fun read(tag: NBTTagCompound) {
+    fun read(tag: CompoundNBT) {
         val list = tag.getList("list", Constants.NBT.TAG_COMPOUND)
         val now = System.currentTimeMillis()
         list.forEach {
-            it as NBTTagCompound
+            it as CompoundNBT
             val delta = it.getLong("delta")
             val timestamp = now+delta
             val position = it.getLong("chunkCompactPosition")

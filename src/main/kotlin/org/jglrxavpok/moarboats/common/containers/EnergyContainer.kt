@@ -1,9 +1,9 @@
 package org.jglrxavpok.moarboats.common.containers
 
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.player.PlayerEntity
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergy
 
-class EnergyContainer(val te: TileEntityEnergy, val player: EntityPlayer): EmptyContainer(player.inventory) {
+class EnergyContainer(val te: TileEntityEnergy, val player: PlayerEntity): EmptyContainer(player.inventory) {
 
     private var energy = -1
 
@@ -11,7 +11,7 @@ class EnergyContainer(val te: TileEntityEnergy, val player: EntityPlayer): Empty
         te.addContainerListener(this)
     }
 
-    override fun onContainerClosed(playerIn: EntityPlayer?) {
+    override fun onContainerClosed(playerIn: PlayerEntity?) {
         super.onContainerClosed(playerIn)
         te.removeContainerListener(this)
     }

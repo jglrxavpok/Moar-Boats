@@ -6,7 +6,7 @@ import net.minecraftforge.fml.network.NetworkEvent
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.data.LoopingOptions
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
-import org.jglrxavpok.moarboats.common.items.ItemMapWithPath
+import org.jglrxavpok.moarboats.common.items.MapItemWithPath
 import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 
@@ -19,9 +19,9 @@ class CChangeLoopingStateItemPathMappingTable: CChangeLoopingStateBase {
     var teZ: Int = -1
 
     constructor(loopingOption: LoopingOptions, mappingTable: TileEntityMappingTable): super(loopingOption) {
-        this.teX = mappingTable.pos.x
-        this.teY = mappingTable.pos.y
-        this.teZ = mappingTable.pos.z
+        this.teX = mappingTable.blockPos.x
+        this.teY = mappingTable.blockPos.y
+        this.teZ = mappingTable.blockPos.z
     }
 
     object Handler: MBMessageHandler<CChangeLoopingStateItemPathMappingTable, MoarBoatsPacket?> {
@@ -31,19 +31,19 @@ class CChangeLoopingStateItemPathMappingTable: CChangeLoopingStateBase {
         override fun onMessage(message: CChangeLoopingStateItemPathMappingTable, ctx: NetworkEvent.Context): MoarBoatsPacket? {
             with(message) {
                 val player = ctx.sender!!
-                val world = player.world
-                val pos = BlockPos.PooledMutableBlockPos.retain(teX, teY, teZ)
-                val te = world.getTileEntity(pos)
+                val level = player.level
+                val pos = BlockPos.PooledMutableBlockPos.acquire(teX, teY, teZ)
+                val te = level.getBlockEntity(pos)
                 pos.close()
                 if(te !is TileEntityMappingTable)
                     return null
-                val stack = te.inventory.getStackInSlot(0)
+                val stack = te.inventory.getItem(0)
                 val item = stack.item
                 if(item is ItemPath) {
                     item.setLoopingOptions(stack, message.loopingOption)
                     when(item) {
                         is ItemGoldenTicket -> return SSetGoldenItinerary(item.getData(stack))
-                        is ItemMapWithPath -> return SUpdateMapWithPathInMappingTable(item.getWaypointData(stack, MoarBoats.getLocalMapStorage()), teX, teY, teZ)
+                        is MapItemWithPath -> return SUpdateMapWithPathInMappingTable(item.getWaypointData(stack, MoarBoats.getLocalMapStorage()), teX, teY, teZ)
                     }
                 }
                 return null

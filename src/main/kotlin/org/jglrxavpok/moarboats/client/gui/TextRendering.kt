@@ -1,8 +1,8 @@
 package org.jglrxavpok.moarboats.client.gui
 
-import net.minecraft.client.gui.FontRenderer
+import net.minecraft.client.gui.Font
 
-fun FontRenderer.drawCenteredString(text: String, x: Int, y: Int, color: Int, shadow: Boolean = false) {
+fun Font.drawCenteredString(text: String, x: Int, y: Int, color: Int, shadow: Boolean = false) {
     val textWidth = getStringWidth(text)
     val textX = x - textWidth/2
     if(shadow)

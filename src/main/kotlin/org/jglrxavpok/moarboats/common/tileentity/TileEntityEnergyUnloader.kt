@@ -15,10 +15,10 @@ class TileEntityEnergyUnloader: TileEntityEnergy(MoarBoats.TileEntityEnergyUnloa
     override val maxExtractableEnergy = maxEnergyStored
 
     private var working: Boolean = false
-    val blockFacing: EnumFacing get()= world.getBlockState(pos).get(Facing)
+    val blockFacing: EnumFacing get()= level.getBlockState(pos).get(Facing)
 
     override fun tick() {
-        if(world.isRemote)
+        if(level.isClientSide)
             return
         working = false
         updateListeners()
@@ -28,7 +28,7 @@ class TileEntityEnergyUnloader: TileEntityEnergy(MoarBoats.TileEntityEnergyUnloa
         pushEnergyToNeighbors(MoarBoatsConfig.energyUnloader.sendAmount.get(), facings)
 
         val aabb = create3x3AxisAlignedBB(pos.offset(blockFacing))
-        val entities = world.getEntitiesWithinAABB(Entity::class.java, aabb) { e -> e != null && e.getCapability(CapabilityEnergy.ENERGY, null).isPresent }
+        val entities = level.getEntitiesWithinAABB(Entity::class.java, aabb) { e -> e != null && e.getCapability(CapabilityEnergy.ENERGY, null).isPresent }
 
         val totalEnergyToPull = minOf(MoarBoatsConfig.energyUnloader.pullAmount.get(), maxEnergyStored-energyStored)
         val entityCount = entities.size
@@ -44,7 +44,7 @@ class TileEntityEnergyUnloader: TileEntityEnergy(MoarBoats.TileEntityEnergyUnloa
             }
         }
         energy += energyActuallyReceived
-        markDirty()
+        setChanged()
     }
 
     override fun getRedstonePower(): Int {

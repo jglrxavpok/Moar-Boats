@@ -1,7 +1,7 @@
 package org.jglrxavpok.moarboats.common.network
 
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagList
+import net.minecraft.nbt.ListNBT
 import net.minecraftforge.fml.network.NetworkEvent
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
@@ -24,13 +24,13 @@ class CRemoveWaypointFromGoldenTicketFromBoat: CxxRemoveWaypointToItemPath {
         override fun getStack(message: CRemoveWaypointFromGoldenTicketFromBoat, ctx: NetworkEvent.Context): ItemStack? {
             with(message) {
                 val player = ctx.sender!!
-                val world = player.world
-                val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
-                return boat.getInventory(HelmModule).getStackInSlot(0)
+                val level = player.level
+                val boat = level.getEntity(message.boatID) as? ModularBoatEntity ?: return null
+                return boat.getInventory(HelmModule).getItem(0)
             }
         }
 
-        override fun createResponse(message: CRemoveWaypointFromGoldenTicketFromBoat, ctx: NetworkEvent.Context, waypointList: NBTTagList): SSetGoldenItinerary? {
+        override fun createResponse(message: CRemoveWaypointFromGoldenTicketFromBoat, ctx: NetworkEvent.Context, waypointList: ListNBT): SSetGoldenItinerary? {
             val stack = getStack(message, ctx) ?: return null
             val data = ItemGoldenTicket.getData(stack)
             return SSetGoldenItinerary(data)

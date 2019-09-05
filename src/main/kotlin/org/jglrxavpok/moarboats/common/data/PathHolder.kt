@@ -1,8 +1,8 @@
 package org.jglrxavpok.moarboats.common.data
 
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.nbt.NBTTagList
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.ListNBT
 import net.minecraft.util.math.BlockPos
 import net.minecraftforge.common.util.Constants
 import org.jglrxavpok.moarboats.MoarBoats
@@ -15,11 +15,11 @@ import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 interface PathHolder {
     fun getLoopingOption(): LoopingOptions
     fun setLoopingState(loopingOptions: LoopingOptions)
-    fun getWaypointNBTList(): NBTTagList
+    fun getWaypointNBTList(): ListNBT
     fun removeWaypoint(closestIndex: Int)
     fun addWaypoint(pos: BlockPos, boost: Double?)
     fun getHolderLocation(): BlockPos?
-    fun sendWorldImageRequest(mapID: String)
+    fun sendlevelImageRequest(mapID: String)
     fun getBaseMapID(): String
 }
 
@@ -28,7 +28,7 @@ class BoatPathHolder(val boat: IControllable): PathHolder {
         return HelmModule.mapDataCopyProperty[boat].name
     }
 
-    override fun sendWorldImageRequest(mapID: String) {
+    override fun sendlevelImageRequest(mapID: String) {
         MoarBoats.network.sendToServer(CMapImageRequest(mapID))
     }
 
@@ -40,7 +40,7 @@ class BoatPathHolder(val boat: IControllable): PathHolder {
         MoarBoats.network.sendToServer(CRemoveWaypoint(closestIndex, boat.entityID))
     }
 
-    override fun getWaypointNBTList(): NBTTagList {
+    override fun getWaypointNBTList(): ListNBT {
         return boat.getState(HelmModule).getList(HelmModule.waypointsProperty.id, Constants.NBT.TAG_COMPOUND)
     }
 
@@ -59,9 +59,9 @@ class BoatPathHolder(val boat: IControllable): PathHolder {
 
 class MapWithPathHolder(stack: ItemStack, mappingTable: TileEntityMappingTable?, boat: IControllable?): ItemPathHolder(stack, mappingTable, boat) {
 
-    override fun nbt(): NBTTagCompound {
+    override fun nbt(): CompoundNBT {
         if(stack.tag == null) {
-            stack.tag = NBTTagCompound()
+            stack.tag = CompoundNBT()
         }
         return stack.tag!!
     }
@@ -84,8 +84,8 @@ class MapWithPathHolder(stack: ItemStack, mappingTable: TileEntityMappingTable?,
 }
 
 class GoldenTicketPathHolder(stack: ItemStack, mappingTable: TileEntityMappingTable?, boat: IControllable?): ItemPathHolder(stack, mappingTable, boat) {
-    override fun nbt(): NBTTagCompound {
-        return ItemGoldenTicket.getData(stack).write(NBTTagCompound())
+    override fun nbt(): CompoundNBT {
+        return ItemGoldenTicket.getData(stack).write(CompoundNBT())
     }
 
     override fun addWaypoint(pos: BlockPos, boost: Double?) {
@@ -107,7 +107,7 @@ class GoldenTicketPathHolder(stack: ItemStack, mappingTable: TileEntityMappingTa
 
 abstract class ItemPathHolder(val stack: ItemStack, val mappingTable: TileEntityMappingTable?, val boat: IControllable?): PathHolder {
 
-    abstract fun nbt(): NBTTagCompound
+    abstract fun nbt(): CompoundNBT
 
     override fun getBaseMapID(): String {
         return nbt().getString("${MoarBoats.ModID}.mapID")
@@ -132,13 +132,13 @@ abstract class ItemPathHolder(val stack: ItemStack, val mappingTable: TileEntity
         }
     }
 
-    override fun getWaypointNBTList(): NBTTagList {
+    override fun getWaypointNBTList(): ListNBT {
         return nbt().getList("${MoarBoats.ModID}.path", Constants.NBT.TAG_COMPOUND)
     }
 
     override fun getHolderLocation() = null
 
-    override fun sendWorldImageRequest(mapID: String) {
+    override fun sendlevelImageRequest(mapID: String) {
         MoarBoats.network.sendToServer(CMapImageRequest(mapID))
     }
 

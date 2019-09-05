@@ -1,6 +1,6 @@
 package org.jglrxavpok.moarboats.common.tileentity
 
-import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.CompoundNBT
 import net.minecraft.tileentity.TileEntityType
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.math.BlockPos
@@ -19,14 +19,14 @@ abstract class TileEntityEnergy(tileEntityType: TileEntityType<out TileEntityEne
     protected abstract val maxReceivableEnergy: Int
     protected abstract val maxExtractableEnergy: Int
 
-    override fun read(compound: NBTTagCompound) {
-        super.read(compound)
+    override fun load(compound: CompoundNBT) {
+        super.load(compound)
         energy = compound.getInt("energy")
     }
 
-    override fun write(compound: NBTTagCompound): NBTTagCompound {
+    override fun save(compound: CompoundNBT): CompoundNBT {
         compound.putInt("energy", energy)
-        return super.write(compound)
+        return super.save(compound)
     }
 
     override fun getEnergyStored(): Int {
@@ -41,7 +41,7 @@ abstract class TileEntityEnergy(tileEntityType: TileEntityType<out TileEntityEne
         val actuallyExtracted = energy - newEnergyLevel
         if(!simulate) {
             energy -= maxExtracted
-            markDirty()
+            setChanged()
         }
         return actuallyExtracted
     }
@@ -54,7 +54,7 @@ abstract class TileEntityEnergy(tileEntityType: TileEntityType<out TileEntityEne
         val actuallyReceived = newEnergyLevel - energy
         if(!simulate) {
             energy += maxExtracted
-            markDirty()
+            setChanged()
         }
         return actuallyReceived
     }
@@ -70,7 +70,7 @@ abstract class TileEntityEnergy(tileEntityType: TileEntityType<out TileEntityEne
             energyActuallySent += it.receiveEnergy(energyToSendToASingleNeighbor, false)
         }
         energy -= energyActuallySent
-        markDirty()
+        setChanged()
     }
 
     fun pullEnergyFromNeighbors(totalEnergyToReceive: Int, facings: List<EnumFacing> = EnumFacing.values().toList()) {
@@ -84,7 +84,7 @@ abstract class TileEntityEnergy(tileEntityType: TileEntityType<out TileEntityEne
             energyActuallyReceived += it.extractEnergy(energyToReceiveFromASingleNeighbor, false)
         }
         energy += energyActuallyReceived
-        markDirty()
+        setChanged()
     }
 
     private fun neighborsThatCanReceivePower(facings: List<EnumFacing> = EnumFacing.values().toList(), powerFunction: (IEnergyStorage) -> Boolean) =
@@ -102,7 +102,7 @@ abstract class TileEntityEnergy(tileEntityType: TileEntityType<out TileEntityEne
     }
 
     private fun getPowerCapability(pos: BlockPos, facing: EnumFacing): LazyOptional<IEnergyStorage> {
-        val te = world.getTileEntity(pos)
+        val te = level.getBlockEntity(pos)
         if(te != null) {
             return te.getCapability(CapabilityEnergy.ENERGY)
         }
@@ -113,7 +113,7 @@ abstract class TileEntityEnergy(tileEntityType: TileEntityType<out TileEntityEne
         if(amount > energy)
             return false
         energy -= amount
-        markDirty()
+        setChanged()
         return true
     }
 

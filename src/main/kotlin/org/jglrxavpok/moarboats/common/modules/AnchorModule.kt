@@ -1,14 +1,14 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.client.gui.GuiScreen
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.client.gui.screen
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.init.Blocks
-import net.minecraft.item.ItemBlock
+import net.minecraft.item.BlockItem
 import net.minecraft.util.EnumFacing
-import net.minecraft.util.EnumHand
+import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
-import net.minecraft.util.text.TextComponentTranslation
+import net.minecraft.util.text.TranslationTextComponent
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
@@ -24,7 +24,7 @@ object AnchorModule: BoatModule(), BlockReason {
     override val usesInventory = false
     override val moduleSpot = Spot.Misc
     override val isMenuInteresting = false
-    val spawnPointSet = TextComponentTranslation("gui.anchor.spawnPointSet")
+    val spawnPointSet = TranslationTextComponent("gui.anchor.spawnPointSet")
 
     val activeProperty = BooleanBoatProperty("active")
     val anchorDirectionProperty = IntBoatProperty("anchorDirection")
@@ -35,7 +35,7 @@ object AnchorModule: BoatModule(), BlockReason {
 
     val anchorDescentSpeed get() = 0.2
 
-    override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean): Boolean {
+    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean): Boolean {
         return false
     }
 
@@ -60,7 +60,7 @@ object AnchorModule: BoatModule(), BlockReason {
         if(direction == -1) { // going down
             val nextY = anchorY + anchorDescentSpeed * direction
             anchorYProperty[from] = nextY
-            val pos = BlockPos.PooledMutableBlockPos.retain(anchorX, nextY, anchorZ)
+            val pos = BlockPos.PooledMutableBlockPos.acquire(anchorX, nextY, anchorZ)
             val world = from.worldRef
             if(world.getBlockState(pos).isTopSolid(world, pos)) {
                 // stop descent
@@ -98,13 +98,13 @@ object AnchorModule: BoatModule(), BlockReason {
         anchorDirectionProperty[to] = 0
     }
 
-    override fun createContainer(player: EntityPlayer, boat: IControllable) = EmptyContainer(player.inventory)
+    override fun createContainer(player: PlayerEntity, boat: IControllable) = EmptyContainer(player.inventory)
 
-    override fun createGui(player: EntityPlayer, boat: IControllable): GuiScreen {
+    override fun createGui(player: PlayerEntity, boat: IControllable): Screen {
         return GuiAnchorModule(player.inventory, this, boat)
     }
 
-    fun deploy(boat: IControllable, player: EntityPlayer) {
+    fun deploy(boat: IControllable, player: PlayerEntity) {
         val deployed = deployedProperty[boat]
         if(deployed) {
             anchorDirectionProperty[boat] = 1
@@ -123,6 +123,6 @@ object AnchorModule: BoatModule(), BlockReason {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.entityDropItem(ItemBlock.getItemFromBlock(Blocks.ANVIL), 1)
+            boat.correspondingEntity.entityDropItem(BlockItem.getItemFromBlock(Blocks.ANVIL), 1)
     }
 }

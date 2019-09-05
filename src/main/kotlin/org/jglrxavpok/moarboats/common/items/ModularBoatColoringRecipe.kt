@@ -1,7 +1,7 @@
 package org.jglrxavpok.moarboats.common.items
 
 import net.minecraft.inventory.IInventory
-import net.minecraft.item.EnumDyeColor
+import net.minecraft.item.DyeColor
 import net.minecraft.item.ItemStack
 import net.minecraft.item.crafting.IRecipe
 import net.minecraft.item.crafting.IRecipeSerializer
@@ -26,13 +26,13 @@ object ModularBoatColoringRecipe: IRecipe {
     override fun getRecipeOutput() = ItemStack.EMPTY
 
     override fun getCraftingResult(inv: IInventory): ItemStack {
-        var globalColor: EnumDyeColor? = null
+        var globalColor: DyeColor? = null
         var boatCount = 0
         var dyeCount = 0
-        for(i in 0 until inv.sizeInventory) {
-            val stack = inv.getStackInSlot(i)
-            if(EnumDyeColor.getColor(stack) != null) {
-                val dyeColor = EnumDyeColor.getColor(stack)
+        for(i in 0 until inv.containerSize) {
+            val stack = inv.getItem(i)
+            if(DyeColor.getColor(stack) != null) {
+                val dyeColor = DyeColor.getColor(stack)
                 if(dyeColor != null) {
                     val color = dyeColor
                     if(globalColor != null && color != globalColor) {
@@ -56,13 +56,13 @@ object ModularBoatColoringRecipe: IRecipe {
     }
 
     override fun matches(inv: IInventory, worldIn: World?): Boolean {
-        var globalColor: EnumDyeColor? = null
+        var globalColor: DyeColor? = null
         var boatCount = 0
         var dyeCount = 0
-        for(i in 0 until inv.sizeInventory) {
-            val stack = inv.getStackInSlot(i)
-            if(EnumDyeColor.getColor(stack) != null) {
-                val dyeColor = EnumDyeColor.getColor(stack)
+        for(i in 0 until inv.containerSize) {
+            val stack = inv.getItem(i)
+            if(DyeColor.getColor(stack) != null) {
+                val dyeColor = DyeColor.getColor(stack)
                 if(dyeColor != null) {
                     val color = dyeColor
                     if(globalColor != null && color != globalColor) {

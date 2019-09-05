@@ -1,8 +1,8 @@
 package org.jglrxavpok.moarboats.common.network
 
 import net.minecraft.client.Minecraft
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.nbt.NBTTagList
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.ListNBT
 import net.minecraft.util.math.BlockPos
 import net.minecraftforge.fml.network.NetworkEvent
 import org.jglrxavpok.moarboats.MoarBoats
@@ -16,7 +16,7 @@ class SUpdateMapWithPathInMappingTable: SxxUpdateMapWithPath {
 
     constructor()
 
-    constructor(list: NBTTagList, tileEntityX: Int, tileEntityY: Int, tileEntityZ: Int): super(list) {
+    constructor(list: ListNBT, tileEntityX: Int, tileEntityY: Int, tileEntityZ: Int): super(list) {
         this.tileEntityX = tileEntityX
         this.tileEntityY = tileEntityY
         this.tileEntityZ = tileEntityZ
@@ -25,15 +25,15 @@ class SUpdateMapWithPathInMappingTable: SxxUpdateMapWithPath {
     object Handler: SxxUpdateMapWithPath.Handler<SUpdateMapWithPathInMappingTable>() {
         override val packetClass = SUpdateMapWithPathInMappingTable::class.java
 
-        override fun updatePath(message: SUpdateMapWithPathInMappingTable, ctx: NetworkEvent.Context, list: NBTTagList) {
+        override fun updatePath(message: SUpdateMapWithPathInMappingTable, ctx: NetworkEvent.Context, list: ListNBT) {
             with(message) {
-                val pos = BlockPos.PooledMutableBlockPos.retain(tileEntityX, tileEntityY, tileEntityZ)
-                val te = Minecraft.getInstance().world.getTileEntity(pos)
+                val pos = BlockPos.PooledMutableBlockPos.acquire(tileEntityX, tileEntityY, tileEntityZ)
+                val te = Minecraft.getInstance().level.getBlockEntity(pos)
                 when(te) {
                     is TileEntityMappingTable -> {
-                        val stack = te.inventory.getStackInSlot(0)
+                        val stack = te.inventory.getItem(0)
                         if(stack.tag == null) {
-                            stack.tag = NBTTagCompound()
+                            stack.tag = CompoundNBT()
                         }
                         stack.tag!!.put("${MoarBoats.ModID}.path", list)
                     }

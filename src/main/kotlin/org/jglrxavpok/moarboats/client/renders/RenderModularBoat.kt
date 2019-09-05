@@ -1,9 +1,9 @@
 package org.jglrxavpok.moarboats.client.renders
 
-import net.minecraft.client.renderer.GlStateManager
+import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.entity.Render
-import net.minecraft.client.renderer.entity.RenderManager
+import net.minecraft.client.renderer.entity.EntityRendererManager
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.entity.Entity
 import net.minecraft.util.ResourceLocation
@@ -15,7 +15,7 @@ import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 
 
-class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>(renderManager) {
+class RenderModularBoat(EntityRendererManager: EntityRendererManager): Render<ModularBoatEntity>(EntityRendererManager) {
 
     companion object {
         val TextureLocation = ResourceLocation(MoarBoats.ModID, "textures/entity/modularboat.png")
@@ -28,7 +28,7 @@ class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>
     override fun getEntityTexture(entity: ModularBoatEntity) = TextureLocation
 
     override fun doRender(entity: ModularBoatEntity, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float) {
-        bindTexture(TextureLocation)
+        bind(TextureLocation)
         GlStateManager.pushMatrix()
         GlStateManager.disableCull()
         if(entity.isEntityInLava())
@@ -41,12 +41,12 @@ class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>
         model.noWater.showModel = false
         val color = entity.color.colorComponentValues
         GlStateManager.color3f(color[0], color[1], color[2])
-        model.render(entity, 0f, 0f, entity.ticksExisted.toFloat(), 0f, 0f, 1f)
+        model.render(entity, 0f, 0f, entity.tickCount.toFloat(), 0f, 0f, 1f)
         GlStateManager.color3f(1f, 1f, 1f)
         renderLink(entity, x, y, z, entityYaw, partialTicks)
         removeScale()
         entity.modules.forEach {
-            BoatModuleRenderingRegistry.getValue(it.id)?.renderModule(entity, it, x, y, z, entityYaw, partialTicks, renderManager)
+            BoatModuleRenderingRegistry.getValue(it.id)?.renderModule(entity, it, x, y, z, entityYaw, partialTicks, EntityRendererManager)
         }
         GlStateManager.disableRescaleNormal()
         GlStateManager.enableCull()
@@ -54,15 +54,15 @@ class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>
     }
 
     private fun renderLink(boatEntity: ModularBoatEntity, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float) {
-        bindTexture(RopeAnchorTextureLocation)
+        bind(RopeAnchorTextureLocation)
         // front
         if(boatEntity.hasLink(BasicBoatEntity.FrontLink)) {
             boatEntity.getLinkedTo(BasicBoatEntity.FrontLink)?.let {
                 GlStateManager.pushMatrix()
                 GlStateManager.translatef(17f, -4f, 0f)
                 renderActualLink(boatEntity, it, BasicBoatEntity.FrontLink, entityYaw)
-                bindTexture(RopeAnchorTextureLocation)
-                ropeAnchorModel.render(boatEntity, 0f, 0f, boatEntity.ticksExisted.toFloat(), 0f, 0f, 1f)
+                bind(RopeAnchorTextureLocation)
+                ropeAnchorModel.render(boatEntity, 0f, 0f, boatEntity.tickCount.toFloat(), 0f, 0f, 1f)
                 GlStateManager.popMatrix()
             }
         }
@@ -73,8 +73,8 @@ class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>
                 GlStateManager.pushMatrix()
                 GlStateManager.translatef(-17f, -4f, 0f)
                 renderActualLink(boatEntity, it, BasicBoatEntity.BackLink, entityYaw)
-                bindTexture(RopeAnchorTextureLocation)
-                ropeAnchorModel.render(boatEntity, 0f, 0f, boatEntity.ticksExisted.toFloat(), 0f, 0f, 1f)
+                bind(RopeAnchorTextureLocation)
+                ropeAnchorModel.render(boatEntity, 0f, 0f, boatEntity.tickCount.toFloat(), 0f, 0f, 1f)
                 GlStateManager.popMatrix()
             }
         }
@@ -84,9 +84,9 @@ class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>
         val anchorThis = thisBoat.calculateAnchorPosition(sideFromThisBoat)
         val anchorOther = (targetEntity as? BasicBoatEntity)?.calculateAnchorPosition(1-sideFromThisBoat)
                 ?: targetEntity.positionVector
-        val offsetX = anchorOther.x - anchorThis.x
-        val offsetY = anchorOther.y - anchorThis.y
-        val offsetZ = anchorOther.z - anchorThis.z
+        val translateX = anchorOther.x - anchorThis.x
+        val translateY = anchorOther.y - anchorThis.y
+        val translateZ = anchorOther.z - anchorThis.z
 
         GlStateManager.pushMatrix()
         removeScale()
@@ -95,21 +95,21 @@ class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>
         GlStateManager.disableTexture2D()
         GlStateManager.disableLighting()
         val tess = Tessellator.getInstance()
-        val bufferbuilder = tess.buffer
+        val bufferbuilder = tess.builder
         bufferbuilder.begin(3, DefaultVertexFormats.POSITION_COLOR)
         val l = 32
 
         for (i1 in 0..l) {
             val f11 = i1.toFloat() / l
             bufferbuilder
-                    .pos(offsetX * f11.toDouble(), offsetY * (f11 * f11 + f11).toDouble() * 0.5, offsetZ * f11.toDouble())
+                    .pos(translateX * f11.toDouble(), translateY * (f11 * f11 + f11).toDouble() * 0.5, translateZ * f11.toDouble())
             bufferbuilder.color(138, 109, 68, 255)
 
             bufferbuilder.endVertex()
         }
 
         GlStateManager.lineWidth(5f)
-        tess.draw()
+        tess.end()
         GlStateManager.lineWidth(1f)
         GlStateManager.enableLighting()
         GlStateManager.enableTexture2D()
@@ -154,7 +154,7 @@ class RenderModularBoat(renderManager: RenderManager): Render<ModularBoatEntity>
     override fun renderMultipass(entity: ModularBoatEntity, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float) {
         GlStateManager.pushMatrix()
         GlStateManager.disableCull()
-        bindTexture(TextureLocation)
+        bind(TextureLocation)
         setTranslation(entity, x, y, z)
         setRotation(entity, entityYaw, partialTicks)
         setScale()

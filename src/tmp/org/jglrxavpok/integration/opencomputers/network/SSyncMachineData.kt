@@ -2,7 +2,7 @@ package org.jglrxavpok.moarboats.integration.opencomputers.network
 
 import io.netty.buffer.ByteBuf
 import net.minecraft.client.Minecraft
-import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.CompoundNBT
 import net.minecraftforge.fml.common.network.ByteBufUtils
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
@@ -14,9 +14,9 @@ import org.jglrxavpok.moarboats.integration.opencomputers.OpenComputersPlugin
 class SSyncMachineData(): IMessage {
 
     private var boatID = 0
-    private lateinit var data: NBTTagCompound
+    private lateinit var data: CompoundNBT
 
-    constructor(boatID: Int, data: NBTTagCompound): this() {
+    constructor(boatID: Int, data: CompoundNBT): this() {
         this.boatID = boatID
         this.data = data
     }
@@ -38,7 +38,7 @@ class SSyncMachineData(): IMessage {
         override fun onMessage(message: SSyncMachineData, ctx: MessageContext): IMessage? {
             with(message) {
                 val world = Minecraft.getMinecraft().world
-                val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
+                val boat = world.getEntity(message.boatID) as? ModularBoatEntity ?: return null
                 OpenComputersPlugin.getHost(boat)?.processInitialData(data)
             }
             return null

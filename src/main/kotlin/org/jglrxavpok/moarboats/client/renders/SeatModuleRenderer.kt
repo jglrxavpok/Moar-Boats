@@ -1,8 +1,8 @@
 package org.jglrxavpok.moarboats.client.renders
 
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.client.renderer.entity.RenderManager
+import com.mojang.blaze3d.platform.GlStateManager
+import net.minecraft.client.renderer.entity.EntityRendererManager
 import net.minecraft.client.renderer.texture.TextureMap
 import net.minecraft.init.Blocks
 import net.minecraft.util.ResourceLocation
@@ -23,14 +23,14 @@ object SeatModuleRenderer : BoatModuleRenderer() {
     val model = ModelSeat()
     val texture = ResourceLocation("minecraft:textures/block/oak_planks.png") // TODO: Variants, like paddles
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, renderManager: RenderManager) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, EntityRendererManager: EntityRendererManager) {
         GlStateManager.pushMatrix()
         //GlStateManager.scale(0.75f, 0.75f, 0.75f)
         GlStateManager.scalef(-1f, -1f, 1f)
         GlStateManager.translatef(0.25f, 3f/16f * .75f, 0f)
 
         GlStateManager.rotatef(90f, 0f, 1f, 0f)
-        renderManager.textureManager.bindTexture(texture)
+        EntityRendererManager.textureManager.bind(texture)
         model.render(boat, 0f, 0f, 0f, 0f, 0f, 0.0625f)
         GlStateManager.popMatrix()
     }

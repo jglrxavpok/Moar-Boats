@@ -1,13 +1,13 @@
 package org.jglrxavpok.moarboats.common.containers
 
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.entity.player.InventoryPlayer
-import net.minecraft.inventory.Container
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.entity.player.PlayerInventory
+import net.minecraft.inventory.container.Container
 import net.minecraft.inventory.Slot
 import net.minecraft.item.ItemStack
 import net.minecraft.tileentity.TileEntityFurnace
 
-abstract class ContainerBase(val playerInventory: InventoryPlayer): Container() {
+abstract class ContainerBase(val playerInventory: PlayerInventory): Container() {
 
     protected fun addPlayerSlots(isLarge: Boolean, xStart: Int = 8) {
         val yOffset = if(isLarge) 3 * 18 +2 else 0
@@ -22,16 +22,16 @@ abstract class ContainerBase(val playerInventory: InventoryPlayer): Container() 
         }
     }
 
-    override fun canInteractWith(playerIn: EntityPlayer): Boolean {
+    override fun canInteractWith(playerIn: PlayerEntity): Boolean {
         return true
     }
 
-    override fun transferStackInSlot(playerIn: EntityPlayer, index: Int): ItemStack {
+    override fun transferStackInSlot(playerIn: PlayerEntity, index: Int): ItemStack {
         var itemstack = ItemStack.EMPTY
         val slot = this.inventorySlots[index]
 
         if (slot != null && slot.hasStack) {
-            val itemstack1 = slot.stack
+            val itemstack1 = slot.item
             itemstack = itemstack1.copy()
 
             if (index in 0..27) {

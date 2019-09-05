@@ -1,10 +1,10 @@
 package org.jglrxavpok.moarboats.common.network
 
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagList
+import net.minecraft.nbt.ListNBT
 import net.minecraftforge.fml.network.NetworkEvent
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
-import org.jglrxavpok.moarboats.common.items.ItemMapWithPath
+import org.jglrxavpok.moarboats.common.items.MapItemWithPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 
 class CRemoveWaypointFromMapWithPathFromBoat: CxxRemoveWaypointToItemPath {
@@ -18,19 +18,19 @@ class CRemoveWaypointFromMapWithPathFromBoat: CxxRemoveWaypointToItemPath {
     }
 
     object Handler: CxxRemoveWaypointToItemPath.Handler<CRemoveWaypointFromMapWithPathFromBoat, SUpdateMapWithPathInBoat>() {
-        override val item = ItemMapWithPath
+        override val item = MapItemWithPath
         override val packetClass = CRemoveWaypointFromMapWithPathFromBoat::class.java
 
         override fun getStack(message: CRemoveWaypointFromMapWithPathFromBoat, ctx: NetworkEvent.Context): ItemStack? {
             with(message) {
                 val player = ctx.sender!!
-                val world = player.world
-                val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
-                return boat.getInventory(HelmModule).getStackInSlot(0)
+                val level = player.level
+                val boat = level.getEntity(message.boatID) as? ModularBoatEntity ?: return null
+                return boat.getInventory(HelmModule).getItem(0)
             }
         }
 
-        override fun createResponse(message: CRemoveWaypointFromMapWithPathFromBoat, ctx: NetworkEvent.Context, waypointList: NBTTagList): SUpdateMapWithPathInBoat? {
+        override fun createResponse(message: CRemoveWaypointFromMapWithPathFromBoat, ctx: NetworkEvent.Context, waypointList: ListNBT): SUpdateMapWithPathInBoat? {
             return SUpdateMapWithPathInBoat(waypointList, message.boatID)
         }
 

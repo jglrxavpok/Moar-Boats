@@ -32,8 +32,8 @@ object GoldenTicketCopyRecipe: IRecipe {
         var emptyTickets = 0
         var fullTickets = 0
         var fullTicket: ItemStack? = null
-        for(i in 0 until inv.sizeInventory) {
-            val stack = inv.getStackInSlot(i)
+        for(i in 0 until inv.containerSize) {
+            val stack = inv.getItem(i)
             if(stack.item == ItemGoldenTicket) {
                 if(ItemGoldenTicket.isEmpty(stack)) {
                     emptyTickets++
@@ -56,8 +56,8 @@ object GoldenTicketCopyRecipe: IRecipe {
     override fun matches(inv: IInventory, worldIn: World?): Boolean {
         var emptyTickets = 0
         var fullTickets = 0
-        for(i in 0 until inv.sizeInventory) {
-            val stack = inv.getStackInSlot(i)
+        for(i in 0 until inv.containerSize) {
+            val stack = inv.getItem(i)
             if(stack.item == ItemGoldenTicket) {
                 if(ItemGoldenTicket.isEmpty(stack)) {
                     emptyTickets++

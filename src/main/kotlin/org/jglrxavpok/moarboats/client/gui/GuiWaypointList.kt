@@ -2,10 +2,10 @@ package org.jglrxavpok.moarboats.client.gui
 
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiListExtended
-import net.minecraft.client.renderer.GlStateManager
+import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
-import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.CompoundNBT
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.Util
 import net.minecraftforge.fml.client.config.GuiUtils.drawGradientRect
@@ -14,7 +14,7 @@ import org.jglrxavpok.moarboats.integration.WaypointInfo
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL11.*
 
-class WaypointListEntry(val parent: GuiMappingTable, val slot: NBTTagCompound, val slotTops: MutableMap<Int, Int>, val waypoints: List<NBTTagCompound>): GuiListExtended.IGuiListEntry<WaypointListEntry>() {
+class WaypointListEntry(val parent: GuiMappingTable, val slot: CompoundNBT, val slotTops: MutableMap<Int, Int>, val waypoints: List<CompoundNBT>): GuiListExtended.IGuiListEntry<WaypointListEntry>() {
 
     private var lastClickTime: Long = -1L
     private val mc = Minecraft.getInstance()
@@ -34,7 +34,7 @@ class WaypointListEntry(val parent: GuiMappingTable, val slot: NBTTagCompound, v
         if(name.isEmpty()) {
             name = "Waypoint ${index+1}"
         }
-        mc.fontRenderer.drawString(name, left+4f, slotTop+1f, 0xFFFFFF)
+        mc.font.drawString(name, left+4f, slotTop+1f, 0xFFFFFF)
         GlStateManager.pushMatrix()
         GlStateManager.translatef(left+4f, slotTop+10f, 0f)
         val scale = 0.5f
@@ -42,10 +42,10 @@ class WaypointListEntry(val parent: GuiMappingTable, val slot: NBTTagCompound, v
         val text = "X: ${slot.getDouble("x")}, Z: ${slot.getDouble("z")}" +
                 if(slot.getBoolean("hasBoost")) " (${(slot.getDouble("boost")*100).toInt()}%)"
                 else ""
-        mc.fontRenderer.drawString(text, 0f, 0f, 0xFFFFFF)
+        mc.font.drawString(text, 0f, 0f, 0xFFFFFF)
         GlStateManager.popMatrix()
         GlStateManager.color3f(1f, 1f, 1f)
-        mc.textureManager.bindTexture(ArrowsTexture)
+        mc.textureManager.bind(ArrowsTexture)
         if(mouseX >= entryRight-32 && mouseX < entryRight && mouseY >= slotTop && mouseY <= slotTop+slotHeight) {
             val hoveredOffsetBottom = if(mouseY-slotTop >= slotHeight/2) 1 else 0
             val hoveredOffsetTop = 1-hoveredOffsetBottom
@@ -115,13 +115,13 @@ class GuiWaypointList(val mc: Minecraft, val parent: GuiMappingTable, width: Int
         glStencilMask(0xFF)
         glDisable(GL_TEXTURE_2D)
         val tess = Tessellator.getInstance()
-        val buffer = tess.buffer
+        val buffer = tess.builder
         buffer.begin(GL_QUADS, DefaultVertexFormats.POSITION)
         buffer.pos(left.toDouble(), top.toDouble(), 0.0).endVertex()
         buffer.pos(left.toDouble(), (top+height).toDouble(), 0.0).endVertex()
         buffer.pos((left+listWidth).toDouble(), (top+height).toDouble(), 0.0).endVertex()
         buffer.pos((left+listWidth).toDouble(), top.toDouble(), 0.0).endVertex()
-        tess.draw()
+        tess.end()
         glEnable(GL_TEXTURE_2D)
 
         glColorMask(true, true, true, true)

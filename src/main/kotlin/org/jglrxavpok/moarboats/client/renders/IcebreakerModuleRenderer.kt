@@ -1,8 +1,8 @@
 package org.jglrxavpok.moarboats.client.renders
 
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.client.renderer.entity.RenderManager
+import com.mojang.blaze3d.platform.GlStateManager
+import net.minecraft.client.renderer.entity.EntityRendererManager
 import net.minecraft.client.renderer.texture.TextureMap
 import net.minecraft.init.Blocks
 import net.minecraft.util.ResourceLocation
@@ -25,11 +25,11 @@ object IcebreakerModuleRenderer : BoatModuleRenderer() {
     val model = ModelIcebreaker()
     val texture = ResourceLocation(MoarBoats.ModID, "textures/entity/icebreaker.png")
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, renderManager: RenderManager) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, EntityRendererManager: EntityRendererManager) {
         GlStateManager.pushMatrix()
         GlStateManager.scalef(1f, -1f, 1f)
 
-        renderManager.textureManager.bindTexture(texture)
+        EntityRendererManager.textureManager.bind(texture)
         model.render(boat, 0f, 0f, 0f, 0f, 0f, 0.0625f)
         GlStateManager.popMatrix()
     }

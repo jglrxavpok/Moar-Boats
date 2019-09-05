@@ -1,7 +1,7 @@
 package org.jglrxavpok.moarboats.client.models;
 
 import net.minecraft.client.renderer.entity.model.ModelBase;
-import net.minecraft.client.renderer.entity.model.ModelRenderer;
+import net.minecraft.client.renderer.entity.model.RendererModel;
 import net.minecraft.entity.Entity;
 
 /**
@@ -9,17 +9,17 @@ import net.minecraft.entity.Entity;
  * Created using Tabula 7.0.0
  */
 public class ModelIcebreaker extends ModelBase {
-    public ModelRenderer icebreakerLeft;
-    public ModelRenderer icebreakerRight;
+    public RendererModel icebreakerLeft;
+    public RendererModel icebreakerRight;
 
     public ModelIcebreaker() {
         this.textureWidth = 32;
         this.textureHeight = 16;
-        this.icebreakerLeft = new ModelRenderer(this, 0, 0);
+        this.icebreakerLeft = new RendererModel(this, 0, 0);
         this.icebreakerLeft.setRotationPoint(14.0F, 2.0F, 8.0F);
         this.icebreakerLeft.addBox(0.0F, -2.5F, -0.5F, 11, 5, 1, 0.0F);
         this.setRotateAngle(icebreakerLeft, -0.4363323129985824F, 0.7853981633974483F, 0.0F);
-        this.icebreakerRight = new ModelRenderer(this, 0, 0);
+        this.icebreakerRight = new RendererModel(this, 0, 0);
         this.icebreakerRight.setRotationPoint(14.0F, 2.0F, -8.0F);
         this.icebreakerRight.addBox(0.0F, -2.5F, -0.5F, 11, 5, 1, 0.0F);
         this.setRotateAngle(icebreakerRight, 0.4363323129985824F, -0.7853981633974483F, 0.0F);
@@ -34,9 +34,9 @@ public class ModelIcebreaker extends ModelBase {
     /**
      * This is a helper function from Tabula to set the rotation of model parts
      */
-    public void setRotateAngle(ModelRenderer modelRenderer, float x, float y, float z) {
-        modelRenderer.rotateAngleX = x;
-        modelRenderer.rotateAngleY = y;
-        modelRenderer.rotateAngleZ = z;
+    public void setRotateAngle(RendererModel RendererModel, float x, float y, float z) {
+        RendererModel.xRot = x;
+        RendererModel.yRot = y;
+        RendererModel.zRot = z;
     }
 }

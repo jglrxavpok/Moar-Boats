@@ -2,13 +2,13 @@ package org.jglrxavpok.moarboats.client.gui.elements
 
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.Gui
-import net.minecraft.client.gui.GuiButton
-import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.client.gui.widget.button.Button
+import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.util.ResourceLocation
 import org.jglrxavpok.moarboats.MoarBoats
 
 open class GuiToolButton(buttonID: Int, var text: String, var toolIconIndex: Int):
-        GuiButton(buttonID, 0, 0, 20, 20, "") {
+        Button(buttonID, 0, 0, 20, 20, "") {
 
     companion object {
         val WidgetsTextureLocation = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/helm/path_editor_widgets.png")
@@ -26,16 +26,16 @@ open class GuiToolButton(buttonID: Int, var text: String, var toolIconIndex: Int
             val toolY = toolIconIndex / ToolIconCountPerLine
             val minU = toolX.toFloat() * 20f
             val minV = toolY.toFloat() * 20f
-            mc.textureManager.bindTexture(WidgetsTextureLocation)
+            mc.textureManager.bind(WidgetsTextureLocation)
             Gui.drawModalRectWithCustomSizedTexture(x, y, minU, minV, 20, 20, WidgetsTextureSize, WidgetsTextureSize)
 
-            val textY = y + height/2f - mc.fontRenderer.FONT_HEIGHT/2f
-            mc.fontRenderer.drawStringWithShadow(text, x+width+ 4f, textY, 0xFFF0F0F0.toInt())
+            val textY = y + height/2f - mc.font.FONT_HEIGHT/2f
+            mc.font.drawStringWithShadow(text, x+width+ 4f, textY, 0xFFF0F0F0.toInt())
         }
     }
 
     private fun renderButtonBackground(mc: Minecraft, mouseX: Int, mouseY: Int) {
-        mc.textureManager.bindTexture(BUTTON_TEXTURES)
+        mc.textureManager.bind(BUTTON_TEXTURES)
         GlStateManager.color4f(1.0f, 1.0f, 1.0f, 1.0f)
         this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height
         val stateOffset = this.getHoverState(this.hovered)

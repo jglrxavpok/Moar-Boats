@@ -1,7 +1,7 @@
 package org.jglrxavpok.moarboats.common.tileentity
 
 import net.minecraft.entity.Entity
-import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.CompoundNBT
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.ITickable
 import net.minecraft.util.math.AxisAlignedBB
@@ -25,7 +25,7 @@ class TileEntityFluidLoader: TileEntityListenable(MoarBoats.TileEntityFluidLoade
     private var working: Boolean = false
 
     override fun tick() {
-        if(world.isRemote)
+        if(world.isClientSide)
             return
         working = false
         updateListeners()
@@ -66,7 +66,7 @@ class TileEntityFluidLoader: TileEntityListenable(MoarBoats.TileEntityFluidLoade
         val maxDrainable = minOf(maxDrain, fluidAmount)
         if(doDrain) {
             fluidAmount -= maxDrainable
-            markDirty()
+            setChanged()
         }
         return FluidStack(fluid, maxDrainable)
     }
@@ -102,7 +102,7 @@ class TileEntityFluidLoader: TileEntityListenable(MoarBoats.TileEntityFluidLoade
         val maxFillable = minOf(resource.amount, capacity-fluidAmount)
         if(doFill) {
             fluidAmount += maxFillable
-            markDirty()
+            setChanged()
         }
         return maxFillable
     }
@@ -141,13 +141,13 @@ class TileEntityFluidLoader: TileEntityListenable(MoarBoats.TileEntityFluidLoade
         return super.getCapability(capability, facing)
     }
 
-    override fun write(compound: NBTTagCompound): NBTTagCompound {
+    override fun write(compound: CompoundNBT): CompoundNBT {
         compound.putInt("fluidAmount", fluidAmount)
         compound.putString("fluidName", fluid?.name ?: "")
         return super.write(compound)
     }
 
-    override fun read(compound: NBTTagCompound) {
+    override fun read(compound: CompoundNBT) {
         super.read(compound)
 // FIXME        fluid = FluidRegistry.getFluid(compound.getString("fluidName"))
         fluidAmount = compound.getInt("fluidAmount")

@@ -1,37 +1,37 @@
 package org.jglrxavpok.moarboats.api
 
 import net.minecraft.inventory.IInventory
-import net.minecraft.inventory.InventoryBasic
+import net.minecraft.inventory.Inventory
 import net.minecraft.item.ItemStack
 import net.minecraft.util.NonNullList
-import net.minecraft.util.text.TextComponentString
+import net.minecraft.util.text.StringTextComponent
 import net.minecraftforge.fml.network.PacketDistributor
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.network.SSyncInventory
 
 abstract class BoatModuleInventory(val inventoryName: String, val slotCount: Int, val boat: IControllable, val module: BoatModule, val list: NonNullList<ItemStack>):
-        InventoryBasic(TextComponentString(inventoryName) /* TODO: change to TextComponent */, slotCount) {
+        Inventory(slotCount) {
 
     fun getModuleState() = boat.getState(module)
     fun saveModuleState() {
         boat.saveState(module)
     }
 
-    // from InventoryBasic
+    // from Inventory
     fun add(stack: ItemStack): ItemStack {
         val itemstack = stack.copy()
 
-        for (i in 0 until this.sizeInventory) {
-            val stackInSlot = this.getStackInSlot(i)
+        for (i in 0 until this.containerSize) {
+            val stackInSlot = this.getItem(i)
 
             if (stackInSlot.isEmpty) {
-                this.setInventorySlotContents(i, itemstack)
-                this.markDirty()
+                this.setItem(i, itemstack)
+                this.setChanged()
                 return ItemStack.EMPTY
             }
 
-            if (ItemStack.areItemsEqual(stackInSlot, itemstack)) {
-                val maxStackSize = Math.min(this.inventoryStackLimit, stackInSlot.maxStackSize)
+            if (ItemStack.isSame(stackInSlot, itemstack)) {
+                val maxStackSize = Math.min(this.maxStackSize, stackInSlot.maxStackSize)
                 val canFit = Math.min(itemstack.count, maxStackSize - stackInSlot.count)
 
                 if (canFit > 0) {
@@ -39,7 +39,7 @@ abstract class BoatModuleInventory(val inventoryName: String, val slotCount: Int
                     itemstack.shrink(canFit)
 
                     if (itemstack.isEmpty) {
-                        this.markDirty()
+                        this.setChanged()
                         return ItemStack.EMPTY
                     }
                 }
@@ -47,14 +47,14 @@ abstract class BoatModuleInventory(val inventoryName: String, val slotCount: Int
         }
 
         if (itemstack.count != stack.count) {
-            this.markDirty()
+            this.setChanged()
         }
 
         return itemstack
     }
 
     fun syncToClient() {
-        if(!boat.worldRef.isRemote) {
+        if(!boat.worldRef.isClientSide) {
             MoarBoats.network.send(PacketDistributor.ALL.noArg(), SSyncInventory(boat.entityID, module.id, list))
         }
     }
@@ -66,19 +66,19 @@ abstract class BoatModuleInventory(val inventoryName: String, val slotCount: Int
      * WARNING: This only checks if a SINGLE item can fit, not a whole stack
      */
     fun canAddAnyFrom(inv: IInventory): Boolean {
-        for(i in 0 until inv.sizeInventory) {
-            val itemstack = inv.getStackInSlot(i)
+        for(i in 0 until inv.containerSize) {
+            val itemstack = inv.getItem(i)
             if(itemstack.isEmpty)
                 continue
-            for (j in 0 until this.sizeInventory) {
-                val stackInSlot = this.getStackInSlot(j)
+            for (j in 0 until this.containerSize) {
+                val stackInSlot = this.getItem(j)
 
                 if (stackInSlot.isEmpty) {
                     return true;
                 }
 
-                if (ItemStack.areItemsEqual(stackInSlot, itemstack)) {
-                    val maxStackSize = Math.min(this.inventoryStackLimit, stackInSlot.maxStackSize)
+                if (ItemStack.isSame(stackInSlot, itemstack)) {
+                    val maxStackSize = Math.min(this.maxStackSize, stackInSlot.maxStackSize)
                     val canFit = maxStackSize - stackInSlot.count > 0;
 
                     if (canFit) {

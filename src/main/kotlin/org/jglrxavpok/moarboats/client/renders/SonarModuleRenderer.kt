@@ -1,8 +1,8 @@
 package org.jglrxavpok.moarboats.client.renders
 
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.client.renderer.entity.RenderManager
+import com.mojang.blaze3d.platform.GlStateManager
+import net.minecraft.client.renderer.entity.EntityRendererManager
 import net.minecraft.client.renderer.texture.TextureMap
 import net.minecraft.init.Blocks
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
@@ -20,7 +20,7 @@ object SonarModuleRenderer : BoatModuleRenderer() {
 
     private val testMatrix = SurroundingsMatrix(32)
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, renderManager: RenderManager) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, EntityRendererManager: EntityRendererManager) {
         module as SonarModule
         GlStateManager.pushMatrix()
         GlStateManager.scalef(0.75f, 0.75f, 0.75f)
@@ -31,7 +31,7 @@ object SonarModuleRenderer : BoatModuleRenderer() {
                 GlStateManager.pushMatrix()
                 GlStateManager.translatef(xOffset, 4f/16f, zOffset)
                 GlStateManager.scalef(0.25f, 0.25f, 0.25f)
-                renderManager.textureManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
+                EntityRendererManager.textureManager.bind(TextureMap.LOCATION_BLOCKS_TEXTURE)
                 val block = Blocks.NOTE_BLOCK
                 Minecraft.getInstance().blockRendererDispatcher.renderBlockBrightness(block.defaultState, boat.brightness)
                 GlStateManager.popMatrix()
@@ -41,7 +41,7 @@ object SonarModuleRenderer : BoatModuleRenderer() {
         // render gradient
         if(Minecraft.getInstance().gameSettings.showDebugInfo) {
             GlStateManager.rotatef(-(180.0f - entityYaw - 90f), 0.0f, 1.0f, 0.0f)
-            testMatrix.compute(boat.world, boat.positionX, boat.positionY, boat.positionZ).removeNotConnectedToCenter()
+            testMatrix.compute(boat.level, boat.positionX, boat.positionY, boat.positionZ).removeNotConnectedToCenter()
             val gradient = testMatrix.computeGradient()
             testMatrix.forEach { xOffset, zOffset, potentialState ->
                 if(potentialState != null) {

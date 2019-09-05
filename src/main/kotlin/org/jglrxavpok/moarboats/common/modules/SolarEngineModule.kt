@@ -1,12 +1,12 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.init.Blocks
 import net.minecraft.inventory.IInventory
-import net.minecraft.item.ItemBlock
+import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.util.EnumHand
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
 import net.minecraft.world.EnumLightType
@@ -20,7 +20,7 @@ object SolarEngineModule : BaseEngineModule() {
 
     val invertedProperty = BooleanBoatProperty("inverted")
 
-    override fun createContainer(player: EntityPlayer, boat: IControllable): ContainerBase {
+    override fun createContainer(player: PlayerEntity, boat: IControllable): ContainerBase {
         return EmptyContainer(player.inventory, isLarge = true)
     }
 
@@ -37,10 +37,10 @@ object SolarEngineModule : BaseEngineModule() {
     }
 
     override fun remainingTimeInPercent(from: IControllable): Float {
-        val worldIn = from.worldRef
+        val levelIn = from.levelRef
         val pos = from.correspondingEntity.position
-        var diff = worldIn.getLightFor(EnumLightType.SKY, pos) - worldIn.skylightSubtracted
-        var angle = worldIn.getCelestialAngleRadians(1.0f)
+        var diff = levelIn.getLightFor(EnumLightType.SKY, pos) - levelIn.skylightSubtracted
+        var angle = levelIn.getCelestialAngleRadians(1.0f)
 
         if (invertedProperty[from]) {
             diff = 15 - diff
@@ -55,7 +55,7 @@ object SolarEngineModule : BaseEngineModule() {
         return MathHelper.clamp(diff, 0, 15) / 15f
     }
 
-    override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean): Boolean {
+    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean): Boolean {
         if(sneaking && player.getHeldItem(hand).isEmpty) {
             invertedProperty[from] = !invertedProperty[from]
             return true
@@ -67,7 +67,7 @@ object SolarEngineModule : BaseEngineModule() {
         return remainingTimeInPercent(from) >= 1f/15f - 10e-14f
     }
 
-    override fun updateFuelState(boat: IControllable, state: NBTTagCompound, inv: IInventory) {
+    override fun updateFuelState(boat: IControllable, state: CompoundNBT, inv: IInventory) {
         // NOP
     }
 
@@ -77,7 +77,7 @@ object SolarEngineModule : BaseEngineModule() {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.entityDropItem(ItemBlock.getItemFromBlock(Blocks.DAYLIGHT_DETECTOR), 1)
+            boat.correspondingEntity.entityDropItem(BlockItem.getItemFromBlock(Blocks.DAYLIGHT_DETECTOR), 1)
     }
 
 }

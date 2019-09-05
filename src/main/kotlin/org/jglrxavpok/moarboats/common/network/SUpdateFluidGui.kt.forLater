@@ -24,7 +24,7 @@ class SUpdateFluidGui(): MoarBoatsPacket {
         override val receiverSide = Dist.CLIENT
 
         override fun onMessage(message: SUpdateFluidGui, ctx: NetworkEvent.Context): MoarBoatsPacket? {
-            val screen = Minecraft.getInstance().currentScreen
+            val screen = Minecraft.getInstance().screen
             if(screen is GuiFluid) {
                 screen.updateFluid(message.fluidName, message.fluidAmount, message.fluidCapacity)
             }

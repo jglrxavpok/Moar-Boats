@@ -1,9 +1,9 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.init.Blocks
-import net.minecraft.item.ItemBlock
-import net.minecraft.util.EnumHand
+import net.minecraft.item.BlockItem
+import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec2f
@@ -25,7 +25,7 @@ object SonarModule: BoatModule() {
     override val moduleSpot = Spot.Navigation
     override val isMenuInteresting = false
 
-    override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean): Boolean {
+    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean): Boolean {
         return false
     }
 
@@ -79,11 +79,11 @@ object SonarModule: BoatModule() {
     override fun onAddition(to: IControllable) {
     }
 
-    override fun createContainer(player: EntityPlayer, boat: IControllable): ContainerBase? {
+    override fun createContainer(player: PlayerEntity, boat: IControllable): ContainerBase? {
         return EmptyContainer(player.inventory)
     }
 
-    override fun createGui(player: EntityPlayer, boat: IControllable) = GuiNoConfigModule(player.inventory, this, boat)
+    override fun createGui(player: PlayerEntity, boat: IControllable) = GuiNoConfigModule(player.inventory, this, boat)
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)

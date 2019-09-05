@@ -21,11 +21,11 @@ class CRemoveModule(): MoarBoatsPacket {
 
         override fun onMessage(message: CRemoveModule, ctx: NetworkEvent.Context): SMapAnswer? {
             val player = ctx.sender!!
-            val world = player.world
-            val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
+            val level = player.level
+            val boat = level.getEntity(message.boatID) as? ModularBoatEntity ?: return null
             val moduleLocation = message.moduleLocation
             boat.removeModule(moduleLocation)
-            player.closeScreen()
+            player.closeContainer()
             return null
         }
     }

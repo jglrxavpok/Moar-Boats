@@ -1,7 +1,7 @@
 package org.jglrxavpok.moarboats.client.renders
 
-import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.client.renderer.entity.RenderManager
+import com.mojang.blaze3d.platform.GlStateManager
+import net.minecraft.client.renderer.entity.EntityRendererManager
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
 import net.minecraftforge.registries.ForgeRegistryEntry
@@ -13,7 +13,7 @@ import org.jglrxavpok.moarboats.api.BoatModule
 
 abstract class BoatModuleRenderer: ForgeRegistryEntry<BoatModuleRenderer>() {
 
-    abstract fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, renderManager: RenderManager)
+    abstract fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, EntityRendererManager: EntityRendererManager)
 
     fun setScale() {
         val scale = 0.0625f

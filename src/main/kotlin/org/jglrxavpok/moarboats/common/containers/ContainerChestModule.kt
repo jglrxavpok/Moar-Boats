@@ -1,7 +1,7 @@
 package org.jglrxavpok.moarboats.common.containers
 
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.entity.player.InventoryPlayer
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.inventory.*
 import net.minecraft.item.ItemStack
 import net.minecraftforge.api.distmarker.Dist
@@ -9,7 +9,7 @@ import net.minecraftforge.api.distmarker.OnlyIn
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 
-class ContainerChestModule(playerInventory: InventoryPlayer, val engine: BoatModule, val boat: IControllable): ContainerBase(playerInventory) {
+class ContainerChestModule(playerInventory: PlayerInventory, val engine: BoatModule, val boat: IControllable): ContainerBase(playerInventory) {
 
     val chestInventory = boat.getInventory(engine)
 
@@ -34,12 +34,12 @@ class ContainerChestModule(playerInventory: InventoryPlayer, val engine: BoatMod
         this.chestInventory.setField(id, data)
     }
 
-    override fun transferStackInSlot(playerIn: EntityPlayer, index: Int): ItemStack {
+    override fun transferStackInSlot(playerIn: PlayerEntity, index: Int): ItemStack {
         var itemstack = ItemStack.EMPTY
         val slot = this.inventorySlots[index]
 
         if (slot != null && slot.hasStack) {
-            val itemstack1 = slot.stack
+            val itemstack1 = slot.item
             itemstack = itemstack1.copy()
 
             if (index < 3 * 9) {

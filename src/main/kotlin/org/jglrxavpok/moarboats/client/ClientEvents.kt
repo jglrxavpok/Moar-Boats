@@ -3,22 +3,22 @@ package org.jglrxavpok.moarboats.client
 import com.google.common.collect.ImmutableList
 import net.alexwells.kottle.KotlinEventBusSubscriber
 import net.minecraft.client.Minecraft
-import net.minecraft.client.entity.AbstractClientPlayer
-import net.minecraft.client.gui.GuiScreen
-import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.client.entity.player.AbstractClientPlayerEntity
+import net.minecraft.client.gui.screen.Screen
+import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.color.IItemColor
-import net.minecraft.client.renderer.entity.RenderPlayer
+import net.minecraft.client.renderer.entity.PlayerRenderer
 import net.minecraft.client.renderer.entity.model.ModelBox
-import net.minecraft.client.renderer.entity.model.ModelPlayer
-import net.minecraft.client.renderer.entity.model.ModelRenderer
+import net.minecraft.client.renderer.entity.model.PlayerModel
+import net.minecraft.client.renderer.entity.model.RendererModel
 import net.minecraft.client.renderer.model.ModelResourceLocation
 import net.minecraft.client.renderer.model.ModelRotation
-import net.minecraft.item.EnumDyeColor
-import net.minecraft.item.ItemBlock
+import net.minecraft.item.DyeColor
+import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
-import net.minecraft.util.EnumHand
-import net.minecraft.util.EnumHandSide
+import net.minecraft.util.Hand
+import net.minecraft.util.HandSide
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
 import net.minecraftforge.api.distmarker.Dist
@@ -52,9 +52,9 @@ import javax.annotation.Resource
 object ClientEvents {
 
     val hookTextureLocation = ResourceLocation(MoarBoats.ModID, "textures/hook.png")
-    val fakePlayerModel = ModelPlayer(0f, false)
-    val fakeArmRoot = ModelRenderer(fakePlayerModel, 32, 48)
-    val fakeArmwearRoot = ModelRenderer(fakePlayerModel, 48, 48)
+    val fakePlayerModel = PlayerModel(0f, false)
+    val fakeArmRoot = RendererModel(fakePlayerModel, 32, 48)
+    val fakeArmwearRoot = RendererModel(fakePlayerModel, 48, 48)
     val armBox = ModelBox(fakeArmRoot,
             32, 48, -1.0f, -2.0f, -2.0f, 4, 9, 4, 0.0f)
     val armwearBox = ModelBox(fakeArmwearRoot,
@@ -93,10 +93,10 @@ object ClientEvents {
 
     fun postInit(evt: FMLLoadCompleteEvent) {
         val mc = Minecraft.getInstance()
-        mc.renderManager.skinMap["default"]!!.apply {
+        mc.entityRenderDispatcher.skinMap["default"]!!.apply {
             this.addLayer(MoarBoatsPatreonHookLayer(this))
         }
-        mc.renderManager.skinMap["slim"]!!.apply {
+        mc.entityRenderDispatcher.skinMap["slim"]!!.apply {
             this.addLayer(MoarBoatsPatreonHookLayer(this))
         }
     }
@@ -114,7 +114,7 @@ object ClientEvents {
         val mc = Minecraft.getInstance()
         val player = mc.player
         if(mc.player.gameProfile.id.toString().toLowerCase() in MoarBoats.PatreonList) {
-            if(event.hand == EnumHand.MAIN_HAND && player.getHeldItem(event.hand).isEmpty) {
+            if(event.hand == Hand.MAIN_HAND && player.getItemInHand(event.hand).isEmpty) {
                 if(MoarBoatsConfig.misc.hidePatreonHook.get()) {
                     return
                 }
@@ -122,16 +122,16 @@ object ClientEvents {
                 event.isCanceled = true
 
                 GlStateManager.pushMatrix()
-                renderArmFirstPerson(event.equipProgress, event.swingProgress, player.primaryHand)
+                renderArmFirstPerson(event.equipProgress, event.swingProgress, player.mainArm)
                 GlStateManager.popMatrix()
             }
         }
     }
 
-    // COPY PASTED FROM RenderPlayer
-    private fun renderArmFirstPerson(p_187456_1_: Float, swingProgress: Float, p_187456_3_: EnumHandSide) {
+    // COPY PASTED FROM PlayerRenderer
+    private fun renderArmFirstPerson(p_187456_1_: Float, swingProgress: Float, p_187456_3_: HandSide) {
         val mc = Minecraft.getInstance()
-        val rightHanded = p_187456_3_ != EnumHandSide.LEFT
+        val rightHanded = p_187456_3_ != HandSide.LEFT
         val f = if (rightHanded) 1.0f else -1.0f
         val f1 = MathHelper.sqrt(swingProgress)
         val f2 = -0.3f * MathHelper.sin(f1 * Math.PI.toFloat())
@@ -144,40 +144,40 @@ object ClientEvents {
         GlStateManager.rotatef(f * f6 * 70.0f, 0.0f, 1.0f, 0.0f)
         GlStateManager.rotatef(f * f5 * -20.0f, 0.0f, 0.0f, 1.0f)
         val player = mc.player
-        mc.textureManager.bindTexture(player.locationSkin)
+        mc.textureManager.bind(player.skinTextureLocation)
         GlStateManager.translatef(f * -1.0f, 3.6f, 3.5f)
         GlStateManager.rotatef(f * 120.0f, 0.0f, 0.0f, 1.0f)
         GlStateManager.rotatef(200.0f, 1.0f, 0.0f, 0.0f)
         GlStateManager.rotatef(f * -135.0f, 0.0f, 1.0f, 0.0f)
         GlStateManager.translatef(f * 5.6f, 0.0f, 0.0f)
-        val renderplayer = mc.renderManager.getEntityRenderObject<AbstractClientPlayer>(player) as RenderPlayer
-        val model = renderplayer.mainModel
+        val PlayerRenderer = mc.entityRenderDispatcher.getRenderer<AbstractClientPlayerEntity>(player) as PlayerRenderer
+        val model = PlayerRenderer.model
         GlStateManager.disableCull()
 
-        val arm = if(rightHanded) model.bipedRightArm else model.bipedLeftArm
+        val arm = if(rightHanded) model.rightArm else model.leftArm
         renderArm(arm, player, model)
 
         GlStateManager.enableCull()
     }
 
-    private fun renderArm(arm: ModelRenderer, clientPlayer: AbstractClientPlayer, modelplayer: ModelPlayer) {
+    private fun renderArm(arm: RendererModel, clientPlayer: AbstractClientPlayerEntity, PlayerModel: PlayerModel) {
         GlStateManager.color3f(1.0f, 1.0f, 1.0f)
         val scale = 0.0625f
         GlStateManager.enableBlend()
-        modelplayer.isSneak = false
-        modelplayer.swingProgress = 0.0f
-        modelplayer.setRotationAngles(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0625f, clientPlayer)
+        PlayerModel.isSneak = false
+        PlayerModel.swingProgress = 0.0f
+        PlayerModel.setRotationAngles(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0625f, clientPlayer)
 
         GlStateManager.pushMatrix()
-        arm.rotateAngleX = 0.0f
-        GlStateManager.translatef(arm.offsetX, arm.offsetY, arm.offsetZ)
+        arm.xRot = 0.0f
+        GlStateManager.translatef(arm.translateX, arm.translateY, arm.translateZ)
         GlStateManager.translatef(arm.rotationPointX*scale, arm.rotationPointY*scale, arm.rotationPointZ*scale)
-        GlStateManager.rotatef((arm.rotateAngleZ * 180f / Math.PI).toFloat(), 0f, 0f, 1f)
-        GlStateManager.rotatef((arm.rotateAngleY * 180f / Math.PI).toFloat(), 0f, 1f, 0f)
-        GlStateManager.rotatef((arm.rotateAngleX * 180f / Math.PI).toFloat(), 1f, 0f, 0f)
+        GlStateManager.rotatef((arm.zRot * 180f / Math.PI).toFloat(), 0f, 0f, 1f)
+        GlStateManager.rotatef((arm.yRot * 180f / Math.PI).toFloat(), 0f, 1f, 0f)
+        GlStateManager.rotatef((arm.xRot * 180f / Math.PI).toFloat(), 1f, 0f, 0f)
 
         val tess = Tessellator.getInstance()
-        val buffer = tess.buffer
+        val buffer = tess.builder
 
         GlStateManager.pushMatrix()
         armBox.render(buffer, scale)
@@ -189,7 +189,7 @@ object ClientEvents {
         GlStateManager.scalef(hookScale, -hookScale, hookScale)
         GlStateManager.translatef(-1f/16f, 0f, -1f/16f)
         GlStateManager.translatef(0f, -1.25f, 0f)
-        Minecraft.getInstance().textureManager.bindTexture(hookTextureLocation)
+        Minecraft.getInstance().textureManager.bind(hookTextureLocation)
         hookModel.render(clientPlayer, 0f, 0f, 0f, 0f, 0f, scale)
         GlStateManager.popMatrix()
         GlStateManager.disableBlend()

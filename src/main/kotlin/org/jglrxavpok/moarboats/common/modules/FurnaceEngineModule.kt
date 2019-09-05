@@ -1,16 +1,16 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.init.Blocks
-import net.minecraft.init.Items
+import net.minecraft.item.Items
 import net.minecraft.init.Particles
 import net.minecraft.inventory.IInventory
 import net.minecraft.item.Item
-import net.minecraft.item.ItemBlock
+import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.CompoundNBT
 import net.minecraft.tileentity.TileEntityFurnace
-import net.minecraft.util.EnumHand
+import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
 import org.jglrxavpok.moarboats.api.IControllable
@@ -20,7 +20,7 @@ import org.jglrxavpok.moarboats.common.state.IntBoatProperty
 import org.jglrxavpok.moarboats.extensions.toRadians
 
 object FurnaceEngineModule : BaseEngineModule() {
-    override fun createContainer(player: EntityPlayer, boat: IControllable): ContainerBase {
+    override fun createContainer(player: PlayerEntity, boat: IControllable): ContainerBase {
         return ContainerFurnaceEngine(player.inventory, this, boat)
     }
 
@@ -44,7 +44,7 @@ object FurnaceEngineModule : BaseEngineModule() {
     override fun estimatedTotalTicks(boat: IControllable): Float {
         val inv = boat.getInventory()
         val diff = remainingTimeInTicks(boat)
-        val currentStack = inv.getStackInSlot(0)
+        val currentStack = inv.getItem(0)
         return diff + currentStack.count * getFuelTime(currentStack)
     }
 
@@ -54,7 +54,7 @@ object FurnaceEngineModule : BaseEngineModule() {
         fuelTotalTimeProperty[to] = 0
     }
 
-    override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean): Boolean {
+    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean): Boolean {
         return false
     }
 
@@ -64,22 +64,22 @@ object FurnaceEngineModule : BaseEngineModule() {
         return fuelTime < fuelTotalTime
     }
 
-    override fun updateFuelState(boat: IControllable, state: NBTTagCompound, inv: IInventory) {
+    override fun updateFuelState(boat: IControllable, state: CompoundNBT, inv: IInventory) {
         val fuelTime = fuelTimeProperty[boat]
         val fuelTotalTime = fuelTotalTimeProperty[boat]
         if(fuelTime < fuelTotalTime) {
             fuelTimeProperty[boat]++
         } else {
-            var stack = inv.getStackInSlot(0)
+            var stack = inv.getItem(0)
             if(stack.isEmpty) {
                 tryToFindFuel(boat)
-                stack = inv.getStackInSlot(0)
+                stack = inv.getItem(0)
             }
             val fuelItem = stack.item
             val itemFuelTime = getFuelTime(stack)
             if (itemFuelTime > 0 && !isStationary(boat)) { // don't consume a new item if you are not moving
                 if(fuelItem == Items.LAVA_BUCKET)
-                    inv.setInventorySlotContents(0, ItemStack(Items.BUCKET))
+                    inv.setItem(0, ItemStack(Items.BUCKET))
                 else
                     inv.decrStackSize(0, 1)
                 fuelTimeProperty[boat] = 0
@@ -100,11 +100,11 @@ object FurnaceEngineModule : BaseEngineModule() {
         if(storageModule != null) {
             val inventory = boat.getInventory()
             val storageInventory = boat.getInventory(storageModule)
-            for(index in 0 until storageInventory.sizeInventory) {
-                val stack = storageInventory.getStackInSlot(index)
+            for(index in 0 until storageInventory.containerSize) {
+                val stack = storageInventory.getItem(index)
                 if(isItemFuel(stack)) {
-                    storageInventory.setInventorySlotContents(index, ItemStack.EMPTY)
-                    inventory.setInventorySlotContents(0, stack)
+                    storageInventory.setItem(index, ItemStack.EMPTY)
+                    inventory.setItem(0, stack)
                     break
                 }
             }
@@ -126,6 +126,6 @@ object FurnaceEngineModule : BaseEngineModule() {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.entityDropItem(ItemBlock.getItemFromBlock(Blocks.FURNACE), 1)
+            boat.correspondingEntity.entityDropItem(BlockItem.getItemFromBlock(Blocks.FURNACE), 1)
     }
 }

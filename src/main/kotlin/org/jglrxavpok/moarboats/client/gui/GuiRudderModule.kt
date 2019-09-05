@@ -1,9 +1,9 @@
 package org.jglrxavpok.moarboats.client.gui
 
-import net.minecraft.client.gui.GuiButton
-import net.minecraft.entity.player.InventoryPlayer
+import net.minecraft.client.gui.widget.button.Button
+import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.util.ResourceLocation
-import net.minecraft.util.text.TextComponentTranslation
+import net.minecraft.util.text.TranslationTextComponent
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
@@ -12,23 +12,23 @@ import org.jglrxavpok.moarboats.common.modules.RudderModule
 import org.jglrxavpok.moarboats.common.network.CChangeRudderBlocking
 import org.jglrxavpok.moarboats.common.network.CDeployAnchor
 
-class GuiRudderModule(playerInventory: InventoryPlayer, anchor: BoatModule, boat: IControllable):
-        GuiModuleBase(anchor, boat, playerInventory, EmptyContainer(playerInventory)) {
+class GuiRudderModule(playerInventory: PlayerInventory, anchor: BoatModule, boat: IControllable):
+        GuiModuleBase<EmptyContainer>(anchor, boat, playerInventory, EmptyContainer(playerInventory)) {
 
     override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/nothing.png")
 
-    val blockButton = object: GuiButton(0,0,0, 140, 20, "") {
+    val blockButton = object: Button(0,0,0, 140, 20, "") {
         override fun onClick(mouseX: Double, mouseY: Double) {
             MoarBoats.network.sendToServer(CChangeRudderBlocking(boat.entityID, module.id))
         }
     }
-    val blockingText = TextComponentTranslation("moarboats.gui.rudder.blocking")
-    val notBlockingText = TextComponentTranslation("moarboats.gui.rudder.nonblocking")
+    val blockingText = TranslationTextComponent("moarboats.gui.rudder.blocking")
+    val notBlockingText = TranslationTextComponent("moarboats.gui.rudder.nonblocking")
     val rudder = module as RudderModule
 
-    override fun initGui() {
-        super.initGui()
-        blockButton.x = guiLeft+xSize/2-70
+    override fun init() {
+        super.init()
+        blockButton.x = guiLeft+imageWidth/2-70
         blockButton.y = guiTop+30
         addButton(blockButton)
     }

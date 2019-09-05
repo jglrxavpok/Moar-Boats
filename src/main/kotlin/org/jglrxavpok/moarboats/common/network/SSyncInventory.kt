@@ -28,14 +28,14 @@ class SSyncInventory(): MoarBoatsPacket {
         override val receiverSide = Dist.CLIENT
 
         override fun onMessage(message: SSyncInventory, ctx: NetworkEvent.Context): MoarBoatsPacket? {
-            val world = Minecraft.getInstance().world
-            val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
+            val level = Minecraft.getInstance().level
+            val boat = level.getEntity(message.boatID) as? ModularBoatEntity ?: return null
             val moduleLocation = message.moduleLocation
             val module = BoatModuleRegistry[moduleLocation].module
             val inventory = boat.getInventory(module)
             inventory.clear()
-            for(index in 0 until inventory.sizeInventory) {
-                inventory.setInventorySlotContents(index, message.inventoryContents[index])
+            for(index in 0 until inventory.containerSize) {
+                inventory.setItem(index, message.inventoryContents[index])
             }
             return null
         }

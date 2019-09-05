@@ -2,7 +2,7 @@ package org.jglrxavpok.moarboats.client.gui
 
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiListExtended
-import net.minecraft.client.renderer.GlStateManager
+import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.Util
@@ -29,7 +29,7 @@ class WaypointInfoEntry(val parent: GuiWaypointEditor, val slot: WaypointInfo, v
         // TODO: merge with rendering code of GuiWaypointList
         GlStateManager.pushMatrix()
         GlStateManager.color3f(1f, 1f, 1f)
-        mc.textureManager.bindTexture(ArrowsTexture)
+        mc.textureManager.bind(ArrowsTexture)
         val hovered = if(mouseX >= left && mouseX < left+16 && mouseY >= slotTop && mouseY < slotTop+slotHeight) 1 else 0
 
         val arrowScale = 0.75
@@ -43,7 +43,7 @@ class WaypointInfoEntry(val parent: GuiWaypointEditor, val slot: WaypointInfo, v
 
         GlStateManager.translatef(16f, 0f, 0f)
 
-        mc.fontRenderer.drawString(name, left+4f, slotTop+1f, 0xFFFFFF)
+        mc.font.drawString(name, left+4f, slotTop+1f, 0xFFFFFF)
         GlStateManager.pushMatrix()
         GlStateManager.translatef(left+4f, slotTop+10f, 0f)
         val scale = 0.5f
@@ -51,7 +51,7 @@ class WaypointInfoEntry(val parent: GuiWaypointEditor, val slot: WaypointInfo, v
         val text = "X: ${slot.x}, Z: ${slot.z}" +
                 if(slot.boost != null) " (${(slot.boost*100).toInt()}%)"
                 else ""
-        mc.fontRenderer.drawString(text, 0f, 0f, 0xFFFFFF)
+        mc.font.drawString(text, 0f, 0f, 0xFFFFFF)
         GlStateManager.popMatrix()
         GlStateManager.color3f(1f, 1f, 1f)
         slotTops[this.index] = slotTop

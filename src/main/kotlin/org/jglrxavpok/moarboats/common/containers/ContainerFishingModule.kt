@@ -1,8 +1,8 @@
 package org.jglrxavpok.moarboats.common.containers
 
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.entity.player.InventoryPlayer
-import net.minecraft.init.Items
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.entity.player.PlayerInventory
+import net.minecraft.item.Items
 import net.minecraft.inventory.*
 import net.minecraft.item.ItemStack
 import net.minecraftforge.api.distmarker.Dist
@@ -10,7 +10,7 @@ import net.minecraftforge.api.distmarker.OnlyIn
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 
-class ContainerFishingModule(playerInventory: InventoryPlayer, val fishingModule: BoatModule, val boat: IControllable): ContainerBase(playerInventory) {
+class ContainerFishingModule(playerInventory: PlayerInventory, val fishingModule: BoatModule, val boat: IControllable): ContainerBase(playerInventory) {
 
     val fishingModuleInv = boat.getInventory(fishingModule)
 
@@ -30,12 +30,12 @@ class ContainerFishingModule(playerInventory: InventoryPlayer, val fishingModule
         this.fishingModuleInv.setField(id, data)
     }
 
-    override fun transferStackInSlot(playerIn: EntityPlayer, index: Int): ItemStack {
+    override fun transferStackInSlot(playerIn: PlayerEntity, index: Int): ItemStack {
         var itemstack = ItemStack.EMPTY
         val slot = this.inventorySlots[index]
 
         if (slot != null && slot.hasStack) {
-            val itemstack1 = slot.stack
+            val itemstack1 = slot.item
             itemstack = itemstack1.copy()
 
             if (index != 0) {

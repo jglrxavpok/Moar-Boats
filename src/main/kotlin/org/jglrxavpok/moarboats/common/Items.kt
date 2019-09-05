@@ -1,7 +1,7 @@
 package org.jglrxavpok.moarboats.common
 
 import org.jglrxavpok.moarboats.common.items.*
-import net.minecraft.init.Items as MCItems
+import net.minecraft.item.Items as MCItems
 
 object Items {
 
@@ -21,7 +21,7 @@ object Items {
             WaterborneComparatorItem,
             CreativeEngineItem,
             ItemGoldenTicket,
-            ItemMapWithPath,
+            MapItemWithPath,
             ChunkLoaderItem,
             OarsItem,
             CargoStopperItem

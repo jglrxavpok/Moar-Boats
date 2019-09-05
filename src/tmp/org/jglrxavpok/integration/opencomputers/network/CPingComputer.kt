@@ -31,7 +31,7 @@ class CPingComputer(): IMessage {
         override fun onMessage(message: CPingComputer, ctx: MessageContext): IMessage? {
             with(message) {
                 val world = ctx.serverHandler.player.world
-                val boat = world.getEntityByID(boatID) as? ModularBoatEntity ?: return null
+                val boat = world.getEntity(boatID) as? ModularBoatEntity ?: return null
                 OpenComputersPlugin.getHost(boat)?.let {
                     return SPongComputer(boatID, it.machine.isRunning)
                 }

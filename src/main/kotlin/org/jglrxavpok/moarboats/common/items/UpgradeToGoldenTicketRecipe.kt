@@ -31,15 +31,15 @@ object UpgradeToGoldenTicketRecipe: IRecipe {
         var emptyTickets = 0
         var fullMaps = 0
         var fullMap: ItemStack? = null
-        for(i in 0 until inv.sizeInventory) {
-            val stack = inv.getStackInSlot(i)
+        for(i in 0 until inv.containerSize) {
+            val stack = inv.getItem(i)
             if(stack.item == ItemGoldenTicket) {
                 if(ItemGoldenTicket.isEmpty(stack)) {
                     emptyTickets++
                 } else {
                     return ItemStack.EMPTY
                 }
-            } else if(stack.item == ItemMapWithPath) {
+            } else if(stack.item == MapItemWithPath) {
                 fullMaps++
                 fullMap = stack
             } else if(!stack.isEmpty) {
@@ -48,24 +48,24 @@ object UpgradeToGoldenTicketRecipe: IRecipe {
         }
         if(fullMaps == 1 && fullMap != null && emptyTickets >= 1) {
             val stack = ItemGoldenTicket.createStack(UUID.randomUUID().toString())
-            ItemGoldenTicket.updateItinerary(stack, ItemMapWithPath, fullMap)
+            ItemGoldenTicket.updateItinerary(stack, MapItemWithPath, fullMap)
             return stack
         }
         return ItemStack.EMPTY
     }
 
-    override fun matches(inv: IInventory, worldIn: World?): Boolean {
+    override fun matches(inv: IInventory, levelIn: World?): Boolean {
         var emptyTickets = 0
         var fullMaps = 0
-        for(i in 0 until inv.sizeInventory) {
-            val stack = inv.getStackInSlot(i)
+        for(i in 0 until inv.containerSize) {
+            val stack = inv.getItem(i)
             if(stack.item == ItemGoldenTicket) {
                 if(ItemGoldenTicket.isEmpty(stack)) {
                     emptyTickets++
                 } else {
                     return false
                 }
-            } else if(stack.item == ItemMapWithPath) {
+            } else if(stack.item == MapItemWithPath) {
                 fullMaps++
             } else if(!stack.isEmpty) {
                 return false

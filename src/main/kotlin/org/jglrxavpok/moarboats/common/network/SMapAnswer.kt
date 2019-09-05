@@ -1,7 +1,7 @@
 package org.jglrxavpok.moarboats.common.network
 
 import net.minecraft.client.Minecraft
-import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.CompoundNBT
 import net.minecraft.util.ResourceLocation
 import net.minecraft.world.storage.MapData
 import net.minecraftforge.api.distmarker.Dist
@@ -13,7 +13,7 @@ import org.jglrxavpok.moarboats.common.modules.HelmModule
 class SMapAnswer(): MoarBoatsPacket {
 
     var mapName = ""
-    var mapData = NBTTagCompound()
+    var mapData = CompoundNBT()
 
     var boatID: Int = 0
     var moduleLocation: ResourceLocation = ResourceLocation("moarboats:none")
@@ -31,14 +31,14 @@ class SMapAnswer(): MoarBoatsPacket {
         override fun onMessage(message: SMapAnswer, ctx: NetworkEvent.Context): MoarBoatsPacket? {
             val mapID = message.mapName
             val data = MapData(mapID)
-            data.read(message.mapData)
-            val world = Minecraft.getInstance().world
-            val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
+            data.load(message.mapData)
+            val level = Minecraft.getInstance().level
+            val boat = level.getEntity(message.boatID) as? ModularBoatEntity ?: return null
             val moduleLocation = message.moduleLocation
             val module = BoatModuleRegistry[moduleLocation].module
             module as HelmModule
             module.receiveMapData(boat, data)
-            //Minecraft.getMinecraft().world.setData(mapID, data)
+            //Minecraft.getMinecraft().level.setData(mapID, data)
             return null
         }
     }

@@ -1,10 +1,10 @@
 package org.jglrxavpok.moarboats.common.modules
 
 import net.minecraft.block.BlockIce
-import net.minecraft.client.gui.GuiScreen
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.client.gui.screen
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.init.Blocks
-import net.minecraft.util.EnumHand
+import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
 import org.jglrxavpok.moarboats.MoarBoats
@@ -23,33 +23,33 @@ object IceBreakerModule: BoatModule() {
     override val moduleSpot = Spot.Misc
     override val isMenuInteresting = false
 
-    override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean) = false
+    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean) = false
     override fun controlBoat(from: IControllable) { }
     override fun onAddition(to: IControllable) { }
 
     override fun update(from: IControllable) {
-        val world = from.worldRef
+        val level = from.levelRef
         val bb = from.correspondingEntity.boundingBox
                 .offset(from.calculateAnchorPosition(BasicBoatEntity.FrontLink))
                 .offset(-from.positionX, -from.positionY - .75f, -from.positionZ)
                 .expand(1.0, 1.0, 1.0)
-        val collidedBB = world.getCollisionBoxes(from.correspondingEntity, bb, 0.0, 0.0, 0.0)
-        val blockPos = BlockPos.PooledMutableBlockPos.retain()
+        val collidedBB = level.getCollisionBoxes(from.correspondingEntity, bb, 0.0, 0.0, 0.0)
+        val blockPos = BlockPos.PooledMutableBlockPos.acquire()
         for(box in collidedBB) {
             val center = box.boundingBox.getCenterForAllSides()
             blockPos.setPos(center.x, center.y, center.z)
-            val blockAtCenter = world.getBlockState(blockPos)
+            val blockAtCenter = level.getBlockState(blockPos)
             if(blockAtCenter.block is BlockIce) {
                 var progress = getBreakProgress(from, blockPos)
-                progress += (blockAtCenter.getBlockHardness(world, blockPos) / 20f)
+                progress += (blockAtCenter.getBlockHardness(level, blockPos) / 20f)
                 if(progress < 1.0f) {
                     setBreakProgress(from, blockPos, progress)
                     val blockIndex = getBlockIndex(from, blockPos)
                     val fakeEntityID = -from.entityID*(blockIndex) // hack to allow for multiple blocks to be broken by the same entity
-                    world.sendBlockBreakProgress(fakeEntityID, BlockPos(blockPos), (progress * 10f).toInt())
+                    level.sendBlockBreakProgress(fakeEntityID, BlockPos(blockPos), (progress * 10f).toInt())
                 } else {
                     clearBreakProgress(from, blockPos)
-                    world.setBlockState(blockPos, Blocks.WATER.defaultState)
+                    level.setBlockState(blockPos, Blocks.WATER.defaultState)
                 }
             }
         }
@@ -76,18 +76,18 @@ object IceBreakerModule: BoatModule() {
 
     private fun clearNotUpdatedFor(boat: IControllable, ticks: Int) {
         val state = boat.getState()
-        val pos = BlockPos.PooledMutableBlockPos.retain()
+        val pos = BlockPos.PooledMutableBlockPos.acquire()
         val keys = state.keySet().toList() // avoid ConcurrentModifException by copying the list
         for(key in keys) {
             if("Timestamp" in key) {
-                val timeDiff = boat.correspondingEntity.ticksExisted - state.getInt(key)
+                val timeDiff = boat.correspondingEntity.tickCount - state.getInt(key)
                 if(timeDiff >= ticks) {
                     val positions = key.split("_").drop(1).map { it.drop(1).toInt() }
                     val x = positions[0]
                     val y = positions[1]
                     val z = positions[2]
                     pos.setPos(x, y, z)
-                    boat.worldRef.sendBlockBreakProgress(boat.entityID, pos, -1)
+                    boat.levelRef.sendBlockBreakProgress(boat.entityID, pos, -1)
                     clearBreakProgress(boat, pos)
                 }
             }
@@ -104,7 +104,7 @@ object IceBreakerModule: BoatModule() {
     private fun setBreakProgress(boat: IControllable, pos: BlockPos, progress: Float) {
         val state = boat.getState()
         state.putFloat("breakProgress_X${pos.x}_Y${pos.y}_Z${pos.z}", progress)
-        state.putInt("breakTimestamp_X${pos.x}_Y${pos.y}_Z${pos.z}", boat.correspondingEntity.ticksExisted)
+        state.putInt("breakTimestamp_X${pos.x}_Y${pos.y}_Z${pos.z}", boat.correspondingEntity.tickCount)
     }
 
     private fun getBreakProgress(boat: IControllable, pos: BlockPos): Float {
@@ -112,9 +112,9 @@ object IceBreakerModule: BoatModule() {
         return state.getFloat("breakProgress_X${pos.x}_Y${pos.y}_Z${pos.z}")
     }
 
-    override fun createContainer(player: EntityPlayer, boat: IControllable) = EmptyContainer(player.inventory)
+    override fun createContainer(player: PlayerEntity, boat: IControllable) = EmptyContainer(player.inventory)
 
-    override fun createGui(player: EntityPlayer, boat: IControllable): GuiScreen {
+    override fun createGui(player: PlayerEntity, boat: IControllable): Screen {
         return GuiNoConfigModule(player.inventory, this, boat)
     }
 

@@ -85,7 +85,7 @@ object BlockWaterborneComparator: BlockRedstoneDiode(Block.Properties.create(Mat
             var f = 0.0f
 
             for (slotIndex in 0 until inv.slots) {
-                val itemstack = inv.getStackInSlot(slotIndex)
+                val itemstack = inv.getItem(slotIndex)
 
                 if (!itemstack.isEmpty) {
                     f += itemstack.count.toFloat() / Math.min(inv.getSlotLimit(slotIndex), itemstack.maxStackSize).toFloat()
@@ -115,7 +115,7 @@ object BlockWaterborneComparator: BlockRedstoneDiode(Block.Properties.create(Mat
     }
 
     /**
-     * Called by ItemBlocks after a block is set in the world, to allow post-place logic
+     * Called by BlockItems after a block is set in the world, to allow post-place logic
      */
     override fun onBlockPlacedBy(worldIn: World, pos: BlockPos, state: IBlockState, placer: EntityLivingBase?, stack: ItemStack) {
         super.onBlockPlacedBy(worldIn, pos, state, placer, stack)

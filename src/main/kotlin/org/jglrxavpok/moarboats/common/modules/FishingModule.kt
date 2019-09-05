@@ -1,15 +1,15 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.client.gui.GuiScreen
+import net.minecraft.client.gui.screen
 import net.minecraft.enchantment.EnchantmentHelper
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.init.Items
-import net.minecraft.init.SoundEvents
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.item.Items
+import net.minecraft.util.SoundEvents
 import net.minecraft.item.ItemFishingRod
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.nbt.NBTTagList
-import net.minecraft.util.EnumHand
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.ListNBT
+import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.SoundCategory
 import net.minecraft.world.WorldServer
@@ -46,15 +46,15 @@ object FishingModule : BoatModule() {
     val playingAnimationProperty = BooleanBoatProperty("playingAnimation")
 
     @OnlyIn(Dist.CLIENT)
-    override fun createGui(player: EntityPlayer, boat: IControllable): GuiScreen {
+    override fun createGui(player: PlayerEntity, boat: IControllable): Screen {
         return GuiFishingModule(player.inventory, this, boat)
     }
 
-    override fun createContainer(player: EntityPlayer, boat: IControllable): ContainerBase? {
+    override fun createContainer(player: PlayerEntity, boat: IControllable): ContainerBase? {
         return ContainerFishingModule(player.inventory, this, boat)
     }
 
-    override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean): Boolean {
+    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean): Boolean {
         return false
     }
 
@@ -68,9 +68,9 @@ object FishingModule : BoatModule() {
         readyProperty[from] = ready
 
         val inventory = from.getInventory()
-        val rodStack = inventory.getStackInSlot(0)
+        val rodStack = inventory.getItem(0)
         val hasRod = rodStack.item is ItemFishingRod
-        if(ready && hasRod && !from.worldRef.isRemote && from.inLiquid() && !from.isEntityInLava()) { // you can go fishing
+        if(ready && hasRod && !from.levelRef.isClientSide && from.inLiquid() && !from.isEntityInLava()) { // you can go fishing
             storageModule as BoatModule
 
             val lureSpeed = EnchantmentHelper.getFishingSpeedBonus(rodStack)
@@ -79,12 +79,12 @@ object FishingModule : BoatModule() {
             if(randNumber <= 1f) {
                 val luck = EnchantmentHelper.getFishingLuckBonus(rodStack)
                 // catch fish
-                val builder = LootContext.Builder(from.worldRef as WorldServer)
+                val builder = LootContext.Builder(from.levelRef as levelServer)
                 builder.withLuck(luck.toFloat())
-                val result = from.worldRef.server!!.lootTableManager.getLootTableFromLocation(LootTableList.GAMEPLAY_FISHING).generateLootForPools(from.moduleRNG, builder.build())
-                val lootList = NBTTagList()
+                val result = from.levelRef.server!!.lootTableManager.getLootTableFromLocation(LootTableList.GAMEPLAY_FISHING).generateLootForPools(from.moduleRNG, builder.build())
+                val lootList = ListNBT()
                 result.forEach {
-                    val info = NBTTagCompound()
+                    val info = CompoundNBT()
                     info.putString("name", it.item.registryName.toString())
                     info.putInt("damage", it.damage)
                     lootList.add(info)
@@ -117,7 +117,7 @@ object FishingModule : BoatModule() {
             if (animationTick >= MaxAnimationTicks) {
                 animationTickProperty[from] = 0
                 playingAnimationProperty[from] = false
-                lastLootProperty[from] = NBTTagList() // empty the loot list
+                lastLootProperty[from] = ListNBT() // empty the loot list
             }
         } else {
             animationTickProperty[from] = 0
@@ -131,20 +131,20 @@ object FishingModule : BoatModule() {
             val inventory = from.getInventory()
             val storageInventory = from.getInventory(storageModule)
             var foundReplacement = false
-            for(index in 0 until storageInventory.sizeInventory) {
-                val stack = storageInventory.getStackInSlot(index)
+            for(index in 0 until storageInventory.containerSize) {
+                val stack = storageInventory.getItem(index)
                 if(stack.item is ItemFishingRod && stack.damage < stack.maxDamage - MoarBoatsConfig.fishing.remainingUsesBeforeRemoval.get()) {
                     // Swap rods if possible
                     foundReplacement = true
-                    storageInventory.setInventorySlotContents(index, inventory.getStackInSlot(0))
-                    inventory.setInventorySlotContents(0, stack)
+                    storageInventory.setItem(index, inventory.getItem(0))
+                    inventory.setItem(0, stack)
                     break
                 }
             }
             if(!foundReplacement) {
-                val rod = inventory.getStackInSlot(0)
+                val rod = inventory.getItem(0)
                 val remaining = storageInventory.add(rod)
-                inventory.setInventorySlotContents(0, remaining)
+                inventory.setItem(0, remaining)
             }
             inventory.syncToClient()
             storageInventory.syncToClient()
@@ -152,7 +152,7 @@ object FishingModule : BoatModule() {
     }
 
     private fun breakRod(from: IControllable) {
-        from.getInventory().setInventorySlotContents(0, ItemStack.EMPTY)
+        from.getInventory().setItem(0, ItemStack.EMPTY)
         MoarBoats.network.send(PacketDistributor.ALL.noArg(), SPlaySound(from.positionX, from.positionY, from.positionZ, SoundEvents.ITEM_SHIELD_BREAK, SoundCategory.PLAYERS, 0.8f, 0.8f + Math.random().toFloat() * 0.4f))
     }
 
@@ -163,7 +163,7 @@ object FishingModule : BoatModule() {
     override fun onInit(to: IControllable, fromItem: ItemStack?) {
         super.onInit(to, fromItem)
         if(fromItem != null) {
-            to.getInventory().setInventorySlotContents(0, fromItem.copy())
+            to.getInventory().setItem(0, fromItem.copy())
         }
     }
 

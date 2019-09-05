@@ -1,9 +1,9 @@
 package org.jglrxavpok.moarboats.client.renders
 
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.GlStateManager
+import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.client.renderer.Tessellator
-import net.minecraft.client.renderer.entity.RenderManager
+import net.minecraft.client.renderer.entity.EntityRendererManager
 import net.minecraft.client.renderer.texture.TextureMap
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.init.Blocks
@@ -19,7 +19,7 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
         registryName = AnchorModule.id
     }
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, renderManager: RenderManager) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, EntityRendererManager: EntityRendererManager) {
         GlStateManager.pushMatrix()
         val anchor = module as AnchorModule
 
@@ -49,7 +49,7 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
         val anchorScale = 0.75
         GlStateManager.pushMatrix()
         GlStateManager.scaled(anchorScale, anchorScale, anchorScale)
-        renderManager.textureManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
+        EntityRendererManager.textureManager.bind(TextureMap.LOCATION_BLOCKS_TEXTURE)
         Minecraft.getInstance().blockRendererDispatcher.renderBlockBrightness(Blocks.ANVIL.defaultState, boat.brightness)
 
         GlStateManager.popMatrix()

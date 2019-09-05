@@ -1,17 +1,17 @@
 package org.jglrxavpok.moarboats.api
 
-import net.minecraft.client.gui.GuiScreen
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.entity.player.InventoryPlayer
-import net.minecraft.inventory.Container
+import net.minecraft.client.gui.screen.Screen
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.entity.player.PlayerInventory
+import net.minecraft.inventory.container.Container
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.util.EnumHand
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.TextComponentTranslation
-import net.minecraft.world.IInteractionObject
+import net.minecraft.util.text.TranslationTextComponent
+import net.minecraft.inventory.container.INamedContainerProvider
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.common.MinecraftForge
@@ -27,11 +27,11 @@ abstract class BoatModule {
     abstract val id: ResourceLocation
     abstract val usesInventory: Boolean
     abstract val moduleSpot: Spot
-    abstract fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean): Boolean
+    abstract fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean): Boolean
     abstract fun controlBoat(from: IControllable)
     abstract fun update(from: IControllable)
     abstract fun onAddition(to: IControllable)
-    abstract fun createContainer(player: EntityPlayer, boat: IControllable): ContainerBase?
+    abstract fun createContainer(player: PlayerEntity, boat: IControllable): ContainerBase?
 
     /**
      * Set to false if you want the menu to be displayed at the bottom of the module tabs (no config modules use this)
@@ -45,19 +45,19 @@ abstract class BoatModule {
     open val hopperPriority = 1
 
     @OnlyIn(Dist.CLIENT)
-    abstract fun createGui(player: EntityPlayer, boat: IControllable): GuiScreen
+    abstract fun createGui(player: PlayerEntity, boat: IControllable): Screen
 
     open fun onInit(to: IControllable, fromItem: ItemStack?) { }
 
     /**
      * Reads additional information from the boat entity NBT data. No need to read/store module state created via the BoatProperty objects
      */
-    open fun readFromNBT(boat: IControllable, compound: NBTTagCompound) { }
+    open fun readFromNBT(boat: IControllable, compound: CompoundNBT) { }
 
     /**
      * Writes additional information to the boat entity NBT data. No need to read/store module state created via the BoatProperty objects
      */
-    open fun writeToNBT(boat: IControllable, compound: NBTTagCompound) = compound
+    open fun writeToNBT(boat: IControllable, compound: CompoundNBT) = compound
 
     val rng = Random()
 
@@ -71,12 +71,12 @@ abstract class BoatModule {
         Navigation("navigation"),
         Misc("misc");
 
-        val text = TextComponentTranslation("general.spot.$id")
+        val text = TranslationTextComponent("general.spot.$id")
     }
 
     open fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {}
 
-    fun generateInteractionObject(boat: IControllable): IInteractionObject {
+    fun generateInteractionObject(boat: IControllable): INamedContainerProvider {
         return BoatModuleInteractionObject(this, boat)
     }
 }
