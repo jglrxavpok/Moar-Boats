@@ -23,7 +23,7 @@ class GuiBatteryModule(playerInventory: PlayerInventory, module: BoatModule, boa
     override fun drawModuleForeground(mouseX: Int, mouseY: Int) {
         super.drawModuleForeground(mouseX, mouseY)
         val localX = mouseX - guiLeft
-        val localY = mouseY - top
+        val localY = mouseY - guiTop
         if(localX in 60..(60+55) && localY in 6..(6+75)) {
             drawHoveringText("${energyModule.getCurrentEnergy(boat)} / ${energyModule.getMaxStorableEnergy(boat)} RF", localX, localY)
         }
@@ -34,6 +34,6 @@ class GuiBatteryModule(playerInventory: PlayerInventory, module: BoatModule, boa
         mc.textureManager.bind(moduleBackground)
         GlStateManager.disableCull()
         val energyHeight = (75 * (energyModule.getCurrentEnergy(boat)/energyModule.getMaxStorableEnergy(boat).toFloat())).toInt()
-        drawTexturedModalRect(guiLeft+60, guiTop+80, 201, 74, 55, -energyHeight)
+        drawTexturedModalRect(guiLeft+60, guiTop+80, 201, 74, 55, -energyHeight, blitOffset.toFloat())
     }
 }

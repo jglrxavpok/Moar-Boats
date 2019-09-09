@@ -17,7 +17,7 @@ class GuiAnchorModule(playerInventory: PlayerInventory, anchor: BoatModule, boat
     override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/nothing.png")
 
     val deployButton = Button(0,0, 140, 20, "") {
-        MoarBoats.network.sendToServer(CDeployAnchor(boat.id, module.id))
+        MoarBoats.network.sendToServer(CDeployAnchor(boat.entityID, module.id))
     }
     val deployedText = TranslationTextComponent("gui.anchor.deployed")
     val undeployedText = TranslationTextComponent("gui.anchor.deploy")

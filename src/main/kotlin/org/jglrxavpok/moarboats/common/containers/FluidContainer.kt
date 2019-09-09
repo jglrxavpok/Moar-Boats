@@ -1,8 +1,10 @@
 package org.jglrxavpok.moarboats.common.containers
 
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerEntityMP
+import net.minecraft.entity.player.ServerPlayerEntity
+import net.minecraft.entity.player.ServerPlayerEntity
 import net.minecraftforge.fluids.capability.IFluidHandler
+import net.minecraftforge.fml.network.PacketDistributor
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.network.SUpdateFluidGui
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityListenable
@@ -24,21 +26,21 @@ class FluidContainer(val te: TileEntityListenable, val fluidCapability: IFluidHa
 
     override fun broadcastChanges() {
         super.broadcastChanges()
-        if(player !is PlayerEntityMP)
+        if(player !is ServerPlayerEntity)
             return
         val teFluidName: String
         val teFluidAmount: Int
         val teFluidCapacity: Int
-        if(fluidCapability.tankProperties.isNotEmpty()) {
-            teFluidName = fluidCapability.tankProperties[0].contents?.fluid?.name ?: ""
-            teFluidAmount = fluidCapability.tankProperties[0].contents?.amount ?: 0
-            teFluidCapacity = fluidCapability.tankProperties[0].capacity
+        if(fluidCapability.getFluidInTank(0) != null && !fluidCapability.getFluidInTank(0).isEmpty) {
+            teFluidName = fluidCapability.getFluidInTank(0).fluid?.registryName.toString() ?: ""
+            teFluidAmount = fluidCapability.getFluidInTank(0).amount ?: 0
+            teFluidCapacity = fluidCapability.getTankCapacity(0)
         } else {
             teFluidAmount = 0
             teFluidCapacity = 1
             teFluidName = ""
         }
-        MoarBoats.network.sendTo(SUpdateFluidGui(teFluidName, teFluidAmount, teFluidCapacity), player)
+        MoarBoats.network.send(PacketDistributor.PLAYER.with { player as ServerPlayerEntity? }, SUpdateFluidGui(teFluidName, teFluidAmount, teFluidCapacity))
         fluidAmount = teFluidAmount
         fluidName = teFluidName
         fluidCapacity = teFluidCapacity

@@ -1,17 +1,12 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.client.gui.screen
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.init.Blocks
-import net.minecraft.item.BlockItem
-import net.minecraft.item.ItemStack
 import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
-import org.jglrxavpok.moarboats.client.gui.GuiNoConfigModule
 import org.jglrxavpok.moarboats.client.gui.GuiRudderModule
 import org.jglrxavpok.moarboats.common.containers.ContainerBase
 import org.jglrxavpok.moarboats.common.containers.EmptyContainer

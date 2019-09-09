@@ -9,8 +9,8 @@ abstract class MoarBoatsBlock(properties: Block.Properties): Block(properties) {
 
     open val itemGroup: ItemGroup = MoarBoats.CreativeTab
 
-    constructor(): this(Block.Properties.create(MoarBoats.MachineMaterial, MaterialColor.IRON).hardnessAndResistance(0.5f, 10.5f))
+    constructor(): this(Block.Properties.of(MoarBoats.MachineMaterial, MaterialColor.METAL).strength(0.5f, 10.5f))
 
     constructor(propertiesModifier: Block.Properties.() -> Unit):
-            this(Block.Properties.create(MoarBoats.MachineMaterial, MaterialColor.IRON).hardnessAndResistance(0.5f, 10.5f).also(propertiesModifier))
+            this(Block.Properties.of(MoarBoats.MachineMaterial, MaterialColor.METAL).strength(0.5f, 10.5f).also(propertiesModifier))
 }

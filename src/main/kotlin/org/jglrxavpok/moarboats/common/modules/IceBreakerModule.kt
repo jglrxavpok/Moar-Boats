@@ -14,6 +14,7 @@ import org.jglrxavpok.moarboats.client.gui.GuiNoConfigModule
 import org.jglrxavpok.moarboats.common.containers.EmptyContainer
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.items.IceBreakerItem
+import org.jglrxavpok.moarboats.extensions.getCenterForAllSides
 
 object IceBreakerModule: BoatModule() {
 
@@ -29,13 +30,13 @@ object IceBreakerModule: BoatModule() {
     override fun update(from: IControllable) {
         val level = from.worldRef
         val bb = from.correspondingEntity.boundingBox
-                .offset(from.calculateAnchorPosition(BasicBoatEntity.FrontLink))
-                .offset(-from.positionX, -from.positionY - .75f, -from.positionZ)
-                .expand(1.0, 1.0, 1.0)
-        val collidedBB = level.getCollisionBoxes(from.correspondingEntity, bb, 0.0, 0.0, 0.0)
+                .move(from.calculateAnchorPosition(BasicBoatEntity.FrontLink))
+                .move(-from.positionX, -from.positionY - .75f, -from.positionZ)
+                .expandTowards(1.0, 1.0, 1.0)
+        val collidedBB = level.getBlockCollisions(from.correspondingEntity, bb)
         val blockPos = BlockPos.PooledMutableBlockPos.acquire()
         for(box in collidedBB) {
-            val center = box.boundingBox.getCenterForAllSides()
+            val center = box.bounds().getCenterForAllSides()
             blockPos.set(center.x, center.y, center.z)
             val blockAtCenter = level.getBlockState(blockPos)
             if(blockAtCenter.block is IceBlock) {
@@ -44,11 +45,11 @@ object IceBreakerModule: BoatModule() {
                 if(progress < 1.0f) {
                     setBreakProgress(from, blockPos, progress)
                     val blockIndex = getBlockIndex(from, blockPos)
-                    val fakeEntityID = -from.id*(blockIndex) // hack to allow for multiple blocks to be broken by the same entity
-                    level.sendBlockBreakProgress(fakeEntityID, BlockPos(blockPos), (progress * 10f).toInt())
+                    val fakeEntityID = -from.entityID*(blockIndex) // hack to allow for multiple blocks to be broken by the same entity
+                    level.destroyBlockProgress(fakeEntityID, BlockPos(blockPos), (progress * 10f).toInt())
                 } else {
                     clearBreakProgress(from, blockPos)
-                    level.setBlock(blockPos, Blocks.WATER.defaultState)
+                    level.setBlock(blockPos, Blocks.WATER.defaultBlockState())
                 }
             }
         }
@@ -86,7 +87,7 @@ object IceBreakerModule: BoatModule() {
                     val y = positions[1]
                     val z = positions[2]
                     pos.set(x, y, z)
-                    boat.worldRef.sendBlockBreakProgress(boat.id, pos, -1)
+                    boat.worldRef.destroyBlockProgress(boat.entityID, pos, -1)
                     clearBreakProgress(boat, pos)
                 }
             }

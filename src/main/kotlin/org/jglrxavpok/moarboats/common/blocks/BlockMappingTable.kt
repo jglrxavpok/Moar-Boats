@@ -1,9 +1,10 @@
 package org.jglrxavpok.moarboats.common.blocks
 
+import net.minecraft.block.BlockState
 import net.minecraft.block.SoundType
-import net.minecraft.block.state.IBlockState
+import net.minecraft.block.state.BlockState
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerEntityMP
+import net.minecraft.entity.player.ServerPlayerEntity
 import net.minecraft.inventory.container.Container
 import net.minecraft.inventory.InventoryHelper
 import net.minecraft.tileentity.TileEntity
@@ -26,42 +27,42 @@ object BlockMappingTable: MoarBoatsBlock({ sound(SoundType.STONE).strength(2.5f,
 
     override fun isEntityBlock() = true
 
-    override fun hasTileEntity(state: IBlockState) = true
+    override fun hasTileEntity(state: BlockState) = true
 
-    override fun createTileEntity(state: IBlockState?, level: IBlockReader?): TileEntity? {
+    override fun createTileEntity(state: BlockState?, level: IBlockReader?): TileEntity? {
         return TileEntityMappingTable()
     }
 
     /**
      * Called serverside after this block is replaced with another in Chunk, but before the Tile Entity is updated
      */
-    //IBlockState state, level levelIn, BlockPos pos, IBlockState newState, boolean isMoving)
-    override fun onReplaced(state: IBlockState, levelIn: World, pos: BlockPos, newState: IBlockState, isMoving: Boolean) {
+    //BlockState state, level levelIn, BlockPos pos, BlockState newState, boolean isMoving)
+    override fun onReplaced(state: BlockState, levelIn: World, pos: BlockPos, newState: BlockState, isMoving: Boolean) {
         val tileentity = levelIn.getBlockEntity(pos)
 
         if (tileentity is TileEntityMappingTable) {
-            InventoryHelper.dropInventoryItems(levelIn, pos, tileentity.inventory)
+            InventoryHelper.dropContents(levelIn, pos, tileentity.inventory)
             levelIn.updateComparatorOutputLevel(pos, this)
         }
 
         super.onReplaced(state, levelIn, pos, newState, isMoving)
     }
 
-    override fun hasComparatorInputOverride(state: IBlockState): Boolean {
+    override fun hasComparatorInputOverride(state: BlockState): Boolean {
         return true
     }
 
-    override fun getComparatorInputOverride(blockState: IBlockState, levelIn: World, pos: BlockPos): Int {
+    override fun getComparatorInputOverride(blockState: BlockState, levelIn: World, pos: BlockPos): Int {
         return (levelIn.getBlockEntity(pos) as? TileEntityMappingTable)?.let {
-            Container.calcRedstoneFromInventory(it.inventory)
+            Container.getRedstoneSignalFromContainer(it.inventory)
         } ?: 0
     }
 
-    override fun onBlockActivated(state: IBlockState, levelIn: World, pos: BlockPos, playerIn: PlayerEntity, hand: Hand?, facing: Direction?, hitX: Float, hitY: Float, hitZ: Float): Boolean {
+    override fun onBlockActivated(state: BlockState, levelIn: World, pos: BlockPos, playerIn: PlayerEntity, hand: Hand?, facing: Direction?, hitX: Float, hitY: Float, hitZ: Float): Boolean {
         if(levelIn.isClientSide) {
             return true
         }
-        NetworkHooks.openGui(playerIn as PlayerEntityMP, MoarBoatsGuiHandler.MappingTableGuiInteraction(pos.x, pos.y, pos.z))
+        NetworkHooks.openGui(playerIn as ServerPlayerEntity, MoarBoatsGuiHandler.MappingTableGuiInteraction(pos.x, pos.y, pos.z))
         return true
     }
 }

@@ -39,7 +39,7 @@ class CSaveItineraryToMap(): MoarBoatsPacket {
             val list = module.waypointsProperty[boat].copy()
             val inv = boat.getInventory(module)
             if(inv.getItem(0).item.item == Items.FILLED_MAP) {
-                val id = inv.getItem(0).damage
+                val id = inv.getItem(0).damageValue
                 inv.setItem(0, MapItemWithPath.createStack(list, "map_$id", module.loopingProperty[boat]))
                 player.containerMenu.broadcastChanges()
             }

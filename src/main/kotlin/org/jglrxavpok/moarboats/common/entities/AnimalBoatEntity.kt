@@ -1,10 +1,11 @@
 package org.jglrxavpok.moarboats.common.entities
 
-import net.minecraft.block.state.IBlockState
+import net.minecraft.block.state.BlockState
 import net.minecraft.dispenser.IDispenseItemBehavior
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.passive.EntityWaterMob
+import net.minecraft.entity.passive.WaterMobEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundNBT
@@ -26,7 +27,7 @@ import java.util.*
 
 class AnimalBoatEntity(level: World): BasicBoatEntity(EntityEntries.AnimalBoat, level) {
     override val entityID: Int
-        get() = entityId
+        get() = this.id
 
     override val modules: List<BoatModule> = emptyList()
     override val moduleRNG: Random = Random()
@@ -37,13 +38,11 @@ class AnimalBoatEntity(level: World): BasicBoatEntity(EntityEntries.AnimalBoat, 
     }
 
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
-        this.setPosition(x, y, z)
-        this.motionX = 0.0
-        this.motionY = 0.0
-        this.motionZ = 0.0
-        this.prevPosX = x
-        this.prevPosY = y
-        this.prevPosZ = z
+        this.setPos(x, y, z)
+        this.deltaMovement = Vec3d.ZERO
+        this.xo = x
+        this.yo = y
+        this.zo = z
     }
 
     override fun getBoatItem() = AnimalBoatItem
@@ -62,11 +61,11 @@ class AnimalBoatEntity(level: World): BasicBoatEntity(EntityEntries.AnimalBoat, 
 
     override fun tick() {
         super.tick()
-        val list = this.level.getEntitiesInAABBexcluding(this, this.boundingBox.grow(0.20000000298023224, 0.009999999776482582, 0.20000000298023224), EntitySelectors.pushableBy(this))
+        val list = this.level.getEntities(this, this.boundingBox.inflate(0.20000000298023224, 0.009999999776482582, 0.20000000298023224), EntitySelectors.pushableBy(this))
 
         for (entity in list) {
-            if (!entity.isPassenger(this)) {
-                if (this.passengers.isEmpty() && entity.ridingEntity == null && entity.width < this.width && entity is LivingEntity && entity !is EntityWaterMob && entity !is PlayerEntity) {
+            if (!entity.hasPassenger(this)) {
+                if (this.passengers.isEmpty() && !entity.isPassenger && entity.bbWidth < this.bbWidth && entity is LivingEntity && entity !is WaterMobEntity && entity !is PlayerEntity) {
                     entity.startRiding(this)
                 }
             }
@@ -90,7 +89,7 @@ class AnimalBoatEntity(level: World): BasicBoatEntity(EntityEntries.AnimalBoat, 
 
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative) {
-            entityDropItem(AnimalBoatItem, 1)
+            spawnAtLocation(AnimalBoatItem, 1)
         }
     }
 
@@ -128,32 +127,32 @@ class AnimalBoatEntity(level: World): BasicBoatEntity(EntityEntries.AnimalBoat, 
         return TileEntityDispenser() as T
     }
 
-    override fun getX() = posX
+    override fun getX() = x
 
-    override fun getY() = posY
+    override fun getY() = y
 
-    override fun getZ() = posZ
+    override fun getZ() = z
 
-    override fun getBlockState(): IBlockState {
+    override fun getBlockState(): BlockState {
         return level.getBlockState(position)
     }
 
     override fun getBlockPos(): BlockPos {
-        return position
+        return position()
     }
 
-    override fun updatePassenger(passenger: Entity) {
-        if (this.isPassenger(passenger)) {
-            val f1 = ((if ( ! this.isAlive) 0.009999999776482582 else this.mountedYOffset) + passenger.yOffset).toFloat()
+    override fun positionRider(passenger: Entity) {
+        if (this.hasPassenger(passenger)) {
+            val f1 = ((if ( ! this.isAlive) 0.009999999776482582 else this.rideHeight) + passenger.ridingHeight).toFloat()
 
-            passenger.setPosition(this.posX, this.posY + f1.toDouble(), this.posZ)
-            passenger.rotationYaw += this.deltaRotation
-            passenger.rotationYawHead = passenger.rotationYawHead + this.deltaRotation
+            passenger.setPos(this.x, this.y + f1.toDouble(), this.z)
+            passenger.yRot += this.deltaRotation
+            passenger.yHeadRot = passenger.yHeadRot + this.deltaRotation
             this.applyYawToEntity(passenger)
         }
     }
 
-    override fun canFitPassenger(passenger: Entity): Boolean {
+    override fun canAddPassenger(passenger: Entity): Boolean {
         return this.passengers.isEmpty() && passenger !is PlayerEntity
     }
 

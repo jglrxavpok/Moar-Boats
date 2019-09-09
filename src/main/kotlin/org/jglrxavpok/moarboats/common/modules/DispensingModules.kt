@@ -1,7 +1,8 @@
 package org.jglrxavpok.moarboats.common.modules
 
 import net.minecraft.block.BlockDispenser
-import net.minecraft.client.gui.screen
+import net.minecraft.block.DispenserBlock
+import net.minecraft.client.gui.screen.Screen
 import net.minecraft.dispenser.BehaviorDefaultDispenseItem
 import net.minecraft.dispenser.IDispenseItemBehavior
 import net.minecraft.entity.player.PlayerEntity
@@ -53,7 +54,7 @@ abstract class DispensingModule: BoatModule() {
             return
         lastDispensePositionProperty[from].use { pos ->
             val period = blockPeriodProperty[from]
-            if(pos.distanceSq(from.positionX, from.positionY, from.positionZ) > period*period) {
+            if(pos.distSqr(from.positionX, from.positionY, from.positionZ, false) > period*period) {
                 dispenseItem(BOTTOM, from)
                 dispenseItem(MIDDLE, from)
                 dispenseItem(TOP, from)
@@ -75,7 +76,7 @@ abstract class DispensingModule: BoatModule() {
                 .mapIndexed { index, itemStack -> Pair(startIndex+index, itemStack) }
                 .firstOrNull { val item = it.second.item
                     item is BlockItem
-                            || BlockDispenser.DISPENSE_BEHAVIOR_REGISTRY[item] !is BehaviorDefaultDispenseItem
+                            || DispenserBlock.DISPENSE_BEHAVIOR_REGISTRY[item] !is BehaviorDefaultDispenseItem
                 }
     }
 
@@ -90,7 +91,7 @@ abstract class DispensingModule: BoatModule() {
             val name = matcher.group(2)
             val metadata = matcher.group(3)
             if(metadata?.isNotEmpty() == true) {
-                if(metadata.drop(1).toInt() != stack.damage)
+                if(metadata.drop(1).toInt() != stack.damageValue)
                     return@any false
             }
             val location =
@@ -135,7 +136,7 @@ object DropperModule: DispensingModule() {
     private val dropBehavior = BehaviorDefaultDispenseItem()
 
     override fun dispenseItem(row: Int, boat: IControllable) {
-        val pos = boat.correspondingEntity.positionVector
+        val pos = boat.correspondingEntity.position()
         val blockPos = BlockPos.PooledMutableBlockPos.acquire(pos.x, pos.y+row + .75f, pos.z)
         val inventoryRowStart = (-row)*5 +5
         firstValidStack(inventoryRowStart, boat)?.let { (index, stack) ->
@@ -150,13 +151,13 @@ object DispenserModule: DispensingModule() {
     override val id = ResourceLocation(MoarBoats.ModID, "dispenser")
 
     override fun dispenseItem(row: Int, boat: IControllable) {
-        val pos = boat.correspondingEntity.positionVector
+        val pos = boat.correspondingEntity.position()
         val blockPos = BlockPos.PooledMutableBlockPos.acquire(pos.x, pos.y+row + .75f, pos.z)
         val inventoryRowStart = (-row)*5 +5
         firstValidStack(inventoryRowStart, boat)?.let { (index, stack) ->
             val item = stack.item
-            val level = boat.worldRef
-            val behavior = BlockDispenser.DISPENSE_BEHAVIOR_REGISTRY[item]!!
+            val world = boat.worldRef
+            val behavior = DispenserBlock.DISPENSE_BEHAVIOR_REGISTRY[item]!!
             if(behavior.javaClass === BehaviorDefaultDispenseItem::class.java) {
                 if(item is BlockItem) {
                     useBlockItem(item, world, stack, blockPos, boat, row)
@@ -178,12 +179,12 @@ object DispenserModule: DispensingModule() {
 
     private fun useBlockItem(item: BlockItem, world: World, stack: ItemStack, pos: BlockPos.PooledMutableBlockPos, boat: IControllable, row: Int) {
         val facing = boat.reorientate(facingProperty[boat]).opposite
-        val blockPos = pos.offset(facing)
+        val blockPos = pos.relative(facing)
         val block = item.block
-        val newState = block.defaultState // TODO: handle multiple types?
+        val newState = block.defaultBlockState() // TODO: handle multiple types?
         if(world.isAirBlock(blockPos) || Fluids.isUsualLiquidBlock(world, blockPos)) {
             if(block.isValidPosition(newState, world, blockPos)) {
-                val succeeded = world.setBlockState(blockPos, newState, 11)
+                val succeeded = world.setBlock(blockPos, newState, 11)
                 if (succeeded) {
                     try {
                         val state = world.getBlockState(blockPos)
@@ -202,7 +203,7 @@ object DispenserModule: DispensingModule() {
 
     // adapted from BlockItem.java
     private fun setTileEntityNBT(worldIn: World, pos: BlockPos, stackIn: ItemStack) {
-        val CompoundNBT = stackIn.getOrCreateChildTag("BlockEntityTag")
+        val CompoundNBT = stackIn.getOrCreateTagElement("BlockEntityTag")
 
         if (CompoundNBT != null) {
             val tileentity = worldIn.getBlockEntity(pos)

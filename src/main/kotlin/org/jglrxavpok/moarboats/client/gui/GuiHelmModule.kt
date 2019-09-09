@@ -1,18 +1,15 @@
 package org.jglrxavpok.moarboats.client.gui
 
-import net.minecraft.client.gui.Gui
-import net.minecraft.client.gui.widget.button.Button
 import com.mojang.blaze3d.platform.GlStateManager
+import net.minecraft.client.gui.widget.button.Button
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.item.Items
-import net.minecraft.item.MapItem
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
+import net.minecraft.item.MapItem
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.TranslationTextComponent
-import net.minecraft.world.dimension.DimensionType
 import net.minecraft.world.storage.MapData
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
@@ -21,8 +18,8 @@ import org.jglrxavpok.moarboats.client.renders.HelmModuleRenderer
 import org.jglrxavpok.moarboats.common.containers.ContainerHelmModule
 import org.jglrxavpok.moarboats.common.data.LoopingOptions
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
-import org.jglrxavpok.moarboats.common.items.MapItemWithPath
 import org.jglrxavpok.moarboats.common.items.ItemPath
+import org.jglrxavpok.moarboats.common.items.MapItemWithPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 import org.jglrxavpok.moarboats.common.network.CChangeEngineMode
 import org.jglrxavpok.moarboats.common.network.CSaveItineraryToMap
@@ -40,23 +37,19 @@ class GuiHelmModule(playerInventory: PlayerInventory, engine: BoatModule, boat: 
     private val mapStack = ItemStack(Items.FILLED_MAP)
     private val editButtonText = TranslationTextComponent("gui.helm.path_editor")
     private val saveButtonText = TranslationTextComponent("moarboats.gui.helm.save_on_map")
-    private val mapEditButton = Button(0, 0, 0, editButtonText.coloredString) {
-        override fun onClick(mouseX: Double, mouseY: Double) {
-            val mapData = getMapData(container.getSlot(0).item)
-            if(mapData != null && mapData != EmptyMapData) {
-                boat.modules.firstOrNull() { it.moduleSpot == BoatModule.Spot.Engine }?.let {
-                    MoarBoats.network.sendToServer(CChangeEngineMode(boat.id, it.id, true))
-                }
-                mc.displayScreen(HelmModule.createPathEditorGui(playerInventory.player, boat, mapData))
+    private val mapEditButton = Button(0, 0, 150, 20, editButtonText.coloredString) {
+        val mapData = getMapData(container.getSlot(0).item)
+        if(mapData != null && mapData != EmptyMapData) {
+            boat.modules.firstOrNull() { it.moduleSpot == BoatModule.Spot.Engine }?.let {
+                MoarBoats.network.sendToServer(CChangeEngineMode(boat.entityID, it.id, true))
             }
+            mc.setScreen(HelmModule.createPathEditorGui(playerInventory.player, boat, mapData))
         }
     }
-    private val saveButton = Button(1, 0, 0, saveButtonText.coloredString) {
-        override fun onClick(mouseX: Double, mouseY: Double) {
-            val mapData = getMapData(container.getSlot(0).item)
-            if(mapData != null && mapData != EmptyMapData && container.getSlot(0).item.item == Items.FILLED_MAP) {
-                MoarBoats.network.sendToServer(CSaveItineraryToMap(boat.id, HelmModule.id))
-            }
+    private val saveButton = Button(0, 0, 150, 20, saveButtonText.coloredString) {
+        val mapData = getMapData(container.getSlot(0).item)
+        if(mapData != null && mapData != EmptyMapData && container.getSlot(0).item.item == Items.FILLED_MAP) {
+            MoarBoats.network.sendToServer(CSaveItineraryToMap(boat.entityID, HelmModule.id))
         }
     }
 

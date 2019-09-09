@@ -19,7 +19,7 @@ class GuiRudderModule(playerInventory: PlayerInventory, anchor: BoatModule, boat
 
     val blockButton = Button(0,0,0, 140, 20, "") {
         override fun onClick(mouseX: Double, mouseY: Double) {
-            MoarBoats.network.sendToServer(CChangeRudderBlocking(boat.id, module.id))
+            MoarBoats.network.sendToServer(CChangeRudderBlocking(boat.entityID, module.id))
         }
     }
     val blockingText = TranslationTextComponent("moarboats.gui.rudder.blocking")

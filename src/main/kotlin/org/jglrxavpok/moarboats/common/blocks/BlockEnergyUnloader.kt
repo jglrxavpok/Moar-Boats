@@ -1,10 +1,10 @@
 package org.jglrxavpok.moarboats.common.blocks
 
 import net.minecraft.block.Block
-import net.minecraft.block.state.IBlockState
+import net.minecraft.block.state.BlockState
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerEntityMP
+import net.minecraft.entity.player.ServerPlayerEntity
 import net.minecraft.item.BlockItemUseContext
 import net.minecraft.state.DirectionProperty
 import net.minecraft.state.StateContainer
@@ -28,36 +28,36 @@ object BlockEnergyUnloader: MoarBoatsBlock() {
 
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "boat_energy_discharger")
-        defaultState = stateContainer.baseState.with(Facing, Direction.UP)
+        defaultBlockState() = stateContainer.baseState.with(Facing, Direction.UP)
     }
 
-    override fun fillStateContainer(builder: StateContainer.Builder<Block, IBlockState>) {
+    override fun fillStateContainer(builder: StateContainer.Builder<Block, BlockState>) {
         builder.add(Facing)
     }
 
     override fun hasTileEntity() = true
-    override fun hasTileEntity(state: IBlockState) = true
+    override fun hasTileEntity(state: BlockState) = true
 
-    override fun createTileEntity(state: IBlockState?, world: IBlockReader?): TileEntity? {
+    override fun createTileEntity(state: BlockState?, world: IBlockReader?): TileEntity? {
         return TileEntityEnergyUnloader()
     }
 
-    override fun getStateForPlacement(context: BlockItemUseContext): IBlockState? {
-        return this.defaultState.with(Facing, context.nearestLookingDirection)
+    override fun getStateForPlacement(context: BlockItemUseContext): BlockState? {
+        return this.defaultBlockState().with(Facing, context.nearestLookingDirection)
     }
 
-    override fun onBlockActivated(state: IBlockState, worldIn: World, pos: BlockPos, playerIn: PlayerEntity, hand: Hand?, facing: Direction?, hitX: Float, hitY: Float, hitZ: Float): Boolean {
+    override fun onBlockActivated(state: BlockState, worldIn: World, pos: BlockPos, playerIn: PlayerEntity, hand: Hand?, facing: Direction?, hitX: Float, hitY: Float, hitZ: Float): Boolean {
         if(worldIn.isClientSide)
             return true
-        NetworkHooks.openGui(playerIn as PlayerEntityMP, MoarBoatsGuiHandler.EnergyGuiInteraction(pos.x, pos.y, pos.z))
+        NetworkHooks.openGui(playerIn as ServerPlayerEntity, MoarBoatsGuiHandler.EnergyGuiInteraction(pos.x, pos.y, pos.z))
         return true
     }
 
-    override fun hasComparatorInputOverride(state: IBlockState): Boolean {
+    override fun hasComparatorInputOverride(state: BlockState): Boolean {
         return true
     }
 
-    override fun getComparatorInputOverride(blockState: IBlockState, worldIn: World, pos: BlockPos): Int {
+    override fun getComparatorInputOverride(blockState: BlockState, worldIn: World, pos: BlockPos): Int {
         return (worldIn.getBlockEntity(pos) as? TileEntityEnergyUnloader)?.getRedstonePower() ?: 0
     }
 

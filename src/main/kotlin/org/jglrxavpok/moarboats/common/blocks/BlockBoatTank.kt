@@ -1,6 +1,6 @@
 package org.jglrxavpok.moarboats.common.blocks
 
-import net.minecraft.block.state.IBlockState
+import net.minecraft.block.state.BlockState
 import net.minecraft.client.util.ITooltipFlag
 import net.minecraft.item.ItemStack
 import net.minecraft.util.BlockRenderLayer
@@ -16,7 +16,7 @@ object BlockBoatTank: MoarBoatsBlock() {
         registryName = ResourceLocation(MoarBoats.ModID, "boat_tank")
     }
 
-    override fun getOpacity(state: IBlockState, level: IBlockReader, pos: BlockPos): Int {
+    override fun getOpacity(state: BlockState, level: IBlockReader, pos: BlockPos): Int {
         return 0
     }
 
@@ -24,7 +24,7 @@ object BlockBoatTank: MoarBoatsBlock() {
         return BlockRenderLayer.CUTOUT
     }
 
-    override fun isFullCube(state: IBlockState): Boolean {
+    override fun isFullCube(state: BlockState): Boolean {
         return false
     }
 

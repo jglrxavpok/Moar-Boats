@@ -1,6 +1,6 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.client.gui.screen
+import net.minecraft.client.gui.screen.Screen
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.MapItem
 import net.minecraft.item.ItemStack
@@ -81,8 +81,8 @@ object HelmModule: BoatModule(), BlockReason {
         if(boat.worldRef.isClientSide) {
             val stack = boat.getInventory().getItem(0)
             if(!stack.isEmpty && stack.item is MapItem) {
-                val id = stack.damage
-                MoarBoats.network.sendToServer(CMapRequest("map_$id", boat.id, this.id))
+                val id = stack.damageValue
+                MoarBoats.network.sendToServer(CMapRequest("map_$id", boat.entityID, this.id))
             }
         }
     }
@@ -163,8 +163,8 @@ object HelmModule: BoatModule(), BlockReason {
             xCenterProperty[boat] = mapdata.x
             zCenterProperty[boat] = mapdata.z
         } else if(mapdata == EmptyMapData || boat.correspondingEntity.tickCount % MapUpdatePeriod == 0) {
-            val id = stack.damage
-            MoarBoats.network.sendToServer(CMapRequest("map_$id", boat.id, this.id))
+            val id = stack.damageValue
+            MoarBoats.network.sendToServer(CMapRequest("map_$id", boat.entityID, this.id))
         }
     }
 

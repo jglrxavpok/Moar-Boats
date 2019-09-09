@@ -1,7 +1,9 @@
 package org.jglrxavpok.moarboats.common.entities
 
 import net.minecraft.block.BlockLilyPad
-import net.minecraft.block.state.IBlockState
+import net.minecraft.block.Blocks
+import net.minecraft.block.LilyPadBlock
+import net.minecraft.block.state.BlockState
 import net.minecraft.crash.CrashReport
 import net.minecraft.crash.CrashReportCategory
 import net.minecraft.crash.ReportedException
@@ -10,8 +12,10 @@ import net.minecraft.entity.LeashKnotEntity
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.MoverType
 import net.minecraft.entity.item.EntityItem
+import net.minecraft.entity.item.ItemEntity
+import net.minecraft.entity.item.LeashKnotEntity
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.init.Blocks
+import net.minecraft.block.Blocks
 import net.minecraft.init.Particles
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
@@ -47,13 +51,13 @@ import kotlin.math.sqrt
 abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, level: World): Entity(type, level), IControllable, IEntityAdditionalSpawnData {
 
     companion object {
-        val TIME_SINCE_HIT = EntityDataManager.createKey(BasicBoatEntity::class.java, DataSerializers.VARINT)
-        val FORWARD_DIRECTION = EntityDataManager.createKey(BasicBoatEntity::class.java, DataSerializers.VARINT)
-        val DAMAGE_TAKEN = EntityDataManager.createKey(BasicBoatEntity::class.java, DataSerializers.FLOAT)
-        val BOAT_LINKS = Array(2) { EntityDataManager.createKey(BasicBoatEntity::class.java, DataSerializers.OPTIONAL_UNIQUE_ID) }
-        val LINKS_RUNTIME = Array(2) { EntityDataManager.createKey(BasicBoatEntity::class.java, DataSerializers.VARINT) }
-        val KNOT_LOCATIONS = Array(2) { EntityDataManager.createKey(BasicBoatEntity::class.java, DataSerializers.OPTIONAL_BLOCK_POS) }
-        val LINK_TYPES = Array(2) { EntityDataManager.createKey(BasicBoatEntity::class.java, DataSerializers.VARINT) }
+        val TIME_SINCE_HIT = EntityDataManager.defineId(BasicBoatEntity::class.java, DataSerializers.INT)
+        val FORWARD_DIRECTION = EntityDataManager.defineId(BasicBoatEntity::class.java, DataSerializers.INT)
+        val DAMAGE_TAKEN = EntityDataManager.defineId(BasicBoatEntity::class.java, DataSerializers.FLOAT)
+        val BOAT_LINKS = Array(2) { EntityDataManager.defineId(BasicBoatEntity::class.java, DataSerializers.OPTIONAL_UUID) }
+        val LINKS_RUNTIME = Array(2) { EntityDataManager.defineId(BasicBoatEntity::class.java, DataSerializers.INT) }
+        val KNOT_LOCATIONS = Array(2) { EntityDataManager.defineId(BasicBoatEntity::class.java, DataSerializers.OPTIONAL_BLOCK_POS) }
+        val LINK_TYPES = Array(2) { EntityDataManager.defineId(BasicBoatEntity::class.java, DataSerializers.INT) }
 
         val FrontLink = 0
         val BackLink = 1
@@ -91,52 +95,52 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, level: Wor
     override val worldRef: World
         get() = this.level
     override val positionX: Double
-        get() = posX
+        get() = x
     override val positionY: Double
-        get() = posY
+        get() = y
     override val positionZ: Double
-        get() = posZ
+        get() = z
     override val velocityX: Double
-        get() = motionX
+        get() = deltaMovement.x
     override val velocityY: Double
-        get() = motionY
+        get() = deltaMovement.y
     override val velocityZ: Double
-        get() = motionZ
+        get() = deltaMovement.z
     override val yaw: Float
-        get() = rotationYaw
+        get() = yRot
     override val correspondingEntity = this
     /**
      * damage taken from the last hit.
      */
     var damageTaken: Float
-        get()= this.dataManager.get(DAMAGE_TAKEN)
-        set(value) { this.dataManager.set(DAMAGE_TAKEN, value) }
+        get()= this.entityData.get(DAMAGE_TAKEN)
+        set(value) { this.entityData.set(DAMAGE_TAKEN, value) }
 
     /**
      * time since the last hit.
      */
     var timeSinceHit: Int
-        get() = this.dataManager.get(TIME_SINCE_HIT)
-        set(value) { this.dataManager.set(TIME_SINCE_HIT, value) }
+        get() = this.entityData.get(TIME_SINCE_HIT)
+        set(value) { this.entityData.set(TIME_SINCE_HIT, value) }
 
     /**
      * forward direction of the entity.
      */
     var forwardDirection: Int
-        get()= this.dataManager.get(FORWARD_DIRECTION)
-        set(value) { this.dataManager.set(FORWARD_DIRECTION, value) }
+        get()= this.entityData.get(FORWARD_DIRECTION)
+        set(value) { this.entityData.set(FORWARD_DIRECTION, value) }
 
     var links
-        get()= BOAT_LINKS.map { dataManager[it] }
-        set(value) { BOAT_LINKS.forEachIndexed { index, dataParameter -> dataManager[dataParameter] = value[index] } }
+        get()= BOAT_LINKS.map { entityData[it] }
+        set(value) { BOAT_LINKS.forEachIndexed { index, dataParameter -> entityData[dataParameter] = value[index] } }
 
     var linkEntityTypes
-        get() = LINK_TYPES.map { dataManager[it] }
-        set(value) { LINK_TYPES.forEachIndexed { index, dataParameter -> dataManager[dataParameter] = value[index] } }
+        get() = LINK_TYPES.map { entityData[it] }
+        set(value) { LINK_TYPES.forEachIndexed { index, dataParameter -> entityData[dataParameter] = value[index] } }
 
     var knotLocations
-        get() = KNOT_LOCATIONS.map { dataManager[it] }
-        set(value) { KNOT_LOCATIONS.forEachIndexed { index, dataParameter -> dataManager[dataParameter] = value[index] } }
+        get() = KNOT_LOCATIONS.map { entityData[it] }
+        set(value) { KNOT_LOCATIONS.forEachIndexed { index, dataParameter -> entityData[dataParameter] = value[index] } }
 
     var distanceTravelled: Double = 0.0
         private set
@@ -155,18 +159,16 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, level: Wor
     }
 
     constructor(type: EntityType<out BasicBoatEntity>, level: World, x: Double, y: Double, z: Double): this(type, level) {
-        this.setPosition(x, y, z)
-        this.motionX = 0.0
-        this.motionY = 0.0
-        this.motionZ = 0.0
-        this.prevPosX = x
-        this.prevPosY = y
-        this.prevPosZ = z
+        this.setPos(x, y, z)
+        this.deltaMovement = Vec3d.ZERO
+        this.xo = x
+        this.yo = y
+        this.zo = z
     }
 
     override fun isEntityInLava() = isInLava
 
-    override fun getlevel() = level
+    override fun getLevel() = level
 
     fun hasLink(linkType: Int) = linkEntityTypes[linkType] != NoLink
 
@@ -239,7 +241,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, level: Wor
             for (k1 in i until j) {
                 for (l1 in k until l) {
                     for (i2 in i1 until j1) {
-                        currentBlockPos.setPos(k1, l1, i2)
+                        currentBlockPos.set(k1, l1, i2)
 
                         when {
                             isValidLiquidBlock(currentBlockPos) -> {
@@ -280,9 +282,9 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, level: Wor
                     if (j2 != 2) {
                         for (k2 in k until l) {
                             if (j2 <= 0 || k2 != k && k2 != l - 1) {
-                                blockPos.setPos(l1, k2, i2)
+                                blockPos.set(l1, k2, i2)
                                 val iblockstate = this.level.getBlockState(blockPos)
-                                if (iblockstate.block !is BlockLilyPad && VoxelShapes.compare(iblockstate.getCollisionShape(this.level, blockPos).withOffset(l1.toDouble(), k2.toDouble(), i2.toDouble()), voxelshape, IBooleanFunction.AND)) {
+                                if (iblockstate.block !is LilyPadBlock && VoxelShapes.compare(iblockstate.getCollisionShape(this.level, blockPos).withOffset(l1.toDouble(), k2.toDouble(), i2.toDouble()), voxelshape, IBooleanFunction.AND)) {
                                     f += iblockstate.getSlipperiness(level, blockPos, this)
                                     ++k1
                                 }
@@ -372,13 +374,13 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, level: Wor
     /**
      * Applies a velocity to the entities, to push them away from eachother.
      */
-    override fun applyEntityCollision(entityIn: Entity) {
+    override fun push(entityIn: Entity) {
         if (entityIn is BasicBoatEntity) {
             if (entityIn.boundingBox.minY < this.boundingBox.maxY) {
-                super.applyEntityCollision(entityIn)
+                super.push(entityIn)
             }
         } else if (entityIn.boundingBox.minY <= this.boundingBox.minY) {
-            super.applyEntityCollision(entityIn)
+            super.push(entityIn)
         }
     }
 
@@ -422,14 +424,14 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, level: Wor
             damageTaken -= 1.0f
         }
 
-        val dx = posX-prevPosX;
-        val dy = posY-prevPosY;
-        val dz = posZ-prevPosZ;
+        val dx = x-xo;
+        val dy = y-yo;
+        val dz = z-zo;
         distanceTravelled += sqrt(dz*dz+dy*dy+dx*dx)
 
-        this.prevPosX = this.posX
-        this.prevPosY = this.posY
-        this.prevPosZ = this.posZ
+        this.xo = this.x
+        this.yo = this.y
+        this.zo = this.z
         super.tick()
 
         breakLinkIfNeeded(FrontLink)
@@ -439,25 +441,23 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, level: Wor
         if (hasLink(FrontLink)) { // is trailing boat, need to come closer to heading boat if needed
             val heading = getLinkedTo(FrontLink)
             if(heading != null) {
-                val f = getDistance(heading)
+                val f = distanceTo(heading)
                 if (f > 3.0f) {
                     canControlItself = false
 
-                    val d0 = (heading.posX - this.posX) / f.toDouble()
-                    val d1 = (heading.posY - this.posY) / f.toDouble()
-                    val d2 = (heading.posZ - this.posZ) / f.toDouble()
+                    val d0 = (heading.x - this.x) / f.toDouble()
+                    val d1 = (heading.y - this.y) / f.toDouble()
+                    val d2 = (heading.z - this.z) / f.toDouble()
                     val alpha = 0.5f
 
                     val anchorPos = calculateAnchorPosition(FrontLink)
                     val otherAnchorPos = if(heading is BasicBoatEntity) heading.calculateAnchorPosition(BackLink) else heading.positionVector
                     // FIXME: handle case where targetYaw is ~0-180 and rotationYaw is ~180+ (avoid doing a crazy flip)
-                    val targetYaw = computeTargetYaw(rotationYaw, anchorPos, otherAnchorPos)
-                    rotationYaw = alpha * rotationYaw + targetYaw * (1f - alpha)
+                    val targetYaw = computeTargetYaw(yRot, anchorPos, otherAnchorPos)
+                    yRot = alpha * yRot + targetYaw * (1f - alpha)
 
                     val speed = 0.2
-                    this.motionX += d0 * abs(d0) * speed
-                    this.motionY += d1 * abs(d1) * speed
-                    this.motionZ += d2 * abs(d2) * speed
+                    this.deltaMovement = deltaMovement.add(d0 * abs(d0) * speed, d1 * abs(d1) * speed, d2 * abs(d2) * speed)
                 }
             }
         }
@@ -473,15 +473,15 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, level: Wor
 
         breakLilypads()
 
-        this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ)
+        this.move(MoverType.SELF, this.deltaMovement)
 
         this.doBlockCollisions()
-        val list = this.level.getEntitiesInAABBexcluding(this, this.boundingBox.grow(0.20000000298023224, -0.009999999776482582, 0.20000000298023224), EntitySelectors.pushableBy(this))
+        val list = this.level.getEntities(this, this.boundingBox.inflate(0.20000000298023224, -0.009999999776482582, 0.20000000298023224), EntitySelectors.pushableBy(this))
 
         if (list.isNotEmpty()) {
             for (entity in list) {
                 if(entity !in passengers)
-                    this.applyEntityCollision(entity)
+                    this.push(entity)
             }
         }
     }
@@ -496,26 +496,26 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, level: Wor
             for (i in min.x..max.x) {
                 for (j in min.y..max.y) {
                     for (k in min.z..max.z) {
-                        tmp.setPos(i, j, k)
+                        tmp.set(i, j, k)
                         val iblockstate = this.level.getBlockState(tmp)
 
                         try {
-                            if(iblockstate.block is BlockLilyPad) {
+                            if(iblockstate.block is LilyPadBlock) {
                                 level.removeBlock(tmp)
-                                level.spawnEntity(EntityItem(level, tmp.x+.5, tmp.y+.15, tmp.z+.5, ItemStack(net.minecraft.init.Blocks.LILY_PAD)))
+                                level.addFreshEntity(ItemEntity(level, tmp.x+.5, tmp.y+.15, tmp.z+.5, ItemStack(Blocks.LILY_PAD)))
                                 val count = 15
                                 for(n in 0..count) {
                                     val vx = Math.random() * 2.0 - 1.0
                                     val vz = Math.random() * 2.0 - 1.0
                                     val speed = 0.1
                                     val vy = Math.random() * speed * 2.0
-                                    level.addParticle(BlockParticleData(Particles.FALLING_DUST, Blocks.LILY_PAD.defaultState), tmp.x+.5, tmp.y+.5, tmp.z+.5, vx*speed, vy*speed, vz*speed)
+                                    level.addParticle(BlockParticleData(Particles.FALLING_DUST, Blocks.LILY_PAD.defaultBlockState()), tmp.x+.5, tmp.y+.5, tmp.z+.5, vx*speed, vy*speed, vz*speed)
                                 }
                             }
                         } catch (throwable: Throwable) {
-                            val crashreport = CrashReport.makeCrashReport(throwable, "Colliding entity with block")
-                            val crashreportcategory = crashreport.makeCategory("Block being collided with")
-                            CrashReportCategory.addBlockInfo(crashreportcategory, tmp, iblockstate)
+                            val crashreport = CrashReport.forThrowable(throwable, "Colliding entity with block")
+                            val crashreportcategory = crashreport.addCategory("Block being collided with")
+                            CrashReportCategory.populateBlockDetails(crashreportcategory, tmp, iblockstate)
                             throw ReportedException(crashreport)
                         }
 
@@ -609,7 +609,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, level: Wor
             for (x in minX until maxX) {
                 for (y in maxY until aboveMaxYPos) {
                     for (z in minZ until maxZ) {
-                        currentBlockPos.setPos(x, y, z)
+                        currentBlockPos.set(x, y, z)
                         val block = this.level.getBlockState(currentBlockPos)
 
                         if (isValidLiquidBlock(currentBlockPos)) {
@@ -637,20 +637,20 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, level: Wor
      * Update the boat's speed, based on momentum.
      */
     private fun updateMotion() {
-        var verticalAcceleration = if (this.hasNoGravity()) 0.0 else -0.03999999910593033
+        var verticalAcceleration = if (this.isNoGravity) 0.0 else -0.03999999910593033
         var d2 = 0.0
         this.momentum = 0.05f
 
         if (this.previousStatus == Status.IN_AIR && this.status != Status.IN_AIR && this.status != Status.ON_LAND) {
-            this.waterLevel = this.boundingBox.minY + this.height.toDouble()
-            this.setPosition(this.posX, (this.getWaterLevelAbove() - this.height).toDouble() + 0.101, this.posZ)
-            this.motionY = 0.0
+            this.waterLevel = this.boundingBox.minY + this.bbHeight.toDouble()
+            this.setPos(this.x, (this.getWaterLevelAbove() - this.bbHeight).toDouble() + 0.101, this.z)
+            this.setDeltaMovement(deltaMovement.x, 0.0, deltaMovement.z)
             this.lastYd = 0.0
             this.status = Status.IN_LIQUID
         } else {
             when(this.status) {
                 Status.IN_LIQUID -> {
-                    d2 = (this.waterLevel - this.boundingBox.minY) / this.height.toDouble()
+                    d2 = (this.waterLevel - this.boundingBox.minY) / this.bbHeight.toDouble()
                     this.momentum = 0.9f
                 }
                 Status.UNDER_FLOWING_LIQUID -> {
@@ -665,15 +665,13 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, level: Wor
                 Status.ON_LAND -> this.momentum = this.boatGlide
             }
 
-            this.motionX *= this.momentum.toDouble()
-            this.motionZ *= this.momentum.toDouble()
-            this.deltaRotation *= this.momentum
-            this.motionY += verticalAcceleration
-
+            var motionY = deltaMovement.y + verticalAcceleration
             if (d2 > 0.0) {
-                this.motionY += d2 * 0.06153846016296973// * (1f/0.014f)
-                this.motionY *= 0.75
+                motionY += d2 * 0.06153846016296973// * (1f/0.014f)
+                motionY *= 0.75
             }
+            this.setDeltaMovement(deltaMovement.x * momentum, motionY, deltaMovement.z * momentum)
+            this.deltaRotation *= this.momentum
         }
     }
 
@@ -681,24 +679,16 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, level: Wor
      * Applies this boat's yaw to the given entity. Used to update the orientation of its passenger.
      */
     protected fun applyYawToEntity(entityToUpdate: Entity) {
-        entityToUpdate.setRenderYawOffset(this.rotationYaw)
-        val f = MathHelper.wrapDegrees(entityToUpdate.rotationYaw - this.rotationYaw)
+        entityToUpdate.setYBodyRot(this.yRot)
+        val f = MathHelper.wrapDegrees(entityToUpdate.yRot - this.yRot)
         val f1 = MathHelper.clamp(f, -105.0f, 105.0f)
-        entityToUpdate.prevRotationYaw += f1 - f
-        entityToUpdate.rotationYaw += f1 - f
-        entityToUpdate.rotationYawHead = entityToUpdate.rotationYaw
+        entityToUpdate.yRotO += f1 - f
+        entityToUpdate.yRot += f1 - f
+        entityToUpdate.yRot = entityToUpdate.yRot
     }
 
-    /**
-     * Applies this entity's orientation (pitch/yaw) to another entity. Used to update passenger orientation.
-     */
-    @OnlyIn(Dist.CLIENT)
-    override fun applyOrientationToEntity(entityToUpdate: Entity) {
-        this.applyYawToEntity(entityToUpdate)
-    }
-
-    override fun updateFallState(y: Double, onGroundIn: Boolean, state: IBlockState, pos: BlockPos) {
-        this.lastYd = this.motionY
+    override fun updateFallState(y: Double, onGroundIn: Boolean, state: BlockState, pos: BlockPos) {
+        this.lastYd = this.deltaMovement.y
 
         // boats will not break when falling
         fallDistance = 0f;
@@ -712,7 +702,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, level: Wor
             currentLinks[linkType] = Optional.empty()
             currentLinkTypes[linkType] = NoLink
             currentKnotLocations[linkType] = Optional.empty()
-            dataManager.set(LINKS_RUNTIME[linkType], NoLinkFound)
+            entityData.set(LINKS_RUNTIME[linkType], NoLinkFound)
         } else {
             if(other is BasicBoatEntity) {
                 currentLinks[linkType] = Optional.of(other.boatID)
@@ -723,22 +713,22 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, level: Wor
                 currentLinkTypes[linkType] = KnotLink
                 currentKnotLocations[linkType] = Optional.of(other.hangingPosition)
             }
-            dataManager.set(LINKS_RUNTIME[linkType], other.id)
+            entityData.set(LINKS_RUNTIME[linkType], other.id)
         }
         links = listOf(*currentLinks)
         linkEntityTypes = listOf(*currentLinkTypes)
         knotLocations = listOf(*currentKnotLocations)
     }
 
-    override fun canTriggerWalking(): Boolean {
+    override fun makeStepSound(): Boolean {
         return false
     }
 
-    override fun writeAdditional(compound: CompoundNBT) {
+    override fun addAdditionalSaveData(compound: CompoundNBT) {
         compound.putInt("linkFrontType", linkEntityTypes[FrontLink])
         compound.putInt("linkBackType", linkEntityTypes[BackLink])
         if(links[FrontLink].isPresent)
-            compound.putUniqueId("linkFront", links[FrontLink].get())
+            compound.putUUID("linkFront", links[FrontLink].get())
         else if(knotLocations[FrontLink].isPresent) {
             val pos = knotLocations[FrontLink].get()
             compound.putInt("linkFrontX", pos.x)
@@ -747,18 +737,18 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, level: Wor
         }
 
         if(links[BackLink].isPresent)
-            compound.putUniqueId("linkBack", links[BackLink].get())
+            compound.putUUID("linkBack", links[BackLink].get())
         else if(knotLocations[BackLink].isPresent) {
             val pos = knotLocations[BackLink].get()
             compound.putInt("linkBackX", pos.x)
             compound.putInt("linkBackY", pos.y)
             compound.putInt("linkBackZ", pos.z)
         }
-        compound.putUniqueId("boatID", boatID)
+        compound.putUUID("boatID", boatID)
         compound.putInt("dataFormatVersion", CurrentDataFormatVersion)
     }
 
-    override fun readAdditional(compound: CompoundNBT) {
+    override fun readAdditionalSaveData(compound: CompoundNBT) {
         val version = compound.getInt("dataFormatVersion")
         if(version < CurrentDataFormatVersion) {
             updateContentsToNextVersion(compound, version)
@@ -769,11 +759,11 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, level: Wor
         val readKnotLocations = knotLocations.toTypedArray()
         if(linkEntityTypes[FrontLink] == BoatLink) {
             val frontBoatLink =
-                    if(compound.hasUniqueId("linkFront"))
-                        Optional.of(compound.getUniqueId("linkFront")!!)
+                    if(compound.hasUUID("linkFront"))
+                        Optional.of(compound.getUUID("linkFront")!!)
                     else
                         Optional.empty()
-            dataManager.set(BOAT_LINKS[FrontLink], frontBoatLink)
+            entityData.set(BOAT_LINKS[FrontLink], frontBoatLink)
             readKnotLocations[FrontLink] = Optional.empty()
         } else if(linkEntityTypes[FrontLink] == KnotLink) {
             val pos = BlockPos(compound.getInt("linkFrontX"), compound.getInt("linkFrontY"), compound.getInt("linkFrontZ"))
@@ -782,22 +772,22 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, level: Wor
 
         if(linkEntityTypes[BackLink] == BoatLink) {
             val backBoatLink =
-                    if(compound.hasUniqueId("linkBack"))
-                        Optional.of(compound.getUniqueId("linkBack")!!)
+                    if(compound.hasUUID("linkBack"))
+                        Optional.of(compound.getUUID("linkBack")!!)
                     else
                         Optional.empty()
-            dataManager.set(BOAT_LINKS[BackLink], backBoatLink)
+            entityData.set(BOAT_LINKS[BackLink], backBoatLink)
             readKnotLocations[BackLink] = Optional.empty()
         } else if(linkEntityTypes[BackLink] == KnotLink) {
             val pos = BlockPos(compound.getInt("linkBackX"), compound.getInt("linkBackY"), compound.getInt("linkBackZ"))
             readKnotLocations[BackLink] = Optional.of(pos)
         }
-        boatID = compound.getUniqueId("boatID")!!
+        boatID = compound.getUUID("boatID")!!
         knotLocations = listOf(*readKnotLocations)
 
         // reset runtime links
-        dataManager.set(LINKS_RUNTIME[FrontLink], UnitializedLinkID)
-        dataManager.set(LINKS_RUNTIME[BackLink], UnitializedLinkID)
+        entityData.set(LINKS_RUNTIME[FrontLink], UnitializedLinkID)
+        entityData.set(LINKS_RUNTIME[BackLink], UnitializedLinkID)
     }
 
     private tailrec fun updateContentsToNextVersion(compound: CompoundNBT, fromVersion: Int) {
@@ -812,13 +802,13 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, level: Wor
 
     private fun updateFromVersion0(compound: CompoundNBT) {
         val front =
-                if(compound.hasUniqueId("linkFront"))
-                    Optional.of(compound.getUniqueId("linkFront")!!)
+                if(compound.hasUUID("linkFront"))
+                    Optional.of(compound.getUUID("linkFront")!!)
                 else
                     Optional.empty()
         val back =
-                if(compound.hasUniqueId("linkBack"))
-                    Optional.of(compound.getUniqueId("linkBack")!!)
+                if(compound.hasUUID("linkBack"))
+                    Optional.of(compound.getUUID("linkBack")!!)
                 else
                     Optional.empty()
         fun updateSide(name: String, boat: Optional<UUID>) {
@@ -829,21 +819,21 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, level: Wor
         updateSide("Front", front)
     }
 
-    override fun registerData() {
-        this.dataManager.register(TIME_SINCE_HIT, 0)
-        this.dataManager.register(FORWARD_DIRECTION, 1)
-        this.dataManager.register(DAMAGE_TAKEN, 0f)
-        this.dataManager.register(BOAT_LINKS[FrontLink], Optional.empty())
-        this.dataManager.register(BOAT_LINKS[BackLink], Optional.empty())
-        this.dataManager.register(LINKS_RUNTIME[FrontLink], UnitializedLinkID)
-        this.dataManager.register(LINKS_RUNTIME[BackLink], UnitializedLinkID)
-        this.dataManager.register(KNOT_LOCATIONS[FrontLink], Optional.empty())
-        this.dataManager.register(KNOT_LOCATIONS[BackLink], Optional.empty())
-        this.dataManager.register(LINK_TYPES[FrontLink], NoLink)
-        this.dataManager.register(LINK_TYPES[BackLink], NoLink)
+    override fun defineSynchedData() {
+        this.entityData.define(TIME_SINCE_HIT, 0)
+        this.entityData.define(FORWARD_DIRECTION, 1)
+        this.entityData.define(DAMAGE_TAKEN, 0f)
+        this.entityData.define(BOAT_LINKS[FrontLink], Optional.empty())
+        this.entityData.define(BOAT_LINKS[BackLink], Optional.empty())
+        this.entityData.define(LINKS_RUNTIME[FrontLink], UnitializedLinkID)
+        this.entityData.define(LINKS_RUNTIME[BackLink], UnitializedLinkID)
+        this.entityData.define(KNOT_LOCATIONS[FrontLink], Optional.empty())
+        this.entityData.define(KNOT_LOCATIONS[BackLink], Optional.empty())
+        this.entityData.define(LINK_TYPES[FrontLink], NoLink)
+        this.entityData.define(LINK_TYPES[BackLink], NoLink)
     }
 
-    override fun processInitialInteract(player: PlayerEntity, hand: Hand): Boolean {
+    override fun interact(player: PlayerEntity, hand: Hand): Boolean {
         if(level.isClientSide)
             return true
         val itemstack = player.getItemInHand(hand)
@@ -874,11 +864,11 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, level: Wor
 
     private fun getKnotLinkedTo(side: Int): LeashKnotEntity? {
         val location = knotLocations[side]
-        return LeashKnotEntity.getKnotForPosition(level, location.get()) ?: LeashKnotEntity.createKnot(level, location.get())
+        return LeashKnotEntity.getOrCreateKnot(level, location.get())
     }
 
     private fun getBoatLinkedTo(side: Int): BasicBoatEntity? {
-        var id = dataManager.get(LINKS_RUNTIME[side])
+        var id = entityData.get(LINKS_RUNTIME[side])
         if(id == UnitializedLinkID) {
             id = forceLinkLoad(side)
             if(id == NoLinkFound) {
@@ -892,32 +882,24 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, level: Wor
     }
 
     private fun forceLinkLoad(side: Int): Int {
-
         val boatID = links[side].get()
         val correspondingBoat = level.getEntities(BasicBoatEntity::class.java) { entity ->
             entity?.boatID == boatID ?: false
         }.firstOrNull()
         val id = correspondingBoat?.id ?: NoLinkFound
-        dataManager.set(LINKS_RUNTIME[side], id)
+        entityData.set(LINKS_RUNTIME[side], id)
         return id
     }
 
     override fun readSpawnData(additionalData: PacketBuffer) {
         val data = additionalData.readNbt()
-        readAdditional(data!!)
-        /*val idLow = additionalData.readLong()
-        val idHigh = additionalData.readLong()
-        val id = UUID(idHigh, idLow)
-        boatID = id*/
+        readAdditionalSaveData(data!!)
     }
 
     override fun writeSpawnData(buffer: PacketBuffer) {
         val nbtData = CompoundNBT()
-        writeAdditional(nbtData)
+        addAdditionalSaveData(nbtData)
         buffer.writeNbt(nbtData)
-/*        val id = boatID
-        buffer.writeLong(id.leastSignificantBits)
-        buffer.writeLong(id.mostSignificantBits)*/
     }
 
     override fun inLiquid(): Boolean = when(status) {
@@ -927,20 +909,20 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, level: Wor
 
     // === Start of code for passengers ===
 
-    override fun updatePassenger(passenger: Entity) {
-        if (this.isPassenger(passenger)) {
+    override fun positionRider(passenger: Entity) {
+        if (this.hasPassenger(passenger)) {
             var f = -0.75f * 0.5f
-            val f1 = ((if ( ! this.isAlive) 0.009999999776482582 else this.mountedYOffset) + passenger.yOffset).toFloat()
+            val f1 = ((if ( ! this.isAlive) 0.009999999776482582 else this.rideHeight) + passenger.ridingHeight).toFloat()
 
-            val vec3d = Vec3d(f.toDouble(), 0.0, 0.0).rotateYaw(-(this.rotationYaw) * 0.017453292f - Math.PI.toFloat() / 2f)
-            passenger.setPosition(this.posX + vec3d.x, this.posY + f1.toDouble(), this.posZ + vec3d.z)
-            passenger.rotationYaw += this.deltaRotation
-            passenger.rotationYawHead = passenger.rotationYawHead + this.deltaRotation
+            val vec3d = Vec3d(f.toDouble(), 0.0, 0.0).yRot(-(this.yRot) * 0.017453292f - Math.PI.toFloat() / 2f)
+            passenger.setPos(this.x + vec3d.x, this.y + f1.toDouble(), this.z + vec3d.z)
+            passenger.yRot += this.deltaRotation
+            passenger.yHeadRot = passenger.yHeadRot + this.deltaRotation
             this.applyYawToEntity(passenger)
         }
     }
 
-    override fun canFitPassenger(passenger: Entity): Boolean {
+    override fun canAddPassenger(passenger: Entity): Boolean {
         return this.passengers.isEmpty() && passenger is PlayerEntity
     }
 

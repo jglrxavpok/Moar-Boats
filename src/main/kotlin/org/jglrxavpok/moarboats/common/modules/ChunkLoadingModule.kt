@@ -1,7 +1,6 @@
 package org.jglrxavpok.moarboats.common.modules
 
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.init.Particles
 import net.minecraft.item.ItemStack
 import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
@@ -57,7 +56,7 @@ object ChunkLoadingModule: BoatModule() {
     }
 
     private fun forceChunks(boat: IControllable) {
-        val centerPos = ChunkPos(boat.correspondingEntity.chunkCoordX, boat.correspondingEntity.chunkCoordZ)
+        val centerPos = ChunkPos(boat.correspondingEntity.xChunk, boat.correspondingEntity.zChunk)
         for(i in -2..2) {
             for(j in -2..2) {
                 boat.forceChunkLoad(centerPos.x+i, centerPos.z+j)

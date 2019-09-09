@@ -4,7 +4,7 @@ import net.minecraft.client.Minecraft
 import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.entity.EntityRendererManager
-import net.minecraft.client.renderer.texture.TextureMap
+import net.minecraft.client.renderer.texture.AtlasTexture
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.api.BoatModule
@@ -24,9 +24,9 @@ object TankModuleRenderer : BoatModuleRenderer() {
         GlStateManager.scalef(0.75f, 0.75f, 0.75f)
         GlStateManager.scalef(-1f, 1f, 1f)
         GlStateManager.translatef(-0.15f, -4f/16f, 0.5f)
-        EntityRendererManager.textureManager.bind(TextureMap.LOCATION_BLOCKS_TEXTURE)
+        EntityRendererManager.textureManager.bind(AtlasTexture.LOCATION_BLOCKS)
         val block = BlockBoatTank
-        Minecraft.getInstance().blockRendererDispatcher.renderBlockBrightness(block.defaultState, boat.brightness)
+        Minecraft.getInstance().blockRenderer.renderSingleBlock(block.defaultBlockState(), boat.brightness)
         val fluid = module.getFluidInside(boat)
         if(fluid != null && module.getFluidAmount(boat) > 0) {
             val scale = 1f/16f
@@ -34,7 +34,7 @@ object TankModuleRenderer : BoatModuleRenderer() {
             val tessellator = Tessellator.getInstance()
             val buffer = tessellator.buffer
             val sprite = Minecraft.getInstance().textureMap.getAtlasSprite(fluid.still.toString())
-            Minecraft.getInstance().textureManager.bind(TextureMap.LOCATION_BLOCKS_TEXTURE)
+            Minecraft.getInstance().textureManager.bind(AtlasTexture.LOCATION_BLOCKS)
             buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX)
             val minU = sprite.minU.toDouble()
             val maxU = sprite.maxU.toDouble()

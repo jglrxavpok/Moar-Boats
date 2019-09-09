@@ -3,6 +3,7 @@ package org.jglrxavpok.moarboats.common.network
 import net.minecraft.block.material.MaterialColor
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
+import net.minecraft.world.chunk.ChunkStatus
 import net.minecraft.world.dimension.DimensionType
 import net.minecraft.world.storage.MapData
 import net.minecraftforge.api.distmarker.Dist
@@ -27,7 +28,7 @@ class CMapImageRequest(): MoarBoatsPacket {
         override fun onMessage(message: CMapImageRequest, ctx: NetworkEvent.Context): MoarBoatsPacket? {
             val player = ctx.sender!!
             val world = player.level
-            val mapData = world.getSavedData(DimensionType.OVERWORLD, ::MapData, message.mapName) as? MapData ?: return null
+            val mapData = world.getMapData(message.mapName) as? MapData ?: return null
             val size = (1 shl mapData.scale.toInt())*128
             val stripes = size/ StripeLength
 
@@ -70,7 +71,7 @@ class CMapImageRequest(): MoarBoatsPacket {
                         getMapColor(MaterialColor.MATERIAL_COLORS[j / 4], j and 3)
                     }
                     val chunk = try {
-                        world.chunkSource.getChunk(chunkX, chunkZ, false, false)
+                        world.chunkSource.getChunk(chunkX, chunkZ, ChunkStatus.FULL, false)
                     } catch(e: Exception) {
                         e.printStackTrace()
                         null
@@ -86,9 +87,9 @@ class CMapImageRequest(): MoarBoatsPacket {
                     for(y in world.height downTo 0) {
                         blockPos.set(x, y, z)
                         val blockState = chunk.getBlockState(blockPos)
-                        val color = blockState.getMaterialColor(world, blockPos)
+                        val color = blockState.getMapColor(world, blockPos)
                         if(color != MaterialColor.NONE) {
-                            textureData[pixelZ*size+pixelX] = (color.colorValue) or 0xFF000000.toInt()
+                            textureData[pixelZ*size+pixelX] = (color.col) or 0xFF000000.toInt()
 
                             if(blockState.material.isLiquid) {
                                 var depth = 0
@@ -97,7 +98,7 @@ class CMapImageRequest(): MoarBoatsPacket {
                                     blockPos.y--
                                     val blockBelow = world.getBlockState(blockPos)
                                     if( !blockBelow.material.isLiquid) {
-                                        textureData[pixelZ*size+pixelX] = (reduceBrightness(color.colorValue, depth)) or 0xFF000000.toInt()
+                                        textureData[pixelZ*size+pixelX] = (reduceBrightness(color.col, depth)) or 0xFF000000.toInt()
                                         break
                                     }
                                 }

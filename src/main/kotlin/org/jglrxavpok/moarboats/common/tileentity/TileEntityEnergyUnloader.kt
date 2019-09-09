@@ -2,8 +2,6 @@ package org.jglrxavpok.moarboats.common.tileentity
 
 import net.minecraft.entity.Entity
 import net.minecraft.util.Direction
-import net.minecraft.util.ITickable
-import net.minecraft.util.math.AxisAlignedBB
 import net.minecraftforge.energy.CapabilityEnergy
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
@@ -27,8 +25,8 @@ class TileEntityEnergyUnloader: TileEntityEnergy(MoarBoats.TileEntityEnergyUnloa
         facings.remove(blockFacing)
         pushEnergyToNeighbors(MoarBoatsConfig.energyUnloader.sendAmount.get(), facings)
 
-        val aabb = create3x3AxisAlignedBB(pos.offset(blockFacing))
-        val entities = level.getEntitiesWithinAABB(Entity::class.java, aabb) { e -> e != null && e.getCapability(CapabilityEnergy.ENERGY, null).isPresent }
+        val aabb = create3x3AxisAlignedBB(blockPos.offset(blockFacing))
+        val entities = level.getEntities(Entity::class.java, aabb) { e -> e != null && e.getCapability(CapabilityEnergy.ENERGY, null).isPresent }
 
         val totalEnergyToPull = minOf(MoarBoatsConfig.energyUnloader.pullAmount.get(), maxEnergyStored-energyStored)
         val entityCount = entities.size

@@ -1,7 +1,7 @@
 package org.jglrxavpok.moarboats.server
 
 import net.alexwells.kottle.KotlinEventBusSubscriber
-import net.minecraft.entity.player.PlayerEntityMP
+import net.minecraft.entity.player.ServerPlayerEntity
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.event.entity.living.LivingEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
@@ -16,7 +16,7 @@ object ServerEvents {
 
     @SubscribeEvent
     fun onPlayerUpdate(event: LivingEvent.LivingUpdateEvent) {
-        val player = event.entityLiving as? PlayerEntityMP ?: return
+        val player = event.entityLiving as? ServerPlayerEntity ?: return
         for (i in 0 until player.inventory.containerSize) {
             val itemstack = player.inventory.getItem(i)
 

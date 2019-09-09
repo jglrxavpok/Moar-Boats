@@ -4,9 +4,9 @@ import net.minecraft.client.Minecraft
 import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.entity.EntityRendererManager
-import net.minecraft.client.renderer.texture.TextureMap
+import net.minecraft.client.renderer.texture.AtlasTexture
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
-import net.minecraft.init.Blocks
+import net.minecraft.block.Blocks
 import net.minecraft.util.math.MathHelper
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.api.BoatModule
@@ -28,16 +28,16 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
         var anchorZ = anchor.anchorZProperty[boat]
 
         if(anchor.deployedProperty[boat]) {
-            val dx = -(anchorX - boat.posX)
-            val dy = anchorY - boat.posY
-            val dz = -(anchorZ - boat.posZ)
+            val dx = -(anchorX - boat.positionX)
+            val dy = anchorY - boat.positionY
+            val dz = -(anchorZ - boat.positionZ)
             GlStateManager.rotatef(180f - entityYaw - 90f, 0f, -1f, 0f)
             GlStateManager.translated(dx, dy, dz)
             GlStateManager.rotatef(180f - entityYaw - 90f, 0f, 1f, 0f)
         } else {
-            anchorX = boat.posX
-            anchorY = boat.posY
-            anchorZ = boat.posZ
+            anchorX = boat.positionX
+            anchorY = boat.positionY
+            anchorZ = boat.positionZ
         }
 
         val localX = -0.6
@@ -49,16 +49,16 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
         val anchorScale = 0.75
         GlStateManager.pushMatrix()
         GlStateManager.scaled(anchorScale, anchorScale, anchorScale)
-        EntityRendererManager.textureManager.bind(TextureMap.LOCATION_BLOCKS_TEXTURE)
-        Minecraft.getInstance().blockRendererDispatcher.renderBlockBrightness(Blocks.ANVIL.defaultState, boat.brightness)
+        EntityRendererManager.textureManager.bind(AtlasTexture.LOCATION_BLOCKS)
+        Minecraft.getInstance().blockRenderer.renderSingleBlock(Blocks.ANVIL.defaultBlockState(), boat.brightness)
 
         GlStateManager.popMatrix()
         GlStateManager.translatef(+0.5f, +0.5f, -0.5f)
 
         val radangle = (90f-entityYaw).toRadians()
-        val dx = (anchorX-boat.posX)
-        val dy = (anchorY-boat.posY)
-        val dz = (anchorZ-boat.posZ)
+        val dx = (anchorX-boat.x)
+        val dy = (anchorY-boat.y)
+        val dz = (anchorZ-boat.z)
         val localAnchorX = -MathHelper.sin(radangle) * dz + MathHelper.cos(radangle) * dx
         val localAnchorZ = MathHelper.cos(radangle) * dz + MathHelper.sin(radangle) * dx
         renderChain(localAnchorX, dy, localAnchorZ)
@@ -67,14 +67,14 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
 
     private fun renderChain(anchorX: Double, anchorY: Double, anchorZ: Double) {
         val tessellator = Tessellator.getInstance()
-        val bufferbuilder = tessellator.buffer
+        val bufferbuilder = tessellator.builder
 
         val yOffset = -0.06f // small fix to make the rope actually connect both to the rod and to the hook
 
         val dx = anchorX
         val dy = -anchorY -yOffset*2f
         val dz = anchorZ
-        GlStateManager.disableTexture2D()
+        GlStateManager.disableTexture()
         GlStateManager.disableLighting()
         bufferbuilder.begin(3, DefaultVertexFormats.POSITION_COLOR)
         val segmentCount = 16
@@ -83,11 +83,11 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
 
         for (index in 0..segmentCount) {
             val step = index.toFloat() / segmentCount.toFloat()
-            bufferbuilder.pos(dx * step.toDouble(), dy * (step * step + step).toDouble() * 0.5 + 0.25, dz * step.toDouble()).color(0, 0, 0, 255).endVertex()
+            bufferbuilder.vertex(dx * step.toDouble(), dy * (step * step + step).toDouble() * 0.5 + 0.25, dz * step.toDouble()).color(0, 0, 0, 255).endVertex()
         }
 
-        tessellator.draw()
+        tessellator.end()
         GlStateManager.enableLighting()
-        GlStateManager.enableTexture2D()
+        GlStateManager.enableTexture()
     }
 }

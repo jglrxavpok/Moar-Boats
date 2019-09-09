@@ -39,7 +39,7 @@ class RenderAnimalBoat(EntityRendererManager: EntityRendererManager): EntityRend
         setRotation(entity, entityYaw, partialTicks)
         GlStateManager.enableRescaleNormal()
         setScale()
-        model.noWater.showModel = false
+        model.noWater.visible = false
         model.render(entity, 0f, 0f, entity.tickCount.toFloat(), 0f, 0f, 1f)
         renderLink(entity, x, y, z, entityYaw, partialTicks)
         GlStateManager.disableRescaleNormal()
@@ -100,7 +100,7 @@ class RenderAnimalBoat(EntityRendererManager: EntityRendererManager): EntityRend
         for (i1 in 0..l) {
             val f11 = i1.toFloat() / l
             bufferbuilder
-                    .pos(translateX * f11.toDouble(), translateY * (f11 * f11 + f11).toDouble() * 0.5, translateZ * f11.toDouble())
+                    .vertex(translateX * f11.toDouble(), translateY * (f11 * f11 + f11).toDouble() * 0.5, translateZ * f11.toDouble())
             bufferbuilder.color(138, 109, 68, 255)
 
             bufferbuilder.endVertex()
@@ -156,7 +156,7 @@ class RenderAnimalBoat(EntityRendererManager: EntityRendererManager): EntityRend
         setTranslation(entity, x, y, z)
         setRotation(entity, entityYaw, partialTicks)
         setScale()
-        model.noWater.showModel = true
+        model.noWater.visible = true
 
         GlStateManager.colorMask(false, false, false, false)
         model.noWater.render(1f)

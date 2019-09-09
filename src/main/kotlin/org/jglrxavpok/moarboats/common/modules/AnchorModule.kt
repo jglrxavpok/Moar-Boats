@@ -3,7 +3,7 @@ package org.jglrxavpok.moarboats.common.modules
 import net.minecraft.block.Blocks
 import net.minecraft.client.gui.screen
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.init.Blocks
+import net.minecraft.block.Blocks
 import net.minecraft.item.BlockItem
 import net.minecraft.util.Direction
 import net.minecraft.util.Hand

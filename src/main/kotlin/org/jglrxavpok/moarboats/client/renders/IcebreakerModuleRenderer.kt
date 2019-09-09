@@ -3,8 +3,7 @@ package org.jglrxavpok.moarboats.client.renders
 import net.minecraft.client.Minecraft
 import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.client.renderer.entity.EntityRendererManager
-import net.minecraft.client.renderer.texture.TextureMap
-import net.minecraft.init.Blocks
+import net.minecraft.block.Blocks
 import net.minecraft.util.ResourceLocation
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity

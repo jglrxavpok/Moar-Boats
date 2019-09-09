@@ -2,7 +2,6 @@ package org.jglrxavpok.moarboats.common.modules
 
 import net.minecraft.block.Blocks
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.init.Blocks
 import net.minecraft.inventory.IInventory
 import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
@@ -39,9 +38,9 @@ object SolarEngineModule : BaseEngineModule() {
 
     override fun remainingTimeInPercent(from: IControllable): Float {
         val levelIn = from.worldRef
-        val pos = from.correspondingEntity.position
+        val pos = from.correspondingEntity.position()
         var diff = levelIn.getLightFor(EnumLightType.SKY, pos) - levelIn.skylightSubtracted
-        var angle = levelIn.getCelestialAngleRadians(1.0f)
+        var angle = levelIn.getSunAngle(1.0f)
 
         if (invertedProperty[from]) {
             diff = 15 - diff

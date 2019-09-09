@@ -3,9 +3,8 @@ package org.jglrxavpok.moarboats.common.containers
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.inventory.container.Container
-import net.minecraft.inventory.Slot
+import net.minecraft.inventory.container.Slot
 import net.minecraft.item.ItemStack
-import net.minecraft.tileentity.TileEntityFurnace
 
 abstract class ContainerBase(val playerInventory: PlayerInventory): Container() {
 

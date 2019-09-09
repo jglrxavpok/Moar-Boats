@@ -36,7 +36,7 @@ class SPongComputer(): IMessage {
             with(message) {
                 val screen = Minecraft.getMinecraft().screen
                 if(screen is GuiComputerModule) {
-                    if(screen.boat.id == boatID) {
+                    if(screen.boat.entityID == boatID) {
                         screen.pong(running)
                     }
                 }

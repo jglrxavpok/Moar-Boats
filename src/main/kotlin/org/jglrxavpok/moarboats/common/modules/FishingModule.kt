@@ -1,20 +1,19 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.client.gui.screen
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.item.FishingRodItem
 import net.minecraft.item.Items
 import net.minecraft.util.SoundEvents
-import net.minecraft.item.ItemFishingRod
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.nbt.ListNBT
 import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.SoundCategory
-import net.minecraft.world.WorldServer
+import net.minecraft.world.server.ServerWorld
 import net.minecraft.world.storage.loot.LootContext
-import net.minecraft.world.storage.loot.LootTableList
+import net.minecraft.world.storage.loot.LootTables
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.common.util.Constants
@@ -69,7 +68,7 @@ object FishingModule : BoatModule() {
 
         val inventory = from.getInventory()
         val rodStack = inventory.getItem(0)
-        val hasRod = rodStack.item is ItemFishingRod
+        val hasRod = rodStack.item is FishingRodItem
         if(ready && hasRod && !from.worldRef.isClientSide && from.inLiquid() && !from.isEntityInLava()) { // you can go fishing
             storageModule as BoatModule
 
@@ -79,14 +78,14 @@ object FishingModule : BoatModule() {
             if(randNumber <= 1f) {
                 val luck = EnchantmentHelper.getFishingLuckBonus(rodStack)
                 // catch fish
-                val builder = LootContext.Builder(from.worldRef as levelServer)
+                val builder = LootContext.Builder(from.worldRef as ServerWorld)
                 builder.withLuck(luck.toFloat())
-                val result = from.worldRef.server!!.lootTableManager.getLootTableFromLocation(LootTableList.GAMEPLAY_FISHING).generateLootForPools(from.moduleRNG, builder.build())
+                val result = from.worldRef.server!!.lootTables.get(LootTables.FISHING).generateLootForPools(from.moduleRNG, builder.build())
                 val lootList = ListNBT()
                 result.forEach {
                     val info = CompoundNBT()
                     info.putString("name", it.item.registryName.toString())
-                    info.putInt("damage", it.damage)
+                    info.putInt("damage", it.damageValue)
                     lootList.add(info)
                 }
                 lastLootProperty[from] = lootList
@@ -98,14 +97,14 @@ object FishingModule : BoatModule() {
                 for(loot in result) {
                     val remaining = storageInventory.add(loot)
                     if(!remaining.isEmpty) {
-                        from.correspondingEntity.entityDropItem(loot, 0f)
+                        from.correspondingEntity.spawnAtLocation(loot, 0f)
                     }
                 }
                 if(broken) {
                     breakRod(from)
                     changeRodIfPossible(from)
                     return
-                } else if(rodStack.damage >= rodStack.maxDamage - MoarBoatsConfig.fishing.remainingUsesBeforeRemoval.get()) {
+                } else if(rodStack.damageValue >= rodStack.maxDamage - MoarBoatsConfig.fishing.remainingUsesBeforeRemoval.get()) {
                     changeRodIfPossible(from)
                     return
                 }
@@ -133,7 +132,7 @@ object FishingModule : BoatModule() {
             var foundReplacement = false
             for(index in 0 until storageInventory.containerSize) {
                 val stack = storageInventory.getItem(index)
-                if(stack.item is ItemFishingRod && stack.damage < stack.maxDamage - MoarBoatsConfig.fishing.remainingUsesBeforeRemoval.get()) {
+                if(stack.item is FishingRodItem && stack.damageValue < stack.maxDamage - MoarBoatsConfig.fishing.remainingUsesBeforeRemoval.get()) {
                     // Swap rods if possible
                     foundReplacement = true
                     storageInventory.setItem(index, inventory.getItem(0))

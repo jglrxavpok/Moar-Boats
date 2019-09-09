@@ -5,7 +5,7 @@ import net.minecraft.block.BlockDirectional
 import net.minecraft.block.material.Material
 import net.minecraft.block.properties.PropertyEnum
 import net.minecraft.block.state.BlockStateContainer
-import net.minecraft.block.state.IBlockState
+import net.minecraft.block.state.BlockState
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.inventory.container.Container
@@ -28,7 +28,7 @@ object BlockFluidUnloader: Block(MoarBoats.MachineMaterial) {
         registryName = ResourceLocation(MoarBoats.ModID, "boat_fluid_unloader")
         unlocalizedName = "boat_fluid_unloader"
         setCreativeTab(MoarBoats.CreativeTab)
-        defaultState = blockState.baseState.withProperty(Facing, Direction.UP)
+        defaultBlockState() = blockState.baseState.withProperty(Facing, Direction.UP)
         setHardness(0.5f)
     }
 
@@ -37,36 +37,36 @@ object BlockFluidUnloader: Block(MoarBoats.MachineMaterial) {
     }
 
     override fun hasTileEntity() = true
-    override fun hasTileEntity(state: IBlockState) = true
+    override fun hasTileEntity(state: BlockState) = true
 
-    override fun createTileEntity(world: World?, state: IBlockState?): TileEntity? {
+    override fun createTileEntity(world: World?, state: BlockState?): TileEntity? {
         return TileEntityFluidUnloader()
     }
 
-    override fun getStateForPlacement(worldIn: World, pos: BlockPos, facing: Direction, hitX: Float, hitY: Float, hitZ: Float, meta: Int, placer: LivingEntity): IBlockState {
-        return this.defaultState.withProperty(BlockDirectional.FACING, Direction.getDirectionFromEntityLiving(pos, placer))
+    override fun getStateForPlacement(worldIn: World, pos: BlockPos, facing: Direction, hitX: Float, hitY: Float, hitZ: Float, meta: Int, placer: LivingEntity): BlockState {
+        return this.defaultBlockState().withProperty(BlockDirectional.FACING, Direction.getDirectionFromEntityLiving(pos, placer))
     }
 
-    override fun onBlockActivated(state: IBlockState, worldIn: World, pos: BlockPos, playerIn: PlayerEntity, hand: Hand?, facing: Direction?, hitX: Float, hitY: Float, hitZ: Float): Boolean {
+    override fun onBlockActivated(state: BlockState, worldIn: World, pos: BlockPos, playerIn: PlayerEntity, hand: Hand?, facing: Direction?, hitX: Float, hitY: Float, hitZ: Float): Boolean {
         if(worldIn.isClientSide)
             return true
         playerIn.openGui(MoarBoats, MoarBoatsGuiHandler.FluidGui, worldIn, pos.x, pos.y, pos.z)
         return true
     }
 
-    override fun getStateFromMeta(meta: Int): IBlockState {
-        return defaultState.withProperty(Facing, Direction.values()[meta % Direction.values().size])
+    override fun getStateFromMeta(meta: Int): BlockState {
+        return defaultBlockState().withProperty(Facing, Direction.values()[meta % Direction.values().size])
     }
 
-    override fun getMetaFromState(state: IBlockState): Int {
+    override fun getMetaFromState(state: BlockState): Int {
         return state.getValue(Facing).ordinal
     }
 
-    override fun hasComparatorInputOverride(state: IBlockState): Boolean {
+    override fun hasComparatorInputOverride(state: BlockState): Boolean {
         return true
     }
 
-    override fun getComparatorInputOverride(blockState: IBlockState, worldIn: World, pos: BlockPos): Int {
+    override fun getComparatorInputOverride(blockState: BlockState, worldIn: World, pos: BlockPos): Int {
         return (worldIn.getBlockEntity(pos) as? TileEntityFluidUnloader)?.getRedstonePower() ?: 0
     }
 

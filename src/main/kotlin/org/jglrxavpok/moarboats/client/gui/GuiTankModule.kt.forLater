@@ -3,7 +3,7 @@ package org.jglrxavpok.moarboats.client.gui
 import net.minecraft.client.Minecraft
 import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.client.renderer.Tessellator
-import net.minecraft.client.renderer.texture.TextureMap
+import net.minecraft.client.renderer.texture.AtlasTexture
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.util.ResourceLocation
@@ -50,7 +50,7 @@ class GuiTankModule(playerInventory: PlayerInventory, module: BoatModule, boat: 
         fun renderFluidInGui(leftX: Int, bottomY: Int, fluid: Fluid, fluidAmount: Int, fluidCapacity: Int, horizontalTilesCount: Int) {
             val energyHeight = (73 * (fluidAmount/fluidCapacity.toFloat())).toInt()
             val mc = Minecraft.getInstance()
-            mc.textureManager.bind(TextureMap.LOCATION_BLOCKS_TEXTURE)
+            mc.textureManager.bind(AtlasTexture.LOCATION_BLOCKS)
             val sprite = mc.textureMap.getAtlasSprite(fluid.still.toString())
             val tessellator = Tessellator.getInstance()
             val buffer = tessellator.buffer

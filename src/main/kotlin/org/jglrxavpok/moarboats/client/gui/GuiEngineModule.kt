@@ -1,6 +1,7 @@
 package org.jglrxavpok.moarboats.client.gui
 
 import com.mojang.blaze3d.platform.GlStateManager
+import net.minecraft.client.gui.widget.button.Button
 import net.minecraft.client.gui.widget.button.LockIconButton
 import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.client.renderer.Tessellator
@@ -37,7 +38,7 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
     val remainingCurrentItem = TranslationTextComponent("gui.engine.remainingCurrent")
     val estimatedTimeText = TranslationTextComponent("gui.engine.estimatedTime")
     private val lockInPlaceButton = LockIconButton(0, 0) {
-        MoarBoats.network.sendToServer(CChangeEngineMode(boat.id, module.id, !(engine as BaseEngineModule).stationaryProperty[boat]))
+        MoarBoats.network.sendToServer(CChangeEngineMode(boat.entityID, module.id, !(engine as BaseEngineModule).stationaryProperty[boat]))
     }
     private val lockText = TranslationTextComponent("gui.engine.lock")
     private val lockedByRedstone = TranslationTextComponent("gui.engine.blocked.redstone")
@@ -52,8 +53,8 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
 
     private lateinit var speedSlider: GuiSlider
     private val speedIconTexture = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/engines/speed_setting.png")
-    private val sliderCallback = GuiSlider.ISlider { slider ->
-        MoarBoats.network.sendToServer(CChangeEngineSpeed(boat.id, module.id, slider.value.toFloat()/100f))
+    private val sliderCallback = Button.IPressable { slider ->
+        MoarBoats.network.sendToServer(CChangeEngineSpeed(boat.entityID, module.id, speedSlider.value.toFloat()/100f))
     }
 
     override fun init() {
@@ -65,7 +66,7 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
         val speedSettingMargins = 30
         val speedSettingHorizontalSize = imageWidth - speedSettingMargins*2
 
-        speedSlider = GuiSlider(1, guiLeft + speedSettingMargins, guiTop + 90, speedSettingHorizontalSize, 20, "${speedSetting.coloredString}: ", "%", -50.0, 50.0, 0.0, false, true, sliderCallback)
+        speedSlider = GuiSlider(guiLeft + speedSettingMargins, guiTop + 90, speedSettingHorizontalSize, 20, "${speedSetting.coloredString}: ", "%", -50.0, 50.0, 0.0, false, true, sliderCallback)
         addButton(speedSlider)
         speedSlider.value = (engine.speedProperty[boat].toDouble()) * 100f
     }
@@ -76,10 +77,10 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
         lockInPlaceButton.isLocked = engine.stationaryProperty[boat]
     }
 
-    override fun renderHoveredToolTip(mouseX: Int, mouseY: Int) {
+    override fun renderTooltip(mouseX: Int, mouseY: Int) {
         when {
             lockInPlaceButton.isMouseOver(mouseX.toDouble(), mouseY.toDouble()) -> drawHoveringText(lockText.coloredString, mouseX, mouseY)
-            else -> super.renderHoveredToolTip(mouseX, mouseY)
+            else -> super.renderTooltip(mouseX, mouseY)
         }
     }
 
@@ -140,15 +141,15 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
         font.drawCenteredString(text, 88-16, y, 0xFF0000)
         val textWidth = font.width(text)
         val textX = 88-16 - textWidth/2
-        zLevel = 100.0f
-        itemRender.zLevel = 100.0f
+        blitOffset = 100
+        itemRenderer.blitOffset = 100.0f
         RenderHelper.turnOnGui()
         GlStateManager.color3f(1f, 1f, 1f)
         val itemX = textX+textWidth + 1
         val itemY = font.FONT_HEIGHT/2 - 8 + y
-        itemRender.renderItemAndEffectIntoGUI(itemStack, itemX, itemY)
-        itemRender.zLevel = 0.0f
-        zLevel = 0.0f
+        itemRenderer.renderGuiItem(itemStack, itemX, itemY)
+        itemRenderer.blitOffset = 0.0f
+        blitOffset = 0
     }
 
     private fun renderSpeedIcon(ordinal: Int, x: Int, y: Int) {
@@ -196,8 +197,8 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
         GlStateManager.pushMatrix()
         GlStateManager.scalef(scale, scale, scale)
         GlStateManager.translated((x/scale).toDouble(), (y/scale).toDouble(), 0.0)
-        drawTexturedModalRect(0, 0, 0, barIndex*10+5, (filledWidth).toInt(), 5)
-        drawTexturedModalRect(filledWidth.toInt(), 0, filledWidth.toInt(), barIndex*10, (barWidth-filledWidth+1).toInt(), 5)
+        drawTexturedModalRect(0, 0, 0, barIndex*10+5, (filledWidth).toInt(), 5, blitOffset.toFloat())
+        drawTexturedModalRect(filledWidth.toInt(), 0, filledWidth.toInt(), barIndex*10, (barWidth-filledWidth+1).toInt(), 5, blitOffset.toFloat())
         GlStateManager.popMatrix()
     }
 

@@ -2,9 +2,9 @@ package org.jglrxavpok.moarboats.common.items
 
 import net.minecraft.advancements.CriteriaTriggers
 import net.minecraft.block.Block
-import net.minecraft.block.state.IBlockState
+import net.minecraft.block.state.BlockState
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerEntityMP
+import net.minecraft.entity.player.ServerPlayerEntity
 import net.minecraft.util.SoundEvents
 import net.minecraft.item.BlockItemUseContext
 import net.minecraft.item.ItemStack
@@ -39,23 +39,23 @@ abstract class WaterborneItem(id: String) : MoarBoatsItem(id) {
 
                 val blockpos1 = blockpos.above()
 
-                if (correspondingBlock.isValidPosition(correspondingBlock.defaultState, levelIn, blockpos1) && levelIn.isAirBlock(blockpos1)) {
+                if (correspondingBlock.isValidPosition(correspondingBlock.defaultBlockState(), levelIn, blockpos1) && levelIn.isAirBlock(blockpos1)) {
                     // special case for handling block placement with water lilies
                     val blocksnapshot = net.minecraftforge.common.util.BlockSnapshot.getBlockSnapshot(levelIn, blockpos1)
-                    levelIn.setBlockState(blockpos1, correspondingBlock.defaultState)
+                    levelIn.setBlock(blockpos1, correspondingBlock.defaultBlockState())
                     if (net.minecraftforge.event.ForgeEventFactory.onBlockPlace(playerIn, blocksnapshot, net.minecraft.util.Direction.UP)) {
                         blocksnapshot.restore(true, false)
                         return ActionResult(ActionResultType.FAIL, itemstack)
                     }
 
                     val facing = playerIn.adjustedHorizontalFacing.opposite
-                    var iblockstate1: IBlockState = correspondingBlock.getStateForPlacement(BlockItemUseContext(levelIn, playerIn, itemstack, blockpos1, facing, raytraceresult.hitVec.x.toFloat(), raytraceresult.hitVec.y.toFloat(), raytraceresult.hitVec.z.toFloat()))
+                    var iblockstate1: BlockState = correspondingBlock.getStateForPlacement(BlockItemUseContext(levelIn, playerIn, itemstack, blockpos1, facing, raytraceresult.hitVec.x.toFloat(), raytraceresult.hitVec.y.toFloat(), raytraceresult.hitVec.z.toFloat()))
                             ?: return ActionResult(ActionResultType.FAIL, itemstack)
                     levelIn.setBlock(blockpos1, iblockstate1, 11)
 
                     iblockstate1.block.onBlockPlacedBy(levelIn, blockpos1, iblockstate1, playerIn, itemstack)
 
-                    if (playerIn is PlayerEntityMP) {
+                    if (playerIn is ServerPlayerEntity) {
                         CriteriaTriggers.PLACED_BLOCK.trigger(playerIn, blockpos1, itemstack)
                     }
 

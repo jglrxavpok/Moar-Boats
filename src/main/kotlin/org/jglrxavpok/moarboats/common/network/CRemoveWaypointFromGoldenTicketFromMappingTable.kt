@@ -17,9 +17,9 @@ class CRemoveWaypointFromGoldenTicketFromMappingTable: CxxRemoveWaypointToItemPa
     var tileEntityZ: Int = 0
 
     constructor(index: Int, mappingTable: TileEntityMappingTable): super(index) {
-        this.tileEntityX = mappingTable.pos.x
-        this.tileEntityY = mappingTable.pos.y
-        this.tileEntityZ = mappingTable.pos.z
+        this.tileEntityX = mappingTable.blockPos.x
+        this.tileEntityY = mappingTable.blockPos.y
+        this.tileEntityZ = mappingTable.blockPos.z
     }
 
     object Handler: CxxRemoveWaypointToItemPath.Handler<CRemoveWaypointFromGoldenTicketFromMappingTable, SSetGoldenItinerary>() {

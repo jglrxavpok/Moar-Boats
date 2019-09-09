@@ -33,7 +33,7 @@ class TileEntityMappingTable: TileEntity(MoarBoats.TileEntityMappingTableType) {
         super.load(compound)
         val invList = NonNullList.withSize(inventory.containerSize, ItemStack.EMPTY)
         ItemStackHelper.loadAllItems(compound, invList)
-        inventory.clear()
+        inventory.clearContent()
         for(i in 0 until inventory.containerSize) {
             inventory.setItem(i, invList.get(i))
         }

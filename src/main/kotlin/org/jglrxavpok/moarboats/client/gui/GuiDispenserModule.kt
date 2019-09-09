@@ -30,11 +30,9 @@ class GuiDispenserModule(PlayerInventory: PlayerInventory, module: BoatModule, b
     private val facingSelectionTexLocation = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/dispenser_facings.png")
 
     private inner class GuiFacingButton(val facing: Direction, texturetranslateX: Int, texturetranslateY: Int):
-            ImageButton(facing.ordinal, 0, 0, 16, 16, texturetranslateX, texturetranslateY, 32, facingSelectionTexLocation) {
-        override fun onClick(mouseX: Double, mouseY: Double) {
-            MoarBoats.network.sendToServer(CChangeDispenserFacing(boat.id, module.id, facing))
-        }
-    }
+            ImageButton(facing.ordinal, 0, 0, 16, 16, texturetranslateX, texturetranslateY, facingSelectionTexLocation, {
+        MoarBoats.network.sendToServer(CChangeDispenserFacing(boat.entityID, module.id, facing))
+    })
 
     private val frontFacingButton = GuiFacingButton(Direction.NORTH, 0, 0)
     private val backFacingButton = GuiFacingButton(Direction.SOUTH, 16, 0)
@@ -45,14 +43,14 @@ class GuiDispenserModule(PlayerInventory: PlayerInventory, module: BoatModule, b
     private val facingButtons = arrayOf(frontFacingButton, backFacingButton, leftFacingButton, rightFacingButton, upFacingButton, downFacingButton)
 
     private lateinit var periodSlider: GuiSlider
-    private val sliderCallback = GuiSlider.ISlider { slider ->
-        MoarBoats.network.sendToServer(CChangeDispenserPeriod(boat.id, module.id, slider.value))
+    private val sliderCallback = Button.IPressable { slider ->
+        MoarBoats.network.sendToServer(CChangeDispenserPeriod(boat.entityID, module.id, periodSlider.value))
     }
 
     override fun init() {
         super.init()
         val sliderWidth = imageWidth-10
-        periodSlider = GuiSlider(-1, guiLeft+imageWidth/2-sliderWidth/2, guiTop + 100, sliderWidth, 20, "${sliderPrefix.coloredString} ", sliderSuffix.coloredString, 1.0, 100.0, 0.0, true, true, sliderCallback)
+        periodSlider = GuiSlider(guiLeft+imageWidth/2-sliderWidth/2, guiTop + 100, sliderWidth, 20, "${sliderPrefix.coloredString} ", sliderSuffix.coloredString, 1.0, 100.0, 0.0, true, true, sliderCallback)
         periodSlider.value = dispensingModule.blockPeriodProperty[boat]
         addButton(periodSlider)
 

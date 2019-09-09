@@ -33,7 +33,7 @@ class SSyncInventory(): MoarBoatsPacket {
             val moduleLocation = message.moduleLocation
             val module = BoatModuleRegistry[moduleLocation].module
             val inventory = boat.getInventory(module)
-            inventory.clear()
+            inventory.clearContent()
             for(index in 0 until inventory.containerSize) {
                 inventory.setItem(index, message.inventoryContents[index])
             }

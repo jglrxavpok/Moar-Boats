@@ -55,7 +55,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
             val mc = Minecraft.getInstance()
             mc.textureManager.bind(RES_MAP_BACKGROUND)
             val tessellator = Tessellator.getInstance()
-            val bufferbuilder = tessellator.buffer
+            val bufferbuilder = tessellator.builder
             val x = 0.0
             val y = 0.0
             val mapSize = 130.0
@@ -71,15 +71,15 @@ object HelmModuleRenderer : BoatModuleRenderer() {
             val mapScale = 0.5f
             GlStateManager.scalef(mapScale, mapScale, mapScale)
             bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX)
-            bufferbuilder.pos(x, y+mapSize, 0.0).tex(0.0, 1.0).endVertex()
-            bufferbuilder.pos(x+mapSize, y+mapSize, 0.0).tex(1.0, 1.0).endVertex()
-            bufferbuilder.pos(x+mapSize, y, 0.0).tex(1.0, 0.0).endVertex()
-            bufferbuilder.pos(x, y, 0.0).tex(0.0, 0.0).endVertex()
-            tessellator.draw()
+            bufferbuilder.vertex(x, y+mapSize, 0.0).uv(0.0, 1.0).endVertex()
+            bufferbuilder.vertex(x+mapSize, y+mapSize, 0.0).uv(1.0, 1.0).endVertex()
+            bufferbuilder.vertex(x+mapSize, y, 0.0).uv(1.0, 0.0).endVertex()
+            bufferbuilder.vertex(x, y, 0.0).uv(0.0, 0.0).endVertex()
+            tessellator.end()
 
             val mapdata = HelmModule.mapDataCopyProperty[boat]
             GlStateManager.translatef(0f, 0f, 1f)
-            renderMap(mapdata, x, y, mapSize, boat.posX, boat.posZ, 7.0, HelmModule.waypointsProperty[boat], HelmModule.loopingProperty[boat] == LoopingOptions.Loops)
+            renderMap(mapdata, x, y, mapSize, boat.x, boat.z, 7.0, HelmModule.waypointsProperty[boat], HelmModule.loopingProperty[boat] == LoopingOptions.Loops)
         }
         GlStateManager.popMatrix()
     }
@@ -96,14 +96,14 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         GlStateManager.translated(x+margins, y+margins, 0.0)
         GlStateManager.scalef(0.0078125f, 0.0078125f, 0.0078125f)
         GlStateManager.scaled(mapSize-margins*2, mapSize-margins*2, 0.0)
-        mc.gameRenderer.mapItemRenderer.updateMapTexture(mapdata)
-        mc.gameRenderer.mapItemRenderer.renderMap(mapdata, true)
+        mc.gameRenderer.mapRenderer.update(mapdata)
+        mc.gameRenderer.mapRenderer.render(mapdata, true)
         GlStateManager.enableBlend()
         GlStateManager.translated(0.0, 0.0, 1.0)
 
         val mapScale = (1 shl mapdata.scale.toInt()).toFloat()
-        val xOffset = (worldX - mapdata.xCenter.toDouble()).toFloat() / mapScale
-        val zOffset = (worldZ - mapdata.zCenter.toDouble()).toFloat() / mapScale
+        val xOffset = (worldX - mapdata.x.toDouble()).toFloat() / mapScale
+        val zOffset = (worldZ - mapdata.z.toDouble()).toFloat() / mapScale
         val boatRenderX = ((xOffset * 2.0f).toDouble() + 0.5).toInt() / 2f + 64f
         val boatRenderZ = ((zOffset * 2.0f).toDouble() + 0.5).toInt() / 2f + 64f
 
@@ -112,7 +112,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         GlStateManager.pushMatrix()
         GlStateManager.scalef(iconScale, iconScale, iconScale)
         GlStateManager.translatef(-8f, -8f, 0f)
-        mc.itemRenderer.renderItemAndEffectIntoGUI(helmStack, (boatRenderX/iconScale).toInt(), (boatRenderZ/iconScale).toInt())
+        mc.itemRenderer.renderGuiItem(helmStack, (boatRenderX/iconScale).toInt(), (boatRenderZ/iconScale).toInt())
 
         GlStateManager.popMatrix()
 
@@ -159,17 +159,17 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         GlStateManager.translated(previousX, previousZ, 0.0)
         GlStateManager.rotatef((angle * 180.0 / Math.PI).toFloat(), 0f, 0f, 1f)
         val tessellator = Tessellator.getInstance()
-        val bufferbuilder = tessellator.buffer
+        val bufferbuilder = tessellator.builder
         val mc = Minecraft.getInstance()
         mc.textureManager.bind(BoatPathTexture)
 
         val thickness = 0.5
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR)
-        bufferbuilder.pos(0.0, thickness, 0.0).tex(0.0, 0.25 * pathTextureIndex).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
-        bufferbuilder.pos(0.0+length, thickness, 0.0).tex(1.0, 0.25 * pathTextureIndex).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
-        bufferbuilder.pos(0.0+length, 0.0, 0.0).tex(1.0, 0.25 * pathTextureIndex + 0.25).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
-        bufferbuilder.pos(0.0, 0.0, 0.0).tex(0.0, 0.25 * pathTextureIndex + 0.25).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
-        tessellator.draw()
+        bufferbuilder.vertex(0.0, thickness, 0.0).uv(0.0, 0.25 * pathTextureIndex).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
+        bufferbuilder.vertex(0.0+length, thickness, 0.0).uv(1.0, 0.25 * pathTextureIndex).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
+        bufferbuilder.vertex(0.0+length, 0.0, 0.0).uv(1.0, 0.25 * pathTextureIndex + 0.25).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
+        bufferbuilder.vertex(0.0, 0.0, 0.0).uv(0.0, 0.25 * pathTextureIndex + 0.25).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
+        tessellator.end()
         GlStateManager.popMatrix()
     }
 
@@ -179,12 +179,12 @@ object HelmModuleRenderer : BoatModuleRenderer() {
 
         val spriteSize = 8.0
         val tessellator = Tessellator.getInstance()
-        val bufferbuilder = tessellator.buffer
+        val bufferbuilder = tessellator.builder
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR)
-        bufferbuilder.pos(x-spriteSize/2, y+spriteSize, 0.0).tex(0.0, 1.0).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
-        bufferbuilder.pos(x+spriteSize/2, y+spriteSize, 0.0).tex(1.0, 1.0).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
-        bufferbuilder.pos(x+spriteSize/2, y, 0.0).tex(1.0, 0.0).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
-        bufferbuilder.pos(x-spriteSize/2, y, 0.0).tex(0.0, 0.0).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
-        tessellator.draw()
+        bufferbuilder.vertex(x-spriteSize/2, y+spriteSize, 0.0).uv(0.0, 1.0).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
+        bufferbuilder.vertex(x+spriteSize/2, y+spriteSize, 0.0).uv(1.0, 1.0).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
+        bufferbuilder.vertex(x+spriteSize/2, y, 0.0).uv(1.0, 0.0).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
+        bufferbuilder.vertex(x-spriteSize/2, y, 0.0).uv(0.0, 0.0).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
+        tessellator.end()
     }
 }

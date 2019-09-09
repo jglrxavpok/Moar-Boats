@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.widget.button.Button
 import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.util.ResourceLocation
+import net.minecraftforge.fml.client.config.GuiUtils.drawTexturedModalRect
 import org.jglrxavpok.moarboats.MoarBoats
 
 open class GuiToolButton(var text: String, var toolIconIndex: Int, val pressable: IPressable):
@@ -29,7 +30,7 @@ open class GuiToolButton(var text: String, var toolIconIndex: Int, val pressable
             Gui.drawModalRectWithCustomSizedTexture(x, y, minU, minV, 20, 20, WidgetsTextureSize, WidgetsTextureSize)
 
             val textY = y + height/2f - mc.font.FONT_HEIGHT/2f
-            mc.font.drawWithShadow(text, x+width+ 4f, textY, 0xFFF0F0F0.toInt())
+            mc.font.drawShadow(text, x+width+ 4f, textY, 0xFFF0F0F0.toInt())
         }
     }
 
@@ -41,8 +42,8 @@ open class GuiToolButton(var text: String, var toolIconIndex: Int, val pressable
         GlStateManager.enableBlend()
         GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO)
         GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA)
-        this.drawTexturedModalRect(this.x, this.y, 0, 46 + stateOffset * 20, this.width / 2, this.height)
-        this.drawTexturedModalRect(this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + stateOffset * 20, this.width / 2, this.height)
+        drawTexturedModalRect(this.x, this.y, 0, 46 + stateOffset * 20, this.width / 2, this.height, blitOffset.toFloat())
+        drawTexturedModalRect(this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + stateOffset * 20, this.width / 2, this.height, blitOffset.toFloat())
     }
 
     override fun getHoverState(mouseOver: Boolean): Int {

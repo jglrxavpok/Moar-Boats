@@ -4,7 +4,6 @@ import net.minecraft.client.Minecraft
 import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.block.Blocks
 import net.minecraft.client.renderer.entity.EntityRendererManager
-import net.minecraft.client.renderer.texture.TextureMap
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.common.modules.SonarModule
@@ -31,15 +30,15 @@ object SonarModuleRenderer : BoatModuleRenderer() {
                 GlStateManager.pushMatrix()
                 GlStateManager.translatef(xOffset, 4f/16f, zOffset)
                 GlStateManager.scalef(0.25f, 0.25f, 0.25f)
-                EntityRendererManager.textureManager.bind(TextureMap.LOCATION_BLOCKS_TEXTURE)
+                EntityRendererManager.textureManager.bind(AtlasTexture.LOCATION_BLOCKS)
                 val block = Blocks.NOTE_BLOCK
-                Minecraft.getInstance().blockRendererDispatcher.renderBlockBrightness(block.defaultState, boat.brightness)
+                Minecraft.getInstance().blockRenderer.renderSingleBlock(block.defaultBlockState(), boat.brightness)
                 GlStateManager.popMatrix()
             }
         }
 
         // render gradient
-        if(Minecraft.getInstance().gameSettings.showDebugInfo) {
+        if(Minecraft.getInstance().options.reducedDebugInfo) {
             GlStateManager.rotatef(-(180.0f - entityYaw - 90f), 0.0f, 1.0f, 0.0f)
             testMatrix.compute(boat.level, boat.positionX, boat.positionY, boat.positionZ).removeNotConnectedToCenter()
             val gradient = testMatrix.computeGradient()
@@ -55,7 +54,7 @@ object SonarModuleRenderer : BoatModuleRenderer() {
                         GlStateManager.rotatef(angle.toFloat(), 0f, 1f, 0f)
                         GlStateManager.scalef(0.1f, 0.1f, gradientVal.length().toFloat() * 0.1f)
                         if(!potentialState.isEmpty) {
-                            Minecraft.getInstance().blockRendererDispatcher.renderBlockBrightness(Blocks.EMERALD_BLOCK.defaultState, boat.brightness)
+                            Minecraft.getInstance().blockRenderer.renderSingleBlock(Blocks.EMERALD_BLOCK.defaultBlockState(), boat.brightness)
                         }
 
                         GlStateManager.popMatrix()

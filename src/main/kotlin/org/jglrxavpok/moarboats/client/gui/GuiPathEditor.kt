@@ -94,7 +94,7 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
             pathHolder.setLoopingState(LoopingOptions.values()[propertyIndex])
         }
     }
-    private val linesButton = GuiBinaryPropertyButton(buttonPair(propertyLinesText.coloredString, propertyPathfindingText.coloredString), Pair(5, 6))
+    private val linesButton = GuiBinaryPropertyButton(Pair(propertyLinesText.coloredString, propertyPathfindingText.coloredString), Pair(5, 6))
     private lateinit var boostSlider: GuiSlider
     private val sliderCallback = GuiSlider.ISlider { slider ->
 
@@ -104,7 +104,7 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
 
     init {
         val textureManager = Minecraft.getInstance().textureManager
-        areaResLocation = textureManager.getDynamicTextureLocation("moarboats_path_editor_preview", areaTexture)
+        areaResLocation = textureManager.register("moarboats_path_editor_preview", areaTexture)
         mapHeight.fill(-1)
     }
 
@@ -112,12 +112,12 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
     private var lastMouseY = 0.0
     private var scrollX = size.toDouble()/2
     private var scrollZ = size.toDouble()/2
-    private val world = player.world
+    private val world = player.level
 
     private val mapScreenSize = 200.0
 
-    private val minX = mapData.xCenter-size/2
-    private val minZ = mapData.zCenter-size/2
+    private val minX = mapData.x-size/2
+    private val minZ = mapData.z-size/2
 
     private var toolButtonListEndY = 0
     private var menuX = 0
@@ -224,12 +224,12 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
         val minV = ((scrollZ-viewportSize/2)/size).coerceAtLeast(0.0)
         val maxV = ((scrollZ+viewportSize/2)/size).coerceAtMost(1.0)
 
-        val blockX = (mapData.xCenter + ((x/mapScreenSize * (maxU-minU) + minU) - 0.5)*size).toInt()
-        val blockZ = (mapData.zCenter + ((y/mapScreenSize * (maxV-minV) + minV) - 0.5)*size).toInt()
+        val blockX = (mapData.x + ((x/mapScreenSize * (maxU-minU) + minU) - 0.5)*size).toInt()
+        val blockZ = (mapData.z + ((y/mapScreenSize * (maxV-minV) + minV) - 0.5)*size).toInt()
         val indexX = (blockX-minX).coerceIn(0 until size)
         val indexZ = (blockZ-minZ).coerceIn(0 until size)
         val blockY = mapHeight[indexX + indexZ*size]
-        result.setPos(blockX, blockY, blockZ)
+        result.set(blockX, blockY, blockZ)
         return result
     }
 
@@ -244,8 +244,8 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
         val deltaU = maxU-minU
         val deltaV = maxV-minV
 
-        val pixelX = ((x-mapData.xCenter).toDouble() / size + 0.5 - minU) / deltaU * mapScreenSize
-        val pixelZ = ((z-mapData.zCenter).toDouble() / size + 0.5 - minV) / deltaV * mapScreenSize
+        val pixelX = ((x-mapData.x).toDouble() / size + 0.5 - minU) / deltaU * mapScreenSize
+        val pixelZ = ((z-mapData.z).toDouble() / size + 0.5 - minV) / deltaV * mapScreenSize
 
         return Pair(pixelX, pixelZ)
     }
@@ -280,7 +280,7 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
         val boost = if(boostSlider.valueInt != 0) boostSlider.value/100.0 else null
         pathHolder.addWaypoint(pos, boost)
         pos.close()
-        mc.soundManager.play(SimpleSound.forUI(SoundEvents.UI_BUTTON_CLICK, 2.5f))
+        getMinecraft().soundManager.play(SimpleSound.forUI(SoundEvents.UI_BUTTON_CLICK, 2.5f))
     }
 
     override fun render(mouseX: Int, mouseY: Int, partialTicks: Float) {
@@ -295,11 +295,11 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
         renderMap(mapX, mapY, 0.0, mapScreenSize, mouseX, mouseY)
 
         super.render(mouseX, mouseY, partialTicks)
-        font.drawWithShadow(toolsText.coloredString, menuX.toFloat(), menuY.toFloat(), 0xFFF0F0F0.toInt())
+        font.drawShadow(toolsText.coloredString, menuX.toFloat(), menuY.toFloat(), 0xFFF0F0F0.toInt())
 
-        mc.textureManager.bind(GuiToolButton.WidgetsTextureLocation)
+        getMinecraft().textureManager.bind(GuiToolButton.WidgetsTextureLocation)
         Gui.drawModalRectWithCustomSizedTexture(menuX, horizontalBarY, 0f, 100f, 120, 20, 120f, 120f)
-        font.drawWithShadow(pathPropsText.coloredString, menuX.toFloat(), toolButtonListEndY.toFloat(), 0xFFF0F0F0.toInt())
+        font.drawShadow(pathPropsText.coloredString, menuX.toFloat(), toolButtonListEndY.toFloat(), 0xFFF0F0F0.toInt())
 
         drawCenteredString(font, titleText.coloredString, width/2, 10, 0xFFF0F0F0.toInt())
 
@@ -333,7 +333,7 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
         drawRightAligned(moveMapText.coloredString, (borderX/scale).toFloat(), (y+30f)/scale, 0xFFF0F0F0.toInt())
         GlStateManager.popMatrix()
 
-        mc.textureManager.bind(GuiToolButton.WidgetsTextureLocation)
+        getMinecraft().textureManager.bind(GuiToolButton.WidgetsTextureLocation)
         Gui.drawModalRectWithCustomSizedTexture((borderX-120).toInt(), (y+5f).toInt(), 0f, 100f, 120, 20, 120f, 120f)
 
     }
@@ -342,7 +342,7 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
         val width = font.width(text)
         val textX = x-width
         if(shadow) {
-            font.drawWithShadow(text, textX, textY, color)
+            font.drawShadow(text, textX, textY, color)
         } else {
             font.draw(text, textX, textY, color)
         }
@@ -365,7 +365,7 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
         val toolY = iconIndex / GuiToolButton.ToolIconCountPerLine
         val minU = toolX.toFloat() * 20f
         val minV = toolY.toFloat() * 20f
-        mc.textureManager.bind(GuiToolButton.WidgetsTextureLocation)
+        getMinecraft().textureManager.bind(GuiToolButton.WidgetsTextureLocation)
         val toolScreenX = mouseX-10
         val toolScreenY = mouseY-15
         Gui.drawModalRectWithCustomSizedTexture(toolScreenX, toolScreenY, minU, minV, 20, 20, GuiToolButton.WidgetsTextureSize, GuiToolButton.WidgetsTextureSize)
@@ -487,7 +487,7 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
             val (boatPixelX, boatPixelZ) = worldCoordsToPixels(blockPos.x, blockPos.z)
             val boatRenderX = boatPixelX/mapScreenSize*128.0
             val boatRenderZ = boatPixelZ/mapScreenSize*128.0
-            mc.itemRenderer.renderItemAndEffectIntoGUI(HelmModuleRenderer.helmStack, (boatRenderX/iconScale).toInt(), (boatRenderZ/iconScale).toInt())
+            mc.itemRenderer.renderGuiItem(HelmModuleRenderer.helmStack, (boatRenderX/iconScale).toInt(), (boatRenderZ/iconScale).toInt())
 
             GlStateManager.popMatrix()
         }
@@ -535,7 +535,7 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
         }
     }
 
-    override fun doesGuiPauseGame(): Boolean {
+    override fun isPauseScreen(): Boolean {
         return false
     }
 

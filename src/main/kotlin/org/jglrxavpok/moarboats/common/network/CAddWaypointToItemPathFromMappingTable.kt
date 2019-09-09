@@ -17,9 +17,9 @@ class CAddWaypointToItemPathFromMappingTable: CxxAddWaypointToItemPath {
     var tileEntityZ: Int = 0
 
     constructor(pos: BlockPos, boost: Double?, insertionIndex: Int?, mappingTable: TileEntityMappingTable): super(pos, boost, insertionIndex) {
-        this.tileEntityX = mappingTable.pos.x
-        this.tileEntityY = mappingTable.pos.y
-        this.tileEntityZ = mappingTable.pos.z
+        this.tileEntityX = mappingTable.blockPos.x
+        this.tileEntityY = mappingTable.blockPos.y
+        this.tileEntityZ = mappingTable.blockPos.z
         this.insertionIndex = insertionIndex
     }
 

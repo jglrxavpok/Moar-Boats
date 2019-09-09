@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.widget.button.Button
 import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.client.gui.screen.Screen
+import net.minecraft.client.gui.widget.TextFieldWidget
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.util.text.TranslationTextComponent
@@ -34,9 +35,9 @@ class GuiWaypointEditor(val player: PlayerEntity, val te: TileEntityMappingTable
     private val waypointsText = TranslationTextComponent("moarboats.gui.waypoint_editor.existing_waypoints")
     private val miscText = TranslationTextComponent("moarboats.gui.generic.misc")
     private var id = 0
-    private val xInput by lazy { GuiTextField(font, 0, 0, 100, 20) }
-    private val zInput by lazy { GuiTextField(font, 0, 0, 100, 20) }
-    private val nameInput by lazy { GuiTextField(font, 0, 0, 200, 20) }
+    private val xInput by lazy { TextFieldWidget(font, 0, 0, 100, 20, "") }
+    private val zInput by lazy { TextFieldWidget(font, 0, 0, 100, 20, "") }
+    private val nameInput by lazy { TextFieldWidget(font, 0, 0, 200, 20, "") }
     private val boostSliderCallback = GuiSlider.ISlider { slider ->
 
     }
@@ -45,10 +46,10 @@ class GuiWaypointEditor(val player: PlayerEntity, val te: TileEntityMappingTable
     private val confirmButton = Button(0, 0, 150, 20, confirmText.coloredString) {
         storeIntoNBT()
         MoarBoats.network.sendToServer(CModifyWaypoint(te, index, waypointData))
-        mc.displayScreen(GuiMappingTable(te, player.inventory))
+        mc.setScreen(GuiMappingTable(te, player.inventory))
     }
     private val cancelButton = Button(0, 0, 150, 20, cancelText.coloredString) {
-        mc.displayScreen(GuiMappingTable(te, player.inventory))
+        mc.setScreen(GuiMappingTable(te, player.inventory))
     }
     private val refreshButton = Button(0, 0, 150, 20, refreshText.coloredString) {
         refreshList()
@@ -57,35 +58,35 @@ class GuiWaypointEditor(val player: PlayerEntity, val te: TileEntityMappingTable
 
 
     private val intInputs by lazy { listOf(xInput, zInput) }
-    private val doubleInputs by lazy { listOf<GuiTextField>() }
+    private val doubleInputs by lazy { listOf<TextFieldWidget>() }
     private val textInputs by lazy { listOf(nameInput) }
     private val allInputs by lazy { intInputs+textInputs+doubleInputs }
     private val allButtons = listOf(confirmButton, cancelButton, hasBoostCheckbox, refreshButton)
 
     private var waypointList: GuiWaypointEditorList = GuiWaypointEditorList(mc, this, 1, 1, 0, 0, 1) // not using lateinit because sometimes drawScreen/updateScreen are called before init
 
-    override fun onGuiClosed() {
-        super.onGuiClosed()
+    override fun onClose() {
+        super.onClose()
     }
 
     override fun init() {
         super.init()
 
         allInputs.forEach {
-            it.text = ""
+            it.value = ""
         }
 
         addButton(boostSlider)
 
-        nameInput.text = waypointData.getString("name")
-        xInput.text = waypointData.getInt("x").toString()
-        zInput.text = waypointData.getInt("z").toString()
+        nameInput.value = waypointData.getString("name")
+        xInput.value = waypointData.getInt("x").toString()
+        zInput.value = waypointData.getInt("z").toString()
 
         nameInput.x = width/2-nameInput.width/2
         nameInput.y = 15+nameInput.height
 
         intInputs.forEach { input ->
-            input.setValidator { str ->
+            input.setFilter { str ->
                 str != null && (str == "-" || str.isEmpty() || str.toIntOrNull() != null)
             }
         }
@@ -146,7 +147,7 @@ class GuiWaypointEditor(val player: PlayerEntity, val te: TileEntityMappingTable
         refreshButton.visible = WaypointProviders.isNotEmpty()
         boostSlider.updateSlider()
         boostSlider.active = hasBoostCheckbox.isChecked
-        allInputs.forEach(GuiTextField::tick)
+        allInputs.forEach(TextFieldWidget::tick)
     }
 
     private fun storeIntoNBT() {
@@ -172,10 +173,10 @@ class GuiWaypointEditor(val player: PlayerEntity, val te: TileEntityMappingTable
             waypointList.drawScreen(mouseX, mouseY, partialTicks)
         }
         allInputs.forEach {
-            it.drawTextField(mouseX, mouseY, partialTicks)
+            it.render(mouseX, mouseY, partialTicks)
         }
 
-        font.drawCenteredString(TextFormatting.UNDERLINE.toString()+TranslationTextComponent("moarboats.gui.waypoint_editor", nameInput.text).coloredString, width/2, 15, 0xFFFFFF, shadow = true)
+        font.drawCenteredString(TextFormatting.UNDERLINE.toString()+TranslationTextComponent("moarboats.gui.waypoint_editor", nameInput.value).coloredString, width/2, 15, 0xFFFFFF, shadow = true)
         font.drawCenteredString(TextFormatting.UNDERLINE.toString()+positionTitleText.coloredString, width/2, 75, 0xFFFFFF, shadow = true)
         font.draw("X:", xInput.x-10f, xInput.y+xInput.height/2-font.FONT_HEIGHT/2f, 0xFFFFFF)
         font.draw("Z:", zInput.x-10f, xInput.y+xInput.height/2-font.FONT_HEIGHT/2f, 0xFFFFFF)
@@ -229,9 +230,9 @@ class GuiWaypointEditor(val player: PlayerEntity, val te: TileEntityMappingTable
     }
 
     fun loadFromWaypointInfo(waypointInfo: WaypointInfo) {
-        xInput.text = waypointInfo.x.toString()
-        zInput.text = waypointInfo.z.toString()
-        nameInput.text = waypointInfo.name
+        xInput.value = waypointInfo.x.toString()
+        zInput.value = waypointInfo.z.toString()
+        nameInput.value = waypointInfo.name
         if(waypointInfo.boost != null) {
             hasBoostCheckbox.setIsChecked(true)
             boostSlider.value = waypointInfo.boost

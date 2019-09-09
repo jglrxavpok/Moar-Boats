@@ -177,7 +177,7 @@ class BoatMachineHost(val boat: ModularBoatEntity): MachineHost, Environment, En
 
     private fun sendInitialData() {
         val data = createInitialData()
-        MoarBoats.network.sendToAll(SSyncMachineData(boat.id, data))
+        MoarBoats.network.sendToAll(SSyncMachineData(boat.entityID, data))
         initialized = true
     }
 

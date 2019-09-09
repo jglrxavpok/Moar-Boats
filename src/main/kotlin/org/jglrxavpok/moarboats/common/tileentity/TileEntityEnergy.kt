@@ -90,7 +90,7 @@ abstract class TileEntityEnergy(tileEntityType: TileEntityType<out TileEntityEne
     private fun neighborsThatCanReceivePower(facings: List<Direction> = Direction.values().toList(), powerFunction: (IEnergyStorage) -> Boolean) =
             facings
                     .map {
-                        val neighborPos = pos.offset(it)
+                        val neighborPos = blockPos.relative(it)
                         getPowerCapability(neighborPos, it.opposite)
                     }
                     .filter {it.isPresent}

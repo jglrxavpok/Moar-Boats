@@ -48,16 +48,16 @@ class GuiComputerModule(val player: PlayerEntity, boat: IControllable): GuiModul
     override fun updateScreen() {
         super.updateScreen()
         if(boat.correspondingEntity.tickCount % 10 == 0) { // ping every 0.5s
-            MoarBoats.network.sendToServer(CPingComputer(boat.id))
+            MoarBoats.network.sendToServer(CPingComputer(boat.entityID))
         }
     }
 
     override fun actionPerformed(button: Button?) {
         super.actionPerformed(button)
         if(button == turnOnButton) {
-            MoarBoats.network.sendToServer(CTurnOnOffComputer(boat.id, turnOn = true))
+            MoarBoats.network.sendToServer(CTurnOnOffComputer(boat.entityID, turnOn = true))
         } else if(button == turnOffButton) {
-            MoarBoats.network.sendToServer(CTurnOnOffComputer(boat.id, turnOn = false))
+            MoarBoats.network.sendToServer(CTurnOnOffComputer(boat.entityID, turnOn = false))
         }
     }
 
@@ -123,7 +123,7 @@ class GuiComputerModule(val player: PlayerEntity, boat: IControllable): GuiModul
             }
 
         } else if(code == Keyboard.KEY_ESCAPE) {
-            mc.displayScreen(null)
+            mc.setScreen(null)
         }
     }
 

@@ -1,7 +1,6 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraftforge.fluids.Fluid
-import net.minecraftforge.fluids.FluidRegistry
+import net.minecraft.fluid.Fluid
 import net.minecraftforge.fluids.FluidStack
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.state.IntBoatProperty
@@ -40,7 +39,7 @@ interface IFluidBoatModule {
         if(fluid != resource.fluid && getFluidAmount(boat) > 0) {
             return 0
         }
-        fluidNameProperty[boat] = resource.fluid.name
+        fluidNameProperty[boat] = resource.fluid.registryName.toString()
         val filled = minOf(resource.amount, getCapacity(boat)-getFluidAmount(boat))
         if(!simulate) {
             fluidAmountProperty[boat] += filled
@@ -54,7 +53,7 @@ interface IFluidBoatModule {
         if(!canBeDrained(boat, resource))
             return null
         val fluid = getFluidInside(boat) ?: return null // nothing to drain
-        if(resource.fluid.name == fluid.name) {
+        if(resource.fluid.registryName == fluid.registryName) {
             return drain(boat, resource.amount, simulate)
         }
         return null

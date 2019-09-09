@@ -2,9 +2,6 @@ package org.jglrxavpok.moarboats.client.gui
 
 import net.minecraft.client.Minecraft
 import net.minecraft.client.audio.SimpleSound
-import net.minecraft.client.gui.Gui
-import net.minecraft.client.gui.inventory.GuiContainer
-import net.minecraft.client.network.NetworkPlayerInfo
 import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.client.gui.screen.inventory.ContainerScreen
 import net.minecraft.client.network.play.NetworkPlayerInfo
@@ -85,7 +82,7 @@ abstract class GuiModuleBase<T: Container>(val module: BoatModule, val boat: ICo
         if(hoveredTabIndex != -1) {
             if(tabs[hoveredTabIndex].tabModule == module) {
                 mc.soundManager.play(SimpleSound.forUI(SoundEvents.UI_BUTTON_CLICK, 0.5f))
-                MoarBoats.network.sendToServer(CRemoveModule(boat.id, module.id))
+                MoarBoats.network.sendToServer(CRemoveModule(boat.entityID, module.id))
                 return true
             }
         }
@@ -98,7 +95,7 @@ abstract class GuiModuleBase<T: Container>(val module: BoatModule, val boat: ICo
             val tab = tabs[hoveredTabIndex]
             if(tab.tabModule != module) {
                 mc.soundManager.play(SimpleSound.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0f))
-                MoarBoats.network.sendToServer(COpenModuleGui(boat.id, tab.tabModule.id))
+                MoarBoats.network.sendToServer(COpenModuleGui(boat.entityID, tab.tabModule.id))
                 return true
             }
         }
@@ -108,7 +105,7 @@ abstract class GuiModuleBase<T: Container>(val module: BoatModule, val boat: ICo
     /**
      * Draw the foreground layer for the GuiContainer (everything in front of the items)
      */
-    override fun drawGuiContainerForegroundLayer(mouseX: Int, mouseY: Int) {
+    override fun renderLabels(mouseX: Int, mouseY: Int) {
         val s = title.coloredString
         if(shouldRenderInventoryName)
             this.font.draw(s, (this.imageWidth / 2 - this.font.width(s) / 2).toFloat(), 6f, 4210752)
@@ -135,7 +132,7 @@ abstract class GuiModuleBase<T: Container>(val module: BoatModule, val boat: ICo
             mc.textureManager.bind(BACKGROUND_TEXTURE)
         val i = (this.width - this.imageWidth) / 2
         val j = (this.height - this.imageHeight) / 2
-        this.drawTexturedModalRect(i, j, 0, 0, this.imageWidth, this.imageHeight)
+        drawTexturedModalRect(i, j, 0, 0, this.imageWidth, this.imageHeight, blitOffset.toFloat())
     }
 
     /**
@@ -155,7 +152,7 @@ abstract class GuiModuleBase<T: Container>(val module: BoatModule, val boat: ICo
         val ownerUUID = boat.getOwnerIdOrNull()
         if(ownerUUID != null) {
             mc.textureManager.bind(BACKGROUND_TEXTURE)
-            drawTexturedModalRect(i-21, j+3, 176, 57, 24, 26)
+            drawTexturedModalRect(i-21, j+3, 176, 57, 24, 26, blitOffset.toFloat())
             val info: NetworkPlayerInfo? = Minecraft.getInstance().connection!!.getPlayerInfo(ownerUUID)
             if(info != null) {
                 mc.textureManager.bind(info.skinLocation)
@@ -172,7 +169,7 @@ abstract class GuiModuleBase<T: Container>(val module: BoatModule, val boat: ICo
 
         GlStateManager.color4f(1.0f, 1.0f, 1.0f, 1.0f)
         mc.textureManager.bind(moduleBackground)
-        drawTexturedModalRect(i, j, 0, 0, this.imageWidth, imageHeight)
+        drawTexturedModalRect(i, j, 0, 0, this.imageWidth, imageHeight, blitOffset.toFloat())
 
         drawModuleBackground(mouseX, mouseY)
     }
@@ -187,24 +184,24 @@ abstract class GuiModuleBase<T: Container>(val module: BoatModule, val boat: ICo
         fun renderContents() {
             val selected = tabModule == module
             mc.textureManager.bind(BACKGROUND_TEXTURE)
-            drawTexturedModalRect(x, y, 176, if(selected) 3 else 30, 26, 26)
+            drawTexturedModalRect(x, y, 176, if(selected) 3 else 30, 26, 26, blitOffset.toFloat())
 
             if(selected) {
-                drawTexturedModalRect(x+width - 4, y+5, 201, 8, 18, 17)
+                drawTexturedModalRect(x+width - 4, y+5, 201, 8, 18, 17, blitOffset.toFloat())
             }
 
-            zLevel = 100.0f
-            itemRender.zLevel = 100.0f
+            blitOffset = 100
+            itemRenderer.blitOffset = 100.0f
             RenderHelper.turnOnGui()
             GlStateManager.color3f(1f, 1f, 1f)
             val itemstack = ItemStack(BoatModuleRegistry[tabModule.id].correspondingItem)
             val itemX = width/2 - 10 + x + 1
             val itemY = height/2 - 8 + y
             GlStateManager.pushMatrix()
-            itemRender.renderItemAndEffectIntoGUI(itemstack, itemX, itemY)
+            itemRenderer.renderGuiItem(itemstack, itemX, itemY)
             GlStateManager.popMatrix()
-            itemRender.zLevel = 0.0f
-            zLevel = 0.0f
+            itemRenderer.blitOffset = 0.0f
+            blitOffset = 0
         }
     }
 }

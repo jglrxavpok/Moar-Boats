@@ -4,8 +4,7 @@ import net.minecraft.client.Minecraft
 import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.client.renderer.entity.EntityRendererManager
 import net.minecraft.client.renderer.model.ItemCameraTransforms
-import net.minecraft.client.renderer.texture.TextureMap
-import net.minecraft.init.Blocks
+import net.minecraft.client.renderer.texture.AtlasTexture
 import net.minecraft.item.Items
 import net.minecraft.item.ItemStack
 import org.jglrxavpok.moarboats.api.BoatModule
@@ -31,7 +30,7 @@ object ChunkLoadingModuleRenderer : BoatModuleRenderer() {
         module as ChunkLoadingModule
 
         val itemRenderer = Minecraft.getInstance().itemRenderer
-        val EntityRendererManager = Minecraft.getInstance().EntityRendererManager
+        val entityRenderer = Minecraft.getInstance().entityRenderDispatcher
         // render pearls
         for((x, z) in corners) {
             GlStateManager.pushMatrix()
@@ -44,13 +43,12 @@ object ChunkLoadingModuleRenderer : BoatModuleRenderer() {
             GlStateManager.translated(0.025, 0.5, 0.0)
             GlStateManager.enableRescaleNormal()
             GlStateManager.rotatef(180.0f - entityYaw - 90f, 0.0f, -1.0f, 0.0f)
-            GlStateManager.rotatef(-EntityRendererManager.playerViewY, 0.0f, 1.0f, 0.0f)
-            GlStateManager.rotatef((if (EntityRendererManager.options.thirdPersonView == 2) -1 else 1).toFloat() * EntityRendererManager.playerViewX, 1.0f, 0.0f, 0.0f)
+            GlStateManager.rotatef(-entityRenderer.playerViewY, 0.0f, 1.0f, 0.0f)
+            GlStateManager.rotatef((if (entityRenderer.options.thirdPersonView == 2) -1 else 1).toFloat() * entityRenderer.playerViewX, 1.0f, 0.0f, 0.0f)
             GlStateManager.rotatef(180.0f, 0.0f, 1.0f, 0.0f)
-            EntityRendererManager.textureManager.bind(TextureMap.LOCATION_BLOCKS_TEXTURE)
+            entityRenderer.textureManager.bind(AtlasTexture.LOCATION_BLOCKS)
 
-
-            itemRenderer.renderItem(enderPearlStack, ItemCameraTransforms.TransformType.GROUND)
+            itemRenderer.renderStatic(enderPearlStack, ItemCameraTransforms.TransformType.GROUND)
 
             GlStateManager.disableRescaleNormal()
 

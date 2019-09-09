@@ -36,7 +36,7 @@ class WaypointInfoEntry(val parent: GuiWaypointEditor, val slot: WaypointInfo, v
         GlStateManager.pushMatrix()
         GlStateManager.translatef(left.toFloat(), slotTop-4f, 0f)
         GlStateManager.scaled(arrowScale, arrowScale, arrowScale)
-        list.drawTexturedModalRect(0, 0, 32, hovered*32, 32, 32) // top
+        list.drawTexturedModalRect(0, 0, 32, hovered*32, 32, 32, blitOffset.toFloat()) // top
         GlStateManager.popMatrix()
 
         val name = slot.name

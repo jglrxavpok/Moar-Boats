@@ -25,7 +25,7 @@ interface PathHolder {
 
 class BoatPathHolder(val boat: IControllable): PathHolder {
     override fun getBaseMapID(): String {
-        return HelmModule.mapDataCopyProperty[boat].name
+        return HelmModule.mapDataCopyProperty[boat].id
     }
 
     override fun sendWorldImageRequest(mapID: String) {
@@ -33,11 +33,11 @@ class BoatPathHolder(val boat: IControllable): PathHolder {
     }
 
     override fun addWaypoint(pos: BlockPos, boost: Double?) {
-        MoarBoats.network.sendToServer(CAddWaypoint(pos, boat.id, boost))
+        MoarBoats.network.sendToServer(CAddWaypoint(pos, boat.entityID, boost))
     }
 
     override fun removeWaypoint(closestIndex: Int) {
-        MoarBoats.network.sendToServer(CRemoveWaypoint(closestIndex, boat.id))
+        MoarBoats.network.sendToServer(CRemoveWaypoint(closestIndex, boat.entityID))
     }
 
     override fun getWaypointNBTList(): ListNBT {
@@ -49,11 +49,11 @@ class BoatPathHolder(val boat: IControllable): PathHolder {
     }
 
     override fun setLoopingState(loopingOptions: LoopingOptions) {
-        MoarBoats.network.sendToServer(CChangeLoopingState(loopingOptions, boat.id))
+        MoarBoats.network.sendToServer(CChangeLoopingState(loopingOptions, boat.entityID))
     }
 
     override fun getHolderLocation(): BlockPos {
-        return boat.blockPos
+        return boat.pos
     }
 }
 
@@ -70,7 +70,7 @@ class MapWithPathHolder(stack: ItemStack, mappingTable: TileEntityMappingTable?,
         if(mappingTable != null) {
             MoarBoats.network.sendToServer(CAddWaypointToItemPathFromMappingTable(pos, boost, null, mappingTable))
         } else if(boat != null) {
-            MoarBoats.network.sendToServer(CAddWaypointToItemPathFromBoat(pos, boost, null, boat.id))
+            MoarBoats.network.sendToServer(CAddWaypointToItemPathFromBoat(pos, boost, null, boat.entityID))
         }
     }
 
@@ -78,21 +78,21 @@ class MapWithPathHolder(stack: ItemStack, mappingTable: TileEntityMappingTable?,
         if(mappingTable != null) {
             MoarBoats.network.sendToServer(CRemoveWaypointFromMapWithPathFromMappingTable(closestIndex, mappingTable))
         } else if(boat != null) {
-            MoarBoats.network.sendToServer(CRemoveWaypointFromMapWithPathFromBoat(closestIndex, boat.id))
+            MoarBoats.network.sendToServer(CRemoveWaypointFromMapWithPathFromBoat(closestIndex, boat.entityID))
         }
     }
 }
 
 class GoldenTicketPathHolder(stack: ItemStack, mappingTable: TileEntityMappingTable?, boat: IControllable?): ItemPathHolder(stack, mappingTable, boat) {
     override fun nbt(): CompoundNBT {
-        return ItemGoldenTicket.getData(stack).write(CompoundNBT())
+        return ItemGoldenTicket.getData(stack).save(CompoundNBT())
     }
 
     override fun addWaypoint(pos: BlockPos, boost: Double?) {
         if(mappingTable != null) {
             MoarBoats.network.sendToServer(CAddWaypointToGoldenTicketFromMappingTable(pos, boost, null, mappingTable))
         } else if(boat != null) {
-            MoarBoats.network.sendToServer(CAddWaypointToGoldenTicketFromBoat(pos, boost, null, boat.id))
+            MoarBoats.network.sendToServer(CAddWaypointToGoldenTicketFromBoat(pos, boost, null, boat.entityID))
         }
     }
 
@@ -100,7 +100,7 @@ class GoldenTicketPathHolder(stack: ItemStack, mappingTable: TileEntityMappingTa
         if(mappingTable != null) {
             MoarBoats.network.sendToServer(CRemoveWaypointFromGoldenTicketFromMappingTable(closestIndex, mappingTable))
         } else if(boat != null) {
-            MoarBoats.network.sendToServer(CRemoveWaypointFromGoldenTicketFromBoat(closestIndex, boat.id))
+            MoarBoats.network.sendToServer(CRemoveWaypointFromGoldenTicketFromBoat(closestIndex, boat.entityID))
         }
     }
 }
@@ -126,7 +126,7 @@ abstract class ItemPathHolder(val stack: ItemStack, val mappingTable: TileEntity
 
     override fun setLoopingState(loopingOptions: LoopingOptions) {
         if(boat != null) {
-            MoarBoats.network.sendToServer(CChangeLoopingStateItemPathBoat(loopingOptions, boat.id))
+            MoarBoats.network.sendToServer(CChangeLoopingStateItemPathBoat(loopingOptions, boat.entityID))
         } else {
             MoarBoats.network.sendToServer(CChangeLoopingStateItemPathMappingTable(loopingOptions, mappingTable!!))
         }

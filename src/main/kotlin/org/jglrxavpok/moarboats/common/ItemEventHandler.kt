@@ -1,6 +1,6 @@
 package org.jglrxavpok.moarboats.common
 
-import net.minecraft.entity.LeashKnotEntity
+import net.minecraft.entity.item.LeashKnotEntity
 import net.minecraftforge.event.entity.player.PlayerInteractEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
@@ -14,7 +14,7 @@ class ItemEventHandler {
         @JvmStatic
         @SubscribeEvent
         fun onEntityInteract(event: PlayerInteractEvent.EntityInteract) {
-            val player = event.PlayerEntity
+            val player = event.player
             val stack = event.itemStack
             if(stack.item == RopeItem && event.target is LeashKnotEntity) {
                 if(RopeItem.getState(stack) == RopeItem.State.WAITING_NEXT) {

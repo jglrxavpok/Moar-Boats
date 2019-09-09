@@ -2,8 +2,9 @@ package org.jglrxavpok.moarboats.common.modules
 
 import net.minecraft.block.Block
 import net.minecraft.block.BlockHopper
+import net.minecraft.block.HopperBlock
 import net.minecraft.block.material.Material
-import net.minecraft.client.gui.screen
+import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.particle.ParticleBreaking
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.init.Particles
@@ -14,6 +15,7 @@ import net.minecraft.nbt.CompoundNBT
 import net.minecraft.particles.BlockParticleData
 import net.minecraft.particles.IParticleData
 import net.minecraft.particles.ItemParticleData
+import net.minecraft.tileentity.HopperTileEntity
 import net.minecraft.tileentity.TileEntityHopper
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
@@ -54,10 +56,11 @@ abstract class BaseEngineModule: BoatModule() {
                 // special case for full hoppers (see #81)
                 val storage = from.modules.firstOrNull { it.moduleSpot == Spot.Storage }
                 if(storage != null && storage.usesInventory) {
-                    val hopperPos = from.correspondingEntity.position.above()
+                    // todo: pool
+                    val hopperPos = BlockPos(from.correspondingEntity).above()
                     val blockState = from.worldRef.getBlockState(hopperPos)
-                    if(blockState.block is BlockHopper) {
-                        val te = from.worldRef.getBlockEntity(hopperPos) as TileEntityHopper
+                    if(blockState.block is HopperBlock) {
+                        val te = from.worldRef.getBlockEntity(hopperPos) as HopperTileEntity
                         val storageInventory = from.getInventory(storage)
                         if( ! storageInventory.canAddAnyFrom(te)) {
                             return // bypass lock
@@ -87,7 +90,8 @@ abstract class BaseEngineModule: BoatModule() {
             updateFuelState(from, state, inv)
         }
         val world = from.worldRef
-        lockedByRedstoneProperty[from] = world.isBlockPowered(from.correspondingEntity.position)
+        // todo: pool
+        lockedByRedstoneProperty[from] = world.hasNeighborSignal(BlockPos(from.correspondingEntity))
         from.saveState()
         if(hasFuel(from) && !isStationary(from)) {
             val count = ((Math.random() * 5) + 3).toInt()

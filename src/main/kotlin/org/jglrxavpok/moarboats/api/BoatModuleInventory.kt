@@ -55,7 +55,7 @@ abstract class BoatModuleInventory(val inventoryName: String, val slotCount: Int
 
     fun syncToClient() {
         if(!boat.worldRef.isClientSide) {
-            MoarBoats.network.send(PacketDistributor.ALL.noArg(), SSyncInventory(boat.id, module.id, list))
+            MoarBoats.network.send(PacketDistributor.ALL.noArg(), SSyncInventory(boat.entityID, module.id, list))
         }
     }
 

@@ -69,13 +69,13 @@ class ModularBoatItem(val dyeColor: DyeColor): BaseBoatItem() {
         val color = dyeColor
         return ModularBoatEntity(
                 levelIn,
-                raytraceresult.hitVec.x,
-                if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y,
-                raytraceresult.hitVec.z,
+                raytraceresult.location.x,
+                if (inUsualFluid) raytraceresult.location.y - 0.12 else raytraceresult.location.y,
+                raytraceresult.location.z,
                 color,
                 ModularBoatEntity.OwningMode.PlayerOwned,
                 playerIn.gameProfile.id).apply {
-                    readAdditional(itemstack.getOrCreateChildTag("boat_data"))
+                    readAdditionalSaveData(itemstack.getOrCreateTagElement("boat_data"))
                 }
     }
 
@@ -88,11 +88,11 @@ object AnimalBoatItem: BaseBoatItem() {
     }
 
     override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
-        return AnimalBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z)
+        return AnimalBoatEntity(levelIn, raytraceresult.location.x, if (inUsualFluid) raytraceresult.location.y - 0.12 else raytraceresult.location.y, raytraceresult.location.z)
     }
 }
 
-abstract class BaseBoatItem: Item(Item.Properties().tab(MoarBoats.CreativeTab).maxStackSize(1)) {
+abstract class BaseBoatItem: Item(Item.Properties().tab(MoarBoats.CreativeTab).stacksTo(1)) {
 
     override fun onItemRightClick(levelIn: World, playerIn: PlayerEntity, handIn: Hand): ActionResult<ItemStack> {
         val itemstack = playerIn.getItemInHand(handIn)

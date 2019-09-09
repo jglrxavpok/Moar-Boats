@@ -9,6 +9,7 @@ import net.minecraft.nbt.CompoundNBT
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.Util
 import net.minecraftforge.fml.client.config.GuiUtils.drawGradientRect
+import net.minecraftforge.fml.client.config.GuiUtils.drawTexturedModalRect
 import org.jglrxavpok.moarboats.client.gui.WaypointInfoEntry.Companion.ArrowsTexture
 import org.jglrxavpok.moarboats.integration.WaypointInfo
 import org.lwjgl.opengl.GL11
@@ -50,9 +51,9 @@ class WaypointListEntry(val parent: GuiMappingTable, val slot: CompoundNBT, val 
             val hoveredOffsetBottom = if(mouseY-slotTop >= slotHeight/2) 1 else 0
             val hoveredOffsetTop = 1-hoveredOffsetBottom
             if(index > 0)
-                parent.drawTexturedModalRect(entryRight-32, slotTop-5, 64+32, hoveredOffsetTop*32, 32, 32) // top
+                drawTexturedModalRect(entryRight-32, slotTop-5, 64+32, hoveredOffsetTop*32, 32, 32, blitOffset.toFloat()) // top
             if(index < waypoints.size-1)
-                parent.drawTexturedModalRect(entryRight-32, slotTop-11, 64, hoveredOffsetBottom*32, 32, 32) // bottom
+                drawTexturedModalRect(entryRight-32, slotTop-11, 64, hoveredOffsetBottom*32, 32, 32, blitOffset.toFloat()) // bottom
         }
         slotTops[index] = slotTop
     }
