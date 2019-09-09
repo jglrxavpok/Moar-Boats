@@ -1,6 +1,5 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.block.state.IBlockState
 import net.minecraft.fluid.IFluidState
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
@@ -21,7 +20,7 @@ class SurroundingsMatrix(val size: Int) {
                 val worldX = centerX + xOffset
                 val worldY = centerY
                 val worldZ = centerZ + zOffset
-                pos.setPos(worldX, worldY, worldZ)
+                pos.set(worldX, worldY, worldZ)
                 val blockState = world.getFluidState(pos)
                 internalMatrix[pos2index(xOffset, zOffset)] = blockState
             }

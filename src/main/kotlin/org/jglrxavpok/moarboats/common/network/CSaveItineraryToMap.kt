@@ -31,17 +31,17 @@ class CSaveItineraryToMap(): MoarBoatsPacket {
                 MoarBoats.logger.warn("Player $player tried to save an itinerary to a map while not in a helm container, they might be lagging or cheating")
                 return null
             }
-            val world = player.world
+            val world = player.level
             val boat = world.getEntity(message.boatID) as? ModularBoatEntity ?: return null
             val moduleLocation = message.moduleID
             val module = BoatModuleRegistry[moduleLocation].module
             module as HelmModule
             val list = module.waypointsProperty[boat].copy()
             val inv = boat.getInventory(module)
-            if(inv.getItem(0).stack == Items.FILLED_MAP) {
+            if(inv.getItem(0).item.item == Items.FILLED_MAP) {
                 val id = inv.getItem(0).damage
                 inv.setItem(0, MapItemWithPath.createStack(list, "map_$id", module.loopingProperty[boat]))
-                player.containerMenu.detectAndSendChanges()
+                player.containerMenu.broadcastChanges()
             }
             return null
         }

@@ -34,7 +34,7 @@ class WaypointListEntry(val parent: GuiMappingTable, val slot: CompoundNBT, val 
         if(name.isEmpty()) {
             name = "Waypoint ${index+1}"
         }
-        mc.font.drawString(name, left+4f, slotTop+1f, 0xFFFFFF)
+        mc.font.draw(name, left+4f, slotTop+1f, 0xFFFFFF)
         GlStateManager.pushMatrix()
         GlStateManager.translatef(left+4f, slotTop+10f, 0f)
         val scale = 0.5f
@@ -42,7 +42,7 @@ class WaypointListEntry(val parent: GuiMappingTable, val slot: CompoundNBT, val 
         val text = "X: ${slot.getDouble("x")}, Z: ${slot.getDouble("z")}" +
                 if(slot.getBoolean("hasBoost")) " (${(slot.getDouble("boost")*100).toInt()}%)"
                 else ""
-        mc.font.drawString(text, 0f, 0f, 0xFFFFFF)
+        mc.font.draw(text, 0f, 0f, 0xFFFFFF)
         GlStateManager.popMatrix()
         GlStateManager.color3f(1f, 1f, 1f)
         mc.textureManager.bind(ArrowsTexture)

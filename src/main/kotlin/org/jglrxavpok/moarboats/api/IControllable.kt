@@ -5,7 +5,7 @@ import net.minecraft.dispenser.IBlockSource
 import net.minecraft.entity.Entity
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.EnumFacing
+import net.minecraft.util.Direction
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.ChunkPos
 import net.minecraft.util.math.MathHelper
@@ -55,12 +55,12 @@ interface IControllable: IBlockSource {
     fun getState(module: BoatModule, isLocal: Boolean = false): CompoundNBT
     fun getInventory(module: BoatModule): BoatModuleInventory
 
-    fun dispense(behavior: IDispenseItemBehavior, stack: ItemStack, overridePosition: BlockPos? = null, overrideFacing: EnumFacing? = null): ItemStack
+    fun dispense(behavior: IDispenseItemBehavior, stack: ItemStack, overridePosition: BlockPos? = null, overrideFacing: Direction? = null): ItemStack
 
     /**
      * Takes into account the rotation of the boat
      */
-    fun reorientate(overrideFacing: EnumFacing): EnumFacing
+    fun reorientate(overrideFacing: Direction): Direction
 
     fun getOwnerIdOrNull(): UUID?
     fun getOwnerNameOrNull(): String?

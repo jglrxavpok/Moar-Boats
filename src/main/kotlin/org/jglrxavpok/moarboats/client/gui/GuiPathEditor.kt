@@ -22,7 +22,6 @@ import org.jglrxavpok.moarboats.client.gui.elements.GuiPropertyButton
 import org.jglrxavpok.moarboats.client.gui.elements.GuiToolButton
 import org.jglrxavpok.moarboats.client.renders.HelmModuleRenderer
 import org.jglrxavpok.moarboats.common.data.LoopingOptions
-import org.jglrxavpok.moarboats.common.data.MapImageStripe
 import org.jglrxavpok.moarboats.common.data.PathHolder
 import org.jglrxavpok.moarboats.common.modules.HelmModule.StripeLength
 import org.lwjgl.opengl.GL11.*
@@ -63,7 +62,7 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
     private val boostSetting = TranslationTextComponent("gui.path_editor.controls.boost")
 
     private var buttonId = 0
-    private val refreshMapButton = object: Button(buttonId++, 0, 0, refreshButtonText.formattedText) {
+    private val refreshMapButton = Button(button0, 0, refreshButtonText.coloredString) {
         override fun onClick(mouseX: Double, mouseY: Double) {
             sentImageRequest = false
             mapHeight.fill(-1)
@@ -71,7 +70,7 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
         }
     }
     // Tools button
-    private val markerButton: GuiToolButton = object: GuiToolButton(buttonId++, toolMarkerText.formattedText, 0) {
+    private val markerButton: GuiToolButton = object: GuiToolButton(buttontoolMarkerText.coloredString, 0) {
         override fun onClick(mouseX: Double, mouseY: Double) {
             toolButtonList.forEach {
                 it.selected = false
@@ -79,7 +78,7 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
             selected = true
         }
     }
-    private val eraserButton: GuiToolButton = object: GuiToolButton(buttonId++, toolEraserText.formattedText, 1) {
+    private val eraserButton: GuiToolButton = object: GuiToolButton(buttontoolEraserText.coloredString, 1) {
         override fun onClick(mouseX: Double, mouseY: Double) {
             toolButtonList.forEach {
                 it.selected = false
@@ -90,12 +89,12 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
     private val toolButtonList = listOf(markerButton, eraserButton)
 
     // Properties buttons
-    private val loopingButton = object: GuiPropertyButton(buttonId++, listOf(Pair(propertyOneWayText.formattedText, 3), Pair(propertyLoopingText.formattedText, 2), Pair(propertyReverseCourseText.formattedText, 4))) {
+    private val loopingButton = object: GuiPropertyButton(buttonlistOf(Pair(propertyOneWayText.coloredString, 3), Pair(propertyLoopingText.coloredString, 2), Pair(propertyReverseCourseText.coloredString, 4))) {
         override fun onClick(mouseX: Double, mouseY: Double) {
             pathHolder.setLoopingState(LoopingOptions.values()[propertyIndex])
         }
     }
-    private val linesButton = GuiBinaryPropertyButton(buttonId++, Pair(propertyLinesText.formattedText, propertyPathfindingText.formattedText), Pair(5, 6))
+    private val linesButton = GuiBinaryPropertyButton(buttonPair(propertyLinesText.coloredString, propertyPathfindingText.coloredString), Pair(5, 6))
     private lateinit var boostSlider: GuiSlider
     private val sliderCallback = GuiSlider.ISlider { slider ->
 
@@ -163,7 +162,7 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
 
         loopingButton.propertyIndex = pathHolder.getLoopingOption().ordinal
 
-        boostSlider = GuiSlider(1, menuX, yOffset+20, 125, 20, "${boostSetting.formattedText}: ", "%", -50.0, 50.0, 0.0, false, true, sliderCallback)
+        boostSlider = GuiSlider(1, menuX, yOffset+20, 125, 20, "${boostSetting.coloredString}: ", "%", -50.0, 50.0, 0.0, false, true, sliderCallback)
         addButton(boostSlider)
     }
 
@@ -296,13 +295,13 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
         renderMap(mapX, mapY, 0.0, mapScreenSize, mouseX, mouseY)
 
         super.render(mouseX, mouseY, partialTicks)
-        font.drawStringWithShadow(toolsText.formattedText, menuX.toFloat(), menuY.toFloat(), 0xFFF0F0F0.toInt())
+        font.drawWithShadow(toolsText.coloredString, menuX.toFloat(), menuY.toFloat(), 0xFFF0F0F0.toInt())
 
         mc.textureManager.bind(GuiToolButton.WidgetsTextureLocation)
         Gui.drawModalRectWithCustomSizedTexture(menuX, horizontalBarY, 0f, 100f, 120, 20, 120f, 120f)
-        font.drawStringWithShadow(pathPropsText.formattedText, menuX.toFloat(), toolButtonListEndY.toFloat(), 0xFFF0F0F0.toInt())
+        font.drawWithShadow(pathPropsText.coloredString, menuX.toFloat(), toolButtonListEndY.toFloat(), 0xFFF0F0F0.toInt())
 
-        drawCenteredString(font, titleText.formattedText, width/2, 10, 0xFFF0F0F0.toInt())
+        drawCenteredString(font, titleText.coloredString, width/2, 10, 0xFFF0F0F0.toInt())
 
         drawControls()
 
@@ -329,9 +328,9 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
         val scale = 0.5f
         GlStateManager.pushMatrix()
         GlStateManager.scalef(scale, scale, 1f)
-        drawRightAligned(controlsText.formattedText, borderX.toFloat()/scale, y/scale, 0xFFF0F0F0.toInt(), shadow = true)
-        drawRightAligned(zoomText.formattedText, (borderX/scale).toFloat(), (y+20f)/scale, 0xFFF0F0F0.toInt())
-        drawRightAligned(moveMapText.formattedText, (borderX/scale).toFloat(), (y+30f)/scale, 0xFFF0F0F0.toInt())
+        drawRightAligned(controlsText.coloredString, borderX.toFloat()/scale, y/scale, 0xFFF0F0F0.toInt(), shadow = true)
+        drawRightAligned(zoomText.coloredString, (borderX/scale).toFloat(), (y+20f)/scale, 0xFFF0F0F0.toInt())
+        drawRightAligned(moveMapText.coloredString, (borderX/scale).toFloat(), (y+30f)/scale, 0xFFF0F0F0.toInt())
         GlStateManager.popMatrix()
 
         mc.textureManager.bind(GuiToolButton.WidgetsTextureLocation)
@@ -340,12 +339,12 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
     }
 
     private fun drawRightAligned(text: String, x: Float, textY: Float, color: Int, shadow: Boolean = false) {
-        val width = font.getStringWidth(text)
+        val width = font.width(text)
         val textX = x-width
         if(shadow) {
-            font.drawStringWithShadow(text, textX, textY, color)
+            font.drawWithShadow(text, textX, textY, color)
         } else {
-            font.drawString(text, textX, textY, color)
+            font.draw(text, textX, textY, color)
         }
     }
 
@@ -380,7 +379,7 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
         GlStateManager.scaled(mapSize-margins*2, mapSize-margins*2, 0.0)
 
         val tessellator = Tessellator.getInstance()
-        val bufferbuilder = tessellator.buffer
+        val bufferbuilder = tessellator.builder
         mc.textureManager.bind(areaResLocation)
         GlStateManager.enableBlend()
         GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE)
@@ -398,11 +397,11 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
         val minV = ((scrollZ-viewportSize/2)/size).coerceAtLeast(0.0)
         val maxV = ((scrollZ+viewportSize/2)/size).coerceAtMost(1.0)
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX)
-        bufferbuilder.pos(0.0, 128.0, -0.009999999776482582).tex(minU, maxV).endVertex()
-        bufferbuilder.pos(128.0, 128.0, -0.009999999776482582).tex(maxU, maxV).endVertex()
-        bufferbuilder.pos(128.0, 0.0, -0.009999999776482582).tex(maxU, minV).endVertex()
-        bufferbuilder.pos(0.0, 0.0, -0.009999999776482582).tex(minU, minV).endVertex()
-        tessellator.draw()
+        bufferbuilder.vertex(0.0, 128.0, -0.009999999776482582).uv(minU, maxV).endVertex()
+        bufferbuilder.vertex(128.0, 128.0, -0.009999999776482582).uv(maxU, maxV).endVertex()
+        bufferbuilder.vertex(128.0, 0.0, -0.009999999776482582).uv(maxU, minV).endVertex()
+        bufferbuilder.vertex(0.0, 0.0, -0.009999999776482582).uv(minU, minV).endVertex()
+        tessellator.end()
         GlStateManager.enableAlphaTest()
 
         glStencilFunc(GL_EQUAL, 1, 0xFF) // needs to have 1 in stencil buffer to be rendered
@@ -455,10 +454,10 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
                 val boost = "("+(waypoint.getDouble("boost") * 100).toInt().toString()+"%)"
                 GlStateManager.pushMatrix()
                 val scale = 0.5
-                val w = font.getStringWidth(boost)
+                val w = font.width(boost)
                 GlStateManager.translated(renderX-w/2*scale, renderZ-12.0, 0.0)
                 GlStateManager.scaled(scale, scale, 1.0)
-                font.drawString(boost, 0f, 0f, 0xFFFFFFFF.toInt())
+                font.draw(boost, 0f, 0f, 0xFFFFFFFF.toInt())
                 GlStateManager.popMatrix()
             }
 
@@ -526,9 +525,9 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
                             val green = (argb shr 8) and 0xFF
                             val blue = argb and 0xFF
                             val rgba = (alpha shl 24) or (blue shl 16) or (green shl 8) or red
-                            areaTexture.textureData!!.setPixelRGBA(x, y, rgba)
+                            areaTexture.pixels!!.setPixelRGBA(x, y, rgba)
                         }
-                        areaTexture.updateDynamicTexture()
+                        areaTexture.upload()
                         stripesReceived[stripeIndex] = true
                     }
                 }

@@ -28,8 +28,8 @@ object BlockBoatTank: MoarBoatsBlock() {
         return false
     }
 
-    override fun addInformation(stack: ItemStack, level: IBlockReader?, tooltip: MutableList<ITextComponent>, advanced: ITooltipFlag) {
-        super.addInformation(stack, level, tooltip, advanced)
+    override fun appendHoverText(stack: ItemStack, level: IBlockReader?, tooltip: MutableList<ITextComponent>, advanced: ITooltipFlag) {
+        super.appendHoverText(stack, level, tooltip, advanced)
         tooltip.add(OnlyUsableOnBoats)
     }
 

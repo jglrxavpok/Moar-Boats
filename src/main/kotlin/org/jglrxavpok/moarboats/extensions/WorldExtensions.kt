@@ -5,7 +5,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import java.util.*
 
-fun level.getEntityByUUID(id: UUID): Entity? {
+fun World.getEntityByUUID(id: UUID): Entity? {
     return this.loadedEntityList.find { it.uniqueID == id }
 }
 

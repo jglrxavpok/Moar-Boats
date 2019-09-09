@@ -7,7 +7,7 @@ import net.minecraft.entity.player.PlayerEntityMP
 import net.minecraft.item.BlockItemUseContext
 import net.minecraft.state.StateContainer
 import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.EnumFacing
+import net.minecraft.util.Direction
 import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
@@ -22,7 +22,7 @@ object BlockEnergyLoader: MoarBoatsBlock() {
 
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "boat_energy_charger")
-        defaultState = stateContainer.baseState.with(Facing, EnumFacing.UP)
+        defaultState = stateContainer.baseState.with(Facing, Direction.UP)
     }
 
     override fun fillStateContainer(builder: StateContainer.Builder<Block, IBlockState>) {
@@ -40,7 +40,7 @@ object BlockEnergyLoader: MoarBoatsBlock() {
         return this.defaultState.with(Facing, context.nearestLookingDirection)
     }
 
-    override fun onBlockActivated(state: IBlockState, levelIn: World, pos: BlockPos, playerIn: PlayerEntity, hand: Hand?, facing: EnumFacing?, hitX: Float, hitY: Float, hitZ: Float): Boolean {
+    override fun onBlockActivated(state: IBlockState, levelIn: World, pos: BlockPos, playerIn: PlayerEntity, hand: Hand?, facing: Direction?, hitX: Float, hitY: Float, hitZ: Float): Boolean {
         if(levelIn.isClientSide)
             return true
         NetworkHooks.openGui(playerIn as PlayerEntityMP, MoarBoatsGuiHandler.EnergyGuiInteraction(pos.x, pos.y, pos.z))

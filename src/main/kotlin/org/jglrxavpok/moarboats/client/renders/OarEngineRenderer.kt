@@ -24,7 +24,7 @@ object OarEngineRenderer : BoatModuleRenderer() {
         GlStateManager.pushMatrix()
         GlStateManager.translatef(-0.25f, 0.575f, 0f)
 
-        EntityRendererManager.textureManager.bind(BOAT_TEXTURES[boat.entityID % BOAT_TEXTURES.size])
+        EntityRendererManager.textureManager.bind(BOAT_TEXTURES[boat.id % BOAT_TEXTURES.size])
 
         val angle = if(boat.controllingPassenger != null) -boat.distanceTravelled.toFloat()*2f else 0f
 

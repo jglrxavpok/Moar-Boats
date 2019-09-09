@@ -2,7 +2,8 @@ package org.jglrxavpok.moarboats.common
 
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.PlayerEntitySP
-import net.minecraft.client.gui.screen
+import net.minecraft.client.entity.player.ClientPlayerEntity
+import net.minecraft.client.gui.screen.Screen
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.inventory.container.Container
@@ -11,7 +12,9 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.TranslationTextComponent
 import net.minecraft.inventory.container.INamedContainerProvider
+import net.minecraft.util.ResourceLocation
 import net.minecraft.world.World
+import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.network.IGuiHandler
 import net.minecraftforge.fml.network.FMLPlayMessages
 import org.jglrxavpok.moarboats.MoarBoats
@@ -28,9 +31,10 @@ import org.jglrxavpok.moarboats.extensions.use
 
 object MoarBoatsGuiHandler: IGuiHandler {
 
+    @SubscribeEvent
     fun dispatchGui(container: FMLPlayMessages.OpenContainer): Screen? {
-        MoarBoats.logger.debug("Dispatch: ${container.id}")
-        val id = container.id
+        MoarBoats.logger.debug("Dispatch: ${container.type}")
+        val id = ResourceLocation(container.name.contents)
         if(id.namespace == MoarBoats.ModID) {
             val route = id.path.split("/")
             MoarBoats.logger.debug("route: ${route.joinToString("/")}")
@@ -50,7 +54,7 @@ object MoarBoatsGuiHandler: IGuiHandler {
                             } else {
                                 it.modules[moduleIndex]
                             }
-                            return module.createGui(player as PlayerEntitySP, it)
+                            return module.createGui(player as ClientPlayerEntity, it)
                         } ?: return null
                     }
 

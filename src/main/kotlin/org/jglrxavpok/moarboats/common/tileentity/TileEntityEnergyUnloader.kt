@@ -1,7 +1,7 @@
 package org.jglrxavpok.moarboats.common.tileentity
 
 import net.minecraft.entity.Entity
-import net.minecraft.util.EnumFacing
+import net.minecraft.util.Direction
 import net.minecraft.util.ITickable
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraftforge.energy.CapabilityEnergy
@@ -15,15 +15,15 @@ class TileEntityEnergyUnloader: TileEntityEnergy(MoarBoats.TileEntityEnergyUnloa
     override val maxExtractableEnergy = maxEnergyStored
 
     private var working: Boolean = false
-    val blockFacing: EnumFacing get()= level.getBlockState(pos).get(Facing)
+    val blockFacing: Direction get()= level!!.getBlockState(pos).get(Facing)
 
     override fun tick() {
-        if(level.isClientSide)
+        if(level!!.isClientSide)
             return
         working = false
         updateListeners()
 
-        val facings = EnumFacing.values().toMutableList()
+        val facings = Direction.values().toMutableList()
         facings.remove(blockFacing)
         pushEnergyToNeighbors(MoarBoatsConfig.energyUnloader.sendAmount.get(), facings)
 
@@ -57,7 +57,7 @@ class TileEntityEnergyUnloader: TileEntityEnergy(MoarBoats.TileEntityEnergyUnloa
         }
     }
 
-    override fun isEnergyFacing(facing: EnumFacing?): Boolean {
+    override fun isEnergyFacing(facing: Direction?): Boolean {
         return facing != blockFacing
     }
 

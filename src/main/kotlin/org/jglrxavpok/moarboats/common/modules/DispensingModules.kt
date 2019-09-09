@@ -8,7 +8,7 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.EnumFacing
+import net.minecraft.util.Direction
 import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
@@ -34,9 +34,9 @@ abstract class DispensingModule: BoatModule() {
     val blockPeriodProperty = DoubleBoatProperty("period")
     val lastDispensePositionProperty = BlockPosProperty("lastFire")
     /**
-     * Starts with EnumFacing.SOUTH which is the default facing (behind the boat)
+     * Starts with Direction.SOUTH which is the default facing (behind the boat)
      */
-    val facings = arrayOf(EnumFacing.SOUTH, EnumFacing.NORTH, EnumFacing.EAST, EnumFacing.WEST, EnumFacing.UP, EnumFacing.DOWN)
+    val facings = arrayOf(Direction.SOUTH, Direction.NORTH, Direction.EAST, Direction.WEST, Direction.UP, Direction.DOWN)
     val facingProperty = ArrayBoatProperty("facing", facings)
 
     // Row indices
@@ -49,7 +49,7 @@ abstract class DispensingModule: BoatModule() {
     override fun controlBoat(from: IControllable) { }
 
     override fun update(from: IControllable) {
-        if(!from.inLiquid() || from.levelRef.isClientSide)
+        if(!from.inLiquid() || from.worldRef.isClientSide)
             return
         lastDispensePositionProperty[from].use { pos ->
             val period = blockPeriodProperty[from]
@@ -125,7 +125,7 @@ abstract class DispensingModule: BoatModule() {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.entityDropItem(BoatModuleRegistry.findEntry(this)!!.correspondingItem, 1)
+            boat.correspondingEntity.spawnAtLocation(BoatModuleRegistry.findEntry(this)!!.correspondingItem, 1)
     }
 }
 
@@ -155,7 +155,7 @@ object DispenserModule: DispensingModule() {
         val inventoryRowStart = (-row)*5 +5
         firstValidStack(inventoryRowStart, boat)?.let { (index, stack) ->
             val item = stack.item
-            val level = boat.levelRef
+            val level = boat.worldRef
             val behavior = BlockDispenser.DISPENSE_BEHAVIOR_REGISTRY[item]!!
             if(behavior.javaClass === BehaviorDefaultDispenseItem::class.java) {
                 if(item is BlockItem) {
@@ -208,7 +208,7 @@ object DispenserModule: DispensingModule() {
             val tileentity = worldIn.getBlockEntity(pos)
 
             if (tileentity != null) {
-                val CompoundNBT1 = tileentity.write(CompoundNBT())
+                val CompoundNBT1 = tileentity.save(CompoundNBT())
                 val CompoundNBT2 = CompoundNBT1.copy()
                 CompoundNBT1.merge(CompoundNBT)
                 CompoundNBT1.putInt("x", pos.x)
@@ -216,7 +216,7 @@ object DispenserModule: DispensingModule() {
                 CompoundNBT1.putInt("y", pos.y)
 
                 if (CompoundNBT1 != CompoundNBT2) {
-                    tileentity.read(CompoundNBT1)
+                    tileentity.load(CompoundNBT1)
                     tileentity.setChanged()
                 }
             }

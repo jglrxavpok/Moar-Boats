@@ -4,19 +4,15 @@ import com.google.common.collect.ImmutableList
 import net.alexwells.kottle.KotlinEventBusSubscriber
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity
-import net.minecraft.client.gui.screen.Screen
 import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.client.renderer.Tessellator
-import net.minecraft.client.renderer.color.IItemColor
 import net.minecraft.client.renderer.entity.PlayerRenderer
-import net.minecraft.client.renderer.entity.model.ModelBox
 import net.minecraft.client.renderer.entity.model.PlayerModel
 import net.minecraft.client.renderer.entity.model.RendererModel
-import net.minecraft.client.renderer.model.ModelResourceLocation
+import net.minecraft.client.renderer.model.ModelBox
 import net.minecraft.client.renderer.model.ModelRotation
-import net.minecraft.item.DyeColor
-import net.minecraft.item.BlockItem
-import net.minecraft.item.ItemStack
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.util.Hand
 import net.minecraft.util.HandSide
 import net.minecraft.util.ResourceLocation
@@ -24,35 +20,26 @@ import net.minecraft.util.math.MathHelper
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.client.event.ModelBakeEvent
-import net.minecraftforge.client.event.ModelRegistryEvent
 import net.minecraftforge.client.event.RenderSpecificHandEvent
 import net.minecraftforge.client.model.ItemLayerModel
 import net.minecraftforge.client.model.ModelLoader
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.ExtensionPoint
-import net.minecraftforge.fml.ModLoadingContext
 import net.minecraftforge.fml.client.registry.RenderingRegistry
-import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent
-import net.minecraftforge.fml.network.FMLPlayMessages
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.models.ModelPatreonHook
 import org.jglrxavpok.moarboats.client.renders.*
 import org.jglrxavpok.moarboats.common.*
 import org.jglrxavpok.moarboats.common.entities.AnimalBoatEntity
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
-import org.jglrxavpok.moarboats.common.items.ModularBoatItem
-import java.util.function.Function
-import java.util.function.Supplier
-import javax.annotation.Resource
 
 @KotlinEventBusSubscriber(value = [Dist.CLIENT], modid = MoarBoats.ModID)
 object ClientEvents {
 
     val hookTextureLocation = ResourceLocation(MoarBoats.ModID, "textures/hook.png")
-    val fakePlayerModel = PlayerModel(0f, false)
+    val fakePlayerModel = PlayerModel<PlayerEntity>(0f, false)
     val fakeArmRoot = RendererModel(fakePlayerModel, 32, 48)
     val fakeArmwearRoot = RendererModel(fakePlayerModel, 48, 48)
     val armBox = ModelBox(fakeArmRoot,
@@ -104,7 +91,7 @@ object ClientEvents {
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     fun registerModels(event: ModelBakeEvent) {
-        val bakedModel = ItemLayerModel(ImmutableList.of(ResourceLocation("item/fishing_rod_cast"))).bake(ModelLoader.defaultModelGetter(), ModelLoader.defaultTextureGetter(), ModelRotation.X0_Y0, true, net.minecraft.client.renderer.vertex.DefaultVertexFormats.ITEM)
+        val bakedModel = ItemLayerModel(ImmutableList.of(ResourceLocation("item/fishing_rod_cast"))).bake(event.modelLoader, ModelLoader.defaultTextureGetter(), ModelRotation.X0_Y0, DefaultVertexFormats.BLOCK_NORMALS)
         event.modelRegistry[FishingModuleRenderer.CastFishingRodLocation] = bakedModel
     }
 
@@ -150,7 +137,7 @@ object ClientEvents {
         GlStateManager.rotatef(200.0f, 1.0f, 0.0f, 0.0f)
         GlStateManager.rotatef(f * -135.0f, 0.0f, 1.0f, 0.0f)
         GlStateManager.translatef(f * 5.6f, 0.0f, 0.0f)
-        val PlayerRenderer = mc.entityRenderDispatcher.getRenderer<AbstractClientPlayerEntity>(player) as PlayerRenderer
+        val PlayerRenderer = mc.entityRenderDispatcher.getRenderer(player) as PlayerRenderer
         val model = PlayerRenderer.model
         GlStateManager.disableCull()
 
@@ -160,18 +147,18 @@ object ClientEvents {
         GlStateManager.enableCull()
     }
 
-    private fun renderArm(arm: RendererModel, clientPlayer: AbstractClientPlayerEntity, PlayerModel: PlayerModel) {
+    private fun renderArm(arm: RendererModel, clientPlayer: AbstractClientPlayerEntity, playerModel: PlayerModel<AbstractClientPlayerEntity>) {
         GlStateManager.color3f(1.0f, 1.0f, 1.0f)
         val scale = 0.0625f
         GlStateManager.enableBlend()
-        PlayerModel.isSneak = false
-        PlayerModel.swingProgress = 0.0f
-        PlayerModel.setRotationAngles(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0625f, clientPlayer)
+        playerModel.sneaking = false
+        playerModel.attackTime = 0.0f
+        playerModel.setupAnim(clientPlayer , 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0625f)
 
         GlStateManager.pushMatrix()
         arm.xRot = 0.0f
         GlStateManager.translatef(arm.translateX, arm.translateY, arm.translateZ)
-        GlStateManager.translatef(arm.rotationPointX*scale, arm.rotationPointY*scale, arm.rotationPointZ*scale)
+        GlStateManager.translatef(arm.x*scale, arm.y*scale, arm.z*scale)
         GlStateManager.rotatef((arm.zRot * 180f / Math.PI).toFloat(), 0f, 0f, 1f)
         GlStateManager.rotatef((arm.yRot * 180f / Math.PI).toFloat(), 0f, 1f, 0f)
         GlStateManager.rotatef((arm.xRot * 180f / Math.PI).toFloat(), 1f, 0f, 0f)
@@ -180,8 +167,8 @@ object ClientEvents {
         val buffer = tess.builder
 
         GlStateManager.pushMatrix()
-        armBox.render(buffer, scale)
-        armwearBox.render(buffer, scale)
+        armBox.compile(buffer, scale)
+        armwearBox.compile(buffer, scale)
         GlStateManager.popMatrix()
 
         val hookScale = 4f/11f

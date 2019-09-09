@@ -17,9 +17,9 @@ class GuiRudderModule(playerInventory: PlayerInventory, anchor: BoatModule, boat
 
     override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/nothing.png")
 
-    val blockButton = object: Button(0,0,0, 140, 20, "") {
+    val blockButton = Button(0,0,0, 140, 20, "") {
         override fun onClick(mouseX: Double, mouseY: Double) {
-            MoarBoats.network.sendToServer(CChangeRudderBlocking(boat.entityID, module.id))
+            MoarBoats.network.sendToServer(CChangeRudderBlocking(boat.id, module.id))
         }
     }
     val blockingText = TranslationTextComponent("moarboats.gui.rudder.blocking")
@@ -37,7 +37,7 @@ class GuiRudderModule(playerInventory: PlayerInventory, anchor: BoatModule, boat
         super.tick()
         val deployText = if(rudder.BlockingProperty[boat]) blockingText else notBlockingText
         blockButton.enabled = true
-        blockButton.displayString = deployText.formattedText
+        blockButton.displayString = deployText.coloredString
     }
 
     override fun drawModuleForeground(mouseX: Int, mouseY: Int) {

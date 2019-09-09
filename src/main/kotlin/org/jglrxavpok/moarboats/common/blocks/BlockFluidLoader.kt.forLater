@@ -7,11 +7,11 @@ import net.minecraft.block.properties.PropertyEnum
 import net.minecraft.block.state.BlockStateContainer
 import net.minecraft.block.state.IBlockState
 import net.minecraft.client.util.ITooltipFlag
-import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.EnumFacing
+import net.minecraft.util.Direction
 import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
@@ -28,7 +28,7 @@ object BlockFluidLoader: Block(MoarBoats.MachineMaterial) {
         registryName = ResourceLocation(MoarBoats.ModID, "boat_fluid_loader")
         unlocalizedName = "boat_fluid_loader"
         setCreativeTab(MoarBoats.CreativeTab)
-        defaultState = blockState.baseState.withProperty(Facing, EnumFacing.UP)
+        defaultState = blockState.baseState.withProperty(Facing, Direction.UP)
         setHardness(0.5f)
     }
 
@@ -43,11 +43,11 @@ object BlockFluidLoader: Block(MoarBoats.MachineMaterial) {
         return TileEntityFluidLoader()
     }
 
-    override fun getStateForPlacement(worldIn: World, pos: BlockPos, facing: EnumFacing, hitX: Float, hitY: Float, hitZ: Float, meta: Int, placer: EntityLivingBase): IBlockState {
-        return this.defaultState.withProperty(BlockDirectional.FACING, EnumFacing.getDirectionFromEntityLiving(pos, placer))
+    override fun getStateForPlacement(worldIn: World, pos: BlockPos, facing: Direction, hitX: Float, hitY: Float, hitZ: Float, meta: Int, placer: LivingEntity): IBlockState {
+        return this.defaultState.withProperty(BlockDirectional.FACING, Direction.getDirectionFromEntityLiving(pos, placer))
     }
 
-    override fun onBlockActivated(state: IBlockState, worldIn: World, pos: BlockPos, playerIn: PlayerEntity, hand: Hand?, facing: EnumFacing?, hitX: Float, hitY: Float, hitZ: Float): Boolean {
+    override fun onBlockActivated(state: IBlockState, worldIn: World, pos: BlockPos, playerIn: PlayerEntity, hand: Hand?, facing: Direction?, hitX: Float, hitY: Float, hitZ: Float): Boolean {
         if(worldIn.isClientSide)
             return true
         playerIn.openGui(MoarBoats, MoarBoatsGuiHandler.FluidGui, worldIn, pos.x, pos.y, pos.z)
@@ -55,7 +55,7 @@ object BlockFluidLoader: Block(MoarBoats.MachineMaterial) {
     }
 
     override fun getStateFromMeta(meta: Int): IBlockState {
-        return defaultState.withProperty(Facing, EnumFacing.values()[meta % EnumFacing.values().size])
+        return defaultState.withProperty(Facing, Direction.values()[meta % Direction.values().size])
     }
 
     override fun getMetaFromState(state: IBlockState): Int {

@@ -2,7 +2,7 @@ package org.jglrxavpok.moarboats.common.tileentity
 
 import net.minecraft.entity.Entity
 import net.minecraft.inventory.ItemStackHelper
-import net.minecraft.util.EnumFacing
+import net.minecraft.util.Direction
 import net.minecraft.util.ITickable
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraftforge.energy.CapabilityEnergy
@@ -16,20 +16,20 @@ class TileEntityEnergyLoader: TileEntityEnergy(MoarBoats.TileEntityEnergyLoaderT
     override val maxExtractableEnergy = 0
     private var working: Boolean = false
 
-    val blockFacing: EnumFacing get()= level.getBlockState(pos).get(Facing)
+    val blockFacing: Direction get()= level!!.getBlockState(pos).get(Facing)
 
     override fun tick() {
-        if(level.isClientSide)
+        if(level!!.isClientSide)
             return
         working = false
         updateListeners()
 
-        val facings = EnumFacing.values().toMutableList()
+        val facings = Direction.values().toMutableList()
         facings.remove(blockFacing)
         pullEnergyFromNeighbors(MoarBoatsConfig.energyLoader.pullAmount.get(), facings)
 
         val aabb = create3x3AxisAlignedBB(pos.offset(blockFacing))
-        val entities = level.getEntitiesWithinAABB(Entity::class.java, aabb) { e -> e != null && e.getCapability(CapabilityEnergy.ENERGY, null).isPresent }
+        val entities = level!!.getEntitiesWithinAABB(Entity::class.java, aabb) { e -> e != null && e.getCapability(CapabilityEnergy.ENERGY, null).isPresent }
 
         val totalEnergyToSend = minOf(MoarBoatsConfig.energyLoader.sendAmount.get(), energyStored)
         val entityCount = entities.size
@@ -58,7 +58,7 @@ class TileEntityEnergyLoader: TileEntityEnergy(MoarBoats.TileEntityEnergyLoaderT
         }
     }
 
-    override fun isEnergyFacing(facing: EnumFacing?): Boolean {
+    override fun isEnergyFacing(facing: Direction?): Boolean {
         return facing != blockFacing
     }
 

@@ -3,7 +3,7 @@ package org.jglrxavpok.moarboats.common.entities
 import net.minecraft.block.state.IBlockState
 import net.minecraft.dispenser.IDispenseItemBehavior
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.passive.EntityWaterMob
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
@@ -66,7 +66,7 @@ class AnimalBoatEntity(level: World): BasicBoatEntity(EntityEntries.AnimalBoat, 
 
         for (entity in list) {
             if (!entity.isPassenger(this)) {
-                if (this.passengers.isEmpty() && entity.ridingEntity == null && entity.width < this.width && entity is EntityLivingBase && entity !is EntityWaterMob && entity !is PlayerEntity) {
+                if (this.passengers.isEmpty() && entity.ridingEntity == null && entity.width < this.width && entity is LivingEntity && entity !is EntityWaterMob && entity !is PlayerEntity) {
                     entity.startRiding(this)
                 }
             }
@@ -116,11 +116,11 @@ class AnimalBoatEntity(level: World): BasicBoatEntity(EntityEntries.AnimalBoat, 
         error("Animal boats cannot have inventories!")
     }
 
-    override fun dispense(behavior: IDispenseItemBehavior, stack: ItemStack, overridePosition: BlockPos?, overrideFacing: EnumFacing?): ItemStack {
+    override fun dispense(behavior: IDispenseItemBehavior, stack: ItemStack, overridePosition: BlockPos?, overrideFacing: Direction?): ItemStack {
         return ItemStack.EMPTY
     }
 
-    override fun reorientate(overrideFacing: EnumFacing): EnumFacing {
+    override fun reorientate(overrideFacing: Direction): Direction {
         return overrideFacing
     }
 

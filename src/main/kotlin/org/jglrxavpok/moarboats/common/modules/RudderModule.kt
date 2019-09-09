@@ -1,6 +1,7 @@
 package org.jglrxavpok.moarboats.common.modules
 
 import net.minecraft.client.gui.screen
+import net.minecraft.client.gui.screen.Screen
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.init.Blocks
 import net.minecraft.item.BlockItem
@@ -62,6 +63,6 @@ object RudderModule: BoatModule(), BlockReason {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.entityDropItem(RudderItem, 1)
+            boat.correspondingEntity.spawnAtLocation(RudderItem, 1)
     }
 }

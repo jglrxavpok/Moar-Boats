@@ -89,6 +89,6 @@ object OarEngineModule: BaseEngineModule(), BlockReason {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.entityDropItem(OarsItem, 1)
+            boat.correspondingEntity.spawnAtLocation(OarsItem, 1)
     }
 }

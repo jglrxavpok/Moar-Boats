@@ -95,7 +95,7 @@ object AnimalBoatItem: BaseBoatItem() {
 abstract class BaseBoatItem: Item(Item.Properties().tab(MoarBoats.CreativeTab).maxStackSize(1)) {
 
     override fun onItemRightClick(levelIn: World, playerIn: PlayerEntity, handIn: Hand): ActionResult<ItemStack> {
-        val itemstack = playerIn.getHeldItem(handIn)
+        val itemstack = playerIn.getItemInHand(handIn)
         val f1 = playerIn.prevRotationPitch + (playerIn.rotationPitch - playerIn.prevRotationPitch) * 1.0f
         val f2 = playerIn.prevRotationYaw + (playerIn.rotationYaw - playerIn.prevRotationYaw) * 1.0f
         val d0 = playerIn.prevPosX + (playerIn.posX - playerIn.prevPosX) * 1.0
@@ -112,7 +112,7 @@ abstract class BaseBoatItem: Item(Item.Properties().tab(MoarBoats.CreativeTab).m
         val raytraceresult = levelIn.rayTraceBlocks(vec3d, vec3d1, RayTraceFluidMode.ALWAYS)
 
         if (raytraceresult == null) {
-            return ActionResult(EnumActionResult.PASS, itemstack)
+            return ActionResult(ActionResultType.PASS, itemstack)
         } else {
             val vec3d2 = playerIn.getLook(1.0f)
             val list = levelIn.getEntitiesWithinAABBExcludingEntity(playerIn, playerIn.boundingBox.expand(vec3d2.x * 5.0, vec3d2.y * 5.0, vec3d2.z * 5.0).grow(1.0))
@@ -124,16 +124,16 @@ abstract class BaseBoatItem: Item(Item.Properties().tab(MoarBoats.CreativeTab).m
                     .any { it.contains(vec3d) }
 
             if (flag) {
-                return ActionResult(EnumActionResult.PASS, itemstack)
+                return ActionResult(ActionResultType.PASS, itemstack)
             } else if (raytraceresult.type != RayTraceResult.Type.BLOCK) {
-                return ActionResult(EnumActionResult.PASS, itemstack)
+                return ActionResult(ActionResultType.PASS, itemstack)
             } else {
                 val inUsualFluid = Fluids.isUsualLiquidBlock(levelIn, raytraceresult.blockPos)
                 val entityboat = createBoat(levelIn, raytraceresult, inUsualFluid, itemstack, playerIn)
                 entityboat.rotationYaw = playerIn.rotationYaw
 
                 return if (levelIn.getCollisionBoxes(entityboat, entityboat.boundingBox.grow(-0.1), 0.0, 0.0, 0.0).count() != 0L) {
-                    ActionResult(EnumActionResult.FAIL, itemstack)
+                    ActionResult(ActionResultType.FAIL, itemstack)
                 } else {
                     if (!levelIn.isClientSide) {
                         levelIn.spawnEntity(entityboat)
@@ -144,7 +144,7 @@ abstract class BaseBoatItem: Item(Item.Properties().tab(MoarBoats.CreativeTab).m
                     }
 
                     playerIn.addStat(StatList.ITEM_USED[this])
-                    ActionResult(EnumActionResult.SUCCESS, itemstack)
+                    ActionResult(ActionResultType.SUCCESS, itemstack)
                 }
             }
         }

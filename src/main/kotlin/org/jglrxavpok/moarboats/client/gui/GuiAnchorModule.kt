@@ -16,10 +16,8 @@ class GuiAnchorModule(playerInventory: PlayerInventory, anchor: BoatModule, boat
 
     override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/nothing.png")
 
-    val deployButton = object: Button(0,0,0, 140, 20, "") {
-        override fun onClick(mouseX: Double, mouseY: Double) {
-            MoarBoats.network.sendToServer(CDeployAnchor(boat.entityID, module.id))
-        }
+    val deployButton = Button(0,0, 140, 20, "") {
+        MoarBoats.network.sendToServer(CDeployAnchor(boat.id, module.id))
     }
     val deployedText = TranslationTextComponent("gui.anchor.deployed")
     val undeployedText = TranslationTextComponent("gui.anchor.deploy")
@@ -37,18 +35,18 @@ class GuiAnchorModule(playerInventory: PlayerInventory, anchor: BoatModule, boat
     override fun tick() {
         super.tick()
         if(anchor.anchorDirectionProperty[boat] != 0) {
-            deployButton.displayString = movingAnchorText.formattedText
-            deployButton.enabled = false
+            deployButton.message = movingAnchorText.coloredString
+            deployButton.active = false
         } else {
             val deployText = if(anchor.deployedProperty[boat]) deployedText else undeployedText
-            deployButton.enabled = true
-            deployButton.displayString = deployText.formattedText
+            deployButton.message = deployText.coloredString
+            deployButton.active = true
         }
     }
 
     override fun drawModuleForeground(mouseX: Int, mouseY: Int) {
         super.drawModuleForeground(mouseX, mouseY)
-        font.drawSplitString(descText.formattedText, 0+20, 0+50, imageWidth-40, 0xF0F0F0)
+        font.drawWordWrap(descText.coloredString, 0+20, 0+50, imageWidth-40, 0xF0F0F0)
     }
 
 }

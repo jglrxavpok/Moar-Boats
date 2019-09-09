@@ -19,9 +19,7 @@ import org.jglrxavpok.moarboats.integration.WaypointProviders
 
 class GuiWaypointEditor(val player: PlayerEntity, val te: TileEntityMappingTable, val index: Int) : Screen() {
 
-    init {
-        mc = Minecraft.getInstance() // forces 'mc' to hold a value when initializing the scrolling list below (waypointList)
-    }
+    val mc = Minecraft.getInstance() // forces 'mc' to hold a value when initializing the scrolling list below (waypointList)
 
     private val waypointData = te.inventory.getItem(0).let {
         (it.item as ItemPath).getWaypointData(it, MoarBoats.getLocalMapStorage())[index] as CompoundNBT
@@ -36,32 +34,26 @@ class GuiWaypointEditor(val player: PlayerEntity, val te: TileEntityMappingTable
     private val waypointsText = TranslationTextComponent("moarboats.gui.waypoint_editor.existing_waypoints")
     private val miscText = TranslationTextComponent("moarboats.gui.generic.misc")
     private var id = 0
-    private val xInput by lazy { GuiTextField(id++, font, 0, 0, 100, 20) }
-    private val zInput by lazy { GuiTextField(id++, font, 0, 0, 100, 20) }
-    private val nameInput by lazy { GuiTextField(id++, font, 0, 0, 200, 20) }
+    private val xInput by lazy { GuiTextField(font, 0, 0, 100, 20) }
+    private val zInput by lazy { GuiTextField(font, 0, 0, 100, 20) }
+    private val nameInput by lazy { GuiTextField(font, 0, 0, 200, 20) }
     private val boostSliderCallback = GuiSlider.ISlider { slider ->
 
     }
 
-    private val boostSlider = GuiSlider(id++, 0, 0, 125, 20, "${boostSetting.formattedText}: ", "%", -50.0, 50.0, 0.0, false, true, boostSliderCallback)
-    private val confirmButton = object: Button(id++, 0, 0, confirmText.formattedText) {
-        override fun onClick(mouseX: Double, mouseY: Double) {
-            storeIntoNBT()
-            MoarBoats.network.sendToServer(CModifyWaypoint(te, index, waypointData))
-            mc.displayScreen(GuiMappingTable(te, player.inventory))
-        }
+    private val boostSlider = GuiSlider(0, 0, 125, 20, "${boostSetting.coloredString}: ", "%", -50.0, 50.0, 0.0, false, true, boostSliderCallback)
+    private val confirmButton = Button(0, 0, 150, 20, confirmText.coloredString) {
+        storeIntoNBT()
+        MoarBoats.network.sendToServer(CModifyWaypoint(te, index, waypointData))
+        mc.displayScreen(GuiMappingTable(te, player.inventory))
     }
-    private val cancelButton = object: Button(id++, 0, 0, cancelText.formattedText) {
-        override fun onClick(mouseX: Double, mouseY: Double) {
-            mc.displayScreen(GuiMappingTable(te, player.inventory))
-        }
+    private val cancelButton = Button(0, 0, 150, 20, cancelText.coloredString) {
+        mc.displayScreen(GuiMappingTable(te, player.inventory))
     }
-    private val refreshButton = object: Button(id++, 0, 0, refreshText.formattedText) {
-        override fun onClick(mouseX: Double, mouseY: Double) {
-            refreshList()
-        }
+    private val refreshButton = Button(0, 0, 150, 20, refreshText.coloredString) {
+        refreshList()
     }
-    private val hasBoostCheckbox = GuiCheckBox(id++, 0, 0, hasBoostSetting.formattedText, waypointData.getBoolean("hasBoost"))
+    private val hasBoostCheckbox = GuiCheckBox(0, 0, hasBoostSetting.coloredString, waypointData.getBoolean("hasBoost"))
 
 
     private val intInputs by lazy { listOf(xInput, zInput) }
@@ -153,7 +145,7 @@ class GuiWaypointEditor(val player: PlayerEntity, val te: TileEntityMappingTable
         super.tick()
         refreshButton.visible = WaypointProviders.isNotEmpty()
         boostSlider.updateSlider()
-        boostSlider.enabled = hasBoostCheckbox.isChecked
+        boostSlider.active = hasBoostCheckbox.isChecked
         allInputs.forEach(GuiTextField::tick)
     }
 
@@ -183,17 +175,17 @@ class GuiWaypointEditor(val player: PlayerEntity, val te: TileEntityMappingTable
             it.drawTextField(mouseX, mouseY, partialTicks)
         }
 
-        font.drawCenteredString(TextFormatting.UNDERLINE.toString()+TranslationTextComponent("moarboats.gui.waypoint_editor", nameInput.text).formattedText, width/2, 15, 0xFFFFFF, shadow = true)
-        font.drawCenteredString(TextFormatting.UNDERLINE.toString()+positionTitleText.formattedText, width/2, 75, 0xFFFFFF, shadow = true)
-        font.drawString("X:", xInput.x-10f, xInput.y+xInput.height/2-font.FONT_HEIGHT/2f, 0xFFFFFF)
-        font.drawString("Z:", zInput.x-10f, xInput.y+xInput.height/2-font.FONT_HEIGHT/2f, 0xFFFFFF)
-        font.drawCenteredString(TextFormatting.UNDERLINE.toString()+miscText.formattedText, width/2, 135, 0xFFFFFF, shadow = true)
+        font.drawCenteredString(TextFormatting.UNDERLINE.toString()+TranslationTextComponent("moarboats.gui.waypoint_editor", nameInput.text).coloredString, width/2, 15, 0xFFFFFF, shadow = true)
+        font.drawCenteredString(TextFormatting.UNDERLINE.toString()+positionTitleText.coloredString, width/2, 75, 0xFFFFFF, shadow = true)
+        font.draw("X:", xInput.x-10f, xInput.y+xInput.height/2-font.FONT_HEIGHT/2f, 0xFFFFFF)
+        font.draw("Z:", zInput.x-10f, xInput.y+xInput.height/2-font.FONT_HEIGHT/2f, 0xFFFFFF)
+        font.drawCenteredString(TextFormatting.UNDERLINE.toString()+miscText.coloredString, width/2, 135, 0xFFFFFF, shadow = true)
 
         GlStateManager.pushMatrix()
         GlStateManager.translatef((width-(width*.2f)/2f), 20f, 0f)
         val scale = 0.75f
         GlStateManager.scalef(scale, scale, 1f)
-        font.drawCenteredString(waypointsText.formattedText, 0, 0, 0xFFFFFF, shadow = true)
+        font.drawCenteredString(waypointsText.coloredString, 0, 0, 0xFFFFFF, shadow = true)
         GlStateManager.popMatrix()
     }
 

@@ -19,6 +19,7 @@ import net.minecraft.world.dimension.DimensionType
 import net.minecraft.world.storage.DimensionSavedDataManager
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.event.RegistryEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.DistExecutor
@@ -119,6 +120,7 @@ object MoarBoats {
         FMLKotlinModLoadingContext.get().modEventBus.addListener { event: FMLLoadCompleteEvent -> postLoad(event) }
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, MoarBoatsConfig.spec)
 
+        MinecraftForge.EVENT_BUS.register(MoarBoatsGuiHandler)
         plugins = LoadIntegrationPlugins()
     }
 
@@ -128,8 +130,7 @@ object MoarBoats {
                     // client
                     { Supplier {  ->
                         when {
-                            Minecraft.getInstance().singleplayerServer == null /* Client only */ -> Minecraft.getInstance().level.savedDataStorage!!
-                            Minecraft.getInstance().singleplayerServer != null /* LAN */ -> Minecraft.getInstance().singleplayerServer!!.getLevel(dimensionType).savedDataStorage!!
+                            Minecraft.getInstance().singleplayerServer != null /* LAN */ -> Minecraft.getInstance().singleplayerServer!!.getLevel(dimensionType).dataStorage
 
                             else -> throw IllegalStateException("The server instance is neither non-null nor null. Something deeply broke somewhere")
                         }
@@ -137,7 +138,7 @@ object MoarBoats {
 
                     // server
                     { Supplier<DimensionSavedDataManager> { ->
-                        dedicatedServerInstance!!.getLevel(dimensionType).savedDataStorage!!
+                        dedicatedServerInstance!!.getLevel(dimensionType).dataStorage
                     }}
             )
         } catch (e: Throwable) {
@@ -151,9 +152,9 @@ object MoarBoats {
         DataSerializers.registerSerializer(ResourceLocationsSerializer)
         DataSerializers.registerSerializer(UniqueIDSerializer)
         plugins.forEach(MoarBoatsPlugin::init)
-        ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.GUIFACTORY) {
+/*        ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.GUIFACTORY) {
             Function<FMLPlayMessages.OpenContainer, Screen?> { container: FMLPlayMessages.OpenContainer -> MoarBoatsGuiHandler.dispatchGui(container) }
-        }
+        }*/
     }
 
     fun postLoad(event: FMLLoadCompleteEvent) {

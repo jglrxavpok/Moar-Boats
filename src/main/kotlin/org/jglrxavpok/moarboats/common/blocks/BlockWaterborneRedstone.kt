@@ -1,17 +1,14 @@
 package org.jglrxavpok.moarboats.common.blocks
 
-import net.minecraft.block.Block
-import net.minecraft.block.BlockHorizontal
-import net.minecraft.block.BlockRedstoneDiode
-import net.minecraft.block.SoundType
+import net.minecraft.block.*
 import net.minecraft.block.material.Material
 import net.minecraft.block.state.IBlockState
-import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.LivingEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.state.StateContainer
 import net.minecraft.tags.FluidTags
 import net.minecraft.util.BlockRenderLayer
-import net.minecraft.util.EnumFacing
+import net.minecraft.util.Direction
 import net.minecraft.util.IItemProvider
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
@@ -23,14 +20,14 @@ import net.minecraft.world.World
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.items.WaterborneConductorItem
 
-object BlockWaterborneConductor: BlockRedstoneDiode(Block.Properties.create(Material.CIRCUITS).hardnessAndResistance(0f).sound(SoundType.WOOD)) {
+object BlockWaterborneConductor: RedstoneDiodeBlock(Block.Properties.create(Material.CIRCUITS).hardnessAndResistance(0f).sound(SoundType.WOOD)) {
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "waterborne_redstone")
-        this.defaultState = this.stateContainer.baseState.with(BlockHorizontal.HORIZONTAL_FACING, EnumFacing.NORTH).with(POWERED, false)
+        this.defaultState = this.stateContainer.baseState.with(BlockHorizontal.HORIZONTAL_FACING, Direction.NORTH).with(POWERED, false)
     }
 
-    override fun canConnectRedstone(state: IBlockState?, level: IBlockReader?, pos: BlockPos?, side: EnumFacing?): Boolean {
-        return state != null && side != null && side != EnumFacing.DOWN && side != EnumFacing.UP && (side == state.get(BlockHorizontal.HORIZONTAL_FACING) || side == state.get(HORIZONTAL_FACING).opposite)
+    override fun canConnectRedstone(state: IBlockState?, level: IBlockReader?, pos: BlockPos?, side: Direction?): Boolean {
+        return state != null && side != null && side != Direction.DOWN && side != Direction.UP && (side == state.get(BlockHorizontal.HORIZONTAL_FACING) || side == state.get(HORIZONTAL_FACING).opposite)
     }
 
     override fun getCollisionShape(state: IBlockState, levelIn: IBlockReader, pos: BlockPos): VoxelShape {
@@ -74,7 +71,7 @@ object BlockWaterborneConductor: BlockRedstoneDiode(Block.Properties.create(Mate
     /**
      * Called by BlockItems after a block is set in the level, to allow post-place logic
      */
-    override fun onBlockPlacedBy(levelIn: World, pos: BlockPos, state: IBlockState, placer: EntityLivingBase?, stack: ItemStack) {
+    override fun onBlockPlacedBy(levelIn: World, pos: BlockPos, state: IBlockState, placer: LivingEntity?, stack: ItemStack) {
         super.onBlockPlacedBy(levelIn, pos, state, placer, stack)
     }
 

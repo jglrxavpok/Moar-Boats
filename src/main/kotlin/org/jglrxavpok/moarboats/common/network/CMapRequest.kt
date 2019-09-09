@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.common.network
 
+import net.minecraft.item.FilledMapItem
 import net.minecraft.item.MapItem
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.api.distmarker.Dist
@@ -33,9 +34,9 @@ class CMapRequest(): MoarBoatsPacket {
             val stack = boat.getInventory(module).getItem(0)
             val item = stack.item as? MapItem ?: return null // Got request while there was no map!
             val mapName = message.mapName
-            val mapdata = MapItem.getMapData(stack, boat.levelRef)!!
+            val mapdata = FilledMapItem.getSavedData(stack, boat.worldRef)!!
             val packet = SMapAnswer(mapName, message.boatID, message.moduleLocation)
-            mapdata.write(packet.mapData)
+            mapdata.save(packet.mapData)
             module as HelmModule
             module.receiveMapData(boat, mapdata)
             return packet

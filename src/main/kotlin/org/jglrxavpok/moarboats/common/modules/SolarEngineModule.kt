@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.common.modules
 
+import net.minecraft.block.Blocks
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.init.Blocks
 import net.minecraft.inventory.IInventory
@@ -37,7 +38,7 @@ object SolarEngineModule : BaseEngineModule() {
     }
 
     override fun remainingTimeInPercent(from: IControllable): Float {
-        val levelIn = from.levelRef
+        val levelIn = from.worldRef
         val pos = from.correspondingEntity.position
         var diff = levelIn.getLightFor(EnumLightType.SKY, pos) - levelIn.skylightSubtracted
         var angle = levelIn.getCelestialAngleRadians(1.0f)
@@ -56,7 +57,7 @@ object SolarEngineModule : BaseEngineModule() {
     }
 
     override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean): Boolean {
-        if(sneaking && player.getHeldItem(hand).isEmpty) {
+        if(sneaking && player.getItemInHand(hand).isEmpty) {
             invertedProperty[from] = !invertedProperty[from]
             return true
         }
@@ -77,7 +78,7 @@ object SolarEngineModule : BaseEngineModule() {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.entityDropItem(BlockItem.getItemFromBlock(Blocks.DAYLIGHT_DETECTOR), 1)
+            boat.correspondingEntity.spawnAtLocation(Blocks.DAYLIGHT_DETECTOR.asItem(), 1)
     }
 
 }

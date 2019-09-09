@@ -1,10 +1,11 @@
 package org.jglrxavpok.moarboats.common.modules
 
+import net.minecraft.block.Blocks
 import net.minecraft.client.gui.screen
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.init.Blocks
 import net.minecraft.item.BlockItem
-import net.minecraft.util.EnumFacing
+import net.minecraft.util.Direction
 import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
@@ -116,13 +117,13 @@ object AnchorModule: BoatModule(), BlockReason {
             anchorXProperty[boat] = boat.positionX
             anchorYProperty[boat] = boat.positionY
             anchorZProperty[boat] = boat.positionZ
-            player.sendStatusMessage(spawnPointSet, true)
+            player.sendMessage(spawnPointSet, true)
             player.setSpawnPoint(boat.correspondingEntity.position, true)
         }
     }
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.entityDropItem(BlockItem.getItemFromBlock(Blocks.ANVIL), 1)
+            boat.correspondingEntity.spawnAtLocation(Blocks.ANVIL.asItem(), 1)
     }
 }

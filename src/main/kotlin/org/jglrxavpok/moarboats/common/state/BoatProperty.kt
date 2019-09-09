@@ -97,13 +97,13 @@ class MapDataProperty(module: BoatModule, id: String): BoatProperty<MapData>(mod
         else {
             val name = this.getString("mapName")
             val data = this.getCompound("mapData")
-            MapData(name).apply { read(data) }
+            MapData(name).apply { load(data) }
         }
     }
 
     override val writeProperty: CompoundNBT.(String, MapData) -> Unit = { id, mapData ->
-        putString("mapName", mapData.name)
-        val mapDataNBT = mapData.write(CompoundNBT())
+        putString("mapName", mapData.id)
+        val mapDataNBT = mapData.save(CompoundNBT())
         put("mapData", mapDataNBT)
     }
 }

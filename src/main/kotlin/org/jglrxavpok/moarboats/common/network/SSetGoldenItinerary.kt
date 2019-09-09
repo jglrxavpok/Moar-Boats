@@ -23,7 +23,7 @@ class SSetGoldenItinerary(): MoarBoatsPacket {
 
         override fun onMessage(message: SSetGoldenItinerary, ctx: NetworkEvent.Context): MoarBoatsPacket? {
             val mapStorage: DimensionSavedDataManager = MoarBoats.getLocalMapStorage()
-            mapStorage.set(DimensionType.OVERlevel, message.data.uuid, message.data)
+            mapStorage.set(message.data)
             message.data.isDirty = true
 
             val mc = Minecraft.getInstance()

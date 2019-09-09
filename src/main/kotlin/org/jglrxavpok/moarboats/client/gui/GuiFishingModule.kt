@@ -21,7 +21,7 @@ class GuiFishingModule(playerInventory: PlayerInventory, fishingModule: BoatModu
     override fun drawModuleForeground(mouseX: Int, mouseY: Int) {
         super.drawModuleForeground(mouseX, mouseY)
         if(!fishingModule.readyProperty[boat]) {
-            drawCenteredString(font, missingStorage.formattedText, imageWidth/2, 20, 0xFF4040)
+            drawCenteredString(font, missingStorage.coloredString, imageWidth/2, 20, 0xFF4040)
         }
     }
 }

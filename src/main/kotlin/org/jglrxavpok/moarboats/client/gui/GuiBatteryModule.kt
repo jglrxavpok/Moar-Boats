@@ -3,6 +3,7 @@ package org.jglrxavpok.moarboats.client.gui
 import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.util.ResourceLocation
+import net.minecraftforge.fml.client.config.GuiUtils.drawTexturedModalRect
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable

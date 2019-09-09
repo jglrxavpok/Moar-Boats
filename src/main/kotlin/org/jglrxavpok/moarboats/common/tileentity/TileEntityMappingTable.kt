@@ -6,7 +6,7 @@ import net.minecraft.inventory.ItemStackHelper
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.EnumFacing
+import net.minecraft.util.Direction
 import net.minecraft.util.NonNullList
 import net.minecraft.util.text.StringTextComponent
 import net.minecraftforge.common.capabilities.Capability
@@ -17,7 +17,7 @@ import org.jglrxavpok.moarboats.MoarBoats
 
 class TileEntityMappingTable: TileEntity(MoarBoats.TileEntityMappingTableType) {
 
-    val inventory = Inventory(StringTextComponent("mapping_table"), 1)
+    val inventory = Inventory(1)
     val invWrapper = InvWrapper(inventory)
 
     override fun save(compound: CompoundNBT): CompoundNBT {
@@ -39,7 +39,7 @@ class TileEntityMappingTable: TileEntity(MoarBoats.TileEntityMappingTableType) {
         }
     }
 
-    override fun <T> getCapability(capability: net.minecraftforge.common.capabilities.Capability<T>, facing: net.minecraft.util.EnumFacing?): LazyOptional<T> {
+    override fun <T> getCapability(capability: net.minecraftforge.common.capabilities.Capability<T>, facing: net.minecraft.util.Direction?): LazyOptional<T> {
         if (capability === net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
             return LazyOptional.of { invWrapper }.cast()
         }

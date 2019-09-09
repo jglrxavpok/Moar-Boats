@@ -82,7 +82,7 @@ object HelmModule: BoatModule(), BlockReason {
             val stack = boat.getInventory().getItem(0)
             if(!stack.isEmpty && stack.item is MapItem) {
                 val id = stack.damage
-                MoarBoats.network.sendToServer(CMapRequest("map_$id", boat.entityID, this.id))
+                MoarBoats.network.sendToServer(CMapRequest("map_$id", boat.id, this.id))
             }
         }
     }
@@ -160,11 +160,11 @@ object HelmModule: BoatModule(), BlockReason {
         }
         val mapdata = mapDataCopyProperty[boat]
         if (!boat.worldRef.isClientSide) {
-            xCenterProperty[boat] = mapdata.xCenter
-            zCenterProperty[boat] = mapdata.zCenter
+            xCenterProperty[boat] = mapdata.x
+            zCenterProperty[boat] = mapdata.z
         } else if(mapdata == EmptyMapData || boat.correspondingEntity.tickCount % MapUpdatePeriod == 0) {
             val id = stack.damage
-            MoarBoats.network.sendToServer(CMapRequest("map_$id", boat.entityID, this.id))
+            MoarBoats.network.sendToServer(CMapRequest("map_$id", boat.id, this.id))
         }
     }
 
@@ -310,7 +310,7 @@ object HelmModule: BoatModule(), BlockReason {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.entityDropItem(HelmItem, 1)
+            boat.correspondingEntity.spawnAtLocation(HelmItem, 1)
     }
 
     fun receiveMapData(boat: IControllable, data: MapData) {
@@ -319,7 +319,7 @@ object HelmModule: BoatModule(), BlockReason {
 
     fun removeWaypoint(boat: IControllable, index: Int) {
         val waypointsData = waypointsProperty[boat]
-        waypointsData.removeTag(index)
+        waypointsData.removeAt(index)
     }
 
     @OnlyIn(Dist.CLIENT)

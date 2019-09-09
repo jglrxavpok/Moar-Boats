@@ -32,7 +32,7 @@ class GuiTankModule(playerInventory: PlayerInventory, module: BoatModule, boat: 
         val localY = mouseY - guiTop
         if(localX in 60..(60+55) && localY in 6..(6+75)) {
             val fluidName = tankModule.getFluidInside(boat)?.getLocalizedName(tankModule.getContents(boat)!!) ?: "nothing"
-            drawHoveringText(TranslationTextComponent(MoarBoats.ModID+".tank_level", tankModule.getFluidAmount(boat), tankModule.getCapacity(boat), fluidName).formattedText, localX, localY)
+            drawHoveringText(TranslationTextComponent(MoarBoats.ModID+".tank_level", tankModule.getFluidAmount(boat), tankModule.getCapacity(boat), fluidName).coloredString, localX, localY)
         }
     }
 

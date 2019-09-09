@@ -7,7 +7,7 @@ import net.minecraft.entity.player.PlayerEntityMP
 import net.minecraft.inventory.container.Container
 import net.minecraft.inventory.InventoryHelper
 import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.EnumFacing
+import net.minecraft.util.Direction
 import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
@@ -18,7 +18,7 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 
-object BlockMappingTable: MoarBoatsBlock({ sound(SoundType.STONE).hardnessAndResistance(2.5f, 20f)}) {
+object BlockMappingTable: MoarBoatsBlock({ sound(SoundType.STONE).strength(2.5f, 20f)}) {
 
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "mapping_table")
@@ -57,7 +57,7 @@ object BlockMappingTable: MoarBoatsBlock({ sound(SoundType.STONE).hardnessAndRes
         } ?: 0
     }
 
-    override fun onBlockActivated(state: IBlockState, levelIn: World, pos: BlockPos, playerIn: PlayerEntity, hand: Hand?, facing: EnumFacing?, hitX: Float, hitY: Float, hitZ: Float): Boolean {
+    override fun onBlockActivated(state: IBlockState, levelIn: World, pos: BlockPos, playerIn: PlayerEntity, hand: Hand?, facing: Direction?, hitX: Float, hitY: Float, hitZ: Float): Boolean {
         if(levelIn.isClientSide) {
             return true
         }

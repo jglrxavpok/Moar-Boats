@@ -27,7 +27,7 @@ object FluidTankModule: BoatModule(), IFluidBoatModule {
     override val fluidAmountProperty = IntBoatProperty("fluid_amount")
 
     override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean): Boolean {
-        val heldItem = player.getHeldItem(hand)
+        val heldItem = player.getItemInHand(hand)
         if(heldItem.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null)) {
             val capability = heldItem.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null)
             capability?.let {

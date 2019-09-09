@@ -2,9 +2,10 @@ package org.jglrxavpok.moarboats.client
 
 import net.minecraft.client.Minecraft
 import com.mojang.blaze3d.platform.GlStateManager
+import net.minecraft.client.entity.player.AbstractClientPlayerEntity
 import net.minecraft.client.renderer.entity.PlayerRenderer
 import net.minecraft.client.renderer.entity.layers.LayerRenderer
-import net.minecraft.entity.EntityLivingBase
+import net.minecraft.client.renderer.entity.model.PlayerModel
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.util.Hand
 import net.minecraft.util.HandSide
@@ -14,28 +15,29 @@ import org.jglrxavpok.moarboats.client.models.ModelPatreonHook
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 
 // based on LayerHeldItem
-class MoarBoatsPatreonHookLayer(val PlayerRenderer: PlayerRenderer) : LayerRenderer<EntityLivingBase> {
+class MoarBoatsPatreonHookLayer(val playerRenderer: PlayerRenderer) : LayerRenderer<AbstractClientPlayerEntity, PlayerModel<AbstractClientPlayerEntity>>(playerRenderer) {
+
     val hookModel = ModelPatreonHook()
     val hookTextureLocation = ResourceLocation(MoarBoats.ModID, "textures/hook.png")
 
-    override fun shouldCombineTextures(): Boolean {
-        return false
+    override fun colorsOnDamage(): Boolean {
+        return true
     }
 
-    override fun render(entitylivingbaseIn: EntityLivingBase, limbSwing: Float, limbSwingAmount: Float, partialTicks: Float, ageInTicks: Float, netHeadYaw: Float, headPitch: Float, scale: Float) {
+    override fun render(player: AbstractClientPlayerEntity, limbSwing: Float, limbSwingAmount: Float, partialTicks: Float, ageInTicks: Float, netHeadYaw: Float, headPitch: Float, scale: Float) {
         if(MoarBoatsConfig.misc.hidePatreonHook.get()) {
             return
         }
-        if((entitylivingbaseIn as PlayerEntity).gameProfile.id.toString().toLowerCase() !in MoarBoats.PatreonList) {
+        if((player as PlayerEntity).gameProfile.id.toString().toLowerCase() !in MoarBoats.PatreonList) {
             return
         }
 
-        if( ! entitylivingbaseIn.getHeldItem(Hand.MAIN_HAND).isEmpty)
+        if( ! player.getItemInHand(Hand.MAIN_HAND).isEmpty)
             return // don't show for non-empty hands
         GlStateManager.pushMatrix()
 
-        val handSide = entitylivingbaseIn.primaryHand
-        if (entitylivingbaseIn.isSneaking) {
+        val handSide = player.mainArm
+        if (player.isSneaking) {
             GlStateManager.translatef(0.0f, 0.2f, 0.0f)
         }
         this.translateToHand(handSide)
@@ -50,11 +52,11 @@ class MoarBoatsPatreonHookLayer(val PlayerRenderer: PlayerRenderer) : LayerRende
         GlStateManager.rotatef(90f, 1f, 0f, 0f)
         GlStateManager.translatef(0f, -0.01f, 0.4f)
         Minecraft.getInstance().textureManager.bind(hookTextureLocation)
-        hookModel.render(entitylivingbaseIn, 0f, 0f, 0f, 0f, 0f, 1f/16f)
+        hookModel.render(player, 0f, 0f, 0f, 0f, 0f, 1f/16f)
         GlStateManager.popMatrix()
     }
 
     protected fun translateToHand(p_191361_1_: HandSide) {
-        PlayerRenderer.model.postRenderArm(0.0625f, p_191361_1_)
+        playerRenderer.model.translateToHand(0.0625f, p_191361_1_)
     }
 }

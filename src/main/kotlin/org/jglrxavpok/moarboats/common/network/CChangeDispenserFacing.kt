@@ -1,6 +1,6 @@
 package org.jglrxavpok.moarboats.common.network
 
-import net.minecraft.util.EnumFacing
+import net.minecraft.util.Direction
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.fml.network.NetworkEvent
@@ -13,9 +13,9 @@ class CChangeDispenserFacing(): MoarBoatsPacket {
 
     private var boatID = 0
     private var moduleID = ResourceLocation(MoarBoats.ModID, "none")
-    private var facing = EnumFacing.SOUTH
+    private var facing = Direction.SOUTH
 
-    constructor(boatID: Int, moduleID: ResourceLocation, facing: EnumFacing): this() {
+    constructor(boatID: Int, moduleID: ResourceLocation, facing: Direction): this() {
         this.boatID = boatID
         this.moduleID = moduleID
         this.facing = facing
@@ -27,7 +27,7 @@ class CChangeDispenserFacing(): MoarBoatsPacket {
 
         override fun onMessage(message: CChangeDispenserFacing, ctx: NetworkEvent.Context): MoarBoatsPacket? {
             val player = ctx.sender!!
-            val world = player.world
+            val world = player.level
             val boat = world.getEntity(message.boatID) as? ModularBoatEntity ?: return null
             val moduleLocation = message.moduleID
             val module = BoatModuleRegistry[moduleLocation].module

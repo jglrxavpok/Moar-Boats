@@ -78,7 +78,7 @@ interface MoarBoatsPacket {
                 val list = field.getter.call(packet) as List<ItemStack>
                 buffer.writeInt(list.size)
                 val nbt = CompoundNBT()
-                val tmpList = NonNullList.from(ItemStack.EMPTY, *list.toTypedArray())
+                val tmpList = NonNullList.of(ItemStack.EMPTY, *list.toTypedArray())
                 ItemStackHelper.saveAllItems(nbt, tmpList)
                 buffer.writeNbt(nbt)
                 return
@@ -135,8 +135,8 @@ interface MoarBoatsPacket {
                     buffer.writeUtf(path)
                 }
 
-                EnumFacing::class.java -> {
-                    buffer.writeInt((value as EnumFacing).ordinal)
+                Direction::class.java -> {
+                    buffer.writeInt((value as Direction).ordinal)
                 }
 
                 SoundEvent::class.java -> {
@@ -245,8 +245,8 @@ interface MoarBoatsPacket {
                     ResourceLocation(buffer.readUtf(200))
                 }
 
-                EnumFacing::class.java -> {
-                    EnumFacing.values()[buffer.readInt() % EnumFacing.values().size]
+                Direction::class.java -> {
+                    Direction.values()[buffer.readInt() % Direction.values().size]
                 }
 
                 SoundEvent::class.java -> {

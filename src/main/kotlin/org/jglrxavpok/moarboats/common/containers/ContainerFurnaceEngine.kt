@@ -29,8 +29,8 @@ class ContainerFurnaceEngine(playerInventory: PlayerInventory, val engine: BoatM
         listener.sendAllWindowProperties(this, engineInventory)
     }
 
-    override fun detectAndSendChanges() {
-        super.detectAndSendChanges()
+    override fun broadcastChanges() {
+        super.broadcastChanges()
 
         for(listener in listeners) {
             if (this.fuelTotalTime != this.engineInventory.getField(0)) {

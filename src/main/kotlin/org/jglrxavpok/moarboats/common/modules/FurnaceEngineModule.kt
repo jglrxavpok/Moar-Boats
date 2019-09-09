@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.common.modules
 
+import net.minecraft.block.Blocks
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.init.Blocks
 import net.minecraft.item.Items
@@ -126,6 +127,6 @@ object FurnaceEngineModule : BaseEngineModule() {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.entityDropItem(BlockItem.getItemFromBlock(Blocks.FURNACE), 1)
+            boat.correspondingEntity.spawnAtLocation(Blocks.FURNACE.asItem(), 1)
     }
 }

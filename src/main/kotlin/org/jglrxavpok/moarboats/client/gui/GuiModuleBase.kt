@@ -7,6 +7,7 @@ import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.client.network.NetworkPlayerInfo
 import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.client.gui.screen.inventory.ContainerScreen
+import net.minecraft.client.network.play.NetworkPlayerInfo
 import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.client.resources.DefaultPlayerSkin
 import net.minecraft.entity.player.PlayerInventory
@@ -16,6 +17,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.StringTextComponent
 import net.minecraft.util.text.TranslationTextComponent
+import net.minecraftforge.fml.client.config.GuiUtils.drawTexturedModalRect
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.network.COpenModuleGui
 import org.jglrxavpok.moarboats.api.BoatModule
@@ -83,7 +85,7 @@ abstract class GuiModuleBase<T: Container>(val module: BoatModule, val boat: ICo
         if(hoveredTabIndex != -1) {
             if(tabs[hoveredTabIndex].tabModule == module) {
                 mc.soundManager.play(SimpleSound.forUI(SoundEvents.UI_BUTTON_CLICK, 0.5f))
-                MoarBoats.network.sendToServer(CRemoveModule(boat.entityID, module.id))
+                MoarBoats.network.sendToServer(CRemoveModule(boat.id, module.id))
                 return true
             }
         }
@@ -96,7 +98,7 @@ abstract class GuiModuleBase<T: Container>(val module: BoatModule, val boat: ICo
             val tab = tabs[hoveredTabIndex]
             if(tab.tabModule != module) {
                 mc.soundManager.play(SimpleSound.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0f))
-                MoarBoats.network.sendToServer(COpenModuleGui(boat.entityID, tab.tabModule.id))
+                MoarBoats.network.sendToServer(COpenModuleGui(boat.id, tab.tabModule.id))
                 return true
             }
         }
@@ -107,17 +109,17 @@ abstract class GuiModuleBase<T: Container>(val module: BoatModule, val boat: ICo
      * Draw the foreground layer for the GuiContainer (everything in front of the items)
      */
     override fun drawGuiContainerForegroundLayer(mouseX: Int, mouseY: Int) {
-        val s = title.formattedText
+        val s = title.coloredString
         if(shouldRenderInventoryName)
-            this.font.drawString(s, (this.imageWidth / 2 - this.font.getStringWidth(s) / 2).toFloat(), 6f, 4210752)
+            this.font.draw(s, (this.imageWidth / 2 - this.font.width(s) / 2).toFloat(), 6f, 4210752)
         if(PlayerRendererInventoryName)
-            this.font.drawString(playerInventory.displayName.formattedText, 8f, this.imageHeight - 96 + 2f, 4210752)
+            this.font.draw(playerInventory.displayName.coloredString, 8f, this.imageHeight - 96 + 2f, 4210752)
         drawModuleForeground(mouseX, mouseY)
 
         if(mouseX in (guiLeft-24)..guiLeft && mouseY in (guiTop+3)..(guiTop+26)) {
             if(boat.getOwnerNameOrNull() != null) {
                 drawHoveringText(
-                        TranslationTextComponent(LockedByOwner.key, boat.getOwnerNameOrNull()).formattedText,
+                        TranslationTextComponent(LockedByOwner.key, boat.getOwnerNameOrNull()).coloredString,
                         mouseX-guiLeft,
                         mouseY-guiTop)
             }
@@ -153,10 +155,10 @@ abstract class GuiModuleBase<T: Container>(val module: BoatModule, val boat: ICo
         val ownerUUID = boat.getOwnerIdOrNull()
         if(ownerUUID != null) {
             mc.textureManager.bind(BACKGROUND_TEXTURE)
-            this.drawTexturedModalRect(i-21, j+3, 176, 57, 24, 26)
+            drawTexturedModalRect(i-21, j+3, 176, 57, 24, 26)
             val info: NetworkPlayerInfo? = Minecraft.getInstance().connection!!.getPlayerInfo(ownerUUID)
             if(info != null) {
-                mc.textureManager.bind(info.locationSkin)
+                mc.textureManager.bind(info.skinLocation)
             } else {
                 val skinLocation = DefaultPlayerSkin.getDefaultSkin(ownerUUID)
                 mc.textureManager.bind(skinLocation)
@@ -170,7 +172,7 @@ abstract class GuiModuleBase<T: Container>(val module: BoatModule, val boat: ICo
 
         GlStateManager.color4f(1.0f, 1.0f, 1.0f, 1.0f)
         mc.textureManager.bind(moduleBackground)
-        this.drawTexturedModalRect(i, j, 0, 0, this.imageWidth, imageHeight)
+        drawTexturedModalRect(i, j, 0, 0, this.imageWidth, imageHeight)
 
         drawModuleBackground(mouseX, mouseY)
     }
@@ -193,7 +195,7 @@ abstract class GuiModuleBase<T: Container>(val module: BoatModule, val boat: ICo
 
             zLevel = 100.0f
             itemRender.zLevel = 100.0f
-            RenderHelper.enableGUIStandardItemLighting()
+            RenderHelper.turnOnGui()
             GlStateManager.color3f(1f, 1f, 1f)
             val itemstack = ItemStack(BoatModuleRegistry[tabModule.id].correspondingItem)
             val itemX = width/2 - 10 + x + 1

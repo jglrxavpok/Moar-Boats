@@ -29,7 +29,7 @@ abstract class TileEntityListenable(tileEntityType: TileEntityType<out TileEntit
         listenersToAdd.clear()
         listenersToRemove.clear()
         for(listener in listeners) {
-            listener.detectAndSendChanges()
+            listener.broadcastChanges()
         }
     }
 

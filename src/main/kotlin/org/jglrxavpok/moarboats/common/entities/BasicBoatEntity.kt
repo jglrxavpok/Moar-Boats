@@ -6,7 +6,7 @@ import net.minecraft.crash.CrashReport
 import net.minecraft.crash.CrashReportCategory
 import net.minecraft.crash.ReportedException
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EntityLeashKnot
+import net.minecraft.entity.LeashKnotEntity
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.MoverType
 import net.minecraft.entity.item.EntityItem
@@ -88,7 +88,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, level: Wor
     protected var blockedRotation = false
     protected var blockedMotion = false
     override var blockedReason: BlockReason = NoBlockReason
-    override val levelRef: World
+    override val worldRef: World
         get() = this.level
     override val positionX: Double
         get() = posX
@@ -403,7 +403,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, level: Wor
      * Gets the horizontal facing direction of this Entity, adjusted to take specially-treated entity types into
      * account.
      */
-    override fun getAdjustedHorizontalFacing(): EnumFacing {
+    override fun getAdjustedHorizontalFacing(): Direction {
         return this.horizontalFacing.rotateY()
     }
 
@@ -718,12 +718,12 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, level: Wor
                 currentLinks[linkType] = Optional.of(other.boatID)
                 currentLinkTypes[linkType] = BoatLink
                 currentKnotLocations[linkType] = Optional.empty()
-            } else if(other is EntityLeashKnot) {
+            } else if(other is LeashKnotEntity) {
                 currentLinks[linkType] = Optional.empty()
                 currentLinkTypes[linkType] = KnotLink
                 currentKnotLocations[linkType] = Optional.of(other.hangingPosition)
             }
-            dataManager.set(LINKS_RUNTIME[linkType], other.entityId)
+            dataManager.set(LINKS_RUNTIME[linkType], other.id)
         }
         links = listOf(*currentLinks)
         linkEntityTypes = listOf(*currentLinkTypes)
@@ -846,7 +846,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, level: Wor
     override fun processInitialInteract(player: PlayerEntity, hand: Hand): Boolean {
         if(level.isClientSide)
             return true
-        val itemstack = player.getHeldItem(hand)
+        val itemstack = player.getItemInHand(hand)
         if(canStartRiding(player, itemstack, hand)) {
             if (!this.level.isClientSide) {
                 player.startRiding(this)
@@ -872,9 +872,9 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, level: Wor
         return null
     }
 
-    private fun getKnotLinkedTo(side: Int): EntityLeashKnot? {
+    private fun getKnotLinkedTo(side: Int): LeashKnotEntity? {
         val location = knotLocations[side]
-        return EntityLeashKnot.getKnotForPosition(level, location.get()) ?: EntityLeashKnot.createKnot(level, location.get())
+        return LeashKnotEntity.getKnotForPosition(level, location.get()) ?: LeashKnotEntity.createKnot(level, location.get())
     }
 
     private fun getBoatLinkedTo(side: Int): BasicBoatEntity? {
@@ -897,7 +897,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, level: Wor
         val correspondingBoat = level.getEntities(BasicBoatEntity::class.java) { entity ->
             entity?.boatID == boatID ?: false
         }.firstOrNull()
-        val id = correspondingBoat?.entityId ?: NoLinkFound
+        val id = correspondingBoat?.id ?: NoLinkFound
         dataManager.set(LINKS_RUNTIME[side], id)
         return id
     }

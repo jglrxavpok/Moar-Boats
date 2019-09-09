@@ -2,11 +2,11 @@ package org.jglrxavpok.moarboats.client.gui
 
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.widget.button.Button
-import net.minecraft.client.gui.inventory.GuiContainer
+import net.minecraft.client.gui.screen.inventory.ContainerScreen
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.inventory.container.Container
-import net.minecraft.inventory.IContainerListener
 import net.minecraft.inventory.IInventory
+import net.minecraft.inventory.container.IContainerListener
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.nbt.ListNBT
@@ -23,16 +23,14 @@ import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.network.*
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 
-class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: PlayerInventory): GuiContainer<ContainerMappingTable>(ContainerMappingTable(te, playerInv)), IContainerListener {
+class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: PlayerInventory): ContainerScreen<ContainerMappingTable>(ContainerMappingTable(te, playerInv), playerInv, null/*TODO*/), IContainerListener {
 
     companion object {
         private val EmptyBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/helm.png")
         private val Background = ResourceLocation(MoarBoats.ModID, "textures/gui/default_background_large.png")
     }
 
-    init {
-        mc = Minecraft.getInstance()
-    }
+    private val mc = Minecraft.getInstance()
 
     private val addWaypointText = TranslationTextComponent("moarboats.gui.mapping_table.add")
     private val insertWaypointText = TranslationTextComponent("moarboats.gui.mapping_table.insert")
@@ -42,44 +40,34 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: PlayerInven
     private val propertyOneWayText = TranslationTextComponent("gui.path_editor.path_properties.one_way")
     private val propertyReverseCourseText = TranslationTextComponent("gui.path_editor.path_properties.reverse_course")
     private var buttonId = 0
-    private val addWaypointButton = object: Button(buttonId++, 0, 0, addWaypointText.formattedText) {
-        override fun onClick(mouseX: Double, mouseY: Double) {
-            waypointToEditAfterCreation = list.children.size
-            if(inventorySlots.getSlot(0).item.item == ItemGoldenTicket) {
-                MoarBoats.network.sendToServer(CAddWaypointToGoldenTicketFromMappingTable(te.pos, null, null, te))
-            } else {
-                MoarBoats.network.sendToServer(CAddWaypointToItemPathFromMappingTable(te.pos, null, null, te))
-            }
+    private val addWaypointButton = Button(0, 0, 150, 20, addWaypointText.coloredString) {
+        waypointToEditAfterCreation = list.children.size
+        if(inventorySlots.getSlot(0).item.item == ItemGoldenTicket) {
+            MoarBoats.network.sendToServer(CAddWaypointToGoldenTicketFromMappingTable(te.pos, null, null, te))
+        } else {
+            MoarBoats.network.sendToServer(CAddWaypointToItemPathFromMappingTable(te.pos, null, null, te))
         }
     }
-    private val insertWaypointButton = object: Button(buttonId++, 0, 0, insertWaypointText.formattedText) {
-        override fun onClick(mouseX: Double, mouseY: Double) {
-            waypointToEditAfterCreation = selectedIndex+1
-            if(inventorySlots.getSlot(0).item.item == ItemGoldenTicket) {
-                MoarBoats.network.sendToServer(CAddWaypointToGoldenTicketFromMappingTable(te.pos, null, selectedIndex, te))
-            } else {
-                MoarBoats.network.sendToServer(CAddWaypointToItemPathFromMappingTable(te.pos, null, selectedIndex, te))
-            }
+    private val insertWaypointButton = Button(0, 0, 150, 20, insertWaypointText.coloredString) {
+        waypointToEditAfterCreation = selectedIndex+1
+        if(inventorySlots.getSlot(0).item.item == ItemGoldenTicket) {
+            MoarBoats.network.sendToServer(CAddWaypointToGoldenTicketFromMappingTable(te.pos, null, selectedIndex, te))
+        } else {
+            MoarBoats.network.sendToServer(CAddWaypointToItemPathFromMappingTable(te.pos, null, selectedIndex, te))
         }
     }
-    private val editWaypointButton = object: Button(buttonId++, 0, 0, editWaypointText.formattedText) {
-        override fun onClick(mouseX: Double, mouseY: Double) {
-            edit(selectedIndex)
+    private val editWaypointButton = Button(0, 0, 150, 20, editWaypointText.coloredString) {
+        edit(selectedIndex)
+    }
+    private val removeWaypointButton = Button(0, 0, 150, 20, removeWaypointText.coloredString) {
+        if(inventorySlots.getSlot(0).item.item == ItemGoldenTicket) {
+            MoarBoats.network.sendToServer(CRemoveWaypointFromGoldenTicketFromMappingTable(selectedIndex, te))
+        } else {
+            MoarBoats.network.sendToServer(CRemoveWaypointFromMapWithPathFromMappingTable(selectedIndex, te))
         }
     }
-    private val removeWaypointButton = object: Button(buttonId++, 0, 0, removeWaypointText.formattedText) {
-        override fun onClick(mouseX: Double, mouseY: Double) {
-            if(inventorySlots.getSlot(0).item.item == ItemGoldenTicket) {
-                MoarBoats.network.sendToServer(CRemoveWaypointFromGoldenTicketFromMappingTable(selectedIndex, te))
-            } else {
-                MoarBoats.network.sendToServer(CRemoveWaypointFromMapWithPathFromMappingTable(selectedIndex, te))
-            }
-        }
-    }
-    private val loopingButton = object: GuiPropertyButton(buttonId++, listOf(Pair(propertyOneWayText.formattedText, 3), Pair(propertyLoopingText.formattedText, 2), Pair(propertyReverseCourseText.formattedText, 4))) {
-        override fun onClick(mouseX: Double, mouseY: Double) {
-            MoarBoats.network.sendToServer(CChangeLoopingStateItemPathMappingTable(LoopingOptions.values()[propertyIndex], te))
-        }
+    private val loopingButton = GuiPropertyButton(listOf(Pair(propertyOneWayText.coloredString, 3), Pair(propertyLoopingText.coloredString, 2), Pair(propertyReverseCourseText.coloredString, 4))) {
+        MoarBoats.network.sendToServer(CChangeLoopingStateItemPathMappingTable(LoopingOptions.values()[propertyIndex], te))
     }
     private val controls = listOf(addWaypointButton, insertWaypointButton, editWaypointButton, removeWaypointButton)
     private var waypointToEditAfterCreation = 0
@@ -122,11 +110,11 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: PlayerInven
 
     override fun tick() {
         super.tick()
-        loopingButton.enabled = hasData
-        addWaypointButton.enabled = hasData
-        insertWaypointButton.enabled = hasData && list.children.size > 1
-        removeWaypointButton.enabled = hasData && selectedIndex < list.children.size
-        editWaypointButton.enabled = removeWaypointButton.enabled
+        loopingButton.active = hasData
+        addWaypointButton.active = hasData
+        insertWaypointButton.active = hasData && list.children.size > 1
+        removeWaypointButton.active = hasData && selectedIndex < list.children.size
+        editWaypointButton.active = removeWaypointButton.active
     }
 
     override fun mouseClicked(p_mouseClicked_1_: Double, p_mouseClicked_3_: Double, p_mouseClicked_5_: Int): Boolean {
@@ -153,7 +141,7 @@ class GuiMappingTable(val te: TileEntityMappingTable, val playerInv: PlayerInven
         return super.mouseScrolled(p_mouseScrolled_1_)
     }
 
-    override fun drawGuiContainerBackgroundLayer(partialTicks: Float, mouseX: Int, mouseY: Int) {
+    override fun renderBg(partialTicks: Float, mouseX: Int, mouseY: Int) {
         mc.textureManager.bind(Background)
         this.drawTexturedModalRect(guiLeft, guiTop, 0, 0, this.imageWidth, this.imageHeight)
 

@@ -3,7 +3,7 @@ package org.jglrxavpok.moarboats.common.modules
 import net.minecraft.client.gui.screen
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLiving
-import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.init.Blocks
 import net.minecraft.init.MobEffects
@@ -34,7 +34,7 @@ object DivingModule: BoatModule() {
 
     override fun update(from: IControllable) {
         val world = from.worldRef
-        val entities = world.getEntities(EntityLivingBase::class.java) { entity ->
+        val entities = world.getEntities(LivingEntity::class.java) { entity ->
             val correctDistance = entity?.getDistanceSq(from.correspondingEntity) ?: Double.POSITIVE_INFINITY <= maxDistSq
             val inWater = entity?.isInWater ?: false
             inWater && correctDistance
@@ -52,6 +52,6 @@ object DivingModule: BoatModule() {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.entityDropItem(DivingBottleItem, 1)
+            boat.correspondingEntity.spawnAtLocation(DivingBottleItem, 1)
     }
 }

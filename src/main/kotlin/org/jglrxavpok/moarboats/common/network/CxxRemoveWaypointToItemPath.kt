@@ -26,7 +26,7 @@ abstract class CxxRemoveWaypointToItemPath(): MoarBoatsPacket {
             val stack = getStack(message, ctx) ?: return null
             val data = item.getWaypointData(stack, MoarBoats.getLocalMapStorage())
             if(message.index < data.size)
-                data.removeTag(message.index)
+                data.removeAt(message.index)
             val answer = createResponse(message, ctx, data)
             MoarBoats.network.send(PacketDistributor.ALL.noArg(), answer)
             return null

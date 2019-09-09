@@ -17,17 +17,17 @@ class ContainerMappingTable(val te: TileEntityMappingTable, val playerInv: Playe
 
     override fun putStackInSlot(slotID: Int, stack: ItemStack?) {
         super.putStackInSlot(slotID, stack)
-        detectAndSendChanges()
+        broadcastChanges()
     }
 
     override fun onCraftMatrixChanged(inventoryIn: IInventory?) {
         super.onCraftMatrixChanged(inventoryIn)
-        detectAndSendChanges()
+        broadcastChanges()
     }
 
     override fun slotClick(slotId: Int, dragType: Int, clickTypeIn: ClickType?, player: PlayerEntity?): ItemStack {
         val r = super.slotClick(slotId, dragType, clickTypeIn, player)
-        detectAndSendChanges()
+        broadcastChanges()
         return r
     }
 

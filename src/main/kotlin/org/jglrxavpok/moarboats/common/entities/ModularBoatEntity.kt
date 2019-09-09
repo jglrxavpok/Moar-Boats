@@ -70,7 +70,7 @@ class ModularBoatEntity(level: World): BasicBoatEntity(EntityEntries.ModularBoat
     }
 
     override val entityID: Int
-        get() = this.entityId
+        get() = this.id
 
     override var moduleRNG = Random()
 
@@ -88,7 +88,7 @@ class ModularBoatEntity(level: World): BasicBoatEntity(EntityEntries.ModularBoat
      * Embedded TileEntityDispenser not to freak out the game engine when trying to dispense an item
      */
     private val embeddedDispenserTileEntity = TileEntityDispenser()
-    private var moduleDispenseFacing: EnumFacing = defaultFacing()
+    private var moduleDispenseFacing: Direction = defaultFacing()
     private var moduleDispensePosition = BlockPos.MutableBlockPos()
     private val itemHandler = InvWrapper(this)
 
@@ -173,7 +173,7 @@ class ModularBoatEntity(level: World): BasicBoatEntity(EntityEntries.ModularBoat
             return true
         if(level.isClientSide)
             return true
-        val heldItem = player.getHeldItem(hand)
+        val heldItem = player.getItemInHand(hand)
         val moduleID = BoatModuleRegistry.findModule(heldItem)
         if(moduleID != null) {
             val entry = BoatModuleRegistry[moduleID]
@@ -399,12 +399,12 @@ class ModularBoatEntity(level: World): BasicBoatEntity(EntityEntries.ModularBoat
         else -> super.attackEntityFrom(source, amount)
     }
 
-    private fun defaultFacing() = EnumFacing.fromAngle(180f - yaw.toDouble())
+    private fun defaultFacing() = Direction.fromAngle(180f - yaw.toDouble())
 
-    override fun dispense(behavior: IDispenseItemBehavior, stack: ItemStack, overridePosition: BlockPos?, overrideFacing: EnumFacing?): ItemStack {
+    override fun dispense(behavior: IDispenseItemBehavior, stack: ItemStack, overridePosition: BlockPos?, overrideFacing: Direction?): ItemStack {
         moduleDispenseFacing = when(overrideFacing) {
             null -> defaultFacing()
-            EnumFacing.WEST, EnumFacing.EAST, EnumFacing.NORTH, EnumFacing.SOUTH -> reorientate(overrideFacing)
+            Direction.WEST, Direction.EAST, Direction.NORTH, Direction.SOUTH -> reorientate(overrideFacing)
             else -> overrideFacing
         }
         moduleDispensePosition.setPos(overridePosition ?: position)
@@ -414,14 +414,14 @@ class ModularBoatEntity(level: World): BasicBoatEntity(EntityEntries.ModularBoat
     /**
      * Takes into account the rotation of the boat
      */
-    override fun reorientate(overrideFacing: EnumFacing): EnumFacing {
+    override fun reorientate(overrideFacing: Direction): Direction {
         val angle = overrideFacing.horizontalAngle // default angle is 0 (SOUTH)
-        return EnumFacing.fromAngle(180f-(yaw.toDouble() + angle.toDouble()))
+        return Direction.fromAngle(180f-(yaw.toDouble() + angle.toDouble()))
     }
 
     override fun getPickedResult(target: RayTraceResult): ItemStack {
         val stack = ItemStack(ModularBoatItem[color], 1)
-        stack.displayName = StringTextComponent(stack.displayName.formattedText+" - Copy") // TODO: use TranslationTextComponent
+        stack.displayName = StringTextComponent(stack.displayName.coloredString+" - Copy") // TODO: use TranslationTextComponent
         val boatData = stack.getOrCreateChildTag("boat_data")
         writeAdditional(boatData)
         stack.setTagInfo("boat_data", boatData)
@@ -555,7 +555,7 @@ class ModularBoatEntity(level: World): BasicBoatEntity(EntityEntries.ModularBoat
 
     // === Start of Capability code ===
 
-    override fun <T : Any?> getCapability(capability: Capability<T>, facing: EnumFacing?): LazyOptional<T> {
+    override fun <T : Any?> getCapability(capability: Capability<T>, facing: Direction?): LazyOptional<T> {
         if(capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
             return LazyOptional.of { itemHandler }.cast()
         }

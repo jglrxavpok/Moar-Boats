@@ -39,7 +39,7 @@ object ChunkLoadingModule: BoatModule() {
         forceChunks(from)
 
 
-        if(!from.world.isClientSide)
+        if(!from.level!!.isClientSide)
             return
         val yaw = (from.yaw+90f).toRadians().toDouble()//Math.toRadians(from.yaw.toDouble())
         val width = .0625f * 15f
@@ -80,6 +80,6 @@ object ChunkLoadingModule: BoatModule() {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.entityDropItem(ChunkLoaderItem, 1)
+            boat.correspondingEntity.spawnAtLocation(ChunkLoaderItem, 1)
     }
 }

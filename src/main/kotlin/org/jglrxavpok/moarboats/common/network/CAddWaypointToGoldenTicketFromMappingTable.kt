@@ -30,7 +30,7 @@ class CAddWaypointToGoldenTicketFromMappingTable: CxxAddWaypointToItemPath {
         override fun getStack(message: CAddWaypointToGoldenTicketFromMappingTable, ctx: NetworkEvent.Context): ItemStack? {
             with(message) {
                 val pos = BlockPos.PooledMutableBlockPos.acquire(tileEntityX, tileEntityY, tileEntityZ)
-                val te = ctx.sender!!.world.getBlockEntity(pos)
+                val te = ctx.sender!!.level.getBlockEntity(pos)
                 val stack = when(te) {
                     is TileEntityMappingTable -> {
                         te.inventory.getItem(0)

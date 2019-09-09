@@ -45,6 +45,6 @@ object BatteryModule: BoatModule(), IEnergyBoatModule {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.entityDropItem(BlockItem.getItemFromBlock(BlockBoatBattery), 1)
+            boat.correspondingEntity.spawnAtLocation(BlockBoatBattery.asItem(), 1)
     }
 }

@@ -40,22 +40,22 @@ class GuiHelmModule(playerInventory: PlayerInventory, engine: BoatModule, boat: 
     private val mapStack = ItemStack(Items.FILLED_MAP)
     private val editButtonText = TranslationTextComponent("gui.helm.path_editor")
     private val saveButtonText = TranslationTextComponent("moarboats.gui.helm.save_on_map")
-    private val mapEditButton = object: Button(0, 0, 0, editButtonText.formattedText) {
+    private val mapEditButton = Button(0, 0, 0, editButtonText.coloredString) {
         override fun onClick(mouseX: Double, mouseY: Double) {
             val mapData = getMapData(container.getSlot(0).item)
             if(mapData != null && mapData != EmptyMapData) {
                 boat.modules.firstOrNull() { it.moduleSpot == BoatModule.Spot.Engine }?.let {
-                    MoarBoats.network.sendToServer(CChangeEngineMode(boat.entityID, it.id, true))
+                    MoarBoats.network.sendToServer(CChangeEngineMode(boat.id, it.id, true))
                 }
                 mc.displayScreen(HelmModule.createPathEditorGui(playerInventory.player, boat, mapData))
             }
         }
     }
-    private val saveButton = object: Button(1, 0, 0, saveButtonText.formattedText) {
+    private val saveButton = Button(1, 0, 0, saveButtonText.coloredString) {
         override fun onClick(mouseX: Double, mouseY: Double) {
             val mapData = getMapData(container.getSlot(0).item)
             if(mapData != null && mapData != EmptyMapData && container.getSlot(0).item.item == Items.FILLED_MAP) {
-                MoarBoats.network.sendToServer(CSaveItineraryToMap(boat.entityID, HelmModule.id))
+                MoarBoats.network.sendToServer(CSaveItineraryToMap(boat.id, HelmModule.id))
             }
         }
     }
@@ -82,15 +82,15 @@ class GuiHelmModule(playerInventory: PlayerInventory, engine: BoatModule, boat: 
         GlStateManager.disableLighting()
         this.mc.textureManager.bind(RES_MAP_BACKGROUND)
         val tessellator = Tessellator.getInstance()
-        val bufferbuilder = tessellator.buffer
+        val bufferbuilder = tessellator.builder
         val x = guiLeft + imageWidth/2f - mapSize/2
         val y = guiTop.toDouble() + 5.0
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX)
-        bufferbuilder.pos(x, y+mapSize, 0.0).tex(0.0, 1.0).endVertex()
-        bufferbuilder.pos(x+mapSize, y+mapSize, 0.0).tex(1.0, 1.0).endVertex()
-        bufferbuilder.pos(x+mapSize, y, 0.0).tex(1.0, 0.0).endVertex()
-        bufferbuilder.pos(x, y, 0.0).tex(0.0, 0.0).endVertex()
-        tessellator.draw()
+        bufferbuilder.vertex(x, y+mapSize, 0.0).uv(0.0, 1.0).endVertex()
+        bufferbuilder.vertex(x+mapSize, y+mapSize, 0.0).uv(1.0, 1.0).endVertex()
+        bufferbuilder.vertex(x+mapSize, y, 0.0).uv(1.0, 0.0).endVertex()
+        bufferbuilder.vertex(x, y, 0.0).uv(0.0, 0.0).endVertex()
+        tessellator.end()
         val stack = container.getSlot(0).item
         var hasMap = false
         getMapData(stack)?.let { mapdata ->
@@ -113,7 +113,7 @@ class GuiHelmModule(playerInventory: PlayerInventory, engine: BoatModule, boat: 
             GlStateManager.pushMatrix()
             GlStateManager.translatef(guiLeft.toFloat()+8f, guiTop.toFloat()+8f, 0f)
             Gui.drawRect(0, 0, 16, 16, 0x30ff0000)
-            mc.itemRenderer.renderItemAndEffectIntoGUI(mapStack, 0, 0)
+            mc.itemRenderer.renderGuiItem(mapStack, 0, 0)
             GlStateManager.depthFunc(GL11.GL_GREATER)
             Gui.drawRect(0, 0, 16, 16, 0x30ffffff)
             GlStateManager.depthFunc(GL11.GL_LEQUAL)
@@ -127,11 +127,11 @@ class GuiHelmModule(playerInventory: PlayerInventory, engine: BoatModule, boat: 
             is MapItem -> HelmModule.mapDataCopyProperty[boat]
             is MapItemWithPath -> {
                 val mapID = stack.tag?.getString("${MoarBoats.ModID}.mapID") ?: return null
-                MoarBoats.getLocalMapStorage().get(DimensionType.OVERWORLD, ::MapData, mapID) as? MapData
+                MoarBoats.getLocalMapStorage().get({ MapData(mapID) }, mapID) as? MapData
             }
             is ItemGoldenTicket -> {
                 val mapID = ItemGoldenTicket.getData(stack).mapID
-                MoarBoats.getLocalMapStorage().get(DimensionType.OVERWORLD, ::MapData, mapID) as? MapData
+                MoarBoats.getLocalMapStorage().get({ MapData(mapID) }, mapID) as? MapData
             }
             else -> null
         }
@@ -140,8 +140,8 @@ class GuiHelmModule(playerInventory: PlayerInventory, engine: BoatModule, boat: 
     override fun tick() {
         super.tick()
         val mapData = getMapData(container.getSlot(0).item)
-        mapEditButton.enabled = mapData != null && mapData != EmptyMapData
-        saveButton.enabled = mapData != null && mapData != EmptyMapData && container.getSlot(0).item.item == Items.FILLED_MAP
+        mapEditButton.active = mapData != null && mapData != EmptyMapData
+        saveButton.active = mapData != null && mapData != EmptyMapData && container.getSlot(0).item.item == Items.FILLED_MAP
     }
 
 }

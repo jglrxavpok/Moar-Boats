@@ -2,7 +2,7 @@ package org.jglrxavpok.moarboats.common.tileentity
 
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.tileentity.TileEntityType
-import net.minecraft.util.EnumFacing
+import net.minecraft.util.Direction
 import net.minecraft.util.math.BlockPos
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.common.util.LazyOptional
@@ -59,7 +59,7 @@ abstract class TileEntityEnergy(tileEntityType: TileEntityType<out TileEntityEne
         return actuallyReceived
     }
 
-    fun pushEnergyToNeighbors(totalEnergyToSend: Int, facings: List<EnumFacing> = EnumFacing.values().toList()) {
+    fun pushEnergyToNeighbors(totalEnergyToSend: Int, facings: List<Direction> = Direction.values().toList()) {
         val neighborCount = countNeighbors(facings, IEnergyStorage::canReceive)
         if(neighborCount <= 0)
             return
@@ -73,7 +73,7 @@ abstract class TileEntityEnergy(tileEntityType: TileEntityType<out TileEntityEne
         setChanged()
     }
 
-    fun pullEnergyFromNeighbors(totalEnergyToReceive: Int, facings: List<EnumFacing> = EnumFacing.values().toList()) {
+    fun pullEnergyFromNeighbors(totalEnergyToReceive: Int, facings: List<Direction> = Direction.values().toList()) {
         val neighborCount = countNeighbors(facings, IEnergyStorage::canExtract)
         if(neighborCount <= 0)
             return
@@ -87,7 +87,7 @@ abstract class TileEntityEnergy(tileEntityType: TileEntityType<out TileEntityEne
         setChanged()
     }
 
-    private fun neighborsThatCanReceivePower(facings: List<EnumFacing> = EnumFacing.values().toList(), powerFunction: (IEnergyStorage) -> Boolean) =
+    private fun neighborsThatCanReceivePower(facings: List<Direction> = Direction.values().toList(), powerFunction: (IEnergyStorage) -> Boolean) =
             facings
                     .map {
                         val neighborPos = pos.offset(it)
@@ -97,12 +97,12 @@ abstract class TileEntityEnergy(tileEntityType: TileEntityType<out TileEntityEne
                     .map { it.orElseThrow(::NullPointerException) }
                     .filter(powerFunction)
 
-    private fun countNeighbors(facings: List<EnumFacing> = EnumFacing.values().toList(), powerFunction: (IEnergyStorage) -> Boolean): Int {
+    private fun countNeighbors(facings: List<Direction> = Direction.values().toList(), powerFunction: (IEnergyStorage) -> Boolean): Int {
         return neighborsThatCanReceivePower(facings, powerFunction).count()
     }
 
-    private fun getPowerCapability(pos: BlockPos, facing: EnumFacing): LazyOptional<IEnergyStorage> {
-        val te = level.getBlockEntity(pos)
+    private fun getPowerCapability(pos: BlockPos, facing: Direction): LazyOptional<IEnergyStorage> {
+        val te = level!!.getBlockEntity(pos)
         if(te != null) {
             return te.getCapability(CapabilityEnergy.ENERGY)
         }
@@ -117,9 +117,9 @@ abstract class TileEntityEnergy(tileEntityType: TileEntityType<out TileEntityEne
         return true
     }
 
-    abstract fun isEnergyFacing(facing: EnumFacing?): Boolean
+    abstract fun isEnergyFacing(facing: Direction?): Boolean
 
-    override fun <T : Any?> getCapability(capability: Capability<T>, facing: EnumFacing?): LazyOptional<T> {
+    override fun <T : Any?> getCapability(capability: Capability<T>, facing: Direction?): LazyOptional<T> {
         if(capability == CapabilityEnergy.ENERGY && isEnergyFacing(facing)) {
             return LazyOptional.of { this }.cast()
         }

@@ -17,7 +17,7 @@ class GuiNoConfigModule(playerInventory: PlayerInventory, module: BoatModule, bo
 
     override fun drawModuleForeground(mouseX: Int, mouseY: Int) {
         super.drawModuleForeground(mouseX, mouseY)
-        drawCenteredString(font, nothingToDo.formattedText, imageWidth/2, 30, 0xFFFFFF)
-        drawCenteredString(font, enjoyTheTrip.formattedText, imageWidth/2, 40, 0xFFFFFF)
+        drawCenteredString(font, nothingToDo.coloredString, imageWidth/2, 30, 0xFFFFFF)
+        drawCenteredString(font, enjoyTheTrip.coloredString, imageWidth/2, 40, 0xFFFFFF)
     }
 }

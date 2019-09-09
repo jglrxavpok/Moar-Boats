@@ -1,12 +1,10 @@
 package org.jglrxavpok.moarboats.common.modules
 
+import net.minecraft.block.Blocks
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.init.Blocks
-import net.minecraft.item.BlockItem
 import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
-import net.minecraft.util.math.Vec2f
 import net.minecraft.util.math.Vec3d
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
@@ -42,7 +40,7 @@ object SonarModule: BoatModule() {
             val cos = MathHelper.cos(yawRad).toDouble()
             val sin = MathHelper.sin(yawRad).toDouble()
             val r = Vec3d(cos, 0.0, sin)
-            val moment = r.crossProduct(force)
+            val moment = r.cross(force)
             val angularRotation = (moment.y) / speed
             val rotationMultiplier = angularRotation.toFloat().toDegrees() / 500f
             from.turnLeft(rotationMultiplier)
@@ -87,6 +85,6 @@ object SonarModule: BoatModule() {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.entityDropItem(Blocks.NOTE_BLOCK.asItem(), 1)
+            boat.correspondingEntity.spawnAtLocation(Blocks.NOTE_BLOCK.asItem(), 1)
     }
 }

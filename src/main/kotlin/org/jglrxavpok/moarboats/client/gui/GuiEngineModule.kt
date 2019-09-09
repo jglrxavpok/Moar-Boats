@@ -1,8 +1,7 @@
 package org.jglrxavpok.moarboats.client.gui
 
-import net.minecraft.client.gui.widget.button.Button
-import net.minecraft.client.gui.GuiLockIconButton
 import com.mojang.blaze3d.platform.GlStateManager
+import net.minecraft.client.gui.widget.button.LockIconButton
 import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
@@ -12,6 +11,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.TranslationTextComponent
 import net.minecraftforge.fml.client.config.GuiSlider
+import net.minecraftforge.fml.client.config.GuiUtils.drawTexturedModalRect
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
@@ -36,10 +36,8 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
     val barsTexture = ResourceLocation("minecraft:textures/gui/bars.png")
     val remainingCurrentItem = TranslationTextComponent("gui.engine.remainingCurrent")
     val estimatedTimeText = TranslationTextComponent("gui.engine.estimatedTime")
-    private val lockInPlaceButton = object: GuiLockIconButton(0, 0, 0) {
-        override fun onClick(mouseX: Double, mouseY: Double) {
-            MoarBoats.network.sendToServer(CChangeEngineMode(boat.entityID, module.id, !(engine as BaseEngineModule).stationaryProperty[boat]))
-        }
+    private val lockInPlaceButton = LockIconButton(0, 0) {
+        MoarBoats.network.sendToServer(CChangeEngineMode(boat.id, module.id, !(engine as BaseEngineModule).stationaryProperty[boat]))
     }
     private val lockText = TranslationTextComponent("gui.engine.lock")
     private val lockedByRedstone = TranslationTextComponent("gui.engine.blocked.redstone")
@@ -55,7 +53,7 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
     private lateinit var speedSlider: GuiSlider
     private val speedIconTexture = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/engines/speed_setting.png")
     private val sliderCallback = GuiSlider.ISlider { slider ->
-        MoarBoats.network.sendToServer(CChangeEngineSpeed(boat.entityID, module.id, slider.value.toFloat()/100f))
+        MoarBoats.network.sendToServer(CChangeEngineSpeed(boat.id, module.id, slider.value.toFloat()/100f))
     }
 
     override fun init() {
@@ -67,7 +65,7 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
         val speedSettingMargins = 30
         val speedSettingHorizontalSize = imageWidth - speedSettingMargins*2
 
-        speedSlider = GuiSlider(1, guiLeft + speedSettingMargins, guiTop + 90, speedSettingHorizontalSize, 20, "${speedSetting.formattedText}: ", "%", -50.0, 50.0, 0.0, false, true, sliderCallback)
+        speedSlider = GuiSlider(1, guiLeft + speedSettingMargins, guiTop + 90, speedSettingHorizontalSize, 20, "${speedSetting.coloredString}: ", "%", -50.0, 50.0, 0.0, false, true, sliderCallback)
         addButton(speedSlider)
         speedSlider.value = (engine.speedProperty[boat].toDouble()) * 100f
     }
@@ -80,7 +78,7 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
 
     override fun renderHoveredToolTip(mouseX: Int, mouseY: Int) {
         when {
-            lockInPlaceButton.isMouseOver -> drawHoveringText(lockText.formattedText, mouseX, mouseY)
+            lockInPlaceButton.isMouseOver(mouseX.toDouble(), mouseY.toDouble()) -> drawHoveringText(lockText.coloredString, mouseX, mouseY)
             else -> super.renderHoveredToolTip(mouseX, mouseY)
         }
     }
@@ -92,7 +90,7 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
 
 
         val infoY = 26
-        font.drawCenteredString(remainingCurrentItem.formattedText, 88, infoY, 0xFFFFFFFF.toInt(), shadow = true)
+        font.drawCenteredString(remainingCurrentItem.coloredString, 88, infoY, 0xFFFFFFFF.toInt(), shadow = true)
 
         mc.textureManager.bind(barsTexture)
         val barIndex = 4
@@ -100,22 +98,22 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
         val x = imageWidth/2f - barSize/2f
         drawBar(x, infoY+10f, barIndex, barSize, fill = if(remaining.isFinite()) remaining else 1f)
         if(estimatedTime.isInfinite()) {
-            font.drawCenteredString(estimatedTimeText.formattedText, 88, infoY+18, 0xFFF0F0F0.toInt(), shadow = true)
-            font.drawCenteredString(foreverText.formattedText, 88, infoY+28, 0xFF50A050.toInt())
+            font.drawCenteredString(estimatedTimeText.coloredString, 88, infoY+18, 0xFFF0F0F0.toInt(), shadow = true)
+            font.drawCenteredString(foreverText.coloredString, 88, infoY+28, 0xFF50A050.toInt())
         } else if(!estimatedTime.isNaN()) {
-            font.drawCenteredString(estimatedTimeText.formattedText, 88, infoY+18, 0xFFF0F0F0.toInt(), shadow = true)
+            font.drawCenteredString(estimatedTimeText.coloredString, 88, infoY+18, 0xFFF0F0F0.toInt(), shadow = true)
             font.drawCenteredString("${estimatedTime.toInt()}s", 88, infoY+28, 0xFF50A050.toInt())
         }
         renderBlockReason(infoY+38)
-        font.drawCenteredString(speedSetting.formattedText, 88, infoY+52, 0xFFF0F0F0.toInt(), shadow = true)
+        font.drawCenteredString(speedSetting.coloredString, 88, infoY+52, 0xFFF0F0F0.toInt(), shadow = true)
 //        if(boat.isSpeedImposed()) {
-            font.drawCenteredString(imposedSpeedText("${(boat.imposedSpeed * 100.0).toInt()}").formattedText, 88, infoY+42, 0xFFFFFF, shadow=true)
+            font.drawCenteredString(imposedSpeedText("${(boat.imposedSpeed * 100.0).toInt()}").coloredString, 88, infoY+42, 0xFFFFFF, shadow=true)
   //      }
 
         when {
-            speedSlider.valueInt == -50 -> font.drawCenteredString(minimumSpeedText.formattedText, 88, infoY + 70 + speedSlider.height, 0xFF0000F0.toInt())
-            speedSlider.valueInt == 50 -> font.drawCenteredString(maximumSpeedText.formattedText, 88, infoY + 70 + speedSlider.height, 0xFF0000F0.toInt())
-            speedSlider.valueInt == 0 -> font.drawCenteredString(normalSpeedText.formattedText, 88, infoY + 70 + speedSlider.height, 0xFF0000F0.toInt())
+            speedSlider.valueInt == -50 -> font.drawCenteredString(minimumSpeedText.coloredString, 88, infoY + 70 + speedSlider.height, 0xFF0000F0.toInt())
+            speedSlider.valueInt == 50 -> font.drawCenteredString(maximumSpeedText.coloredString, 88, infoY + 70 + speedSlider.height, 0xFF0000F0.toInt())
+            speedSlider.valueInt == 0 -> font.drawCenteredString(normalSpeedText.coloredString, 88, infoY + 70 + speedSlider.height, 0xFF0000F0.toInt())
         }
 
         renderSpeedIcon(0, 5, infoY + 40 + speedSlider.height)
@@ -125,14 +123,14 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
     private fun renderBlockReason(y: Int) {
         when(boat.blockedReason) {
             NoBlockReason -> {}
-            BlockedByRedstone -> renderPrettyReason(y, lockedByRedstone.formattedText, RedstoneDustStack)
+            BlockedByRedstone -> renderPrettyReason(y, lockedByRedstone.coloredString, RedstoneDustStack)
             else -> {
                 if(boat.blockedReason is BoatModule) {
                     val blockingModule = boat.blockedReason as BoatModule
                     val itemstack = ItemStack(BoatModuleRegistry[blockingModule.id].correspondingItem)
-                    renderPrettyReason(y, blockedByModuleText.formattedText, itemstack)
+                    renderPrettyReason(y, blockedByModuleText.coloredString, itemstack)
                 } else {
-                    font.drawCenteredString(unknownBlockReasonText(boat.blockedReason.toString()).formattedText, 88, y, 0xFF0000)
+                    font.drawCenteredString(unknownBlockReasonText(boat.blockedReason.toString()).coloredString, 88, y, 0xFF0000)
                 }
             }
         }
@@ -140,11 +138,11 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
 
     private fun renderPrettyReason(y: Int, text: String, itemStack: ItemStack) {
         font.drawCenteredString(text, 88-16, y, 0xFF0000)
-        val textWidth = font.getStringWidth(text)
+        val textWidth = font.width(text)
         val textX = 88-16 - textWidth/2
         zLevel = 100.0f
         itemRender.zLevel = 100.0f
-        RenderHelper.enableGUIStandardItemLighting()
+        RenderHelper.turnOnGui()
         GlStateManager.color3f(1f, 1f, 1f)
         val itemX = textX+textWidth + 1
         val itemY = font.FONT_HEIGHT/2 - 8 + y
@@ -158,7 +156,7 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
         val width = 20
         val height = 20
         val tessellator = Tessellator.getInstance()
-        val bufferbuilder = tessellator.buffer
+        val bufferbuilder = tessellator.builder
         bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX)
         val margins = 0
         val minU = 10.0/32.0
@@ -166,26 +164,26 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
         val minV = ordinal * 16.0 / 64.0
         val maxV = (ordinal * 16.0 + 16.0) / 64.0
         bufferbuilder
-                .pos((x+margins).toDouble(), (y+margins).toDouble(), 0.0)
-                .tex(minU, minV)
+                .vertex((x+margins).toDouble(), (y+margins).toDouble(), 0.0)
+                .uv(minU, minV)
                 .endVertex()
         bufferbuilder
-                .pos((x+width - margins*2).toDouble(), (y+margins).toDouble(), 0.0)
-                .tex(maxU, minV)
+                .vertex((x+width - margins*2).toDouble(), (y+margins).toDouble(), 0.0)
+                .uv(maxU, minV)
                 .endVertex()
         bufferbuilder
-                .pos((x+width - margins*2).toDouble(), (y+height - margins*2).toDouble(), 0.0)
-                .tex(maxU, maxV)
+                .vertex((x+width - margins*2).toDouble(), (y+height - margins*2).toDouble(), 0.0)
+                .uv(maxU, maxV)
                 .endVertex()
         bufferbuilder
-                .pos((x+margins).toDouble(), (y+height - margins*2).toDouble(), 0.0)
-                .tex(minU, maxV)
+                .vertex((x+margins).toDouble(), (y+height - margins*2).toDouble(), 0.0)
+                .uv(minU, maxV)
                 .endVertex()
 
         mc.textureManager.bind(speedIconTexture)
         GlStateManager.disableDepthTest()
         GlStateManager.disableCull()
-        tessellator.draw()
+        tessellator.end()
         GlStateManager.enableCull()
         GlStateManager.enableDepthTest()
     }

@@ -70,7 +70,7 @@ object FishingModule : BoatModule() {
         val inventory = from.getInventory()
         val rodStack = inventory.getItem(0)
         val hasRod = rodStack.item is ItemFishingRod
-        if(ready && hasRod && !from.levelRef.isClientSide && from.inLiquid() && !from.isEntityInLava()) { // you can go fishing
+        if(ready && hasRod && !from.worldRef.isClientSide && from.inLiquid() && !from.isEntityInLava()) { // you can go fishing
             storageModule as BoatModule
 
             val lureSpeed = EnchantmentHelper.getFishingSpeedBonus(rodStack)
@@ -79,9 +79,9 @@ object FishingModule : BoatModule() {
             if(randNumber <= 1f) {
                 val luck = EnchantmentHelper.getFishingLuckBonus(rodStack)
                 // catch fish
-                val builder = LootContext.Builder(from.levelRef as levelServer)
+                val builder = LootContext.Builder(from.worldRef as levelServer)
                 builder.withLuck(luck.toFloat())
-                val result = from.levelRef.server!!.lootTableManager.getLootTableFromLocation(LootTableList.GAMEPLAY_FISHING).generateLootForPools(from.moduleRNG, builder.build())
+                val result = from.worldRef.server!!.lootTableManager.getLootTableFromLocation(LootTableList.GAMEPLAY_FISHING).generateLootForPools(from.moduleRNG, builder.build())
                 val lootList = ListNBT()
                 result.forEach {
                     val info = CompoundNBT()
@@ -153,7 +153,7 @@ object FishingModule : BoatModule() {
 
     private fun breakRod(from: IControllable) {
         from.getInventory().setItem(0, ItemStack.EMPTY)
-        MoarBoats.network.send(PacketDistributor.ALL.noArg(), SPlaySound(from.positionX, from.positionY, from.positionZ, SoundEvents.ITEM_SHIELD_BREAK, SoundCategory.PLAYERS, 0.8f, 0.8f + Math.random().toFloat() * 0.4f))
+        MoarBoats.network.send(PacketDistributor.ALL.noArg(), SPlaySound(from.positionX, from.positionY, from.positionZ, SoundEvents.SHIELD_BREAK, SoundCategory.PLAYERS, 0.8f, 0.8f + Math.random().toFloat() * 0.4f))
     }
 
     override fun onAddition(to: IControllable) {
@@ -169,6 +169,6 @@ object FishingModule : BoatModule() {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.entityDropItem(Items.FISHING_ROD, 1)
+            boat.correspondingEntity.spawnAtLocation(Items.FISHING_ROD, 1)
     }
 }

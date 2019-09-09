@@ -1,10 +1,10 @@
 package org.jglrxavpok.moarboats.client.gui
 
-import net.minecraft.client.gui.inventory.GuiContainer
 import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.client.gui.screen.inventory.ContainerScreen
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.util.ResourceLocation
+import net.minecraftforge.fml.client.config.GuiUtils.drawTexturedModalRect
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.containers.EnergyContainer
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergy
@@ -14,7 +14,7 @@ class GuiEnergy(val te: TileEntityEnergy, val player: PlayerEntity): ContainerSc
     private val energyBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/energy.png")
     private val defaultBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/default_background.png")
 
-    override fun drawGuiContainerBackgroundLayer(partialTicks: Float, mouseX: Int, mouseY: Int) {
+    override fun renderBg(partialTicks: Float, mouseX: Int, mouseY: Int) {
         mc.textureManager.bind(defaultBackground)
         drawTexturedModalRect(guiLeft, guiTop, 0, 0, imageWidth, imageHeight)
         mc.textureManager.bind(energyBackground)

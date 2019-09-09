@@ -2,7 +2,7 @@ package org.jglrxavpok.moarboats.common.tileentity
 
 import net.minecraft.entity.Entity
 import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.EnumFacing
+import net.minecraft.util.Direction
 import net.minecraft.util.ITickable
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraftforge.common.capabilities.Capability
@@ -19,7 +19,7 @@ import org.jglrxavpok.moarboats.common.blocks.Facing
 
 class TileEntityFluidUnloader: TileEntityListenable(MoarBoats.TileEntityFluidUnloaderType), ITickable, IFluidHandler, IFluidTankProperties {
 
-    val blockFacing: EnumFacing get()= world.getBlockState(pos).get(Facing)
+    val blockFacing: Direction get()= world.getBlockState(pos).get(Facing)
     private var fluid: Fluid? = null
     private var fluidAmount: Int = 0
     private var working: Boolean = false
@@ -138,7 +138,7 @@ class TileEntityFluidUnloader: TileEntityListenable(MoarBoats.TileEntityFluidUnl
         return true
     }
 
-    override fun <T : Any?> getCapability(capability: Capability<T>, facing: EnumFacing?): LazyOptional<T> {
+    override fun <T : Any?> getCapability(capability: Capability<T>, facing: Direction?): LazyOptional<T> {
         if(capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY)
             return LazyOptional.of { this }.cast()
         return super.getCapability(capability, facing)

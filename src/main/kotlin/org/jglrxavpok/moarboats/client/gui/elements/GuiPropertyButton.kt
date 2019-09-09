@@ -1,7 +1,7 @@
 package org.jglrxavpok.moarboats.client.gui.elements
 
-open class GuiPropertyButton(buttonID: Int, val propertyRenderingInfo: List<Pair<String, Int>>):
-        GuiToolButton(buttonID, propertyRenderingInfo[0].first, propertyRenderingInfo[0].second) {
+open class GuiPropertyButton(val propertyRenderingInfo: List<Pair<String, Int>>, pressable: IPressable):
+        GuiToolButton(propertyRenderingInfo[0].first, propertyRenderingInfo[0].second, pressable) {
 
     var propertyIndex = 0
 
@@ -13,7 +13,7 @@ open class GuiPropertyButton(buttonID: Int, val propertyRenderingInfo: List<Pair
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, buttonID: Int): Boolean {
         if(buttonID == 0) {
-            if (this.enabled && this.visible && mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height) {
+            if (this.active && this.visible && mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height) {
                 propertyIndex++
                 if(propertyIndex >= propertyRenderingInfo.size) {
                     propertyIndex = 0

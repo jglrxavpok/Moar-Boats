@@ -10,7 +10,7 @@ import net.minecraft.item.BlockItemUseContext
 import net.minecraft.item.ItemStack
 import net.minecraft.stats.StatList
 import net.minecraft.util.ActionResult
-import net.minecraft.util.EnumActionResult
+import net.minecraft.util.ActionResultType
 import net.minecraft.util.Hand
 import net.minecraft.util.SoundCategory
 import net.minecraft.util.math.RayTraceResult
@@ -24,17 +24,17 @@ abstract class WaterborneItem(id: String) : MoarBoatsItem(id) {
      * Called when the equipped item is right clicked.
      */
     override fun onItemRightClick(levelIn: World, playerIn: PlayerEntity, handIn: Hand): ActionResult<ItemStack> {
-        val itemstack = playerIn.getHeldItem(handIn)
+        val itemstack = playerIn.getItemInHand(handIn)
         val raytraceresult = this.rayTrace(levelIn, playerIn, true)
 
         if (raytraceresult == null) {
-            return ActionResult(EnumActionResult.PASS, itemstack)
+            return ActionResult(ActionResultType.PASS, itemstack)
         } else {
             if (raytraceresult.type == RayTraceResult.Type.BLOCK) {
                 val blockpos = raytraceresult.blockPos
 
                 if (!levelIn.isBlockModifiable(playerIn, blockpos) || !playerIn.canPlayerEdit(blockpos.offset(raytraceresult.sideHit), raytraceresult.sideHit, itemstack)) {
-                    return ActionResult(EnumActionResult.FAIL, itemstack)
+                    return ActionResult(ActionResultType.FAIL, itemstack)
                 }
 
                 val blockpos1 = blockpos.above()
@@ -43,15 +43,15 @@ abstract class WaterborneItem(id: String) : MoarBoatsItem(id) {
                     // special case for handling block placement with water lilies
                     val blocksnapshot = net.minecraftforge.common.util.BlockSnapshot.getBlockSnapshot(levelIn, blockpos1)
                     levelIn.setBlockState(blockpos1, correspondingBlock.defaultState)
-                    if (net.minecraftforge.event.ForgeEventFactory.onBlockPlace(playerIn, blocksnapshot, net.minecraft.util.EnumFacing.UP)) {
+                    if (net.minecraftforge.event.ForgeEventFactory.onBlockPlace(playerIn, blocksnapshot, net.minecraft.util.Direction.UP)) {
                         blocksnapshot.restore(true, false)
-                        return ActionResult(EnumActionResult.FAIL, itemstack)
+                        return ActionResult(ActionResultType.FAIL, itemstack)
                     }
 
                     val facing = playerIn.adjustedHorizontalFacing.opposite
                     var iblockstate1: IBlockState = correspondingBlock.getStateForPlacement(BlockItemUseContext(levelIn, playerIn, itemstack, blockpos1, facing, raytraceresult.hitVec.x.toFloat(), raytraceresult.hitVec.y.toFloat(), raytraceresult.hitVec.z.toFloat()))
-                            ?: return ActionResult(EnumActionResult.FAIL, itemstack)
-                    levelIn.setBlockState(blockpos1, iblockstate1, 11)
+                            ?: return ActionResult(ActionResultType.FAIL, itemstack)
+                    levelIn.setBlock(blockpos1, iblockstate1, 11)
 
                     iblockstate1.block.onBlockPlacedBy(levelIn, blockpos1, iblockstate1, playerIn, itemstack)
 
@@ -64,12 +64,12 @@ abstract class WaterborneItem(id: String) : MoarBoatsItem(id) {
                     }
 
                     playerIn.addStat(StatList.ITEM_USED[this])
-                    levelIn.playSound(playerIn, blockpos, SoundEvents.BLOCK_LILY_PAD_PLACE, SoundCategory.BLOCKS, 1.0f, 1.0f)
-                    return ActionResult(EnumActionResult.SUCCESS, itemstack)
+                    levelIn.playSound(playerIn, blockpos, SoundEvents.LILY_PAD_PLACE, SoundCategory.BLOCKS, 1.0f, 1.0f)
+                    return ActionResult(ActionResultType.SUCCESS, itemstack)
                 }
             }
 
-            return ActionResult(EnumActionResult.FAIL, itemstack)
+            return ActionResult(ActionResultType.FAIL, itemstack)
         }
     }
 }
