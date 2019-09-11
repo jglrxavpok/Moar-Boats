@@ -1,6 +1,5 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.block.BlockDispenser
 import net.minecraft.block.DispenserBlock
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.dispenser.BehaviorDefaultDispenseItem

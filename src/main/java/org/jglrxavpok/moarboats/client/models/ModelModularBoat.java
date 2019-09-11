@@ -1,6 +1,6 @@
 package org.jglrxavpok.moarboats.client.models;
 
-import net.minecraft.client.renderer.entity.model.ModelBase;
+import net.minecraft.client.renderer.model.Model;
 import net.minecraft.client.renderer.entity.model.RendererModel;
 import net.minecraft.entity.Entity;
 
@@ -8,7 +8,7 @@ import net.minecraft.entity.Entity;
  * ModelBoat - Either Mojang or a mod author
  * Created using Tabula 7.0.0
  */
-public class ModelModularBoat extends ModelBase {
+public class ModelModularBoat extends Model {
     public RendererModel boatSides3;
     public RendererModel boatSides2;
     public RendererModel boatSides1;

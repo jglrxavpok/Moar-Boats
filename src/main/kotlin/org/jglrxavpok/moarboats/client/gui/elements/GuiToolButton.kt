@@ -1,8 +1,10 @@
 package org.jglrxavpok.moarboats.client.gui.elements
 
-import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.widget.button.Button
 import com.mojang.blaze3d.platform.GlStateManager
+import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.AbstractGui
+import net.minecraft.client.gui.widget.Widget
+import net.minecraft.client.gui.widget.button.Button
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.fml.client.config.GuiUtils.drawTexturedModalRect
 import org.jglrxavpok.moarboats.MoarBoats
@@ -12,8 +14,8 @@ open class GuiToolButton(var text: String, var toolIconIndex: Int, val pressable
 
     companion object {
         val WidgetsTextureLocation = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/helm/path_editor_widgets.png")
-        val WidgetsTextureSize = 120f
-        val ToolIconCountPerLine = (WidgetsTextureSize/20f).toInt()
+        val WidgetsTextureSize = 120
+        val ToolIconCountPerLine = (WidgetsTextureSize / 20f).toInt()
     }
 
     var selected = false
@@ -27,18 +29,18 @@ open class GuiToolButton(var text: String, var toolIconIndex: Int, val pressable
             val minU = toolX.toFloat() * 20f
             val minV = toolY.toFloat() * 20f
             mc.textureManager.bind(WidgetsTextureLocation)
-            Gui.drawModalRectWithCustomSizedTexture(x, y, minU, minV, 20, 20, WidgetsTextureSize, WidgetsTextureSize)
+            AbstractGui.blit(x, y, minU, minV, 20, 20, WidgetsTextureSize, WidgetsTextureSize)
 
-            val textY = y + height/2f - mc.font.FONT_HEIGHT/2f
-            mc.font.drawShadow(text, x+width+ 4f, textY, 0xFFF0F0F0.toInt())
+            val textY = y + height / 2f - mc.font.lineHeight / 2f
+            mc.font.drawShadow(text, x + width + 4f, textY, 0xFFF0F0F0.toInt())
         }
     }
 
     private fun renderButtonBackground(mc: Minecraft, mouseX: Int, mouseY: Int) {
-        mc.textureManager.bind(BUTTON_TEXTURES)
+        mc.textureManager.bind(Widget.WIDGETS_LOCATION)
         GlStateManager.color4f(1.0f, 1.0f, 1.0f, 1.0f)
-        this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height
-        val stateOffset = this.getHoverState(this.hovered)
+        this.isHovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height
+        val stateOffset = this.getHoverState(this.isHovered)
         GlStateManager.enableBlend()
         GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO)
         GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA)

@@ -1,7 +1,7 @@
 package org.jglrxavpok.moarboats.client
 
-import net.minecraft.client.Minecraft
 import com.mojang.blaze3d.platform.GlStateManager
+import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity
 import net.minecraft.client.renderer.entity.PlayerRenderer
 import net.minecraft.client.renderer.entity.layers.LayerRenderer
@@ -15,7 +15,7 @@ import org.jglrxavpok.moarboats.client.models.ModelPatreonHook
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 
 // based on LayerHeldItem
-class MoarBoatsPatreonHookLayer(val playerRenderer: PlayerRenderer) : LayerRenderer<AbstractClientPlayerEntity, PlayerModel<AbstractClientPlayerEntity>>(playerRenderer) {
+class MoarBoatsPatreonHookLayer(val playerRenderer: PlayerRenderer): LayerRenderer<AbstractClientPlayerEntity, PlayerModel<AbstractClientPlayerEntity>>(playerRenderer) {
 
     val hookModel = ModelPatreonHook()
     val hookTextureLocation = ResourceLocation(MoarBoats.ModID, "textures/hook.png")
@@ -32,27 +32,27 @@ class MoarBoatsPatreonHookLayer(val playerRenderer: PlayerRenderer) : LayerRende
             return
         }
 
-        if( ! player.getItemInHand(Hand.MAIN_HAND).isEmpty)
+        if(!player.getItemInHand(Hand.MAIN_HAND).isEmpty)
             return // don't show for non-empty hands
         GlStateManager.pushMatrix()
 
         val handSide = player.mainArm
-        if (player.isSneaking) {
+        if(player.isSneaking) {
             GlStateManager.translatef(0.0f, 0.2f, 0.0f)
         }
         this.translateToHand(handSide)
         GlStateManager.rotatef(-90.0f, 1.0f, 0.0f, 0.0f)
         GlStateManager.rotatef(180.0f, 0.0f, 1.0f, 0.0f)
         val flag = handSide == HandSide.LEFT
-        GlStateManager.translatef((if (flag) -1 else 1).toFloat() / 16.0f, 0.125f, -0.625f)
+        GlStateManager.translatef((if(flag) -1 else 1).toFloat() / 16.0f, 0.125f, -0.625f)
 
-        val scale = 4f/11f
+        val scale = 4f / 11f
         GlStateManager.scalef(scale, scale, scale)
 
         GlStateManager.rotatef(90f, 1f, 0f, 0f)
         GlStateManager.translatef(0f, -0.01f, 0.4f)
         Minecraft.getInstance().textureManager.bind(hookTextureLocation)
-        hookModel.render(player, 0f, 0f, 0f, 0f, 0f, 1f/16f)
+        hookModel.render(player, 0f, 0f, 0f, 0f, 0f, 1f / 16f)
         GlStateManager.popMatrix()
     }
 

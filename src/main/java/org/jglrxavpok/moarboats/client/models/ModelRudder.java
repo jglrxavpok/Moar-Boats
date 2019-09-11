@@ -1,6 +1,6 @@
 package org.jglrxavpok.moarboats.client.models;
 
-import net.minecraft.client.renderer.entity.model.ModelBase;
+import net.minecraft.client.renderer.model.Model;
 import net.minecraft.client.renderer.entity.model.RendererModel;
 import net.minecraft.entity.Entity;
 
@@ -8,7 +8,7 @@ import net.minecraft.entity.Entity;
  * ModelRudder - jglrxavpok
  * Created using Tabula 7.0.0
  */
-public class ModelRudder extends ModelBase {
+public class ModelRudder extends Model {
     public RendererModel rudderBlade;
     public RendererModel rudderBase;
 

@@ -2,22 +2,18 @@ package org.jglrxavpok.moarboats.api
 
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.container.Container
+import net.minecraft.inventory.container.INamedContainerProvider
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
-import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.TranslationTextComponent
-import net.minecraft.inventory.container.INamedContainerProvider
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.registries.ForgeRegistryEntry
 import net.minecraftforge.registries.IForgeRegistry
-import net.minecraftforge.registries.IForgeRegistryEntry
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.containers.ContainerBase
 import java.util.*
@@ -47,12 +43,12 @@ abstract class BoatModule {
     @OnlyIn(Dist.CLIENT)
     abstract fun createGui(player: PlayerEntity, boat: IControllable): Screen
 
-    open fun onInit(to: IControllable, fromItem: ItemStack?) { }
+    open fun onInit(to: IControllable, fromItem: ItemStack?) {}
 
     /**
      * Reads additional information from the boat entity NBT data. No need to read/store module state created via the BoatProperty objects
      */
-    open fun readFromNBT(boat: IControllable, compound: CompoundNBT) { }
+    open fun readFromNBT(boat: IControllable, compound: CompoundNBT) {}
 
     /**
      * Writes additional information to the boat entity NBT data. No need to read/store module state created via the BoatProperty objects
@@ -98,7 +94,7 @@ object BoatModuleRegistry {
     }
 
     fun findEntry(module: BoatModule): BoatModuleEntry? {
-        return forgeRegistry.values.find { it.module == module }
+        return forgeRegistry.values.find {it.module == module}
     }
 
 }

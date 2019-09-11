@@ -4,7 +4,6 @@ import net.minecraft.block.state.BlockState
 import net.minecraft.dispenser.IDispenseItemBehavior
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
-import net.minecraft.entity.passive.EntityWaterMob
 import net.minecraft.entity.passive.WaterMobEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack

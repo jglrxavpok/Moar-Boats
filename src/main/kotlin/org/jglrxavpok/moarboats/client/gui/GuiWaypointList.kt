@@ -1,8 +1,8 @@
 package org.jglrxavpok.moarboats.client.gui
 
-import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.GuiListExtended
 import com.mojang.blaze3d.platform.GlStateManager
+import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.widget.list.ExtendedList
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.nbt.CompoundNBT
@@ -11,20 +11,19 @@ import net.minecraft.util.Util
 import net.minecraftforge.fml.client.config.GuiUtils.drawGradientRect
 import net.minecraftforge.fml.client.config.GuiUtils.drawTexturedModalRect
 import org.jglrxavpok.moarboats.client.gui.WaypointInfoEntry.Companion.ArrowsTexture
-import org.jglrxavpok.moarboats.integration.WaypointInfo
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL11.*
 
-class WaypointListEntry(val parent: GuiMappingTable, val slot: CompoundNBT, val slotTops: MutableMap<Int, Int>, val waypoints: List<CompoundNBT>): GuiListExtended.IGuiListEntry<WaypointListEntry>() {
+class WaypointListEntry(val parent: GuiMappingTable, val slot: CompoundNBT, val slotTops: MutableMap<Int, Int>, val waypoints: List<CompoundNBT>): ExtendedList.AbstractListEntry<WaypointListEntry>() {
 
     private var lastClickTime: Long = -1L
     private val mc = Minecraft.getInstance()
 
-    override fun drawEntry(entryWidth: Int, entryHeight: Int, mouseX: Int, mouseY: Int, p_194999_5_: Boolean, partialTicks: Float) {
+    override fun render(entryWidth: Int, entryHeight: Int, mouseX: Int, mouseY: Int, p_render_5_: Int, p_render_6_: Int, p_render_7_: Int, p_194999_5_: Boolean, partialTicks: Float) {
         val slotTop = y
         val left = this.list.left
         val slotHeight = entryHeight
-        val entryRight = left+entryWidth
+        val entryRight = left + entryWidth
 
         GlStateManager.disableLighting()
         GlStateManager.color3f(1f, 1f, 1f)
@@ -33,27 +32,27 @@ class WaypointListEntry(val parent: GuiMappingTable, val slot: CompoundNBT, val 
         val slot = waypoints[index]
         var name = slot.getString("name")
         if(name.isEmpty()) {
-            name = "Waypoint ${index+1}"
+            name = "Waypoint ${index + 1}"
         }
-        mc.font.draw(name, left+4f, slotTop+1f, 0xFFFFFF)
+        mc.font.draw(name, left + 4f, slotTop + 1f, 0xFFFFFF)
         GlStateManager.pushMatrix()
-        GlStateManager.translatef(left+4f, slotTop+10f, 0f)
+        GlStateManager.translatef(left + 4f, slotTop + 10f, 0f)
         val scale = 0.5f
         GlStateManager.scalef(scale, scale, 1f)
         val text = "X: ${slot.getDouble("x")}, Z: ${slot.getDouble("z")}" +
-                if(slot.getBoolean("hasBoost")) " (${(slot.getDouble("boost")*100).toInt()}%)"
+                if(slot.getBoolean("hasBoost")) " (${(slot.getDouble("boost") * 100).toInt()}%)"
                 else ""
         mc.font.draw(text, 0f, 0f, 0xFFFFFF)
         GlStateManager.popMatrix()
         GlStateManager.color3f(1f, 1f, 1f)
         mc.textureManager.bind(ArrowsTexture)
-        if(mouseX >= entryRight-32 && mouseX < entryRight && mouseY >= slotTop && mouseY <= slotTop+slotHeight) {
-            val hoveredOffsetBottom = if(mouseY-slotTop >= slotHeight/2) 1 else 0
-            val hoveredOffsetTop = 1-hoveredOffsetBottom
+        if(mouseX >= entryRight - 32 && mouseX < entryRight && mouseY >= slotTop && mouseY <= slotTop + slotHeight) {
+            val hoveredOffsetBottom = if(mouseY - slotTop >= slotHeight / 2) 1 else 0
+            val hoveredOffsetTop = 1 - hoveredOffsetBottom
             if(index > 0)
-                drawTexturedModalRect(entryRight-32, slotTop-5, 64+32, hoveredOffsetTop*32, 32, 32, blitOffset.toFloat()) // top
-            if(index < waypoints.size-1)
-                drawTexturedModalRect(entryRight-32, slotTop-11, 64, hoveredOffsetBottom*32, 32, 32, blitOffset.toFloat()) // bottom
+                drawTexturedModalRect(entryRight - 32, slotTop - 5, 64 + 32, hoveredOffsetTop * 32, 32, 32, blitOffset.toFloat()) // top
+            if(index < waypoints.size - 1)
+                drawTexturedModalRect(entryRight - 32, slotTop - 11, 64, hoveredOffsetBottom * 32, 32, 32, blitOffset.toFloat()) // bottom
         }
         slotTops[index] = slotTop
     }
@@ -65,26 +64,26 @@ class WaypointListEntry(val parent: GuiMappingTable, val slot: CompoundNBT, val 
         if(doubleClick()) {
             parent.edit(index)
         } else {
-            val entryRight = x+this.getList().listWidth
+            val entryRight = x + this.getList().listWidth
             val slotTop = slotTops[index] ?: -10000
-            if(mouseX >= entryRight-32 && mouseX < entryRight && mouseY >= slotTop && mouseY <= slotTop+list.slotHeight) {
-                val hoveredBottom = mouseY-slotTop >= list.slotHeight/2
+            if(mouseX >= entryRight - 32 && mouseX < entryRight && mouseY >= slotTop && mouseY <= slotTop + list.slotHeight) {
+                val hoveredBottom = mouseY - slotTop >= list.slotHeight / 2
                 if(hoveredBottom) {
-                    parent.swap(index, index+1)
+                    parent.swap(index, index + 1)
                 } else {
-                    parent.swap(index, index-1)
+                    parent.swap(index, index - 1)
                 }
             }
         }
         return true
     }
 
-    private fun doubleClick() = Util.milliTime() - this.lastClickTime < 250L
+    private fun doubleClick() = Util.getMillis() - this.lastClickTime < 250L
 
 }
 
 class GuiWaypointList(val mc: Minecraft, val parent: GuiMappingTable, width: Int, height: Int, top: Int, left: Int, entryHeight: Int):
-        GuiListExtended<WaypointListEntry>(mc, width, height, top, top+height, entryHeight) {
+        ExtendedList<WaypointListEntry>(mc, width, height, top, top + height, entryHeight) {
 
     init {
         this.setSlotXBoundsFromLeft(left)
@@ -93,16 +92,13 @@ class GuiWaypointList(val mc: Minecraft, val parent: GuiMappingTable, width: Int
     val slotTops = hashMapOf<Int, Int>()
     val ArrowsTexture = ResourceLocation("minecraft", "textures/gui/resource_packs.png")
 
-
-    override fun drawContainerBackground(tessellator: Tessellator) { }
-
-    override fun drawBackground() {
+    override fun renderBackground() {
         GlStateManager.disableLighting()
         drawGradientRect(left, top, right, bottom, 0xFFC0C0C0.toInt(), 0xFFC0C0C0.toInt())
         GlStateManager.enableLighting()
     }
 
-    override fun drawSelectionBox(insideLeft: Int, insideTop: Int, mouseXIn: Int, mouseYIn: Int, partialTicks: Float) {
+    override fun render(insideLeft: Int, insideTop: Int, partialTicks: Float) {
         glEnable(GL11.GL_STENCIL_TEST)
         glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE)
 
@@ -119,9 +115,9 @@ class GuiWaypointList(val mc: Minecraft, val parent: GuiMappingTable, width: Int
         val buffer = tess.builder
         buffer.begin(GL_QUADS, DefaultVertexFormats.POSITION)
         buffer.pos(left.toDouble(), top.toDouble(), 0.0).endVertex()
-        buffer.pos(left.toDouble(), (top+height).toDouble(), 0.0).endVertex()
-        buffer.pos((left+listWidth).toDouble(), (top+height).toDouble(), 0.0).endVertex()
-        buffer.pos((left+listWidth).toDouble(), top.toDouble(), 0.0).endVertex()
+        buffer.pos(left.toDouble(), (top + height).toDouble(), 0.0).endVertex()
+        buffer.pos((left + listWidth).toDouble(), (top + height).toDouble(), 0.0).endVertex()
+        buffer.pos((left + listWidth).toDouble(), top.toDouble(), 0.0).endVertex()
         tess.end()
         glEnable(GL_TEXTURE_2D)
 
@@ -130,14 +126,14 @@ class GuiWaypointList(val mc: Minecraft, val parent: GuiMappingTable, width: Int
         glStencilMask(0x00)
         //glStencilOp(GL_KEEP, GL_KEEP, GL_ZERO) // reset read values
         glStencilFunc(GL_EQUAL, 1, 0xFF)
-        super.drawSelectionBox(insideLeft, insideTop, mouseXIn, mouseYIn, partialTicks)
+        super.render(insideLeft, insideTop, partialTicks)
         glStencilMask(0xFF)
         glDisable(GL11.GL_STENCIL_TEST)
     }
 
-    override fun overlayBackground(startY: Int, endY: Int, startAlpha: Int, endAlpha: Int) { }
+    override fun renderHoleBackground(startY: Int, endY: Int, startAlpha: Int, endAlpha: Int) {}
 
-    override fun isSelected(index: Int): Boolean {
+    override fun isSelectedItem(index: Int): Boolean {
         return parent.selectedIndex == index
     }
 
@@ -146,6 +142,6 @@ class GuiWaypointList(val mc: Minecraft, val parent: GuiMappingTable, width: Int
     }
 
     override fun getScrollBarX(): Int {
-        return left+width-6
+        return left + width - 6
     }
 }

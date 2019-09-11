@@ -16,7 +16,6 @@ import net.minecraft.network.datasync.DataSerializers
 import net.minecraft.network.datasync.EntityDataManager
 import net.minecraft.tileentity.DispenserTileEntity
 import net.minecraft.tileentity.TileEntity
-import net.minecraft.tileentity.TileEntityDispenser
 import net.minecraft.util.*
 import net.minecraft.util.math.*
 import net.minecraft.util.text.StringTextComponent

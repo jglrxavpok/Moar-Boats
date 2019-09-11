@@ -23,7 +23,6 @@ import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.IItemHandler
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
-import org.jglrxavpok.moarboats.common.items.CargoStopperItem
 import org.jglrxavpok.moarboats.common.items.WaterborneComparatorItem
 import java.util.*
 

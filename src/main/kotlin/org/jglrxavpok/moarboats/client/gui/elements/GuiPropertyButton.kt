@@ -13,7 +13,7 @@ open class GuiPropertyButton(val propertyRenderingInfo: List<Pair<String, Int>>,
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, buttonID: Int): Boolean {
         if(buttonID == 0) {
-            if (this.active && this.visible && mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height) {
+            if(this.active && this.visible && mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height) {
                 propertyIndex++
                 if(propertyIndex >= propertyRenderingInfo.size) {
                     propertyIndex = 0

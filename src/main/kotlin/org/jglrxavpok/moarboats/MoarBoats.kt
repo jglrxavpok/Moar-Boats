@@ -7,7 +7,6 @@ import net.minecraft.block.material.Material
 import net.minecraft.block.material.MaterialColor
 import net.minecraft.block.material.PushReaction
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.screen.Screen
 import net.minecraft.entity.EntityType
 import net.minecraft.item.*
 import net.minecraft.network.datasync.DataSerializers
@@ -23,7 +22,6 @@ import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.event.RegistryEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.DistExecutor
-import net.minecraftforge.fml.ExtensionPoint
 import net.minecraftforge.fml.ModLoadingContext
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.config.ModConfig
@@ -31,7 +29,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
 import net.minecraftforge.fml.event.lifecycle.FMLDedicatedServerSetupEvent
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent
-import net.minecraftforge.fml.network.FMLPlayMessages
 import net.minecraftforge.fml.network.NetworkRegistry
 import net.minecraftforge.registries.RegistryBuilder
 import org.apache.logging.log4j.LogManager
@@ -57,7 +54,6 @@ import org.jglrxavpok.moarboats.integration.LoadIntegrationPlugins
 import org.jglrxavpok.moarboats.integration.MoarBoatsPlugin
 import java.net.URL
 import java.util.concurrent.Callable
-import java.util.function.Function
 import java.util.function.Supplier
 import net.minecraft.block.Blocks as MCBlocks
 import net.minecraft.item.Items as MCItems
@@ -75,9 +71,9 @@ object MoarBoats {
     val registryID = ResourceLocation(ModID, "modules")
     val network = NetworkRegistry.ChannelBuilder
             .named(ResourceLocation(ModID, "network"))
-            .networkProtocolVersion { NetworkingProtocolVersion }
-            .clientAcceptedVersions { NetworkingProtocolVersion == it }
-            .serverAcceptedVersions { NetworkingProtocolVersion == it }
+            .networkProtocolVersion {NetworkingProtocolVersion}
+            .clientAcceptedVersions {NetworkingProtocolVersion == it}
+            .serverAcceptedVersions {NetworkingProtocolVersion == it}
             .simpleChannel()
 
     val PatreonList: List<String> by lazy {
@@ -88,7 +84,7 @@ object MoarBoats {
                     .lines() +
                     "0d2e2d40-72c3-4b2d-b221-ab94a791d5bc" + // jglrxavpok
                     "326e2676-d8bc-4b57-a859-5cb29cef0301" // FrenchUranoscopidae
-        } catch (any: Throwable) {
+        } catch(any: Throwable) {
             MoarBoats.logger.info("Could not retrieve Patreon list because of: ", any)
             emptyList<String>()
         }
@@ -114,10 +110,10 @@ object MoarBoats {
     lateinit var TileEntityMappingTableType: TileEntityType<TileEntityMappingTable>
 
     init {
-        FMLKotlinModLoadingContext.get().modEventBus.addListener { event: FMLClientSetupEvent ->  ClientEvents.doClientStuff(event) }
-        FMLKotlinModLoadingContext.get().modEventBus.addListener { event: FMLCommonSetupEvent ->  setup(event) }
-        FMLKotlinModLoadingContext.get().modEventBus.addListener { event: FMLDedicatedServerSetupEvent -> initDedicatedServer(event) }
-        FMLKotlinModLoadingContext.get().modEventBus.addListener { event: FMLLoadCompleteEvent -> postLoad(event) }
+        FMLKotlinModLoadingContext.get().modEventBus.addListener {event: FMLClientSetupEvent -> ClientEvents.doClientStuff(event)}
+        FMLKotlinModLoadingContext.get().modEventBus.addListener {event: FMLCommonSetupEvent -> setup(event)}
+        FMLKotlinModLoadingContext.get().modEventBus.addListener {event: FMLDedicatedServerSetupEvent -> initDedicatedServer(event)}
+        FMLKotlinModLoadingContext.get().modEventBus.addListener {event: FMLLoadCompleteEvent -> postLoad(event)}
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, MoarBoatsConfig.spec)
 
         MinecraftForge.EVENT_BUS.register(MoarBoatsGuiHandler)
@@ -128,20 +124,24 @@ object MoarBoats {
         try {
             return DistExecutor.runForDist(
                     // client
-                    { Supplier {  ->
-                        when {
-                            Minecraft.getInstance().singleplayerServer != null /* LAN */ -> Minecraft.getInstance().singleplayerServer!!.getLevel(dimensionType).dataStorage
+                    {
+                        Supplier { ->
+                            when {
+                                Minecraft.getInstance().singleplayerServer != null /* LAN */ -> Minecraft.getInstance().singleplayerServer!!.getLevel(dimensionType).dataStorage
 
-                            else -> throw IllegalStateException("The server instance is neither non-null nor null. Something deeply broke somewhere")
+                                else -> throw IllegalStateException("The server instance is neither non-null nor null. Something deeply broke somewhere")
+                            }
                         }
-                    }},
+                    },
 
                     // server
-                    { Supplier<DimensionSavedDataManager> { ->
-                        dedicatedServerInstance!!.getLevel(dimensionType).dataStorage
-                    }}
+                    {
+                        Supplier<DimensionSavedDataManager> { ->
+                            dedicatedServerInstance!!.getLevel(dimensionType).dataStorage
+                        }
+                    }
             )
-        } catch (e: Throwable) {
+        } catch(e: Throwable) {
             MoarBoats.logger.error("Something broke in MoarBoats#getLocalMapStorage(), something in the code might be very wrong! Please report.", e)
             throw e
         }
@@ -152,9 +152,9 @@ object MoarBoats {
         DataSerializers.registerSerializer(ResourceLocationsSerializer)
         DataSerializers.registerSerializer(UniqueIDSerializer)
         plugins.forEach(MoarBoatsPlugin::init)
-/*        ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.GUIFACTORY) {
-            Function<FMLPlayMessages.OpenContainer, Screen?> { container: FMLPlayMessages.OpenContainer -> MoarBoatsGuiHandler.dispatchGui(container) }
-        }*/
+        /*        ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.GUIFACTORY) {
+                    Function<FMLPlayMessages.OpenContainer, Screen?> { container: FMLPlayMessages.OpenContainer -> MoarBoatsGuiHandler.dispatchGui(container) }
+                }*/
     }
 
     fun postLoad(event: FMLLoadCompleteEvent) {
@@ -162,7 +162,7 @@ object MoarBoats {
         plugins.forEach(MoarBoatsPlugin::postInit)
 
         DistExecutor.callWhenOn(Dist.CLIENT) {
-            Callable<Unit> { ClientEvents.postInit(event) }
+            Callable<Unit> {ClientEvents.postInit(event)}
         }
     }
 
@@ -176,7 +176,7 @@ object MoarBoats {
         }
     }
 
-    @KotlinEventBusSubscriber(bus = KotlinEventBusSubscriber.Bus.MOD)
+    @KotlinEventBusSubscriber(modid = ModID, bus = KotlinEventBusSubscriber.Bus.MOD)
     object RegistryEvents {
         @SubscribeEvent
         fun createRegistry(e: RegistryEvent.NewRegistry) {
@@ -189,25 +189,25 @@ object MoarBoats {
 
         @SubscribeEvent
         fun registerModules(event: RegistryEvent.Register<BoatModuleEntry>) {
-            event.registry.registerModule(ResourceLocation("moarboats:furnace_engine"), MCBlocks.FURNACE.asItem(), FurnaceEngineModule, { boat, module -> EngineModuleInventory(boat, module) })
-            event.registry.registerModule(ResourceLocation("moarboats:chest"), MCBlocks.CHEST.asItem(), ChestModule, { boat, module -> ChestModuleInventory(boat, module) })
-            event.registry.registerModule(ResourceLocation("moarboats:helm"), HelmItem, HelmModule, { boat, module -> SimpleModuleInventory(1, "helm", boat, module) })
-            event.registry.registerModule(ResourceLocation("moarboats:fishing"), MCItems.FISHING_ROD, FishingModule, { boat, module -> SimpleModuleInventory(1, "fishing", boat, module) })
+            event.registry.registerModule(ResourceLocation("moarboats:furnace_engine"), MCBlocks.FURNACE.asItem(), FurnaceEngineModule, {boat, module -> EngineModuleInventory(boat, module)})
+            event.registry.registerModule(ResourceLocation("moarboats:chest"), MCBlocks.CHEST.asItem(), ChestModule, {boat, module -> ChestModuleInventory(boat, module)})
+            event.registry.registerModule(ResourceLocation("moarboats:helm"), HelmItem, HelmModule, {boat, module -> SimpleModuleInventory(1, "helm", boat, module)})
+            event.registry.registerModule(ResourceLocation("moarboats:fishing"), MCItems.FISHING_ROD, FishingModule, {boat, module -> SimpleModuleInventory(1, "fishing", boat, module)})
             event.registry.registerModule(SeatModule, SeatItem)
             event.registry.registerModule(AnchorModule, MCBlocks.ANVIL.asItem())
             event.registry.registerModule(SolarEngineModule, MCBlocks.DAYLIGHT_DETECTOR.asItem())
             event.registry.registerModule(CreativeEngineModule, CreativeEngineItem)
             event.registry.registerModule(IceBreakerModule, IceBreakerItem)
             event.registry.registerModule(SonarModule, MCBlocks.NOTE_BLOCK.asItem())
-            event.registry.registerModule(DispenserModule, MCBlocks.DISPENSER.asItem(), { boat, module -> SimpleModuleInventory(3*5, "dispenser", boat, module) })
+            event.registry.registerModule(DispenserModule, MCBlocks.DISPENSER.asItem(), {boat, module -> SimpleModuleInventory(3 * 5, "dispenser", boat, module)})
             event.registry.registerModule(DivingModule, DivingBottleItem)
             event.registry.registerModule(RudderModule, RudderItem)
-            event.registry.registerModule(DropperModule, MCBlocks.DROPPER.asItem(), { boat, module -> SimpleModuleInventory(3*5, "dropper", boat, module) })
+            event.registry.registerModule(DropperModule, MCBlocks.DROPPER.asItem(), {boat, module -> SimpleModuleInventory(3 * 5, "dropper", boat, module)})
             event.registry.registerModule(BatteryModule, BlockBoatBattery.asItem())
             // FIXME event.registry.registerModule(FluidTankModule, BlockBoatTank.asItem())
             event.registry.registerModule(ChunkLoadingModule, ChunkLoaderItem, restriction = MoarBoatsConfig.chunkLoader.allowed::get)
             event.registry.registerModule(OarEngineModule, OarsItem)
-            plugins.forEach { it.registerModules(event.registry) }
+            plugins.forEach {it.registerModules(event.registry)}
         }
 
         @SubscribeEvent
@@ -218,7 +218,7 @@ object MoarBoats {
         @SubscribeEvent
         fun registerItems(e: RegistryEvent.Register<Item>) {
             e.registry.registerAll(*Items.list.toTypedArray())
-            for (block in Blocks.list) {
+            for(block in Blocks.list) {
                 if(!e.registry.containsKey(block.registryName)) { // don't overwrite already existing items
                     e.registry.register(BlockItem(block, Item.Properties().tab(MoarBoats.CreativeTab)).setRegistryName(block.registryName))
                 }

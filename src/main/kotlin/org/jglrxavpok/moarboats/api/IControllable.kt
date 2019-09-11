@@ -1,13 +1,12 @@
 package org.jglrxavpok.moarboats.api
 
-import net.minecraft.dispenser.IDispenseItemBehavior
 import net.minecraft.dispenser.IBlockSource
+import net.minecraft.dispenser.IDispenseItemBehavior
 import net.minecraft.entity.Entity
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.util.Direction
 import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.ChunkPos
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
@@ -53,6 +52,7 @@ interface IControllable: IBlockSource {
      * If 'isLocal' = true, then state will not be synchronised between client & server nor will it be saved to the disk
      */
     fun getState(module: BoatModule, isLocal: Boolean = false): CompoundNBT
+
     fun getInventory(module: BoatModule): BoatModuleInventory
 
     fun dispense(behavior: IDispenseItemBehavior, stack: ItemStack, overridePosition: BlockPos? = null, overrideFacing: Direction? = null): ItemStack
@@ -80,7 +80,7 @@ interface IControllable: IBlockSource {
      * Applies current yaw rotation to the vector
      */
     fun localToWorld(localVec: Vec3d): Vec3d {
-        return localVec.yRot((180f-yaw).toRadians()).add(positionX, positionY, positionZ)
+        return localVec.yRot((180f - yaw).toRadians()).add(positionX, positionY, positionZ)
     }
 
     fun sortModulesByInterestingness(): Iterable<BoatModule> {
@@ -97,7 +97,7 @@ interface IControllable: IBlockSource {
     /**
      * Forces a chunk to be force loaded. Will be effective for 10s. All forced chunks are unforced when the boat is destroyed
      */
-    open fun forceChunkLoad(x: Int, z: Int) {
+    fun forceChunkLoad(x: Int, z: Int) {
         throw UnsupportedOperationException("This ($this) boat does not support chunk force-loading")
     }
 

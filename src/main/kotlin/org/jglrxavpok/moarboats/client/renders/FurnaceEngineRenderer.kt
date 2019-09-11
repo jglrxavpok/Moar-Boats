@@ -1,6 +1,5 @@
 package org.jglrxavpok.moarboats.client.renders
 
-import net.minecraft.block.BlockFurnace
 import net.minecraft.client.Minecraft
 import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.client.renderer.entity.EntityRendererManager

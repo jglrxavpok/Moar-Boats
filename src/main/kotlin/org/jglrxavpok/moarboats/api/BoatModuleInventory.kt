@@ -4,7 +4,6 @@ import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.Inventory
 import net.minecraft.item.ItemStack
 import net.minecraft.util.NonNullList
-import net.minecraft.util.text.StringTextComponent
 import net.minecraftforge.fml.network.PacketDistributor
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.network.SSyncInventory
@@ -21,24 +20,24 @@ abstract class BoatModuleInventory(val inventoryName: String, val slotCount: Int
     fun add(stack: ItemStack): ItemStack {
         val itemstack = stack.copy()
 
-        for (i in 0 until this.containerSize) {
+        for(i in 0 until this.containerSize) {
             val stackInSlot = this.getItem(i)
 
-            if (stackInSlot.isEmpty) {
+            if(stackInSlot.isEmpty) {
                 this.setItem(i, itemstack)
                 this.setChanged()
                 return ItemStack.EMPTY
             }
 
-            if (ItemStack.isSame(stackInSlot, itemstack)) {
-                val maxStackSize = Math.min(this.maxStackSize, stackInSlot.maxStackSize)
-                val canFit = Math.min(itemstack.count, maxStackSize - stackInSlot.count)
+            if(ItemStack.isSame(stackInSlot, itemstack)) {
+                val maxStackSize = this.maxStackSize.coerceAtMost(stackInSlot.maxStackSize)
+                val canFit = itemstack.count.coerceAtMost(maxStackSize - stackInSlot.count)
 
-                if (canFit > 0) {
+                if(canFit > 0) {
                     stackInSlot.grow(canFit)
                     itemstack.shrink(canFit)
 
-                    if (itemstack.isEmpty) {
+                    if(itemstack.isEmpty) {
                         this.setChanged()
                         return ItemStack.EMPTY
                     }
@@ -46,7 +45,7 @@ abstract class BoatModuleInventory(val inventoryName: String, val slotCount: Int
             }
         }
 
-        if (itemstack.count != stack.count) {
+        if(itemstack.count != stack.count) {
             this.setChanged()
         }
 
@@ -70,18 +69,18 @@ abstract class BoatModuleInventory(val inventoryName: String, val slotCount: Int
             val itemstack = inv.getItem(i)
             if(itemstack.isEmpty)
                 continue
-            for (j in 0 until this.containerSize) {
+            for(j in 0 until this.containerSize) {
                 val stackInSlot = this.getItem(j)
 
-                if (stackInSlot.isEmpty) {
-                    return true;
+                if(stackInSlot.isEmpty) {
+                    return true
                 }
 
-                if (ItemStack.isSame(stackInSlot, itemstack)) {
-                    val maxStackSize = Math.min(this.maxStackSize, stackInSlot.maxStackSize)
-                    val canFit = maxStackSize - stackInSlot.count > 0;
+                if(ItemStack.isSame(stackInSlot, itemstack)) {
+                    val maxStackSize = this.maxStackSize.coerceAtMost(stackInSlot.maxStackSize)
+                    val canFit = maxStackSize - stackInSlot.count > 0
 
-                    if (canFit) {
+                    if(canFit) {
                         return true
                     }
                 }

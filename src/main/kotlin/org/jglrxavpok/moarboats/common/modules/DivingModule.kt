@@ -1,11 +1,7 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.block.Blocks
-import net.minecraft.item.BlockItem
-import net.minecraft.potion.Potion
 import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import org.jglrxavpok.moarboats.MoarBoats

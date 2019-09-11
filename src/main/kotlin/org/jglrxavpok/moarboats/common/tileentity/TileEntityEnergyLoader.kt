@@ -1,10 +1,8 @@
 package org.jglrxavpok.moarboats.common.tileentity
 
 import net.minecraft.entity.Entity
-import net.minecraft.inventory.ItemStackHelper
 import net.minecraft.util.Direction
 import net.minecraft.util.ITickable
-import net.minecraft.util.math.AxisAlignedBB
 import net.minecraftforge.energy.CapabilityEnergy
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig

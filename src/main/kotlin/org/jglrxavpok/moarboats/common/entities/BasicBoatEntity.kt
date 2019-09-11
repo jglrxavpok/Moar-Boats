@@ -1,6 +1,5 @@
 package org.jglrxavpok.moarboats.common.entities
 
-import net.minecraft.block.BlockLilyPad
 import net.minecraft.block.Blocks
 import net.minecraft.block.LilyPadBlock
 import net.minecraft.block.state.BlockState
@@ -11,11 +10,9 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.LeashKnotEntity
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.MoverType
-import net.minecraft.entity.item.EntityItem
 import net.minecraft.entity.item.ItemEntity
 import net.minecraft.entity.item.LeashKnotEntity
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.block.Blocks
 import net.minecraft.init.Particles
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack

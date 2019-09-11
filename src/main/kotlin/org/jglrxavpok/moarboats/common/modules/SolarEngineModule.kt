@@ -3,7 +3,6 @@ package org.jglrxavpok.moarboats.common.modules
 import net.minecraft.block.Blocks
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.inventory.IInventory
-import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.util.Hand
@@ -14,7 +13,6 @@ import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.containers.ContainerBase
 import org.jglrxavpok.moarboats.common.containers.EmptyContainer
 import org.jglrxavpok.moarboats.common.state.BooleanBoatProperty
-import kotlin.math.roundToInt
 
 object SolarEngineModule : BaseEngineModule() {
 

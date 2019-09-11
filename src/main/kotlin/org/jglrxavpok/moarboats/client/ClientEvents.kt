@@ -1,10 +1,10 @@
 package org.jglrxavpok.moarboats.client
 
 import com.google.common.collect.ImmutableList
+import com.mojang.blaze3d.platform.GlStateManager
 import net.alexwells.kottle.KotlinEventBusSubscriber
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity
-import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.entity.PlayerRenderer
 import net.minecraft.client.renderer.entity.model.PlayerModel
@@ -31,7 +31,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.models.ModelPatreonHook
 import org.jglrxavpok.moarboats.client.renders.*
-import org.jglrxavpok.moarboats.common.*
+import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.entities.AnimalBoatEntity
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 
@@ -70,7 +70,7 @@ object ClientEvents {
         BoatModuleRenderingRegistry.register(RudderModuleRenderer)
         BoatModuleRenderingRegistry.register(DropperModuleRenderer)
         BoatModuleRenderingRegistry.register(BatteryModuleRenderer)
-       // FIXME BoatModuleRenderingRegistry.register(TankModuleRenderer)
+        // FIXME BoatModuleRenderingRegistry.register(TankModuleRenderer)
         BoatModuleRenderingRegistry.register(ChunkLoadingModuleRenderer)
         BoatModuleRenderingRegistry.register(OarEngineRenderer)
         MoarBoats.plugins.forEach {
@@ -119,7 +119,7 @@ object ClientEvents {
     private fun renderArmFirstPerson(p_187456_1_: Float, swingProgress: Float, p_187456_3_: HandSide) {
         val mc = Minecraft.getInstance()
         val rightHanded = p_187456_3_ != HandSide.LEFT
-        val f = if (rightHanded) 1.0f else -1.0f
+        val f = if(rightHanded) 1.0f else -1.0f
         val f1 = MathHelper.sqrt(swingProgress)
         val f2 = -0.3f * MathHelper.sin(f1 * Math.PI.toFloat())
         val f3 = 0.4f * MathHelper.sin(f1 * (Math.PI.toFloat() * 2f))
@@ -153,12 +153,12 @@ object ClientEvents {
         GlStateManager.enableBlend()
         playerModel.sneaking = false
         playerModel.attackTime = 0.0f
-        playerModel.setupAnim(clientPlayer , 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0625f)
+        playerModel.setupAnim(clientPlayer, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0625f)
 
         GlStateManager.pushMatrix()
         arm.xRot = 0.0f
         GlStateManager.translatef(arm.translateX, arm.translateY, arm.translateZ)
-        GlStateManager.translatef(arm.x*scale, arm.y*scale, arm.z*scale)
+        GlStateManager.translatef(arm.x * scale, arm.y * scale, arm.z * scale)
         GlStateManager.rotatef((arm.zRot * 180f / Math.PI).toFloat(), 0f, 0f, 1f)
         GlStateManager.rotatef((arm.yRot * 180f / Math.PI).toFloat(), 0f, 1f, 0f)
         GlStateManager.rotatef((arm.xRot * 180f / Math.PI).toFloat(), 1f, 0f, 0f)
@@ -171,10 +171,10 @@ object ClientEvents {
         armwearBox.compile(buffer, scale)
         GlStateManager.popMatrix()
 
-        val hookScale = 4f/11f
+        val hookScale = 4f / 11f
         GlStateManager.rotatef(-90f, 0f, 1f, 0f)
         GlStateManager.scalef(hookScale, -hookScale, hookScale)
-        GlStateManager.translatef(-1f/16f, 0f, -1f/16f)
+        GlStateManager.translatef(-1f / 16f, 0f, -1f / 16f)
         GlStateManager.translatef(0f, -1.25f, 0f)
         Minecraft.getInstance().textureManager.bind(hookTextureLocation)
         hookModel.render(clientPlayer, 0f, 0f, 0f, 0f, 0f, scale)

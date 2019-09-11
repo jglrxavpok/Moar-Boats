@@ -1,6 +1,5 @@
 package org.jglrxavpok.moarboats.client.renders
 
-import net.minecraft.block.BlockDispenser
 import net.minecraft.client.Minecraft
 import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.client.renderer.entity.EntityRendererManager
@@ -8,7 +7,6 @@ import net.minecraft.client.renderer.texture.AtlasTexture
 import net.minecraft.block.Blocks
 import net.minecraft.block.DispenserBlock
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
-import org.jglrxavpok.moarboats.common.modules.ChestModule
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.common.modules.DispenserModule
 

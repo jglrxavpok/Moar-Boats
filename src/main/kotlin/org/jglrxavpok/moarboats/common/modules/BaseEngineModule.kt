@@ -1,22 +1,15 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.block.Block
-import net.minecraft.block.BlockHopper
 import net.minecraft.block.HopperBlock
 import net.minecraft.block.material.Material
 import net.minecraft.client.gui.screen.Screen
-import net.minecraft.client.particle.ParticleBreaking
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.init.Particles
 import net.minecraft.inventory.IInventory
-import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.particles.BlockParticleData
-import net.minecraft.particles.IParticleData
-import net.minecraft.particles.ItemParticleData
 import net.minecraft.tileentity.HopperTileEntity
-import net.minecraft.tileentity.TileEntityHopper
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
 import net.minecraftforge.api.distmarker.Dist

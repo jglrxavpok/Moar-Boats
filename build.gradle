@@ -43,9 +43,11 @@ minecraft {
 
             // Recommended logging level for the console
             property 'forge.logging.console.level', 'debug'
+            property 'forge.logging.noansi', 'false'
 
             mods {
-                examplemod {
+                moarboats {
+                    ideaModule "${rootProject.name}.main"
                     source sourceSets.main
                 }
             }
@@ -59,9 +61,11 @@ minecraft {
 
             // Recommended logging level for the console
             property 'forge.logging.console.level', 'debug'
+            property 'forge.logging.noansi', 'false'
 
             mods {
                 moarboats {
+                    ideaModule "${rootProject.name}.main"
                     source sourceSets.main
                 }
             }
@@ -75,8 +79,10 @@ minecraft {
 
             // Recommended logging level for the console
             property 'forge.logging.console.level', 'debug'
+            property 'forge.logging.noansi', 'false'
 
-            args '--mod', 'examplemod', '--all', '--output', file('src/generated/resources/')
+            args '--mod', 'moarboats', '--all', '--output', file('src/generated/resources/')
+            ideaModule "${rootProject.name}.main"
 
         }
     }
