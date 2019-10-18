@@ -1,36 +1,32 @@
 package org.jglrxavpok.moarboats.common.containers
 
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.entity.player.InventoryPlayer
-import net.minecraft.init.Items
-import net.minecraft.inventory.*
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.entity.player.PlayerInventory
+import net.minecraft.item.Items
+import net.minecraft.inventory.container.IContainerListener
 import net.minecraft.item.ItemStack
-import net.minecraftforge.fml.relauncher.Side
-import net.minecraftforge.fml.relauncher.SideOnly
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.api.distmarker.OnlyIn
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 
-class ContainerHelmModule(playerInventory: InventoryPlayer, val helm: BoatModule, val boat: IControllable): ContainerBase(playerInventory) {
+class ContainerHelmModule(containerID: Int, playerInventory: PlayerInventory, helm: BoatModule, boat: IControllable): ContainerBoatModule<ContainerHelmModule>(ContainerTypes.HelmModule, containerID, playerInventory, helm, boat) {
 
     val helmInventory = boat.getInventory(helm)
 
     init {
-        this.addSlotToContainer(SlotMap(helmInventory, 0, 8, 8))
+        this.addSlot(SlotMap(helmInventory, 0, 8, 8))
 
         addPlayerSlots(isLarge = true)
+        this.trackIntArray(helmInventory.additionalData)
     }
 
-    override fun addListener(listener: IContainerListener) {
-        super.addListener(listener)
-        listener.sendAllWindowProperties(this, helmInventory)
-    }
-
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     override fun updateProgressBar(id: Int, data: Int) {
         this.helmInventory.setField(id, data)
     }
 
-    override fun transferStackInSlot(playerIn: EntityPlayer, index: Int): ItemStack {
+    override fun transferStackInSlot(playerIn: PlayerEntity, index: Int): ItemStack {
         var itemstack = ItemStack.EMPTY
         val slot = this.inventorySlots[index]
 
@@ -39,7 +35,7 @@ class ContainerHelmModule(playerInventory: InventoryPlayer, val helm: BoatModule
             itemstack = itemstack1.copy()
 
             if (index != 0) {
-                if (isItemMap(itemstack1)) {
+                if (isMapItem(itemstack1)) {
                     if (!this.mergeItemStack(itemstack1, 0, 1, false)) {
                         return ItemStack.EMPTY
                     }
@@ -70,5 +66,5 @@ class ContainerHelmModule(playerInventory: InventoryPlayer, val helm: BoatModule
         return itemstack
     }
 
-    private fun isItemMap(itemStack: ItemStack) = itemStack.item == Items.FILLED_MAP
+    private fun isMapItem(itemStack: ItemStack) = itemStack.item == Items.FILLED_MAP
 }

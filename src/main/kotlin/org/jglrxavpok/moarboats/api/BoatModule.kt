@@ -1,20 +1,23 @@
 package org.jglrxavpok.moarboats.api
 
-import net.minecraft.client.gui.GuiScreen
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.client.gui.ScreenManager
+import net.minecraft.client.gui.screen.Screen
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.inventory.container.INamedContainerProvider
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.util.EnumHand
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
-import net.minecraft.util.text.TextComponentTranslation
+import net.minecraft.util.text.TranslationTextComponent
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.common.MinecraftForge
-import net.minecraftforge.fml.relauncher.Side
-import net.minecraftforge.fml.relauncher.SideOnly
+import net.minecraftforge.registries.ForgeRegistryEntry
 import net.minecraftforge.registries.IForgeRegistry
-import net.minecraftforge.registries.IForgeRegistryEntry
 import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.common.containers.ContainerBase
+import org.jglrxavpok.moarboats.client.gui.GuiModuleBase
+import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
 import java.util.*
 
 abstract class BoatModule {
@@ -22,11 +25,11 @@ abstract class BoatModule {
     abstract val id: ResourceLocation
     abstract val usesInventory: Boolean
     abstract val moduleSpot: Spot
-    abstract fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean): Boolean
+    abstract fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean): Boolean
     abstract fun controlBoat(from: IControllable)
     abstract fun update(from: IControllable)
     abstract fun onAddition(to: IControllable)
-    abstract fun createContainer(player: EntityPlayer, boat: IControllable): ContainerBase?
+    abstract fun createContainer(containerID: Int, player: PlayerEntity, boat: IControllable): ContainerBoatModule<*>?
 
     /**
      * Set to false if you want the menu to be displayed at the bottom of the module tabs (no config modules use this)
@@ -39,20 +42,20 @@ abstract class BoatModule {
      */
     open val hopperPriority = 1
 
-    @SideOnly(Side.CLIENT)
-    abstract fun createGui(player: EntityPlayer, boat: IControllable): GuiScreen
+    @OnlyIn(Dist.CLIENT)
+    abstract fun createGui(containerID: Int, player: PlayerEntity, boat: IControllable): Screen
 
-    open fun onInit(to: IControllable, fromItem: ItemStack?) { }
+    open fun onInit(to: IControllable, fromItem: ItemStack?) {}
 
     /**
      * Reads additional information from the boat entity NBT data. No need to read/store module state created via the BoatProperty objects
      */
-    open fun readFromNBT(boat: IControllable, compound: NBTTagCompound) { }
+    open fun readFromNBT(boat: IControllable, compound: CompoundNBT) {}
 
     /**
      * Writes additional information to the boat entity NBT data. No need to read/store module state created via the BoatProperty objects
      */
-    open fun writeToNBT(boat: IControllable, compound: NBTTagCompound) = compound
+    open fun writeToNBT(boat: IControllable, compound: CompoundNBT) = compound
 
     val rng = Random()
 
@@ -66,13 +69,25 @@ abstract class BoatModule {
         Navigation("navigation"),
         Misc("misc");
 
-        val text = TextComponentTranslation("general.spot.$id")
+        val text = TranslationTextComponent("general.spot.$id")
     }
 
     open fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {}
+
+    fun generateInteractionObject(boat: IControllable): INamedContainerProvider {
+        return BoatModuleInteractionObject(this, boat)
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    fun guiFactory(): ScreenManager.IScreenFactory<ContainerBoatModule<*>, GuiModuleBase<ContainerBoatModule<*>>> {
+        return ScreenManager.IScreenFactory<ContainerBoatModule<*>, GuiModuleBase<ContainerBoatModule<*>>> { container, playerInv, title ->
+            this.createGui(container.containerID, playerInv.player, container.boat) as GuiModuleBase<ContainerBoatModule<*>>
+        }
+    }
+
 }
 
-class BoatModuleEntry(val correspondingItem: Item, val module: BoatModule, val inventoryFactory: ((IControllable, BoatModule) -> BoatModuleInventory)?, val restriction: () -> Boolean): IForgeRegistryEntry.Impl<BoatModuleEntry>()
+class BoatModuleEntry(val correspondingItem: Item, val module: BoatModule, val inventoryFactory: ((IControllable, BoatModule) -> BoatModuleInventory)?, val restriction: () -> Boolean): ForgeRegistryEntry<BoatModuleEntry>()
 
 object BoatModuleRegistry {
 
@@ -89,7 +104,7 @@ object BoatModuleRegistry {
     }
 
     fun findEntry(module: BoatModule): BoatModuleEntry? {
-        return forgeRegistry.valuesCollection.find { it.module == module }
+        return forgeRegistry.values.find {it.module == module}
     }
 
 }

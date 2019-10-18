@@ -1,15 +1,12 @@
 package org.jglrxavpok.moarboats.common.items
 
-import net.minecraft.creativetab.CreativeTabs
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.item.EnumDyeColor
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.item.DyeColor
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
-import net.minecraft.stats.StatList
+import net.minecraft.stats.Stats
 import net.minecraft.util.*
-import net.minecraft.util.math.MathHelper
-import net.minecraft.util.math.RayTraceResult
-import net.minecraft.util.math.Vec3d
+import net.minecraft.util.math.*
 import net.minecraft.world.World
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.entities.AnimalBoatEntity
@@ -17,38 +14,66 @@ import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.extensions.Fluids
 
-object ModularBoatItem: BaseBoatItem() {
+class ModularBoatItem(val dyeColor: DyeColor): BaseBoatItem() {
 
-    init {
-        unlocalizedName = "modular_boat"
-        registryName = ResourceLocation(MoarBoats.ModID, "modular_boat")
-        setHasSubtypes(true)
-    }
+    companion object {
+        val White = ModularBoatItem(DyeColor.WHITE)
+        val Orange = ModularBoatItem(DyeColor.ORANGE)
+        val Magenta = ModularBoatItem(DyeColor.MAGENTA)
+        val LightBlue = ModularBoatItem(DyeColor.LIGHT_BLUE)
+        val Yellow = ModularBoatItem(DyeColor.YELLOW)
+        val Lime = ModularBoatItem(DyeColor.LIME)
+        val Pink = ModularBoatItem(DyeColor.PINK)
+        val Gray = ModularBoatItem(DyeColor.GRAY)
+        val LightGray = ModularBoatItem(DyeColor.LIGHT_GRAY)
+        val Cyan = ModularBoatItem(DyeColor.CYAN)
+        val Purple = ModularBoatItem(DyeColor.PURPLE)
+        val Blue = ModularBoatItem(DyeColor.BLUE)
+        val Brown = ModularBoatItem(DyeColor.BROWN)
+        val Green = ModularBoatItem(DyeColor.GREEN)
+        val Red = ModularBoatItem(DyeColor.RED)
+        val Black = ModularBoatItem(DyeColor.BLACK)
+        // in same order as DyeColor
+        val AllVersions = arrayOf(
+                White,
+                Orange,
+                Magenta,
+                LightBlue,
+                Yellow,
+                Lime,
+                Pink,
+                Gray,
+                LightGray,
+                Cyan,
+                Purple,
+                Blue,
+                Brown,
+                Green,
+                Red,
+                Black
+        )
 
-    override fun getSubItems(tab: CreativeTabs, items: NonNullList<ItemStack>) {
-        if(tab != creativeTab)
-            return
-        for(color in EnumDyeColor.values()) {
-            items += ItemStack(this, 1, color.ordinal)
+        operator fun get(color: DyeColor): ModularBoatItem {
+            return AllVersions[color.ordinal]
         }
     }
 
-    override fun createBoat(worldIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: EntityPlayer): BasicBoatEntity {
-        val color = EnumDyeColor.values()[itemstack.metadata % EnumDyeColor.values().size] // TODO: use something else for 1.13
+    init {
+        registryName = ResourceLocation(MoarBoats.ModID, "modular_boat_${dyeColor.translationKey}")
+    }
+
+    override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
+        val color = dyeColor
         return ModularBoatEntity(
-                worldIn,
+                levelIn,
                 raytraceresult.hitVec.x,
                 if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y,
                 raytraceresult.hitVec.z,
                 color,
                 ModularBoatEntity.OwningMode.PlayerOwned,
                 playerIn.gameProfile.id).apply {
-                    readEntityFromNBT(itemstack.getOrCreateSubCompound("boat_data"))
+                    readAdditional(itemstack.getOrCreateChildTag("boat_data"))
                 }
-    }
-
-    override fun getMetadata(damage: Int): Int {
-        return damage
     }
 
 }
@@ -56,22 +81,17 @@ object ModularBoatItem: BaseBoatItem() {
 object AnimalBoatItem: BaseBoatItem() {
 
     init {
-        unlocalizedName = "animal_boat"
         registryName = ResourceLocation(MoarBoats.ModID, "animal_boat")
     }
 
-    override fun createBoat(worldIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: EntityPlayer): BasicBoatEntity {
-        return AnimalBoatEntity(worldIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z)
+    override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
+        return AnimalBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z)
     }
 }
 
-abstract class BaseBoatItem: Item() {
+abstract class BaseBoatItem: Item(Item.Properties().group(MoarBoats.CreativeTab).maxStackSize(1)) {
 
-    init {
-        creativeTab = MoarBoats.CreativeTab
-    }
-
-    override fun onItemRightClick(worldIn: World, playerIn: EntityPlayer, handIn: EnumHand): ActionResult<ItemStack> {
+    override fun onItemRightClick(levelIn: World, playerIn: PlayerEntity, handIn: Hand): ActionResult<ItemStack> {
         val itemstack = playerIn.getHeldItem(handIn)
         val f1 = playerIn.prevRotationPitch + (playerIn.rotationPitch - playerIn.prevRotationPitch) * 1.0f
         val f2 = playerIn.prevRotationYaw + (playerIn.rotationYaw - playerIn.prevRotationYaw) * 1.0f
@@ -85,48 +105,47 @@ abstract class BaseBoatItem: Item() {
         val f6 = MathHelper.sin(-f1 * 0.017453292f)
         val f7 = f4 * f5
         val f8 = f3 * f5
-        val vec3d1 = vec3d.addVector(f7.toDouble() * 5.0, f6.toDouble() * 5.0, f8.toDouble() * 5.0)
-        val raytraceresult = worldIn.rayTraceBlocks(vec3d, vec3d1, true)
+        val vec3d1 = vec3d.add(f7.toDouble() * 5.0, f6.toDouble() * 5.0, f8.toDouble() * 5.0)
+        val raytraceresult = levelIn.rayTraceBlocks(RayTraceContext(vec3d, vec3d1, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.ANY, playerIn))
 
         if (raytraceresult == null) {
-            return ActionResult(EnumActionResult.PASS, itemstack)
+            return ActionResult(ActionResultType.PASS, itemstack)
         } else {
             val vec3d2 = playerIn.getLook(1.0f)
-            val list = worldIn.getEntitiesWithinAABBExcludingEntity(playerIn, playerIn.entityBoundingBox.expand(vec3d2.x * 5.0, vec3d2.y * 5.0, vec3d2.z * 5.0).grow(1.0))
+            val list = levelIn.getEntitiesWithinAABBExcludingEntity(playerIn, playerIn.boundingBox.expand(vec3d2.x * 5.0, vec3d2.y * 5.0, vec3d2.z * 5.0).grow(1.0))
 
             val flag = list.indices
                     .map { list[it] }
                     .filter { it.canBeCollidedWith() }
-                    .map { it.entityBoundingBox.grow(it.collisionBorderSize.toDouble()) }
+                    .map { it.boundingBox.grow(it.collisionBorderSize.toDouble()) }
                     .any { it.contains(vec3d) }
 
             if (flag) {
-                return ActionResult(EnumActionResult.PASS, itemstack)
-            } else if (raytraceresult.typeOfHit != RayTraceResult.Type.BLOCK) {
-                return ActionResult(EnumActionResult.PASS, itemstack)
+                return ActionResult(ActionResultType.PASS, itemstack)
+            } else if (raytraceresult.type != RayTraceResult.Type.BLOCK) {
+                return ActionResult(ActionResultType.PASS, itemstack)
             } else {
-                val block = worldIn.getBlockState(raytraceresult.blockPos)
-                val inUsualFluid = Fluids.isUsualLiquidBlock(block)
-                val entityboat = createBoat(worldIn, raytraceresult, inUsualFluid, itemstack, playerIn)
+                val inUsualFluid = Fluids.isUsualLiquidBlock(levelIn, raytraceresult.pos)
+                val entityboat = createBoat(levelIn, raytraceresult, inUsualFluid, itemstack, playerIn)
                 entityboat.rotationYaw = playerIn.rotationYaw
 
-                return if (!worldIn.getCollisionBoxes(entityboat, entityboat.entityBoundingBox.grow(-0.1)).isEmpty()) {
-                    ActionResult(EnumActionResult.FAIL, itemstack)
+                return if (levelIn.getCollisionShapes(entityboat, entityboat.boundingBox.grow(-0.1)).count() != 0L) {
+                    ActionResult(ActionResultType.FAIL, itemstack)
                 } else {
-                    if (!worldIn.isRemote) {
-                        worldIn.spawnEntity(entityboat)
+                    if (!levelIn.isRemote) {
+                        levelIn.addEntity(entityboat)
                     }
 
-                    if (!playerIn.capabilities.isCreativeMode) {
+                    if (!playerIn.isCreative) {
                         itemstack.shrink(1)
                     }
 
-                    playerIn.addStat(StatList.getObjectUseStats(this)!!)
-                    ActionResult(EnumActionResult.SUCCESS, itemstack)
+                    playerIn.addStat(Stats.ITEM_USED[this])
+                    ActionResult(ActionResultType.SUCCESS, itemstack)
                 }
             }
         }
     }
 
-    abstract fun createBoat(worldIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: EntityPlayer): BasicBoatEntity
+    abstract fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity
 }

@@ -1,20 +1,18 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.client.gui.GuiScreen
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.init.Blocks
-import net.minecraft.inventory.Container
-import net.minecraft.item.ItemBlock
-import net.minecraft.util.EnumHand
+import net.minecraft.block.Blocks
+import net.minecraft.client.gui.screen.Screen
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
-import net.minecraftforge.fml.relauncher.Side
-import net.minecraftforge.fml.relauncher.SideOnly
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.api.distmarker.OnlyIn
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.gui.GuiChestModule
 import org.jglrxavpok.moarboats.common.containers.ContainerChestModule
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
-import org.jglrxavpok.moarboats.common.containers.ContainerBase
+import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
 
 object ChestModule: BoatModule() {
     override val id = ResourceLocation(MoarBoats.ModID, "chest")
@@ -23,16 +21,16 @@ object ChestModule: BoatModule() {
     override val moduleSpot = Spot.Storage
     override val hopperPriority = 20
 
-    @SideOnly(Side.CLIENT)
-    override fun createGui(player: EntityPlayer, boat: IControllable): GuiScreen {
-        return GuiChestModule(player.inventory, this, boat)
+    @OnlyIn(Dist.CLIENT)
+    override fun createGui(containerID: Int, player: PlayerEntity, boat: IControllable): Screen {
+        return GuiChestModule(containerID, player.inventory, this, boat)
     }
 
-    override fun createContainer(player: EntityPlayer, boat: IControllable): ContainerBase {
-        return ContainerChestModule(player.inventory, this, boat)
+    override fun createContainer(containerID: Int, player: PlayerEntity, boat: IControllable): ContainerBoatModule<*>? {
+        return ContainerChestModule(containerID, player.inventory, this, boat)
     }
 
-    override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean): Boolean {
+    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean): Boolean {
         return false
     }
 
@@ -50,6 +48,6 @@ object ChestModule: BoatModule() {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.dropItem(ItemBlock.getItemFromBlock(Blocks.CHEST), 1)
+            boat.correspondingEntity.entityDropItem(Blocks.CHEST.asItem(), 1)
     }
 }

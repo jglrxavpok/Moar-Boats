@@ -1,24 +1,19 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.client.gui.GuiScreen
-import net.minecraft.entity.Entity
-import net.minecraft.entity.EntityLiving
-import net.minecraft.entity.EntityLivingBase
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.init.Blocks
-import net.minecraft.init.MobEffects
-import net.minecraft.item.ItemBlock
-import net.minecraft.potion.Potion
-import net.minecraft.potion.PotionEffect
-import net.minecraft.potion.PotionType
-import net.minecraft.util.EnumHand
+import net.minecraft.entity.LivingEntity
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.potion.EffectInstance
+import net.minecraft.potion.Effects
+import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiNoConfigModule
-import org.jglrxavpok.moarboats.common.containers.EmptyContainer
+import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
+import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
 import org.jglrxavpok.moarboats.common.items.DivingBottleItem
+import org.jglrxavpok.moarboats.extensions.getEntities
 
 object DivingModule: BoatModule() {
     override val id = ResourceLocation(MoarBoats.ModID, "diving")
@@ -28,30 +23,32 @@ object DivingModule: BoatModule() {
 
     val maxDistSq = 20.0*20.0
 
-    override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean) = false
+    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean) = false
 
     override fun controlBoat(from: IControllable) { }
 
     override fun update(from: IControllable) {
         val world = from.worldRef
-        val entities = world.getEntities(EntityLivingBase::class.java) { entity ->
+        val entities = world.getEntities<LivingEntity>(null) { entity ->
+            if(entity is LivingEntity)
+                return@getEntities false
             val correctDistance = entity?.getDistanceSq(from.correspondingEntity) ?: Double.POSITIVE_INFINITY <= maxDistSq
             val inWater = entity?.isInWater ?: false
             inWater && correctDistance
-        }
+        }.map { it as LivingEntity }
         entities.forEach {
-            it.addPotionEffect(PotionEffect(MobEffects.WATER_BREATHING, 2, 1, true, true))
+            it.addPotionEffect(EffectInstance(Effects.WATER_BREATHING, 2, 1, true, true))
         }
     }
 
     override fun onAddition(to: IControllable) { }
 
-    override fun createContainer(player: EntityPlayer, boat: IControllable) = EmptyContainer(player.inventory)
+    override fun createContainer(containerID: Int, player: PlayerEntity, boat: IControllable): ContainerBoatModule<*>? = EmptyModuleContainer(containerID, player.inventory, this, boat)
 
-    override fun createGui(player: EntityPlayer, boat: IControllable) = GuiNoConfigModule(player.inventory, this, boat)
+    override fun createGui(containerID: Int, player: PlayerEntity, boat: IControllable) = GuiNoConfigModule(containerID, player.inventory, this, boat)
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.dropItem(DivingBottleItem, 1)
+            boat.correspondingEntity.entityDropItem(DivingBottleItem, 1)
     }
 }

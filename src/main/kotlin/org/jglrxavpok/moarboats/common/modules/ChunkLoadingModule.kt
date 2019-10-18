@@ -1,18 +1,18 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
-import net.minecraft.util.EnumHand
-import net.minecraft.util.EnumParticleTypes
+import net.minecraft.particles.ParticleTypes
+import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.ChunkPos
-import net.minecraftforge.common.ForgeChunkManager
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiNoConfigModule
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
-import org.jglrxavpok.moarboats.common.containers.EmptyContainer
+import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
+import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
 import org.jglrxavpok.moarboats.common.items.ChunkLoaderItem
 import org.jglrxavpok.moarboats.extensions.toRadians
 
@@ -30,17 +30,17 @@ object ChunkLoadingModule: BoatModule() {
             Pair(1, -1)
     )
 
-    override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean) = false
+    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean) = false
 
     override fun controlBoat(from: IControllable) { }
 
     override fun update(from: IControllable) {
-        if(!MoarBoatsConfig.chunkLoader.allowed)
+        if(!MoarBoatsConfig.chunkLoader.allowed.get())
             return
         forceChunks(from)
 
 
-        if(!from.world.isRemote)
+        if(!from.world!!.isRemote)
             return
         val yaw = (from.yaw+90f).toRadians().toDouble()//Math.toRadians(from.yaw.toDouble())
         val width = .0625f * 15f
@@ -53,38 +53,34 @@ object ChunkLoadingModule: BoatModule() {
             val vx = (Math.random() * 2 -1) * 0.2
             val vy = 0.3
             val vz = (Math.random() * 2 -1) * 0.2
-            world.spawnParticle(EnumParticleTypes.PORTAL, posX, posY, posZ, vx, vy, vz)
+            world.addParticle(ParticleTypes.PORTAL, posX, posY, posZ, vx, vy, vz)
         }
     }
 
     private fun forceChunks(boat: IControllable) {
-        boat.chunkTicket?.let {
-
-            val centerPos = ChunkPos(boat.correspondingEntity.chunkCoordX, boat.correspondingEntity.chunkCoordZ)
-            for(i in -1..1) {
-                for(j in -1..1) {
-                    val pos = ChunkPos(centerPos.x+i, centerPos.z+j)
-                    ForgeChunkManager.forceChunk(it, pos)
-                }
+        val centerPos = ChunkPos(boat.correspondingEntity.chunkCoordX, boat.correspondingEntity.chunkCoordZ)
+        for(i in -2..2) {
+            for(j in -2..2) {
+                boat.forceChunkLoad(centerPos.x+i, centerPos.z+j)
             }
         }
     }
 
     override fun onInit(to: IControllable, fromItem: ItemStack?) {
         super.onInit(to, fromItem)
-        if(!MoarBoatsConfig.chunkLoader.allowed)
+        if(!MoarBoatsConfig.chunkLoader.allowed.get())
             return
         forceChunks(to)
     }
 
     override fun onAddition(to: IControllable) { }
 
-    override fun createContainer(player: EntityPlayer, boat: IControllable) = EmptyContainer(player.inventory)
+    override fun createContainer(containerID: Int, player: PlayerEntity, boat: IControllable): ContainerBoatModule<*>? = EmptyModuleContainer(containerID, player.inventory, this, boat)
 
-    override fun createGui(player: EntityPlayer, boat: IControllable) = GuiNoConfigModule(player.inventory, this, boat)
+    override fun createGui(containerID: Int, player: PlayerEntity, boat: IControllable) = GuiNoConfigModule(containerID, player.inventory, this, boat)
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.dropItem(ChunkLoaderItem, 1)
+            boat.correspondingEntity.entityDropItem(ChunkLoaderItem, 1)
     }
 }

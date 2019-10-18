@@ -1,6 +1,7 @@
 {
     "pack": {
-        "description": "Moar Boats resources",
-        "pack_format": 3
+        "description": "Moar Boat resources",
+        "pack_format": 4,
+        "_comment": "Without this file, Forge crashes on startup."
     }
 }

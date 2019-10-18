@@ -1,18 +1,19 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.inventory.IInventory
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.util.EnumHand
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import org.jglrxavpok.moarboats.api.IControllable
-import org.jglrxavpok.moarboats.common.containers.ContainerBase
-import org.jglrxavpok.moarboats.common.containers.EmptyContainer
+import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
+import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
+import org.jglrxavpok.moarboats.common.items.OarsItem
 
 object OarEngineModule: BaseEngineModule(), BlockReason {
-    override fun createContainer(player: EntityPlayer, boat: IControllable): ContainerBase? {
-        return EmptyContainer(player.inventory, isLarge = true)
+    override fun createContainer(containerID: Int, player: PlayerEntity, boat: IControllable): ContainerBoatModule<*>? {
+        return EmptyModuleContainer(containerID, player.inventory, this, boat, isLarge = true)
     }
 
     override val id = ResourceLocation("moarboats:oar_engine")
@@ -24,7 +25,7 @@ object OarEngineModule: BaseEngineModule(), BlockReason {
     }
 
     override fun controlBoat(from: IControllable) {
-        val controllingEntity = from.correspondingEntity.controllingPassenger as? EntityPlayer ?: return
+        val controllingEntity = from.correspondingEntity.controllingPassenger as? PlayerEntity ?: return
         val forward = controllingEntity.moveForward
         val strafe = controllingEntity.moveStrafing
 
@@ -69,7 +70,7 @@ object OarEngineModule: BaseEngineModule(), BlockReason {
         stationaryProperty[to] = false
     }
 
-    override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean): Boolean {
+    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean): Boolean {
         return false
     }
 
@@ -77,7 +78,7 @@ object OarEngineModule: BaseEngineModule(), BlockReason {
         return isOccupied(from)
     }
 
-    override fun updateFuelState(boat: IControllable, state: NBTTagCompound, inv: IInventory) {
+    override fun updateFuelState(boat: IControllable, state: CompoundNBT, inv: IInventory) {
         // NOP
     }
 
@@ -86,5 +87,7 @@ object OarEngineModule: BaseEngineModule(), BlockReason {
     }
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
+        if(!killedByPlayerInCreative)
+            boat.correspondingEntity.entityDropItem(OarsItem, 1)
     }
 }

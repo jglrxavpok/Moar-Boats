@@ -1,16 +1,15 @@
 package org.jglrxavpok.moarboats.api
 
-import net.minecraft.dispenser.IBehaviorDispenseItem
 import net.minecraft.dispenser.IBlockSource
+import net.minecraft.dispenser.IDispenseItemBehavior
 import net.minecraft.entity.Entity
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.util.EnumFacing
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.util.Direction
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
-import net.minecraftforge.common.ForgeChunkManager
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.modules.BlockReason
 import org.jglrxavpok.moarboats.common.state.BoatProperty
@@ -33,7 +32,6 @@ interface IControllable: IBlockSource {
     val moduleRNG: Random
     val blockedReason: BlockReason
     val imposedSpeed: Float
-    val chunkTicket: ForgeChunkManager.Ticket?
 
     fun inLiquid(): Boolean
     fun isEntityInLava(): Boolean
@@ -53,15 +51,16 @@ interface IControllable: IBlockSource {
     /**
      * If 'isLocal' = true, then state will not be synchronised between client & server nor will it be saved to the disk
      */
-    fun getState(module: BoatModule, isLocal: Boolean = false): NBTTagCompound
+    fun getState(module: BoatModule, isLocal: Boolean = false): CompoundNBT
+
     fun getInventory(module: BoatModule): BoatModuleInventory
 
-    fun dispense(behavior: IBehaviorDispenseItem, stack: ItemStack, overridePosition: BlockPos? = null, overrideFacing: EnumFacing? = null): ItemStack
+    fun dispense(behavior: IDispenseItemBehavior, stack: ItemStack, overridePosition: BlockPos? = null, overrideFacing: Direction? = null): ItemStack
 
     /**
      * Takes into account the rotation of the boat
      */
-    fun reorientate(overrideFacing: EnumFacing): EnumFacing
+    fun reorientate(overrideFacing: Direction): Direction
 
     fun getOwnerIdOrNull(): UUID?
     fun getOwnerNameOrNull(): String?
@@ -81,7 +80,7 @@ interface IControllable: IBlockSource {
      * Applies current yaw rotation to the vector
      */
     fun localToWorld(localVec: Vec3d): Vec3d {
-        return localVec.rotateYaw((180f-yaw).toRadians()).addVector(positionX, positionY, positionZ)
+        return localVec.rotateYaw((180f - yaw).toRadians()).add(positionX, positionY, positionZ)
     }
 
     fun sortModulesByInterestingness(): Iterable<BoatModule> {
@@ -93,6 +92,13 @@ interface IControllable: IBlockSource {
                 +100
             }
         }
+    }
+
+    /**
+     * Forces a chunk to be force loaded. Will be effective for 10s. All forced chunks are unforced when the boat is destroyed
+     */
+    fun forceChunkLoad(x: Int, z: Int) {
+        throw UnsupportedOperationException("This ($this) boat does not support chunk force-loading")
     }
 
     operator fun <T> contains(property: BoatProperty<T>): Boolean

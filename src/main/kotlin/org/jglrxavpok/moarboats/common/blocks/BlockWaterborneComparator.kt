@@ -1,21 +1,25 @@
 package org.jglrxavpok.moarboats.common.blocks
 
-import net.minecraft.block.Block
-import net.minecraft.block.BlockHorizontal
-import net.minecraft.block.BlockLiquid
-import net.minecraft.block.BlockRedstoneDiode
-import net.minecraft.block.state.BlockStateContainer
-import net.minecraft.block.state.IBlockState
-import net.minecraft.entity.EntityLivingBase
+import net.minecraft.block.*
+import net.minecraft.block.material.Material
+import net.minecraft.block.BlockState
+import net.minecraft.entity.LivingEntity
 import net.minecraft.item.ItemStack
-import net.minecraft.util.EnumFacing
+import net.minecraft.state.StateContainer
+import net.minecraft.tags.FluidTags
+import net.minecraft.util.BlockRenderLayer
+import net.minecraft.util.Direction
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
-import net.minecraft.world.IBlockAccess
+import net.minecraft.util.math.shapes.ISelectionContext
+import net.minecraft.util.math.shapes.VoxelShape
+import net.minecraft.util.math.shapes.VoxelShapes
+import net.minecraft.world.IBlockReader
+import net.minecraft.world.IWorldReader
 import net.minecraft.world.World
-import net.minecraftforge.fluids.BlockFluidBase
+import net.minecraft.world.storage.loot.LootContext
 import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.IItemHandler
 import org.jglrxavpok.moarboats.MoarBoats
@@ -23,74 +27,50 @@ import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.items.WaterborneComparatorItem
 import java.util.*
 
-object BlockPoweredWaterborneComparator: BlockWaterborneComparator(true)
-object BlockUnpoweredWaterborneComparator: BlockWaterborneComparator(false)
-
-open class BlockWaterborneComparator(val powered: Boolean): BlockRedstoneDiode(powered) {
+object BlockWaterborneComparator: RedstoneDiodeBlock(Block.Properties.create(Material.MISCELLANEOUS).tickRandomly().hardnessAndResistance(0f).sound(SoundType.WOOD)) {
     init {
-        val id = "waterborne_comparator_${if(powered) "" else "un"}lit"
-        registryName = ResourceLocation(MoarBoats.ModID, id)
-        unlocalizedName = id
-        this.defaultState = this.blockState.baseState.withProperty(BlockHorizontal.FACING, EnumFacing.NORTH)
-        tickRandomly = true
+        registryName = ResourceLocation(MoarBoats.ModID, "waterborne_comparator")
+        this.defaultState = stateContainer.baseState.with(HorizontalBlock.HORIZONTAL_FACING, Direction.NORTH).with(POWERED, false)
     }
 
-    override fun canConnectRedstone(state: IBlockState, world: IBlockAccess, pos: BlockPos, side: EnumFacing?): Boolean {
-        return side != null && side != EnumFacing.DOWN && side != EnumFacing.UP && (side == state.getValue(FACING) || side == state.getValue(FACING).opposite)
+    override fun ticksRandomly(state: BlockState) = true
+
+    override fun canConnectRedstone(state: BlockState?, world: IBlockReader?, pos: BlockPos?, side: Direction?): Boolean {
+        return state != null && side != null && side != Direction.DOWN && side != Direction.UP && (side == state.get(HorizontalBlock.HORIZONTAL_FACING) || side == state.get(HorizontalBlock.HORIZONTAL_FACING).opposite)
     }
 
-    override fun getCollisionBoundingBox(blockState: IBlockState, worldIn: IBlockAccess, pos: BlockPos): AxisAlignedBB? {
-        return Block.NULL_AABB
+    override fun getCollisionShape(state: BlockState, worldIn: IBlockReader, pos: BlockPos, context: ISelectionContext): VoxelShape {
+        return VoxelShapes.empty()
     }
 
-    /**
-     * Checks if this block can be placed exactly at the given position.
-     */
-    override fun canPlaceBlockAt(worldIn: World, pos: BlockPos): Boolean {
-        val blockBelow = worldIn.getBlockState(pos.down()).block
-        return blockBelow is BlockLiquid || blockBelow is BlockFluidBase
+    override fun isValidPosition(state: BlockState, worldIn: IWorldReader, pos: BlockPos): Boolean {
+        return worldIn.getFluidState(pos.down()).isTagged(FluidTags.WATER)
     }
 
-    override fun canBlockStay(worldIn: World, pos: BlockPos): Boolean {
-        return canPlaceBlockAt(worldIn, pos)
-    }
-
-    override fun getDelay(state: IBlockState?): Int {
+    override fun getDelay(state: BlockState?): Int {
         return 0
     }
 
-    override fun getUnpoweredState(poweredState: IBlockState): IBlockState {
-        val enumfacing = poweredState.getValue(FACING) as EnumFacing
-        return BlockUnpoweredWaterborneComparator.defaultState.withProperty(FACING, enumfacing)
-    }
-
-    override fun getPoweredState(unpoweredState: IBlockState): IBlockState {
-        val enumfacing = unpoweredState.getValue(FACING) as EnumFacing
-        return BlockPoweredWaterborneComparator.defaultState.withProperty(FACING, enumfacing)
-    }
-
-    override fun getWeakPower(state: IBlockState, blockAccess: IBlockAccess, pos: BlockPos, side: EnumFacing): Int {
-        if(blockAccess is World && side == state.getValue(FACING)) {
+    override fun getWeakPower(state: BlockState, blockAccess: IBlockReader, pos: BlockPos, side: Direction): Int {
+        if(blockAccess is World && side == state.get(HorizontalBlock.HORIZONTAL_FACING)) {
             val world = blockAccess
-            val aabb = AxisAlignedBB(pos.offset(state.getValue(BlockHorizontal.FACING)))
-            val entities = world.getEntitiesWithinAABB(BasicBoatEntity::class.java, aabb) { e -> e != null && e.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null) }
+            val aabb = AxisAlignedBB(pos.offset(state.get(HorizontalBlock.HORIZONTAL_FACING)))
+            val entities = world.getEntitiesWithinAABB(BasicBoatEntity::class.java, aabb) { e -> e != null && e.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).isPresent }
             val first = entities.firstOrNull()
-            return first?.let { calcRedstoneFromInventory(it.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null)) } ?: 0
+            return first?.let {
+                it.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).map { capa -> calcRedstoneFromInventory(capa) }.orElse(0)
+            } ?: 0
         }
         return 0
     }
 
-    override fun requiresUpdates(): Boolean {
-        return true
-    }
-
-    override fun updateTick(worldIn: World, pos: BlockPos, state: IBlockState, rand: Random?) {
+    override fun tick(state: BlockState, worldIn: World, pos: BlockPos, random: Random) {
         val produceSignal = shouldBePowered(worldIn, pos, state)
         when {
-            produceSignal && !isRepeaterPowered -> worldIn.setBlockState(pos, BlockPoweredWaterborneComparator.defaultState.withProperty(BlockHorizontal.FACING, state.getValue(BlockHorizontal.FACING)))
-            !produceSignal && isRepeaterPowered -> worldIn.setBlockState(pos, BlockUnpoweredWaterborneComparator.defaultState.withProperty(BlockHorizontal.FACING, state.getValue(BlockHorizontal.FACING)))
+            produceSignal && !state.get(POWERED) -> worldIn.setBlockState(pos, state.with(POWERED, true).with(HorizontalBlock.HORIZONTAL_FACING, state.get(HorizontalBlock.HORIZONTAL_FACING)))
+            !produceSignal && state.get(POWERED) -> worldIn.setBlockState(pos, state.with(POWERED, false).with(HorizontalBlock.HORIZONTAL_FACING, state.get(HorizontalBlock.HORIZONTAL_FACING)))
         }
-        worldIn.scheduleUpdate(pos, this, 2)
+        worldIn.pendingBlockTicks.scheduleTick(pos, this, 2)
         notifyNeighbors(worldIn, pos, state)
     }
 
@@ -118,63 +98,44 @@ open class BlockWaterborneComparator(val powered: Boolean): BlockRedstoneDiode(p
     /**
      * Used to determine ambient occlusion and culling when rebuilding chunks for render
      */
-    override fun isOpaqueCube(state: IBlockState): Boolean {
+    override fun isSolid(state: BlockState): Boolean {
         return false
     }
 
-    override fun createBlockState(): BlockStateContainer {
-        return BlockStateContainer(this, BlockHorizontal.FACING)
+    override fun fillStateContainer(builder: StateContainer.Builder<Block, BlockState>) {
+        builder.add(HorizontalBlock.HORIZONTAL_FACING, POWERED)
     }
 
-    /**
-     * Convert the given metadata into a BlockState for this Block
-     */
-    override fun getStateFromMeta(meta: Int): IBlockState {
-        return this.defaultState.withProperty(BlockHorizontal.FACING, EnumFacing.getHorizontal(meta))
-    }
-
-    /**
-     * Convert the BlockState into the correct metadata value
-     */
-    override fun getMetaFromState(state: IBlockState): Int {
-        return (state.getValue(BlockHorizontal.FACING) as EnumFacing).horizontalIndex
-    }
-
-    /**
-     * Called serverside after this block is replaced with another in Chunk, but before the Tile Entity is updated
-     */
-    override fun breakBlock(worldIn: World, pos: BlockPos, state: IBlockState) {
-        super.breakBlock(worldIn, pos, state)
+    override fun onReplaced(state: BlockState, worldIn: World, pos: BlockPos, newState: BlockState, isMoving: Boolean) {
+        super.onReplaced(state, worldIn, pos, newState, isMoving)
         this.notifyNeighbors(worldIn, pos, state)
     }
 
-    override fun onBlockPlacedBy(worldIn: World, pos: BlockPos, state: IBlockState, placer: EntityLivingBase, stack: ItemStack) {
+    /**
+     * Called by BlockItems after a block is set in the world, to allow post-place logic
+     */
+    override fun onBlockPlacedBy(worldIn: World, pos: BlockPos, state: BlockState, placer: LivingEntity?, stack: ItemStack) {
         super.onBlockPlacedBy(worldIn, pos, state, placer, stack)
+      //  worldIn.pendingBlockTicks.scheduleTick(pos, this, 2)
         this.notifyNeighbors(worldIn, pos, state)
     }
 
-    override fun onBlockAdded(worldIn: World, pos: BlockPos, state: IBlockState) {
-        super.onBlockAdded(worldIn, pos, state)
-        if(shouldBePowered(worldIn, pos, state) != isRepeaterPowered) {
-            when(!isRepeaterPowered) {
-                true -> worldIn.setBlockState(pos, BlockUnpoweredWaterborneComparator.defaultState.withProperty(BlockHorizontal.FACING, state.getValue(BlockHorizontal.FACING)), 2)
-                false -> worldIn.setBlockState(pos, BlockPoweredWaterborneComparator.defaultState.withProperty(BlockHorizontal.FACING, state.getValue(BlockHorizontal.FACING)), 2)
-            }
-            notifyNeighbors(worldIn, pos, state)
-        }
-        worldIn.scheduleUpdate(pos, this, 2)
+    override fun shouldBePowered(worldIn: World, pos: BlockPos, state: BlockState): Boolean {
+        return getWeakPower(state, worldIn, pos, state.get(HorizontalBlock.HORIZONTAL_FACING)) > 0
     }
 
-    override fun shouldBePowered(worldIn: World, pos: BlockPos, state: IBlockState): Boolean {
-        return getWeakPower(state, worldIn, pos, state.getValue(BlockHorizontal.FACING)) > 0
+    override fun getDrops(state: BlockState, builder: LootContext.Builder): MutableList<ItemStack> {
+        return mutableListOf(ItemStack(WaterborneComparatorItem))
     }
 
-    override fun getItemDropped(state: IBlockState?, rand: Random?, fortune: Int) = WaterborneComparatorItem
+    override fun getItem(worldIn: IBlockReader, pos: BlockPos, state: BlockState) = ItemStack(WaterborneComparatorItem, 1)
 
-    override fun getItem(worldIn: World?, pos: BlockPos?, state: IBlockState?) = ItemStack(WaterborneComparatorItem, 1)
-
-    override fun getWeakChanges(world: IBlockAccess, pos: BlockPos): Boolean {
+    override fun getWeakChanges(state: BlockState?, world: IWorldReader?, pos: BlockPos?): Boolean {
         return true
+    }
+
+    override fun getRenderLayer(): BlockRenderLayer {
+        return BlockRenderLayer.CUTOUT
     }
 
 }

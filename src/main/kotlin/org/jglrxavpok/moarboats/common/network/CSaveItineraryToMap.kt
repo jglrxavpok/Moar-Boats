@@ -1,20 +1,17 @@
 package org.jglrxavpok.moarboats.common.network
 
-import io.netty.buffer.ByteBuf
-import net.minecraft.init.Items
+import net.minecraft.item.Items
 import net.minecraft.util.ResourceLocation
-import net.minecraftforge.fml.common.network.ByteBufUtils
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
-import net.minecraftforge.fml.relauncher.Side
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.fml.network.NetworkEvent
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.common.containers.ContainerHelmModule
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
-import org.jglrxavpok.moarboats.common.items.ItemMapWithPath
+import org.jglrxavpok.moarboats.common.items.MapItemWithPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 
-class CSaveItineraryToMap(): IMessage {
+class CSaveItineraryToMap(): MoarBoatsPacket {
 
     private var boatID = 0
     private var moduleID = ResourceLocation(MoarBoats.ModID, "none")
@@ -24,22 +21,12 @@ class CSaveItineraryToMap(): IMessage {
         this.moduleID = moduleID
     }
 
-    override fun fromBytes(buf: ByteBuf) {
-        boatID = buf.readInt()
-        moduleID = ResourceLocation(ByteBufUtils.readUTF8String(buf))
-    }
+    object Handler: MBMessageHandler<CSaveItineraryToMap, MoarBoatsPacket?> {
+        override val packetClass = CSaveItineraryToMap::class.java
+        override val receiverSide = Dist.DEDICATED_SERVER
 
-    override fun toBytes(buf: ByteBuf) {
-        buf.writeInt(boatID)
-        ByteBufUtils.writeUTF8String(buf, moduleID.toString())
-    }
-
-    object Handler: MBMessageHandler<CSaveItineraryToMap, IMessage?> {
-        override val packetClass = CSaveItineraryToMap::class
-        override val receiverSide = Side.SERVER
-
-        override fun onMessage(message: CSaveItineraryToMap, ctx: MessageContext): IMessage? {
-            val player = ctx.serverHandler.player
+        override fun onMessage(message: CSaveItineraryToMap, ctx: NetworkEvent.Context): MoarBoatsPacket? {
+            val player = ctx.sender!!
             if(player.openContainer !is ContainerHelmModule) {
                 MoarBoats.logger.warn("Player $player tried to save an itinerary to a map while not in a helm container, they might be lagging or cheating")
                 return null
@@ -51,9 +38,9 @@ class CSaveItineraryToMap(): IMessage {
             module as HelmModule
             val list = module.waypointsProperty[boat].copy()
             val inv = boat.getInventory(module)
-            if(inv.getStackInSlot(0).item == Items.FILLED_MAP) {
-                val id = inv.getStackInSlot(0).itemDamage
-                inv.setInventorySlotContents(0, ItemMapWithPath.createStack(list, "map_$id", module.loopingProperty[boat]))
+            if(inv.getStackInSlot(0).item.item == Items.FILLED_MAP) {
+                val id = inv.getStackInSlot(0).damage
+                inv.setInventorySlotContents(0, MapItemWithPath.createStack(list, "map_$id", module.loopingProperty[boat]))
                 player.openContainer.detectAndSendChanges()
             }
             return null

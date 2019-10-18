@@ -1,29 +1,32 @@
 package org.jglrxavpok.moarboats.common.tileentity
 
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.util.EnumFacing
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.tileentity.TileEntityType
+import net.minecraft.util.Direction
 import net.minecraft.util.math.BlockPos
 import net.minecraftforge.common.capabilities.Capability
+import net.minecraftforge.common.util.LazyOptional
 import net.minecraftforge.energy.CapabilityEnergy
 import net.minecraftforge.energy.IEnergyStorage
+import java.lang.NullPointerException
 
 /**
  * From ThunderScience https://github.com/jglrxavpok/ThunderScience/blob/master/src/main/kotlin/org/jglrxavpok/thunderscience/common/tileentity/TileEntityEnergy.kt
  */
-abstract class TileEntityEnergy: TileEntityListenable(), IEnergyStorage {
+abstract class TileEntityEnergy(tileEntityType: TileEntityType<out TileEntityEnergy>): TileEntityListenable(tileEntityType), IEnergyStorage {
 
     internal var energy: Int = 0
     protected abstract val maxReceivableEnergy: Int
     protected abstract val maxExtractableEnergy: Int
 
-    override fun readFromNBT(compound: NBTTagCompound) {
-        super.readFromNBT(compound)
-        energy = compound.getInteger("energy")
+    override fun read(compound: CompoundNBT) {
+        super.read(compound)
+        energy = compound.getInt("energy")
     }
 
-    override fun writeToNBT(compound: NBTTagCompound): NBTTagCompound {
-        compound.setInteger("energy", energy)
-        return super.writeToNBT(compound)
+    override fun write(compound: CompoundNBT): CompoundNBT {
+        compound.putInt("energy", energy)
+        return super.write(compound)
     }
 
     override fun getEnergyStored(): Int {
@@ -56,7 +59,7 @@ abstract class TileEntityEnergy: TileEntityListenable(), IEnergyStorage {
         return actuallyReceived
     }
 
-    fun pushEnergyToNeighbors(totalEnergyToSend: Int, facings: List<EnumFacing> = EnumFacing.values().toList()) {
+    fun pushEnergyToNeighbors(totalEnergyToSend: Int, facings: List<Direction> = Direction.values().toList()) {
         val neighborCount = countNeighbors(facings, IEnergyStorage::canReceive)
         if(neighborCount <= 0)
             return
@@ -70,7 +73,7 @@ abstract class TileEntityEnergy: TileEntityListenable(), IEnergyStorage {
         markDirty()
     }
 
-    fun pullEnergyFromNeighbors(totalEnergyToReceive: Int, facings: List<EnumFacing> = EnumFacing.values().toList()) {
+    fun pullEnergyFromNeighbors(totalEnergyToReceive: Int, facings: List<Direction> = Direction.values().toList()) {
         val neighborCount = countNeighbors(facings, IEnergyStorage::canExtract)
         if(neighborCount <= 0)
             return
@@ -84,26 +87,26 @@ abstract class TileEntityEnergy: TileEntityListenable(), IEnergyStorage {
         markDirty()
     }
 
-    private fun neighborsThatCanReceivePower(facings: List<EnumFacing> = EnumFacing.values().toList(), powerFunction: (IEnergyStorage) -> Boolean) =
+    private fun neighborsThatCanReceivePower(facings: List<Direction> = Direction.values().toList(), powerFunction: (IEnergyStorage) -> Boolean) =
             facings
-                    .mapNotNull {
+                    .map {
                         val neighborPos = pos.offset(it)
                         getPowerCapability(neighborPos, it.opposite)
                     }
+                    .filter {it.isPresent}
+                    .map { it.orElseThrow(::NullPointerException) }
                     .filter(powerFunction)
 
-    private fun countNeighbors(facings: List<EnumFacing> = EnumFacing.values().toList(), powerFunction: (IEnergyStorage) -> Boolean): Int {
+    private fun countNeighbors(facings: List<Direction> = Direction.values().toList(), powerFunction: (IEnergyStorage) -> Boolean): Int {
         return neighborsThatCanReceivePower(facings, powerFunction).count()
     }
 
-    private fun getPowerCapability(pos: BlockPos, facing: EnumFacing): IEnergyStorage? {
-        val te = world.getTileEntity(pos)
+    private fun getPowerCapability(pos: BlockPos, facing: Direction): LazyOptional<IEnergyStorage> {
+        val te = world!!.getTileEntity(pos)
         if(te != null) {
-            if (te.hasCapability(CapabilityEnergy.ENERGY, facing)) {
-                return te.getCapability(CapabilityEnergy.ENERGY, facing)
-            }
+            return te.getCapability(CapabilityEnergy.ENERGY)
         }
-        return null
+        return LazyOptional.empty<IEnergyStorage>()
     }
 
     fun consumeEnergy(amount: Int): Boolean {
@@ -114,20 +117,13 @@ abstract class TileEntityEnergy: TileEntityListenable(), IEnergyStorage {
         return true
     }
 
-    abstract fun isEnergyFacing(facing: EnumFacing?): Boolean
+    abstract fun isEnergyFacing(facing: Direction?): Boolean
 
-    override fun <T : Any?> getCapability(capability: Capability<T>, facing: EnumFacing?): T? {
+    override fun <T : Any?> getCapability(capability: Capability<T>, facing: Direction?): LazyOptional<T> {
         if(capability == CapabilityEnergy.ENERGY && isEnergyFacing(facing)) {
-            return this as T
+            return LazyOptional.of { this }.cast()
         }
         return super.getCapability(capability, facing)
-    }
-
-    override fun hasCapability(capability: Capability<*>, facing: EnumFacing?): Boolean {
-        if(capability == CapabilityEnergy.ENERGY && isEnergyFacing(facing)) {
-            return true
-        }
-        return false
     }
 
 }

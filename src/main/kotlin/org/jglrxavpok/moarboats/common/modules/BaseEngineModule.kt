@@ -1,20 +1,19 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.block.Block
-import net.minecraft.block.BlockHopper
+import net.minecraft.block.HopperBlock
 import net.minecraft.block.material.Material
-import net.minecraft.client.gui.GuiScreen
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.client.gui.screen.Screen
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.inventory.IInventory
-import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.tileentity.TileEntityHopper
-import net.minecraft.util.EnumParticleTypes
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.particles.BlockParticleData
+import net.minecraft.particles.ParticleTypes
+import net.minecraft.tileentity.HopperTileEntity
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
-import net.minecraftforge.fml.relauncher.Side
-import net.minecraftforge.fml.relauncher.SideOnly
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.api.distmarker.OnlyIn
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiEngineModule
@@ -32,7 +31,7 @@ abstract class BaseEngineModule: BoatModule() {
 
     abstract fun hasFuel(from: IControllable): Boolean
     abstract fun getFuelTime(fuelItem: ItemStack): Int
-    protected abstract fun updateFuelState(boat: IControllable, state: NBTTagCompound, inv: IInventory)
+    protected abstract fun updateFuelState(boat: IControllable, state: CompoundNBT, inv: IInventory)
     abstract fun remainingTimeInTicks(from: IControllable): Float
     abstract fun remainingTimeInPercent(from: IControllable): Float
     abstract fun estimatedTotalTicks(boat: IControllable): Float
@@ -50,10 +49,11 @@ abstract class BaseEngineModule: BoatModule() {
                 // special case for full hoppers (see #81)
                 val storage = from.modules.firstOrNull { it.moduleSpot == Spot.Storage }
                 if(storage != null && storage.usesInventory) {
-                    val hopperPos = from.correspondingEntity.position.up()
+                    // todo: pool
+                    val hopperPos = BlockPos(from.correspondingEntity).up()
                     val blockState = from.worldRef.getBlockState(hopperPos)
-                    if(blockState.block is BlockHopper) {
-                        val te = from.worldRef.getTileEntity(hopperPos) as TileEntityHopper
+                    if(blockState.block is HopperBlock) {
+                        val te = from.worldRef.getTileEntity(hopperPos) as HopperTileEntity
                         val storageInventory = from.getInventory(storage)
                         if( ! storageInventory.canAddAnyFrom(te)) {
                             return // bypass lock
@@ -65,9 +65,9 @@ abstract class BaseEngineModule: BoatModule() {
         }
     }
 
-    @SideOnly(Side.CLIENT)
-    override fun createGui(player: EntityPlayer, boat: IControllable): GuiScreen {
-        return GuiEngineModule(player.inventory, this, boat, createContainer(player, boat)!!)
+    @OnlyIn(Dist.CLIENT)
+    override fun createGui(containerID: Int, player: PlayerEntity, boat: IControllable): Screen {
+        return GuiEngineModule(player.inventory, this, boat, createContainer(containerID, player, boat)!!)
     }
 
     override fun onAddition(to: IControllable) {
@@ -83,7 +83,8 @@ abstract class BaseEngineModule: BoatModule() {
             updateFuelState(from, state, inv)
         }
         val world = from.worldRef
-        lockedByRedstoneProperty[from] = world.isBlockPowered(from.correspondingEntity.position)
+        // todo: pool
+        lockedByRedstoneProperty[from] = world.isBlockPowered(BlockPos(from.correspondingEntity))
         from.saveState()
         if(hasFuel(from) && !isStationary(from)) {
             val count = ((Math.random() * 5) + 3).toInt()
@@ -103,14 +104,14 @@ abstract class BaseEngineModule: BoatModule() {
                 val anchorX = posX + MathHelper.cos(angle) * distAlongLength + MathHelper.sin(angle) * distAlongWidth
                 val anchorY = posY + 0.0625f * 4f
                 val anchorZ = posZ + MathHelper.sin(angle) * distAlongLength - MathHelper.cos(angle) * distAlongWidth
-                val particleType = if(blockState.material == Material.WATER) {
-                    EnumParticleTypes.WATER_SPLASH
-                } else {
-                    EnumParticleTypes.BLOCK_CRACK
+                val particle = when {
+                    blockState.material == Material.WATER -> ParticleTypes.DRIPPING_WATER
+                    blockState.material == Material.LAVA -> ParticleTypes.DRIPPING_LAVA
+                    else -> BlockParticleData(ParticleTypes.BLOCK, blockState)
                 }
-                from.worldRef.spawnParticle(particleType, anchorX, anchorY, anchorZ, -from.velocityX, 1.0, -from.velocityZ, Block.getStateId(blockState))
+                from.worldRef.addParticle(particle, anchorX, anchorY, anchorZ, -from.velocityX, 1.0, -from.velocityZ)
             }
-            pos.release()
+            pos.close()
         }
     }
 

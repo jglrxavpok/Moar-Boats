@@ -1,17 +1,17 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.client.gui.GuiScreen
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.util.EnumHand
+import net.minecraft.client.gui.screen.Screen
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
-import net.minecraftforge.fml.relauncher.Side
-import net.minecraftforge.fml.relauncher.SideOnly
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.api.distmarker.OnlyIn
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiNoConfigModule
-import org.jglrxavpok.moarboats.common.containers.ContainerBase
-import org.jglrxavpok.moarboats.common.containers.EmptyContainer
+import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
+import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
 import org.jglrxavpok.moarboats.common.items.SeatItem
 
 object SeatModule : BoatModule() {
@@ -21,16 +21,16 @@ object SeatModule : BoatModule() {
     override val moduleSpot = Spot.Storage
     override val isMenuInteresting = false
 
-    @SideOnly(Side.CLIENT)
-    override fun createGui(player: EntityPlayer, boat: IControllable): GuiScreen {
-        return GuiNoConfigModule(player.inventory, this, boat)
+    @OnlyIn(Dist.CLIENT)
+    override fun createGui(containerID: Int, player: PlayerEntity, boat: IControllable): Screen {
+        return GuiNoConfigModule(containerID, player.inventory, this, boat)
     }
 
-    override fun createContainer(player: EntityPlayer, boat: IControllable): ContainerBase? {
-        return EmptyContainer(player.inventory)
+    override fun createContainer(containerID: Int, player: PlayerEntity, boat: IControllable): ContainerBoatModule<*>? {
+        return EmptyModuleContainer(containerID, player.inventory, this, boat)
     }
 
-    override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean): Boolean {
+    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean): Boolean {
         return false
     }
 
@@ -42,6 +42,6 @@ object SeatModule : BoatModule() {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.dropItem(SeatItem, 1)
+            boat.correspondingEntity.entityDropItem(SeatItem, 1)
     }
 }

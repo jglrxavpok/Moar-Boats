@@ -1,26 +1,23 @@
 package org.jglrxavpok.moarboats.common.network
 
-import io.netty.buffer.ByteBuf
-import net.minecraft.item.ItemMap
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagList
+import net.minecraft.nbt.ListNBT
 import net.minecraft.util.math.BlockPos
-import net.minecraftforge.fml.common.network.ByteBufUtils
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
-import net.minecraftforge.fml.relauncher.Side
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.fml.network.NetworkEvent
+import net.minecraftforge.fml.network.PacketDistributor
 import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 
-abstract class CxxAddWaypointToItemPath(): IMessage {
+abstract class CxxAddWaypointToItemPath(): MoarBoatsPacket {
 
     var x: Int = 0
     var z: Int = 0
 
+    @MoarBoatsPacket.Nullable
     var boost: Double? = null
+    @MoarBoatsPacket.Nullable
     var insertionIndex: Int? = null
 
     constructor(pos: BlockPos, boost: Double?, insertionIndex: Int?): this() {
@@ -31,38 +28,13 @@ abstract class CxxAddWaypointToItemPath(): IMessage {
     }
 
 
-    override fun fromBytes(buf: ByteBuf) {
-        x = buf.readInt()
-        z = buf.readInt()
-        boost = if(buf.readBoolean())
-            buf.readDouble()
-        else
-            null
-        insertionIndex = if(buf.readBoolean())
-            buf.readInt()
-        else
-            null
-    }
-
-    override fun toBytes(buf: ByteBuf) {
-        buf.writeInt(x)
-        buf.writeInt(z)
-        buf.writeBoolean(boost != null)
-        if(boost != null)
-            buf.writeDouble(boost!!)
-        buf.writeBoolean(insertionIndex != null)
-        if(insertionIndex != null) {
-            buf.writeInt(insertionIndex!!)
-        }
-    }
-
-    abstract class Handler<T: CxxAddWaypointToItemPath, UpdateResponse: IMessage>: MBMessageHandler<T, IMessage?> {
+    abstract class Handler<T: CxxAddWaypointToItemPath, UpdateResponse: MoarBoatsPacket>: MBMessageHandler<T, MoarBoatsPacket?> {
         abstract val item: ItemPath
-        abstract fun getStack(message: T, ctx: MessageContext): ItemStack?
-        abstract fun createResponse(message: T, ctx: MessageContext, waypointList: NBTTagList): UpdateResponse?
-        override val receiverSide = Side.SERVER
+        abstract fun getStack(message: T, ctx: NetworkEvent.Context): ItemStack?
+        abstract fun createResponse(message: T, ctx: NetworkEvent.Context, waypointList: ListNBT): UpdateResponse?
+        override val receiverSide = Dist.DEDICATED_SERVER
 
-        override fun onMessage(message: T, ctx: MessageContext): IMessage? {
+        override fun onMessage(message: T, ctx: NetworkEvent.Context): MoarBoatsPacket? {
             val stack = getStack(message, ctx) ?: return null
             val data = item.getWaypointData(stack, MoarBoats.getLocalMapStorage())
             HelmModule.addWaypointToList(data,
@@ -71,7 +43,7 @@ abstract class CxxAddWaypointToItemPath(): IMessage {
                     message.boost,
                     message.insertionIndex)
             val answer = createResponse(message, ctx, data)
-            MoarBoats.network.sendToAll(answer)
+            MoarBoats.network.send(PacketDistributor.ALL.noArg(), answer)
             return SConfirmWaypointCreation(data)
         }
 

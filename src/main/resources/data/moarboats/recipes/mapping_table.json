@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "LPL",
+    "IMI",
+    "ICI"
+  ],
+  "key": {
+    "L": {
+      "item": "minecraft:leather"
+    },
+    "P": [
+      {
+        "tag": "moarboats:stained_glass_panes"
+      }
+    ],
+    "M": {
+      "item": "minecraft:map"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "C": {
+      "item": "minecraft:crafting_table"
+    }
+  },
+  "result": {
+    "item": "moarboats:mapping_table"
+  }
+}

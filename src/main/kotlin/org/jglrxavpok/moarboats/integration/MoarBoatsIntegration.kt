@@ -1,17 +1,20 @@
 package org.jglrxavpok.moarboats.integration
 
+import com.google.common.reflect.ClassPath
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.common.MinecraftForge
-import net.minecraftforge.fml.common.Loader
-import net.minecraftforge.fml.common.discovery.ASMDataTable
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.relauncher.Side
-import net.minecraftforge.fml.relauncher.SideOnly
+import net.minecraftforge.fml.ModList
+import net.minecraftforge.fml.ModLoadingContext
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
+import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent
+import net.minecraftforge.fml.event.lifecycle.FMLModIdMappingEvent
 import net.minecraftforge.registries.IForgeRegistry
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModuleEntry
 import org.jglrxavpok.moarboats.client.renders.BoatModuleRenderer
 import org.jglrxavpok.moarboats.common.network.MBMessageHandler
+import org.jglrxavpok.moarboats.common.network.MoarBoatsPacket
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
@@ -28,13 +31,13 @@ interface MoarBoatsPlugin {
     fun init() {}
     fun postInit() {}
     fun registerModules(registry: IForgeRegistry<BoatModuleEntry>) {}
-    fun handlers(): List<MBMessageHandler<out IMessage, out IMessage?>> = emptyList()
+    fun handlers(): List<MBMessageHandler<out MoarBoatsPacket, out MoarBoatsPacket?>> = emptyList()
 
     fun registerAsEventSubscriber() {
         MinecraftForge.EVENT_BUS.register(this)
     }
 
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     fun registerModuleRenderers(registry: IForgeRegistry<BoatModuleRenderer>) {}
 
 }
@@ -43,20 +46,22 @@ interface MoarBoatsPlugin {
  * This method looks for classes that implement MoarBoatsPlugin & have @MoarBoatsIntegration, check to see if their dependency
  * (the mod for which the plugin is made) is present and loads the plugin if that's the case
  */
-fun LoadIntegrationPlugins(event: FMLPreInitializationEvent): List<MoarBoatsPlugin> {
+fun LoadIntegrationPlugins(): List<MoarBoatsPlugin> {
 
+    // TODO: Use IMC messages?
+    
     /**
      * Tries to load the plugin from the given ASMData, also verifies that the dependency is present
      */
-    fun tryGetPlugin(info: ASMDataTable.ASMData): MoarBoatsPlugin? {
+    fun tryGetPlugin(info: ClassPath.ClassInfo): MoarBoatsPlugin? {
         try {
-            val clazz = Class.forName(info.className, true, MoarBoatsIntegration::class.java.classLoader)
+            val clazz = info.load()
             val valid = with(clazz) {
                 if(!MoarBoatsPlugin::class.java.isAssignableFrom(this))
                     return@with false
                 val integration = this.getAnnotation(MoarBoatsIntegration::class.java)
-                MoarBoats.logger.info("Found candidate ${info.className} with dependency ${integration.dependency}")
-                if(Loader.isModLoaded(integration.dependency))
+                MoarBoats.logger.info("Found candidate ${info.name} with dependency ${integration.dependency}")
+                if(ModList.get().isLoaded(integration.dependency))
                     true
                 else {
                     MoarBoats.logger.warn("Dependency ${integration.dependency} not found for plugin $canonicalName")
@@ -67,17 +72,28 @@ fun LoadIntegrationPlugins(event: FMLPreInitializationEvent): List<MoarBoatsPlug
                 return clazz.newInstance() as MoarBoatsPlugin
             }
         } catch (t: Throwable) {
-            MoarBoats.logger.error("Failed to load plugin ${info.className}", t)
+            MoarBoats.logger.error("Failed to load plugin ${info.name}", t)
         }
         return null
     }
-
     // Go through all classes that have @MoarBoatsIntegration
-    val classes = event.asmData.getAll(MoarBoatsIntegration::class.java.canonicalName)//ClassPath.from(MoarBoats::class.java.classLoader).allClasses
+    val classpath = ClassPath.from(MoarBoats::class.java.classLoader)
+    val classes = classpath.topLevelClasses.filter {
+        if(it.name == "module-info") {
+            return@filter false
+        }
+        try {
+            val clazz = it.load()
+            clazz.isAnnotationPresent(MoarBoatsIntegration::class.java)
+        } catch (e: Throwable) {
+            // Google Classpath somehow found a class that doesn't exist or doesn't load correctly ¯\_(ツ)_/¯
+            false
+        }
+    }
     val plugins = mutableListOf<MoarBoatsPlugin>()
     MoarBoats.logger.info("Starting search for plugins")
     classes.forEach { info ->
-        MoarBoats.logger.debug("Looking for potential plugin in ${info.className}")
+        MoarBoats.logger.debug("Looking for potential plugin in ${info.name}")
         val plugin = tryGetPlugin(info)
         plugin?.let { plugins += it }
     }

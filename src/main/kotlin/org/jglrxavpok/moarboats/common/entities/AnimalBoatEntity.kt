@@ -1,51 +1,50 @@
 package org.jglrxavpok.moarboats.common.entities
 
-import net.minecraft.block.state.IBlockState
-import net.minecraft.dispenser.IBehaviorDispenseItem
+import net.minecraft.block.BlockState
+import net.minecraft.dispenser.IDispenseItemBehavior
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EntityLivingBase
-import net.minecraft.entity.passive.EntityWaterMob
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.LivingEntity
+import net.minecraft.entity.passive.WaterMobEntity
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.tileentity.DispenserTileEntity
 import net.minecraft.tileentity.TileEntity
-import net.minecraft.tileentity.TileEntityDispenser
 import net.minecraft.util.*
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
-import net.minecraftforge.common.ForgeChunkManager
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleInventory
+import org.jglrxavpok.moarboats.common.EntityEntries
 import org.jglrxavpok.moarboats.common.items.AnimalBoatItem
-import org.jglrxavpok.moarboats.common.items.ModularBoatItem
 import org.jglrxavpok.moarboats.common.state.BoatProperty
 import org.jglrxavpok.moarboats.extensions.Fluids
 import org.jglrxavpok.moarboats.extensions.toRadians
 import java.util.*
 
-class AnimalBoatEntity(world: World): BasicBoatEntity(world) {
+class AnimalBoatEntity(world: World): BasicBoatEntity(EntityEntries.AnimalBoat, world) {
     override val entityID: Int
-        get() = entityId
+        get() = this.entityId
 
     override val modules: List<BoatModule> = emptyList()
     override val moduleRNG: Random = Random()
-    override val chunkTicket = null
 
     init {
         this.preventEntitySpawning = true
-        this.setSize(1.375f *1.5f, 0.5625f)
     }
 
-    constructor(world: World, x: Double, y: Double, z: Double): this(world) {
+    constructor(level: World, x: Double, y: Double, z: Double): this(level) {
         this.setPosition(x, y, z)
-        this.motionX = 0.0
-        this.motionY = 0.0
-        this.motionZ = 0.0
+        this.motion = Vec3d.ZERO
         this.prevPosX = x
         this.prevPosY = y
         this.prevPosZ = z
+    }
+
+    override fun getWorld(): World {
+        return this.worldRef
     }
 
     override fun getBoatItem() = AnimalBoatItem
@@ -62,13 +61,13 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(world) {
         return 0.0
     }
 
-    override fun onUpdate() {
-        super.onUpdate()
-        val list = this.world.getEntitiesInAABBexcluding(this, this.entityBoundingBox.grow(0.20000000298023224, 0.009999999776482582, 0.20000000298023224), EntitySelectors.getTeamCollisionPredicate(this))
+    override fun tick() {
+        super.tick()
+        val list = this.world.getEntitiesInAABBexcluding(this, this.boundingBox.expand(0.20000000298023224, 0.009999999776482582, 0.20000000298023224), EntityPredicates.pushableBy(this))
 
         for (entity in list) {
             if (!entity.isPassenger(this)) {
-                if (this.passengers.isEmpty() && !entity.isRiding && entity.width < this.width && entity is EntityLivingBase && entity !is EntityWaterMob && entity !is EntityPlayer) {
+                if (this.passengers.isEmpty() && !entity.isPassenger && entity.width < this.width && entity is LivingEntity && entity !is WaterMobEntity && entity !is PlayerEntity) {
                     entity.startRiding(this)
                 }
             }
@@ -92,42 +91,42 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(world) {
 
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative) {
-            dropItem(AnimalBoatItem, 1)
+            entityDropItem(AnimalBoatItem, 1)
         }
     }
 
-    override fun isValidLiquidBlock(blockstate: IBlockState) = Fluids.isUsualLiquidBlock(blockstate)
+    override fun isValidLiquidBlock(pos: BlockPos) = Fluids.isUsualLiquidBlock(world, pos)
 
     override fun attackEntityFrom(source: DamageSource, amount: Float) = when(source) {
         DamageSource.LAVA, DamageSource.IN_FIRE, DamageSource.ON_FIRE -> false
-        is EntityDamageSourceIndirect -> false // avoid to kill yourself with your own arrows; also you are an *iron* boat, act like it
+        is IndirectEntityDamageSource -> false // avoid to kill yourself with your own arrows; also you are an *iron* boat, act like it
         else -> super.attackEntityFrom(source, amount)
     }
 
-    override fun canStartRiding(player: EntityPlayer, heldItem: ItemStack, hand: EnumHand): Boolean {
+    override fun canStartRiding(player: PlayerEntity, heldItem: ItemStack, hand: Hand): Boolean {
         return false
     }
 
     override fun saveState(module: BoatModule, isLocal: Boolean) { /* NOP */ }
 
-    override fun getState(module: BoatModule, isLocal: Boolean): NBTTagCompound {
-        return NBTTagCompound()
+    override fun getState(module: BoatModule, isLocal: Boolean): CompoundNBT {
+        return CompoundNBT()
     }
 
     override fun getInventory(module: BoatModule): BoatModuleInventory {
         error("Animal boats cannot have inventories!")
     }
 
-    override fun dispense(behavior: IBehaviorDispenseItem, stack: ItemStack, overridePosition: BlockPos?, overrideFacing: EnumFacing?): ItemStack {
+    override fun dispense(behavior: IDispenseItemBehavior, stack: ItemStack, overridePosition: BlockPos?, overrideFacing: Direction?): ItemStack {
         return ItemStack.EMPTY
     }
 
-    override fun reorientate(overrideFacing: EnumFacing): EnumFacing {
+    override fun reorientate(overrideFacing: Direction): Direction {
         return overrideFacing
     }
 
     override fun <T : TileEntity?> getBlockTileEntity(): T {
-        return TileEntityDispenser() as T
+        return DispenserTileEntity() as T
     }
 
     override fun getX() = posX
@@ -136,7 +135,7 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(world) {
 
     override fun getZ() = posZ
 
-    override fun getBlockState(): IBlockState {
+    override fun getBlockState(): BlockState {
         return world.getBlockState(position)
     }
 
@@ -146,9 +145,9 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(world) {
 
     override fun updatePassenger(passenger: Entity) {
         if (this.isPassenger(passenger)) {
-            val f1 = ((if (this.isDead) 0.009999999776482582 else this.mountedYOffset) + passenger.yOffset).toFloat()
+            val f1 = ((if ( ! this.isAlive) 0.009999999776482582 else this.mountedYOffset) + passenger.yOffset).toFloat()
 
-            passenger.setPosition(this.posX, this.posY + f1.toDouble(), this.posZ)
+            passenger.setPosition(this.x, this.y + f1.toDouble(), this.z)
             passenger.rotationYaw += this.deltaRotation
             passenger.rotationYawHead = passenger.rotationYawHead + this.deltaRotation
             this.applyYawToEntity(passenger)
@@ -156,7 +155,7 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(world) {
     }
 
     override fun canFitPassenger(passenger: Entity): Boolean {
-        return this.passengers.isEmpty() && passenger !is EntityPlayer
+        return this.passengers.isEmpty() && passenger !is PlayerEntity
     }
 
     override fun isSpeedImposed(): Boolean {

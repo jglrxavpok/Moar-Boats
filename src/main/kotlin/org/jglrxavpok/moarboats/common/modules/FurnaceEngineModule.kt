@@ -1,27 +1,27 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.init.Blocks
-import net.minecraft.init.Items
+import net.minecraft.block.Blocks
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.item.Items
 import net.minecraft.inventory.IInventory
 import net.minecraft.item.Item
-import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.tileentity.TileEntityFurnace
-import net.minecraft.util.EnumHand
-import net.minecraft.util.EnumParticleTypes
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.particles.ParticleTypes
+import net.minecraft.tileentity.AbstractFurnaceTileEntity
+import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
+import net.minecraftforge.event.ForgeEventFactory
 import org.jglrxavpok.moarboats.api.IControllable
-import org.jglrxavpok.moarboats.common.containers.ContainerBase
+import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
 import org.jglrxavpok.moarboats.common.containers.ContainerFurnaceEngine
 import org.jglrxavpok.moarboats.common.state.IntBoatProperty
 import org.jglrxavpok.moarboats.extensions.toRadians
 
 object FurnaceEngineModule : BaseEngineModule() {
-    override fun createContainer(player: EntityPlayer, boat: IControllable): ContainerBase {
-        return ContainerFurnaceEngine(player.inventory, this, boat)
+    override fun createContainer(containerID: Int, player: PlayerEntity, boat: IControllable): ContainerBoatModule<*>? {
+        return ContainerFurnaceEngine(containerID, player.inventory, this, boat)
     }
 
     override val id = ResourceLocation("moarboats:furnace_engine")
@@ -54,7 +54,7 @@ object FurnaceEngineModule : BaseEngineModule() {
         fuelTotalTimeProperty[to] = 0
     }
 
-    override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean): Boolean {
+    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean): Boolean {
         return false
     }
 
@@ -64,7 +64,7 @@ object FurnaceEngineModule : BaseEngineModule() {
         return fuelTime < fuelTotalTime
     }
 
-    override fun updateFuelState(boat: IControllable, state: NBTTagCompound, inv: IInventory) {
+    override fun updateFuelState(boat: IControllable, state: CompoundNBT, inv: IInventory) {
         val fuelTime = fuelTimeProperty[boat]
         val fuelTotalTime = fuelTotalTimeProperty[boat]
         if(fuelTime < fuelTotalTime) {
@@ -91,7 +91,7 @@ object FurnaceEngineModule : BaseEngineModule() {
             val cos = MathHelper.cos((boat.yaw + 90f).toRadians())
             val sin = MathHelper.sin((boat.yaw + 90f).toRadians())
             val dist = 0.5
-            boat.worldRef.spawnParticle(EnumParticleTypes.SMOKE_LARGE, boat.positionX + dist * cos, boat.positionY + 0.8, boat.positionZ + dist * sin, 0.0, 0.0, 0.0)
+            boat.worldRef.addParticle(ParticleTypes.LARGE_SMOKE, boat.positionX + dist * cos, boat.positionY + 0.8, boat.positionZ + dist * sin, 0.0, 0.0, 0.0)
         }
     }
 
@@ -115,17 +115,30 @@ object FurnaceEngineModule : BaseEngineModule() {
 
     override fun getFuelTime(fuelItem: ItemStack): Int {
         return when(fuelItem.item) {
-            Item.getItemFromBlock(Blocks.TORCH) -> 1*SECONDS_TO_TICKS
+            Blocks.TORCH.asItem() -> 1*SECONDS_TO_TICKS
             Items.COAL -> 60*3*SECONDS_TO_TICKS
             Items.LAVA_BUCKET -> 60*15*SECONDS_TO_TICKS
-            Item.getItemFromBlock(Blocks.MAGMA) -> 60*30*SECONDS_TO_TICKS
-            Item.getItemFromBlock(Blocks.COAL_BLOCK) -> 30*30*SECONDS_TO_TICKS
-            else -> (TileEntityFurnace.getItemBurnTime(fuelItem)*.9).toInt() // scale time to make lava bucket burn time the same duration as the one above
+            Blocks.MAGMA_BLOCK.asItem() -> 60*30*SECONDS_TO_TICKS
+            Blocks.COAL_BLOCK.asItem() -> 30*30*SECONDS_TO_TICKS
+            else -> (getBurnTime(fuelItem)*.9).toInt() // scale time to make lava bucket burn time the same duration as the one above
+        }
+    }
+
+    /**
+     * From AbstractFurnaceTileEntity
+     */
+    fun getBurnTime(stack: ItemStack): Int {
+        return if (stack.isEmpty) {
+            0
+        } else {
+            val item = stack.item
+            val ret = stack.burnTime
+            ForgeEventFactory.getItemBurnTime(stack, if (ret == -1) (AbstractFurnaceTileEntity.getBurnTimes()).getOrDefault(item, 0) as Int else ret)
         }
     }
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.dropItem(ItemBlock.getItemFromBlock(Blocks.FURNACE), 1)
+            boat.correspondingEntity.entityDropItem(Blocks.FURNACE.asItem(), 1)
     }
 }

@@ -1,8 +1,8 @@
 package org.jglrxavpok.moarboats.common.data
 
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.nbt.NBTTagList
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.ListNBT
 import net.minecraft.util.math.BlockPos
 import net.minecraftforge.common.util.Constants
 import org.jglrxavpok.moarboats.MoarBoats
@@ -15,7 +15,7 @@ import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 interface PathHolder {
     fun getLoopingOption(): LoopingOptions
     fun setLoopingState(loopingOptions: LoopingOptions)
-    fun getWaypointNBTList(): NBTTagList
+    fun getWaypointNBTList(): ListNBT
     fun removeWaypoint(closestIndex: Int)
     fun addWaypoint(pos: BlockPos, boost: Double?)
     fun getHolderLocation(): BlockPos?
@@ -25,7 +25,7 @@ interface PathHolder {
 
 class BoatPathHolder(val boat: IControllable): PathHolder {
     override fun getBaseMapID(): String {
-        return HelmModule.mapDataCopyProperty[boat].mapName
+        return HelmModule.mapDataCopyProperty[boat].name
     }
 
     override fun sendWorldImageRequest(mapID: String) {
@@ -40,8 +40,8 @@ class BoatPathHolder(val boat: IControllable): PathHolder {
         MoarBoats.network.sendToServer(CRemoveWaypoint(closestIndex, boat.entityID))
     }
 
-    override fun getWaypointNBTList(): NBTTagList {
-        return boat.getState(HelmModule).getTagList(HelmModule.waypointsProperty.id, Constants.NBT.TAG_COMPOUND)
+    override fun getWaypointNBTList(): ListNBT {
+        return boat.getState(HelmModule).getList(HelmModule.waypointsProperty.id, Constants.NBT.TAG_COMPOUND)
     }
 
     override fun getLoopingOption(): LoopingOptions {
@@ -59,11 +59,11 @@ class BoatPathHolder(val boat: IControllable): PathHolder {
 
 class MapWithPathHolder(stack: ItemStack, mappingTable: TileEntityMappingTable?, boat: IControllable?): ItemPathHolder(stack, mappingTable, boat) {
 
-    override fun nbt(): NBTTagCompound {
-        if(stack.tagCompound == null) {
-            stack.tagCompound = NBTTagCompound()
+    override fun nbt(): CompoundNBT {
+        if(stack.tag == null) {
+            stack.tag = CompoundNBT()
         }
-        return stack.tagCompound!!
+        return stack.tag!!
     }
 
     override fun addWaypoint(pos: BlockPos, boost: Double?) {
@@ -84,8 +84,8 @@ class MapWithPathHolder(stack: ItemStack, mappingTable: TileEntityMappingTable?,
 }
 
 class GoldenTicketPathHolder(stack: ItemStack, mappingTable: TileEntityMappingTable?, boat: IControllable?): ItemPathHolder(stack, mappingTable, boat) {
-    override fun nbt(): NBTTagCompound {
-        return ItemGoldenTicket.getData(stack).writeToNBT(NBTTagCompound())
+    override fun nbt(): CompoundNBT {
+        return ItemGoldenTicket.getData(stack).write(CompoundNBT())
     }
 
     override fun addWaypoint(pos: BlockPos, boost: Double?) {
@@ -107,7 +107,7 @@ class GoldenTicketPathHolder(stack: ItemStack, mappingTable: TileEntityMappingTa
 
 abstract class ItemPathHolder(val stack: ItemStack, val mappingTable: TileEntityMappingTable?, val boat: IControllable?): PathHolder {
 
-    abstract fun nbt(): NBTTagCompound
+    abstract fun nbt(): CompoundNBT
 
     override fun getBaseMapID(): String {
         return nbt().getString("${MoarBoats.ModID}.mapID")
@@ -118,8 +118,8 @@ abstract class ItemPathHolder(val stack: ItemStack, val mappingTable: TileEntity
         if(nbt().getBoolean("${MoarBoats.ModID}.loops")) { // retro-compatibility
             loopingOption = LoopingOptions.Loops
         }
-        if(nbt().hasKey("${MoarBoats.ModID}.loopingOption")) {
-            loopingOption = LoopingOptions.values()[nbt().getInteger("${MoarBoats.ModID}.loopingOption").coerceIn(LoopingOptions.values().indices)]
+        if(nbt().contains("${MoarBoats.ModID}.loopingOption")) {
+            loopingOption = LoopingOptions.values()[nbt().getInt("${MoarBoats.ModID}.loopingOption").coerceIn(LoopingOptions.values().indices)]
         }
         return loopingOption
     }
@@ -132,8 +132,8 @@ abstract class ItemPathHolder(val stack: ItemStack, val mappingTable: TileEntity
         }
     }
 
-    override fun getWaypointNBTList(): NBTTagList {
-        return nbt().getTagList("${MoarBoats.ModID}.path", Constants.NBT.TAG_COMPOUND)
+    override fun getWaypointNBTList(): ListNBT {
+        return nbt().getList("${MoarBoats.ModID}.path", Constants.NBT.TAG_COMPOUND)
     }
 
     override fun getHolderLocation() = null

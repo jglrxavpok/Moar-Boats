@@ -1,29 +1,32 @@
 package org.jglrxavpok.moarboats.common.tileentity
 
 import net.minecraft.entity.Entity
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.util.EnumFacing
-import net.minecraft.util.ITickable
-import net.minecraft.util.math.AxisAlignedBB
+import net.minecraft.fluid.Fluid
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.tileentity.ITickableTileEntity
+import net.minecraft.util.Direction
+import net.minecraft.util.ResourceLocation
 import net.minecraftforge.common.capabilities.Capability
-import net.minecraftforge.fluids.Fluid
-import net.minecraftforge.fluids.FluidRegistry
+import net.minecraftforge.common.util.LazyOptional
 import net.minecraftforge.fluids.FluidStack
+import net.minecraftforge.fluids.IFluidTank
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import net.minecraftforge.fluids.capability.IFluidHandler
-import net.minecraftforge.fluids.capability.IFluidTankProperties
+import net.minecraftforge.registries.ForgeRegistries
+import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.blocks.Facing
+import kotlin.math.ceil
 
-class TileEntityFluidLoader: TileEntityListenable(), ITickable, IFluidHandler, IFluidTankProperties {
+class TileEntityFluidLoader: TileEntityListenable(MoarBoats.TileEntityFluidLoaderType), ITickableTileEntity, IFluidHandler, IFluidTank {
 
-    val blockFacing: EnumFacing get()= world.getBlockState(pos).getValue(Facing)
+    val blockFacing: Direction get()= world!!.getBlockState(pos).get(Facing)
     private var fluid: Fluid? = null
-    private var fluidAmount: Int = 0
+    private var amount: Int = 0
     private var working: Boolean = false
 
-    override fun update() {
-        if(world.isRemote)
+    override fun tick() {
+        if(world!!.isRemote)
             return
         working = false
         updateListeners()
@@ -32,17 +35,17 @@ class TileEntityFluidLoader: TileEntityListenable(), ITickable, IFluidHandler, I
             return
 
         val aabb = create3x3AxisAlignedBB(pos.offset(blockFacing))
-        val entities = world.getEntitiesWithinAABB(Entity::class.java, aabb) { e -> e != null && e.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null) }
+        val entities = world!!.getEntitiesWithinAABB(Entity::class.java, aabb) { e -> e != null && e.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null).isPresent }
 
-        val totalFluidToSend = minOf(MoarBoatsConfig.fluidLoader.sendAmount, fluidAmount)
+        val totalFluidToSend = minOf(MoarBoatsConfig.fluidLoader.sendAmount.get(), amount)
         val entityCount = entities.size
         if(entityCount <= 0)
             return
-        val fluidToSendToASingleNeighbor = Math.ceil(totalFluidToSend.toDouble()/entityCount).toInt()
+        val fluidToSendToASingleNeighbor = ceil(totalFluidToSend.toDouble()/entityCount).toInt()
         entities.forEach {
             val fluidCapa = it.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null)
-            if(fluidCapa != null) {
-                val amountDrained = forceDrain(fluidCapa.fill(FluidStack(fluid, fluidToSendToASingleNeighbor), true), true)
+            fluidCapa.ifPresent { storage ->
+                val amountDrained = forceDrain(storage.fill(FluidStack(fluid, fluidToSendToASingleNeighbor), IFluidHandler.FluidAction.EXECUTE), IFluidHandler.FluidAction.EXECUTE)
                 working = working || (amountDrained?.amount ?: 0) > 0
             }
         }
@@ -50,7 +53,7 @@ class TileEntityFluidLoader: TileEntityListenable(), ITickable, IFluidHandler, I
 
     override fun getRedstonePower(): Int {
         return if(working) {
-            val ratio = fluidAmount.toDouble()/capacity // signal is strongest when the buffer is full (transfer almost finished)
+            val ratio = amount.toDouble()/getCapacity() // signal is strongest when the buffer is full (transfer almost finished)
             val redstonePower = (ratio * 15).toInt()
             minOf(1, redstonePower) // give a signal of at least 1 if currently working
         } else {
@@ -58,34 +61,34 @@ class TileEntityFluidLoader: TileEntityListenable(), ITickable, IFluidHandler, I
         }
     }
 
-    fun forceDrain(maxDrain: Int, doDrain: Boolean): FluidStack? {
+    fun forceDrain(maxDrain: Int, action: IFluidHandler.FluidAction): FluidStack {
         if(fluid == null)
-            return null
-        val maxDrainable = minOf(maxDrain, fluidAmount)
-        if(doDrain) {
-            fluidAmount -= maxDrainable
+            return FluidStack.EMPTY
+        val maxDrainable = minOf(maxDrain, amount)
+        if(action.execute()) {
+            amount -= maxDrainable
             markDirty()
         }
         return FluidStack(fluid, maxDrainable)
     }
 
-    override fun drain(resource: FluidStack, doDrain: Boolean): FluidStack? {
+    override fun drain(resource: FluidStack, action: IFluidHandler.FluidAction): FluidStack {
         if(!canDrain())
-            return null
+            return FluidStack.EMPTY
         if(!canDrainFluidType(resource))
-            return null
+            return FluidStack.EMPTY
         if(resource.fluid != fluid)
-            return null
-        return drain(resource.amount, doDrain)
+            return FluidStack.EMPTY
+        return drain(resource.amount, action)
     }
 
-    override fun drain(maxDrain: Int, doDrain: Boolean): FluidStack? {
+    override fun drain(maxDrain: Int, action: IFluidHandler.FluidAction): FluidStack {
         if(!canDrain())
-            return null
-        return forceDrain(maxDrain, doDrain)
+            return FluidStack.EMPTY
+        return forceDrain(maxDrain, action)
     }
 
-    override fun fill(resource: FluidStack, doFill: Boolean): Int {
+    override fun fill(resource: FluidStack, action: IFluidHandler.FluidAction): Int {
         if(!canFill())
             return 0
         if(!canFillFluidType(resource))
@@ -93,68 +96,82 @@ class TileEntityFluidLoader: TileEntityListenable(), ITickable, IFluidHandler, I
         if(fluid == null) {
             fluid = resource.fluid
         }
-        if(fluid != resource.fluid && fluidAmount > 0) {
+        if(fluid != resource.fluid && amount > 0) {
             return 0
         }
         fluid = resource.fluid
-        val maxFillable = minOf(resource.amount, capacity-fluidAmount)
-        if(doFill) {
-            fluidAmount += maxFillable
+        val maxFillable = minOf(resource.amount, getCapacity()-amount)
+        if(action.execute()) {
+            amount += maxFillable
             markDirty()
         }
         return maxFillable
     }
 
-    override fun getTankProperties(): Array<IFluidTankProperties> = arrayOf(this)
-
-    override fun getContents(): FluidStack? {
-        if(fluid == null || fluidAmount == 0)
-            return null
-        return FluidStack(fluid, fluidAmount)
-    }
-
     override fun getCapacity(): Int {
-        return MoarBoatsConfig.fluidLoader.capacity
+        return MoarBoatsConfig.fluidLoader.capacity.get()
     }
 
-    override fun canFillFluidType(fluidStack: FluidStack?): Boolean {
+    fun canFillFluidType(fluidStack: FluidStack?): Boolean {
         return true
     }
 
-    override fun canFill(): Boolean {
+    fun canFill(): Boolean {
         return true
     }
 
-    override fun canDrainFluidType(fluidStack: FluidStack?): Boolean {
+    fun canDrainFluidType(fluidStack: FluidStack?): Boolean {
         return false
     }
 
-    override fun canDrain(): Boolean {
+    fun canDrain(): Boolean {
         return false
     }
 
-    override fun hasCapability(capability: Capability<*>, facing: EnumFacing?): Boolean {
-        if(capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY)
-            return true
-        return super.hasCapability(capability, facing)
+    override fun getTankCapacity(tank: Int): Int {
+        return if(tank == 0) capacity else 0
     }
 
-    override fun <T : Any?> getCapability(capability: Capability<T>, facing: EnumFacing?): T? {
+    override fun getFluidInTank(tank: Int): FluidStack {
+        return if(tank == 0) FluidStack(fluid, amount) else FluidStack.EMPTY
+    }
+
+    override fun getTanks(): Int {
+        return 1
+    }
+
+    override fun isFluidValid(tank: Int, stack: FluidStack): Boolean {
+        return true
+    }
+
+    override fun isFluidValid(stack: FluidStack?): Boolean {
+        return true
+    }
+
+    override fun getFluidAmount(): Int {
+        return amount
+    }
+
+    override fun getFluid(): FluidStack {
+        return getFluidInTank(0)
+    }
+
+    override fun <T : Any?> getCapability(capability: Capability<T>, facing: Direction?): LazyOptional<T> {
         if(capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY)
-            return this as T
+            return LazyOptional.of { this }.cast()
         return super.getCapability(capability, facing)
     }
 
-    override fun writeToNBT(compound: NBTTagCompound): NBTTagCompound {
-        compound.setInteger("fluidAmount", fluidAmount)
-        compound.setString("fluidName", fluid?.name ?: "")
-        return super.writeToNBT(compound)
+    override fun write(compound: CompoundNBT): CompoundNBT {
+        compound.putInt("fluidAmount", amount)
+        compound.putString("fluidName", fluid?.registryName?.toString() ?: "")
+        return super.write(compound)
     }
 
-    override fun readFromNBT(compound: NBTTagCompound) {
-        super.readFromNBT(compound)
-        fluid = FluidRegistry.getFluid(compound.getString("fluidName"))
-        fluidAmount = compound.getInteger("fluidAmount")
+    override fun read(compound: CompoundNBT) {
+        super.read(compound)
+        fluid = ForgeRegistries.FLUIDS.getValue(ResourceLocation(compound.getString("fluidName")))
+        amount = compound.getInt("fluidAmount")
     }
 
 }

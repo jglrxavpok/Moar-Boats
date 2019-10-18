@@ -1,10 +1,9 @@
 package org.jglrxavpok.moarboats.common.network
 
-import io.netty.buffer.ByteBuf
 import net.minecraft.client.Minecraft
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.nbt.NBTTagList
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.ListNBT
+import net.minecraftforge.fml.network.NetworkEvent
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.HelmModule
@@ -15,33 +14,23 @@ class SUpdateMapWithPathInBoat: SxxUpdateMapWithPath {
 
     constructor()
 
-    constructor(list: NBTTagList, boatID: Int): super(list) {
+    constructor(list: ListNBT, boatID: Int): super(list) {
         this.boatID = boatID
     }
 
-    override fun fromBytes(buf: ByteBuf) {
-        super.fromBytes(buf)
-        boatID = buf.readInt()
-    }
-
-    override fun toBytes(buf: ByteBuf) {
-        super.toBytes(buf)
-        buf.writeInt(boatID)
-    }
-
     object Handler: SxxUpdateMapWithPath.Handler<SUpdateMapWithPathInBoat>() {
-        override val packetClass = SUpdateMapWithPathInBoat::class
+        override val packetClass = SUpdateMapWithPathInBoat::class.java
 
-        override fun updatePath(message: SUpdateMapWithPathInBoat, ctx: MessageContext, list: NBTTagList) {
+        override fun updatePath(message: SUpdateMapWithPathInBoat, ctx: NetworkEvent.Context, list: ListNBT) {
             with(message) {
-                val player = Minecraft.getMinecraft().player
-                val world = player.world
-                val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return
+                val player = Minecraft.getInstance().player
+                val level = player.world
+                val boat = level.getEntityByID(message.boatID) as? ModularBoatEntity ?: return
                 val stack = boat.getInventory(HelmModule).getStackInSlot(0)
-                if(stack.tagCompound == null) {
-                    stack.tagCompound = NBTTagCompound()
+                if(stack.tag == null) {
+                    stack.tag = CompoundNBT()
                 }
-                stack.tagCompound!!.setTag("${MoarBoats.ModID}.path", list)
+                stack.tag!!.put("${MoarBoats.ModID}.path", list)
             }
         }
 

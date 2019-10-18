@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "  B",
+    " IB",
+    "BBB"
+  ],
+  "key": {
+    "B": [
+      {
+        "tag": "minecraft:planks"
+      }
+    ],
+    "I": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "result": {
+    "item": "moarboats:rudder",
+    "count": 1
+  }
+}

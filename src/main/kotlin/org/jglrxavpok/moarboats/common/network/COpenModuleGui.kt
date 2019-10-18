@@ -1,16 +1,13 @@
 package org.jglrxavpok.moarboats.common.network
 
-import io.netty.buffer.ByteBuf
 import net.minecraft.util.ResourceLocation
-import net.minecraftforge.fml.common.network.ByteBufUtils
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
-import net.minecraftforge.fml.relauncher.Side
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.fml.network.NetworkEvent
+import net.minecraftforge.fml.network.NetworkHooks
 import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 
-class COpenModuleGui(): IMessage {
+class COpenModuleGui(): MoarBoatsPacket {
     var boatID: Int = 0
     lateinit var moduleID: ResourceLocation
 
@@ -19,29 +16,19 @@ class COpenModuleGui(): IMessage {
         this.moduleID = id
     }
 
-    override fun fromBytes(buf: ByteBuf) {
-        moduleID = ResourceLocation(ByteBufUtils.readUTF8String(buf))
-        boatID = buf.readInt()
-    }
+    object Handler: MBMessageHandler<COpenModuleGui, MoarBoatsPacket> {
+        override val packetClass = COpenModuleGui::class.java
+        override val receiverSide = Dist.DEDICATED_SERVER
 
-    override fun toBytes(buf: ByteBuf) {
-        ByteBufUtils.writeUTF8String(buf, moduleID.toString())
-        buf.writeInt(boatID)
-    }
-
-    object Handler: MBMessageHandler<COpenModuleGui, IMessage> {
-        override val packetClass = COpenModuleGui::class
-        override val receiverSide = Side.SERVER
-
-        override fun onMessage(message: COpenModuleGui, ctx: MessageContext): IMessage? {
-            val player = ctx.serverHandler.player
+        override fun onMessage(message: COpenModuleGui, ctx: NetworkEvent.Context): MoarBoatsPacket? {
+            val player = ctx.sender!!
             val boat = player.world.getEntityByID(message.boatID) as? ModularBoatEntity
             if(boat == null) {
                 MoarBoats.logger.debug("$player tried to open boat menu while the boat with ID ${message.boatID} is not loaded (or doesn't exist?)")
                 return null
             }
-            val moduleIndex = boat.modules.indexOfFirst { it.id == message.moduleID }
-            player.openGui(MoarBoats, MoarBoatsGuiHandler.ModulesGui, player.world, message.boatID, moduleIndex, 0)
+            val module = boat.modules.first { it.id == message.moduleID }
+            NetworkHooks.openGui(player, module.generateInteractionObject(boat))
             return null
         }
     }

@@ -1,20 +1,20 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.client.gui.GuiScreen
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.item.ItemBlock
-import net.minecraft.util.EnumHand
+import net.minecraft.client.gui.screen.Screen
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.fluids.FluidStack
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler
+import net.minecraftforge.fluids.capability.IFluidHandler
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiTankModule
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.blocks.BlockBoatTank
-import org.jglrxavpok.moarboats.common.containers.ContainerBase
-import org.jglrxavpok.moarboats.common.containers.EmptyContainer
+import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
+import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
 import org.jglrxavpok.moarboats.common.state.IntBoatProperty
 import org.jglrxavpok.moarboats.common.state.StringBoatProperty
 
@@ -26,23 +26,24 @@ object FluidTankModule: BoatModule(), IFluidBoatModule {
     override val fluidNameProperty = StringBoatProperty("fluid_name")
     override val fluidAmountProperty = IntBoatProperty("fluid_amount")
 
-    override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean): Boolean {
+    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean): Boolean {
         val heldItem = player.getHeldItem(hand)
-        if(heldItem.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null)) {
-            val capability = heldItem.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null)
-            capability?.let {
-                val potentialDrain = capability.drain(1000, false)
+        val lazyCapa = heldItem.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null)
+        if(lazyCapa.isPresent) {
+            return lazyCapa.map { capability ->
+                val potentialDrain = capability.drain(1000, IFluidHandler.FluidAction.EXECUTE)
                 if(potentialDrain != null) {
-                    val accepted = this.fill(from, potentialDrain, true)
+                    val accepted = this.fill(from, potentialDrain, IFluidHandler.FluidAction.SIMULATE)
                     if(accepted > 0) {
-                        val drained = capability.drain(1000, true)!!
+                        val drained = capability.drain(1000, IFluidHandler.FluidAction.SIMULATE)!!
                         player.setHeldItem(hand, capability.container)
-                        this.fill(from, drained, false)
+                        this.fill(from, drained, IFluidHandler.FluidAction.EXECUTE)
                     }
-                    return true
+                    true
+                } else {
+                    false
                 }
-            }
-            return false
+            }.orElse(false)
         }
         return false
     }
@@ -56,16 +57,16 @@ object FluidTankModule: BoatModule(), IFluidBoatModule {
         fluidAmountProperty[to] = 0
     }
 
-    override fun createContainer(player: EntityPlayer, boat: IControllable): ContainerBase? {
-        return EmptyContainer(player.inventory)
+    override fun createContainer(containerID: Int, player: PlayerEntity, boat: IControllable): ContainerBoatModule<*>? {
+        return EmptyModuleContainer(containerID, player.inventory, this, boat)
     }
 
-    override fun createGui(player: EntityPlayer, boat: IControllable): GuiScreen {
-        return GuiTankModule(player.inventory, this, boat)
+    override fun createGui(containerID: Int, player: PlayerEntity, boat: IControllable): Screen {
+        return GuiTankModule(containerID, player.inventory, this, boat)
     }
 
     override fun getCapacity(boat: IControllable): Int {
-        return MoarBoatsConfig.fluidTank.tankCapacity
+        return MoarBoatsConfig.fluidTank.tankCapacity.get()
     }
 
     override fun canBeFilled(boat: IControllable) = true
@@ -78,7 +79,7 @@ object FluidTankModule: BoatModule(), IFluidBoatModule {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.dropItem(ItemBlock.getItemFromBlock(BlockBoatTank), 1)
+            boat.correspondingEntity.entityDropItem(BlockBoatTank.asItem(), 1)
     }
 
 }
