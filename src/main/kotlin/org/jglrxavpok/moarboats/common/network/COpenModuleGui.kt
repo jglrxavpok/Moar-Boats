@@ -28,7 +28,10 @@ class COpenModuleGui(): MoarBoatsPacket {
                 return null
             }
             val module = boat.modules.first { it.id == message.moduleID }
-            NetworkHooks.openGui(player, module.generateInteractionObject(boat))
+            NetworkHooks.openGui(player, module.generateInteractionObject(boat)) {
+                it.writeInt(boat.entityID)
+                it.writeInt(boat.modules.indexOf(module))
+            }
             return null
         }
     }

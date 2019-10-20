@@ -12,6 +12,7 @@ import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.TranslationTextComponent
 import net.minecraft.inventory.container.INamedContainerProvider
 import net.minecraft.util.ResourceLocation
+import net.minecraft.util.text.StringTextComponent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.network.FMLPlayMessages
 import org.jglrxavpok.moarboats.MoarBoats
@@ -80,10 +81,10 @@ object MoarBoatsGuiHandler {
         return null
     }
 */
-    class ModulesGuiInteraction(val boatID: Int, val moduleIndex: Int): INamedContainerProvider {
+    class ModulesGuiInteraction(val boatID: Int, val moduleIndex: Int, val id: String): INamedContainerProvider {
 
         override fun getDisplayName(): ITextComponent {
-            return TranslationTextComponent("inventory.base.name")
+            return StringTextComponent(id)
         }
 
         override fun createMenu(containerID: Int, playerInventory: PlayerInventory, player: PlayerEntity): Container? {

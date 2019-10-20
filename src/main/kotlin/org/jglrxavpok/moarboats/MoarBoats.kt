@@ -8,6 +8,7 @@ import net.minecraft.block.material.MaterialColor
 import net.minecraft.block.material.PushReaction
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.player.ClientPlayerEntity
+import net.minecraft.client.gui.ScreenManager
 import net.minecraft.entity.EntityType
 import net.minecraft.inventory.container.ContainerType
 import net.minecraft.item.*
@@ -34,18 +35,17 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
 import net.minecraftforge.fml.event.lifecycle.FMLDedicatedServerSetupEvent
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent
 import net.minecraftforge.fml.network.NetworkRegistry
-import net.minecraftforge.registries.RegistryBuilder
+import net.minecraftforge.registries.*
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleEntry
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.api.registerModule
 import org.jglrxavpok.moarboats.client.ClientEvents
 import org.jglrxavpok.moarboats.common.*
 import org.jglrxavpok.moarboats.common.blocks.*
-import org.jglrxavpok.moarboats.common.containers.ContainerMappingTable
-import org.jglrxavpok.moarboats.common.containers.EmptyContainer
-import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
+import org.jglrxavpok.moarboats.common.containers.*
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.items.*
 import org.jglrxavpok.moarboats.common.modules.*
@@ -211,6 +211,14 @@ object MoarBoats {
             event.registry.registerModule(ChunkLoadingModule, ChunkLoaderItem, restriction = MoarBoatsConfig.chunkLoader.allowed::get)
             event.registry.registerModule(OarEngineModule, OarsItem)
             plugins.forEach {it.registerModules(event.registry)}
+
+            // Containers are loaded before modules, so we force container type registry here
+            val containerRegistry = ForgeRegistries.CONTAINERS as ForgeRegistry
+            containerRegistry.unfreeze()
+            BoatModuleRegistry.forgeRegistry.values.forEach {
+                containerRegistry.register(it.module.containerType)
+            }
+            containerRegistry.freeze()
         }
 
         @SubscribeEvent
@@ -250,42 +258,20 @@ object MoarBoats {
 
         @SubscribeEvent
         public fun onContainerRegistry(event: RegistryEvent.Register<ContainerType<*>>) {
-            for(moduleEntry in BoatModuleRegistry.forgeRegistry.values) {
-                event.registry.register(IForgeContainerType.create { windowId, inv, data ->
-                    val player = inv.player
-                    val boatID = data.readInt()
-                    val boat = player.world.getEntityByID(boatID) as ModularBoatEntity
-                    boat?.let {
-                        return@create moduleEntry.module.createContainer(windowId, player as ClientPlayerEntity, it)
-                    } ?: return@create null
-                }.setRegistryName(moduleEntry.module.id));
-            }
-            event.registry.register(IForgeContainerType.create { windowId, inv, data ->
-                val player = inv.player
-                val boatID = data.readInt()
-                val boat = player.world.getEntityByID(boatID) as ModularBoatEntity
-                boat?.let {
-                    return@create EmptyModuleContainer(windowId, inv, ChestModule, boat)
-                }
-            }.setRegistryName(ModID, "empty"))
-            event.registry.register(IForgeContainerType.create { windowId, inv, data ->
+            ContainerTypes.MappingTable = IForgeContainerType.create { windowId, inv, data ->
                 val player = inv.player
                 val pos = data.readBlockPos()
                 val te = player.world.getTileEntity(pos)
                 te?.let {
                     return@create ContainerMappingTable(windowId, it as TileEntityMappingTable, inv)
                 }
-            }.setRegistryName(ModID, "mapping_table"))
+            }.setRegistryName(ModID, "mapping_table") as ContainerType<ContainerMappingTable>
+            event.registry.register(ContainerTypes.MappingTable)
 
-            event.registry.register(IForgeContainerType.create { windowId, inv, data ->
+            ContainerTypes.Empty = IForgeContainerType.create { windowId, inv, data ->
                 return@create EmptyContainer(windowId, inv)
-            }.setRegistryName(ModID, "none"))
-
-            DistExecutor.runWhenOn(Dist.CLIENT) {
-                Runnable {
-                    ClientEvents.initScreens()
-                }
-            }
+            }.setRegistryName(ModID, "none") as ContainerType<EmptyContainer>
+            event.registry.register(ContainerTypes.Empty)
         }
 
     }

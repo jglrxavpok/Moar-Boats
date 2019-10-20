@@ -6,6 +6,7 @@ import net.minecraft.dispenser.DefaultDispenseItemBehavior
 import net.minecraft.dispenser.IDispenseItemBehavior
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.BlockItem
+import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.util.Direction
@@ -13,6 +14,7 @@ import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
@@ -27,6 +29,11 @@ import org.jglrxavpok.moarboats.common.state.DoubleBoatProperty
 import org.jglrxavpok.moarboats.extensions.Fluids
 import org.jglrxavpok.moarboats.extensions.use
 import java.util.regex.Pattern
+
+private val DISPENSE_BEHAVIOR_REGISTRY: Map<Item, IDispenseItemBehavior>
+    get() {
+        return ObfuscationReflectionHelper.findField(DispenserBlock::class.java, "DISPENSE_BEHAVIOR_REGISTRY")[null] as Map<Item, IDispenseItemBehavior>
+    }
 
 abstract class DispensingModule: BoatModule() {
     override val usesInventory = true
@@ -76,7 +83,7 @@ abstract class DispensingModule: BoatModule() {
                 .mapIndexed { index, itemStack -> Pair(startIndex+index, itemStack) }
                 .firstOrNull { val item = it.second.item
                     item is BlockItem
-                            || DispenserBlock.DISPENSE_BEHAVIOR_REGISTRY[item] !is DefaultDispenseItemBehavior
+                            || DISPENSE_BEHAVIOR_REGISTRY[item] !is DefaultDispenseItemBehavior
                 }
     }
 
@@ -157,7 +164,7 @@ object DispenserModule: DispensingModule() {
         firstValidStack(inventoryRowStart, boat)?.let { (index, stack) ->
             val item = stack.item
             val world = boat.worldRef
-            val behavior = DispenserBlock.DISPENSE_BEHAVIOR_REGISTRY[item]!!
+            val behavior = DISPENSE_BEHAVIOR_REGISTRY[item]!!
             if(behavior.javaClass === DefaultDispenseItemBehavior::class.java) {
                 if(item is BlockItem) {
                     useBlockItem(item, world, stack, blockPos, boat, row)

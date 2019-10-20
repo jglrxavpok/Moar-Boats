@@ -2,6 +2,7 @@ package org.jglrxavpok.moarboats.common.containers
 
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
+import net.minecraft.inventory.container.ContainerType
 import net.minecraft.item.Items
 import net.minecraft.inventory.container.IContainerListener
 import net.minecraft.item.ItemStack
@@ -9,8 +10,9 @@ import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
+import org.jglrxavpok.moarboats.common.modules.FishingModule
 
-class ContainerFishingModule(containerID: Int, playerInventory: PlayerInventory, fishingModule: BoatModule, boat: IControllable): ContainerBoatModule<ContainerFishingModule>(ContainerTypes.FishingModule, containerID, playerInventory, fishingModule, boat) {
+class ContainerFishingModule(containerID: Int, playerInventory: PlayerInventory, fishingModule: BoatModule, boat: IControllable): ContainerBoatModule<ContainerFishingModule>(FishingModule.containerType as ContainerType<ContainerFishingModule>, containerID, playerInventory, fishingModule, boat) {
 
     val fishingModuleInv = boat.getInventory(fishingModule)
 

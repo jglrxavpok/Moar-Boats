@@ -60,12 +60,12 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
 
     override fun init() {
         super.init()
-        lockInPlaceButton.x = guiLeft + width - lockInPlaceButton.width - 5
+        lockInPlaceButton.x = guiLeft + xSize - lockInPlaceButton.width - 5
         lockInPlaceButton.y = guiTop + 5
         addButton(lockInPlaceButton)
 
         val speedSettingMargins = 30
-        val speedSettingHorizontalSize = width - speedSettingMargins*2
+        val speedSettingHorizontalSize = xSize - speedSettingMargins*2
 
         speedSlider = GuiSlider(guiLeft + speedSettingMargins, guiTop + 90, speedSettingHorizontalSize, 20, "${speedSetting.formattedText}: ", "%", -50.0, 50.0, 0.0, false, true, sliderCallback)
         addButton(speedSlider)
@@ -96,8 +96,8 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
 
         mc.textureManager.bindTexture(barsTexture)
         val barIndex = 4
-        val barSize = width*.85f
-        val x = width/2f - barSize/2f
+        val barSize = xSize*.85f
+        val x = xSize/2f - barSize/2f
         drawBar(x, infoY+10f, barIndex, barSize, fill = if(remaining.isFinite()) remaining else 1f)
         if(estimatedTime.isInfinite()) {
             font.drawCenteredString(estimatedTimeText.formattedText, 88, infoY+18, 0xFFF0F0F0.toInt(), shadow = true)
@@ -119,7 +119,7 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
         }
 
         renderSpeedIcon(0, 5, infoY + 40 + speedSlider.height)
-        renderSpeedIcon(2, width - 25, infoY + 40 + speedSlider.height)
+        renderSpeedIcon(2, xSize - 25, infoY + 40 + speedSlider.height)
     }
 
     private fun renderBlockReason(y: Int) {

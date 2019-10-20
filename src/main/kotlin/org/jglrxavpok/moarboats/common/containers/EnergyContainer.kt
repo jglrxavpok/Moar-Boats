@@ -18,7 +18,7 @@ class EnergyContainer(containerID: Int, val te: TileEntityEnergy, val player: Pl
 
     override fun detectAndSendChanges() {
         super.detectAndSendChanges()
-        for(listener in listeners) {
+        for(listener in getListeners(this)) {
             if(energy != te.energy)
                 listener.sendWindowProperty(this, 0, te.energy)
         }

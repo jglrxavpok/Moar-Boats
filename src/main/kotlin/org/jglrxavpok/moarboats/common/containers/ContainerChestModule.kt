@@ -2,14 +2,16 @@ package org.jglrxavpok.moarboats.common.containers
 
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
+import net.minecraft.inventory.container.ContainerType
 import net.minecraft.inventory.container.Slot
 import net.minecraft.item.ItemStack
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
+import org.jglrxavpok.moarboats.common.modules.ChestModule
 
-class ContainerChestModule(containerID: Int, playerInventory: PlayerInventory, engine: BoatModule, boat: IControllable): ContainerBoatModule<ContainerChestModule>(ContainerTypes.ChestModule, containerID, playerInventory, engine, boat) {
+class ContainerChestModule(containerID: Int, playerInventory: PlayerInventory, engine: BoatModule, boat: IControllable): ContainerBoatModule<ContainerChestModule>(ChestModule.containerType as ContainerType<ContainerChestModule>, containerID, playerInventory, engine, boat) {
 
     val chestInventory = boat.getInventory(engine)
 

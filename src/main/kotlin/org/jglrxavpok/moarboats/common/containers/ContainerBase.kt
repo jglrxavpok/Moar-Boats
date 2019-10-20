@@ -4,8 +4,20 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.inventory.container.Container
 import net.minecraft.inventory.container.ContainerType
+import net.minecraft.inventory.container.IContainerListener
 import net.minecraft.inventory.container.Slot
 import net.minecraft.item.ItemStack
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper
+import java.lang.reflect.Field
+
+private lateinit var listenersField: Field
+
+fun getListeners(container: Container): List<IContainerListener> {
+    if(!::listenersField.isInitialized) {
+        listenersField = ObfuscationReflectionHelper.findField(Container::class.java, "field_75149_d")
+    }
+    return listenersField[container] as List<IContainerListener>
+}
 
 abstract class ContainerBase<T: Container>(val containerRef: ContainerType<T>, val containerID: Int, val playerInventory: PlayerInventory): Container(containerRef, containerID) {
 

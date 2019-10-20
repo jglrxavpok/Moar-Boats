@@ -16,7 +16,7 @@ class BoatModuleInteractionObject(val module: BoatModule, val boat: IControllabl
     //    override fun getDisplayName() = TranslationTextComponent("inventory.${module.id.path}.name")
 
     override fun getDisplayName(): ITextComponent {
-        return StringTextComponent("${MoarBoats.ModID}:gui/modules/${boat.entityID}/${boat.modules.indexOf(module)}")
+        return StringTextComponent(module.id.toString())
     }
 
 }

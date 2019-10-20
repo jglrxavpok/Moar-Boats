@@ -4,6 +4,7 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.item.Items
 import net.minecraft.inventory.*
+import net.minecraft.inventory.container.ContainerType
 import net.minecraft.inventory.container.IContainerListener
 import net.minecraft.inventory.container.Slot
 import net.minecraft.item.ItemStack
@@ -14,7 +15,7 @@ import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.modules.FurnaceEngineModule
 
-class ContainerFurnaceEngine(containerID: Int, playerInventory: PlayerInventory, engine: BoatModule, boat: IControllable): ContainerBoatModule<ContainerFurnaceEngine>(ContainerTypes.FurnaceModule, containerID, playerInventory, engine, boat) {
+class ContainerFurnaceEngine(containerID: Int, playerInventory: PlayerInventory, engine: BoatModule, boat: IControllable): ContainerBoatModule<ContainerFurnaceEngine>(FurnaceEngineModule.containerType as ContainerType<ContainerFurnaceEngine>, containerID, playerInventory, engine, boat) {
 
     val engineInventory = boat.getInventory(engine)
     private var fuelTime = engineInventory.getField(0)
@@ -30,7 +31,7 @@ class ContainerFurnaceEngine(containerID: Int, playerInventory: PlayerInventory,
     override fun detectAndSendChanges() {
         super.detectAndSendChanges()
 
-        for(listener in listeners) {
+        for(listener in getListeners(this)) {
             if (this.fuelTotalTime != this.engineInventory.getField(0)) {
                 listener.sendWindowProperty(this, 0, this.engineInventory.getField(0))
             }

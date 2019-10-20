@@ -199,9 +199,8 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
         val canOpenGui = validOwner && !modules.any { it.onInteract(this, player, hand, player.isSneaking) }
         if(canOpenGui) {
             if(modules.isNotEmpty() && !world.isRemote) {
-                NetworkHooks.openGui(player as ServerPlayerEntity, MoarBoatsGuiHandler.ModulesGuiInteraction(entityID, -1)) {
+                NetworkHooks.openGui(player as ServerPlayerEntity, MoarBoatsGuiHandler.ModulesGuiInteraction(entityID, -1, findFirstModuleToShowOnGui().id.toString())) {
                     it.writeInt(entityID) // boat entity id
-                    it.writeInt(-1) // module index
                 }
             }
         } else if(!validOwner) {

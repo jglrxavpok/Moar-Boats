@@ -2,12 +2,14 @@ package org.jglrxavpok.moarboats.common.containers
 
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
+import net.minecraft.inventory.container.ContainerType
 import net.minecraft.inventory.container.Slot
 import net.minecraft.item.ItemStack
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
+import org.jglrxavpok.moarboats.common.modules.DispenserModule
 
-class ContainerDispenserModule(containerID: Int, playerInv: PlayerInventory, module: BoatModule, boat: IControllable): ContainerBoatModule<ContainerDispenserModule>(ContainerTypes.DispenserModule, containerID, playerInv, module, boat) {
+class ContainerDispenserModule(containerID: Int, playerInv: PlayerInventory, module: BoatModule, boat: IControllable): ContainerBoatModule<ContainerDispenserModule>(DispenserModule.containerType as ContainerType<ContainerDispenserModule>, containerID, playerInv, module, boat) {
 
     val placerInventory = boat.getInventory(module)
 

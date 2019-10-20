@@ -80,9 +80,9 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
         private set
 
     override fun init() {
-        this.height = 114 + 6 * 18
+        this.ySize = 114 + 6 * 18
         super.init()
-        val totalWidth = width*.90f
+        val totalWidth = xSize*.90f
         val xStart = (waypointToEditAfterCreation-totalWidth)/2f+guiLeft
         val listWidth = totalWidth.toInt()
         val listHeight = 85
@@ -144,10 +144,10 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
 
     override fun drawGuiContainerBackgroundLayer(partialTicks: Float, mouseX: Int, mouseY: Int) {
         mc.textureManager.bindTexture(Background)
-        drawTexturedModalRect(guiLeft, guiTop, 0, 0, this.width, this.height, blitOffset.toFloat())
+        drawTexturedModalRect(guiLeft, guiTop, 0, 0, this.xSize, this.ySize, blitOffset.toFloat())
 
         mc.textureManager.bindTexture(EmptyBackground)
-        drawTexturedModalRect(guiLeft, guiTop, 0, 0, this.width, height, blitOffset.toFloat())
+        drawTexturedModalRect(guiLeft, guiTop, 0, 0, this.xSize, ySize, blitOffset.toFloat())
     }
 
     override fun render(mouseX: Int, mouseY: Int, partialTicks: Float) {

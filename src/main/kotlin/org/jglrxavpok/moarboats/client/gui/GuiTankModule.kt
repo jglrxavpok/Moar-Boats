@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.texture.AtlasTexture
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.entity.player.PlayerInventory
+import net.minecraft.fluid.EmptyFluid
 import net.minecraft.fluid.Fluid
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.TranslationTextComponent
@@ -41,7 +42,7 @@ class GuiTankModule(containerID: Int, playerInventory: PlayerInventory, module: 
         mc.textureManager.bindTexture(moduleBackground)
         GlStateManager.disableCull()
         val fluid = tankModule.getFluidInside(boat)
-        if(fluid != null) {
+        if(fluid != null && fluid !is EmptyFluid) {
             renderFluidInGui(guiLeft+56, guiTop+80, fluid, tankModule.getFluidAmount(boat), tankModule.getCapacity(boat), horizontalTilesCount = 4)
         }
     }

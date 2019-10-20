@@ -33,6 +33,7 @@ import net.minecraftforge.fml.client.registry.RenderingRegistry
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent
 import net.minecraftforge.registries.GameData
+import net.minecraftforge.registries.IForgeRegistry
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.client.gui.GuiChestModule
@@ -63,21 +64,19 @@ object ClientEvents {
             32, 48, -1.0f, -2.0f, -2.0f, 4, 9, 4, 0.0f + 0.25f)
     val hookModel = ModelPatreonHook()
 
-    fun initScreens() {
+    fun doClientStuff(event: FMLClientSetupEvent) {
+        MinecraftForge.EVENT_BUS.register(this)
+
         for(moduleEntry in BoatModuleRegistry.forgeRegistry.values) {
+            MoarBoats.logger.debug("Confirming association of module ${moduleEntry.module.id} to container ${moduleEntry.module.containerType.registryName}")
             ScreenManager.registerFactory(
-                    GameData.getWrapper(ContainerType::class.java).getValue(moduleEntry.module.id).get() as ContainerType<ContainerBoatModule<*>>,
+                    moduleEntry.module.containerType,
                     moduleEntry.module.guiFactory())
         }
 
-
-        ScreenManager.registerFactory(GameData.getWrapper(ContainerType::class.java).getValue(ResourceLocation(MoarBoats.ModID, "mapping_table")).get() as ContainerType<ContainerMappingTable>) { container, playerInv, title ->
+        ScreenManager.registerFactory(ContainerTypes.MappingTable) { container, playerInv, title ->
             GuiMappingTable(container.containerID, container.te, playerInv)
         }
-    }
-
-    fun doClientStuff(event: FMLClientSetupEvent) {
-        MinecraftForge.EVENT_BUS.register(this)
 
         val mc = event.minecraftSupplier.get()
         RenderingRegistry.registerEntityRenderingHandler(ModularBoatEntity::class.java, ::RenderModularBoat)

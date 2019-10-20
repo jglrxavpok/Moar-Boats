@@ -60,13 +60,13 @@ class GuiHelmModule(containerID: Int, playerInventory: PlayerInventory, engine: 
 
     override fun init() {
         super.init()
-        mapEditButton.width = (width * .75).toInt() /2
-        mapEditButton.x = guiLeft + width/2 - mapEditButton.width
+        mapEditButton.width = (xSize * .75).toInt() /2
+        mapEditButton.x = guiLeft + xSize/2 - mapEditButton.width
         mapEditButton.y = guiTop + (mapSize + 7).toInt()
         addButton(mapEditButton)
 
-        saveButton.width = (width*.75).toInt() /2
-        saveButton.x = guiLeft + width/2
+        saveButton.width = (xSize*.75).toInt() /2
+        saveButton.x = guiLeft + xSize/2
         saveButton.y = guiTop + (mapSize + 7).toInt()
         addButton(saveButton)
     }
@@ -77,7 +77,7 @@ class GuiHelmModule(containerID: Int, playerInventory: PlayerInventory, engine: 
         this.mc.textureManager.bindTexture(RES_MAP_BACKGROUND)
         val tessellator = Tessellator.getInstance()
         val bufferbuilder = tessellator.buffer
-        val x = guiLeft + width/2f - mapSize/2
+        val x = guiLeft + xSize/2f - mapSize/2
         val y = guiTop.toDouble() + 5.0
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX)
         bufferbuilder.pos(x, y+mapSize, 0.0).tex(0.0, 1.0).endVertex()

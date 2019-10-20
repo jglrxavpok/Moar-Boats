@@ -1,8 +1,10 @@
 package org.jglrxavpok.moarboats.api
 
+import net.minecraft.client.entity.player.ClientPlayerEntity
 import net.minecraft.client.gui.ScreenManager
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.inventory.container.ContainerType
 import net.minecraft.inventory.container.INamedContainerProvider
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
@@ -13,14 +15,27 @@ import net.minecraft.util.text.TranslationTextComponent
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.common.MinecraftForge
+import net.minecraftforge.common.extensions.IForgeContainerType
 import net.minecraftforge.registries.ForgeRegistryEntry
 import net.minecraftforge.registries.IForgeRegistry
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.gui.GuiModuleBase
 import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
+import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import java.util.*
 
 abstract class BoatModule {
+
+    val containerType by lazy {
+        IForgeContainerType.create { windowId, inv, data ->
+            val player = inv.player
+            val boatID = data.readInt()
+            val boat = player.world.getEntityByID(boatID) as ModularBoatEntity
+            boat?.let {
+                return@create createContainer(windowId, player as ClientPlayerEntity, it)
+            } ?: return@create null
+        }.setRegistryName(id) as ContainerType<ContainerBoatModule<*>>
+    }
 
     abstract val id: ResourceLocation
     abstract val usesInventory: Boolean
@@ -80,8 +95,8 @@ abstract class BoatModule {
 
     @OnlyIn(Dist.CLIENT)
     fun guiFactory(): ScreenManager.IScreenFactory<ContainerBoatModule<*>, GuiModuleBase<ContainerBoatModule<*>>> {
-        return ScreenManager.IScreenFactory<ContainerBoatModule<*>, GuiModuleBase<ContainerBoatModule<*>>> { container, playerInv, title ->
-            this.createGui(container.containerID, playerInv.player, container.boat) as GuiModuleBase<ContainerBoatModule<*>>
+        return ScreenManager.IScreenFactory { container, playerInv, title ->
+            return@IScreenFactory this.createGui(container.containerID, playerInv.player, container.boat) as GuiModuleBase<ContainerBoatModule<*>>
         }
     }
 
