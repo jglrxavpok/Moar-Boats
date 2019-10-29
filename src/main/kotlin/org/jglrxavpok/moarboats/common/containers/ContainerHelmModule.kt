@@ -10,6 +10,8 @@ import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
+import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
+import org.jglrxavpok.moarboats.common.items.MapItemWithPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 
 class ContainerHelmModule(containerID: Int, playerInventory: PlayerInventory, helm: BoatModule, boat: IControllable): ContainerBoatModule<ContainerHelmModule>(HelmModule.containerType as ContainerType<ContainerHelmModule>, containerID, playerInventory, helm, boat) {
@@ -68,5 +70,12 @@ class ContainerHelmModule(containerID: Int, playerInventory: PlayerInventory, he
         return itemstack
     }
 
-    private fun isMapItem(itemStack: ItemStack) = itemStack.item == Items.FILLED_MAP
+    private fun isMapItem(itemStack: ItemStack): Boolean {
+        return when(itemStack.item) {
+            Items.FILLED_MAP -> true
+            MapItemWithPath -> true
+            ItemGoldenTicket -> true
+            else -> false
+        }
+    }
 }

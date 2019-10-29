@@ -58,7 +58,7 @@ class RenderModularBoat(renderManager: EntityRendererManager): EntityRenderer<Mo
         if(boatEntity.hasLink(BasicBoatEntity.FrontLink)) {
             boatEntity.getLinkedTo(BasicBoatEntity.FrontLink)?.let {
                 GlStateManager.pushMatrix()
-                GlStateManager.translatef(17f+1.5f, -4f, 1.25f)
+                GlStateManager.translatef(17f, -4f, 0f)
                 renderActualLink(boatEntity, it, BasicBoatEntity.FrontLink, entityYaw)
                 bindTexture(RopeAnchorTextureLocation)
                 ropeAnchorModel.render(boatEntity, 0f, 0f, boatEntity.ticksExisted.toFloat(), 0f, 0f, 1f)
@@ -70,7 +70,7 @@ class RenderModularBoat(renderManager: EntityRendererManager): EntityRenderer<Mo
         if(boatEntity.hasLink(BasicBoatEntity.BackLink)) {
             boatEntity.getLinkedTo(BasicBoatEntity.BackLink)?.let {
                 GlStateManager.pushMatrix()
-                GlStateManager.translatef(-(17f-1.5f), -4f, 1.25f)
+                GlStateManager.translatef(-17f, -4f, 0f)
                 renderActualLink(boatEntity, it, BasicBoatEntity.BackLink, entityYaw)
                 bindTexture(RopeAnchorTextureLocation)
                 ropeAnchorModel.render(boatEntity, 0f, 0f, boatEntity.ticksExisted.toFloat(), 0f, 0f, 1f)

@@ -31,6 +31,7 @@ import org.jglrxavpok.moarboats.common.items.MapItemWithPath
 import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.state.*
 import org.jglrxavpok.moarboats.extensions.insert
+import java.lang.IllegalStateException
 import kotlin.math.atan2
 
 object HelmModule: BoatModule(), BlockReason {
@@ -141,11 +142,18 @@ object HelmModule: BoatModule(), BlockReason {
 
         val stack = boat.getInventory().getStackInSlot(0)
         val item = stack.item
-        val (waypoints, loopingOption) = when(item) {
-            net.minecraft.item.Items.FILLED_MAP -> Pair(HelmModule.waypointsProperty[boat], HelmModule.loopingProperty[boat])
-            is ItemPath -> Pair(item.getWaypointData(stack, MoarBoats.getLocalMapStorage()), item.getLoopingOptions(stack))
-            else -> return
+        val pair: Pair<ListNBT, LoopingOptions>
+        try {
+            pair = when(item) {
+                net.minecraft.item.Items.FILLED_MAP -> Pair(HelmModule.waypointsProperty[boat], HelmModule.loopingProperty[boat])
+                is ItemPath -> Pair(item.getWaypointData(stack, MoarBoats.getLocalMapStorage()), item.getLoopingOptions(stack))
+                else -> return
+            }
+        } catch (e: IllegalStateException) { // handle case when the integrated server is being shutdown while updating and getLocalMapStorage throws an Exception
+            e.printStackTrace()
+            return
         }
+        val (waypoints, loopingOption) = pair
         if(waypoints.size != 0) {
             if( ! wasEngineOn[boat] && isEngineOn[boat]) { // engine has been reactivated, recalculate closest waypoint
                 overrideWaypointAfterEngineRestart(boat, waypoints)
@@ -163,7 +171,7 @@ object HelmModule: BoatModule(), BlockReason {
             xCenterProperty[boat] = mapdata.xCenter
             zCenterProperty[boat] = mapdata.zCenter
         } else if(mapdata == EmptyMapData || boat.correspondingEntity.ticksExisted % MapUpdatePeriod == 0) {
-            val id = stack.damage
+            val id = FilledMapItem.getMapId(stack)
             MoarBoats.network.sendToServer(CMapRequest("map_$id", boat.entityID, this.id))
         }
     }

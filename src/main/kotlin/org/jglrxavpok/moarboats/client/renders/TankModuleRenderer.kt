@@ -31,7 +31,6 @@ object TankModuleRenderer : BoatModuleRenderer() {
         if(fluid != null && module.getFluidAmount(boat) > 0) {
             val scale = 1f/16f
             GlStateManager.scalef(scale, scale, scale)
-            GlStateManager.translatef(-1f, 0f, 0f)
             val tessellator = Tessellator.getInstance()
             val buffer = tessellator.buffer
             val sprite = Minecraft.getInstance().textureMap.getAtlasSprite(fluid.attributes.stillTexture.toString())

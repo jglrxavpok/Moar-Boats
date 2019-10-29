@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.common.network
 
+import net.minecraft.item.FilledMapItem
 import net.minecraft.item.Items
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.api.distmarker.Dist
@@ -39,7 +40,7 @@ class CSaveItineraryToMap(): MoarBoatsPacket {
             val list = module.waypointsProperty[boat].copy()
             val inv = boat.getInventory(module)
             if(inv.getStackInSlot(0).item.item == Items.FILLED_MAP) {
-                val id = inv.getStackInSlot(0).damage
+                val id = FilledMapItem.getMapId(inv.getStackInSlot(0))
                 inv.setInventorySlotContents(0, MapItemWithPath.createStack(list, "map_$id", module.loopingProperty[boat]))
                 player.openContainer.detectAndSendChanges()
             }

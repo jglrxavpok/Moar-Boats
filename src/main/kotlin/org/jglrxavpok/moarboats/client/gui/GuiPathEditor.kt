@@ -76,13 +76,13 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
         toolButtonList.forEach {
             it.selected = false
         }
-        it.active = true
+        (it as GuiToolButton).selected = true
     })
     private val eraserButton: GuiToolButton = GuiToolButton(toolEraserText.formattedText, 1, Button.IPressable {
         toolButtonList.forEach {
             it.selected = false
         }
-        it.active = true
+        (it as GuiToolButton).selected = true
     })
     private val toolButtonList = listOf(markerButton, eraserButton)
 
