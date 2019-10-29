@@ -32,7 +32,7 @@ class CMapRequest(): MoarBoatsPacket {
             val moduleLocation = message.moduleLocation
             val module = BoatModuleRegistry[moduleLocation].module
             val stack = boat.getInventory(module).getStackInSlot(0)
-            val item = stack.item as? MapItem ?: return null // Got request while there was no map!
+            val item = stack.item as? FilledMapItem ?: return null // Got request while there was no map!
             val mapName = message.mapName
             val mapdata = FilledMapItem.getData(stack, boat.worldRef)!!
             val packet = SMapAnswer(mapName, message.boatID, message.moduleLocation)

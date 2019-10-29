@@ -147,7 +147,7 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(EntityEntries.AnimalBoat, 
         if (this.isPassenger(passenger)) {
             val f1 = ((if ( ! this.isAlive) 0.009999999776482582 else this.mountedYOffset) + passenger.yOffset).toFloat()
 
-            passenger.setPosition(this.x, this.y + f1.toDouble(), this.z)
+            passenger.setPosition(this.posX, this.posY + f1.toDouble(), this.posZ)
             passenger.rotationYaw += this.deltaRotation
             passenger.rotationYawHead = passenger.rotationYawHead + this.deltaRotation
             this.applyYawToEntity(passenger)

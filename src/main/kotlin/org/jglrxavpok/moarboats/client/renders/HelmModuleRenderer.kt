@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.entity.EntityRendererManager
 import net.minecraft.client.renderer.entity.model.RendererModel
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
+import net.minecraft.item.FilledMapItem
 import net.minecraft.item.MapItem
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundNBT
@@ -51,7 +52,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         val inventory = boat.getInventory(module)
         val stack = inventory.getStackInSlot(0)
         val item = stack.item
-        if(item is MapItem) {
+        if(item is FilledMapItem) {
             val mc = Minecraft.getInstance()
             mc.textureManager.bindTexture(RES_MAP_BACKGROUND)
             val tessellator = Tessellator.getInstance()

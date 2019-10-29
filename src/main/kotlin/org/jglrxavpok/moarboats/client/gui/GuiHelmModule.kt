@@ -6,6 +6,7 @@ import net.minecraft.client.gui.widget.button.Button
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.entity.player.PlayerInventory
+import net.minecraft.item.FilledMapItem
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.item.MapItem
@@ -118,7 +119,7 @@ class GuiHelmModule(containerID: Int, playerInventory: PlayerInventory, engine: 
 
     private fun getMapData(stack: ItemStack): MapData? {
         return when (stack.item) {
-            is MapItem -> HelmModule.mapDataCopyProperty[boat]
+            is FilledMapItem -> HelmModule.mapDataCopyProperty[boat]
             is MapItemWithPath -> {
                 val mapID = stack.tag?.getString("${MoarBoats.ModID}.mapID") ?: return null
                 MoarBoats.getLocalMapStorage().get({ MapData(mapID) }, mapID) as? MapData

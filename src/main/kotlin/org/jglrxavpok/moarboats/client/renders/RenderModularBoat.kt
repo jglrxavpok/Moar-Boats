@@ -58,7 +58,7 @@ class RenderModularBoat(renderManager: EntityRendererManager): EntityRenderer<Mo
         if(boatEntity.hasLink(BasicBoatEntity.FrontLink)) {
             boatEntity.getLinkedTo(BasicBoatEntity.FrontLink)?.let {
                 GlStateManager.pushMatrix()
-                GlStateManager.translatef(17f, -4f, 0f)
+                GlStateManager.translatef(17f+1.5f, -4f, 1.25f)
                 renderActualLink(boatEntity, it, BasicBoatEntity.FrontLink, entityYaw)
                 bindTexture(RopeAnchorTextureLocation)
                 ropeAnchorModel.render(boatEntity, 0f, 0f, boatEntity.ticksExisted.toFloat(), 0f, 0f, 1f)
@@ -70,7 +70,7 @@ class RenderModularBoat(renderManager: EntityRendererManager): EntityRenderer<Mo
         if(boatEntity.hasLink(BasicBoatEntity.BackLink)) {
             boatEntity.getLinkedTo(BasicBoatEntity.BackLink)?.let {
                 GlStateManager.pushMatrix()
-                GlStateManager.translatef(-17f, -4f, 0f)
+                GlStateManager.translatef(-(17f-1.5f), -4f, 1.25f)
                 renderActualLink(boatEntity, it, BasicBoatEntity.BackLink, entityYaw)
                 bindTexture(RopeAnchorTextureLocation)
                 ropeAnchorModel.render(boatEntity, 0f, 0f, boatEntity.ticksExisted.toFloat(), 0f, 0f, 1f)
@@ -101,7 +101,7 @@ class RenderModularBoat(renderManager: EntityRendererManager): EntityRenderer<Mo
         for (i1 in 0..l) {
             val f11 = i1.toFloat() / l
             bufferbuilder
-                    .setTranslation(translateX * f11.toDouble(), translateY * (f11 * f11 + f11).toDouble() * 0.5, translateZ * f11.toDouble())
+                    .pos(translateX * f11.toDouble(), translateY * (f11 * f11 + f11).toDouble() * 0.5, translateZ * f11.toDouble())
             bufferbuilder.color(138, 109, 68, 255)
 
             bufferbuilder.endVertex()

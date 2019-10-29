@@ -15,7 +15,7 @@ fun World.getEntityByUUID(id: UUID): Entity? {
 
 fun <T: Entity> World.getEntities(type: EntityType<T>?, predicate: (T) -> Boolean): List<Entity> {
     return if(this is ServerWorld) {
-        this.getEntities(type, predicate as Predicate<in Entity>)
+        this.getEntities(type, Predicate { ent: Entity -> predicate(ent as T) })
     } else {
         (this as ClientWorld).allEntities.filter { it -> (type == null || it.type == type) && predicate(it as T) }
     }

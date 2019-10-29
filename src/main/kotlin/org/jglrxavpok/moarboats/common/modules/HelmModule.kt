@@ -2,6 +2,7 @@ package org.jglrxavpok.moarboats.common.modules
 
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.item.FilledMapItem
 import net.minecraft.item.MapItem
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundNBT
@@ -79,7 +80,7 @@ object HelmModule: BoatModule(), BlockReason {
         super.onInit(boat, fromItem)
         if(boat.worldRef.isRemote) {
             val stack = boat.getInventory().getStackInSlot(0)
-            if(!stack.isEmpty && stack.item is MapItem) {
+            if(!stack.isEmpty && stack.item is FilledMapItem) {
                 val id = stack.damage
                 MoarBoats.network.sendToServer(CMapRequest("map_$id", boat.entityID, this.id))
             }
@@ -152,7 +153,7 @@ object HelmModule: BoatModule(), BlockReason {
             updateWaypoints(boat, waypoints, loopingOption)
         }
 
-        if(stack.isEmpty || item !is MapItem) {
+        if(stack.isEmpty || item !is FilledMapItem) {
             receiveMapData(boat, EmptyMapData)
             waypointsProperty[boat] = ListNBT() // reset waypoints
             return
@@ -329,7 +330,7 @@ object HelmModule: BoatModule(), BlockReason {
         val inventory = boat.getInventory(HelmModule)
         val stack = inventory.list[0]
         return when(stack.item) {
-            is MapItem -> {
+            is FilledMapItem -> {
                 GuiPathEditor(player, BoatPathHolder(boat), mapData)
             }
             is MapItemWithPath -> {

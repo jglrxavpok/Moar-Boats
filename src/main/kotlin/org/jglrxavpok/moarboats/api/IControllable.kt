@@ -69,10 +69,10 @@ interface IControllable: IBlockSource {
     fun imposeSpeed(speed: Float)
 
     fun calculateAnchorPosition(linkType: Int): Vec3d {
-        val distanceFromCenter = 0.0625f * 17f * if(linkType == BasicBoatEntity.FrontLink) 1f else -1f
+        val distanceFromCenter = 0.0625f * ((17f + (1.5f * if(linkType == BasicBoatEntity.FrontLink) 1f else -1f)) * if(linkType == BasicBoatEntity.FrontLink) 1f else -1f)
         val anchorX = positionX + MathHelper.cos((yaw + 90f).toRadians()) * distanceFromCenter
         val anchorY = positionY + 0.0625f * 16f
-        val anchorZ = positionZ + MathHelper.sin((yaw + 90f).toRadians()) * distanceFromCenter
+        val anchorZ = positionZ + MathHelper.sin((yaw + 90f).toRadians()) * distanceFromCenter + 1.25f
         return Vec3d(anchorX, anchorY, anchorZ)
     }
 

@@ -521,9 +521,9 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
         return embeddedDispenserTileEntity as T
     }
 
-    override fun getX() = moduleDispensePosition.x.toDouble()
-    override fun getY() = moduleDispensePosition.y.toDouble()
-    override fun getZ() = moduleDispensePosition.z.toDouble()
+    override fun getX() = posX
+    override fun getY() = posY
+    override fun getZ() = posZ
 
     override fun getBlockState(): BlockState {
         return MCBlocks.DISPENSER.defaultState.with(DispenserBlock.FACING, moduleDispenseFacing)
