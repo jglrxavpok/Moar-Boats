@@ -12,6 +12,7 @@ import net.minecraft.nbt.CompoundNBT
 import net.minecraft.nbt.ListNBT
 import net.minecraft.util.NonNullList
 import net.minecraft.util.ResourceLocation
+import net.minecraft.util.text.StringTextComponent
 import net.minecraft.util.text.TranslationTextComponent
 import net.minecraftforge.fml.client.config.GuiUtils.drawTexturedModalRect
 import org.jglrxavpok.moarboats.MoarBoats
@@ -24,7 +25,7 @@ import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.network.*
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 
-class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val playerInv: PlayerInventory): ContainerScreen<ContainerMappingTable>(ContainerMappingTable(containerID, te, playerInv), playerInv, null/*TODO*/), IContainerListener {
+class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val playerInv: PlayerInventory): ContainerScreen<ContainerMappingTable>(ContainerMappingTable(containerID, te, playerInv), playerInv, StringTextComponent("mapping table")/*TODO*/), IContainerListener {
 
     companion object {
         private val EmptyBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/helm.png")
@@ -83,7 +84,7 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
         this.ySize = 114 + 6 * 18
         super.init()
         val totalWidth = xSize*.90f
-        val xStart = (waypointToEditAfterCreation-totalWidth)/2f+guiLeft
+        val xStart = (xSize-totalWidth)/2f+guiLeft
         val listWidth = totalWidth.toInt()
         val listHeight = 85
         val listLeft = xStart.toInt()

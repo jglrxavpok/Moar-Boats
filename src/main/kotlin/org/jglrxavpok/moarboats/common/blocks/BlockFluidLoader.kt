@@ -44,7 +44,7 @@ object BlockFluidLoader: MoarBoatsBlock() {
     override fun onBlockActivated(state: BlockState, worldIn: World, pos: BlockPos, player: PlayerEntity, handIn: Hand, hit: BlockRayTraceResult): Boolean {
         if(worldIn.isRemote)
             return true
-        NetworkHooks.openGui(player as ServerPlayerEntity, MoarBoatsGuiHandler.FluidLoaderGuiInteraction(pos.x, pos.y, pos.z))
+        NetworkHooks.openGui(player as ServerPlayerEntity, MoarBoatsGuiHandler.FluidLoaderGuiInteraction(pos.x, pos.y, pos.z), pos)
         return true
     }
 

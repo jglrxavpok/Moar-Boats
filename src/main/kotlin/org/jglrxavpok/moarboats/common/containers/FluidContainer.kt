@@ -2,13 +2,14 @@ package org.jglrxavpok.moarboats.common.containers
 
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.ServerPlayerEntity
+import net.minecraft.inventory.container.ContainerType
 import net.minecraftforge.fluids.capability.IFluidHandler
 import net.minecraftforge.fml.network.PacketDistributor
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.network.SUpdateFluidGui
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityListenable
 
-class FluidContainer(containerID: Int, val te: TileEntityListenable, val fluidCapability: IFluidHandler, val player: PlayerEntity): EmptyContainer(containerID, player.inventory) {
+class FluidContainer(containerType: ContainerType<*>, containerID: Int, val te: TileEntityListenable, val fluidCapability: IFluidHandler, val player: PlayerEntity): EmptyContainer(containerID, player.inventory, containerType = containerType) {
 
     private var fluidAmount = -1
     private var fluidName = ""

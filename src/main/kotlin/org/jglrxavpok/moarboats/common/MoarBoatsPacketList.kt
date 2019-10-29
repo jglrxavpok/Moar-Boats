@@ -27,7 +27,7 @@ object MoarBoatsPacketList {
                 SModuleLocations.Handler,
                 CRemoveModule.Handler,
                 CChangeDispenserFacing.Handler,
-                // FIXME SUpdateFluidGui.Handler,
+                SUpdateFluidGui.Handler,
                 CSaveItineraryToMap.Handler,
                 SSetGoldenItinerary.Handler,
                 CAddWaypointToItemPathFromMappingTable.Handler,

@@ -14,17 +14,17 @@ import net.minecraft.inventory.container.INamedContainerProvider
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.StringTextComponent
 import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import net.minecraftforge.fml.network.FMLPlayMessages
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.gui.GuiEnergy
 import org.jglrxavpok.moarboats.client.gui.GuiMappingTable
 import org.jglrxavpok.moarboats.common.containers.ContainerMappingTable
+import org.jglrxavpok.moarboats.common.containers.ContainerTypes
 import org.jglrxavpok.moarboats.common.containers.EmptyContainer
+import org.jglrxavpok.moarboats.common.containers.FluidContainer
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
-import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergy
-import org.jglrxavpok.moarboats.common.tileentity.TileEntityFluidLoader
-import org.jglrxavpok.moarboats.common.tileentity.TileEntityFluidUnloader
-import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
+import org.jglrxavpok.moarboats.common.tileentity.*
 import org.jglrxavpok.moarboats.extensions.use
 
 object MoarBoatsGuiHandler {
@@ -117,8 +117,8 @@ object MoarBoatsGuiHandler {
     }
 
     class EnergyGuiInteraction(x: Int, y: Int, z: Int): TileEntityInteraction<TileEntityEnergy>("energy", x, y, z, { containerID, te, inv, player -> EmptyContainer(containerID, inv) })
-    class FluidLoaderGuiInteraction(x: Int, y: Int, z: Int): TileEntityInteraction<TileEntityFluidLoader>("fluid", x, y, z, { containerID, te, inv, player -> EmptyContainer(containerID, inv) })
-    class FluidUnloaderGuiInteraction(x: Int, y: Int, z: Int): TileEntityInteraction<TileEntityFluidUnloader>("fluid", x, y, z, { containerID, te, inv, player -> EmptyContainer(containerID, inv) })
+    class FluidLoaderGuiInteraction(x: Int, y: Int, z: Int): TileEntityInteraction<TileEntityFluidLoader>("fluid", x, y, z, { containerID, te, inv, player -> FluidContainer(ContainerTypes.FluidLoader, containerID, te as TileEntityListenable, te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY).orElseThrow(::NullPointerException), player) })
+    class FluidUnloaderGuiInteraction(x: Int, y: Int, z: Int): TileEntityInteraction<TileEntityFluidUnloader>("fluid", x, y, z, { containerID, te, inv, player -> FluidContainer(ContainerTypes.FluidUnloader, containerID, te as TileEntityListenable, te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY).orElseThrow(::NullPointerException), player) })
     class MappingTableGuiInteraction(x: Int, y: Int, z: Int): TileEntityInteraction<TileEntityMappingTable>("mapping_table", x, y, z, { containerID, te, inv, player -> ContainerMappingTable(containerID, te as TileEntityMappingTable, inv) })
 
     val ModulesGui: Int = 0

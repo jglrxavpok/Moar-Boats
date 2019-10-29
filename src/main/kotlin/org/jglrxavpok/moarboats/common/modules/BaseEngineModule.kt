@@ -83,7 +83,6 @@ abstract class BaseEngineModule: BoatModule() {
             updateFuelState(from, state, inv)
         }
         val world = from.worldRef
-        // todo: pool
         lockedByRedstoneProperty[from] = world.isBlockPowered(BlockPos(from.correspondingEntity))
         from.saveState()
         if(hasFuel(from) && !isStationary(from)) {

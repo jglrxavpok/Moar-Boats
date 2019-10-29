@@ -10,4 +10,10 @@ object ContainerTypes {
 
     @JvmStatic
     lateinit var MappingTable: ContainerType<ContainerMappingTable>
+
+    @JvmStatic
+    lateinit var FluidLoader: ContainerType<FluidContainer>
+
+    @JvmStatic
+    lateinit var FluidUnloader: ContainerType<FluidContainer>
 }

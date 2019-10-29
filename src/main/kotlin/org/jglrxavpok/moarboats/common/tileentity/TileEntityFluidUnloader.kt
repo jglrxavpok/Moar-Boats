@@ -42,10 +42,9 @@ class TileEntityFluidUnloader: TileEntityListenable(MoarBoats.TileEntityFluidUnl
             val fluidCapa = it.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null)
             fluidCapa.ifPresent { storage ->
                 val amountFilled = if(fluid != null) {
-                    forceFill(storage.drain(FluidStack(fluid, fluidToExtractFromASingleNeighbor), IFluidHandler.FluidAction.EXECUTE) ?: FluidStack(fluid, 0), IFluidHandler.FluidAction.EXECUTE)
+                    forceFill(storage.drain(FluidStack(fluid, fluidToExtractFromASingleNeighbor), IFluidHandler.FluidAction.EXECUTE), IFluidHandler.FluidAction.EXECUTE)
                 } else {
-                    // FIXME
-                    forceFill(storage.drain(fluidToExtractFromASingleNeighbor, IFluidHandler.FluidAction.EXECUTE) ?: FluidStack(Fluids.WATER, 0), IFluidHandler.FluidAction.EXECUTE)
+                    forceFill(storage.drain(fluidToExtractFromASingleNeighbor, IFluidHandler.FluidAction.EXECUTE), IFluidHandler.FluidAction.EXECUTE)
                 }
                 working = working || amountFilled > 0
             }

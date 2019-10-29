@@ -26,6 +26,7 @@ import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.extensions.IForgeContainerType
 import net.minecraftforge.event.RegistryEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import net.minecraftforge.fml.DistExecutor
 import net.minecraftforge.fml.ModLoadingContext
 import net.minecraftforge.fml.common.Mod
@@ -267,6 +268,28 @@ object MoarBoats {
                 }
             }.setRegistryName(ModID, "mapping_table") as ContainerType<ContainerMappingTable>
             event.registry.register(ContainerTypes.MappingTable)
+
+            ContainerTypes.FluidLoader = IForgeContainerType.create { windowId, inv, data ->
+                val player = inv.player
+                val pos = data.readBlockPos()
+                val te = player.world.getTileEntity(pos) as? TileEntityListenable
+                te?.let {
+                    return@create FluidContainer(ContainerTypes.FluidLoader, windowId, te, te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY).orElseThrow(::NullPointerException), player)
+                }
+            }.setRegistryName(ModID, "fluid_loader") as ContainerType<FluidContainer>
+            event.registry.register(ContainerTypes.FluidLoader)
+
+            ContainerTypes.FluidUnloader = IForgeContainerType.create { windowId, inv, data ->
+                val player = inv.player
+                val pos = data.readBlockPos()
+                val te = player.world.getTileEntity(pos) as? TileEntityListenable
+                te?.let {
+                    return@create FluidContainer(ContainerTypes.FluidUnloader, windowId, te, te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY).orElseThrow(::NullPointerException), player)
+                }
+            }.setRegistryName(ModID, "fluid_unloader") as ContainerType<FluidContainer>
+            event.registry.register(ContainerTypes.FluidUnloader)
+
+            // TODO: add container types for energy charger/discharger
 
             ContainerTypes.Empty = IForgeContainerType.create { windowId, inv, data ->
                 return@create EmptyContainer(windowId, inv)

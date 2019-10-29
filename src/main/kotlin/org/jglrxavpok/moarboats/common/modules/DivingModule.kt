@@ -30,8 +30,6 @@ object DivingModule: BoatModule() {
     override fun update(from: IControllable) {
         val world = from.worldRef
         val entities = world.getEntities<LivingEntity>(null) { entity ->
-            if(entity is LivingEntity)
-                return@getEntities false
             val correctDistance = entity?.getDistanceSq(from.correspondingEntity) ?: Double.POSITIVE_INFINITY <= maxDistSq
             val inWater = entity?.isInWater ?: false
             inWater && correctDistance

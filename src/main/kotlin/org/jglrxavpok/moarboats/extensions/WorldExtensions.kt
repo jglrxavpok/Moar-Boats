@@ -23,7 +23,13 @@ inline fun <reified T: Entity> World.getEntities(type: EntityType<T>?, crossinli
             }
         })
     } else {
-        (this as ClientWorld).allEntities.filter { it -> (type == null || it.type == type) && predicate(it as T) }
+        (this as ClientWorld).allEntities.filter { it ->
+            if(it is T) {
+                (type == null || it.type == type) && predicate(it as T)
+            } else {
+                false
+            }
+        }
     }
 }
 

@@ -10,6 +10,6 @@ object Blocks {
             BlockWaterborneComparator,
             BlockCargoStopper,
             BlockBoatTank,
-            // FIXME Will be back when fluids are back BlockFluidLoader, BlockFluidUnloader,
+            BlockFluidLoader, BlockFluidUnloader,
             BlockMappingTable)
 }

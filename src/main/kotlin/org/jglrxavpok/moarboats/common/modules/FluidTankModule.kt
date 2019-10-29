@@ -31,11 +31,11 @@ object FluidTankModule: BoatModule(), IFluidBoatModule {
         val lazyCapa = heldItem.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null)
         if(lazyCapa.isPresent) {
             return lazyCapa.map { capability ->
-                val potentialDrain = capability.drain(1000, IFluidHandler.FluidAction.EXECUTE)
-                if(potentialDrain != null) {
+                val potentialDrain = capability.drain(1000, IFluidHandler.FluidAction.SIMULATE)
+                if(!potentialDrain.isEmpty) {
                     val accepted = this.fill(from, potentialDrain, IFluidHandler.FluidAction.SIMULATE)
                     if(accepted > 0) {
-                        val drained = capability.drain(1000, IFluidHandler.FluidAction.SIMULATE)!!
+                        val drained = capability.drain(1000, IFluidHandler.FluidAction.EXECUTE)!!
                         player.setHeldItem(hand, capability.container)
                         this.fill(from, drained, IFluidHandler.FluidAction.EXECUTE)
                     }
