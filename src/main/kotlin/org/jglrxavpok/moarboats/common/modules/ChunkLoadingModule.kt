@@ -37,8 +37,11 @@ object ChunkLoadingModule: BoatModule() {
     override fun update(from: IControllable) {
         if(!MoarBoatsConfig.chunkLoader.allowed.get())
             return
-        forceChunks(from)
 
+        if(!from.world!!.isRemote) {
+            forceChunks(from)
+            return
+        }
 
         if(!from.world!!.isRemote)
             return
@@ -70,7 +73,9 @@ object ChunkLoadingModule: BoatModule() {
         super.onInit(to, fromItem)
         if(!MoarBoatsConfig.chunkLoader.allowed.get())
             return
-        forceChunks(to)
+        if(!to.world!!.isRemote) {
+            forceChunks(to)
+        }
     }
 
     override fun onAddition(to: IControllable) { }

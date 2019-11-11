@@ -31,13 +31,13 @@ class FluidContainer(containerType: ContainerType<*>, containerID: Int, val te: 
         val teFluidName: String
         val teFluidAmount: Int
         val teFluidCapacity: Int
-        if(fluidCapability.getFluidInTank(0) != null && !fluidCapability.getFluidInTank(0).isEmpty) {
+        if(!fluidCapability.getFluidInTank(0).isEmpty) {
             teFluidName = fluidCapability.getFluidInTank(0).fluid?.registryName.toString() ?: ""
             teFluidAmount = fluidCapability.getFluidInTank(0).amount ?: 0
             teFluidCapacity = fluidCapability.getTankCapacity(0)
         } else {
             teFluidAmount = 0
-            teFluidCapacity = 1
+            teFluidCapacity = fluidCapability.getTankCapacity(0)
             teFluidName = ""
         }
         MoarBoats.network.send(PacketDistributor.PLAYER.with { player as ServerPlayerEntity? }, SUpdateFluidGui(teFluidName, teFluidAmount, teFluidCapacity))

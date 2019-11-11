@@ -154,7 +154,7 @@ class TileEntityFluidUnloader: TileEntityListenable(MoarBoats.TileEntityFluidUnl
     }
 
     override fun getFluid(): FluidStack {
-        return FluidStack(fluid, amount)
+        return if(fluid != null) FluidStack(fluid, amount) else FluidStack.EMPTY
     }
 
     override fun <T : Any?> getCapability(capability: Capability<T>, facing: Direction?): LazyOptional<T> {

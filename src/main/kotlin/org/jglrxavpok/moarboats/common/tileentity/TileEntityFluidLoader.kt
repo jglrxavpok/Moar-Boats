@@ -133,7 +133,7 @@ class TileEntityFluidLoader: TileEntityListenable(MoarBoats.TileEntityFluidLoade
     }
 
     override fun getFluidInTank(tank: Int): FluidStack {
-        return if(tank == 0) FluidStack(fluid, amount) else FluidStack.EMPTY
+        return if(fluid != null && tank == 0 && amount > 0) FluidStack(fluid, amount) else FluidStack.EMPTY
     }
 
     override fun getTanks(): Int {

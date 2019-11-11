@@ -42,9 +42,9 @@ object ChunkLoadingModuleRenderer : BoatModuleRenderer() {
             GlStateManager.translatef(x*width, yOffset, z*length)
             GlStateManager.translated(0.025, 0.5, 0.0)
             GlStateManager.enableRescaleNormal()
-            GlStateManager.rotatef(180.0f - entityYaw - 90f, 0.0f, -1.0f, 0.0f)
-            GlStateManager.rotatef(-entityRenderer.info.projectedView.y.toFloat(), 0.0f, 1.0f, 0.0f)
-            GlStateManager.rotatef((if (entityRenderer.options.thirdPersonView == 2) -1 else 1).toFloat() * entityRenderer.info.projectedView.x.toFloat(), 1.0f, 0.0f, 0.0f)
+            GlStateManager.rotatef(-entityYaw - 90f, 0.0f, -1.0f, 0.0f)
+            GlStateManager.rotatef(-entityRenderer.info.yaw, 0.0f, 1.0f, 0.0f)
+            GlStateManager.rotatef((if (entityRenderer.options.thirdPersonView == 2) -1 else 1).toFloat() * (-entityRenderer.info.pitch), 1.0f, 0.0f, 0.0f)
             GlStateManager.rotatef(180.0f, 0.0f, 1.0f, 0.0f)
             entityRenderer.textureManager.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE)
 
