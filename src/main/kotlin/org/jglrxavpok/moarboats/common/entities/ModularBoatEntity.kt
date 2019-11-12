@@ -60,14 +60,14 @@ import java.util.*
 class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat, world), IInventory, ICapabilityProvider, IEnergyStorage, IFluidHandler, IFluidTank, IEntityAdditionalSpawnData {
 
     private companion object {
-
         val MODULE_LOCATIONS = EntityDataManager.createKey(ModularBoatEntity::class.java, ResourceLocationsSerializer)
         val MODULE_DATA = EntityDataManager.createKey(ModularBoatEntity::class.java, DataSerializers.COMPOUND_NBT)
     }
-    enum class OwningMode {
 
+    enum class OwningMode {
         AllowAll, PlayerOwned
     }
+
     override val entityID: Int
         get() = this.entityId
 
@@ -93,7 +93,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
     private val itemHandler = InvWrapper(this)
     private val moduleInventories = hashMapOf<ResourceLocation, BoatModuleInventory>()
 
-    private val forcedChunks = ForcedChunks(world)
+    val forcedChunks = ForcedChunks(world)
 
     var color = DyeColor.WHITE // white by default
         private set
@@ -382,7 +382,9 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
 
     override fun remove() {
         super.remove()
-        forcedChunks.removeAll()
+        if(!world.isRemote) {
+            forcedChunks.removeAll()
+        }
     }
 
     private fun dropItemsForModule(module: BoatModule, killedByPlayerInCreative: Boolean) {
@@ -653,5 +655,4 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
     fun findFirstModuleToShowOnGui(): BoatModule {
         return sortModulesByInterestingness().first()
     }
-
 }

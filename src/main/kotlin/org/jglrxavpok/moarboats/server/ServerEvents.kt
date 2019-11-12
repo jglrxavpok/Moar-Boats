@@ -2,15 +2,23 @@ package org.jglrxavpok.moarboats.server
 
 import net.alexwells.kottle.KotlinEventBusSubscriber
 import net.minecraft.entity.player.ServerPlayerEntity
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.ListNBT
+import net.minecraft.world.server.ServerWorld
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.event.entity.living.LivingEvent
+import net.minecraftforge.event.world.WorldEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.network.PacketDistributor
 import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.common.EntityEntries
+import org.jglrxavpok.moarboats.common.data.ForcedChunks
+import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
+import org.jglrxavpok.moarboats.common.modules.ChunkLoadingModule
 import org.jglrxavpok.moarboats.common.network.SSetGoldenItinerary
+import org.jglrxavpok.moarboats.extensions.getEntities
 
-@KotlinEventBusSubscriber(modid = MoarBoats.ModID, value = [Dist.DEDICATED_SERVER])
 object ServerEvents {
 
     @SubscribeEvent
@@ -28,5 +36,37 @@ object ServerEvents {
                 }
             }
         }
+    }
+
+    @SubscribeEvent
+    fun onWorldLoad(event: WorldEvent.Load) {
+        println("HIII LOADING")
+        val world = (event.world as? ServerWorld) ?: return
+        println("HIII LOADING2")
+        val chunks = world.savedData.getOrCreate({ForcedChunkList(ListNBT())}, "moarboats_forced_chunks")
+        println("LOAD=> ${chunks.list}")
+        for(nbt in chunks.list) {
+            nbt as CompoundNBT
+            val chunks = ForcedChunks(world)
+            chunks.read(nbt)
+            chunks.forceAfterWorldLoad()
+        }
+    }
+
+    @SubscribeEvent
+    fun onWorldSave(event: WorldEvent.Save) {
+        println("HIII SAVING")
+
+        val world = (event.world as? ServerWorld) ?: return
+        val boats = world.getEntities<ModularBoatEntity>(EntityEntries.ModularBoat) { ChunkLoadingModule in (it as ModularBoatEntity).modules }.map { it as ModularBoatEntity }
+        val nbtList = ListNBT()
+        println("HIII SAVING2")
+        boats.forEach {
+            nbtList.add(it.forcedChunks.write(CompoundNBT()))
+        }
+        println("SAVE=> $nbtList")
+
+        world.savedData.set(ForcedChunkList(nbtList))
+        world.savedData.save()
     }
 }

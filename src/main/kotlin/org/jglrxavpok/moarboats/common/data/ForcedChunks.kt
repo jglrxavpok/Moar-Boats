@@ -36,6 +36,12 @@ class ForcedChunks(val world: World) {
         serverworld.forceChunk(ChunkPos.getX(position), ChunkPos.getZ(position), true)
     }
 
+    fun forceAfterWorldLoad() {
+        chunks.values.forEach {
+            force(it.position)
+        }
+    }
+
     /**
      * Unforces chunks that have been last forced 10+ seconds ago
      */

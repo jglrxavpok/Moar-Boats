@@ -56,6 +56,7 @@ import org.jglrxavpok.moarboats.common.modules.inventories.SimpleModuleInventory
 import org.jglrxavpok.moarboats.common.tileentity.*
 import org.jglrxavpok.moarboats.integration.LoadIntegrationPlugins
 import org.jglrxavpok.moarboats.integration.MoarBoatsPlugin
+import org.jglrxavpok.moarboats.server.ServerEvents
 import java.net.URL
 import java.util.concurrent.Callable
 import java.util.function.Supplier
@@ -120,6 +121,17 @@ object MoarBoats {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, MoarBoatsConfig.spec)
 
         MinecraftForge.EVENT_BUS.register(MoarBoatsGuiHandler)
+
+        MinecraftForge.EVENT_BUS.register(ServerEvents)
+
+        DistExecutor.runForDist({
+            Supplier {
+
+            }
+        }, {
+            Supplier {
+            }
+        })
         plugins = LoadIntegrationPlugins()
     }
 
@@ -155,9 +167,6 @@ object MoarBoats {
         DataSerializers.registerSerializer(ResourceLocationsSerializer)
         DataSerializers.registerSerializer(UniqueIDSerializer)
         plugins.forEach(MoarBoatsPlugin::init)
-        /*        ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.GUIFACTORY) {
-                    Function<FMLPlayMessages.OpenContainer, Screen?> { container: FMLPlayMessages.OpenContainer -> MoarBoatsGuiHandler.dispatchGui(container) }
-                }*/
     }
 
     fun postLoad(event: FMLLoadCompleteEvent) {
