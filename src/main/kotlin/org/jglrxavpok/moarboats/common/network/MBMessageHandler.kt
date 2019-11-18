@@ -7,6 +7,7 @@ import net.minecraftforge.fml.network.NetworkEvent
 import net.minecraftforge.fml.network.PacketDistributor
 import net.minecraftforge.fml.network.simple.SimpleChannel
 import org.jglrxavpok.moarboats.MoarBoats
+import java.util.function.BiConsumer
 import java.util.function.Supplier
 
 interface MBMessageHandler<REQ: MoarBoatsPacket, REPLY: MoarBoatsPacket?> {
@@ -40,7 +41,7 @@ interface MBMessageHandler<REQ: MoarBoatsPacket, REPLY: MoarBoatsPacket?> {
         network.messageBuilder(packetClass, packetID)
                 .encoder { msg, buffer -> msg.encode(buffer) }
                 .decoder { buffer -> packetClass.newInstance().decode(buffer) as REQ }
-                .consumer { msg, ctx -> handle(msg, ctx.get()) }
+                .consumer (BiConsumer { msg, ctx -> handle(msg, ctx.get()) })
                 .add()
     }
 }

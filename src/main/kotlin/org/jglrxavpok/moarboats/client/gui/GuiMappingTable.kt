@@ -153,7 +153,9 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
 
     override fun render(mouseX: Int, mouseY: Int, partialTicks: Float) {
         super.render(mouseX, mouseY, partialTicks)
-        list.render(mouseX, mouseY, partialTicks)
+        synchronized(list) {
+            list.render(mouseX, mouseY, partialTicks)
+        }
 
         renderHoveredToolTip(mouseX, mouseY)
     }
@@ -192,12 +194,14 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
     }
 
     fun confirmWaypointCreation(data: ListNBT) {
-        list.children().clear()
-        val tags = mutableListOf<CompoundNBT>()
-        for(nbt in data) {
-            if(nbt is CompoundNBT) {
-                tags.add(nbt)
-                this.list.children().add(WaypointListEntry(this, nbt, this.list.slotTops, tags))
+        synchronized(list) {
+            list.children().clear()
+            val tags = mutableListOf<CompoundNBT>()
+            for(nbt in data) {
+                if(nbt is CompoundNBT) {
+                    tags.add(nbt)
+                    this.list.children().add(WaypointListEntry(this, nbt, this.list.slotTops, tags))
+                }
             }
         }
     //    edit(waypointToEditAfterCreation)
