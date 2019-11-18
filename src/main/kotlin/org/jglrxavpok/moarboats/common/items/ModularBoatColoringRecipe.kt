@@ -1,8 +1,10 @@
 package org.jglrxavpok.moarboats.common.items
 
+import net.minecraft.inventory.CraftingInventory
 import net.minecraft.inventory.IInventory
 import net.minecraft.item.DyeColor
 import net.minecraft.item.ItemStack
+import net.minecraft.item.crafting.ICraftingRecipe
 import net.minecraft.item.crafting.IRecipe
 import net.minecraft.item.crafting.IRecipeSerializer
 import net.minecraft.item.crafting.IRecipeType
@@ -10,7 +12,7 @@ import net.minecraft.util.ResourceLocation
 import net.minecraft.world.World
 import org.jglrxavpok.moarboats.MoarBoats
 
-object ModularBoatColoringRecipe: IRecipe<IInventory> {
+object ModularBoatColoringRecipe: ICraftingRecipe {
     override fun getType(): IRecipeType<*> {
         return IRecipeType.CRAFTING
     }
@@ -29,7 +31,7 @@ object ModularBoatColoringRecipe: IRecipe<IInventory> {
 
     override fun getRecipeOutput() = ItemStack.EMPTY
 
-    override fun getCraftingResult(inv: IInventory): ItemStack {
+    override fun getCraftingResult(inv: CraftingInventory): ItemStack {
         var globalColor: DyeColor? = null
         var boatCount = 0
         var dyeCount = 0
@@ -59,7 +61,7 @@ object ModularBoatColoringRecipe: IRecipe<IInventory> {
         return ItemStack.EMPTY
     }
 
-    override fun matches(inv: IInventory, worldIn: World?): Boolean {
+    override fun matches(inv: CraftingInventory, worldIn: World?): Boolean {
         var globalColor: DyeColor? = null
         var boatCount = 0
         var dyeCount = 0

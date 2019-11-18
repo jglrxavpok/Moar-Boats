@@ -40,11 +40,8 @@ object ServerEvents {
 
     @SubscribeEvent
     fun onWorldLoad(event: WorldEvent.Load) {
-        println("HIII LOADING")
         val world = (event.world as? ServerWorld) ?: return
-        println("HIII LOADING2")
         val chunks = world.savedData.getOrCreate({ForcedChunkList(ListNBT())}, "moarboats_forced_chunks")
-        println("LOAD=> ${chunks.list}")
         for(nbt in chunks.list) {
             nbt as CompoundNBT
             val chunks = ForcedChunks(world)
@@ -55,16 +52,12 @@ object ServerEvents {
 
     @SubscribeEvent
     fun onWorldSave(event: WorldEvent.Save) {
-        println("HIII SAVING")
-
         val world = (event.world as? ServerWorld) ?: return
         val boats = world.getEntities<ModularBoatEntity>(EntityEntries.ModularBoat) { ChunkLoadingModule in (it as ModularBoatEntity).modules }.map { it as ModularBoatEntity }
         val nbtList = ListNBT()
-        println("HIII SAVING2")
         boats.forEach {
             nbtList.add(it.forcedChunks.write(CompoundNBT()))
         }
-        println("SAVE=> $nbtList")
 
         world.savedData.set(ForcedChunkList(nbtList))
         world.savedData.save()

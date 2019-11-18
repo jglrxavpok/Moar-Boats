@@ -1,6 +1,7 @@
 package org.jglrxavpok.moarboats.common.items
 
 import com.google.gson.JsonObject
+import net.minecraft.inventory.CraftingInventory
 import net.minecraft.inventory.IInventory
 import net.minecraft.item.crafting.IRecipe
 import net.minecraft.item.crafting.IRecipeSerializer
@@ -14,7 +15,7 @@ object MBRecipeSerializers {
     val UpgradeToGoldenTicket = IRecipeSerializer.register("upgrade_to_golden_ticket", SingletonSerializer(UpgradeToGoldenTicketRecipe))
     val CopyGoldenTicket = IRecipeSerializer.register("copy_golden_ticket", SingletonSerializer(GoldenTicketCopyRecipe))
 
-    class SingletonSerializer<T: IRecipe<IInventory>>(val recipe: T): IRecipeSerializer<T> {
+    class SingletonSerializer<T: IRecipe<CraftingInventory>>(val recipe: T): IRecipeSerializer<T> {
         override fun getRegistryName(): ResourceLocation? {
             return recipe.id
         }
@@ -24,7 +25,7 @@ object MBRecipeSerializers {
         }
 
         override fun setRegistryName(name: ResourceLocation?): IRecipeSerializer<*> {
-            throw UnsupportedOperationException()
+            return this
         }
 
         override fun write(buffer: PacketBuffer, recipe: T) {

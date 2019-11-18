@@ -1,7 +1,9 @@
 package org.jglrxavpok.moarboats.common.items
 
+import net.minecraft.inventory.CraftingInventory
 import net.minecraft.inventory.IInventory
 import net.minecraft.item.ItemStack
+import net.minecraft.item.crafting.ICraftingRecipe
 import net.minecraft.item.crafting.IRecipe
 import net.minecraft.item.crafting.IRecipeSerializer
 import net.minecraft.item.crafting.IRecipeType
@@ -9,7 +11,7 @@ import net.minecraft.util.ResourceLocation
 import net.minecraft.world.World
 import org.jglrxavpok.moarboats.MoarBoats
 
-object GoldenTicketCopyRecipe: IRecipe<IInventory> {
+object GoldenTicketCopyRecipe: ICraftingRecipe {
     override fun getType(): IRecipeType<*> {
         return IRecipeType.CRAFTING
     }
@@ -28,7 +30,7 @@ object GoldenTicketCopyRecipe: IRecipe<IInventory> {
 
     override fun getRecipeOutput() = ItemStack.EMPTY
 
-    override fun getCraftingResult(inv: IInventory): ItemStack {
+    override fun getCraftingResult(inv: CraftingInventory): ItemStack {
         var emptyTickets = 0
         var fullTickets = 0
         var fullTicket: ItemStack? = null
@@ -53,7 +55,7 @@ object GoldenTicketCopyRecipe: IRecipe<IInventory> {
         return ItemStack.EMPTY
     }
 
-    override fun matches(inv: IInventory, worldIn: World?): Boolean {
+    override fun matches(inv: CraftingInventory, worldIn: World?): Boolean {
         var emptyTickets = 0
         var fullTickets = 0
         for(i in 0 until inv.sizeInventory) {

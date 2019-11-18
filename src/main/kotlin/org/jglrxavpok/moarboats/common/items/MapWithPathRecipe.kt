@@ -1,9 +1,11 @@
 package org.jglrxavpok.moarboats.common.items
 
+import net.minecraft.inventory.CraftingInventory
 import net.minecraft.item.Items
 import net.minecraft.inventory.IInventory
 import net.minecraft.item.DyeColor
 import net.minecraft.item.ItemStack
+import net.minecraft.item.crafting.ICraftingRecipe
 import net.minecraft.item.crafting.IRecipe
 import net.minecraft.item.crafting.IRecipeSerializer
 import net.minecraft.item.crafting.IRecipeType
@@ -13,7 +15,7 @@ import net.minecraft.world.World
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.data.LoopingOptions
 
-object MapWithPathRecipe: IRecipe<IInventory> {
+object MapWithPathRecipe: ICraftingRecipe {
 
     override fun getType(): IRecipeType<*> {
         return IRecipeType.CRAFTING
@@ -33,7 +35,7 @@ object MapWithPathRecipe: IRecipe<IInventory> {
 
     override fun getRecipeOutput() = ItemStack.EMPTY
 
-    override fun getCraftingResult(inv: IInventory): ItemStack {
+    override fun getCraftingResult(inv: CraftingInventory): ItemStack {
         var featherCount = 0
         var filledMap: ItemStack? = null
         var blackDyeCount = 0
@@ -65,7 +67,7 @@ object MapWithPathRecipe: IRecipe<IInventory> {
         return MapItemWithPath.createStack(ListNBT(), mapID, LoopingOptions.NoLoop)
     }
 
-    override fun matches(inv: IInventory, worldIn: World?): Boolean {
+    override fun matches(inv: CraftingInventory, worldIn: World?): Boolean {
         var featherCount = 0
         var filledMap: ItemStack? = null
         var blackDyeCount = 0

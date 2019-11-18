@@ -7,17 +7,15 @@ import net.minecraft.block.material.Material
 import net.minecraft.block.material.MaterialColor
 import net.minecraft.block.material.PushReaction
 import net.minecraft.client.Minecraft
-import net.minecraft.client.entity.player.ClientPlayerEntity
-import net.minecraft.client.gui.ScreenManager
 import net.minecraft.entity.EntityType
 import net.minecraft.inventory.container.ContainerType
 import net.minecraft.item.*
+import net.minecraft.item.crafting.IRecipeSerializer
 import net.minecraft.network.datasync.DataSerializers
 import net.minecraft.server.dedicated.DedicatedServer
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.tileentity.TileEntityType
 import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.BlockPos
 import net.minecraft.world.dimension.DimensionType
 import net.minecraft.world.storage.DimensionSavedDataManager
 import net.minecraftforge.api.distmarker.Dist
@@ -36,18 +34,21 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
 import net.minecraftforge.fml.event.lifecycle.FMLDedicatedServerSetupEvent
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent
 import net.minecraftforge.fml.network.NetworkRegistry
-import net.minecraftforge.registries.*
+import net.minecraftforge.registries.ForgeRegistries
+import net.minecraftforge.registries.ForgeRegistry
+import net.minecraftforge.registries.RegistryBuilder
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
-import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleEntry
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.api.registerModule
 import org.jglrxavpok.moarboats.client.ClientEvents
 import org.jglrxavpok.moarboats.common.*
 import org.jglrxavpok.moarboats.common.blocks.*
-import org.jglrxavpok.moarboats.common.containers.*
-import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
+import org.jglrxavpok.moarboats.common.containers.ContainerMappingTable
+import org.jglrxavpok.moarboats.common.containers.ContainerTypes
+import org.jglrxavpok.moarboats.common.containers.EmptyContainer
+import org.jglrxavpok.moarboats.common.containers.FluidContainer
 import org.jglrxavpok.moarboats.common.items.*
 import org.jglrxavpok.moarboats.common.modules.*
 import org.jglrxavpok.moarboats.common.modules.inventories.ChestModuleInventory
@@ -178,17 +179,6 @@ object MoarBoats {
         }
     }
 
-    fun initDedicatedServer(event: FMLDedicatedServerSetupEvent) {
-        dedicatedServerInstance = event.serverSupplier.get()
-        /* TODO
-        dedicatedServerInstance?.let {
-            it.recipeManager.addRecipe(ModularBoatColoringRecipe)
-            it.recipeManager.addRecipe(GoldenTicketCopyRecipe)
-            it.recipeManager.addRecipe(UpgradeToGoldenTicketRecipe)
-            it.recipeManager.addRecipe(MapWithPathRecipe)
-        }*/
-    }
-
     @KotlinEventBusSubscriber(modid = ModID, bus = KotlinEventBusSubscriber.Bus.MOD)
     object RegistryEvents {
         @SubscribeEvent
@@ -264,6 +254,14 @@ object MoarBoats {
         @SubscribeEvent
         fun registerEntities(e: RegistryEvent.Register<EntityType<*>>) {
             e.registry.registerAll(*EntityEntries.list.toTypedArray())
+        }
+
+        @SubscribeEvent
+        fun registerRecipes(event: RegistryEvent.Register<IRecipeSerializer<*>>) {
+            event.registry.register(MBRecipeSerializers.MapWithPath);
+            event.registry.register(MBRecipeSerializers.BoatColoring);
+            event.registry.register(MBRecipeSerializers.UpgradeToGoldenTicket);
+            event.registry.register(MBRecipeSerializers.CopyGoldenTicket);
         }
 
         @SubscribeEvent
