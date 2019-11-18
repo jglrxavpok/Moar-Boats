@@ -179,6 +179,9 @@ object MoarBoats {
         }
     }
 
+    fun initDedicatedServer(event: FMLDedicatedServerSetupEvent) {
+    }
+
     @KotlinEventBusSubscriber(modid = ModID, bus = KotlinEventBusSubscriber.Bus.MOD)
     object RegistryEvents {
         @SubscribeEvent
