@@ -36,10 +36,7 @@ import net.minecraftforge.registries.GameData
 import net.minecraftforge.registries.IForgeRegistry
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
-import org.jglrxavpok.moarboats.client.gui.GuiChestModule
-import org.jglrxavpok.moarboats.client.gui.GuiFluid
-import org.jglrxavpok.moarboats.client.gui.GuiMappingTable
-import org.jglrxavpok.moarboats.client.gui.GuiModuleBase
+import org.jglrxavpok.moarboats.client.gui.*
 import org.jglrxavpok.moarboats.client.models.ModelPatreonHook
 import org.jglrxavpok.moarboats.client.renders.*
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
@@ -86,7 +83,13 @@ object ClientEvents {
             GuiFluid(ContainerTypes.FluidUnloader, container.containerID, container.te, container.fluidCapability, playerInv.player)
         }
 
-        // TODO: add screens for energy charger/discharger
+        ScreenManager.registerFactory(ContainerTypes.EnergyCharger) { container, playerInv, title ->
+            GuiEnergy(ContainerTypes.EnergyCharger, container.containerID, container.te, playerInv.player)
+        }
+
+        ScreenManager.registerFactory(ContainerTypes.EnergyDischarger) { container, playerInv, title ->
+            GuiEnergy(ContainerTypes.EnergyDischarger, container.containerID, container.te, playerInv.player)
+        }
 
         val mc = event.minecraftSupplier.get()
         RenderingRegistry.registerEntityRenderingHandler(ModularBoatEntity::class.java, ::RenderModularBoat)

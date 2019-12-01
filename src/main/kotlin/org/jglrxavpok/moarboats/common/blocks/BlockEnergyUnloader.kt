@@ -50,7 +50,7 @@ object BlockEnergyUnloader: MoarBoatsBlock() {
     override fun onBlockActivated(state: BlockState, worldIn: World, pos: BlockPos, playerIn: PlayerEntity, hand: Hand?, hit: BlockRayTraceResult): Boolean {
         if(worldIn.isRemote)
             return true
-        NetworkHooks.openGui(playerIn as ServerPlayerEntity, MoarBoatsGuiHandler.EnergyGuiInteraction(pos.x, pos.y, pos.z))
+        NetworkHooks.openGui(playerIn as ServerPlayerEntity, MoarBoatsGuiHandler.EnergyDischargerGuiInteraction(pos.x, pos.y, pos.z), pos)
         return true
     }
 

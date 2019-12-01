@@ -45,10 +45,7 @@ import org.jglrxavpok.moarboats.api.registerModule
 import org.jglrxavpok.moarboats.client.ClientEvents
 import org.jglrxavpok.moarboats.common.*
 import org.jglrxavpok.moarboats.common.blocks.*
-import org.jglrxavpok.moarboats.common.containers.ContainerMappingTable
-import org.jglrxavpok.moarboats.common.containers.ContainerTypes
-import org.jglrxavpok.moarboats.common.containers.EmptyContainer
-import org.jglrxavpok.moarboats.common.containers.FluidContainer
+import org.jglrxavpok.moarboats.common.containers.*
 import org.jglrxavpok.moarboats.common.items.*
 import org.jglrxavpok.moarboats.common.modules.*
 import org.jglrxavpok.moarboats.common.modules.inventories.ChestModuleInventory
@@ -299,7 +296,25 @@ object MoarBoats {
             }.setRegistryName(ModID, "fluid_unloader") as ContainerType<FluidContainer>
             event.registry.register(ContainerTypes.FluidUnloader)
 
-            // TODO: add container types for energy charger/discharger
+            ContainerTypes.EnergyCharger = IForgeContainerType.create { windowId, inv, data ->
+                val player = inv.player
+                val pos = data.readBlockPos()
+                val te = player.world.getTileEntity(pos) as? TileEntityEnergy
+                te?.let {
+                    return@create EnergyContainer(ContainerTypes.EnergyCharger, windowId, te, player)
+                }
+            }.setRegistryName(ModID, "energy_charger") as ContainerType<EnergyContainer>
+            event.registry.register(ContainerTypes.EnergyCharger)
+
+            ContainerTypes.EnergyDischarger = IForgeContainerType.create { windowId, inv, data ->
+                val player = inv.player
+                val pos = data.readBlockPos()
+                val te = player.world.getTileEntity(pos) as? TileEntityEnergy
+                te?.let {
+                    return@create EnergyContainer(ContainerTypes.EnergyDischarger, windowId, te, player)
+                }
+            }.setRegistryName(ModID, "energy_discharger") as ContainerType<EnergyContainer>
+            event.registry.register(ContainerTypes.EnergyDischarger)
 
             ContainerTypes.Empty = IForgeContainerType.create { windowId, inv, data ->
                 return@create EmptyContainer(windowId, inv)

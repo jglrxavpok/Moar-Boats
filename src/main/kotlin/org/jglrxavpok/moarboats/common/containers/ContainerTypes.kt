@@ -16,4 +16,10 @@ object ContainerTypes {
 
     @JvmStatic
     lateinit var FluidUnloader: ContainerType<FluidContainer>
+
+    @JvmStatic
+    lateinit var EnergyCharger: ContainerType<EnergyContainer>
+
+    @JvmStatic
+    lateinit var EnergyDischarger: ContainerType<EnergyContainer>
 }
