@@ -46,7 +46,7 @@ abstract class BaseEngineModule: BoatModule() {
 
         if(lockedByRedstoneProperty[from]) {
             if( ! from.worldRef.isRemote) {
-                // special case for full hoppers (see #81)
+                // special case for full hoppers (see issue #81 on GitHub)
                 val storage = from.modules.firstOrNull { it.moduleSpot == Spot.Storage }
                 if(storage != null && storage.usesInventory) {
                     // todo: pool
@@ -83,7 +83,7 @@ abstract class BaseEngineModule: BoatModule() {
             updateFuelState(from, state, inv)
         }
         val world = from.worldRef
-        lockedByRedstoneProperty[from] = world.isBlockPowered(BlockPos(from.correspondingEntity))
+        lockedByRedstoneProperty[from] = world.isBlockPowered(BlockPos(from.positionX, from.positionY+0.5, from.positionZ))
         from.saveState()
         if(hasFuel(from) && !isStationary(from)) {
             val count = ((Math.random() * 5) + 3).toInt()

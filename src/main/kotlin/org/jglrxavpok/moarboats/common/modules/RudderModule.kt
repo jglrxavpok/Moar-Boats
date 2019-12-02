@@ -27,7 +27,13 @@ object RudderModule: BoatModule(), BlockReason {
 
     override fun controlBoat(from: IControllable) {
         RudderAngleMultiplier[from] = 0f
-        val controllingEntity = from.correspondingEntity.controllingPassenger as? PlayerEntity ?: return
+        val controllingEntity = from.correspondingEntity.controllingPassenger as? PlayerEntity
+        if(controllingEntity == null) {
+            if(BlockingProperty[from]) {
+                from.blockMovement(this)
+            }
+            return
+        }
         val forward = controllingEntity.moveForward
         val strafe = controllingEntity.moveStrafing
         if(forward <= 0.001f) {

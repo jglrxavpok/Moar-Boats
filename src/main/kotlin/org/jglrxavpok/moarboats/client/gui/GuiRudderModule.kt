@@ -25,7 +25,7 @@ class GuiRudderModule(containerID: Int, playerInventory: PlayerInventory, anchor
 
     override fun init() {
         super.init()
-        blockButton.x = guiLeft + width / 2 - 70
+        blockButton.x = guiLeft + xSize / 2 - 70
         blockButton.y = guiTop + 30
         addButton(blockButton)
     }

@@ -2,14 +2,12 @@ package org.jglrxavpok.moarboats.common.blocks
 
 import net.minecraft.block.*
 import net.minecraft.block.material.Material
-import net.minecraft.block.BlockState
 import net.minecraft.entity.LivingEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.state.StateContainer
 import net.minecraft.tags.FluidTags
 import net.minecraft.util.BlockRenderLayer
 import net.minecraft.util.Direction
-import net.minecraft.util.IItemProvider
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.shapes.ISelectionContext
@@ -44,14 +42,19 @@ object BlockWaterborneConductor: RedstoneDiodeBlock(Block.Properties.create(Mate
         return 0
     }
 
-    override fun getActiveSignal(levelIn: IBlockReader, pos: BlockPos, state: BlockState): Int {
-        if(levelIn is World) {
-            val behindSide = state.get(HorizontalBlock.HORIZONTAL_FACING)
-            val posBehind = pos.offset(behindSide)
-            val behind = levelIn.getBlockState(posBehind)
-            return behind.getWeakPower(levelIn, posBehind, behindSide)
+    override fun getWeakPower(blockState: BlockState, blockAccess: IBlockReader?, pos: BlockPos?, side: Direction): Int {
+        return if (!blockState.get(POWERED)) {
+            0
+        } else {
+            if (canConnectRedstone(blockState, blockAccess, pos, side)) getActiveSignal(blockAccess!!, pos!!, blockState) else 0
         }
-        return 0
+    }
+
+    override fun getActiveSignal(levelIn: IBlockReader, pos: BlockPos, state: BlockState): Int {
+        val behindSide = state.get(HorizontalBlock.HORIZONTAL_FACING)
+        val posBehind = pos.offset(behindSide)
+        val behind = levelIn.getBlockState(posBehind)
+        return behind.getWeakPower(levelIn, posBehind, behindSide)
     }
 
     /**

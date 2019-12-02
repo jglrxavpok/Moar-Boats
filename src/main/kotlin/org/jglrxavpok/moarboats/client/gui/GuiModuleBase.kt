@@ -3,14 +3,12 @@ package org.jglrxavpok.moarboats.client.gui
 import net.minecraft.client.Minecraft
 import net.minecraft.client.audio.SimpleSound
 import com.mojang.blaze3d.platform.GlStateManager
-import net.minecraft.client.gui.IHasContainer
 import net.minecraft.client.gui.screen.inventory.ContainerScreen
 import net.minecraft.client.network.play.NetworkPlayerInfo
 import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.client.resources.DefaultPlayerSkin
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.util.SoundEvents
-import net.minecraft.inventory.container.Container
 import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.TranslationTextComponent
@@ -36,7 +34,7 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
     private val BACKGROUND_TEXTURE = ResourceLocation(MoarBoats.ModID, "textures/gui/default_background.png")
     private val BACKGROUND_TEXTURE_LARGE = ResourceLocation(MoarBoats.ModID, "textures/gui/default_background_large.png")
     protected var shouldRenderInventoryName = true
-    protected var PlayerRendererInventoryName = true
+    protected var renderPlayerInventoryTitle = true
 
     protected abstract val moduleBackground: ResourceLocation
 
@@ -85,6 +83,7 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
             if(tabs[hoveredTabIndex].tabModule == module) {
                 mc.soundHandler.play(SimpleSound.master(SoundEvents.UI_BUTTON_CLICK, 0.5f))
                 MoarBoats.network.sendToServer(CRemoveModule(boat.entityID, module.id))
+                playerInv.player.closeScreen()
                 return true
             }
         }
@@ -108,7 +107,7 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
         val s = moduleTitle.formattedText
         if(shouldRenderInventoryName)
             this.font.drawString(s, (this.xSize / 2 - this.font.getStringWidth(s) / 2).toFloat(), 6f, 4210752)
-        if(PlayerRendererInventoryName)
+        if(renderPlayerInventoryTitle)
             this.font.drawString(playerInv.displayName.formattedText, 8f, this.ySize - 96 + 2f, 4210752)
         drawModuleForeground(mouseX, mouseY)
 

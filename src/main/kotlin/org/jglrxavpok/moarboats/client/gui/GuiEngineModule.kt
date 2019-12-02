@@ -54,8 +54,13 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
 
     private lateinit var speedSlider: GuiSlider
     private val speedIconTexture = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/engines/speed_setting.png")
-    private val sliderCallback = Button.IPressable { slider ->
-        MoarBoats.network.sendToServer(CChangeEngineSpeed(boat.entityID, module.id, speedSlider.value.toFloat()/100f))
+
+    private var prevSliderValue = 0.0
+    private val sliderCallback = GuiSlider.ISlider { slider ->
+        if(speedSlider.value != prevSliderValue) {
+            prevSliderValue = speedSlider.value
+            MoarBoats.network.sendToServer(CChangeEngineSpeed(boat.entityID, module.id, speedSlider.value.toFloat()/100f))
+        }
     }
 
     override fun init() {
@@ -67,7 +72,7 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
         val speedSettingMargins = 30
         val speedSettingHorizontalSize = xSize - speedSettingMargins*2
 
-        speedSlider = GuiSlider(guiLeft + speedSettingMargins, guiTop + 90, speedSettingHorizontalSize, 20, "${speedSetting.formattedText}: ", "%", -50.0, 50.0, 0.0, false, true, sliderCallback)
+        speedSlider = GuiSlider(guiLeft + speedSettingMargins, guiTop + 90, speedSettingHorizontalSize, 20, "${speedSetting.formattedText}: ", "%", -50.0, 50.0, 0.0, false, true, Button.IPressable { slider -> }, sliderCallback)
         addButton(speedSlider)
         speedSlider.value = (engine.speedProperty[boat].toDouble()) * 100f
     }
