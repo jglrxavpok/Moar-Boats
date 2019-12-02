@@ -93,43 +93,48 @@ object HelmModule: BoatModule(), BlockReason {
             return
         val stack = from.getInventory().getStackInSlot(0)
         val item = stack.item
-        val (waypoints, loopingOption) = when(item) {
-            net.minecraft.item.Items.FILLED_MAP -> Pair(HelmModule.waypointsProperty[from], HelmModule.loopingProperty[from])
-            is ItemPath -> Pair(item.getWaypointData(stack, MoarBoats.getLocalMapStorage()), item.getLoopingOptions(stack))
-            else -> return
-        }
-        if(waypoints.size != 0) {
-            val currentWaypoint = currentWaypointProperty[from] % waypoints.size
-            val current = waypoints[currentWaypoint] as CompoundNBT
-            val nextX = current.getInt("x")
-            val nextZ = current.getInt("z")
-
-            val dx = from.positionX - nextX
-            val dz = from.positionZ - nextZ
-            val nextWaypoint = (currentWaypoint+1) % waypoints.size
-
-            if(current.getBoolean("hasBoost")) {
-                from.imposeSpeed(current.getDouble("boost").toFloat())
+        try {
+            val (waypoints, loopingOption) = when (item) {
+                net.minecraft.item.Items.FILLED_MAP -> Pair(HelmModule.waypointsProperty[from], HelmModule.loopingProperty[from])
+                is ItemPath -> Pair(item.getWaypointData(stack, MoarBoats.getLocalMapStorage()), item.getLoopingOptions(stack))
+                else -> return
             }
-            if(currentWaypoint > nextWaypoint) {
-                when(loopingOption) {
-                    LoopingOptions.NoLoop -> {
-                        if(dx*dx+dz*dz < MaxDistanceToWaypointSquared) { // close to the last waypoint
-                            from.blockMovement(this)
-                            return
+            if (waypoints.size != 0) {
+                val currentWaypoint = currentWaypointProperty[from] % waypoints.size
+                val current = waypoints[currentWaypoint] as CompoundNBT
+                val nextX = current.getInt("x")
+                val nextZ = current.getInt("z")
+
+                val dx = from.positionX - nextX
+                val dz = from.positionZ - nextZ
+                val nextWaypoint = (currentWaypoint + 1) % waypoints.size
+
+                if (current.getBoolean("hasBoost")) {
+                    from.imposeSpeed(current.getDouble("boost").toFloat())
+                }
+                if (currentWaypoint > nextWaypoint) {
+                    when (loopingOption) {
+                        LoopingOptions.NoLoop -> {
+                            if (dx * dx + dz * dz < MaxDistanceToWaypointSquared) { // close to the last waypoint
+                                from.blockMovement(this)
+                                return
+                            }
                         }
                     }
                 }
-            }
 
-            val targetAngle = atan2(dz, dx).toDegrees() + 90f
-            val yaw = from.yaw
-            if(MathHelper.wrapDegrees(targetAngle - yaw) > Epsilon) {
-                from.turnRight()
-            } else if(MathHelper.wrapDegrees(targetAngle - yaw) < -Epsilon) {
-                from.turnLeft()
+                val targetAngle = atan2(dz, dx).toDegrees() + 90f
+                val yaw = from.yaw
+                if (MathHelper.wrapDegrees(targetAngle - yaw) > Epsilon) {
+                    from.turnRight()
+                } else if (MathHelper.wrapDegrees(targetAngle - yaw) < -Epsilon) {
+                    from.turnLeft()
+                }
+                rotationAngleProperty[from] = MathHelper.wrapDegrees(targetAngle - yaw).toFloat()
             }
-            rotationAngleProperty[from] = MathHelper.wrapDegrees(targetAngle-yaw).toFloat()
+        } catch (e: IllegalStateException) { // sometimes the server closes during boat ticking
+            // MoarBoats.getLocalStorage() then crashes because the server instance is unknown
+            // shhh
         }
     }
 
