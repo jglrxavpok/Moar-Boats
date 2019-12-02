@@ -9,6 +9,7 @@ import net.minecraft.util.Util
 import org.jglrxavpok.moarboats.integration.IWaypointProvider
 import org.jglrxavpok.moarboats.integration.WaypointInfo
 import org.jglrxavpok.moarboats.integration.WaypointProviders
+import org.lwjgl.opengl.GL11
 
 class WaypointInfoEntry(val parent: GuiWaypointEditor, val slot: WaypointInfo, val slotTops: MutableMap<WaypointInfoEntry, Int>, val waypoints: List<WaypointInfoEntry>, val slotHeight: Int): ExtendedList.AbstractListEntry<WaypointInfoEntry>() {
 
@@ -99,6 +100,15 @@ class GuiWaypointEditorList(val mc: Minecraft, val parent: GuiWaypointEditor, wi
 
     override fun renderBackground() {
         blit(left, top, right, bottom, 0, 0)
+    }
+
+    override fun render(insideLeft: Int, insideTop: Int, partialTicks: Float) {
+        val scaleX = mc.mainWindow.width/mc.mainWindow.scaledWidth.toDouble()
+        val scaleY = mc.mainWindow.height/mc.mainWindow.scaledHeight.toDouble()
+        GL11.glEnable(GL11.GL_SCISSOR_TEST)
+        GL11.glScissor((left * scaleX).toInt(), ((mc.mainWindow.scaledHeight - top - height) * scaleY).toInt(), (width * scaleX).toInt(), (height * scaleY).toInt())
+        super.render(insideLeft, insideTop, partialTicks)
+        GL11.glDisable(GL11.GL_SCISSOR_TEST)
     }
 
     override fun isSelectedItem(index: Int): Boolean {

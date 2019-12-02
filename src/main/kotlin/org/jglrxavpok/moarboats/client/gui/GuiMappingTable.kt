@@ -25,7 +25,7 @@ import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.network.*
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 
-class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val playerInv: PlayerInventory): ContainerScreen<ContainerMappingTable>(ContainerMappingTable(containerID, te, playerInv), playerInv, StringTextComponent("mapping table")/*TODO*/), IContainerListener {
+class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val playerInv: PlayerInventory): ContainerScreen<ContainerMappingTable>(ContainerMappingTable(containerID, te, playerInv), playerInv, TranslationTextComponent("moarboats.inventory.mapping_table")), IContainerListener {
 
     companion object {
         private val EmptyBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/helm.png")
@@ -204,7 +204,7 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
                 }
             }
         }
-    //    edit(waypointToEditAfterCreation)
+        edit(waypointToEditAfterCreation)
     }
 
     fun confirmSwap() {

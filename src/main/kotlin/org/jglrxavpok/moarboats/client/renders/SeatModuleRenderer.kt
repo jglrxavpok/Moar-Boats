@@ -15,7 +15,7 @@ object SeatModuleRenderer : BoatModuleRenderer() {
     }
 
     val model = ModelSeat()
-    val texture = ResourceLocation("minecraft:textures/block/oak_planks.png") // TODO: Variants, like paddles
+    private val BOAT_TEXTURES = arrayOf(ResourceLocation("textures/block/oak_planks.png"), ResourceLocation("textures/block/spruce_planks.png"), ResourceLocation("textures/block/birch_planks.png"), ResourceLocation("textures/block/jungle_planks.png"), ResourceLocation("textures/block/acacia_planks.png"), ResourceLocation("textures/block/dark_oak_planks.png"))
 
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, entityRenderer: EntityRendererManager) {
         GlStateManager.pushMatrix()
@@ -24,7 +24,7 @@ object SeatModuleRenderer : BoatModuleRenderer() {
         GlStateManager.translatef(0.25f, 3f/16f * .75f, 0f)
 
         GlStateManager.rotatef(90f, 0f, 1f, 0f)
-        entityRenderer.textureManager.bindTexture(texture)
+        entityRenderer.textureManager.bindTexture(BOAT_TEXTURES[boat.entityID % BOAT_TEXTURES.size])
         model.render(boat, 0f, 0f, 0f, 0f, 0f, 0.0625f)
         GlStateManager.popMatrix()
     }

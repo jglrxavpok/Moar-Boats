@@ -18,13 +18,13 @@ object OarEngineRenderer : BoatModuleRenderer() {
     private val BOAT_TEXTURES = arrayOf(ResourceLocation("textures/entity/boat/oak.png"), ResourceLocation("textures/entity/boat/spruce.png"), ResourceLocation("textures/entity/boat/birch.png"), ResourceLocation("textures/entity/boat/jungle.png"), ResourceLocation("textures/entity/boat/acacia.png"), ResourceLocation("textures/entity/boat/dark_oak.png"))
     private val paddles = ModelVanillaOars()
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, EntityRendererManager: EntityRendererManager) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, entityRenderer: EntityRendererManager) {
         module as OarEngineModule
 
         GlStateManager.pushMatrix()
         GlStateManager.translatef(-0.25f, 0.575f, 0f)
 
-        EntityRendererManager.textureManager.bindTexture(BOAT_TEXTURES[boat.entityID % BOAT_TEXTURES.size])
+        entityRenderer.textureManager.bindTexture(BOAT_TEXTURES[boat.entityID % BOAT_TEXTURES.size])
 
         val angle = if(boat.controllingPassenger != null) -boat.distanceTravelled.toFloat()*2f else 0f
 

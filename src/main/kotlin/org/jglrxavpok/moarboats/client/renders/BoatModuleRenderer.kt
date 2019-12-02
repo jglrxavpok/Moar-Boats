@@ -13,7 +13,7 @@ import org.jglrxavpok.moarboats.api.BoatModule
 
 abstract class BoatModuleRenderer: ForgeRegistryEntry<BoatModuleRenderer>() {
 
-    abstract fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, EntityRendererManager: EntityRendererManager)
+    abstract fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, entityRenderer: EntityRendererManager)
 
     fun setScale() {
         val scale = 0.0625f

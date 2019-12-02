@@ -19,7 +19,7 @@ import org.jglrxavpok.moarboats.common.containers.FluidContainer
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityListenable
 
 class GuiFluid(type: ContainerType<*>, containerID: Int, val te: TileEntityListenable, val fluidHandler: IFluidHandler, val player: PlayerEntity): ContainerScreen<FluidContainer>(FluidContainer(type, containerID, te, fluidHandler, player), player.inventory,
-        StringTextComponent("TODO")) { // TODO: title
+        TranslationTextComponent("moarboats.inventory.fluid")) {
 
     private val fluidBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/fluid.png")
     private val defaultBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/default_background.png")

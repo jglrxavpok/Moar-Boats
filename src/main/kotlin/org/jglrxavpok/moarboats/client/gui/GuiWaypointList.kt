@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.Util
+import net.minecraftforge.client.MinecraftForgeClient
 import net.minecraftforge.fml.client.config.GuiUtils.drawGradientRect
 import net.minecraftforge.fml.client.config.GuiUtils.drawTexturedModalRect
 import org.jglrxavpok.moarboats.client.gui.WaypointInfoEntry.Companion.ArrowsTexture
@@ -100,37 +101,15 @@ class GuiWaypointList(val mc: Minecraft, val parent: GuiMappingTable, width: Int
     }
 
     override fun render(insideLeft: Int, insideTop: Int, partialTicks: Float) {
-      /* FIXME  glEnable(GL11.GL_STENCIL_TEST)
-        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE)
+        // make sure items do not render out of list bounds
+        val scaleX = mc.mainWindow.width/mc.mainWindow.scaledWidth.toDouble()
+        val scaleY = mc.mainWindow.height/mc.mainWindow.scaledHeight.toDouble()
+        glEnable(GL_SCISSOR_TEST)
+        glScissor((left*scaleX).toInt(), ((mc.mainWindow.scaledHeight-top-height)*scaleY).toInt(), (width*scaleX).toInt(), (height*scaleY).toInt())
 
-        val fb = Minecraft.getInstance().framebuffer
-        if(!fb.isStencilEnabled) {
-            fb.enableStencil()
-        }
-
-
-        glColorMask(false, false, false, false)
-        glStencilFunc(GL_ALWAYS, 1, 0xFF)
-        glStencilMask(0xFF)
-        glDisable(GL_TEXTURE_2D)
-        val tess = Tessellator.getInstance()
-        val buffer = tess.buffer
-        buffer.begin(GL_QUADS, DefaultVertexFormats.POSITION)
-        buffer.pos(left.toDouble(), top.toDouble(), 0.0).endVertex()
-        buffer.pos(left.toDouble(), (top + height).toDouble(), 0.0).endVertex()
-        buffer.pos((left + rowWidth).toDouble(), (top + height).toDouble(), 0.0).endVertex()
-        buffer.pos((left + rowWidth).toDouble(), top.toDouble(), 0.0).endVertex()
-        tess.draw()
-        glEnable(GL_TEXTURE_2D)
-
-        glColorMask(true, true, true, true)
-
-        glStencilMask(0x00)
-        //glStencilOp(GL_KEEP, GL_KEEP, GL_ZERO) // reset read values
-        glStencilFunc(GL_EQUAL, 1, 0xFF)*/
         super.render(insideLeft, insideTop, partialTicks)
-/* FIXME        glStencilMask(0xFF)
-        glDisable(GL11.GL_STENCIL_TEST)*/
+
+        glDisable(GL_SCISSOR_TEST)
     }
 
     override fun renderHoleBackground(startY: Int, endY: Int, startAlpha: Int, endAlpha: Int) {}

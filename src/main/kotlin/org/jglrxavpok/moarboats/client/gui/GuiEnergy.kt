@@ -6,13 +6,13 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.inventory.container.ContainerType
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.StringTextComponent
+import net.minecraft.util.text.TranslationTextComponent
 import net.minecraftforge.fml.client.config.GuiUtils.drawTexturedModalRect
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.containers.EnergyContainer
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergy
 
-// TODO: title
-class GuiEnergy(type: ContainerType<EnergyContainer>, containerID: Int, val te: TileEntityEnergy, val player: PlayerEntity): ContainerScreen<EnergyContainer>(EnergyContainer(type, containerID, te, player), player.inventory, StringTextComponent("TODO <GuiEnergy>")) {
+class GuiEnergy(type: ContainerType<EnergyContainer>, containerID: Int, val te: TileEntityEnergy, val player: PlayerEntity): ContainerScreen<EnergyContainer>(EnergyContainer(type, containerID, te, player), player.inventory, TranslationTextComponent("moarboats.inventory.energy")) {
 
     private val energyBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/energy.png")
     private val defaultBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/default_background.png")
