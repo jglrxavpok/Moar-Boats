@@ -1,19 +1,19 @@
 package org.jglrxavpok.moarboats.common.containers
 
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.entity.player.InventoryPlayer
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.inventory.*
+import net.minecraft.inventory.container.ClickType
+import net.minecraft.inventory.container.Slot
 import net.minecraft.item.ItemStack
-import net.minecraft.tileentity.TileEntityFurnace
-import net.minecraft.world.World
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
-import org.jglrxavpok.moarboats.common.items.ItemMapWithPath
+import org.jglrxavpok.moarboats.common.items.MapItemWithPath
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 
-class ContainerMappingTable(val te: TileEntityMappingTable, val playerInv: InventoryPlayer): ContainerBase(playerInv) {
+class ContainerMappingTable(containerID: Int, val te: TileEntityMappingTable, val playerInv: PlayerInventory): ContainerBase<ContainerMappingTable>(ContainerTypes.MappingTable, containerID, playerInv) {
 
     init {
-        addSlotToContainer(SlotMappingTable(te.inventory, 0, 8, 8))
+        addSlot(SlotMappingTable(te.inventory, 0, 8, 8))
         addPlayerSlots(true)
     }
 
@@ -27,13 +27,13 @@ class ContainerMappingTable(val te: TileEntityMappingTable, val playerInv: Inven
         detectAndSendChanges()
     }
 
-    override fun slotClick(slotId: Int, dragType: Int, clickTypeIn: ClickType?, player: EntityPlayer?): ItemStack {
+    override fun slotClick(slotId: Int, dragType: Int, clickTypeIn: ClickType?, player: PlayerEntity?): ItemStack {
         val r = super.slotClick(slotId, dragType, clickTypeIn, player)
         detectAndSendChanges()
         return r
     }
 
-    override fun transferStackInSlot(playerIn: EntityPlayer, index: Int): ItemStack {
+    override fun transferStackInSlot(playerIn: PlayerEntity, index: Int): ItemStack {
         var itemstack = ItemStack.EMPTY
         val slot = this.inventorySlots[index]
 
@@ -42,7 +42,7 @@ class ContainerMappingTable(val te: TileEntityMappingTable, val playerInv: Inven
             itemstack = itemstack1.copy()
 
             if (index != 0) {
-                if (itemstack1.item == ItemMapWithPath || itemstack1.item == ItemGoldenTicket) {
+                if (itemstack1.item == MapItemWithPath || itemstack1.item == ItemGoldenTicket) {
                     if (!this.mergeItemStack(itemstack1, 0, 1, false)) {
                         return ItemStack.EMPTY
                     }
@@ -75,7 +75,7 @@ class ContainerMappingTable(val te: TileEntityMappingTable, val playerInv: Inven
 
     private inner class SlotMappingTable(inventory: IInventory, index: Int, x: Int, y: Int): Slot(inventory, index, x, y) {
         override fun isItemValid(stack: ItemStack): Boolean {
-            return stack.item == ItemMapWithPath || stack.item == ItemGoldenTicket
+            return stack.item == MapItemWithPath || stack.item == ItemGoldenTicket
         }
 
         override fun getSlotStackLimit(): Int {

@@ -1,17 +1,8 @@
 package org.jglrxavpok.moarboats.common.items
 
-import net.minecraft.util.ResourceLocation
-import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.common.blocks.BlockUnpoweredWaterborneComparator
-import org.jglrxavpok.moarboats.common.blocks.BlockUnpoweredWaterborneConductor
+import org.jglrxavpok.moarboats.common.blocks.BlockWaterborneConductor
 
-object WaterborneConductorItem : WaterborneItem() {
+object WaterborneConductorItem : WaterborneItem("waterborne_redstone") {
 
-    override val correspondingBlock = BlockUnpoweredWaterborneConductor
-    init {
-        creativeTab = MoarBoats.CreativeTab
-        unlocalizedName = "waterborne_conductor"
-        registryName = ResourceLocation(MoarBoats.ModID, "waterborne_conductor")
-        maxStackSize = 64
-    }
+    override val correspondingBlock = BlockWaterborneConductor
 }

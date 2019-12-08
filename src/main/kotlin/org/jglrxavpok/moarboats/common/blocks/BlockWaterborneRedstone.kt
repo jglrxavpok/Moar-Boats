@@ -1,125 +1,92 @@
 package org.jglrxavpok.moarboats.common.blocks
 
 import net.minecraft.block.*
-import net.minecraft.block.state.BlockStateContainer
-import net.minecraft.block.state.IBlockState
-import net.minecraft.entity.EntityLivingBase
+import net.minecraft.block.material.Material
+import net.minecraft.entity.LivingEntity
 import net.minecraft.item.ItemStack
-import net.minecraft.util.*
-import net.minecraft.util.math.AxisAlignedBB
+import net.minecraft.state.StateContainer
+import net.minecraft.tags.FluidTags
+import net.minecraft.util.BlockRenderLayer
+import net.minecraft.util.Direction
+import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
-import net.minecraft.world.IBlockAccess
+import net.minecraft.util.math.shapes.ISelectionContext
+import net.minecraft.util.math.shapes.VoxelShape
+import net.minecraft.util.math.shapes.VoxelShapes
+import net.minecraft.world.IBlockReader
+import net.minecraft.world.IWorldReader
 import net.minecraft.world.World
-import net.minecraftforge.fluids.BlockFluidBase
+import net.minecraft.world.storage.loot.LootContext
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.items.WaterborneConductorItem
-import java.util.*
 
-object BlockPoweredWaterborneConductor : BlockWaterborneConductor(powered = true)
-object BlockUnpoweredWaterborneConductor : BlockWaterborneConductor(powered = false)
-
-open class BlockWaterborneConductor(powered: Boolean): BlockRedstoneDiode(powered) {
+object BlockWaterborneConductor: RedstoneDiodeBlock(Block.Properties.create(Material.MISCELLANEOUS).hardnessAndResistance(0f).sound(SoundType.WOOD)) {
     init {
-        val id = "waterborne_redstone_${if(powered) "" else "un"}powered"
-        registryName = ResourceLocation(MoarBoats.ModID, id)
-        unlocalizedName = id
-        this.defaultState = this.blockState.baseState.withProperty(BlockHorizontal.FACING, EnumFacing.NORTH)
+        registryName = ResourceLocation(MoarBoats.ModID, "waterborne_redstone")
+        this.defaultState = stateContainer.baseState.with(HorizontalBlock.HORIZONTAL_FACING, Direction.NORTH).with(POWERED, false)
     }
 
-    override fun canConnectRedstone(state: IBlockState, world: IBlockAccess, pos: BlockPos, side: EnumFacing?): Boolean {
-        return side != null && side != EnumFacing.DOWN && side != EnumFacing.UP && (side == state.getValue(FACING) || side == state.getValue(FACING).opposite)
+    override fun canConnectRedstone(state: BlockState?, level: IBlockReader?, pos: BlockPos?, side: Direction?): Boolean {
+        return state != null && side != null && side != Direction.DOWN && side != Direction.UP && (side == state.get(HorizontalBlock.HORIZONTAL_FACING) || side == state.get(HorizontalBlock.HORIZONTAL_FACING).opposite)
     }
 
-    override fun getCollisionBoundingBox(blockState: IBlockState, worldIn: IBlockAccess, pos: BlockPos): AxisAlignedBB? {
-        return Block.NULL_AABB
+    override fun getCollisionShape(state: BlockState, worldIn: IBlockReader, pos: BlockPos, context: ISelectionContext): VoxelShape {
+        return VoxelShapes.empty()
     }
 
-    /**
-     * Checks if this block can be placed exactly at the given position.
-     */
-    override fun canPlaceBlockAt(worldIn: World, pos: BlockPos): Boolean {
-        val blockBelow = worldIn.getBlockState(pos.down()).block
-        return blockBelow is BlockLiquid || blockBelow is BlockFluidBase
+    override fun isValidPosition(state: BlockState, levelIn: IWorldReader, pos: BlockPos): Boolean {
+        return levelIn.getFluidState(pos.down()).isTagged(FluidTags.WATER)
     }
 
-    override fun canBlockStay(worldIn: World, pos: BlockPos): Boolean {
-        return canPlaceBlockAt(worldIn, pos)
-    }
-
-    override fun getDelay(state: IBlockState?): Int {
+    override fun getDelay(state: BlockState?): Int {
         return 0
     }
 
-    override fun getUnpoweredState(poweredState: IBlockState): IBlockState {
-        val enumfacing = poweredState.getValue(FACING) as EnumFacing
-        return BlockUnpoweredWaterborneConductor.defaultState.withProperty(FACING, enumfacing)
-    }
-
-    override fun getPoweredState(unpoweredState: IBlockState): IBlockState {
-        val enumfacing = unpoweredState.getValue(FACING) as EnumFacing
-        return BlockPoweredWaterborneConductor.defaultState.withProperty(FACING, enumfacing)
-    }
-
-    override fun getActiveSignal(worldIn: IBlockAccess, pos: BlockPos, state: IBlockState): Int {
-        if(worldIn is World) {
-            val behindSide = state.getValue(BlockHorizontal.FACING)
-            val posBehind = pos.offset(behindSide)
-            val behind = worldIn.getBlockState(posBehind)
-            return behind.getWeakPower(worldIn, posBehind, behindSide)
+    override fun getWeakPower(blockState: BlockState, blockAccess: IBlockReader?, pos: BlockPos?, side: Direction): Int {
+        return if (!blockState.get(POWERED)) {
+            0
+        } else {
+            if (canConnectRedstone(blockState, blockAccess, pos, side)) getActiveSignal(blockAccess!!, pos!!, blockState) else 0
         }
-        return 0
+    }
+
+    override fun getActiveSignal(levelIn: IBlockReader, pos: BlockPos, state: BlockState): Int {
+        val behindSide = state.get(HorizontalBlock.HORIZONTAL_FACING)
+        val posBehind = pos.offset(behindSide)
+        val behind = levelIn.getBlockState(posBehind)
+        return behind.getWeakPower(levelIn, posBehind, behindSide)
     }
 
     /**
      * Used to determine ambient occlusion and culling when rebuilding chunks for render
      */
-    override fun isOpaqueCube(state: IBlockState): Boolean {
+    override fun isSolid(state: BlockState): Boolean {
         return false
     }
 
-    override fun createBlockState(): BlockStateContainer {
-        return BlockStateContainer(this, BlockHorizontal.FACING)
+    override fun fillStateContainer(builder: StateContainer.Builder<Block, BlockState>) {
+        builder.add(HorizontalBlock.HORIZONTAL_FACING, POWERED)
+    }
+
+    override fun onReplaced(state: BlockState, levelIn: World, pos: BlockPos, newState: BlockState, isMoving: Boolean) {
+        super.onReplaced(state, levelIn, pos, newState, isMoving)
+        this.notifyNeighbors(levelIn, pos, state)
     }
 
     /**
-     * Convert the given metadata into a BlockState for this Block
+     * Called by BlockItems after a block is set in the level, to allow post-place logic
      */
-    override fun getStateFromMeta(meta: Int): IBlockState {
-        return this.defaultState.withProperty(BlockHorizontal.FACING, EnumFacing.getHorizontal(meta))
+    override fun onBlockPlacedBy(levelIn: World, pos: BlockPos, state: BlockState, placer: LivingEntity?, stack: ItemStack) {
+        super.onBlockPlacedBy(levelIn, pos, state, placer, stack)
     }
 
-    /**
-     * Convert the BlockState into the correct metadata value
-     */
-    override fun getMetaFromState(state: IBlockState): Int {
-        return (state.getValue(BlockHorizontal.FACING) as EnumFacing).horizontalIndex
+    override fun getDrops(state: BlockState, builder: LootContext.Builder): MutableList<ItemStack> {
+        return mutableListOf(ItemStack(WaterborneConductorItem, 1))
     }
 
-    /**
-     * Called serverside after this block is replaced with another in Chunk, but before the Tile Entity is updated
-     */
-    override fun breakBlock(worldIn: World, pos: BlockPos, state: IBlockState) {
-        super.breakBlock(worldIn, pos, state)
-        this.notifyNeighbors(worldIn, pos, state)
+    override fun getItem(worldIn: IBlockReader, pos: BlockPos, state: BlockState) = ItemStack(WaterborneConductorItem, 1)
+
+    override fun getRenderLayer(): BlockRenderLayer {
+        return BlockRenderLayer.CUTOUT
     }
-
-    override fun onBlockPlacedBy(worldIn: World, pos: BlockPos, state: IBlockState, placer: EntityLivingBase, stack: ItemStack) {
-        super.onBlockPlacedBy(worldIn, pos, state, placer, stack)
-        this.notifyNeighbors(worldIn, pos, state)
-    }
-
-    override fun onBlockAdded(worldIn: World, pos: BlockPos, state: IBlockState) {
-        super.onBlockAdded(worldIn, pos, state)
-        if(shouldBePowered(worldIn, pos, state) != isRepeaterPowered) {
-            when(!isRepeaterPowered) {
-                true -> worldIn.setBlockState(pos, BlockUnpoweredWaterborneConductor.defaultState.withProperty(BlockHorizontal.FACING, state.getValue(BlockHorizontal.FACING)))
-                false -> worldIn.setBlockState(pos, BlockPoweredWaterborneConductor.defaultState.withProperty(BlockHorizontal.FACING, state.getValue(BlockHorizontal.FACING)))
-            }
-            notifyNeighbors(worldIn, pos, state)
-        }
-    }
-
-    override fun getItemDropped(state: IBlockState?, rand: Random?, fortune: Int) = WaterborneConductorItem
-
-    override fun getItem(worldIn: World?, pos: BlockPos?, state: IBlockState?) = ItemStack(WaterborneConductorItem, 1)
 }

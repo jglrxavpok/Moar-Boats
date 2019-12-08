@@ -1,34 +1,34 @@
 package org.jglrxavpok.moarboats.common.containers
 
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.inventory.container.ContainerType
+import net.minecraft.util.IntReferenceHolder
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergy
 
-class EnergyContainer(val te: TileEntityEnergy, val player: EntityPlayer): EmptyContainer(player.inventory) {
+class EnergyContainer(containerType: ContainerType<EnergyContainer>, containerID: Int, val te: TileEntityEnergy, val player: PlayerEntity): EmptyContainer(containerID, player.inventory, containerType = containerType) {
 
     private var energy = -1
+    private var energyHolder = object: IntReferenceHolder() {
+        override fun isDirty(): Boolean {
+            return energy != te.energy
+        }
+
+        override fun get(): Int {
+            return energy
+        }
+
+        override fun set(arg: Int) {
+            energy = arg
+        }
+    }
 
     init {
         te.addContainerListener(this)
+        this.trackInt(energyHolder)
     }
 
-    override fun onContainerClosed(playerIn: EntityPlayer?) {
+    override fun onContainerClosed(playerIn: PlayerEntity?) {
         super.onContainerClosed(playerIn)
         te.removeContainerListener(this)
-    }
-
-    override fun detectAndSendChanges() {
-        super.detectAndSendChanges()
-        for(listener in listeners) {
-            if(energy != te.energy)
-                listener.sendWindowProperty(this, 0, te.energy)
-        }
-        energy = te.energy
-    }
-
-    override fun updateProgressBar(id: Int, data: Int) {
-        super.updateProgressBar(id, data)
-        when(id) {
-            0 -> te.energy = data
-        }
     }
 }

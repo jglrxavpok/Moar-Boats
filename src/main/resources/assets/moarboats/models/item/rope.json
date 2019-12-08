@@ -6,7 +6,7 @@
   "overrides": [
     {
       "predicate": {
-        "firstKnot": 1
+        "first_knot": 1
       },
       "model": "moarboats:item/rope_first_knot"
     }

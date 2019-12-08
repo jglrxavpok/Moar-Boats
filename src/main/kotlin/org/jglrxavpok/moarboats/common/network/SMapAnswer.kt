@@ -1,22 +1,19 @@
 package org.jglrxavpok.moarboats.common.network
 
-import io.netty.buffer.ByteBuf
 import net.minecraft.client.Minecraft
-import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.CompoundNBT
 import net.minecraft.util.ResourceLocation
 import net.minecraft.world.storage.MapData
-import net.minecraftforge.fml.common.network.ByteBufUtils
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
-import net.minecraftforge.fml.relauncher.Side
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.fml.network.NetworkEvent
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 
-class SMapAnswer(): IMessage {
+class SMapAnswer(): MoarBoatsPacket {
 
     var mapName = ""
-    var mapData = NBTTagCompound()
+    var mapData = CompoundNBT()
 
     var boatID: Int = 0
     var moduleLocation: ResourceLocation = ResourceLocation("moarboats:none")
@@ -27,35 +24,21 @@ class SMapAnswer(): IMessage {
         this.moduleLocation = moduleLocation
     }
 
-    override fun fromBytes(buf: ByteBuf) {
-        mapName = ByteBufUtils.readUTF8String(buf)
-        mapData = ByteBufUtils.readTag(buf)!!
-        boatID = buf.readInt()
-        moduleLocation = ResourceLocation(ByteBufUtils.readUTF8String(buf))
-    }
+    object Handler: MBMessageHandler<SMapAnswer, MoarBoatsPacket> {
+        override val packetClass = SMapAnswer::class.java
+        override val receiverSide = Dist.CLIENT
 
-    override fun toBytes(buf: ByteBuf) {
-        ByteBufUtils.writeUTF8String(buf, mapName)
-        ByteBufUtils.writeTag(buf, mapData)
-        buf.writeInt(boatID)
-        ByteBufUtils.writeUTF8String(buf, moduleLocation.toString())
-    }
-
-    object Handler: MBMessageHandler<SMapAnswer, IMessage> {
-        override val packetClass = SMapAnswer::class
-        override val receiverSide = Side.CLIENT
-
-        override fun onMessage(message: SMapAnswer, ctx: MessageContext): IMessage? {
+        override fun onMessage(message: SMapAnswer, ctx: NetworkEvent.Context): MoarBoatsPacket? {
             val mapID = message.mapName
             val data = MapData(mapID)
-            data.readFromNBT(message.mapData)
-            val world = Minecraft.getMinecraft().world
-            val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
+            data.read(message.mapData)
+            val level = Minecraft.getInstance().world
+            val boat = level.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
             val moduleLocation = message.moduleLocation
             val module = BoatModuleRegistry[moduleLocation].module
             module as HelmModule
             module.receiveMapData(boat, data)
-            //Minecraft.getMinecraft().world.setData(mapID, data)
+            //Minecraft.getMinecraft().level.setData(mapID, data)
             return null
         }
     }

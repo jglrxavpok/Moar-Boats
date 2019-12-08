@@ -1,17 +1,13 @@
 package org.jglrxavpok.moarboats.common.network
 
-import io.netty.buffer.ByteBuf
 import net.minecraft.util.ResourceLocation
-import net.minecraftforge.fml.common.network.ByteBufUtils
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
-import net.minecraftforge.fml.relauncher.Side
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.fml.network.NetworkEvent
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
-import org.jglrxavpok.moarboats.common.modules.BaseEngineModule
 import org.jglrxavpok.moarboats.common.modules.RudderModule
 
-class CChangeRudderBlocking(): IMessage {
+class CChangeRudderBlocking(): MoarBoatsPacket {
 
     var boatID: Int = 0
     var moduleLocation: ResourceLocation = ResourceLocation("moarboats:none")
@@ -21,24 +17,14 @@ class CChangeRudderBlocking(): IMessage {
         this.moduleLocation = moduleLocation
     }
 
-    override fun fromBytes(buf: ByteBuf) {
-        boatID = buf.readInt()
-        moduleLocation = ResourceLocation(ByteBufUtils.readUTF8String(buf))
-    }
+    object Handler: MBMessageHandler<CChangeRudderBlocking, MoarBoatsPacket?> {
+        override val packetClass = CChangeRudderBlocking::class.java
+        override val receiverSide = Dist.DEDICATED_SERVER
 
-    override fun toBytes(buf: ByteBuf) {
-        buf.writeInt(boatID)
-        ByteBufUtils.writeUTF8String(buf, moduleLocation.toString())
-    }
-
-    object Handler: MBMessageHandler<CChangeRudderBlocking, IMessage?> {
-        override val packetClass = CChangeRudderBlocking::class
-        override val receiverSide = Side.SERVER
-
-        override fun onMessage(message: CChangeRudderBlocking, ctx: MessageContext): IMessage? {
-            val player = ctx.serverHandler.player
-            val world = player.world
-            val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
+        override fun onMessage(message: CChangeRudderBlocking, ctx: NetworkEvent.Context): MoarBoatsPacket? {
+            val player = ctx.sender!!
+            val level = player.world
+            val boat = level.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
             val moduleLocation = message.moduleLocation
             val module = BoatModuleRegistry[moduleLocation].module
             module as RudderModule

@@ -1,25 +1,18 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.init.Blocks
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.inventory.IInventory
-import net.minecraft.item.Item
-import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.util.EnumHand
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.MathHelper
-import net.minecraft.world.EnumSkyBlock
 import org.jglrxavpok.moarboats.api.IControllable
-import org.jglrxavpok.moarboats.common.containers.ContainerBase
-import org.jglrxavpok.moarboats.common.containers.EmptyContainer
-import org.jglrxavpok.moarboats.common.items.CreativeEngineItem
-import org.jglrxavpok.moarboats.common.state.BooleanBoatProperty
+import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
+import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
 
 object CreativeEngineModule : BaseEngineModule() {
-    override fun createContainer(player: EntityPlayer, boat: IControllable): ContainerBase? {
-        return EmptyContainer(player.inventory, isLarge = true)
+    override fun createContainer(containerID: Int, player: PlayerEntity, boat: IControllable): ContainerBoatModule<*>? {
+        return EmptyModuleContainer(containerID, player.inventory, this, boat, isLarge = true)
     }
 
     override val id = ResourceLocation("moarboats:creative_engine")
@@ -38,7 +31,7 @@ object CreativeEngineModule : BaseEngineModule() {
         return Float.POSITIVE_INFINITY
     }
 
-    override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean): Boolean {
+    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean): Boolean {
         return false
     }
 
@@ -46,7 +39,7 @@ object CreativeEngineModule : BaseEngineModule() {
         return true
     }
 
-    override fun updateFuelState(boat: IControllable, state: NBTTagCompound, inv: IInventory) {
+    override fun updateFuelState(boat: IControllable, state: CompoundNBT, inv: IInventory) {
         // NOP
     }
 

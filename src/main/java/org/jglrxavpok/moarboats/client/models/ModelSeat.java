@@ -1,24 +1,25 @@
 package org.jglrxavpok.moarboats.client.models;
 
-import net.minecraft.client.model.ModelBase;
-import net.minecraft.client.model.ModelRenderer;
+import net.minecraft.client.renderer.entity.model.EntityModel;
+import net.minecraft.client.renderer.model.Model;
+import net.minecraft.client.renderer.entity.model.RendererModel;
 import net.minecraft.entity.Entity;
 
 /**
  * ModelSeat - jglrxavpok
  * Created using Tabula 7.0.0
  */
-public class ModelSeat extends ModelBase {
-    public ModelRenderer seat;
-    public ModelRenderer seatBack;
+public class ModelSeat extends EntityModel<Entity> {
+    public RendererModel seat;
+    public RendererModel seatBack;
 
     public ModelSeat() {
         this.textureWidth = 64;
         this.textureHeight = 64;
-        this.seatBack = new ModelRenderer(this, 30, 0);
+        this.seatBack = new RendererModel(this, 30, 0);
         this.seatBack.setRotationPoint(0.0F, 0.0F, 0.0F);
         this.seatBack.addBox(-5.0F, -8.0F, 4.0F, 10, 8, 1, 0.0F);
-        this.seat = new ModelRenderer(this, 0, 0);
+        this.seat = new RendererModel(this, 0, 0);
         this.seat.setRotationPoint(0.0F, 0.0F, 0.0F);
         this.seat.addBox(-5.0F, 0.0F, -5.0F, 10, 1, 10, 0.0F);
     }
@@ -32,9 +33,9 @@ public class ModelSeat extends ModelBase {
     /**
      * This is a helper function from Tabula to set the rotation of model parts
      */
-    public void setRotateAngle(ModelRenderer modelRenderer, float x, float y, float z) {
-        modelRenderer.rotateAngleX = x;
-        modelRenderer.rotateAngleY = y;
-        modelRenderer.rotateAngleZ = z;
+    public void setRotateAngle(RendererModel RendererModel, float x, float y, float z) {
+        RendererModel.rotateAngleX = x;
+        RendererModel.rotateAngleY = y;
+        RendererModel.rotateAngleZ = z;
     }
 }

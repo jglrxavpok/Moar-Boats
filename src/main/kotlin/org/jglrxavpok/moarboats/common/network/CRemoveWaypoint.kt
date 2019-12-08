@@ -1,13 +1,11 @@
 package org.jglrxavpok.moarboats.common.network
 
-import io.netty.buffer.ByteBuf
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
-import net.minecraftforge.fml.relauncher.Side
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.fml.network.NetworkEvent
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 
-class CRemoveWaypoint(): IMessage {
+class CRemoveWaypoint(): MoarBoatsPacket {
 
     var waypointIndex: Int = 0
     var boatID: Int = 0
@@ -17,24 +15,14 @@ class CRemoveWaypoint(): IMessage {
         this.waypointIndex = waypointIndex
     }
 
-    override fun fromBytes(buf: ByteBuf) {
-        boatID = buf.readInt()
-        waypointIndex = buf.readInt()
-    }
+    object Handler: MBMessageHandler<CRemoveWaypoint, MoarBoatsPacket> {
+        override val packetClass = CRemoveWaypoint::class.java
+        override val receiverSide = Dist.DEDICATED_SERVER
 
-    override fun toBytes(buf: ByteBuf) {
-        buf.writeInt(boatID)
-        buf.writeInt(waypointIndex)
-    }
-
-    object Handler: MBMessageHandler<CRemoveWaypoint, IMessage> {
-        override val packetClass = CRemoveWaypoint::class
-        override val receiverSide = Side.SERVER
-
-        override fun onMessage(message: CRemoveWaypoint, ctx: MessageContext): IMessage? {
-            val player = ctx.serverHandler.player
-            val world = player.world
-            val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
+        override fun onMessage(message: CRemoveWaypoint, ctx: NetworkEvent.Context): MoarBoatsPacket? {
+            val player = ctx.sender!!
+            val level = player.world
+            val boat = level.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
 
             HelmModule.removeWaypoint(boat, message.waypointIndex)
             return null

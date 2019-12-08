@@ -1,0 +1,6 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "moarboats:items/modular_boat/light_gray"
+  }
+}

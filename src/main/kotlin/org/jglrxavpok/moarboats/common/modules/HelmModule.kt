@@ -1,16 +1,19 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.client.gui.GuiScreen
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.item.ItemMap
+import net.minecraft.client.gui.screen.Screen
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.item.FilledMapItem
+import net.minecraft.item.MapItem
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.nbt.NBTTagList
-import net.minecraft.util.EnumHand
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.ListNBT
+import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
 import net.minecraft.world.storage.MapData
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.common.util.Constants
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.gui.GuiHelmModule
@@ -20,11 +23,15 @@ import org.jglrxavpok.moarboats.common.network.CMapRequest
 import org.jglrxavpok.moarboats.extensions.toDegrees
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
-import org.jglrxavpok.moarboats.common.containers.ContainerBase
-import org.jglrxavpok.moarboats.common.data.LoopingOptions
+import org.jglrxavpok.moarboats.client.gui.GuiPathEditor
+import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
+import org.jglrxavpok.moarboats.common.data.*
+import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
+import org.jglrxavpok.moarboats.common.items.MapItemWithPath
 import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.state.*
 import org.jglrxavpok.moarboats.extensions.insert
+import java.lang.IllegalStateException
 import kotlin.math.atan2
 
 object HelmModule: BoatModule(), BlockReason {
@@ -61,7 +68,7 @@ object HelmModule: BoatModule(), BlockReason {
     val overrideWaypoint = BooleanBoatProperty("overrideWaypoint").makeLocal()
     val overridingWaypointPos = BlockPosProperty("overrideWaypointPos").makeLocal()
 
-    override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean): Boolean {
+    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean): Boolean {
         return false
     }
 
@@ -74,8 +81,8 @@ object HelmModule: BoatModule(), BlockReason {
         super.onInit(boat, fromItem)
         if(boat.worldRef.isRemote) {
             val stack = boat.getInventory().getStackInSlot(0)
-            if(!stack.isEmpty && stack.item is ItemMap) {
-                val id = stack.itemDamage
+            if(!stack.isEmpty && stack.item is FilledMapItem) {
+                val id = stack.damage
                 MoarBoats.network.sendToServer(CMapRequest("map_$id", boat.entityID, this.id))
             }
         }
@@ -86,43 +93,48 @@ object HelmModule: BoatModule(), BlockReason {
             return
         val stack = from.getInventory().getStackInSlot(0)
         val item = stack.item
-        val (waypoints, loopingOption) = when(item) {
-            net.minecraft.init.Items.FILLED_MAP -> Pair(HelmModule.waypointsProperty[from], HelmModule.loopingProperty[from])
-            is ItemPath -> Pair(item.getWaypointData(stack, MoarBoats.getLocalMapStorage()), item.getLoopingOptions(stack))
-            else -> return
-        }
-        if(waypoints.tagCount() != 0) {
-            val currentWaypoint = currentWaypointProperty[from] % waypoints.tagCount()
-            val current = waypoints[currentWaypoint] as NBTTagCompound
-            val nextX = current.getInteger("x")
-            val nextZ = current.getInteger("z")
-
-            val dx = from.positionX - nextX
-            val dz = from.positionZ - nextZ
-            val nextWaypoint = (currentWaypoint+1) % waypoints.tagCount()
-
-            if(current.getBoolean("hasBoost")) {
-                from.imposeSpeed(current.getDouble("boost").toFloat())
+        try {
+            val (waypoints, loopingOption) = when (item) {
+                net.minecraft.item.Items.FILLED_MAP -> Pair(HelmModule.waypointsProperty[from], HelmModule.loopingProperty[from])
+                is ItemPath -> Pair(item.getWaypointData(stack, MoarBoats.getLocalMapStorage()), item.getLoopingOptions(stack))
+                else -> return
             }
-            if(currentWaypoint > nextWaypoint) {
-                when(loopingOption) {
-                    LoopingOptions.NoLoop -> {
-                        if(dx*dx+dz*dz < MaxDistanceToWaypointSquared) { // close to the last waypoint
-                            from.blockMovement(this)
-                            return
+            if (waypoints.size != 0) {
+                val currentWaypoint = currentWaypointProperty[from] % waypoints.size
+                val current = waypoints[currentWaypoint] as CompoundNBT
+                val nextX = current.getInt("x")
+                val nextZ = current.getInt("z")
+
+                val dx = from.positionX - nextX
+                val dz = from.positionZ - nextZ
+                val nextWaypoint = (currentWaypoint + 1) % waypoints.size
+
+                if (current.getBoolean("hasBoost")) {
+                    from.imposeSpeed(current.getDouble("boost").toFloat())
+                }
+                if (currentWaypoint > nextWaypoint) {
+                    when (loopingOption) {
+                        LoopingOptions.NoLoop -> {
+                            if (dx * dx + dz * dz < MaxDistanceToWaypointSquared) { // close to the last waypoint
+                                from.blockMovement(this)
+                                return
+                            }
                         }
                     }
                 }
-            }
 
-            val targetAngle = atan2(dz, dx).toDegrees() + 90f
-            val yaw = from.yaw
-            if(MathHelper.wrapDegrees(targetAngle - yaw) > Epsilon) {
-                from.turnRight()
-            } else if(MathHelper.wrapDegrees(targetAngle - yaw) < -Epsilon) {
-                from.turnLeft()
+                val targetAngle = atan2(dz, dx).toDegrees() + 90f
+                val yaw = from.yaw
+                if (MathHelper.wrapDegrees(targetAngle - yaw) > Epsilon) {
+                    from.turnRight()
+                } else if (MathHelper.wrapDegrees(targetAngle - yaw) < -Epsilon) {
+                    from.turnLeft()
+                }
+                rotationAngleProperty[from] = MathHelper.wrapDegrees(targetAngle - yaw).toFloat()
             }
-            rotationAngleProperty[from] = MathHelper.wrapDegrees(targetAngle-yaw).toFloat()
+        } catch (e: IllegalStateException) { // sometimes the server closes during boat ticking
+            // MoarBoats.getLocalStorage() then crashes because the server instance is unknown
+            // shhh
         }
     }
 
@@ -135,21 +147,28 @@ object HelmModule: BoatModule(), BlockReason {
 
         val stack = boat.getInventory().getStackInSlot(0)
         val item = stack.item
-        val (waypoints, loopingOption) = when(item) {
-            net.minecraft.init.Items.FILLED_MAP -> Pair(HelmModule.waypointsProperty[boat], HelmModule.loopingProperty[boat])
-            is ItemPath -> Pair(item.getWaypointData(stack, MoarBoats.getLocalMapStorage()), item.getLoopingOptions(stack))
-            else -> return
+        val pair: Pair<ListNBT, LoopingOptions>
+        try {
+            pair = when(item) {
+                net.minecraft.item.Items.FILLED_MAP -> Pair(HelmModule.waypointsProperty[boat], HelmModule.loopingProperty[boat])
+                is ItemPath -> Pair(item.getWaypointData(stack, MoarBoats.getLocalMapStorage()), item.getLoopingOptions(stack))
+                else -> return
+            }
+        } catch (e: IllegalStateException) { // handle case when the integrated server is being shutdown while updating and getLocalMapStorage throws an Exception
+            e.printStackTrace()
+            return
         }
-        if(waypoints.tagCount() != 0) {
+        val (waypoints, loopingOption) = pair
+        if(waypoints.size != 0) {
             if( ! wasEngineOn[boat] && isEngineOn[boat]) { // engine has been reactivated, recalculate closest waypoint
                 overrideWaypointAfterEngineRestart(boat, waypoints)
             }
             updateWaypoints(boat, waypoints, loopingOption)
         }
 
-        if(stack.isEmpty || item !is ItemMap) {
+        if(stack.isEmpty || item !is FilledMapItem) {
             receiveMapData(boat, EmptyMapData)
-            waypointsProperty[boat] = NBTTagList() // reset waypoints
+            waypointsProperty[boat] = ListNBT() // reset waypoints
             return
         }
         val mapdata = mapDataCopyProperty[boat]
@@ -157,12 +176,12 @@ object HelmModule: BoatModule(), BlockReason {
             xCenterProperty[boat] = mapdata.xCenter
             zCenterProperty[boat] = mapdata.zCenter
         } else if(mapdata == EmptyMapData || boat.correspondingEntity.ticksExisted % MapUpdatePeriod == 0) {
-            val id = stack.itemDamage
+            val id = FilledMapItem.getMapId(stack)
             MoarBoats.network.sendToServer(CMapRequest("map_$id", boat.entityID, this.id))
         }
     }
 
-    private fun updateWaypoints(boat: IControllable, waypoints: NBTTagList, loopingOption: LoopingOptions) {
+    private fun updateWaypoints(boat: IControllable, waypoints: ListNBT, loopingOption: LoopingOptions) {
         if( ! checkOverrideWaypoint(boat)) {
             return
         }
@@ -171,13 +190,13 @@ object HelmModule: BoatModule(), BlockReason {
         val nextWaypoint = when(loopingOption) {
             LoopingOptions.NoLoop -> {
                 val value = (currentWaypoint+1)
-                if(value >= waypoints.tagCount()) { // end of path
+                if(value >= waypoints.size) { // end of path
                     return
                 } else {
                     value
                 }
             }
-            LoopingOptions.Loops -> (currentWaypoint+1) % waypoints.tagCount()
+            LoopingOptions.Loops -> (currentWaypoint+1) % waypoints.size
 
             LoopingOptions.ReverseCourse -> {
                 val next = if(reverseCourse[boat]) currentWaypoint-1 else currentWaypoint+1
@@ -186,7 +205,7 @@ object HelmModule: BoatModule(), BlockReason {
                         newReverseCourse = false
                         currentWaypoint+1
                     }
-                    next >= waypoints.tagCount() -> { // not reversing course, reached end
+                    next >= waypoints.size -> { // not reversing course, reached end
                         newReverseCourse = true
                         currentWaypoint-1
                     }
@@ -194,9 +213,9 @@ object HelmModule: BoatModule(), BlockReason {
                 }
             }
         }
-        val current = waypoints[currentWaypoint % waypoints.tagCount()] as NBTTagCompound
-        val currentX = current.getInteger("x")
-        val currentZ = current.getInteger("z")
+        val current = waypoints[currentWaypoint % waypoints.size] as CompoundNBT
+        val currentX = current.getInt("x")
+        val currentZ = current.getInt("z")
         val dx = currentX - boat.positionX
         val dz = currentZ - boat.positionZ
         if(dx*dx+dz*dz < MaxDistanceToWaypointSquared) {
@@ -220,7 +239,7 @@ object HelmModule: BoatModule(), BlockReason {
         val pos = overridingWaypointPos[boat]
         val dx = pos.x - boat.positionX
         val dz = pos.z - boat.positionZ
-        pos.release()
+        pos.close()
         if(dx*dx+dz*dz < MaxDistanceToWaypointSquared) {
             overrideWaypoint[boat] = false
             return true
@@ -232,17 +251,17 @@ object HelmModule: BoatModule(), BlockReason {
      * Recalculate current and next waypoints after an engine restart.
      * This is used in case the boat moves when the engine is off, eg. a boat with a solar engine on a Streams river can move when it is night time
      */
-    private fun overrideWaypointAfterEngineRestart(boat: IControllable, waypoints: NBTTagList) {
-        if(waypoints.tagCount() > 0) {
+    private fun overrideWaypointAfterEngineRestart(boat: IControllable, waypoints: ListNBT) {
+        if(waypoints.size > 0) {
             var closestIndex = 0
-            var closest = waypoints[0] as NBTTagCompound
-            var dx = closest.getInteger("x") - boat.positionX
-            var dz = closest.getInteger("z") - boat.positionZ
+            var closest = waypoints[0] as CompoundNBT
+            var dx = closest.getInt("x") - boat.positionX
+            var dz = closest.getInt("z") - boat.positionZ
             var closestDistanceSq = dx*dx+dz*dz
-            for(i in 1 until waypoints.tagCount()) {
-                val waypoint = waypoints[i] as NBTTagCompound
-                dx = waypoint.getInteger("x") - boat.positionX
-                dz = waypoint.getInteger("z") - boat.positionZ
+            for(i in 1 until waypoints.size) {
+                val waypoint = waypoints[i] as CompoundNBT
+                dx = waypoint.getInt("x") - boat.positionX
+                dz = waypoint.getInt("z") - boat.positionZ
                 val distanceSq = dx*dx+dz*dz
                 if(distanceSq < closestDistanceSq) {
                     closest = waypoint
@@ -255,9 +274,9 @@ object HelmModule: BoatModule(), BlockReason {
 
             overrideWaypoint[boat] = true
             val pos = overridingWaypointPos[boat]
-            val newPos = BlockPos.PooledMutableBlockPos.retain(closest.getInteger("x"), 0, closest.getInteger("z"))
+            val newPos = BlockPos.PooledMutableBlockPos.retain(closest.getInt("x"), 0, closest.getInt("z"))
             overridingWaypointPos[boat] = newPos
-            newPos.release()
+            newPos.close()
         }
     }
 
@@ -265,16 +284,16 @@ object HelmModule: BoatModule(), BlockReason {
         if(!to.worldRef.isRemote) {
             xCenterProperty[to] = 0
             zCenterProperty[to] = 0
-            waypointsProperty[to] = NBTTagList()
+            waypointsProperty[to] = ListNBT()
         }
     }
 
-    override fun createContainer(player: EntityPlayer, boat: IControllable): ContainerBase {
-        return ContainerHelmModule(player.inventory, this, boat)
+    override fun createContainer(containerID: Int, player: PlayerEntity, boat: IControllable): ContainerBoatModule<*>? {
+        return ContainerHelmModule(containerID, player.inventory, this, boat)
     }
 
-    override fun createGui(player: EntityPlayer, boat: IControllable): GuiScreen {
-        return GuiHelmModule(player.inventory, this, boat)
+    override fun createGui(containerID: Int, player: PlayerEntity, boat: IControllable): Screen {
+        return GuiHelmModule(containerID, player.inventory, this, boat)
     }
 
     fun addWaypoint(boat: IControllable, blockX: Int, blockZ: Int, boost: Double?) {
@@ -283,20 +302,20 @@ object HelmModule: BoatModule(), BlockReason {
         waypointsProperty[boat] = waypointsData
     }
 
-    fun addWaypointToList(waypointsData: NBTTagList, blockX: Int, blockZ: Int, boost: Double?, insertionIndex: Int?) {
-        val waypointNBT = NBTTagCompound()
+    fun addWaypointToList(waypointsData: ListNBT, blockX: Int, blockZ: Int, boost: Double?, insertionIndex: Int?) {
+        val waypointNBT = CompoundNBT()
         if(insertionIndex != null) {
-            waypointNBT.setString("name", "${(waypointsData[insertionIndex] as NBTTagCompound).getString("name")}+")
+            waypointNBT.putString("name", "${(waypointsData[insertionIndex] as CompoundNBT).getString("name")}+")
         } else {
-            waypointNBT.setString("name", "Waypoint ${waypointsData.tagCount()+1}")
+            waypointNBT.putString("name", "Waypoint ${waypointsData.size+1}")
         }
-        waypointNBT.setInteger("x", blockX)
-        waypointNBT.setInteger("z", blockZ)
-        waypointNBT.setBoolean("hasBoost", boost != null)
+        waypointNBT.putInt("x", blockX)
+        waypointNBT.putInt("z", blockZ)
+        waypointNBT.putBoolean("hasBoost", boost != null)
         if(boost != null)
-            waypointNBT.setDouble("boost", boost)
-        if(insertionIndex == null || insertionIndex >= waypointsData.tagCount() || insertionIndex < 0) {
-            waypointsData.appendTag(waypointNBT)
+            waypointNBT.putDouble("boost", boost)
+        if(insertionIndex == null || insertionIndex >= waypointsData.size || insertionIndex < 0) {
+            waypointsData.add(waypointNBT)
         } else {
             waypointsData.insert(insertionIndex, waypointNBT)
         }
@@ -304,7 +323,7 @@ object HelmModule: BoatModule(), BlockReason {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.dropItem(HelmItem, 1)
+            boat.correspondingEntity.entityDropItem(HelmItem, 1)
     }
 
     fun receiveMapData(boat: IControllable, data: MapData) {
@@ -313,6 +332,29 @@ object HelmModule: BoatModule(), BlockReason {
 
     fun removeWaypoint(boat: IControllable, index: Int) {
         val waypointsData = waypointsProperty[boat]
-        waypointsData.removeTag(index)
+        waypointsData.removeAt(index)
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    fun createPathEditorGui(player: PlayerEntity, boat: IControllable, mapData: MapData): GuiPathEditor? {
+        if(mapData == EmptyMapData) {
+            return null
+        }
+        val inventory = boat.getInventory(HelmModule)
+        val stack = inventory.list[0]
+        return when(stack.item) {
+            is FilledMapItem -> {
+                GuiPathEditor(player, BoatPathHolder(boat), mapData)
+            }
+            is MapItemWithPath -> {
+                val id = stack.tag!!.getString("${MoarBoats.ModID}.mapID")
+                GuiPathEditor(player, MapWithPathHolder(stack, null, boat), mapData)
+            }
+            is ItemGoldenTicket -> {
+                val id = ItemGoldenTicket.getData(stack).mapID
+                GuiPathEditor(player, GoldenTicketPathHolder(stack, null, boat), mapData)
+            }
+            else -> null
+        }
     }
 }

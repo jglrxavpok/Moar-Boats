@@ -1,21 +1,14 @@
 package org.jglrxavpok.moarboats.common.network
 
-import io.netty.buffer.ByteBuf
-import net.minecraft.item.ItemMap
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagList
-import net.minecraft.util.math.BlockPos
-import net.minecraftforge.fml.common.network.ByteBufUtils
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
-import net.minecraftforge.fml.relauncher.Side
+import net.minecraft.nbt.ListNBT
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.fml.network.NetworkEvent
+import net.minecraftforge.fml.network.PacketDistributor
 import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.items.ItemPath
-import org.jglrxavpok.moarboats.common.modules.HelmModule
 
-abstract class CxxRemoveWaypointToItemPath(): IMessage {
+abstract class CxxRemoveWaypointToItemPath(): MoarBoatsPacket {
 
     var index: Int = 0
 
@@ -23,28 +16,19 @@ abstract class CxxRemoveWaypointToItemPath(): IMessage {
         this.index = index
     }
 
-
-    override fun fromBytes(buf: ByteBuf) {
-        index = buf.readInt()
-    }
-
-    override fun toBytes(buf: ByteBuf) {
-        buf.writeInt(index)
-    }
-
-    abstract class Handler<T: CxxRemoveWaypointToItemPath, UpdateResponse: IMessage>: MBMessageHandler<T, IMessage?> {
+    abstract class Handler<T: CxxRemoveWaypointToItemPath, UpdateResponse: MoarBoatsPacket>: MBMessageHandler<T, MoarBoatsPacket?> {
         abstract val item: ItemPath
-        abstract fun getStack(message: T, ctx: MessageContext): ItemStack?
-        abstract fun createResponse(message: T, ctx: MessageContext, waypointList: NBTTagList): UpdateResponse?
-        override val receiverSide = Side.SERVER
+        abstract fun getStack(message: T, ctx: NetworkEvent.Context): ItemStack?
+        abstract fun createResponse(message: T, ctx: NetworkEvent.Context, waypointList: ListNBT): UpdateResponse?
+        override val receiverSide = Dist.DEDICATED_SERVER
 
-        override fun onMessage(message: T, ctx: MessageContext): IMessage? {
+        override fun onMessage(message: T, ctx: NetworkEvent.Context): MoarBoatsPacket? {
             val stack = getStack(message, ctx) ?: return null
             val data = item.getWaypointData(stack, MoarBoats.getLocalMapStorage())
-            if(message.index < data.tagCount())
-                data.removeTag(message.index)
+            if(message.index < data.size)
+                data.removeAt(message.index)
             val answer = createResponse(message, ctx, data)
-            MoarBoats.network.sendToAll(answer)
+            MoarBoats.network.send(PacketDistributor.ALL.noArg(), answer)
             return null
         }
 

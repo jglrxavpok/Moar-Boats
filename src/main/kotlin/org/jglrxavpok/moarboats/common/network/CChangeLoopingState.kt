@@ -1,14 +1,12 @@
 package org.jglrxavpok.moarboats.common.network
 
-import io.netty.buffer.ByteBuf
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
-import net.minecraftforge.fml.relauncher.Side
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.fml.network.NetworkEvent
 import org.jglrxavpok.moarboats.common.data.LoopingOptions
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 
-class CChangeLoopingState(): IMessage {
+class CChangeLoopingState(): MoarBoatsPacket {
 
     var boatID: Int = 0
     var loopingOption: LoopingOptions = LoopingOptions.NoLoop
@@ -18,24 +16,14 @@ class CChangeLoopingState(): IMessage {
         this.loopingOption = loopingOptions
     }
 
-    override fun fromBytes(buf: ByteBuf) {
-        boatID = buf.readInt()
-        loopingOption = LoopingOptions.values()[buf.readInt().coerceIn(LoopingOptions.values().indices)]
-    }
+    object Handler: MBMessageHandler<CChangeLoopingState, MoarBoatsPacket> {
+        override val packetClass = CChangeLoopingState::class.java
+        override val receiverSide = Dist.DEDICATED_SERVER
 
-    override fun toBytes(buf: ByteBuf) {
-        buf.writeInt(boatID)
-        buf.writeInt(loopingOption.ordinal)
-    }
-
-    object Handler: MBMessageHandler<CChangeLoopingState, IMessage> {
-        override val packetClass = CChangeLoopingState::class
-        override val receiverSide = Side.SERVER
-
-        override fun onMessage(message: CChangeLoopingState, ctx: MessageContext): IMessage? {
-            val player = ctx.serverHandler.player
-            val world = player.world
-            val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
+        override fun onMessage(message: CChangeLoopingState, ctx: NetworkEvent.Context): MoarBoatsPacket? {
+            val player = ctx.sender!!
+            val level = player.world
+            val boat = level.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
 
             HelmModule.loopingProperty[boat] = message.loopingOption
             return null

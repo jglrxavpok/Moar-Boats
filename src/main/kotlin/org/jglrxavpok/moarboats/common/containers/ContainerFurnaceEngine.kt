@@ -1,39 +1,37 @@
 package org.jglrxavpok.moarboats.common.containers
 
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.entity.player.InventoryPlayer
-import net.minecraft.init.Items
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.entity.player.PlayerInventory
+import net.minecraft.item.Items
 import net.minecraft.inventory.*
+import net.minecraft.inventory.container.ContainerType
+import net.minecraft.inventory.container.IContainerListener
+import net.minecraft.inventory.container.Slot
 import net.minecraft.item.ItemStack
-import net.minecraft.item.crafting.FurnaceRecipes
-import net.minecraft.tileentity.TileEntityFurnace
-import net.minecraftforge.fml.relauncher.Side
-import net.minecraftforge.fml.relauncher.SideOnly
+import net.minecraft.tileentity.FurnaceTileEntity
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.api.distmarker.OnlyIn
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.modules.FurnaceEngineModule
 
-class ContainerFurnaceEngine(playerInventory: InventoryPlayer, val engine: BoatModule, val boat: IControllable): ContainerBase(playerInventory) {
+class ContainerFurnaceEngine(containerID: Int, playerInventory: PlayerInventory, engine: BoatModule, boat: IControllable): ContainerBoatModule<ContainerFurnaceEngine>(FurnaceEngineModule.containerType as ContainerType<ContainerFurnaceEngine>, containerID, playerInventory, engine, boat) {
 
     val engineInventory = boat.getInventory(engine)
     private var fuelTime = engineInventory.getField(0)
     private var fuelTotalTime = engineInventory.getField(1)
 
     init {
-        this.addSlotToContainer(SlotEngineFuel(engineInventory, 0, 8, 8))
+        this.addSlot(SlotEngineFuel(engineInventory, 0, 8, 8))
 
         addPlayerSlots(isLarge = true)
-    }
-
-    override fun addListener(listener: IContainerListener) {
-        super.addListener(listener)
-        listener.sendAllWindowProperties(this, engineInventory)
+        this.trackIntArray(engineInventory.additionalData)
     }
 
     override fun detectAndSendChanges() {
         super.detectAndSendChanges()
 
-        for(listener in listeners) {
+        for(listener in getListeners(this)) {
             if (this.fuelTotalTime != this.engineInventory.getField(0)) {
                 listener.sendWindowProperty(this, 0, this.engineInventory.getField(0))
             }
@@ -47,12 +45,12 @@ class ContainerFurnaceEngine(playerInventory: InventoryPlayer, val engine: BoatM
         this.fuelTotalTime = this.engineInventory.getField(1)
     }
 
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     override fun updateProgressBar(id: Int, data: Int) {
         this.engineInventory.setField(id, data)
     }
 
-    override fun transferStackInSlot(playerIn: EntityPlayer, index: Int): ItemStack {
+    override fun transferStackInSlot(playerIn: PlayerEntity, index: Int): ItemStack {
         var itemstack = ItemStack.EMPTY
         val slot = this.inventorySlots[index]
 
@@ -61,7 +59,7 @@ class ContainerFurnaceEngine(playerInventory: InventoryPlayer, val engine: BoatM
             itemstack = itemstack1.copy()
 
             if (index != 0) {
-                if (TileEntityFurnace.isItemFuel(itemstack1)) {
+                if (FurnaceTileEntity.isFuel(itemstack1)) {
                     if (!this.mergeItemStack(itemstack1, 0, 1, false)) {
                         return ItemStack.EMPTY
                     }

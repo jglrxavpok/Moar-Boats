@@ -1,43 +1,44 @@
 package org.jglrxavpok.moarboats.common.tileentity
 
 import net.minecraft.entity.Entity
-import net.minecraft.util.EnumFacing
-import net.minecraft.util.ITickable
-import net.minecraft.util.math.AxisAlignedBB
+import net.minecraft.tileentity.ITickableTileEntity
+import net.minecraft.util.Direction
 import net.minecraftforge.energy.CapabilityEnergy
+import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.blocks.Facing
+import kotlin.math.ceil
 
-class TileEntityEnergyUnloader: TileEntityEnergy(), ITickable {
+class TileEntityEnergyUnloader: TileEntityEnergy(MoarBoats.TileEntityEnergyUnloaderType), ITickableTileEntity {
     override val maxReceivableEnergy = 0
     override val maxExtractableEnergy = maxEnergyStored
 
     private var working: Boolean = false
-    val blockFacing: EnumFacing get()= world.getBlockState(pos).getValue(Facing)
+    val blockFacing: Direction get()= world!!.getBlockState(pos).get(Facing)
 
-    override fun update() {
-        if(world.isRemote)
+    override fun tick() {
+        if(world!!.isRemote)
             return
         working = false
         updateListeners()
 
-        val facings = EnumFacing.values().toMutableList()
+        val facings = Direction.values().toMutableList()
         facings.remove(blockFacing)
-        pushEnergyToNeighbors(MoarBoatsConfig.energyUnloader.sendAmount, facings)
+        pushEnergyToNeighbors(MoarBoatsConfig.energyUnloader.sendAmount.get(), facings)
 
         val aabb = create3x3AxisAlignedBB(pos.offset(blockFacing))
-        val entities = world.getEntitiesWithinAABB(Entity::class.java, aabb) { e -> e != null && e.hasCapability(CapabilityEnergy.ENERGY, null) }
+        val entities = world!!.getEntitiesWithinAABB(Entity::class.java, aabb) { e -> e != null && e.getCapability(CapabilityEnergy.ENERGY, null).isPresent }
 
-        val totalEnergyToPull = minOf(MoarBoatsConfig.energyUnloader.pullAmount, maxEnergyStored-energyStored)
+        val totalEnergyToPull = minOf(MoarBoatsConfig.energyUnloader.pullAmount.get(), maxEnergyStored-energyStored)
         val entityCount = entities.size
         if(entityCount <= 0)
             return
-        val energyToExtractFromASingleNeighbor = Math.ceil(totalEnergyToPull.toDouble()/entityCount).toInt()
+        val energyToExtractFromASingleNeighbor = ceil(totalEnergyToPull.toDouble()/entityCount).toInt()
         var energyActuallyReceived = 0
         entities.forEach {
             val energyCapa = it.getCapability(CapabilityEnergy.ENERGY, null)
-            if(energyCapa != null) {
-                energyActuallyReceived += energyCapa.extractEnergy(energyToExtractFromASingleNeighbor, false)
+            energyCapa.ifPresent { storage ->
+                energyActuallyReceived += storage.extractEnergy(energyToExtractFromASingleNeighbor, false)
                 working = working || energyActuallyReceived > 0
             }
         }
@@ -55,13 +56,13 @@ class TileEntityEnergyUnloader: TileEntityEnergy(), ITickable {
         }
     }
 
-    override fun isEnergyFacing(facing: EnumFacing?): Boolean {
+    override fun isEnergyFacing(facing: Direction?): Boolean {
         return facing != blockFacing
     }
 
     override fun canExtract() = true
 
-    override fun getMaxEnergyStored() = MoarBoatsConfig.energyUnloader.maxEnergy
+    override fun getMaxEnergyStored() = MoarBoatsConfig.energyUnloader.maxEnergy.get()
 
     override fun canReceive() = false
 }

@@ -1,22 +1,32 @@
 package org.jglrxavpok.moarboats.common.items
 
-import net.minecraft.init.Items
-import net.minecraft.inventory.InventoryCrafting
-import net.minecraft.item.EnumDyeColor
+import net.minecraft.inventory.CraftingInventory
+import net.minecraft.item.Items
+import net.minecraft.inventory.IInventory
+import net.minecraft.item.DyeColor
 import net.minecraft.item.ItemStack
+import net.minecraft.item.crafting.ICraftingRecipe
 import net.minecraft.item.crafting.IRecipe
-import net.minecraft.nbt.NBTTagList
+import net.minecraft.item.crafting.IRecipeSerializer
+import net.minecraft.item.crafting.IRecipeType
+import net.minecraft.nbt.ListNBT
 import net.minecraft.util.ResourceLocation
 import net.minecraft.world.World
-import net.minecraftforge.oredict.DyeUtils
-import net.minecraftforge.registries.IForgeRegistryEntry
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.data.LoopingOptions
 
-object MapWithPathRecipe: IForgeRegistryEntry.Impl<IRecipe>(), IRecipe {
+object MapWithPathRecipe: ICraftingRecipe {
 
-    init {
-        registryName = ResourceLocation(MoarBoats.ModID, "map_with_path")
+    override fun getType(): IRecipeType<*> {
+        return IRecipeType.CRAFTING
+    }
+
+    override fun getId(): ResourceLocation {
+        return ResourceLocation(MoarBoats.ModID, "map_with_path")
+    }
+
+    override fun getSerializer(): IRecipeSerializer<*> {
+        return MBRecipeSerializers.MapWithPath
     }
 
     override fun canFit(width: Int, height: Int): Boolean {
@@ -25,7 +35,7 @@ object MapWithPathRecipe: IForgeRegistryEntry.Impl<IRecipe>(), IRecipe {
 
     override fun getRecipeOutput() = ItemStack.EMPTY
 
-    override fun getCraftingResult(inv: InventoryCrafting): ItemStack {
+    override fun getCraftingResult(inv: CraftingInventory): ItemStack {
         var featherCount = 0
         var filledMap: ItemStack? = null
         var blackDyeCount = 0
@@ -37,8 +47,8 @@ object MapWithPathRecipe: IForgeRegistryEntry.Impl<IRecipe>(), IRecipe {
                     filledMap = stack
                 }
                 stack.item == Items.PAPER -> paperCount++
-                DyeUtils.isDye(stack) -> {
-                    if(DyeUtils.colorFromStack(stack).orElse(null) == EnumDyeColor.BLACK) {
+                DyeColor.getColor(stack) != null -> {
+                    if(DyeColor.getColor(stack) == DyeColor.BLACK) {
                         blackDyeCount++
                     } else {
                         return ItemStack.EMPTY // invalid dye
@@ -53,11 +63,11 @@ object MapWithPathRecipe: IForgeRegistryEntry.Impl<IRecipe>(), IRecipe {
         if(filledMap == null || featherCount != 1 || paperCount != 1 || blackDyeCount != 1)
             return ItemStack.EMPTY
 
-        val mapID = "map_${filledMap.metadata}"
-        return ItemMapWithPath.createStack(NBTTagList(), mapID, LoopingOptions.NoLoop)
+        val mapID = "map_${filledMap.damage}"
+        return MapItemWithPath.createStack(ListNBT(), mapID, LoopingOptions.NoLoop)
     }
 
-    override fun matches(inv: InventoryCrafting, worldIn: World?): Boolean {
+    override fun matches(inv: CraftingInventory, worldIn: World?): Boolean {
         var featherCount = 0
         var filledMap: ItemStack? = null
         var blackDyeCount = 0
@@ -69,8 +79,8 @@ object MapWithPathRecipe: IForgeRegistryEntry.Impl<IRecipe>(), IRecipe {
                     filledMap = stack
                 }
                 stack.item == Items.PAPER -> paperCount++
-                DyeUtils.isDye(stack) -> {
-                    if(DyeUtils.colorFromStack(stack).orElse(null) == EnumDyeColor.BLACK) {
+                DyeColor.getColor(stack) != null -> {
+                    if(DyeColor.getColor(stack) == DyeColor.BLACK) {
                         blackDyeCount++
                     } else {
                         return false // invalid dye

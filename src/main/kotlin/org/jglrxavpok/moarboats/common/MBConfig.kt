@@ -1,170 +1,231 @@
 package org.jglrxavpok.moarboats.common
 
-import net.minecraftforge.common.config.Config
-import net.minecraftforge.common.config.ConfigManager
-import net.minecraftforge.fml.client.event.ConfigChangedEvent
+import net.minecraftforge.common.ForgeConfigSpec
 import net.minecraftforge.fml.common.Mod
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import org.jglrxavpok.moarboats.MoarBoats
 
 @Mod.EventBusSubscriber(modid = MoarBoats.ModID)
-@Config(modid = MoarBoats.ModID, category = "")
-@Config.LangKey(MoarBoats.ModID+".config.title")
 class MoarBoatsConfig {
 
     companion object {
         @JvmField
-        @Config.Name("Fishing")
-        @Config.LangKey(MoarBoats.ModID + ".fishing")
-        val fishing = Fishing()
+        val configBuilder = ForgeConfigSpec.Builder()
 
         @JvmField
-        @Config.Name("Boat battery")
-        @Config.LangKey(MoarBoats.ModID + ".boatbattery")
-        val boatBattery = BoatBattery()
+        val fishing = Fishing(configBuilder)
 
         @JvmField
-        @Config.Name("Energy Unloader")
-        @Config.LangKey(MoarBoats.ModID + ".energyunloader")
-        val energyUnloader = EnergyHandling()
+        val boatBattery = BoatBattery(configBuilder)
 
         @JvmField
-        @Config.LangKey(MoarBoats.ModID + ".energyloader")
-        @Config.Name("Energy Loader")
-        val energyLoader = EnergyHandling()
+        val energyUnloader = EnergyHandling("energyUnloader", configBuilder)
 
         @JvmField
-        @Config.LangKey(MoarBoats.ModID + ".fluidtank")
-        @Config.Name("Fluid Tank")
-        val fluidTank = FluidTank()
+        val energyLoader = EnergyHandling("energyLoader", configBuilder)
 
         @JvmField
-        @Config.LangKey(MoarBoats.ModID + ".fluidloader")
-        @Config.Name("Fluid loader")
-        val fluidLoader = FluidLoader()
+        val fluidTank = FluidTank(configBuilder)
 
         @JvmField
-        @Config.LangKey(MoarBoats.ModID + ".fluidunloader")
-        @Config.Name("Fluid unloader")
-        val fluidUnloader = FluidUnloader()
+        val fluidLoader = FluidLoader(configBuilder)
 
         @JvmField
-        @Config.LangKey(MoarBoats.ModID + ".dispensermodule")
-        @Config.Name("Dispenser module")
-        val dispenserModule = DispenserModule()
+        val fluidUnloader = FluidUnloader(configBuilder)
 
         @JvmField
-        @Config.LangKey(MoarBoats.ModID + ".chunkloader")
-        @Config.Name("Chunk Loader")
-        val chunkLoader = ChunkLoader()
+        val dispenserModule = DispenserModule(configBuilder)
 
         @JvmField
-        @Config.LangKey(MoarBoats.ModID + ".misc")
-        @Config.Name("Misc")
-        val misc = Misc()
+        val chunkLoader = ChunkLoader(configBuilder)
 
-        @JvmStatic
-        @SubscribeEvent
-        fun onConfigChanged(event: ConfigChangedEvent.OnConfigChangedEvent) {
-            if (event.modID == MoarBoats.ModID) {
-                ConfigManager.sync(MoarBoats.ModID, Config.Type.INSTANCE)
-            }
+        @JvmField
+        val misc = Misc(configBuilder)
+
+        val spec = configBuilder.build()
+    }
+
+    class Fishing(builder: ForgeConfigSpec.Builder) {
+
+        val remainingUsesBeforeRemoval: ForgeConfigSpec.IntValue
+        val speedMultiplier: ForgeConfigSpec.DoubleValue
+
+        init {
+            builder.comment("Fishing")
+                    .push("fishing")
+
+            remainingUsesBeforeRemoval = builder
+                    .comment("0 means the rods will break and the fishing module won't try to find a replacement in storage (server side only)")
+                    .translation(MoarBoats.ModID + ".fishing.remainingusesbeforeremoval")
+                    .defineInRange("remainingUsesBeforeRemoval", 0, 0, 64)
+
+            speedMultiplier = builder
+                    .comment("The higher, the more frequent the fishing module will fish items (server side only)")
+                    .translation(MoarBoats.ModID + ".fishing.speedmultiplier")
+                    .defineInRange("speedMultiplier", 1.0, 10e-16, 100.0)
+
+            builder.pop()
         }
-
     }
 
-    class Fishing {
-        @JvmField
-        @Config.RangeInt(min = 0, max = 64)
-        @Config.Comment("0 means the rods will break and the fishing module won't try to find a replacement in storage (server side only)")
-        @Config.LangKey(MoarBoats.ModID + ".fishing.remainingusesbeforeremoval")
-        var remainingUsesBeforeRemoval = 0
+    class BoatBattery(builder: ForgeConfigSpec.Builder) {
 
-        @JvmField
-        @Config.RangeDouble(min = 10e-16, max = 100.0)
-        @Config.Comment("The higher, the more frequent the fishing module will fish items (server side only)")
-        @Config.LangKey(MoarBoats.ModID + ".fishing.speedmultiplier")
-        var speedMultiplier = 1f
+        val maxEnergy: ForgeConfigSpec.IntValue
+
+        init {
+            builder
+                    .comment("Boat battery")
+                    // TODO .translation(MoarBoats.ModID + ".boatbattery")
+                    .push("boatBattery")
+
+            maxEnergy = builder
+                    .comment("The total amount of energy a single boat battery can hold at once")
+                    .translation(MoarBoats.ModID + ".boatbattery.maxenergy")
+                    .defineInRange("maxEnergy", 25000, 1, Int.MAX_VALUE)
+            builder.pop()
+        }
     }
 
-    class BoatBattery {
-        @JvmField
-        @Config.Comment("The total amount of energy a single boat battery can hold at once")
-        @Config.RangeInt(min = 1)
-        @Config.LangKey(MoarBoats.ModID + ".boatbattery.maxenergy")
-        var maxEnergy = 25000
+    class EnergyHandling(id: String, builder: ForgeConfigSpec.Builder) {
+        val maxEnergy: ForgeConfigSpec.IntValue
+        val sendAmount: ForgeConfigSpec.IntValue
+        val pullAmount: ForgeConfigSpec.IntValue
+
+        init {
+            builder
+                    .comment("Energy Unloader")
+                    // TODO .translation(MoarBoats.ModID + ".$id")
+                    .push(id)
+
+            maxEnergy = builder
+                    .comment("The maximum energy amount that can be hold")
+                    .defineInRange("maxEnergy", 5000, 1, Int.MAX_VALUE)
+
+            sendAmount = builder
+                    .comment("The energy amount that can be sent in a tick (in RF/FE)")
+                    .defineInRange("sendAmount", 200, 1, Int.MAX_VALUE)
+
+            pullAmount = builder
+                    .comment("The energy amount that can be received in a tick (in RF/FE)")
+                    .defineInRange("pullAmount", 200, 1, Int.MAX_VALUE)
+            builder.pop()
+        }
     }
 
-    class EnergyHandling {
-        @JvmField
-        @Config.Comment("The maximum energy amount that can be hold")
-        @Config.RangeInt(min = 1)
-        var maxEnergy = 5000
+    class FluidTank(builder: ForgeConfigSpec.Builder) {
+        val tankCapacity: ForgeConfigSpec.IntValue
 
-        @JvmField
-        @Config.Comment("The energy amount that can be sent in a tick (in RF/FE)")
-        @Config.RangeInt(min = 1)
-        var sendAmount = 200
+        init {
+            builder
+                    // TODO .translation(MoarBoats.ModID + ".fluidtank")
+                    .comment("Fluid Tank")
+                    .push("fluidTank")
 
-        @JvmField
-        @Config.Comment("The energy amount that can be received in a tick (in RF/FE)")
-        @Config.RangeInt(min = 1)
-        var pullAmount = 200
+            tankCapacity = builder
+                    .comment("The fluid capacity of the on-board fluid tank")
+                    .defineInRange("tankCapacity", 10000, 1, Int.MAX_VALUE)
+            builder.pop()
+        }
     }
 
-    class FluidTank {
-        @JvmField
-        @Config.Comment("The fluid capacity of the on-board fluid tank")
-        @Config.RangeInt(min = 1)
-        var tankCapacity = 10000
+    class FluidLoader(builder: ForgeConfigSpec.Builder) {
+        val sendAmount: ForgeConfigSpec.IntValue
+        val capacity: ForgeConfigSpec.IntValue
+
+        init {
+            builder
+                    // TODO .translation(MoarBoats.ModID + ".fluidloader")
+                    .comment("Fluid loader")
+                    .push("fluidLoader")
+
+            sendAmount = builder
+                    .comment("The total amount of fluid the fluid loader can hold at once (in mB)")
+                    .defineInRange("sendAmount", 200, 1, Int.MAX_VALUE)
+
+
+            capacity = builder
+                    .comment("The total amount of fluid the fluid loader can hold at once (in mB)")
+                    .defineInRange("capacity", 5000, 1, Int.MAX_VALUE)
+            builder.pop()
+        }
     }
 
-    class FluidLoader {
-        @JvmField
-        @Config.Comment("The total amount of fluid the fluid loader can hold at once (in mB)")
-        @Config.RangeInt(min = 1)
-        var sendAmount = 200
+    class FluidUnloader(builder: ForgeConfigSpec.Builder) {
+        val pullAmount: ForgeConfigSpec.IntValue
+        val capacity: ForgeConfigSpec.IntValue
 
-        @JvmField
-        @Config.Comment("The total amount of fluid the fluid loader can hold at once (in mB)")
-        @Config.RangeInt(min = 1)
-        var capacity = 5000
+        init {
+            builder
+                    // TODO .translation(MoarBoats.ModID + ".fluidunloader")
+                    .comment("Fluid unloader")
+                    .push("fluidUnloader")
+
+            pullAmount = builder
+                    .comment("The total amount of fluid a single fluid boat unloader can extract from neighboring entities (per tick)")
+                    .defineInRange("pullAmount", 200, 1, Int.MAX_VALUE)
+
+
+            capacity = builder
+                    .comment("The total amount of fluid the fluid unloader can hold at once (in mB)")
+                    .defineInRange("capacity", 5000, 1, Int.MAX_VALUE)
+            builder.pop()
+        }
     }
 
-    class FluidUnloader {
-        @JvmField
-        @Config.Comment("The total amount of fluid a single fluid boat unloader can extract from neighboring entities (per tick)")
-        @Config.RangeInt(min = 1)
-        var pullAmount = 200
+    class DispenserModule(builder: ForgeConfigSpec.Builder) {
+        val configMode: ForgeConfigSpec.ConfigValue<String>
+        val items: ForgeConfigSpec.ConfigValue<List<String?>>
 
-        @JvmField
-        @Config.Comment("The total amount of fluid the fluid unloader can hold at once (in mB)")
-        @Config.RangeInt(min = 1)
-        var capacity = 5000
+        init {
+            builder
+                    // TODO .translation(MoarBoats.ModID + ".dispensermodule")
+                    .comment("Dispenser module")
+                    .push("dispenserModule")
+
+            configMode = builder
+                    .comment("Choose to either allow select items or disallow select items")
+                    .define("configMode", "disallow")
+
+            items = builder
+                    .comment("List of item IDs to allow/disallow, must match '^([a-z_]+:)?([a-z_]+)(\\/\\d+)?$' (domain:name/metadata with 'domain:' and 'metadata' optional)")
+                    .define("items", listOf())
+            builder.pop()
+        }
     }
 
-    class DispenserModule {
-        @JvmField
-        @Config.Comment("Choose to either allow select items or disallow select items")
-        var configMode = "disallow"
+    class ChunkLoader(builder: ForgeConfigSpec.Builder) {
+        val allowed: ForgeConfigSpec.BooleanValue
 
-        @JvmField
-        @Config.Comment("List of item IDs to allow/disallow, must match '^([a-z_]+:)?([a-z_]+)(\\/\\d+)?$' (domain:name/metadata with 'domain:' and 'metadata' optional)")
-        var items = arrayOfNulls<String>(0)
+        init {
+            builder
+                    // TODO .translation(MoarBoats.ModID + ".chunkloader")
+                    .comment("Chunk Loader")
+                    .push("chunkLoader")
+
+            allowed = builder
+                    .comment("Do you want to allow the chunk loader module on your server?")
+                    .translation(MoarBoats.ModID + ".chunkloader.allowed")
+                    .define("allowed", true)
+            builder.pop()
+        }
     }
 
-    class ChunkLoader {
-        @JvmField
-        @Config.Comment("Do you want to allow the chunk loader module on your server?")
-        @Config.LangKey(MoarBoats.ModID + ".chunkloader.allowed")
-        var allowed = true
+    class Misc(builder: ForgeConfigSpec.Builder) {
+        val hidePatreonHook: ForgeConfigSpec.BooleanValue
+
+        init {
+            builder
+                    // TODO .translation(MoarBoats.ModID + ".misc")
+                    .comment("Misc")
+                    .push("misc")
+
+
+            hidePatreonHook = builder
+                    .comment("Hide the Patreon hook?")
+                    .translation(MoarBoats.ModID + ".hide_patreon_hook")
+                    .define("hidePatreonHook", false)
+            builder.pop()
+        }
     }
 
-    class Misc {
-        @JvmField
-        @Config.Comment("Hide the Patreon hook?")
-        @Config.LangKey(MoarBoats.ModID + ".hide_patreon_hook")
-        var hidePatreonHook = false
-    }
 
 }

@@ -1,31 +1,20 @@
 package org.jglrxavpok.moarboats.common.modules.inventories
 
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.inventory.ItemStackHelper
 import net.minecraft.item.ItemStack
+import net.minecraft.util.IIntArray
+import net.minecraft.util.IntArray
 import net.minecraft.util.NonNullList
 import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.TextComponentTranslation
+import net.minecraft.util.text.StringTextComponent
+import net.minecraft.util.text.TranslationTextComponent
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleInventory
 import org.jglrxavpok.moarboats.api.IControllable
 
 abstract class BaseModuleInventory(slotCount: Int, inventoryName: String, boat: IControllable, module: BoatModule):
         BoatModuleInventory(inventoryName, slotCount, boat, module, NonNullList.withSize(slotCount, ItemStack.EMPTY)) {
-
-    protected abstract fun id2key(id: Int): String?
-    abstract override fun getFieldCount(): Int
-
-    override fun getField(id: Int): Int {
-        val key = id2key(id)
-        if(key != null)
-            return getModuleState().getInteger(key)
-        return -1
-    }
-
-    override fun hasCustomName(): Boolean {
-        return false
-    }
 
     override fun markDirty() {
     }
@@ -42,14 +31,8 @@ abstract class BaseModuleInventory(slotCount: Int, inventoryName: String, boat: 
 
     override fun getSizeInventory() = list.size
 
-    override fun getName() = inventoryName
-
     override fun isEmpty(): Boolean {
         return list.all { it.isEmpty }
-    }
-
-    override fun getDisplayName(): ITextComponent {
-        return TextComponentTranslation("inventory.$inventoryName.name")
     }
 
     override fun isItemValidForSlot(index: Int, stack: ItemStack): Boolean {
@@ -58,23 +41,15 @@ abstract class BaseModuleInventory(slotCount: Int, inventoryName: String, boat: 
 
     override fun getInventoryStackLimit() = 64
 
-    override fun isUsableByPlayer(player: EntityPlayer): Boolean {
+    override fun isUsableByPlayer(player: PlayerEntity): Boolean {
         return true
     }
 
-    override fun openInventory(player: EntityPlayer?) {
+    override fun openInventory(player: PlayerEntity?) {
 
     }
 
-    override fun setField(id: Int, value: Int) {
-        val key = id2key(id)
-        if(key != null) {
-            getModuleState().setInteger(key, value)
-            saveModuleState()
-        }
-    }
-
-    override fun closeInventory(player: EntityPlayer?) {
+    override fun closeInventory(player: PlayerEntity?) {
 
     }
 

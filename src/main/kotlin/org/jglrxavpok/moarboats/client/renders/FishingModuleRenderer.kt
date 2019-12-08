@@ -1,19 +1,20 @@
 package org.jglrxavpok.moarboats.client.renders
 
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.GlStateManager
+import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.client.renderer.Tessellator
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms
-import net.minecraft.client.renderer.entity.RenderManager
-import net.minecraft.client.renderer.texture.TextureMap
+import net.minecraft.client.renderer.entity.EntityRendererManager
+import net.minecraft.client.renderer.model.ItemCameraTransforms
+import net.minecraft.client.renderer.model.ModelResourceLocation
+import net.minecraft.client.renderer.texture.AtlasTexture
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
-import net.minecraft.init.Items
-import net.minecraft.item.Item
-import net.minecraft.item.ItemFishingRod
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.item.*
+import net.minecraft.nbt.CompoundNBT
 import net.minecraft.util.ResourceLocation
+import net.minecraftforge.registries.GameData
+import net.minecraftforge.registries.RegistryManager
+import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.common.modules.FishingModule
@@ -24,41 +25,41 @@ object FishingModuleRenderer : BoatModuleRenderer() {
         registryName = FishingModule.id
     }
 
-    val CastFishingRodLocation = "minecraft:item/fishing_rod_cast"
+    val CastFishingRodLocation = ModelResourceLocation(MoarBoats.ModID, "item/vanilla/fishing_rod_cast")
     private val StickStack = ItemStack(Items.STICK)
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, renderManager: RenderManager) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, EntityRendererManager: EntityRendererManager) {
         module as FishingModule
-        val mc = Minecraft.getMinecraft()
+        val mc = Minecraft.getInstance()
         GlStateManager.pushMatrix()
-        GlStateManager.scale(0.75f, 0.75f, 0.75f)
-        GlStateManager.scale(-1f, 1f, 1f)
-        GlStateManager.scale(-1.5f, 1.5f, 1.5f)
-        GlStateManager.translate(-0.75f, 8f/16f, 0.58f)
+        GlStateManager.scalef(0.75f, 0.75f, 0.75f)
+        GlStateManager.scalef(-1f, 1f, 1f)
+        GlStateManager.scalef(-1.5f, 1.5f, 1.5f)
+        GlStateManager.translatef(-0.75f, 8f/16f, 0.58f)
 
         val inventory = boat.getInventory(module)
         val rodStack = inventory.getStackInSlot(0)
 
-        GlStateManager.pushAttrib()
-        RenderHelper.enableStandardItemLighting()
+        GlStateManager.pushLightingAttributes()
+        RenderHelper.enableGUIStandardItemLighting()
 
-        val hasRod = rodStack.item is ItemFishingRod
+        val hasRod = rodStack.item is FishingRodItem
         val ready = module.readyProperty[boat]
         val playingAnimation = module.playingAnimationProperty[boat]
 
         if(ready && hasRod && boat.inLiquid() && !boat.isEntityInLava()) {
-            val model = mc.renderItem.itemModelMesher.modelManager.getModel(net.minecraftforge.client.model.ModelLoader.getInventoryVariant(CastFishingRodLocation))
+            val model = mc.modelManager.getModel(CastFishingRodLocation)
 
-            mc.textureManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
-            GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f)
+            mc.textureManager.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE)
+            GlStateManager.color4f(1.0f, 1.0f, 1.0f, 1.0f)
             GlStateManager.enableRescaleNormal()
             GlStateManager.enableBlend()
-            GlStateManager.enableAlpha()
+            GlStateManager.enableAlphaTest()
             GlStateManager.alphaFunc(516, 0.1f)
-            GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO)
+            GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO)
             GlStateManager.pushMatrix()
-            GlStateManager.scale(-1f, 1f, 1f)
-            mc.renderItem.renderItem(rodStack, model)
+            GlStateManager.scalef(-1f, 1f, 1f)
+            mc.itemRenderer.renderItem(rodStack, model)
             GlStateManager.popMatrix()
             GlStateManager.disableRescaleNormal()
 
@@ -66,18 +67,18 @@ object FishingModuleRenderer : BoatModuleRenderer() {
                 renderHook(entityYaw)
         } else {
             GlStateManager.enableRescaleNormal()
-            GlStateManager.enableAlpha()
+            GlStateManager.enableAlphaTest()
             GlStateManager.alphaFunc(516, 0.1f)
             GlStateManager.enableBlend()
 
-            GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO)
+            GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO)
 
             val stackToRender = if(hasRod) rodStack else StickStack
-            mc.renderItem.renderItem(stackToRender, ItemCameraTransforms.TransformType.FIXED)
+            mc.itemRenderer.renderItem(stackToRender, ItemCameraTransforms.TransformType.FIXED)
             GlStateManager.disableRescaleNormal()
         }
         RenderHelper.disableStandardItemLighting()
-        GlStateManager.popAttrib()
+        GlStateManager.popAttributes()
         GlStateManager.popMatrix()
 
         // draw fish flying out of water
@@ -95,18 +96,18 @@ object FishingModuleRenderer : BoatModuleRenderer() {
             val alpha = (t * (t-1.0))*4.0
             val fishY = hookY * alpha + 0.5f * (1f-alpha)
             GlStateManager.pushMatrix()
-            GlStateManager.translate(fishX, fishY, fishZ)
+            GlStateManager.translated(fishX, fishY, fishZ)
             val fishScale = 0.25f
-            GlStateManager.scale(fishScale, fishScale, fishScale)
+            GlStateManager.scalef(fishScale, fishScale, fishScale)
             val lootList = module.lastLootProperty[boat]
-            GlStateManager.rotate(boat.ticksExisted.toFloat()*4f, 0f, 1f, 0f)
+            GlStateManager.rotatef(boat.ticksExisted.toFloat()*4f, 0f, 1f, 0f)
             for(lootInfo in lootList) {
-                lootInfo as NBTTagCompound
-                val item = Item.getByNameOrId(lootInfo.getString("name"))!!
-                val stack = ItemStack(item, 1)
-                stack.itemDamage = lootInfo.getInteger("damage")
-                mc.renderItem.renderItem(stack, ItemCameraTransforms.TransformType.FIXED)
-                GlStateManager.rotate(360f / lootList.tagCount(), 0f, 1f, 0f)
+                lootInfo as CompoundNBT
+                val item = RegistryManager.ACTIVE.getRegistry<Item>(GameData.ITEMS).getValue(ResourceLocation(lootInfo.getString("name")))
+                val stack = ItemStack(item!!, 1)
+                stack.damage = lootInfo.getInt("damage")
+                mc.itemRenderer.renderItem(stack, ItemCameraTransforms.TransformType.FIXED)
+                GlStateManager.rotatef(360f / lootList.size, 0f, 1f, 0f)
             }
             GlStateManager.popMatrix()
         }
@@ -122,23 +123,23 @@ object FishingModuleRenderer : BoatModuleRenderer() {
         // Adapted from RenderFish, modified to take into account the current OpenGL state
 
         val yOffset = -0.06f // small fix to make the rope actually connect both to the rod and to the hook
-        val mc = Minecraft.getMinecraft()
+        val mc = Minecraft.getInstance()
 
         GlStateManager.pushMatrix()
-        GlStateManager.translate(x.toFloat(), y.toFloat(), z.toFloat())
+        GlStateManager.translatef(x.toFloat(), y.toFloat(), z.toFloat())
         GlStateManager.enableRescaleNormal()
-        GlStateManager.scale(0.5f, 0.5f, 0.5f)
+        GlStateManager.scalef(0.5f, 0.5f, 0.5f)
         mc.textureManager.bindTexture(FISH_PARTICLES)
         val tessellator = Tessellator.getInstance()
         val bufferbuilder = tessellator.buffer
-        GlStateManager.rotate(180.0f + mc.renderManager.playerViewY - entityYaw + 90f, 0.0f, 1.0f, 0.0f)
-        GlStateManager.rotate((if (mc.renderManager.options.thirdPersonView == 2) -1 else 1).toFloat() * -mc.renderManager.playerViewX, 1.0f, 0.0f, 0.0f)
+        GlStateManager.rotatef(180.0f + mc.renderManager.info.projectedView.y.toFloat() - entityYaw + 90f, 0.0f, 1.0f, 0.0f)
+        GlStateManager.rotatef((if (mc.renderManager.options.thirdPersonView == 2) -1 else 1).toFloat() * -mc.renderManager.info.projectedView.x.toFloat(), 1.0f, 0.0f, 0.0f)
 
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_NORMAL)
-        bufferbuilder.pos(-0.5, -0.5, 0.0).tex(0.0625, 0.1875).normal(0.0f, 1.0f, 0.0f).endVertex()
-        bufferbuilder.pos(0.5, -0.5, 0.0).tex(0.125, 0.1875).normal(0.0f, 1.0f, 0.0f).endVertex()
-        bufferbuilder.pos(0.5, 0.5, 0.0).tex(0.125, 0.125).normal(0.0f, 1.0f, 0.0f).endVertex()
-        bufferbuilder.pos(-0.5, 0.5, 0.0).tex(0.0625, 0.125).normal(0.0f, 1.0f, 0.0f).endVertex()
+        bufferbuilder.pos(-0.5, -0.5, 0.0).tex(0.03125, 0.09375).normal(0.0f, 1.0f, 0.0f).endVertex()
+        bufferbuilder.pos(0.5, -0.5, 0.0).tex(0.0625, 0.09375).normal(0.0f, 1.0f, 0.0f).endVertex()
+        bufferbuilder.pos(0.5, 0.5, 0.0).tex(0.0625, 0.0625).normal(0.0f, 1.0f, 0.0f).endVertex()
+        bufferbuilder.pos(-0.5, 0.5, 0.0).tex(0.03125, 0.0625).normal(0.0f, 1.0f, 0.0f).endVertex()
         tessellator.draw()
 
         GlStateManager.disableRescaleNormal()
@@ -147,12 +148,12 @@ object FishingModuleRenderer : BoatModuleRenderer() {
         val dx = 0.0
         val dy = -y -yOffset*2f
         val dz = z
-        GlStateManager.disableTexture2D()
+        GlStateManager.disableTexture()
         GlStateManager.disableLighting()
         bufferbuilder.begin(3, DefaultVertexFormats.POSITION_COLOR)
         val segmentCount = 16
 
-        GlStateManager.translate(0f, yOffset, 0f)
+        GlStateManager.translatef(0f, yOffset, 0f)
 
         for (index in 0..segmentCount) {
             val step = index.toFloat() / segmentCount.toFloat()
@@ -161,6 +162,6 @@ object FishingModuleRenderer : BoatModuleRenderer() {
 
         tessellator.draw()
         GlStateManager.enableLighting()
-        GlStateManager.enableTexture2D()
+        GlStateManager.enableTexture()
     }
 }

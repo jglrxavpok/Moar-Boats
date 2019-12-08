@@ -1,9 +1,9 @@
 package org.jglrxavpok.moarboats.common.modules.inventories
 
-import net.minecraft.init.Items
-import net.minecraft.inventory.SlotFurnaceFuel
+import net.minecraft.item.Items
+import net.minecraft.inventory.container.FurnaceFuelSlot
 import net.minecraft.item.ItemStack
-import net.minecraft.tileentity.TileEntityFurnace
+import net.minecraft.tileentity.FurnaceTileEntity
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 
@@ -17,7 +17,7 @@ class EngineModuleInventory(boat: IControllable, module: BoatModule): BaseModule
     override fun isItemValidForSlot(index: Int, stack: ItemStack): Boolean {
         if(index == 0) {
             val itemstack = list[0]
-            return TileEntityFurnace.isItemFuel(stack) || SlotFurnaceFuel.isBucket(stack) && itemstack.item !== Items.BUCKET
+            return FurnaceTileEntity.isFuel(stack) || FurnaceFuelSlot.isBucket(stack) && itemstack.item !== Items.BUCKET
         }
         return false
     }

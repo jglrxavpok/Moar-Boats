@@ -1,9 +1,8 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.init.Blocks
-import net.minecraft.item.ItemBlock
-import net.minecraft.util.EnumHand
+import net.minecraft.block.Blocks
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
@@ -11,19 +10,20 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiNoConfigModule
-import org.jglrxavpok.moarboats.common.containers.ContainerBase
-import org.jglrxavpok.moarboats.common.containers.EmptyContainer
+import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
+import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
+import org.jglrxavpok.moarboats.common.math.MutableVec2
 import org.jglrxavpok.moarboats.extensions.toDegrees
 import org.jglrxavpok.moarboats.extensions.toRadians
-import org.lwjgl.util.vector.Vector2f
 
 object SonarModule: BoatModule() {
+
     override val id = ResourceLocation(MoarBoats.ModID, "sonar")
     override val usesInventory = false
     override val moduleSpot = Spot.Navigation
     override val isMenuInteresting = false
 
-    override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean): Boolean {
+    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean): Boolean {
         return false
     }
 
@@ -47,9 +47,9 @@ object SonarModule: BoatModule() {
         }
     }
 
-    private fun averageGradient(matrix: SurroundingsMatrix): Vector2f {
+    private fun averageGradient(matrix: SurroundingsMatrix): MutableVec2 {
         val gradient = matrix.computeGradient()
-        val v = Vector2f(gradient[matrix.pos2index(0, 0)])
+        val v = MutableVec2(gradient[matrix.pos2index(0, 0)])
         fun add(x: Int, z: Int) {
             val index = matrix.pos2index(x, z)
             val gx = gradient[index].x
@@ -67,7 +67,7 @@ object SonarModule: BoatModule() {
         add(0, +1)
         add(+1, +1)
 
-        v.scale(1f/9f)
+        v.scale(1.0/9.0)
         return v
     }
 
@@ -77,14 +77,14 @@ object SonarModule: BoatModule() {
     override fun onAddition(to: IControllable) {
     }
 
-    override fun createContainer(player: EntityPlayer, boat: IControllable): ContainerBase? {
-        return EmptyContainer(player.inventory)
+    override fun createContainer(containerID: Int, player: PlayerEntity, boat: IControllable): ContainerBoatModule<*>? {
+        return EmptyModuleContainer(containerID, player.inventory, this, boat)
     }
 
-    override fun createGui(player: EntityPlayer, boat: IControllable) = GuiNoConfigModule(player.inventory, this, boat)
+    override fun createGui(containerID: Int, player: PlayerEntity, boat: IControllable) = GuiNoConfigModule(containerID, player.inventory, this, boat)
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.dropItem(ItemBlock.getItemFromBlock(Blocks.NOTEBLOCK), 1)
+            boat.correspondingEntity.entityDropItem(Blocks.NOTE_BLOCK.asItem(), 1)
     }
 }

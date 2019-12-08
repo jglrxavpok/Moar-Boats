@@ -1,17 +1,15 @@
 package org.jglrxavpok.moarboats.common.network
 
-import io.netty.buffer.ByteBuf
-import net.minecraft.item.ItemMap
+import net.minecraft.item.FilledMapItem
+import net.minecraft.item.MapItem
 import net.minecraft.util.ResourceLocation
-import net.minecraftforge.fml.common.network.ByteBufUtils
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
-import net.minecraftforge.fml.relauncher.Side
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.fml.network.NetworkEvent
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 
-class CMapRequest(): IMessage {
+class CMapRequest(): MoarBoatsPacket {
 
     var mapName: String = ""
     var boatID: Int = 0
@@ -23,34 +21,22 @@ class CMapRequest(): IMessage {
         this.moduleLocation = moduleLocation
     }
 
-    override fun fromBytes(buf: ByteBuf) {
-        mapName = ByteBufUtils.readUTF8String(buf)
-        boatID = buf.readInt()
-        moduleLocation = ResourceLocation(ByteBufUtils.readUTF8String(buf))
-    }
-
-    override fun toBytes(buf: ByteBuf) {
-        ByteBufUtils.writeUTF8String(buf, mapName)
-        buf.writeInt(boatID)
-        ByteBufUtils.writeUTF8String(buf, moduleLocation.toString())
-    }
-
     object Handler: MBMessageHandler<CMapRequest, SMapAnswer> {
-        override val packetClass = CMapRequest::class
-        override val receiverSide = Side.SERVER
+        override val packetClass = CMapRequest::class.java
+        override val receiverSide = Dist.DEDICATED_SERVER
 
-        override fun onMessage(message: CMapRequest, ctx: MessageContext): SMapAnswer? {
-            val player = ctx.serverHandler.player
-            val world = player.world
-            val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
+        override fun onMessage(message: CMapRequest, ctx: NetworkEvent.Context): SMapAnswer? {
+            val player = ctx.sender!!
+            val level = player.world
+            val boat = level.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
             val moduleLocation = message.moduleLocation
             val module = BoatModuleRegistry[moduleLocation].module
             val stack = boat.getInventory(module).getStackInSlot(0)
-            val item = stack.item as? ItemMap ?: return null // Got request while there was no map!
+            val item = stack.item as? FilledMapItem ?: return null // Got request while there was no map!
             val mapName = message.mapName
-            val mapdata = item.getMapData(stack, boat.worldRef)!!
+            val mapdata = FilledMapItem.getData(stack, boat.worldRef)!!
             val packet = SMapAnswer(mapName, message.boatID, message.moduleLocation)
-            mapdata.writeToNBT(packet.mapData)
+            mapdata.write(packet.mapData)
             module as HelmModule
             module.receiveMapData(boat, mapdata)
             return packet

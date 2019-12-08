@@ -1,17 +1,27 @@
 package org.jglrxavpok.moarboats.common.items
 
-import net.minecraft.inventory.InventoryCrafting
+import net.minecraft.inventory.CraftingInventory
+import net.minecraft.inventory.IInventory
 import net.minecraft.item.ItemStack
+import net.minecraft.item.crafting.ICraftingRecipe
 import net.minecraft.item.crafting.IRecipe
+import net.minecraft.item.crafting.IRecipeSerializer
+import net.minecraft.item.crafting.IRecipeType
 import net.minecraft.util.ResourceLocation
 import net.minecraft.world.World
-import net.minecraftforge.registries.IForgeRegistryEntry
 import org.jglrxavpok.moarboats.MoarBoats
 
-object GoldenTicketCopyRecipe: IForgeRegistryEntry.Impl<IRecipe>(), IRecipe {
+object GoldenTicketCopyRecipe: ICraftingRecipe {
+    override fun getType(): IRecipeType<*> {
+        return IRecipeType.CRAFTING
+    }
 
-    init {
-        registryName = ResourceLocation(MoarBoats.ModID, "golden_itinerary")
+    override fun getSerializer(): IRecipeSerializer<*> {
+        return MBRecipeSerializers.CopyGoldenTicket
+    }
+
+    override fun getId(): ResourceLocation {
+        return ResourceLocation(MoarBoats.ModID, "golden_itinerary")
     }
 
     override fun canFit(width: Int, height: Int): Boolean {
@@ -20,7 +30,7 @@ object GoldenTicketCopyRecipe: IForgeRegistryEntry.Impl<IRecipe>(), IRecipe {
 
     override fun getRecipeOutput() = ItemStack.EMPTY
 
-    override fun getCraftingResult(inv: InventoryCrafting): ItemStack {
+    override fun getCraftingResult(inv: CraftingInventory): ItemStack {
         var emptyTickets = 0
         var fullTickets = 0
         var fullTicket: ItemStack? = null
@@ -45,7 +55,7 @@ object GoldenTicketCopyRecipe: IForgeRegistryEntry.Impl<IRecipe>(), IRecipe {
         return ItemStack.EMPTY
     }
 
-    override fun matches(inv: InventoryCrafting, worldIn: World?): Boolean {
+    override fun matches(inv: CraftingInventory, worldIn: World?): Boolean {
         var emptyTickets = 0
         var fullTickets = 0
         for(i in 0 until inv.sizeInventory) {

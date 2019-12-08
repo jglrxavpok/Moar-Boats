@@ -1,15 +1,12 @@
 package org.jglrxavpok.moarboats.common.network
 
-import io.netty.buffer.ByteBuf
 import net.minecraft.client.Minecraft
 import net.minecraft.util.ResourceLocation
-import net.minecraftforge.fml.common.network.ByteBufUtils
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
-import net.minecraftforge.fml.relauncher.Side
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.fml.network.NetworkEvent
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 
-class SModuleLocations(): IMessage {
+class SModuleLocations(): MoarBoatsPacket {
 
     var modules = emptyList<ResourceLocation>()
 
@@ -20,32 +17,13 @@ class SModuleLocations(): IMessage {
         this.modules = modules
     }
 
-    override fun fromBytes(buf: ByteBuf) {
-        boatID = buf.readInt()
-        val size = buf.readInt()
-        val list = mutableListOf<ResourceLocation>()
-        for(i in 0 until size) {
-            val location = ResourceLocation(ByteBufUtils.readUTF8String(buf))
-            list.add(location)
-        }
-        modules = list
-    }
+    object Handler: MBMessageHandler<SModuleLocations, MoarBoatsPacket> {
+        override val packetClass = SModuleLocations::class.java
+        override val receiverSide = Dist.CLIENT
 
-    override fun toBytes(buf: ByteBuf) {
-        buf.writeInt(boatID)
-        buf.writeInt(modules.size)
-        for(i in 0 until modules.size) {
-            ByteBufUtils.writeUTF8String(buf, modules[i].toString())
-        }
-    }
-
-    object Handler: MBMessageHandler<SModuleLocations, IMessage> {
-        override val packetClass = SModuleLocations::class
-        override val receiverSide = Side.CLIENT
-
-        override fun onMessage(message: SModuleLocations, ctx: MessageContext): IMessage? {
-            val world = Minecraft.getMinecraft().world
-            val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
+        override fun onMessage(message: SModuleLocations, ctx: NetworkEvent.Context): MoarBoatsPacket? {
+            val level = Minecraft.getInstance().world
+            val boat = level.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
             boat.moduleLocations.clear()
             boat.moduleLocations.addAll(message.modules)
             return null

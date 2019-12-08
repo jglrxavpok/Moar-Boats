@@ -1,19 +1,28 @@
 package org.jglrxavpok.moarboats.common.items
 
+import net.minecraft.inventory.CraftingInventory
 import net.minecraft.inventory.IInventory
-import net.minecraft.inventory.InventoryCrafting
 import net.minecraft.item.ItemStack
+import net.minecraft.item.crafting.ICraftingRecipe
 import net.minecraft.item.crafting.IRecipe
+import net.minecraft.item.crafting.IRecipeSerializer
+import net.minecraft.item.crafting.IRecipeType
 import net.minecraft.util.ResourceLocation
 import net.minecraft.world.World
-import net.minecraftforge.registries.IForgeRegistryEntry
 import org.jglrxavpok.moarboats.MoarBoats
 import java.util.*
 
-object UpgradeToGoldenTicketRecipe: IForgeRegistryEntry.Impl<IRecipe>(), IRecipe {
+object UpgradeToGoldenTicketRecipe: ICraftingRecipe {
+    override fun getType(): IRecipeType<*> {
+        return IRecipeType.CRAFTING
+    }
 
-    init {
-        registryName = ResourceLocation(MoarBoats.ModID, "upgrade_to_golden_itinerary")
+    override fun getId(): ResourceLocation {
+        return ResourceLocation(MoarBoats.ModID, "upgrade_to_golden_itinerary")
+    }
+
+    override fun getSerializer(): IRecipeSerializer<*> {
+        return MBRecipeSerializers.UpgradeToGoldenTicket
     }
 
     override fun canFit(width: Int, height: Int): Boolean {
@@ -22,7 +31,7 @@ object UpgradeToGoldenTicketRecipe: IForgeRegistryEntry.Impl<IRecipe>(), IRecipe
 
     override fun getRecipeOutput() = ItemStack.EMPTY
 
-    override fun getCraftingResult(inv: InventoryCrafting): ItemStack {
+    override fun getCraftingResult(inv: CraftingInventory): ItemStack {
         var emptyTickets = 0
         var fullMaps = 0
         var fullMap: ItemStack? = null
@@ -34,7 +43,7 @@ object UpgradeToGoldenTicketRecipe: IForgeRegistryEntry.Impl<IRecipe>(), IRecipe
                 } else {
                     return ItemStack.EMPTY
                 }
-            } else if(stack.item == ItemMapWithPath) {
+            } else if(stack.item == MapItemWithPath) {
                 fullMaps++
                 fullMap = stack
             } else if(!stack.isEmpty) {
@@ -43,17 +52,13 @@ object UpgradeToGoldenTicketRecipe: IForgeRegistryEntry.Impl<IRecipe>(), IRecipe
         }
         if(fullMaps == 1 && fullMap != null && emptyTickets >= 1) {
             val stack = ItemGoldenTicket.createStack(UUID.randomUUID().toString())
-            ItemGoldenTicket.updateItinerary(stack, ItemMapWithPath, fullMap)
+            ItemGoldenTicket.updateItinerary(stack, MapItemWithPath, fullMap)
             return stack
         }
         return ItemStack.EMPTY
     }
 
-    override fun matches(inv: InventoryCrafting, worldIn: World?): Boolean {
-        return matches(inv as IInventory, worldIn)
-    }
-
-    fun matches(inv: IInventory, worldIn: World?): Boolean {
+    override fun matches(inv: CraftingInventory, levelIn: World?): Boolean {
         var emptyTickets = 0
         var fullMaps = 0
         for(i in 0 until inv.sizeInventory) {
@@ -64,7 +69,7 @@ object UpgradeToGoldenTicketRecipe: IForgeRegistryEntry.Impl<IRecipe>(), IRecipe
                 } else {
                     return false
                 }
-            } else if(stack.item == ItemMapWithPath) {
+            } else if(stack.item == MapItemWithPath) {
                 fullMaps++
             } else if(!stack.isEmpty) {
                 return false

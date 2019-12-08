@@ -1,47 +1,32 @@
 package org.jglrxavpok.moarboats.common.network
 
-import io.netty.buffer.ByteBuf
-import net.minecraft.util.EnumFacing
+import net.minecraft.util.Direction
 import net.minecraft.util.ResourceLocation
-import net.minecraftforge.fml.common.network.ByteBufUtils
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
-import net.minecraftforge.fml.relauncher.Side
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.fml.network.NetworkEvent
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.DispensingModule
 
-class CChangeDispenserFacing(): IMessage {
+class CChangeDispenserFacing(): MoarBoatsPacket {
 
     private var boatID = 0
     private var moduleID = ResourceLocation(MoarBoats.ModID, "none")
-    private var facing = EnumFacing.SOUTH
+    private var facing = Direction.SOUTH
 
-    constructor(boatID: Int, moduleID: ResourceLocation, facing: EnumFacing): this() {
+    constructor(boatID: Int, moduleID: ResourceLocation, facing: Direction): this() {
         this.boatID = boatID
         this.moduleID = moduleID
         this.facing = facing
     }
 
-    override fun fromBytes(buf: ByteBuf) {
-        boatID = buf.readInt()
-        moduleID = ResourceLocation(ByteBufUtils.readUTF8String(buf))
-        facing = EnumFacing.values()[buf.readInt()]
-    }
+    object Handler: MBMessageHandler<CChangeDispenserFacing, MoarBoatsPacket?> {
+        override val packetClass = CChangeDispenserFacing::class.java
+        override val receiverSide = Dist.DEDICATED_SERVER
 
-    override fun toBytes(buf: ByteBuf) {
-        buf.writeInt(boatID)
-        ByteBufUtils.writeUTF8String(buf, moduleID.toString())
-        buf.writeInt(facing.ordinal)
-    }
-
-    object Handler: MBMessageHandler<CChangeDispenserFacing, IMessage?> {
-        override val packetClass = CChangeDispenserFacing::class
-        override val receiverSide = Side.SERVER
-
-        override fun onMessage(message: CChangeDispenserFacing, ctx: MessageContext): IMessage? {
-            val player = ctx.serverHandler.player
+        override fun onMessage(message: CChangeDispenserFacing, ctx: NetworkEvent.Context): MoarBoatsPacket? {
+            val player = ctx.sender!!
             val world = player.world
             val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
             val moduleLocation = message.moduleID

@@ -1,15 +1,15 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.block.state.IBlockState
+import net.minecraft.fluid.IFluidState
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
-import org.lwjgl.util.vector.Vector2f
+import org.jglrxavpok.moarboats.common.math.MutableVec2
 
 class SurroundingsMatrix(val size: Int) {
 
     private val halfSize = size/2
 
-    private val internalMatrix = Array<IBlockState?>(size*size) {
+    private val internalMatrix = Array<IFluidState?>(size*size) {
         null
     }
 
@@ -21,15 +21,15 @@ class SurroundingsMatrix(val size: Int) {
                 val worldY = centerY
                 val worldZ = centerZ + zOffset
                 pos.setPos(worldX, worldY, worldZ)
-                val blockState = world.getBlockState(pos)
+                val blockState = world.getFluidState(pos)
                 internalMatrix[pos2index(xOffset, zOffset)] = blockState
             }
         }
-        pos.release()
+        pos.close()
         return this
     }
 
-    fun forEach(action: (Int, Int, IBlockState?) -> Unit) {
+    fun forEach(action: (Int, Int, IFluidState?) -> Unit) {
         for(xOffset in -halfSize until halfSize) {
             for (zOffset in -halfSize until halfSize) {
                 val index = pos2index(xOffset, zOffset)
@@ -48,8 +48,8 @@ class SurroundingsMatrix(val size: Int) {
         val queue = mutableListOf<Int>()
         queue.add(0) // center
         val done = hashSetOf<Int>()
-        val requiredState: IBlockState? = internalMatrix[0]
-        while(!queue.isEmpty()) { // flood fill
+        val requiredState: IFluidState? = internalMatrix[0]
+        while(queue.isNotEmpty()) { // flood fill
             val index = queue.removeAt(0)
             if(index in done)
                 continue
@@ -76,7 +76,7 @@ class SurroundingsMatrix(val size: Int) {
         return and(andMatrix)
     }
 
-    fun computeGradient(): Array<Vector2f> {
+    fun computeGradient(): Array<MutableVec2> {
         val distanceMap = IntArray(internalMatrix.size)
         val requiredState = this[0, 0]
         forEach { x, z, state ->
@@ -88,7 +88,7 @@ class SurroundingsMatrix(val size: Int) {
                 distanceMap[index] = -dist
             }
         }
-        val gradient = Array(internalMatrix.size) { i-> Vector2f() }
+        val gradient = Array(internalMatrix.size) { _ -> MutableVec2(0.0, 0.0) }
         forEach { x, z, state ->
 
             fun distance(dx: Int, dz: Int): Int {
@@ -117,18 +117,18 @@ class SurroundingsMatrix(val size: Int) {
             verticalContribution += distance(-1, +1) * 1
             verticalContribution += distance(0, +1) * 2
             verticalContribution += distance(+1, +1) * 1
-            gradient[pos2index(x, z)] = Vector2f(horizontalContribution.toFloat(), verticalContribution.toFloat())
+            gradient[pos2index(x, z)] = MutableVec2(horizontalContribution.toDouble(), verticalContribution.toDouble())
 
         }
         return gradient
     }
 
-    private tailrec fun maximumDistance(x: Int, z: Int, state: IBlockState?, radius: Int = 0): Int = when {
+    private tailrec fun maximumDistance(x: Int, z: Int, state: IFluidState?, radius: Int = 0): Int = when {
         circleFit(state, radius, x, z) -> maximumDistance(x, z, state, radius+1)
         else -> radius
     }
 
-    private fun circleFit(state: IBlockState?, radius: Int, x0: Int, z0: Int): Boolean {
+    private fun circleFit(state: IFluidState?, radius: Int, x0: Int, z0: Int): Boolean {
         // adapted from https://en.wikipedia.org/wiki/Midpoint_circle_algorithm
         fun foundIntersection(dx: Int, dz: Int): Boolean {
             return this[x0+dx, z0+dz] != state
@@ -216,7 +216,7 @@ class SurroundingsMatrix(val size: Int) {
         return matrixX + matrixZ*size
     }
 
-    operator fun get(x: Int, z: Int): IBlockState? {
+    operator fun get(x: Int, z: Int): IFluidState? {
         val index = pos2index(x, z)
         if(index < 0 || index >= size*size)
             return null

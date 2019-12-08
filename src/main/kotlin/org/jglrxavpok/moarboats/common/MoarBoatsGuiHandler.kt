@@ -1,184 +1,67 @@
 package org.jglrxavpok.moarboats.common
 
 import net.minecraft.client.Minecraft
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.item.ItemMap
+import net.minecraft.client.entity.player.ClientPlayerEntity
+import net.minecraft.client.gui.screen.Screen
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.entity.player.PlayerInventory
+import net.minecraft.inventory.container.Container
+import net.minecraft.tileentity.TileEntity
 import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
-import net.minecraft.world.storage.MapData
+import net.minecraft.util.text.ITextComponent
+import net.minecraft.util.text.TranslationTextComponent
+import net.minecraft.inventory.container.INamedContainerProvider
+import net.minecraft.util.ResourceLocation
+import net.minecraft.util.text.StringTextComponent
+import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler
-import net.minecraftforge.fml.common.network.IGuiHandler
+import net.minecraftforge.fml.network.FMLPlayMessages
 import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.client.gui.*
-import org.jglrxavpok.moarboats.common.containers.ContainerMappingTable
-import org.jglrxavpok.moarboats.common.containers.EnergyContainer
-import org.jglrxavpok.moarboats.common.containers.FluidContainer
-import org.jglrxavpok.moarboats.common.data.BoatPathHolder
-import org.jglrxavpok.moarboats.common.data.GoldenTicketPathHolder
-import org.jglrxavpok.moarboats.common.data.MapWithPathHolder
+import org.jglrxavpok.moarboats.client.gui.GuiEnergy
+import org.jglrxavpok.moarboats.client.gui.GuiMappingTable
+import org.jglrxavpok.moarboats.common.containers.*
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
-import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
-import org.jglrxavpok.moarboats.common.items.ItemMapWithPath
-import org.jglrxavpok.moarboats.common.modules.HelmModule
-import org.jglrxavpok.moarboats.common.state.EmptyMapData
-import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergy
-import org.jglrxavpok.moarboats.common.tileentity.TileEntityListenable
-import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
+import org.jglrxavpok.moarboats.common.tileentity.*
+import org.jglrxavpok.moarboats.extensions.use
 
-object MoarBoatsGuiHandler: IGuiHandler {
-    override fun getClientGuiElement(ID: Int, player: EntityPlayer, world: World, x: Int, y: Int, z: Int): Any? {
-        return when(ID) {
-            ModulesGui -> {
-                val boatID = x
-                val boat = world.getEntityByID(boatID) as? ModularBoatEntity ?: return null
-                // y below 0 means that the menu should display the most interesting module first (generally engine > storage > navigation > misc.)
-                val module = if(y < 0) boat.findFirstModuleToShowOnGui() else boat.modules[y]
-                module.createGui(player, boat)
-            }
-            PathEditor -> {
-                val boatID = x
-                val boat = world.getEntityByID(boatID) as? ModularBoatEntity ?: return null
-                if(HelmModule in boat.modules) {
-                    val inventory = boat.getInventory(HelmModule)
-                    val stack = inventory.list[0]
-                    when(stack.item) {
-                        is ItemMap -> {
-                            val mapData = HelmModule.mapDataCopyProperty[boat]
-                            if(mapData != EmptyMapData) {
-                                GuiPathEditor(player, BoatPathHolder(boat), mapData)
-                            } else {
-                                null
-                            }
-                        }
-                        is ItemMapWithPath -> {
-                            val id = stack.tagCompound!!.getString("${MoarBoats.ModID}.mapID")
-                            val mapData = MoarBoats.getLocalMapStorage().getOrLoadData(MapData::class.java, id) as? MapData
-                            if(mapData != null && mapData != EmptyMapData) {
-                                GuiPathEditor(player, MapWithPathHolder(stack, null, boat), mapData)
-                            } else {
-                                null
-                            }
-                        }
-                        is ItemGoldenTicket -> {
-                            val id = ItemGoldenTicket.getData(stack).mapID
-                            val mapData = MoarBoats.getLocalMapStorage().getOrLoadData(MapData::class.java, id) as? MapData
-                            if(mapData != null && mapData != EmptyMapData) {
-                                GuiPathEditor(player, GoldenTicketPathHolder(stack, null, boat), mapData)
-                            } else {
-                                null
-                            }
-                        }
-                        else -> null
-                    }
-                } else {
-                    null // NO HELM
-                }
-            }
-            EnergyGui -> {
-                val pos = BlockPos.PooledMutableBlockPos.retain(x, y, z)
-                val te = world.getTileEntity(pos)
-                pos.release()
-                if(te is TileEntityEnergy) {
-                    GuiEnergy(te, player)
+object MoarBoatsGuiHandler {
+
+    class ModulesGuiInteraction(val boatID: Int, val moduleIndex: Int, val id: String): INamedContainerProvider {
+        override fun getDisplayName(): ITextComponent {
+            return StringTextComponent(id)
+        }
+
+        override fun createMenu(containerID: Int, playerInventory: PlayerInventory, player: PlayerEntity): Container? {
+            val level = player.world
+            val boat = level.getEntityByID(boatID) as? ModularBoatEntity ?: return null
+            // y below 0 means that the menu should display the most interesting module first (generally engine > storage > navigation > misc.)
+            val module = if(moduleIndex < 0) boat.findFirstModuleToShowOnGui() else boat.modules[moduleIndex]
+            return module.createContainer(containerID, player, boat)
+        }
+
+    }
+
+    open class TileEntityInteraction<TE: TileEntity>(val identifier: String, val x: Int, val y: Int, val z: Int, val containerGenerator: (Int, TileEntity?, PlayerInventory, PlayerEntity) -> Container? = { _0, _1, _2, _3 -> null }): INamedContainerProvider {
+        override fun getDisplayName(): ITextComponent {
+            return TranslationTextComponent("${MoarBoats.ModID}.inventory.$identifier.name")
+        }
+
+        override fun createMenu(containerID: Int, playerInventory: PlayerInventory, playerIn: PlayerEntity): Container? {
+            return BlockPos.PooledMutableBlockPos.retain(x, y, z).use {
+                val te = playerIn.world.getTileEntity(it) as? TE
+                if(te != null) {
+                    containerGenerator(containerID, te, playerInventory, playerIn)
                 } else {
                     null
                 }
             }
-            FluidGui -> {
-                val pos = BlockPos.PooledMutableBlockPos.retain(x, y, z)
-                val te = world.getTileEntity(pos)
-                pos.release()
-                when {
-                    te == null -> null
-                    te is TileEntityListenable && te.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null) ->
-                        GuiFluid(te, te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null)!!, player)
-                    else -> null
-                }
-            }
-            MappingTableGui -> {
-                val pos = BlockPos.PooledMutableBlockPos.retain(x, y, z)
-                val te = world.getTileEntity(pos)
-                pos.release()
-                when (te) {
-                    null -> null
-                    is TileEntityMappingTable -> GuiMappingTable(te, player.inventory)
-                    else -> null
-                }
-            }
-            WaypointEditor -> {
-                val pos = BlockPos.PooledMutableBlockPos.retain(x, y, z)
-                val te = world.getTileEntity(pos)
-                pos.release()
-                when (te) {
-                    null -> null
-                    is TileEntityMappingTable -> {
-                        val stack = te.inventory.getStackInSlot(0)
-                        val index = (Minecraft.getMinecraft().currentScreen as? GuiMappingTable)?.selectedIndex ?: 0
-                        val pathNBT = (stack.item as org.jglrxavpok.moarboats.common.items.ItemPath).getWaypointData(stack, MoarBoats.getLocalMapStorage())
-                        if(index !in 0 until pathNBT.tagCount()) {
-                            null
-                        } else {
-                            GuiWaypointEditor(player, te, index)
-                        }
-                    }
-                    else -> null
-                }
-            }
-            else -> null
         }
+
     }
 
-    override fun getServerGuiElement(ID: Int, player: EntityPlayer, world: World, x: Int, y: Int, z: Int): Any? {
-        return when(ID) {
-            ModulesGui -> {
-                val boatID = x
-                val boat = world.getEntityByID(boatID) as? ModularBoatEntity ?: return null
-                // y below 0 means that the menu should display the most interesting module first (generally engine > storage > navigation > misc.)
-                val module = if(y < 0) boat.findFirstModuleToShowOnGui() else boat.modules[y]
-                module.createContainer(player, boat)
-            }
-            PathEditor -> null
-            EnergyGui -> {
-                val pos = BlockPos.PooledMutableBlockPos.retain(x, y, z)
-                val te = world.getTileEntity(pos)
-                pos.release()
-                if(te is TileEntityEnergy) {
-                    EnergyContainer(te, player)
-                }
-                else {
-                    null
-                }
-            }
-            FluidGui -> {
-                val pos = BlockPos.PooledMutableBlockPos.retain(x, y, z)
-                val te = world.getTileEntity(pos)
-                pos.release()
-                when {
-                    te == null -> null
-                    te is TileEntityListenable && te.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null) ->
-                        FluidContainer(te, te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null)!!, player)
-                    else -> null
-                }
-            }
-            MappingTableGui -> {
-                val pos = BlockPos.PooledMutableBlockPos.retain(x, y, z)
-                val te = world.getTileEntity(pos)
-                pos.release()
-                when (te) {
-                    null -> null
-                    is TileEntityMappingTable -> ContainerMappingTable(te, player.inventory)
-                    else -> null
-                }
-            }
-            WaypointEditor -> null
-            else -> null
-        }
-    }
-
-    val ModulesGui: Int = 0
-    val PathEditor: Int = 1
-    val EnergyGui: Int = 2
-    val FluidGui: Int = 3
-    val MappingTableGui: Int = 4
-    val WaypointEditor: Int = 5
+    class EnergyChargerGuiInteraction(x: Int, y: Int, z: Int): TileEntityInteraction<TileEntityEnergy>("energy_charger", x, y, z, { containerID, te, inv, player -> EnergyContainer(ContainerTypes.EnergyCharger, containerID, te as TileEntityEnergy, player) })
+    class EnergyDischargerGuiInteraction(x: Int, y: Int, z: Int): TileEntityInteraction<TileEntityEnergy>("energy_discharger", x, y, z, { containerID, te, inv, player -> EnergyContainer(ContainerTypes.EnergyDischarger, containerID, te as TileEntityEnergy, player) })
+    class FluidLoaderGuiInteraction(x: Int, y: Int, z: Int): TileEntityInteraction<TileEntityFluidLoader>("fluid", x, y, z, { containerID, te, inv, player -> FluidContainer(ContainerTypes.FluidLoader, containerID, te as TileEntityListenable, te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY).orElseThrow(::NullPointerException), player) })
+    class FluidUnloaderGuiInteraction(x: Int, y: Int, z: Int): TileEntityInteraction<TileEntityFluidUnloader>("fluid", x, y, z, { containerID, te, inv, player -> FluidContainer(ContainerTypes.FluidUnloader, containerID, te as TileEntityListenable, te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY).orElseThrow(::NullPointerException), player) })
+    class MappingTableGuiInteraction(x: Int, y: Int, z: Int): TileEntityInteraction<TileEntityMappingTable>("mapping_table", x, y, z, { containerID, te, inv, player -> ContainerMappingTable(containerID, te as TileEntityMappingTable, inv) })
 }

@@ -1,40 +1,24 @@
 package org.jglrxavpok.moarboats.common.network
 
-import io.netty.buffer.ByteBuf
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.nbt.NBTTagList
-import net.minecraftforge.common.util.Constants
-import net.minecraftforge.fml.common.network.ByteBufUtils
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
-import net.minecraftforge.fml.relauncher.Side
+import net.minecraft.nbt.ListNBT
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.fml.network.NetworkEvent
 
-abstract class SxxUpdateMapWithPath: IMessage {
+abstract class SxxUpdateMapWithPath: MoarBoatsPacket {
 
     constructor()
 
-    lateinit var list: NBTTagList
+    lateinit var list: ListNBT
 
-    constructor(waypointList: NBTTagList) {
+    constructor(waypointList: ListNBT) {
         this.list = waypointList
     }
 
-    override fun fromBytes(buf: ByteBuf) {
-        val tag = ByteBufUtils.readTag(buf) as NBTTagCompound
-        list = tag.getTagList("list", Constants.NBT.TAG_COMPOUND)
-    }
+    abstract class Handler<T: SxxUpdateMapWithPath>: MBMessageHandler<T, MoarBoatsPacket?> {
+        abstract fun updatePath(message: T, ctx: NetworkEvent.Context, list: ListNBT)
+        override val receiverSide = Dist.CLIENT
 
-    override fun toBytes(buf: ByteBuf) {
-        val tag = NBTTagCompound().apply { setTag("list", list) }
-        ByteBufUtils.writeTag(buf, tag)
-    }
-
-    abstract class Handler<T: SxxUpdateMapWithPath>: MBMessageHandler<T, IMessage?> {
-        abstract fun updatePath(message: T, ctx: MessageContext, list: NBTTagList)
-        override val receiverSide = Side.CLIENT
-
-        override fun onMessage(message: T, ctx: MessageContext): IMessage? {
+        override fun onMessage(message: T, ctx: NetworkEvent.Context): MoarBoatsPacket? {
             val list = message.list
             updatePath(message, ctx, list)
             return null

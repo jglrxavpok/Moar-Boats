@@ -1,72 +1,59 @@
 package org.jglrxavpok.moarboats.common.blocks
 
 import net.minecraft.block.Block
-import net.minecraft.block.BlockDirectional
-import net.minecraft.block.material.Material
-import net.minecraft.block.properties.PropertyEnum
-import net.minecraft.block.state.BlockStateContainer
-import net.minecraft.block.state.IBlockState
-import net.minecraft.entity.EntityLivingBase
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.inventory.InventoryBasic
-import net.minecraft.inventory.ItemStackHelper
+import net.minecraft.block.BlockState
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.entity.player.ServerPlayerEntity
+import net.minecraft.item.BlockItemUseContext
+import net.minecraft.state.StateContainer
 import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.EnumFacing
-import net.minecraft.util.EnumHand
+import net.minecraft.util.Direction
+import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.BlockRayTraceResult
+import net.minecraft.world.IBlockReader
 import net.minecraft.world.World
+import net.minecraftforge.fml.network.NetworkHooks
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergyLoader
-import org.jglrxavpok.moarboats.common.tileentity.TileEntityFluidUnloader
 
-object BlockEnergyLoader: Block(MoarBoats.MachineMaterial) {
+object BlockEnergyLoader: MoarBoatsBlock() {
 
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "boat_energy_charger")
-        unlocalizedName = "boat_energy_charger"
-        setCreativeTab(MoarBoats.CreativeTab)
-        defaultState = blockState.baseState.withProperty(Facing, EnumFacing.UP)
-        setHardness(0.5f)
+        defaultState = stateContainer.baseState.with(Facing, Direction.UP)
     }
 
-    override fun createBlockState(): BlockStateContainer {
-        return BlockStateContainer(this, Facing)
+    override fun fillStateContainer(builder: StateContainer.Builder<Block, BlockState>) {
+        builder.add(Facing)
     }
 
     override fun hasTileEntity() = true
-    override fun hasTileEntity(state: IBlockState) = true
+    override fun hasTileEntity(state: BlockState) = true
 
-    override fun createTileEntity(world: World?, state: IBlockState?): TileEntity? {
+    override fun createTileEntity(state: BlockState?, level: IBlockReader?): TileEntity? {
         return TileEntityEnergyLoader()
     }
 
-    override fun getStateForPlacement(worldIn: World, pos: BlockPos, facing: EnumFacing, hitX: Float, hitY: Float, hitZ: Float, meta: Int, placer: EntityLivingBase): IBlockState {
-        return this.defaultState.withProperty(BlockDirectional.FACING, EnumFacing.getDirectionFromEntityLiving(pos, placer))
+    override fun getStateForPlacement(context: BlockItemUseContext): BlockState? {
+        return this.defaultState.with(Facing, context.nearestLookingDirection)
     }
 
-    override fun onBlockActivated(worldIn: World, pos: BlockPos, state: IBlockState?, playerIn: EntityPlayer, hand: EnumHand?, facing: EnumFacing?, hitX: Float, hitY: Float, hitZ: Float): Boolean {
+    override fun onBlockActivated(state: BlockState, worldIn: World, pos: BlockPos, player: PlayerEntity, handIn: Hand, hit: BlockRayTraceResult): Boolean {
         if(worldIn.isRemote)
             return true
-        playerIn.openGui(MoarBoats, MoarBoatsGuiHandler.EnergyGui, worldIn, pos.x, pos.y, pos.z)
+        NetworkHooks.openGui(player as ServerPlayerEntity, MoarBoatsGuiHandler.EnergyChargerGuiInteraction(pos.x, pos.y, pos.z), pos)
         return true
     }
 
-    override fun getStateFromMeta(meta: Int): IBlockState {
-        return defaultState.withProperty(Facing, EnumFacing.values()[meta % EnumFacing.values().size])
-    }
-
-    override fun getMetaFromState(state: IBlockState): Int {
-        return state.getValue(Facing).ordinal
-    }
-
-    override fun hasComparatorInputOverride(state: IBlockState): Boolean {
+    override fun hasComparatorInputOverride(state: BlockState): Boolean {
         return true
     }
 
-    override fun getComparatorInputOverride(blockState: IBlockState, worldIn: World, pos: BlockPos): Int {
-        return (worldIn.getTileEntity(pos) as? TileEntityEnergyLoader)?.getRedstonePower() ?: 0
+    override fun getComparatorInputOverride(blockState: BlockState, levelIn: World, pos: BlockPos): Int {
+        return (levelIn.getTileEntity(pos) as? TileEntityEnergyLoader)?.getRedstonePower() ?: 0
     }
 
 }

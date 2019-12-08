@@ -1,15 +1,17 @@
 package org.jglrxavpok.moarboats.common.containers
 
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.entity.player.InventoryPlayer
-import net.minecraft.inventory.*
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.entity.player.PlayerInventory
+import net.minecraft.inventory.container.ContainerType
+import net.minecraft.inventory.container.Slot
 import net.minecraft.item.ItemStack
-import net.minecraftforge.fml.relauncher.Side
-import net.minecraftforge.fml.relauncher.SideOnly
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.api.distmarker.OnlyIn
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
+import org.jglrxavpok.moarboats.common.modules.ChestModule
 
-class ContainerChestModule(playerInventory: InventoryPlayer, val engine: BoatModule, val boat: IControllable): ContainerBase(playerInventory) {
+class ContainerChestModule(containerID: Int, playerInventory: PlayerInventory, engine: BoatModule, boat: IControllable): ContainerBoatModule<ContainerChestModule>(ChestModule.containerType as ContainerType<ContainerChestModule>, containerID, playerInventory, engine, boat) {
 
     val chestInventory = boat.getInventory(engine)
 
@@ -17,24 +19,20 @@ class ContainerChestModule(playerInventory: InventoryPlayer, val engine: BoatMod
         val numRows = 3
         for (j in 0 until numRows) {
             for (k in 0..8) {
-                this.addSlotToContainer(Slot(chestInventory, k + j * 9, 8 + k * 18, 18 + j * 18 -2))
+                this.addSlot(Slot(chestInventory, k + j * 9, 8 + k * 18, 18 + j * 18 -2))
             }
         }
 
         addPlayerSlots(isLarge = false)
+        this.trackIntArray(chestInventory.additionalData)
     }
 
-    override fun addListener(listener: IContainerListener) {
-        super.addListener(listener)
-        listener.sendAllWindowProperties(this, chestInventory)
-    }
-
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     override fun updateProgressBar(id: Int, data: Int) {
         this.chestInventory.setField(id, data)
     }
 
-    override fun transferStackInSlot(playerIn: EntityPlayer, index: Int): ItemStack {
+    override fun transferStackInSlot(playerIn: PlayerEntity, index: Int): ItemStack {
         var itemstack = ItemStack.EMPTY
         val slot = this.inventorySlots[index]
 

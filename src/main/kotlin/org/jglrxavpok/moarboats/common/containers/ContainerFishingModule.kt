@@ -1,36 +1,34 @@
 package org.jglrxavpok.moarboats.common.containers
 
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.entity.player.InventoryPlayer
-import net.minecraft.init.Items
-import net.minecraft.inventory.*
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.entity.player.PlayerInventory
+import net.minecraft.inventory.container.ContainerType
+import net.minecraft.item.Items
+import net.minecraft.inventory.container.IContainerListener
 import net.minecraft.item.ItemStack
-import net.minecraftforge.fml.relauncher.Side
-import net.minecraftforge.fml.relauncher.SideOnly
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.api.distmarker.OnlyIn
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
+import org.jglrxavpok.moarboats.common.modules.FishingModule
 
-class ContainerFishingModule(playerInventory: InventoryPlayer, val fishingModule: BoatModule, val boat: IControllable): ContainerBase(playerInventory) {
+class ContainerFishingModule(containerID: Int, playerInventory: PlayerInventory, fishingModule: BoatModule, boat: IControllable): ContainerBoatModule<ContainerFishingModule>(FishingModule.containerType as ContainerType<ContainerFishingModule>, containerID, playerInventory, fishingModule, boat) {
 
     val fishingModuleInv = boat.getInventory(fishingModule)
 
     init {
-        this.addSlotToContainer(SlotFishingRod(fishingModuleInv, 0, 80, 36))
+        this.addSlot(SlotFishingRod(fishingModuleInv, 0, 80, 36))
 
         addPlayerSlots(isLarge = false)
+        this.trackIntArray(fishingModuleInv.additionalData)
     }
 
-    override fun addListener(listener: IContainerListener) {
-        super.addListener(listener)
-        listener.sendAllWindowProperties(this, fishingModuleInv)
-    }
-
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     override fun updateProgressBar(id: Int, data: Int) {
         this.fishingModuleInv.setField(id, data)
     }
 
-    override fun transferStackInSlot(playerIn: EntityPlayer, index: Int): ItemStack {
+    override fun transferStackInSlot(playerIn: PlayerEntity, index: Int): ItemStack {
         var itemstack = ItemStack.EMPTY
         val slot = this.inventorySlots[index]
 

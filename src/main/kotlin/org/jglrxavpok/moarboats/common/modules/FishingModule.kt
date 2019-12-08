@@ -1,29 +1,31 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.client.gui.GuiScreen
+import net.minecraft.client.gui.screen.Screen
 import net.minecraft.enchantment.EnchantmentHelper
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.init.Items
-import net.minecraft.init.SoundEvents
-import net.minecraft.item.ItemFishingRod
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.item.FishingRodItem
+import net.minecraft.item.Items
+import net.minecraft.util.SoundEvents
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.nbt.NBTTagList
-import net.minecraft.util.EnumHand
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.ListNBT
+import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.SoundCategory
-import net.minecraft.world.WorldServer
+import net.minecraft.world.server.ServerWorld
 import net.minecraft.world.storage.loot.LootContext
-import net.minecraft.world.storage.loot.LootTableList
+import net.minecraft.world.storage.loot.LootParameterSet
+import net.minecraft.world.storage.loot.LootTables
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.common.util.Constants
-import net.minecraftforge.fml.relauncher.Side
-import net.minecraftforge.fml.relauncher.SideOnly
+import net.minecraftforge.fml.network.PacketDistributor
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiFishingModule
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
-import org.jglrxavpok.moarboats.common.containers.ContainerBase
+import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
 import org.jglrxavpok.moarboats.common.containers.ContainerFishingModule
 import org.jglrxavpok.moarboats.common.network.SPlaySound
 import org.jglrxavpok.moarboats.common.state.BooleanBoatProperty
@@ -44,16 +46,16 @@ object FishingModule : BoatModule() {
     val lastLootProperty = NBTListBoatProperty("lastLoot", Constants.NBT.TAG_COMPOUND)
     val playingAnimationProperty = BooleanBoatProperty("playingAnimation")
 
-    @SideOnly(Side.CLIENT)
-    override fun createGui(player: EntityPlayer, boat: IControllable): GuiScreen {
-        return GuiFishingModule(player.inventory, this, boat)
+    @OnlyIn(Dist.CLIENT)
+    override fun createGui(containerID: Int, player: PlayerEntity, boat: IControllable): Screen {
+        return GuiFishingModule(containerID, player.inventory, this, boat)
     }
 
-    override fun createContainer(player: EntityPlayer, boat: IControllable): ContainerBase? {
-        return ContainerFishingModule(player.inventory, this, boat)
+    override fun createContainer(containerID: Int, player: PlayerEntity, boat: IControllable): ContainerBoatModule<*>? {
+        return ContainerFishingModule(containerID, player.inventory, this, boat)
     }
 
-    override fun onInteract(from: IControllable, player: EntityPlayer, hand: EnumHand, sneaking: Boolean): Boolean {
+    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean): Boolean {
         return false
     }
 
@@ -68,25 +70,26 @@ object FishingModule : BoatModule() {
 
         val inventory = from.getInventory()
         val rodStack = inventory.getStackInSlot(0)
-        val hasRod = rodStack.item is ItemFishingRod
+        val hasRod = rodStack.item is FishingRodItem
         if(ready && hasRod && !from.worldRef.isRemote && from.inLiquid() && !from.isEntityInLava()) { // you can go fishing
             storageModule as BoatModule
 
             val lureSpeed = EnchantmentHelper.getFishingSpeedBonus(rodStack)
 
-            val randNumber = from.moduleRNG.nextInt((400 - lureSpeed*50)*9) / MoarBoatsConfig.fishing.speedMultiplier
+            val randNumber = from.moduleRNG.nextInt((400 - lureSpeed*50)*9) / MoarBoatsConfig.fishing.speedMultiplier.get()
             if(randNumber <= 1f) {
                 val luck = EnchantmentHelper.getFishingLuckBonus(rodStack)
                 // catch fish
-                val builder = LootContext.Builder(from.worldRef as WorldServer)
+                val builder = LootContext.Builder(from.worldRef as ServerWorld)
                 builder.withLuck(luck.toFloat())
-                val result = from.worldRef.lootTableManager.getLootTableFromLocation(LootTableList.GAMEPLAY_FISHING).generateLootForPools(from.moduleRNG, builder.build())
-                val lootList = NBTTagList()
+                val params = LootParameterSet.Builder().build()
+                val result = from.worldRef.server!!.lootTableManager.getLootTableFromLocation(LootTables.GAMEPLAY_FISHING).generate(builder.build(params))
+                val lootList = ListNBT()
                 result.forEach {
-                    val info = NBTTagCompound()
-                    info.setString("name", it.item.registryName.toString())
-                    info.setInteger("damage", it.itemDamage)
-                    lootList.appendTag(info)
+                    val info = CompoundNBT()
+                    info.putString("name", it.item.registryName.toString())
+                    info.putInt("damage", it.damage)
+                    lootList.add(info)
                 }
                 lastLootProperty[from] = lootList
                 playingAnimationProperty[from] = true
@@ -104,19 +107,19 @@ object FishingModule : BoatModule() {
                     breakRod(from)
                     changeRodIfPossible(from)
                     return
-                } else if(rodStack.itemDamage >= rodStack.maxDamage - MoarBoatsConfig.fishing.remainingUsesBeforeRemoval) {
+                } else if(rodStack.damage >= rodStack.maxDamage - MoarBoatsConfig.fishing.remainingUsesBeforeRemoval.get()) {
                     changeRodIfPossible(from)
                     return
                 }
             }
         }
 
-        if(lastLootProperty[from].tagCount() > 0) {
+        if(lastLootProperty[from].size > 0) {
             val animationTick = animationTickProperty[from]++
             if (animationTick >= MaxAnimationTicks) {
                 animationTickProperty[from] = 0
                 playingAnimationProperty[from] = false
-                lastLootProperty[from] = NBTTagList() // empty the loot list
+                lastLootProperty[from] = ListNBT() // empty the loot list
             }
         } else {
             animationTickProperty[from] = 0
@@ -132,7 +135,7 @@ object FishingModule : BoatModule() {
             var foundReplacement = false
             for(index in 0 until storageInventory.sizeInventory) {
                 val stack = storageInventory.getStackInSlot(index)
-                if(stack.item is ItemFishingRod && stack.itemDamage < stack.maxDamage - MoarBoatsConfig.fishing.remainingUsesBeforeRemoval) {
+                if(stack.item is FishingRodItem && stack.damage < stack.maxDamage - MoarBoatsConfig.fishing.remainingUsesBeforeRemoval.get()) {
                     // Swap rods if possible
                     foundReplacement = true
                     storageInventory.setInventorySlotContents(index, inventory.getStackInSlot(0))
@@ -152,7 +155,7 @@ object FishingModule : BoatModule() {
 
     private fun breakRod(from: IControllable) {
         from.getInventory().setInventorySlotContents(0, ItemStack.EMPTY)
-        MoarBoats.network.sendToAll(SPlaySound(from.positionX, from.positionY, from.positionZ, SoundEvents.ITEM_SHIELD_BREAK, SoundCategory.PLAYERS, 0.8f, 0.8f + Math.random().toFloat() * 0.4f))
+        MoarBoats.network.send(PacketDistributor.ALL.noArg(), SPlaySound(from.positionX, from.positionY, from.positionZ, SoundEvents.ITEM_SHIELD_BREAK, SoundCategory.PLAYERS, 0.8f, 0.8f + Math.random().toFloat() * 0.4f))
     }
 
     override fun onAddition(to: IControllable) {
@@ -168,6 +171,6 @@ object FishingModule : BoatModule() {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.dropItem(Items.FISHING_ROD, 1)
+            boat.correspondingEntity.entityDropItem(Items.FISHING_ROD, 1)
     }
 }

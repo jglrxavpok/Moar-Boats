@@ -1,71 +1,68 @@
 package org.jglrxavpok.moarboats.common.blocks
 
-import net.minecraft.block.Block
+import net.minecraft.block.BlockState
 import net.minecraft.block.SoundType
-import net.minecraft.block.material.Material
-import net.minecraft.block.state.IBlockState
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.init.Blocks
-import net.minecraft.inventory.Container
-import net.minecraft.inventory.IInventory
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.entity.player.ServerPlayerEntity
+import net.minecraft.inventory.container.Container
 import net.minecraft.inventory.InventoryHelper
 import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.EnumFacing
-import net.minecraft.util.EnumHand
+import net.minecraft.util.Direction
+import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.BlockRayTraceResult
+import net.minecraft.world.IBlockReader
 import net.minecraft.world.World
+import net.minecraftforge.fml.network.NetworkHooks
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 
-object BlockMappingTable: Block(MoarBoats.MachineMaterial) {
+object BlockMappingTable: MoarBoatsBlock({ sound(SoundType.STONE).hardnessAndResistance(2.5f, 20f)}) {
 
     init {
-        soundType = SoundType.STONE
-        blockHardness = 2.5f
         registryName = ResourceLocation(MoarBoats.ModID, "mapping_table")
-        unlocalizedName = "mapping_table"
-        setCreativeTab(MoarBoats.CreativeTab)
     }
 
     override fun hasTileEntity() = true
 
-    override fun hasTileEntity(state: IBlockState) = true
+    override fun hasTileEntity(state: BlockState) = true
 
-    override fun createTileEntity(world: World, state: IBlockState): TileEntity {
+    override fun createTileEntity(state: BlockState?, level: IBlockReader?): TileEntity? {
         return TileEntityMappingTable()
     }
 
     /**
      * Called serverside after this block is replaced with another in Chunk, but before the Tile Entity is updated
      */
-    override fun breakBlock(worldIn: World, pos: BlockPos, state: IBlockState) {
-        val tileentity = worldIn.getTileEntity(pos)
+    //BlockState state, level levelIn, BlockPos pos, BlockState newState, boolean isMoving)
+    override fun onReplaced(state: BlockState, levelIn: World, pos: BlockPos, newState: BlockState, isMoving: Boolean) {
+        val tileentity = levelIn.getTileEntity(pos)
 
         if (tileentity is TileEntityMappingTable) {
-            InventoryHelper.dropInventoryItems(worldIn, pos, tileentity.inventory)
-            worldIn.updateComparatorOutputLevel(pos, this)
+            InventoryHelper.dropInventoryItems(levelIn, pos, tileentity.inventory)
+            levelIn.updateComparatorOutputLevel(pos, this)
         }
 
-        super.breakBlock(worldIn, pos, state)
+        super.onReplaced(state, levelIn, pos, newState, isMoving)
     }
 
-    override fun hasComparatorInputOverride(state: IBlockState): Boolean {
+    override fun hasComparatorInputOverride(state: BlockState): Boolean {
         return true
     }
 
-    override fun getComparatorInputOverride(blockState: IBlockState, worldIn: World, pos: BlockPos): Int {
-        return (worldIn.getTileEntity(pos) as? TileEntityMappingTable)?.let {
+    override fun getComparatorInputOverride(blockState: BlockState, levelIn: World, pos: BlockPos): Int {
+        return (levelIn.getTileEntity(pos) as? TileEntityMappingTable)?.let {
             Container.calcRedstoneFromInventory(it.inventory)
         } ?: 0
     }
 
-    override fun onBlockActivated(worldIn: World, pos: BlockPos, state: IBlockState?, playerIn: EntityPlayer, hand: EnumHand?, facing: EnumFacing?, hitX: Float, hitY: Float, hitZ: Float): Boolean {
-        if(worldIn.isRemote) {
+    override fun onBlockActivated(state: BlockState, levelIn: World, pos: BlockPos, playerIn: PlayerEntity, hand: Hand?, hit: BlockRayTraceResult): Boolean {
+        if(levelIn.isRemote) {
             return true
         }
-        playerIn.openGui(MoarBoats, MoarBoatsGuiHandler.MappingTableGui, worldIn, pos.x, pos.y, pos.z)
+        NetworkHooks.openGui(playerIn as ServerPlayerEntity, MoarBoatsGuiHandler.MappingTableGuiInteraction(pos.x, pos.y, pos.z), pos)
         return true
     }
 }
