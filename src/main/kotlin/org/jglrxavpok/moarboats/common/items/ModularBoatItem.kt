@@ -12,6 +12,9 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.entities.AnimalBoatEntity
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
+import org.jglrxavpok.moarboats.common.entities.utilityboats.BlastFurnaceBoatEntity
+import org.jglrxavpok.moarboats.common.entities.utilityboats.FurnaceBoatEntity
+import org.jglrxavpok.moarboats.common.entities.utilityboats.SmokerBoatEntity
 import org.jglrxavpok.moarboats.extensions.Fluids
 
 class ModularBoatItem(val dyeColor: DyeColor): BaseBoatItem() {
@@ -86,6 +89,39 @@ object AnimalBoatItem: BaseBoatItem() {
 
     override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
         return AnimalBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z)
+    }
+}
+
+object FurnaceBoatItem: BaseBoatItem() {
+
+    init {
+        registryName = ResourceLocation(MoarBoats.ModID, "furnace_boat")
+    }
+
+    override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
+        return FurnaceBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z)
+    }
+}
+
+object SmokerBoatItem: BaseBoatItem() {
+
+    init {
+        registryName = ResourceLocation(MoarBoats.ModID, "smoker_boat")
+    }
+
+    override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
+        return SmokerBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z)
+    }
+}
+
+object BlastFurnaceBoatItem: BaseBoatItem() {
+
+    init {
+        registryName = ResourceLocation(MoarBoats.ModID, "blast_furnace_boat")
+    }
+
+    override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
+        return BlastFurnaceBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z)
     }
 }
 

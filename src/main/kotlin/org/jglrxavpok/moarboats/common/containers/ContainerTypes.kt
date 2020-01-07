@@ -1,6 +1,8 @@
 package org.jglrxavpok.moarboats.common.containers
 
 import net.minecraft.inventory.container.ContainerType
+import net.minecraft.inventory.container.FurnaceContainer
+import net.minecraft.inventory.container.SmokerContainer
 import net.minecraftforge.registries.ObjectHolder
 import org.jglrxavpok.moarboats.MoarBoats
 
@@ -22,4 +24,13 @@ object ContainerTypes {
 
     @JvmStatic
     lateinit var EnergyDischarger: ContainerType<EnergyContainer>
+
+    @JvmStatic
+    lateinit var FurnaceBoat: ContainerType<UtilityFurnaceContainer>
+
+    @JvmStatic
+    lateinit var SmokerBoat: ContainerType<UtilitySmokerContainer>
+
+    @JvmStatic
+    lateinit var BlastFurnaceBoat: ContainerType<UtilityBlastFurnaceContainer>
 }

@@ -24,7 +24,12 @@ object Items {
             MapItemWithPath,
             ChunkLoaderItem,
             OarsItem,
-            CargoStopperItem
+            CargoStopperItem,
+
+            FurnaceBoatItem,
+            SmokerBoatItem,
+            BlastFurnaceBoatItem
+
     )
 
 }

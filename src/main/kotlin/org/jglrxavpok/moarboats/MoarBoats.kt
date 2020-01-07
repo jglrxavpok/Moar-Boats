@@ -9,6 +9,8 @@ import net.minecraft.block.material.PushReaction
 import net.minecraft.client.Minecraft
 import net.minecraft.entity.EntityType
 import net.minecraft.inventory.container.ContainerType
+import net.minecraft.inventory.container.FurnaceContainer
+import net.minecraft.inventory.container.SmokerContainer
 import net.minecraft.item.*
 import net.minecraft.item.crafting.IRecipeSerializer
 import net.minecraft.network.datasync.DataSerializers
@@ -46,6 +48,9 @@ import org.jglrxavpok.moarboats.client.ClientEvents
 import org.jglrxavpok.moarboats.common.*
 import org.jglrxavpok.moarboats.common.blocks.*
 import org.jglrxavpok.moarboats.common.containers.*
+import org.jglrxavpok.moarboats.common.entities.utilityboats.BlastFurnaceBoatEntity
+import org.jglrxavpok.moarboats.common.entities.utilityboats.FurnaceBoatEntity
+import org.jglrxavpok.moarboats.common.entities.utilityboats.SmokerBoatEntity
 import org.jglrxavpok.moarboats.common.items.*
 import org.jglrxavpok.moarboats.common.modules.*
 import org.jglrxavpok.moarboats.common.modules.inventories.ChestModuleInventory
@@ -320,6 +325,36 @@ object MoarBoats {
                 return@create EmptyContainer(windowId, inv)
             }.setRegistryName(ModID, "none") as ContainerType<EmptyContainer>
             event.registry.register(ContainerTypes.Empty)
+
+            ContainerTypes.FurnaceBoat = IForgeContainerType.create { windowId, inv, data ->
+                val player = inv.player
+                val entityID = data.readInt()
+                val te = player.world.getEntityByID(entityID) as? FurnaceBoatEntity
+                te?.let {
+                    return@create te.createMenu(windowId, player.inventory, player)
+                }
+            }.setRegistryName(ModID, "furnace_boat") as ContainerType<UtilityFurnaceContainer>
+            event.registry.register(ContainerTypes.FurnaceBoat)
+
+            ContainerTypes.SmokerBoat = IForgeContainerType.create { windowId, inv, data ->
+                val player = inv.player
+                val entityID = data.readInt()
+                val te = player.world.getEntityByID(entityID) as? SmokerBoatEntity
+                te?.let {
+                    return@create te.createMenu(windowId, player.inventory, player)
+                }
+            }.setRegistryName(ModID, "smoker_boat") as ContainerType<UtilitySmokerContainer>
+            event.registry.register(ContainerTypes.SmokerBoat)
+
+            ContainerTypes.BlastFurnaceBoat = IForgeContainerType.create { windowId, inv, data ->
+                val player = inv.player
+                val entityID = data.readInt()
+                val te = player.world.getEntityByID(entityID) as? BlastFurnaceBoatEntity
+                te?.let {
+                    return@create te.createMenu(windowId, player.inventory, player)
+                }
+            }.setRegistryName(ModID, "blast_furnace") as ContainerType<UtilityBlastFurnaceContainer>
+            event.registry.register(ContainerTypes.BlastFurnaceBoat)
         }
 
     }
