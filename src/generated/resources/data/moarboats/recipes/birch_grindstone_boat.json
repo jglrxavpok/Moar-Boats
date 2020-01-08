@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "moarboats:utility_boat_grindstone",
+  "ingredients": [
+    {
+      "item": "minecraft:birch_boat"
+    },
+    {
+      "item": "minecraft:grindstone"
+    }
+  ],
+  "result": {
+    "item": "moarboats:birch_grindstone_boat"
+  }
+}

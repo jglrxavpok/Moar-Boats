@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "moarboats:utility_boat_crafting_table",
+  "ingredients": [
+    {
+      "item": "minecraft:acacia_boat"
+    },
+    {
+      "item": "minecraft:crafting_table"
+    }
+  ],
+  "result": {
+    "item": "moarboats:acacia_crafting_table_boat"
+  }
+}

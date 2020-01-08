@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "moarboats:utility_boat_cartography_table",
+  "ingredients": [
+    {
+      "item": "minecraft:spruce_boat"
+    },
+    {
+      "item": "minecraft:cartography_table"
+    }
+  ],
+  "result": {
+    "item": "moarboats:spruce_cartography_table_boat"
+  }
+}

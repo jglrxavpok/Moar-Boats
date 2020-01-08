@@ -12,7 +12,6 @@ import net.minecraft.inventory.container.ContainerType
 import net.minecraft.item.*
 import net.minecraft.item.crafting.IRecipeSerializer
 import net.minecraft.network.datasync.DataSerializers
-import net.minecraft.resources.IResource
 import net.minecraft.resources.ResourcePackType
 import net.minecraft.server.dedicated.DedicatedServer
 import net.minecraft.tileentity.TileEntity
@@ -43,7 +42,7 @@ import org.jglrxavpok.moarboats.api.BoatModuleEntry
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.api.registerModule
 import org.jglrxavpok.moarboats.client.ClientEvents
-import org.jglrxavpok.moarboats.client.datagen.JsonModelGenerator
+import org.jglrxavpok.moarboats.datagen.JsonModelGenerator
 import org.jglrxavpok.moarboats.common.*
 import org.jglrxavpok.moarboats.common.blocks.*
 import org.jglrxavpok.moarboats.common.containers.*
@@ -54,6 +53,7 @@ import org.jglrxavpok.moarboats.common.modules.inventories.ChestModuleInventory
 import org.jglrxavpok.moarboats.common.modules.inventories.EngineModuleInventory
 import org.jglrxavpok.moarboats.common.modules.inventories.SimpleModuleInventory
 import org.jglrxavpok.moarboats.common.tileentity.*
+import org.jglrxavpok.moarboats.datagen.UtilityBoatRecipes
 import org.jglrxavpok.moarboats.integration.LoadIntegrationPlugins
 import org.jglrxavpok.moarboats.integration.MoarBoatsPlugin
 import org.jglrxavpok.moarboats.server.ServerEvents
@@ -406,6 +406,7 @@ object MoarBoats {
                 }
             }
             generator.addProvider(JsonModelGenerator(generator, ModID, existingFileHelper))
+            generator.addProvider(UtilityBoatRecipes(generator))
         }
     }
 }
