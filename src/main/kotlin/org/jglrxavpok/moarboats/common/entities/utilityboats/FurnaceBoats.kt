@@ -39,7 +39,7 @@ class FurnaceBoatEntity(world: World): AbstractFurnaceBoatEntity<FurnaceTileEnti
     }
 
     override fun getBoatItem(): Item {
-        return FurnaceBoatItem
+        return FurnaceBoatItem[boatType]
     }
 
     override fun getContainerType(): ContainerType<UtilityFurnaceContainer> {
@@ -66,7 +66,7 @@ class BlastFurnaceBoatEntity(world: World): AbstractFurnaceBoatEntity<BlastFurna
     }
 
     override fun getBoatItem(): Item {
-        return BlastFurnaceBoatItem
+        return BlastFurnaceBoatItem[boatType]
     }
 
     override fun getContainerType(): ContainerType<UtilityBlastFurnaceContainer> {
@@ -93,7 +93,7 @@ class SmokerBoatEntity(world: World): AbstractFurnaceBoatEntity<SmokerTileEntity
     }
 
     override fun getBoatItem(): Item {
-        return SmokerBoatItem
+        return SmokerBoatItem[boatType]
     }
 
     override fun getContainerType(): ContainerType<UtilitySmokerContainer> {

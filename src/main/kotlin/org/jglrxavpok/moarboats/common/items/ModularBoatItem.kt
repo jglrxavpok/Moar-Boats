@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.common.items
 
+import net.minecraft.entity.item.BoatEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.DyeColor
 import net.minecraft.item.Item
@@ -90,80 +91,122 @@ object AnimalBoatItem: BaseBoatItem() {
     }
 }
 
-object FurnaceBoatItem: BaseBoatItem() {
+class FurnaceBoatItem(val woodType: BoatEntity.Type): BaseBoatItem() {
+
+    companion object {
+        val AllVersions = BoatEntity.Type.values().map { FurnaceBoatItem(it) }.toTypedArray()
+
+        operator fun get(woodType: BoatEntity.Type) = AllVersions.first { it.woodType == woodType }
+    }
 
     init {
-        registryName = ResourceLocation(MoarBoats.ModID, "furnace_boat")
+        registryName = ResourceLocation(MoarBoats.ModID, "${woodType.getName()}_furnace_boat")
     }
 
     override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
-        return FurnaceBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z)
+        return FurnaceBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = woodType }
     }
 }
 
-object SmokerBoatItem: BaseBoatItem() {
+class SmokerBoatItem(val woodType: BoatEntity.Type): BaseBoatItem() {
+
+    companion object {
+        val AllVersions = BoatEntity.Type.values().map { SmokerBoatItem(it) }.toTypedArray()
+
+        operator fun get(woodType: BoatEntity.Type) = AllVersions.first { it.woodType == woodType }
+    }
 
     init {
-        registryName = ResourceLocation(MoarBoats.ModID, "smoker_boat")
+        registryName = ResourceLocation(MoarBoats.ModID, "${woodType.getName()}_smoker_boat")
     }
 
     override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
-        return SmokerBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z)
+        return SmokerBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = woodType }
     }
 }
 
-object BlastFurnaceBoatItem: BaseBoatItem() {
+class BlastFurnaceBoatItem(val woodType: BoatEntity.Type): BaseBoatItem() {
+
+    companion object {
+        val AllVersions = BoatEntity.Type.values().map { BlastFurnaceBoatItem(it) }.toTypedArray()
+
+        operator fun get(woodType: BoatEntity.Type) = AllVersions.first { it.woodType == woodType }
+    }
 
     init {
-        registryName = ResourceLocation(MoarBoats.ModID, "blast_furnace_boat")
+        registryName = ResourceLocation(MoarBoats.ModID, "${woodType.getName()}_blast_furnace_boat")
     }
 
     override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
-        return BlastFurnaceBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z)
+        return BlastFurnaceBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = woodType }
     }
 }
 
-object CraftingTableBoatItem: BaseBoatItem() {
+class CraftingTableBoatItem(val woodType: BoatEntity.Type): BaseBoatItem() {
+
+    companion object {
+        val AllVersions = BoatEntity.Type.values().map { CraftingTableBoatItem(it) }.toTypedArray()
+
+        operator fun get(woodType: BoatEntity.Type) = AllVersions.first { it.woodType == woodType }
+    }
 
     init {
-        registryName = ResourceLocation(MoarBoats.ModID, "crafting_table_boat")
+        registryName = ResourceLocation(MoarBoats.ModID, "${woodType.getName()}_crafting_table_boat")
     }
 
     override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
-        return CraftingTableBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z)
+        return CraftingTableBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = woodType }
     }
 }
 
-object GrindstoneBoatItem: BaseBoatItem() {
+class GrindstoneBoatItem(val woodType: BoatEntity.Type): BaseBoatItem() {
+
+    companion object {
+        val AllVersions = BoatEntity.Type.values().map { GrindstoneBoatItem(it) }.toTypedArray()
+
+        operator fun get(woodType: BoatEntity.Type) = AllVersions.first { it.woodType == woodType }
+    }
 
     init {
-        registryName = ResourceLocation(MoarBoats.ModID, "grindstone_boat")
+        registryName = ResourceLocation(MoarBoats.ModID, "${woodType.getName()}_grindstone_boat")
     }
 
     override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
-        return GrindstoneBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z)
+        return GrindstoneBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = woodType }
     }
 }
 
-object CartographyTableBoatItem: BaseBoatItem() {
+class CartographyTableBoatItem(val woodType: BoatEntity.Type): BaseBoatItem() {
+
+    companion object {
+        val AllVersions = BoatEntity.Type.values().map { CartographyTableBoatItem(it) }.toTypedArray()
+
+        operator fun get(woodType: BoatEntity.Type) = AllVersions.first { it.woodType == woodType }
+    }
 
     init {
-        registryName = ResourceLocation(MoarBoats.ModID, "cartography_table_boat")
+        registryName = ResourceLocation(MoarBoats.ModID, "${woodType.getName()}_cartography_table_boat")
     }
 
     override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
-        return CartographyTableBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z)
+        return CartographyTableBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = woodType }
     }
 }
 
-object LoomBoatItem: BaseBoatItem() {
+class LoomBoatItem(val woodType: BoatEntity.Type): BaseBoatItem() {
+
+    companion object {
+        val AllVersions = BoatEntity.Type.values().map { LoomBoatItem(it) }.toTypedArray()
+
+        operator fun get(woodType: BoatEntity.Type) = AllVersions.first { it.woodType == woodType }
+    }
 
     init {
-        registryName = ResourceLocation(MoarBoats.ModID, "loom_boat")
+        registryName = ResourceLocation(MoarBoats.ModID, "${woodType.getName()}_loom_boat")
     }
 
     override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
-        return LoomBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z)
+        return LoomBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = woodType }
     }
 }
 

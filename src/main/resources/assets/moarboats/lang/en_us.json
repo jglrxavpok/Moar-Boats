@@ -184,5 +184,8 @@
     "entity.moarboats.animal_boat": "Animal Boat",
 
     "item.moarboats.cargo_stopper": "Cargo Stopper",
-    "moarboats.tile.cargo_stopper.description": "Similar to a Waterborne Redstone Comparator. Emits in ALL directions (therefore can stop boats)."
+    "moarboats.tile.cargo_stopper.description": "Similar to a Waterborne Redstone Comparator. Emits in ALL directions (therefore can stop boats).",
+
+    "__comment": "6.1.0.0",
+    "moarboats.container.utility_boat": "%s Boat"
 }

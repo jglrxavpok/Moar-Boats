@@ -23,6 +23,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 import net.minecraft.util.text.ITextComponent
+import net.minecraft.util.text.TranslationTextComponent
 import net.minecraft.world.World
 import net.minecraftforge.fml.network.NetworkHooks
 import net.minecraftforge.fml.network.PacketDispatcher
@@ -44,7 +45,7 @@ import java.util.*
 abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, world: World): BasicBoatEntity(type, world), INamedContainerProvider
     where TE: TileEntity, C: Container
 {
-    private var boatType: BoatEntity.Type = BoatEntity.Type.OAK
+    internal var boatType: BoatEntity.Type = BoatEntity.Type.OAK
     // TODO: wood types
 
     companion object {
@@ -93,7 +94,7 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
 
     override fun getDisplayName(): ITextComponent {
         if(backingTileEntity is INamedContainerProvider) {
-            return backingTileEntity.displayName
+            return TranslationTextComponent("moarboats.container.utility_boat", backingTileEntity.displayName)
         }
         return super.getDisplayName()
     }

@@ -26,13 +26,13 @@ object Items {
             OarsItem,
             CargoStopperItem,
 
-            FurnaceBoatItem,
-            SmokerBoatItem,
-            BlastFurnaceBoatItem,
-            CraftingTableBoatItem,
-            GrindstoneBoatItem,
-            LoomBoatItem,
-            CartographyTableBoatItem
+            *FurnaceBoatItem.AllVersions,
+            *SmokerBoatItem.AllVersions,
+            *BlastFurnaceBoatItem.AllVersions,
+            *CraftingTableBoatItem.AllVersions,
+            *GrindstoneBoatItem.AllVersions,
+            *LoomBoatItem.AllVersions,
+            *CartographyTableBoatItem.AllVersions
 
     )
 
