@@ -48,9 +48,7 @@ import org.jglrxavpok.moarboats.client.ClientEvents
 import org.jglrxavpok.moarboats.common.*
 import org.jglrxavpok.moarboats.common.blocks.*
 import org.jglrxavpok.moarboats.common.containers.*
-import org.jglrxavpok.moarboats.common.entities.utilityboats.BlastFurnaceBoatEntity
-import org.jglrxavpok.moarboats.common.entities.utilityboats.FurnaceBoatEntity
-import org.jglrxavpok.moarboats.common.entities.utilityboats.SmokerBoatEntity
+import org.jglrxavpok.moarboats.common.entities.utilityboats.*
 import org.jglrxavpok.moarboats.common.items.*
 import org.jglrxavpok.moarboats.common.modules.*
 import org.jglrxavpok.moarboats.common.modules.inventories.ChestModuleInventory
@@ -355,6 +353,46 @@ object MoarBoats {
                 }
             }.setRegistryName(ModID, "blast_furnace") as ContainerType<UtilityBlastFurnaceContainer>
             event.registry.register(ContainerTypes.BlastFurnaceBoat)
+
+            ContainerTypes.CraftingBoat = IForgeContainerType.create { windowId, inv, data ->
+                val player = inv.player
+                val entityID = data.readInt()
+                val te = player.world.getEntityByID(entityID) as? CraftingTableBoatEntity
+                te?.let {
+                    return@create te.createMenu(windowId, player.inventory, player)
+                }
+            }.setRegistryName(ModID, "crafting_boat") as ContainerType<UtilityWorkbenchContainer>
+            event.registry.register(ContainerTypes.CraftingBoat)
+
+            ContainerTypes.GrindstoneBoat = IForgeContainerType.create { windowId, inv, data ->
+                val player = inv.player
+                val entityID = data.readInt()
+                val te = player.world.getEntityByID(entityID) as? GrindstoneBoatEntity
+                te?.let {
+                    return@create te.createMenu(windowId, player.inventory, player)
+                }
+            }.setRegistryName(ModID, "grindstone_boat") as ContainerType<UtilityGrindstoneContainer>
+            event.registry.register(ContainerTypes.GrindstoneBoat)
+
+            ContainerTypes.LoomBoat = IForgeContainerType.create { windowId, inv, data ->
+                val player = inv.player
+                val entityID = data.readInt()
+                val te = player.world.getEntityByID(entityID) as? LoomBoatEntity
+                te?.let {
+                    return@create te.createMenu(windowId, player.inventory, player)
+                }
+            }.setRegistryName(ModID, "loom_boat") as ContainerType<UtilityLoomContainer>
+            event.registry.register(ContainerTypes.LoomBoat)
+
+            ContainerTypes.CartographyTableBoat = IForgeContainerType.create { windowId, inv, data ->
+                val player = inv.player
+                val entityID = data.readInt()
+                val te = player.world.getEntityByID(entityID) as? CartographyTableBoatEntity
+                te?.let {
+                    return@create te.createMenu(windowId, player.inventory, player)
+                }
+            }.setRegistryName(ModID, "cartography_table_boat") as ContainerType<UtilityCartographyTableContainer>
+            event.registry.register(ContainerTypes.CartographyTableBoat)
         }
 
     }

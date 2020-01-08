@@ -12,9 +12,7 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.entities.AnimalBoatEntity
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
-import org.jglrxavpok.moarboats.common.entities.utilityboats.BlastFurnaceBoatEntity
-import org.jglrxavpok.moarboats.common.entities.utilityboats.FurnaceBoatEntity
-import org.jglrxavpok.moarboats.common.entities.utilityboats.SmokerBoatEntity
+import org.jglrxavpok.moarboats.common.entities.utilityboats.*
 import org.jglrxavpok.moarboats.extensions.Fluids
 
 class ModularBoatItem(val dyeColor: DyeColor): BaseBoatItem() {
@@ -122,6 +120,50 @@ object BlastFurnaceBoatItem: BaseBoatItem() {
 
     override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
         return BlastFurnaceBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z)
+    }
+}
+
+object CraftingTableBoatItem: BaseBoatItem() {
+
+    init {
+        registryName = ResourceLocation(MoarBoats.ModID, "crafting_table_boat")
+    }
+
+    override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
+        return CraftingTableBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z)
+    }
+}
+
+object GrindstoneBoatItem: BaseBoatItem() {
+
+    init {
+        registryName = ResourceLocation(MoarBoats.ModID, "grindstone_boat")
+    }
+
+    override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
+        return GrindstoneBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z)
+    }
+}
+
+object CartographyTableBoatItem: BaseBoatItem() {
+
+    init {
+        registryName = ResourceLocation(MoarBoats.ModID, "cartography_table_boat")
+    }
+
+    override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
+        return CartographyTableBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z)
+    }
+}
+
+object LoomBoatItem: BaseBoatItem() {
+
+    init {
+        registryName = ResourceLocation(MoarBoats.ModID, "loom_boat")
+    }
+
+    override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
+        return LoomBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z)
     }
 }
 

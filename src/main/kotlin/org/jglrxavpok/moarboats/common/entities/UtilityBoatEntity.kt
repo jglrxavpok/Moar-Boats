@@ -5,6 +5,7 @@ import net.minecraft.dispenser.IDispenseItemBehavior
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.LivingEntity
+import net.minecraft.entity.item.BoatEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.entity.player.ServerPlayerEntity
@@ -43,6 +44,7 @@ import java.util.*
 abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, world: World): BasicBoatEntity(type, world), INamedContainerProvider
     where TE: TileEntity, C: Container
 {
+    private var boatType: BoatEntity.Type = BoatEntity.Type.OAK
     // TODO: wood types
 
     companion object {
@@ -56,14 +58,14 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
     override val moduleRNG: Random
         get() = rand
 
-    private val backingTileEntity: TE
+    private val backingTileEntity: TE?
 
     init {
         backingTileEntity = initBackingTileEntity()
         this.preventEntitySpawning = true
     }
 
-    abstract fun initBackingTileEntity(): TE
+    abstract fun initBackingTileEntity(): TE?
     abstract fun getContainerType(): ContainerType<C>
 
     override fun controlBoat() {
@@ -81,6 +83,8 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
     }
 
     fun sendTileEntityUpdate() {
+        if(backingTileEntity == null)
+            return
         if(!world.isRemote) {
             val data = backingTileEntity.write(CompoundNBT())
             MoarBoats.network.send(PacketDistributor.ALL.noArg(), SUtilityTileEntityUpdate(entityID, data))
@@ -96,13 +100,15 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
 
     override fun tick() {
         super.tick()
-        backingTileEntity.pos = InvalidPosition
-        backingTileEntity.world = world
-        if(backingTileEntity is ITickableTileEntity) {
-            try {
-                backingTileEntity.tick()
-            } catch (e: Exception) {
-                // shhhh, don't crash because you are not a block plz
+        if(backingTileEntity != null) {
+            backingTileEntity.pos = InvalidPosition
+            backingTileEntity.world = world
+            if(backingTileEntity is ITickableTileEntity) {
+                try {
+                    backingTileEntity.tick()
+                } catch (e: Exception) {
+                    // shhhh, don't crash because you are not a block plz
+                }
             }
         }
     }
@@ -113,15 +119,12 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
         if (world.isRemote)
             return true
 
-        if(backingTileEntity is INamedContainerProvider) {
-            if(player is ServerPlayerEntity) {
-                NetworkHooks.openGui(player, this) {
-                    it.writeInt(entityID)
-                }
+        if(player is ServerPlayerEntity) {
+            NetworkHooks.openGui(player, this) {
+                it.writeInt(entityID)
             }
-            return true
         }
-        return false
+        return true
     }
 
     override fun canFitPassenger(passenger: Entity): Boolean {
@@ -130,12 +133,16 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
 
     override fun writeAdditional(compound: CompoundNBT) {
         super.writeAdditional(compound)
-        compound.put("backingTileEntity", backingTileEntity.write(CompoundNBT()))
+        compound.putString("boatType", boatType.getName())
+        if(backingTileEntity != null) {
+            compound.put("backingTileEntity", backingTileEntity.write(CompoundNBT()))
+        }
     }
 
     override fun readAdditional(compound: CompoundNBT) {
         super.readAdditional(compound)
-        backingTileEntity.read(compound.getCompound("backingTileEntity"))
+        boatType = BoatEntity.Type.getTypeFromString(compound.getString("boatType"))
+        backingTileEntity?.read(compound.getCompound("backingTileEntity"))
     }
 
     override fun isValidLiquidBlock(pos: BlockPos) = Fluids.isUsualLiquidBlock(world, pos)
@@ -176,7 +183,7 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
 
     fun getBackingTileEntity() = backingTileEntity
 
-    override fun <T : TileEntity?> getBlockTileEntity() = backingTileEntity as T
+    override fun <T : TileEntity?> getBlockTileEntity() = backingTileEntity as? T
 
     override fun getOwnerIdOrNull(): UUID? {
         return null
@@ -220,6 +227,8 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
     }
 
     fun updateTileEntity(data: CompoundNBT) {
-        backingTileEntity.read(data)
+        backingTileEntity?.read(data)
     }
+
+    fun getBoatType() = boatType
 }

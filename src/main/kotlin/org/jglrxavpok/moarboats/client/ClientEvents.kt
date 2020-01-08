@@ -6,10 +6,13 @@ import net.alexwells.kottle.KotlinEventBusSubscriber
 import net.minecraft.block.AbstractFurnaceBlock
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
+import net.minecraft.block.GrindstoneBlock
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity
 import net.minecraft.client.gui.IHasContainer
 import net.minecraft.client.gui.ScreenManager
+import net.minecraft.client.gui.screen.Screen
+import net.minecraft.client.gui.screen.inventory.CraftingScreen
 import net.minecraft.client.gui.screen.inventory.FurnaceScreen
 import net.minecraft.client.gui.screen.inventory.SmokerScreen
 import net.minecraft.client.renderer.Tessellator
@@ -20,14 +23,17 @@ import net.minecraft.client.renderer.model.ModelBox
 import net.minecraft.client.renderer.model.ModelRotation
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.inventory.container.ContainerType
 import net.minecraft.inventory.container.FurnaceContainer
 import net.minecraft.inventory.container.SmokerContainer
+import net.minecraft.state.properties.AttachFace
 import net.minecraft.util.Hand
 import net.minecraft.util.HandSide
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.registry.Registry
+import net.minecraft.util.text.ITextComponent
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.client.event.ModelBakeEvent
@@ -41,6 +47,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent
 import net.minecraftforge.registries.GameData
 import net.minecraftforge.registries.IForgeRegistry
+import org.jglrxavpok.moarboats.JavaHelpers
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.client.gui.*
@@ -50,14 +57,12 @@ import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
 import org.jglrxavpok.moarboats.common.containers.ContainerMappingTable
 import org.jglrxavpok.moarboats.common.containers.ContainerTypes
+import org.jglrxavpok.moarboats.common.containers.UtilityWorkbenchContainer
 import org.jglrxavpok.moarboats.common.data.MapImageStripe
 import org.jglrxavpok.moarboats.common.entities.AnimalBoatEntity
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.entities.UtilityBoatEntity
-import org.jglrxavpok.moarboats.common.entities.utilityboats.BlastFurnaceBoatEntity
-import org.jglrxavpok.moarboats.common.entities.utilityboats.BurnTimeField
-import org.jglrxavpok.moarboats.common.entities.utilityboats.FurnaceBoatEntity
-import org.jglrxavpok.moarboats.common.entities.utilityboats.SmokerBoatEntity
+import org.jglrxavpok.moarboats.common.entities.utilityboats.*
 
 @KotlinEventBusSubscriber(value = [Dist.CLIENT], modid = MoarBoats.ModID)
 object ClientEvents {
@@ -115,12 +120,18 @@ object ClientEvents {
             UtilityBlastFurnaceScreen(container, playerInv, title)
         }
 
+        JavaHelpers.registerGuis()
+
         val mc = event.minecraftSupplier.get()
         RenderingRegistry.registerEntityRenderingHandler(ModularBoatEntity::class.java, ::RenderModularBoat)
         RenderingRegistry.registerEntityRenderingHandler(AnimalBoatEntity::class.java, ::RenderAnimalBoat)
         registerUtilityBoat(FurnaceBoatEntity::class.java) { boat -> Blocks.FURNACE.defaultState.with(AbstractFurnaceBlock.LIT, BurnTimeField.getInt(boat.getBackingTileEntity()) > 0) }
         registerUtilityBoat(SmokerBoatEntity::class.java) { boat -> Blocks.SMOKER.defaultState.with(AbstractFurnaceBlock.LIT, BurnTimeField.getInt(boat.getBackingTileEntity()) > 0) }
         registerUtilityBoat(BlastFurnaceBoatEntity::class.java) { boat -> Blocks.BLAST_FURNACE.defaultState.with(AbstractFurnaceBlock.LIT, BurnTimeField.getInt(boat.getBackingTileEntity()) > 0) }
+        registerUtilityBoat(CraftingTableBoatEntity::class.java) { boat -> Blocks.CRAFTING_TABLE.defaultState }
+        registerUtilityBoat(GrindstoneBoatEntity::class.java) { boat -> Blocks.GRINDSTONE.defaultState.with(GrindstoneBlock.FACE, AttachFace.FLOOR) }
+        registerUtilityBoat(LoomBoatEntity::class.java) { boat -> Blocks.LOOM.defaultState }
+        registerUtilityBoat(CartographyTableBoatEntity::class.java) { boat -> Blocks.CARTOGRAPHY_TABLE.defaultState }
 
         BoatModuleRenderingRegistry.register(FurnaceEngineRenderer)
         BoatModuleRenderingRegistry.register(ChestModuleRenderer)

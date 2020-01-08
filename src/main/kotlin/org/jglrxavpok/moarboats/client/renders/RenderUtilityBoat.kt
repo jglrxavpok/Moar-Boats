@@ -5,6 +5,7 @@ import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.Tessellator
+import net.minecraft.client.renderer.entity.BoatRenderer
 import net.minecraft.client.renderer.entity.EntityRenderer
 import net.minecraft.client.renderer.entity.EntityRendererManager
 import net.minecraft.client.renderer.texture.AtlasTexture
@@ -12,6 +13,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.entity.Entity
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.models.ModelBoatLinkerAnchor
 import org.jglrxavpok.moarboats.client.models.ModelModularBoat
@@ -27,13 +29,18 @@ class RenderUtilityBoat<T: UtilityBoatEntity<*,*>>(renderManager: EntityRenderer
         val RopeAnchorTextureLocation = ResourceLocation(MoarBoats.ModID, "textures/entity/ropeanchor.png")
     }
 
+    // load from BoatRenderer in case the class is modified for modded wood types
+    private val textures: Array<ResourceLocation> = ObfuscationReflectionHelper.findField(BoatRenderer::class.java, "field_110782_f").get(null) as Array<ResourceLocation>
+
     val model = ModelModularBoat()
     val ropeAnchorModel = ModelBoatLinkerAnchor()
 
-    override fun getEntityTexture(entity: T) = TextureLocation
+    override fun getEntityTexture(entity: T): ResourceLocation {
+        return textures[entity.getBoatType().ordinal]
+    }
 
     override fun doRender(entity: T, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float) {
-        bindTexture(TextureLocation)
+        bindTexture(getEntityTexture(entity))
         GlStateManager.pushMatrix()
         GlStateManager.disableCull()
         if(entity.isEntityInLava())

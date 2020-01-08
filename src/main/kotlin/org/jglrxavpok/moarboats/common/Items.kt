@@ -28,7 +28,11 @@ object Items {
 
             FurnaceBoatItem,
             SmokerBoatItem,
-            BlastFurnaceBoatItem
+            BlastFurnaceBoatItem,
+            CraftingTableBoatItem,
+            GrindstoneBoatItem,
+            LoomBoatItem,
+            CartographyTableBoatItem
 
     )
 

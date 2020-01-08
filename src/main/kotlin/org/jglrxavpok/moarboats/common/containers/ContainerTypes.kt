@@ -33,4 +33,16 @@ object ContainerTypes {
 
     @JvmStatic
     lateinit var BlastFurnaceBoat: ContainerType<UtilityBlastFurnaceContainer>
+
+    @JvmStatic
+    lateinit var CraftingBoat: ContainerType<UtilityWorkbenchContainer>
+
+    @JvmStatic
+    lateinit var GrindstoneBoat: ContainerType<UtilityGrindstoneContainer>
+
+    @JvmStatic
+    lateinit var LoomBoat: ContainerType<UtilityLoomContainer>
+
+    @JvmStatic
+    lateinit var CartographyTableBoat: ContainerType<UtilityCartographyTableContainer>
 }
