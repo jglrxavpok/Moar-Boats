@@ -19,4 +19,5 @@ public class JavaHelpers {
         ScreenManager.registerFactory(ContainerTypes.CraftingBoat, CraftingScreen::new);
         ScreenManager.registerFactory(ContainerTypes.GrindstoneBoat, GrindstoneScreen::new);
     }
+
 }

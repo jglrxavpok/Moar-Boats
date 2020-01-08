@@ -9,11 +9,11 @@ import net.minecraft.block.material.PushReaction
 import net.minecraft.client.Minecraft
 import net.minecraft.entity.EntityType
 import net.minecraft.inventory.container.ContainerType
-import net.minecraft.inventory.container.FurnaceContainer
-import net.minecraft.inventory.container.SmokerContainer
 import net.minecraft.item.*
 import net.minecraft.item.crafting.IRecipeSerializer
 import net.minecraft.network.datasync.DataSerializers
+import net.minecraft.resources.IResource
+import net.minecraft.resources.ResourcePackType
 import net.minecraft.server.dedicated.DedicatedServer
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.tileentity.TileEntityType
@@ -22,6 +22,7 @@ import net.minecraft.world.dimension.DimensionType
 import net.minecraft.world.storage.DimensionSavedDataManager
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraftforge.client.model.generators.ExistingFileHelper
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.extensions.IForgeContainerType
 import net.minecraftforge.event.RegistryEvent
@@ -31,10 +32,7 @@ import net.minecraftforge.fml.DistExecutor
 import net.minecraftforge.fml.ModLoadingContext
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.config.ModConfig
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
-import net.minecraftforge.fml.event.lifecycle.FMLDedicatedServerSetupEvent
-import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent
+import net.minecraftforge.fml.event.lifecycle.*
 import net.minecraftforge.fml.network.NetworkRegistry
 import net.minecraftforge.registries.ForgeRegistries
 import net.minecraftforge.registries.ForgeRegistry
@@ -45,6 +43,7 @@ import org.jglrxavpok.moarboats.api.BoatModuleEntry
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.api.registerModule
 import org.jglrxavpok.moarboats.client.ClientEvents
+import org.jglrxavpok.moarboats.client.datagen.JsonModelGenerator
 import org.jglrxavpok.moarboats.common.*
 import org.jglrxavpok.moarboats.common.blocks.*
 import org.jglrxavpok.moarboats.common.containers.*
@@ -395,5 +394,18 @@ object MoarBoats {
             event.registry.register(ContainerTypes.CartographyTableBoat)
         }
 
+        @SubscribeEvent
+        fun gatherData(event: GatherDataEvent) {
+            val generator = event.generator
+            val delegate = event.existingFileHelper
+            val existingFileHelper = object: ExistingFileHelper(emptyList(), true) {
+                override fun exists(loc: ResourceLocation?, type: ResourcePackType?, pathSuffix: String?, pathPrefix: String?): Boolean {
+                    if(loc?.namespace == ModID)
+                        return true
+                    return delegate.exists(loc, type, pathSuffix, pathPrefix)
+                }
+            }
+            generator.addProvider(JsonModelGenerator(generator, ModID, existingFileHelper))
+        }
     }
 }

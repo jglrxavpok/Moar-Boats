@@ -125,9 +125,9 @@ object ClientEvents {
         val mc = event.minecraftSupplier.get()
         RenderingRegistry.registerEntityRenderingHandler(ModularBoatEntity::class.java, ::RenderModularBoat)
         RenderingRegistry.registerEntityRenderingHandler(AnimalBoatEntity::class.java, ::RenderAnimalBoat)
-        registerUtilityBoat(FurnaceBoatEntity::class.java) { boat -> Blocks.FURNACE.defaultState.with(AbstractFurnaceBlock.LIT, BurnTimeField.getInt(boat.getBackingTileEntity()) > 0) }
-        registerUtilityBoat(SmokerBoatEntity::class.java) { boat -> Blocks.SMOKER.defaultState.with(AbstractFurnaceBlock.LIT, BurnTimeField.getInt(boat.getBackingTileEntity()) > 0) }
-        registerUtilityBoat(BlastFurnaceBoatEntity::class.java) { boat -> Blocks.BLAST_FURNACE.defaultState.with(AbstractFurnaceBlock.LIT, BurnTimeField.getInt(boat.getBackingTileEntity()) > 0) }
+        registerUtilityBoat(FurnaceBoatEntity::class.java) { boat -> Blocks.FURNACE.defaultState.with(AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }
+        registerUtilityBoat(SmokerBoatEntity::class.java) { boat -> Blocks.SMOKER.defaultState.with(AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }
+        registerUtilityBoat(BlastFurnaceBoatEntity::class.java) { boat -> Blocks.BLAST_FURNACE.defaultState.with(AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }
         registerUtilityBoat(CraftingTableBoatEntity::class.java) { boat -> Blocks.CRAFTING_TABLE.defaultState }
         registerUtilityBoat(GrindstoneBoatEntity::class.java) { boat -> Blocks.GRINDSTONE.defaultState.with(GrindstoneBlock.FACE, AttachFace.FLOOR) }
         registerUtilityBoat(LoomBoatEntity::class.java) { boat -> Blocks.LOOM.defaultState }

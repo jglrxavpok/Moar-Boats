@@ -187,5 +187,6 @@
     "moarboats.tile.cargo_stopper.description": "Similar to a Waterborne Redstone Comparator. Emits in ALL directions (therefore can stop boats).",
 
     "__comment": "6.1.0.0",
-    "moarboats.container.utility_boat": "%s Boat"
+    "moarboats.container.utility_boat": "%s Boat",
+    "item.moarboats.utility_boat.name": "%2$s %1$s"
 }

@@ -111,13 +111,15 @@ abstract class AbstractFurnaceBoatEntity<T: AbstractFurnaceTileEntity, C: Abstra
     private var timeUntilUpdate = MoarBoatsConfig.furnaceBoats.stateUpdateInterval.get()
 
     override fun tick() {
-        val wasBurning = BurnTimeField.getInt(getBackingTileEntity()) > 0
+        val wasBurning = isFurnaceLit()
         super.tick()
-        val isBurning = BurnTimeField.getInt(getBackingTileEntity()) > 0
+        val isBurning = isFurnaceLit()
         if(!world.isRemote && (isBurning != wasBurning || isBurning && timeUntilUpdate-- == 0)) {
             sendTileEntityUpdate()
             timeUntilUpdate = MoarBoatsConfig.furnaceBoats.stateUpdateInterval.get()
         }
     }
+
+    fun isFurnaceLit() = BurnTimeField.getInt(getBackingTileEntity()) > 0
 
 }

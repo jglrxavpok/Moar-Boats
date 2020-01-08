@@ -8,6 +8,8 @@ import net.minecraft.item.ItemStack
 import net.minecraft.stats.Stats
 import net.minecraft.util.*
 import net.minecraft.util.math.*
+import net.minecraft.util.text.ITextComponent
+import net.minecraft.util.text.TranslationTextComponent
 import net.minecraft.world.World
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.entities.AnimalBoatEntity
@@ -91,7 +93,7 @@ object AnimalBoatItem: BaseBoatItem() {
     }
 }
 
-class FurnaceBoatItem(val woodType: BoatEntity.Type): BaseBoatItem() {
+class FurnaceBoatItem(woodType: BoatEntity.Type): UtilityBoatItem(woodType, "furnace") {
 
     companion object {
         val AllVersions = BoatEntity.Type.values().map { FurnaceBoatItem(it) }.toTypedArray()
@@ -99,16 +101,12 @@ class FurnaceBoatItem(val woodType: BoatEntity.Type): BaseBoatItem() {
         operator fun get(woodType: BoatEntity.Type) = AllVersions.first { it.woodType == woodType }
     }
 
-    init {
-        registryName = ResourceLocation(MoarBoats.ModID, "${woodType.getName()}_furnace_boat")
-    }
-
     override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
         return FurnaceBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = woodType }
     }
 }
 
-class SmokerBoatItem(val woodType: BoatEntity.Type): BaseBoatItem() {
+class SmokerBoatItem(woodType: BoatEntity.Type): UtilityBoatItem(woodType, "smoker") {
 
     companion object {
         val AllVersions = BoatEntity.Type.values().map { SmokerBoatItem(it) }.toTypedArray()
@@ -116,16 +114,12 @@ class SmokerBoatItem(val woodType: BoatEntity.Type): BaseBoatItem() {
         operator fun get(woodType: BoatEntity.Type) = AllVersions.first { it.woodType == woodType }
     }
 
-    init {
-        registryName = ResourceLocation(MoarBoats.ModID, "${woodType.getName()}_smoker_boat")
-    }
-
     override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
         return SmokerBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = woodType }
     }
 }
 
-class BlastFurnaceBoatItem(val woodType: BoatEntity.Type): BaseBoatItem() {
+class BlastFurnaceBoatItem(woodType: BoatEntity.Type): UtilityBoatItem(woodType, "blast_furnace") {
 
     companion object {
         val AllVersions = BoatEntity.Type.values().map { BlastFurnaceBoatItem(it) }.toTypedArray()
@@ -133,16 +127,12 @@ class BlastFurnaceBoatItem(val woodType: BoatEntity.Type): BaseBoatItem() {
         operator fun get(woodType: BoatEntity.Type) = AllVersions.first { it.woodType == woodType }
     }
 
-    init {
-        registryName = ResourceLocation(MoarBoats.ModID, "${woodType.getName()}_blast_furnace_boat")
-    }
-
     override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
         return BlastFurnaceBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = woodType }
     }
 }
 
-class CraftingTableBoatItem(val woodType: BoatEntity.Type): BaseBoatItem() {
+class CraftingTableBoatItem(woodType: BoatEntity.Type): UtilityBoatItem(woodType, "crafting_table") {
 
     companion object {
         val AllVersions = BoatEntity.Type.values().map { CraftingTableBoatItem(it) }.toTypedArray()
@@ -150,16 +140,16 @@ class CraftingTableBoatItem(val woodType: BoatEntity.Type): BaseBoatItem() {
         operator fun get(woodType: BoatEntity.Type) = AllVersions.first { it.woodType == woodType }
     }
 
-    init {
-        registryName = ResourceLocation(MoarBoats.ModID, "${woodType.getName()}_crafting_table_boat")
-    }
-
     override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
         return CraftingTableBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = woodType }
     }
+
+    override fun getContainerDisplayName(): ITextComponent {
+        return TranslationTextComponent("container.crafting")
+    }
 }
 
-class GrindstoneBoatItem(val woodType: BoatEntity.Type): BaseBoatItem() {
+class GrindstoneBoatItem(woodType: BoatEntity.Type): UtilityBoatItem(woodType, "grindstone") {
 
     companion object {
         val AllVersions = BoatEntity.Type.values().map { GrindstoneBoatItem(it) }.toTypedArray()
@@ -167,16 +157,12 @@ class GrindstoneBoatItem(val woodType: BoatEntity.Type): BaseBoatItem() {
         operator fun get(woodType: BoatEntity.Type) = AllVersions.first { it.woodType == woodType }
     }
 
-    init {
-        registryName = ResourceLocation(MoarBoats.ModID, "${woodType.getName()}_grindstone_boat")
-    }
-
     override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
         return GrindstoneBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = woodType }
     }
 }
 
-class CartographyTableBoatItem(val woodType: BoatEntity.Type): BaseBoatItem() {
+class CartographyTableBoatItem(woodType: BoatEntity.Type): UtilityBoatItem(woodType, "cartography_table") {
 
     companion object {
         val AllVersions = BoatEntity.Type.values().map { CartographyTableBoatItem(it) }.toTypedArray()
@@ -184,16 +170,12 @@ class CartographyTableBoatItem(val woodType: BoatEntity.Type): BaseBoatItem() {
         operator fun get(woodType: BoatEntity.Type) = AllVersions.first { it.woodType == woodType }
     }
 
-    init {
-        registryName = ResourceLocation(MoarBoats.ModID, "${woodType.getName()}_cartography_table_boat")
-    }
-
     override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
         return CartographyTableBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = woodType }
     }
 }
 
-class LoomBoatItem(val woodType: BoatEntity.Type): BaseBoatItem() {
+class LoomBoatItem(woodType: BoatEntity.Type): UtilityBoatItem(woodType, "loom") {
 
     companion object {
         val AllVersions = BoatEntity.Type.values().map { LoomBoatItem(it) }.toTypedArray()
@@ -201,12 +183,21 @@ class LoomBoatItem(val woodType: BoatEntity.Type): BaseBoatItem() {
         operator fun get(woodType: BoatEntity.Type) = AllVersions.first { it.woodType == woodType }
     }
 
-    init {
-        registryName = ResourceLocation(MoarBoats.ModID, "${woodType.getName()}_loom_boat")
-    }
-
     override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
         return LoomBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = woodType }
+    }
+}
+
+abstract class UtilityBoatItem(val woodType: BoatEntity.Type, val containerType: String): BaseBoatItem() {
+
+    init {
+        registryName = ResourceLocation(MoarBoats.ModID, "${woodType.getName()}_${containerType}_boat")
+    }
+
+    open fun getContainerDisplayName(): ITextComponent = TranslationTextComponent("container.$containerType")
+
+    override fun getDisplayName(stack: ItemStack): ITextComponent {
+        return TranslationTextComponent("item.moarboats.utility_boat.name", TranslationTextComponent("item.minecraft.${woodType.getName()}_boat"), getContainerDisplayName())
     }
 }
 

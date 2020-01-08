@@ -21,6 +21,14 @@ archivesBaseName = "moarboats"
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 compileKotlin.kotlinOptions.jvmTarget = compileTestKotlin.kotlinOptions.jvmTarget = '1.8'
 
+sourceSets {
+    main {
+        resources {
+            srcDirs "src/generated/resources", "src/main/resources"
+        }
+    }
+}
+
 minecraft {
     // The mappings can be changed at any time, and must be in the following format.
     // snapshot_YYYYMMDD   Snapshot are built nightly.
@@ -79,11 +87,17 @@ minecraft {
 
             // Recommended logging level for the console
             property 'forge.logging.console.level', 'debug'
-            property 'forge.logging.noansi', 'false'
 
-            args '--mod', 'moarboats', '--all', '--output', file('src/generated/resources/')
-            ideaModule "${rootProject.name}.main"
+            args '--mod', rootProject.name, '--all', '--output', '"' + file('src/generated/resources/') + '"', '--existing', '"' + file('src/main/resources/') + '"'
 
+            environment 'target', 'fmluserdevdata'
+
+            mods {
+                moarboats {
+                    ideaModule "${rootProject.name}.main"
+                    source sourceSets.main
+                }
+            }
         }
     }
 }

@@ -170,5 +170,6 @@
     "moarboats.tile.cargo_stopper.description": "Similaire au Comparateur Flottant. Emet dans toutes les directions (peut stopper les bâteaux)",
 
     "__comment": "6.1.0.0",
-    "moarboats.container.utility_boat": "Bateau avec %s"
+    "moarboats.container.utility_boat": "Bateau avec %s",
+    "item.moarboats.utility_boat.name": "%1$s avec %2$s"
 }
