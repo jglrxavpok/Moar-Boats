@@ -43,6 +43,8 @@ object EntityEntries {
 
     val GrindstoneBoat = utilityBoatEntry("grindstone", ::GrindstoneBoatEntity)
 
+    val StonecutterBoat = utilityBoatEntry("stonecutter", ::StonecutterBoatEntity)
+
     val LoomBoat = utilityBoatEntry("loom", ::LoomBoatEntity)
 
     val CartographyTableBoat = utilityBoatEntry("cartography_table", ::CartographyTableBoatEntity)
@@ -56,7 +58,7 @@ object EntityEntries {
     val JukeboxBoat = utilityBoatEntry("jukebox", ::JukeboxBoatEntity)
 
     val list = listOf(ModularBoat, AnimalBoat, FurnaceBoat, SmokerBoat, BlastFurnaceBoat,
-            CraftingTableBoat, GrindstoneBoat, LoomBoat, CartographyTableBoat, ChestBoat, EnderChestBoat, ShulkerBoat, JukeboxBoat)
+            CraftingTableBoat, GrindstoneBoat, LoomBoat, CartographyTableBoat, StonecutterBoat, ChestBoat, EnderChestBoat, ShulkerBoat, JukeboxBoat)
 
     private inline fun <reified T: UtilityBoatEntity<*,*>> utilityBoatEntry(id: String, crossinline constructor: (World) -> T) = EntityType.Builder.create({ type: EntityType<T>, world -> constructor(world) }, EntityClassification.MISC)
             .setTrackingRange(64)

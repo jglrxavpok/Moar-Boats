@@ -45,6 +45,9 @@ object ContainerTypes {
     lateinit var CartographyTableBoat: ContainerType<UtilityCartographyTableContainer>
 
     @JvmStatic
+    lateinit var StonecutterBoat: ContainerType<UtilityStonecutterContainer>
+
+    @JvmStatic
     lateinit var ChestBoat: ContainerType<UtilityChestContainer>
 
     @JvmStatic

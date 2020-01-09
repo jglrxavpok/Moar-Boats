@@ -188,6 +188,19 @@ class LoomBoatItem(woodType: BoatEntity.Type): UtilityBoatItem(woodType, "loom")
     }
 }
 
+class StonecutterBoatItem(woodType: BoatEntity.Type): UtilityBoatItem(woodType, "stonecutter") {
+
+    companion object {
+        val AllVersions = BoatEntity.Type.values().map { StonecutterBoatItem(it) }.toTypedArray()
+
+        operator fun get(woodType: BoatEntity.Type) = AllVersions.first { it.woodType == woodType }
+    }
+
+    override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
+        return StonecutterBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = woodType }
+    }
+}
+
 class ChestBoatItem(woodType: BoatEntity.Type): UtilityBoatItem(woodType, "chest") {
 
     companion object {

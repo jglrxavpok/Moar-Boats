@@ -122,6 +122,7 @@ object ClientEvents {
         registerUtilityBoat(GrindstoneBoatEntity::class.java) { boat -> Blocks.GRINDSTONE.defaultState.with(GrindstoneBlock.FACE, AttachFace.FLOOR) }
         registerUtilityBoat(LoomBoatEntity::class.java) { boat -> Blocks.LOOM.defaultState }
         registerUtilityBoat(CartographyTableBoatEntity::class.java) { boat -> Blocks.CARTOGRAPHY_TABLE.defaultState }
+        registerUtilityBoat(StonecutterBoatEntity::class.java) { boat -> Blocks.STONECUTTER.defaultState }
         registerUtilityBoat(ChestBoatEntity::class.java) { boat -> Blocks.CHEST.defaultState.with(HorizontalBlock.HORIZONTAL_FACING, Direction.SOUTH) }
         registerUtilityBoat(ShulkerBoatEntity::class.java) { boat -> Blocks.SHULKER_BOX.defaultState }
         registerUtilityBoat(EnderChestBoatEntity::class.java) { boat -> Blocks.ENDER_CHEST.defaultState.with(HorizontalBlock.HORIZONTAL_FACING, Direction.EAST) }

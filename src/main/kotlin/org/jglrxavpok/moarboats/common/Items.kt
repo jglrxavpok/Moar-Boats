@@ -33,6 +33,7 @@ object Items {
             *GrindstoneBoatItem.AllVersions,
             *LoomBoatItem.AllVersions,
             *CartographyTableBoatItem.AllVersions,
+            *StonecutterBoatItem.AllVersions,
             *ChestBoatItem.AllVersions,
             *EnderChestBoatItem.AllVersions,
             *ShulkerBoatItem.AllVersions,

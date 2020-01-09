@@ -2,10 +2,7 @@ package org.jglrxavpok.moarboats.common.containers
 
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.container.CartographyContainer
-import net.minecraft.inventory.container.GrindstoneContainer
-import net.minecraft.inventory.container.LoomContainer
-import net.minecraft.inventory.container.WorkbenchContainer
+import net.minecraft.inventory.container.*
 import net.minecraft.util.IWorldPosCallable
 
 class UtilityWorkbenchContainer(windowId: Int, playerInv: PlayerInventory, pos: IWorldPosCallable): WorkbenchContainer(windowId, playerInv, pos) {
@@ -27,6 +24,12 @@ class UtilityLoomContainer(windowId: Int, playerInv: PlayerInventory, pos: IWorl
 }
 
 class UtilityCartographyTableContainer(windowId: Int, playerInv: PlayerInventory, pos: IWorldPosCallable): CartographyContainer(windowId, playerInv, pos) {
+    override fun canInteractWith(playerIn: PlayerEntity): Boolean {
+        return true
+    }
+}
+
+class UtilityStonecutterContainer(windowId: Int, playerInv: PlayerInventory, pos: IWorldPosCallable): StonecutterContainer(windowId, playerInv, pos) {
     override fun canInteractWith(playerIn: PlayerEntity): Boolean {
         return true
     }
