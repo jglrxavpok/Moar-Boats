@@ -9,12 +9,9 @@ import net.minecraft.block.Blocks
 import net.minecraft.block.GrindstoneBlock
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity
-import net.minecraft.client.gui.IHasContainer
 import net.minecraft.client.gui.ScreenManager
-import net.minecraft.client.gui.screen.Screen
-import net.minecraft.client.gui.screen.inventory.CraftingScreen
-import net.minecraft.client.gui.screen.inventory.FurnaceScreen
-import net.minecraft.client.gui.screen.inventory.SmokerScreen
+import net.minecraft.client.gui.ScreenManager.IScreenFactory
+import net.minecraft.client.gui.screen.inventory.ChestScreen
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.entity.PlayerRenderer
 import net.minecraft.client.renderer.entity.model.PlayerModel
@@ -23,16 +20,13 @@ import net.minecraft.client.renderer.model.ModelBox
 import net.minecraft.client.renderer.model.ModelRotation
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerInventory
+import net.minecraft.inventory.container.ChestContainer
 import net.minecraft.inventory.container.ContainerType
-import net.minecraft.inventory.container.FurnaceContainer
-import net.minecraft.inventory.container.SmokerContainer
 import net.minecraft.state.properties.AttachFace
 import net.minecraft.util.Hand
 import net.minecraft.util.HandSide
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
-import net.minecraft.util.registry.Registry
 import net.minecraft.util.text.ITextComponent
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
@@ -45,8 +39,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.client.registry.RenderingRegistry
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent
-import net.minecraftforge.registries.GameData
-import net.minecraftforge.registries.IForgeRegistry
 import org.jglrxavpok.moarboats.JavaHelpers
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
@@ -54,10 +46,7 @@ import org.jglrxavpok.moarboats.client.gui.*
 import org.jglrxavpok.moarboats.client.models.ModelPatreonHook
 import org.jglrxavpok.moarboats.client.renders.*
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
-import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
-import org.jglrxavpok.moarboats.common.containers.ContainerMappingTable
 import org.jglrxavpok.moarboats.common.containers.ContainerTypes
-import org.jglrxavpok.moarboats.common.containers.UtilityWorkbenchContainer
 import org.jglrxavpok.moarboats.common.data.MapImageStripe
 import org.jglrxavpok.moarboats.common.entities.AnimalBoatEntity
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
@@ -120,6 +109,10 @@ object ClientEvents {
             UtilityBlastFurnaceScreen(container, playerInv, title)
         }
 
+        ScreenManager.registerFactory(ContainerTypes.EnderChestBoat) { container, playerInv, title ->
+            ChestScreen(container, playerInv, title)
+        }
+
         JavaHelpers.registerGuis()
 
         val mc = event.minecraftSupplier.get()
@@ -132,6 +125,9 @@ object ClientEvents {
         registerUtilityBoat(GrindstoneBoatEntity::class.java) { boat -> Blocks.GRINDSTONE.defaultState.with(GrindstoneBlock.FACE, AttachFace.FLOOR) }
         registerUtilityBoat(LoomBoatEntity::class.java) { boat -> Blocks.LOOM.defaultState }
         registerUtilityBoat(CartographyTableBoatEntity::class.java) { boat -> Blocks.CARTOGRAPHY_TABLE.defaultState }
+        registerUtilityBoat(ChestBoatEntity::class.java) { boat -> Blocks.CHEST.defaultState }
+        registerUtilityBoat(ShulkerBoatEntity::class.java) { boat -> Blocks.SHULKER_BOX.defaultState }
+        registerUtilityBoat(EnderChestBoatEntity::class.java) { boat -> Blocks.ENDER_CHEST.defaultState }
 
         BoatModuleRenderingRegistry.register(FurnaceEngineRenderer)
         BoatModuleRenderingRegistry.register(ChestModuleRenderer)

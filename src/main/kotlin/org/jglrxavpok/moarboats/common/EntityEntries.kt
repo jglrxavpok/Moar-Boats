@@ -3,9 +3,11 @@ package org.jglrxavpok.moarboats.common
 import net.minecraft.entity.EntityClassification
 import net.minecraft.entity.EntityType
 import net.minecraft.util.ResourceLocation
+import net.minecraft.world.World
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.entities.AnimalBoatEntity
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
+import org.jglrxavpok.moarboats.common.entities.UtilityBoatEntity
 import org.jglrxavpok.moarboats.common.entities.utilityboats.*
 
 object EntityEntries {
@@ -31,75 +33,36 @@ object EntityEntries {
             .build("animal_boat")
             .setRegistryName(ResourceLocation(MoarBoats.ModID, "animal_boat")) as EntityType<AnimalBoatEntity>
 
-    val FurnaceBoat = EntityType.Builder.create({ type: EntityType<FurnaceBoatEntity>, world -> FurnaceBoatEntity(world) }, EntityClassification.MISC)
+    val FurnaceBoat = utilityBoatEntry("furnace", ::FurnaceBoatEntity)
+
+    val SmokerBoat = utilityBoatEntry("smoker", ::SmokerBoatEntity)
+
+    val BlastFurnaceBoat = utilityBoatEntry("blast_furnace", ::BlastFurnaceBoatEntity)
+
+    val CraftingTableBoat = utilityBoatEntry("crafting_table", ::CraftingTableBoatEntity)
+
+    val GrindstoneBoat = utilityBoatEntry("grindstone", ::LoomBoatEntity)
+
+    val LoomBoat = utilityBoatEntry("loom", ::LoomBoatEntity)
+
+    val CartographyTableBoat = utilityBoatEntry("cartography_table", ::CartographyTableBoatEntity)
+
+    val ChestBoat = utilityBoatEntry("chest", ::ChestBoatEntity)
+
+    val EnderChestBoat = utilityBoatEntry("ender_chest", ::EnderChestBoatEntity)
+
+    val ShulkerBoat = utilityBoatEntry("shulker", ::ShulkerBoatEntity)
+
+    val list = listOf(ModularBoat, AnimalBoat, FurnaceBoat, SmokerBoat, BlastFurnaceBoat,
+            CraftingTableBoat, GrindstoneBoat, LoomBoat, CartographyTableBoat, ChestBoat, EnderChestBoat, ShulkerBoat)
+
+    private inline fun <reified T: UtilityBoatEntity<*,*>> utilityBoatEntry(id: String, crossinline constructor: (World) -> T) = EntityType.Builder.create({ type: EntityType<T>, world -> constructor(world) }, EntityClassification.MISC)
             .setTrackingRange(64)
             .immuneToFire()
             .size(1.375f, 0.5625f)
             .setShouldReceiveVelocityUpdates(true)
             .setUpdateInterval(3)
-            .setCustomClientFactory { t, u -> FurnaceBoatEntity(u) }
-            .build("furnace_boat")
-            .setRegistryName(ResourceLocation(MoarBoats.ModID, "furnace_boat")) as EntityType<FurnaceBoatEntity>
-
-    val SmokerBoat = EntityType.Builder.create({ type: EntityType<SmokerBoatEntity>, world -> SmokerBoatEntity(world) }, EntityClassification.MISC)
-            .setTrackingRange(64)
-            .immuneToFire()
-            .size(1.375f, 0.5625f)
-            .setShouldReceiveVelocityUpdates(true)
-            .setUpdateInterval(3)
-            .setCustomClientFactory { t, u -> SmokerBoatEntity(u) }
-            .build("smoker_boat")
-            .setRegistryName(ResourceLocation(MoarBoats.ModID, "smoker_boat")) as EntityType<SmokerBoatEntity>
-
-    val BlastFurnaceBoat = EntityType.Builder.create({ type: EntityType<BlastFurnaceBoatEntity>, world -> BlastFurnaceBoatEntity(world) }, EntityClassification.MISC)
-            .setTrackingRange(64)
-            .immuneToFire()
-            .size(1.375f, 0.5625f)
-            .setShouldReceiveVelocityUpdates(true)
-            .setUpdateInterval(3)
-            .setCustomClientFactory { t, u -> BlastFurnaceBoatEntity(u) }
-            .build("blast_furnace_boat")
-            .setRegistryName(ResourceLocation(MoarBoats.ModID, "blast_furnace_boat")) as EntityType<BlastFurnaceBoatEntity>
-
-    val CraftingTableBoat = EntityType.Builder.create({ type: EntityType<CraftingTableBoatEntity>, world -> CraftingTableBoatEntity(world) }, EntityClassification.MISC)
-            .setTrackingRange(64)
-            .immuneToFire()
-            .size(1.375f, 0.5625f)
-            .setShouldReceiveVelocityUpdates(true)
-            .setUpdateInterval(3)
-            .setCustomClientFactory { t, u -> CraftingTableBoatEntity(u) }
-            .build("crafting_table_boat")
-            .setRegistryName(ResourceLocation(MoarBoats.ModID, "crafting_table_boat")) as EntityType<CraftingTableBoatEntity>
-
-    val GrindstoneBoat = EntityType.Builder.create({ type: EntityType<GrindstoneBoatEntity>, world -> GrindstoneBoatEntity(world) }, EntityClassification.MISC)
-            .setTrackingRange(64)
-            .immuneToFire()
-            .size(1.375f, 0.5625f)
-            .setShouldReceiveVelocityUpdates(true)
-            .setUpdateInterval(3)
-            .setCustomClientFactory { t, u -> GrindstoneBoatEntity(u) }
-            .build("grindstone_boat")
-            .setRegistryName(ResourceLocation(MoarBoats.ModID, "grindstone_boat")) as EntityType<GrindstoneBoatEntity>
-
-    val LoomBoat = EntityType.Builder.create({ type: EntityType<LoomBoatEntity>, world -> LoomBoatEntity(world) }, EntityClassification.MISC)
-            .setTrackingRange(64)
-            .immuneToFire()
-            .size(1.375f, 0.5625f)
-            .setShouldReceiveVelocityUpdates(true)
-            .setUpdateInterval(3)
-            .setCustomClientFactory { t, u -> LoomBoatEntity(u) }
-            .build("loom_boat")
-            .setRegistryName(ResourceLocation(MoarBoats.ModID, "loom_boat")) as EntityType<LoomBoatEntity>
-
-    val CartographyTableBoat = EntityType.Builder.create({ type: EntityType<CartographyTableBoatEntity>, world -> CartographyTableBoatEntity(world) }, EntityClassification.MISC)
-            .setTrackingRange(64)
-            .immuneToFire()
-            .size(1.375f, 0.5625f)
-            .setShouldReceiveVelocityUpdates(true)
-            .setUpdateInterval(3)
-            .setCustomClientFactory { t, u -> CartographyTableBoatEntity(u) }
-            .build("cartography_table_boat")
-            .setRegistryName(ResourceLocation(MoarBoats.ModID, "cartography_table_boat")) as EntityType<CartographyTableBoatEntity>
-
-    val list = listOf(ModularBoat, AnimalBoat, FurnaceBoat, SmokerBoat, BlastFurnaceBoat, CraftingTableBoat, GrindstoneBoat, LoomBoat, CartographyTableBoat)
+            .setCustomClientFactory { t, u -> constructor(u) }
+            .build("${id}_boat")
+            .setRegistryName(ResourceLocation(MoarBoats.ModID, "${id}_boat")) as EntityType<T>
 }

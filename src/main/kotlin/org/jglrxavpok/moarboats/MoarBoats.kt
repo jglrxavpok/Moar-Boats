@@ -8,6 +8,7 @@ import net.minecraft.block.material.MaterialColor
 import net.minecraft.block.material.PushReaction
 import net.minecraft.client.Minecraft
 import net.minecraft.entity.EntityType
+import net.minecraft.inventory.container.Container
 import net.minecraft.inventory.container.ContainerType
 import net.minecraft.item.*
 import net.minecraft.item.crafting.IRecipeSerializer
@@ -46,6 +47,7 @@ import org.jglrxavpok.moarboats.datagen.JsonModelGenerator
 import org.jglrxavpok.moarboats.common.*
 import org.jglrxavpok.moarboats.common.blocks.*
 import org.jglrxavpok.moarboats.common.containers.*
+import org.jglrxavpok.moarboats.common.entities.UtilityBoatEntity
 import org.jglrxavpok.moarboats.common.entities.utilityboats.*
 import org.jglrxavpok.moarboats.common.items.*
 import org.jglrxavpok.moarboats.common.modules.*
@@ -323,75 +325,38 @@ object MoarBoats {
             }.setRegistryName(ModID, "none") as ContainerType<EmptyContainer>
             event.registry.register(ContainerTypes.Empty)
 
-            ContainerTypes.FurnaceBoat = IForgeContainerType.create { windowId, inv, data ->
-                val player = inv.player
-                val entityID = data.readInt()
-                val te = player.world.getEntityByID(entityID) as? FurnaceBoatEntity
-                te?.let {
-                    return@create te.createMenu(windowId, player.inventory, player)
-                }
-            }.setRegistryName(ModID, "furnace_boat") as ContainerType<UtilityFurnaceContainer>
-            event.registry.register(ContainerTypes.FurnaceBoat)
+            ContainerTypes.FurnaceBoat = event.registerUtilityContainer("furnace")
 
-            ContainerTypes.SmokerBoat = IForgeContainerType.create { windowId, inv, data ->
-                val player = inv.player
-                val entityID = data.readInt()
-                val te = player.world.getEntityByID(entityID) as? SmokerBoatEntity
-                te?.let {
-                    return@create te.createMenu(windowId, player.inventory, player)
-                }
-            }.setRegistryName(ModID, "smoker_boat") as ContainerType<UtilitySmokerContainer>
-            event.registry.register(ContainerTypes.SmokerBoat)
+            ContainerTypes.SmokerBoat = event.registerUtilityContainer("smoker")
 
-            ContainerTypes.BlastFurnaceBoat = IForgeContainerType.create { windowId, inv, data ->
-                val player = inv.player
-                val entityID = data.readInt()
-                val te = player.world.getEntityByID(entityID) as? BlastFurnaceBoatEntity
-                te?.let {
-                    return@create te.createMenu(windowId, player.inventory, player)
-                }
-            }.setRegistryName(ModID, "blast_furnace") as ContainerType<UtilityBlastFurnaceContainer>
-            event.registry.register(ContainerTypes.BlastFurnaceBoat)
+            ContainerTypes.BlastFurnaceBoat = event.registerUtilityContainer("blast_furnace")
 
-            ContainerTypes.CraftingBoat = IForgeContainerType.create { windowId, inv, data ->
-                val player = inv.player
-                val entityID = data.readInt()
-                val te = player.world.getEntityByID(entityID) as? CraftingTableBoatEntity
-                te?.let {
-                    return@create te.createMenu(windowId, player.inventory, player)
-                }
-            }.setRegistryName(ModID, "crafting_boat") as ContainerType<UtilityWorkbenchContainer>
-            event.registry.register(ContainerTypes.CraftingBoat)
+            ContainerTypes.CraftingBoat = event.registerUtilityContainer("crafting_table")
 
-            ContainerTypes.GrindstoneBoat = IForgeContainerType.create { windowId, inv, data ->
-                val player = inv.player
-                val entityID = data.readInt()
-                val te = player.world.getEntityByID(entityID) as? GrindstoneBoatEntity
-                te?.let {
-                    return@create te.createMenu(windowId, player.inventory, player)
-                }
-            }.setRegistryName(ModID, "grindstone_boat") as ContainerType<UtilityGrindstoneContainer>
-            event.registry.register(ContainerTypes.GrindstoneBoat)
+            ContainerTypes.GrindstoneBoat = event.registerUtilityContainer("grindstone")
 
-            ContainerTypes.LoomBoat = IForgeContainerType.create { windowId, inv, data ->
-                val player = inv.player
-                val entityID = data.readInt()
-                val te = player.world.getEntityByID(entityID) as? LoomBoatEntity
-                te?.let {
-                    return@create te.createMenu(windowId, player.inventory, player)
-                }
-            }.setRegistryName(ModID, "loom_boat") as ContainerType<UtilityLoomContainer>
-            event.registry.register(ContainerTypes.LoomBoat)
+            ContainerTypes.LoomBoat = event.registerUtilityContainer("loom")
 
-            ContainerTypes.CartographyTableBoat = IForgeContainerType.create { windowId, inv, data ->
+            ContainerTypes.CartographyTableBoat = event.registerUtilityContainer("cartography_table")
+
+            ContainerTypes.ChestBoat = event.registerUtilityContainer("chest")
+
+            ContainerTypes.EnderChestBoat = event.registerUtilityContainer("ender_chest")
+
+            ContainerTypes.ShulkerBoat = event.registerUtilityContainer("shulker")
+        }
+
+        private fun <C: Container, B: UtilityBoatEntity<*, C>> RegistryEvent.Register<ContainerType<*>>.registerUtilityContainer(id: String): ContainerType<C> {
+            val type = IForgeContainerType.create { windowId, inv, data ->
                 val player = inv.player
                 val entityID = data.readInt()
-                val te = player.world.getEntityByID(entityID) as? CartographyTableBoatEntity
+                val te = player.world.getEntityByID(entityID) as? B
                 te?.let {
                     return@create te.createMenu(windowId, player.inventory, player)
                 }
-            }.setRegistryName(ModID, "cartography_table_boat") as ContainerType<UtilityCartographyTableContainer>
-            event.registry.register(ContainerTypes.CartographyTableBoat)
+            }.setRegistryName(ModID, "${id}_boat") as ContainerType<C>
+            registry.register(type)
+            return type
         }
 
         @SubscribeEvent

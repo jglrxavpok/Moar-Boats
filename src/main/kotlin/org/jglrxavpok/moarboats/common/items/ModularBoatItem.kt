@@ -188,6 +188,53 @@ class LoomBoatItem(woodType: BoatEntity.Type): UtilityBoatItem(woodType, "loom")
     }
 }
 
+class ChestBoatItem(woodType: BoatEntity.Type): UtilityBoatItem(woodType, "chest") {
+
+    companion object {
+        val AllVersions = BoatEntity.Type.values().map { ChestBoatItem(it) }.toTypedArray()
+
+        operator fun get(woodType: BoatEntity.Type) = AllVersions.first { it.woodType == woodType }
+    }
+
+    override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
+        return ChestBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = woodType }
+    }
+}
+
+class ShulkerBoatItem(woodType: BoatEntity.Type): UtilityBoatItem(woodType, "shulker") {
+
+    companion object {
+        val AllVersions = BoatEntity.Type.values().map { ShulkerBoatItem(it) }.toTypedArray()
+
+        operator fun get(woodType: BoatEntity.Type) = AllVersions.first { it.woodType == woodType }
+    }
+
+    override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
+        return ShulkerBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = woodType }
+    }
+
+    override fun getContainerDisplayName(): ITextComponent {
+        return TranslationTextComponent("container.shulkerBox")
+    }
+}
+
+class EnderChestBoatItem(woodType: BoatEntity.Type): UtilityBoatItem(woodType, "ender_chest") {
+
+    companion object {
+        val AllVersions = BoatEntity.Type.values().map { EnderChestBoatItem(it) }.toTypedArray()
+
+        operator fun get(woodType: BoatEntity.Type) = AllVersions.first { it.woodType == woodType }
+    }
+
+    override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
+        return EnderChestBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = woodType }
+    }
+
+    override fun getContainerDisplayName(): ITextComponent {
+        return TranslationTextComponent("block.minecraft.ender_chest")
+    }
+}
+
 abstract class UtilityBoatItem(val woodType: BoatEntity.Type, val containerType: String): BaseBoatItem() {
 
     init {

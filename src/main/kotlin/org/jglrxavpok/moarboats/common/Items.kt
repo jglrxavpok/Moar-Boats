@@ -32,7 +32,10 @@ object Items {
             *CraftingTableBoatItem.AllVersions,
             *GrindstoneBoatItem.AllVersions,
             *LoomBoatItem.AllVersions,
-            *CartographyTableBoatItem.AllVersions
+            *CartographyTableBoatItem.AllVersions,
+            *ChestBoatItem.AllVersions,
+            *EnderChestBoatItem.AllVersions,
+            *ShulkerBoatItem.AllVersions
 
     )
 

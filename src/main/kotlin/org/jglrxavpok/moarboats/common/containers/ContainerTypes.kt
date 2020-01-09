@@ -1,8 +1,6 @@
 package org.jglrxavpok.moarboats.common.containers
 
-import net.minecraft.inventory.container.ContainerType
-import net.minecraft.inventory.container.FurnaceContainer
-import net.minecraft.inventory.container.SmokerContainer
+import net.minecraft.inventory.container.*
 import net.minecraftforge.registries.ObjectHolder
 import org.jglrxavpok.moarboats.MoarBoats
 
@@ -45,4 +43,13 @@ object ContainerTypes {
 
     @JvmStatic
     lateinit var CartographyTableBoat: ContainerType<UtilityCartographyTableContainer>
+
+    @JvmStatic
+    lateinit var ChestBoat: ContainerType<UtilityChestContainer>
+
+    @JvmStatic
+    lateinit var EnderChestBoat: ContainerType<ChestContainer>
+
+    @JvmStatic
+    lateinit var ShulkerBoat: ContainerType<UtilityShulkerContainer>
 }
