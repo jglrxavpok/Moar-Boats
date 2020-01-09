@@ -235,6 +235,23 @@ class EnderChestBoatItem(woodType: BoatEntity.Type): UtilityBoatItem(woodType, "
     }
 }
 
+class JukeboxBoatItem(woodType: BoatEntity.Type): UtilityBoatItem(woodType, "jukebox") {
+
+    companion object {
+        val AllVersions = BoatEntity.Type.values().map { JukeboxBoatItem(it) }.toTypedArray()
+
+        operator fun get(woodType: BoatEntity.Type) = AllVersions.first { it.woodType == woodType }
+    }
+
+    override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
+        return JukeboxBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = woodType }
+    }
+
+    override fun getContainerDisplayName(): ITextComponent {
+        return TranslationTextComponent("block.minecraft.jukebox")
+    }
+}
+
 abstract class UtilityBoatItem(val woodType: BoatEntity.Type, val containerType: String): BaseBoatItem() {
 
     init {

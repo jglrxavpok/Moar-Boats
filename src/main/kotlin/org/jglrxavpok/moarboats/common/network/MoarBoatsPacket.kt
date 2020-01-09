@@ -1,7 +1,9 @@
 package org.jglrxavpok.moarboats.common.network
 
 import net.minecraft.inventory.ItemStackHelper
+import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
+import net.minecraft.item.MusicDiscItem
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.nbt.ListNBT
 import net.minecraft.network.PacketBuffer
@@ -87,7 +89,11 @@ interface MoarBoatsPacket {
         }
 
         private fun <T: Any> write(value: T, buffer: PacketBuffer) {
-            when(value.javaClass) {
+            write(value, value.javaClass, buffer)
+        }
+
+        private fun <T: Any> write(value: T, type: Class<T>, buffer: PacketBuffer) {
+            when(type) {
                 Int::class.java, java.lang.Integer::class.java, Integer.TYPE -> buffer.writeInt(value as Int)
                 Long::class.java, java.lang.Long::class.java, java.lang.Long.TYPE -> buffer.writeLong(value as Long)
                 Boolean::class.java, java.lang.Boolean::class.java, java.lang.Boolean.TYPE -> buffer.writeBoolean(value as Boolean)
@@ -153,6 +159,10 @@ interface MoarBoatsPacket {
                     buffer.writeCompoundTag(nbt)
                 }
 
+                MusicDiscItem::class.java -> {
+                    buffer.writeResourceLocation((value as Item).registryName)
+                }
+
                 // Moar Boats special types
                 ItemGoldenTicket.WaypointData::class.java -> {
                     val data = (value as ItemGoldenTicket.WaypointData)
@@ -166,7 +176,16 @@ interface MoarBoatsPacket {
                     buffer.writeInt(option.ordinal)
                 }
 
-                else -> throw UnsupportedOperationException("I don't know how to deal with type ${value.javaClass.canonicalName}")
+                else -> {
+                    if(type.superclass != null) {
+                        try {
+                            write(value, type.superclass as Class<Any>, buffer)
+                        } catch (e: UnsupportedOperationException) {
+                            throw UnsupportedOperationException("I don't know how to deal with type ${type.canonicalName}")
+                        }
+                    }
+                    throw UnsupportedOperationException("I don't know how to deal with type ${type.canonicalName}")
+                }
             }
         }
 
@@ -262,6 +281,10 @@ interface MoarBoatsPacket {
                     ItemStack.read(nbt)
                 }
 
+                Item::class.java -> {
+                    GameData.getWrapper(Item::class.java).getOrDefault(buffer.readResourceLocation())
+                }
+
                 // Moar Boats special types
                 ItemGoldenTicket.WaypointData::class.java -> {
                     val uuid = buffer.readString(100)
@@ -274,7 +297,17 @@ interface MoarBoatsPacket {
                     LoopingOptions.values()[index % LoopingOptions.values().size]
                 }
 
-                else -> throw UnsupportedOperationException("I don't know how to deal with type ${type.canonicalName}")
+                else -> {
+                    if(type.superclass != null) {
+                        try {
+                            read(type.superclass as Class<Any>, buffer)
+                        } catch (e: UnsupportedOperationException) {
+                            throw UnsupportedOperationException("I don't know how to deal with type ${type.canonicalName}", e)
+                        }
+                    } else {
+                        throw UnsupportedOperationException("I don't know how to deal with type ${type.canonicalName}")
+                    }
+                }
             } as T
         }
 

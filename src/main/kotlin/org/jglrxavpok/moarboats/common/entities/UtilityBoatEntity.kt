@@ -31,6 +31,7 @@ import net.minecraftforge.fml.network.PacketDistributor
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleInventory
+import org.jglrxavpok.moarboats.common.containers.ContainerTypes
 import org.jglrxavpok.moarboats.common.containers.UtilityContainer
 import org.jglrxavpok.moarboats.common.modules.OarEngineModule
 import org.jglrxavpok.moarboats.common.network.SUtilityTileEntityUpdate
@@ -46,7 +47,6 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
     where TE: TileEntity, C: Container
 {
     internal var boatType: BoatEntity.Type = BoatEntity.Type.OAK
-    // TODO: wood types
 
     companion object {
         val InvalidPosition = BlockPos(0, -1, 0) // out of bounds so backing tile entities don't modify the world
@@ -120,12 +120,13 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
         if (world.isRemote)
             return true
 
-        if(player is ServerPlayerEntity) {
+        if(player is ServerPlayerEntity && getContainerType() != ContainerTypes.Empty) {
             NetworkHooks.openGui(player, this) {
                 it.writeInt(entityID)
             }
+            return true
         }
-        return true
+        return false
     }
 
     override fun canFitPassenger(passenger: Entity): Boolean {

@@ -3,14 +3,11 @@ package org.jglrxavpok.moarboats.client
 import com.google.common.collect.ImmutableList
 import com.mojang.blaze3d.platform.GlStateManager
 import net.alexwells.kottle.KotlinEventBusSubscriber
-import net.minecraft.block.AbstractFurnaceBlock
-import net.minecraft.block.BlockState
-import net.minecraft.block.Blocks
-import net.minecraft.block.GrindstoneBlock
+import net.minecraft.block.*
 import net.minecraft.client.Minecraft
+import net.minecraft.client.audio.ISound
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity
 import net.minecraft.client.gui.ScreenManager
-import net.minecraft.client.gui.ScreenManager.IScreenFactory
 import net.minecraft.client.gui.screen.inventory.ChestScreen
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.entity.PlayerRenderer
@@ -20,14 +17,11 @@ import net.minecraft.client.renderer.model.ModelBox
 import net.minecraft.client.renderer.model.ModelRotation
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.inventory.container.ChestContainer
-import net.minecraft.inventory.container.ContainerType
+import net.minecraft.item.MusicDiscItem
 import net.minecraft.state.properties.AttachFace
-import net.minecraft.util.Hand
-import net.minecraft.util.HandSide
-import net.minecraft.util.ResourceLocation
+import net.minecraft.util.*
 import net.minecraft.util.math.MathHelper
-import net.minecraft.util.text.ITextComponent
+import net.minecraft.world.World
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.client.event.ModelBakeEvent
@@ -35,6 +29,7 @@ import net.minecraftforge.client.event.RenderSpecificHandEvent
 import net.minecraftforge.client.model.ItemLayerModel
 import net.minecraftforge.client.model.ModelLoader
 import net.minecraftforge.common.MinecraftForge
+import net.minecraftforge.event.entity.EntityJoinWorldEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.client.registry.RenderingRegistry
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
@@ -56,6 +51,8 @@ import org.jglrxavpok.moarboats.common.entities.utilityboats.*
 @KotlinEventBusSubscriber(value = [Dist.CLIENT], modid = MoarBoats.ModID)
 object ClientEvents {
 
+    // World -> Boat ID -> ISound
+    private val recordCache = mutableMapOf<World, MutableMap<Int, ISound>>()
     private val stripes = mutableMapOf<String, MapImageStripe>()
 
     val hookTextureLocation = ResourceLocation(MoarBoats.ModID, "textures/hook.png")
@@ -125,9 +122,10 @@ object ClientEvents {
         registerUtilityBoat(GrindstoneBoatEntity::class.java) { boat -> Blocks.GRINDSTONE.defaultState.with(GrindstoneBlock.FACE, AttachFace.FLOOR) }
         registerUtilityBoat(LoomBoatEntity::class.java) { boat -> Blocks.LOOM.defaultState }
         registerUtilityBoat(CartographyTableBoatEntity::class.java) { boat -> Blocks.CARTOGRAPHY_TABLE.defaultState }
-        registerUtilityBoat(ChestBoatEntity::class.java) { boat -> Blocks.CHEST.defaultState }
+        registerUtilityBoat(ChestBoatEntity::class.java) { boat -> Blocks.CHEST.defaultState.with(HorizontalBlock.HORIZONTAL_FACING, Direction.SOUTH) }
         registerUtilityBoat(ShulkerBoatEntity::class.java) { boat -> Blocks.SHULKER_BOX.defaultState }
-        registerUtilityBoat(EnderChestBoatEntity::class.java) { boat -> Blocks.ENDER_CHEST.defaultState }
+        registerUtilityBoat(EnderChestBoatEntity::class.java) { boat -> Blocks.ENDER_CHEST.defaultState.with(HorizontalBlock.HORIZONTAL_FACING, Direction.EAST) }
+        registerUtilityBoat(JukeboxBoatEntity::class.java) { boat -> Blocks.JUKEBOX.defaultState }
 
         BoatModuleRenderingRegistry.register(FurnaceEngineRenderer)
         BoatModuleRenderingRegistry.register(ChestModuleRenderer)
@@ -163,6 +161,20 @@ object ClientEvents {
         }
         mc.renderManager.skinMap["slim"]!!.apply {
             this.addLayer(MoarBoatsPatreonHookLayer(this))
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @SubscribeEvent
+    fun onEntityJoinWorld(event: EntityJoinWorldEvent) {
+        if(event.entity is PlayerEntity) {
+            for(list in recordCache.values) {
+                for(source in list) {
+                    Minecraft.getInstance().soundHandler.stop(source.value)
+                }
+                list.clear()
+            }
+            recordCache.clear()
         }
     }
 
@@ -265,4 +277,25 @@ object ClientEvents {
     }
 
     fun getMapStripe(id: String) = stripes[id]
+
+    /**
+     * Plays a given record or stop playback, linked to a boat entity
+     */
+    fun playRecord(world: World, entityID: Int, musicDiscItem: MusicDiscItem?) {
+        val worldCache = recordCache.getOrPut(world, ::mutableMapOf)
+        if(entityID in worldCache) {
+            val previousSource = worldCache[entityID]!!
+            worldCache.remove(entityID)
+            Minecraft.getInstance().soundHandler.stop(previousSource)
+        }
+
+        if(musicDiscItem != null) {
+            val entity = world.getEntityByID(entityID) as? UtilityBoatEntity<*,*> ?: return
+            val recordSound = EntitySound(musicDiscItem.sound, SoundCategory.RECORDS, 4f, entity)
+            Minecraft.getInstance().soundHandler.play(recordSound)
+            worldCache[entityID] = recordSound
+
+            Minecraft.getInstance().ingameGUI.setRecordPlayingMessage(musicDiscItem.recordDescription.formattedText)
+        }
+    }
 }

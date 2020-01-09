@@ -48,6 +48,7 @@ object MoarBoatsPacketList {
                 SConfirmWaypointSwap.Handler,
                 CChangeRudderBlocking.Handler,
                 SUtilityTileEntityUpdate.Handler,
+                SPlayRecordFromBoat.Handler,
                 *pluginHandlers.toTypedArray()
                 )
     }

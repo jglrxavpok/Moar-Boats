@@ -73,7 +73,7 @@ object MoarBoats {
     internal var dedicatedServerInstance: DedicatedServer? = null
 
     val logger: Logger = LogManager.getLogger()
-    val NetworkingProtocolVersion = "v1.0"
+    val NetworkingProtocolVersion = "v1.1"
 
     val registryID = ResourceLocation(ModID, "modules")
     val network = NetworkRegistry.ChannelBuilder

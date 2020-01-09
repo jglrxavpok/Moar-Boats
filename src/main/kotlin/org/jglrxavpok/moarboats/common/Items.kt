@@ -35,7 +35,8 @@ object Items {
             *CartographyTableBoatItem.AllVersions,
             *ChestBoatItem.AllVersions,
             *EnderChestBoatItem.AllVersions,
-            *ShulkerBoatItem.AllVersions
+            *ShulkerBoatItem.AllVersions,
+            *JukeboxBoatItem.AllVersions
 
     )
 
