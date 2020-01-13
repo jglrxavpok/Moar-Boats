@@ -7,6 +7,7 @@ import net.minecraft.inventory.container.Container
 import net.minecraft.inventory.container.ContainerType
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
+import net.minecraft.item.Items
 import net.minecraft.item.MusicDiscItem
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.tileentity.JukeboxTileEntity
@@ -74,6 +75,16 @@ class JukeboxBoatEntity(world: World): UtilityBoatEntity<JukeboxTileEntity, Empt
             }
         }
         return false
+    }
+
+    override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
+        super.dropItemsOnDeath(killedByPlayerInCreative)
+        if(!killedByPlayerInCreative) {
+            entityDropItem(ItemStack(Items.JUKEBOX))
+        }
+        if(hasRecord) {
+            ejectRecord()
+        }
     }
 
     private fun insertRecord(stack: ItemStack) {
