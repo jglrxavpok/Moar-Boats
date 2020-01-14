@@ -49,6 +49,7 @@ object MoarBoatsPacketList {
                 CChangeRudderBlocking.Handler,
                 SUtilityTileEntityUpdate.Handler,
                 SPlayRecordFromBoat.Handler,
+                CShowBoatMenu.Handler,
                 *pluginHandlers.toTypedArray()
                 )
     }

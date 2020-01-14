@@ -4,6 +4,8 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.inventory.container.ContainerType
 import net.minecraft.item.Item
+import net.minecraft.item.ItemStack
+import net.minecraft.item.Items
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.util.IWorldPosCallable
 import net.minecraft.util.math.Vec3d
@@ -46,6 +48,12 @@ class CraftingTableBoatEntity(world: World): UtilityBoatEntity<TileEntity, Utili
         return TranslationTextComponent("moarboats.container.utility_boat", TranslationTextComponent("container.crafting"))
     }
 
+    override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
+        super.dropItemsOnDeath(killedByPlayerInCreative)
+        if(!killedByPlayerInCreative) {
+            entityDropItem(ItemStack(Items.CRAFTING_TABLE))
+        }
+    }
 }
 
 class GrindstoneBoatEntity(world: World): UtilityBoatEntity<TileEntity, UtilityGrindstoneContainer>(EntityEntries.GrindstoneBoat, world) {
@@ -77,6 +85,13 @@ class GrindstoneBoatEntity(world: World): UtilityBoatEntity<TileEntity, UtilityG
 
     override fun getDisplayName(): ITextComponent {
         return TranslationTextComponent("moarboats.container.utility_boat", TranslationTextComponent("container.grindstone"))
+    }
+
+    override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
+        super.dropItemsOnDeath(killedByPlayerInCreative)
+        if(!killedByPlayerInCreative) {
+            entityDropItem(ItemStack(Items.GRINDSTONE))
+        }
     }
 
 }
@@ -111,6 +126,12 @@ class LoomBoatEntity(world: World): UtilityBoatEntity<TileEntity, UtilityLoomCon
         return TranslationTextComponent("moarboats.container.utility_boat", TranslationTextComponent("container.loom"))
     }
 
+    override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
+        super.dropItemsOnDeath(killedByPlayerInCreative)
+        if(!killedByPlayerInCreative) {
+            entityDropItem(ItemStack(Items.LOOM))
+        }
+    }
 }
 
 class CartographyTableBoatEntity(world: World): UtilityBoatEntity<TileEntity, UtilityCartographyTableContainer>(EntityEntries.CartographyTableBoat, world) {
@@ -142,6 +163,13 @@ class CartographyTableBoatEntity(world: World): UtilityBoatEntity<TileEntity, Ut
     override fun getDisplayName(): ITextComponent {
         return TranslationTextComponent("moarboats.container.utility_boat", TranslationTextComponent("container.cartography_table"))
     }
+
+    override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
+        super.dropItemsOnDeath(killedByPlayerInCreative)
+        if(!killedByPlayerInCreative) {
+            entityDropItem(ItemStack(Items.CARTOGRAPHY_TABLE))
+        }
+    }
 }
 
 class StonecutterBoatEntity(world: World): UtilityBoatEntity<TileEntity, UtilityStonecutterContainer>(EntityEntries.StonecutterBoat, world) {
@@ -172,5 +200,12 @@ class StonecutterBoatEntity(world: World): UtilityBoatEntity<TileEntity, Utility
 
     override fun getDisplayName(): ITextComponent {
         return TranslationTextComponent("moarboats.container.utility_boat", TranslationTextComponent("container.stonecutter"))
+    }
+
+    override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
+        super.dropItemsOnDeath(killedByPlayerInCreative)
+        if(!killedByPlayerInCreative) {
+            entityDropItem(ItemStack(Items.STONECUTTER))
+        }
     }
 }

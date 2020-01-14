@@ -55,6 +55,7 @@ import org.jglrxavpok.moarboats.common.modules.inventories.ChestModuleInventory
 import org.jglrxavpok.moarboats.common.modules.inventories.EngineModuleInventory
 import org.jglrxavpok.moarboats.common.modules.inventories.SimpleModuleInventory
 import org.jglrxavpok.moarboats.common.tileentity.*
+import org.jglrxavpok.moarboats.datagen.PopulateBoatTypeCache
 import org.jglrxavpok.moarboats.datagen.UtilityBoatRecipes
 import org.jglrxavpok.moarboats.integration.LoadIntegrationPlugins
 import org.jglrxavpok.moarboats.integration.MoarBoatsPlugin
@@ -178,6 +179,8 @@ object MoarBoats {
         DistExecutor.callWhenOn(Dist.CLIENT) {
             Callable<Unit> {ClientEvents.postInit(event)}
         }
+
+        PopulateBoatTypeCache()
     }
 
     fun initDedicatedServer(event: FMLDedicatedServerSetupEvent) {

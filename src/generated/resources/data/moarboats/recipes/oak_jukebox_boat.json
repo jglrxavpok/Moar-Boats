@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "moarboats:utility_boat_jukebox",
+  "ingredients": [
+    {
+      "item": "minecraft:oak_boat"
+    },
+    {
+      "item": "minecraft:jukebox"
+    }
+  ],
+  "result": {
+    "item": "moarboats:oak_jukebox_boat"
+  }
+}

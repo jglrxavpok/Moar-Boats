@@ -188,5 +188,6 @@
 
     "__comment": "6.1.0.0",
     "moarboats.container.utility_boat": "%s Boat",
-    "item.moarboats.utility_boat.name": "%2$s %1$s"
+    "item.moarboats.utility_boat.name": "%2$s %1$s",
+    "moarboats.item.modular_boat.copy": "%s - Copy"
 }

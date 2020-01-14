@@ -5,6 +5,8 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.inventory.container.*
 import net.minecraft.item.Item
+import net.minecraft.item.ItemStack
+import net.minecraft.item.Items
 import net.minecraft.tileentity.AbstractFurnaceTileEntity
 import net.minecraft.tileentity.BlastFurnaceTileEntity
 import net.minecraft.tileentity.FurnaceTileEntity
@@ -50,6 +52,13 @@ class FurnaceBoatEntity(world: World): AbstractFurnaceBoatEntity<FurnaceTileEnti
         val furnaceData = furnaceDataField[getBackingTileEntity()] as IIntArray
         return UtilityFurnaceContainer(p0, p1, getBackingTileEntity(), furnaceData)
     }
+
+    override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
+        super.dropItemsOnDeath(killedByPlayerInCreative)
+        if(!killedByPlayerInCreative) {
+            entityDropItem(ItemStack(Items.FURNACE))
+        }
+    }
 }
 
 class BlastFurnaceBoatEntity(world: World): AbstractFurnaceBoatEntity<BlastFurnaceTileEntity, UtilityBlastFurnaceContainer>(EntityEntries.BlastFurnaceBoat, world) {
@@ -77,6 +86,13 @@ class BlastFurnaceBoatEntity(world: World): AbstractFurnaceBoatEntity<BlastFurna
         val furnaceData = furnaceDataField[getBackingTileEntity()] as IIntArray
         return UtilityBlastFurnaceContainer(p0, p1, getBackingTileEntity(), furnaceData)
     }
+
+    override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
+        super.dropItemsOnDeath(killedByPlayerInCreative)
+        if(!killedByPlayerInCreative) {
+            entityDropItem(ItemStack(Items.BLAST_FURNACE))
+        }
+    }
 }
 
 class SmokerBoatEntity(world: World): AbstractFurnaceBoatEntity<SmokerTileEntity, UtilitySmokerContainer>(EntityEntries.SmokerBoat, world) {
@@ -103,6 +119,13 @@ class SmokerBoatEntity(world: World): AbstractFurnaceBoatEntity<SmokerTileEntity
     override fun createMenu(p0: Int, p1: PlayerInventory, p2: PlayerEntity): Container? {
         val furnaceData = furnaceDataField[getBackingTileEntity()] as IIntArray
         return UtilitySmokerContainer(p0, p1, getBackingTileEntity(), furnaceData)
+    }
+
+    override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
+        super.dropItemsOnDeath(killedByPlayerInCreative)
+        if(!killedByPlayerInCreative) {
+            entityDropItem(ItemStack(Items.SMOKER))
+        }
     }
 }
 

@@ -9,11 +9,13 @@ import net.minecraft.entity.item.BoatEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.entity.player.ServerPlayerEntity
+import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.container.Container
 import net.minecraft.inventory.container.ContainerType
 import net.minecraft.inventory.container.INamedContainerProvider
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
+import net.minecraft.item.Items
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.tileentity.ITickableTileEntity
 import net.minecraft.tileentity.TileEntity
@@ -36,6 +38,7 @@ import org.jglrxavpok.moarboats.common.containers.UtilityContainer
 import org.jglrxavpok.moarboats.common.modules.OarEngineModule
 import org.jglrxavpok.moarboats.common.network.SUtilityTileEntityUpdate
 import org.jglrxavpok.moarboats.common.state.BoatProperty
+import org.jglrxavpok.moarboats.datagen.GetBoatItemFromType
 import org.jglrxavpok.moarboats.extensions.Fluids
 import java.lang.Exception
 import java.util.*
@@ -120,6 +123,10 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
         if (world.isRemote)
             return true
 
+        return openGuiIfPossible(player)
+    }
+
+    override fun openGuiIfPossible(player: PlayerEntity): Boolean {
         if(player is ServerPlayerEntity && getContainerType() != ContainerTypes.Empty) {
             NetworkHooks.openGui(player, this) {
                 it.writeInt(entityID)
@@ -154,9 +161,26 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
     }
 
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
-        if(!killedByPlayerInCreative) {
-            entityDropItem(ItemStack(getBoatItem()))
+        dropBaseBoat(killedByPlayerInCreative)
+        val tileEntity = getBackingTileEntity()
+        if(tileEntity is IInventory) {
+            for (i in 0 until tileEntity.sizeInventory) {
+                val stack = tileEntity.getStackInSlot(i)
+                if(stack.isEmpty)
+                    continue
+                entityDropItem(stack.copy())
+            }
         }
+    }
+
+    protected fun dropBaseBoat(killedByPlayerInCreative: Boolean) {
+        if(!killedByPlayerInCreative) {
+            entityDropItem(ItemStack(getBaseBoatItem()))
+        }
+    }
+
+    fun getBaseBoatItem(): Item {
+        return GetBoatItemFromType(boatType) ?: Items.AIR
     }
 
     override fun saveState(module: BoatModule, isLocal: Boolean) {

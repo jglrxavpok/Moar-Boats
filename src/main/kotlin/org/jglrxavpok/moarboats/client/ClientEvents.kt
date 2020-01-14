@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList
 import com.mojang.blaze3d.platform.GlStateManager
 import net.alexwells.kottle.KotlinEventBusSubscriber
 import net.minecraft.block.*
+import net.minecraft.client.GameSettings
 import net.minecraft.client.Minecraft
 import net.minecraft.client.audio.ISound
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity
@@ -24,6 +25,7 @@ import net.minecraft.util.math.MathHelper
 import net.minecraft.world.World
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraftforge.client.event.InputEvent
 import net.minecraftforge.client.event.ModelBakeEvent
 import net.minecraftforge.client.event.RenderSpecificHandEvent
 import net.minecraftforge.client.model.ItemLayerModel
@@ -34,6 +36,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.client.registry.RenderingRegistry
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent
+import net.minecraftforge.fml.network.PacketDistributor
 import org.jglrxavpok.moarboats.JavaHelpers
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
@@ -44,9 +47,11 @@ import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.containers.ContainerTypes
 import org.jglrxavpok.moarboats.common.data.MapImageStripe
 import org.jglrxavpok.moarboats.common.entities.AnimalBoatEntity
+import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.entities.UtilityBoatEntity
 import org.jglrxavpok.moarboats.common.entities.utilityboats.*
+import org.jglrxavpok.moarboats.common.network.CShowBoatMenu
 
 @KotlinEventBusSubscriber(value = [Dist.CLIENT], modid = MoarBoats.ModID)
 object ClientEvents {
@@ -297,6 +302,18 @@ object ClientEvents {
             worldCache[entityID] = recordSound
 
             Minecraft.getInstance().ingameGUI.setRecordPlayingMessage(musicDiscItem.recordDescription.formattedText)
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @SubscribeEvent
+    fun onInventoryOpened(keyEvent: InputEvent.KeyInputEvent) {
+        val mc = Minecraft.getInstance()
+        if(mc.gameSettings.keyBindInventory.key.keyCode == keyEvent.key) {
+            val player = mc.player
+            if(player.ridingEntity is BasicBoatEntity) {
+                MoarBoats.network.send(PacketDistributor.SERVER.noArg(), CShowBoatMenu()) // send the request to the server so that a container can be opened on the server-side if necessary
+            }
         }
     }
 }

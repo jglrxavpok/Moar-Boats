@@ -78,7 +78,7 @@ class JukeboxBoatEntity(world: World): UtilityBoatEntity<JukeboxTileEntity, Empt
     }
 
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
-        super.dropItemsOnDeath(killedByPlayerInCreative)
+        dropBaseBoat(killedByPlayerInCreative)
         if(!killedByPlayerInCreative) {
             entityDropItem(ItemStack(Items.JUKEBOX))
         }

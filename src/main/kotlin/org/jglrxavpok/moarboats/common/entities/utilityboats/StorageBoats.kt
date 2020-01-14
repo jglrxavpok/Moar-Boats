@@ -1,11 +1,15 @@
 package org.jglrxavpok.moarboats.common.entities.utilityboats
 
+import net.minecraft.block.ShulkerBoxBlock
+import net.minecraft.entity.item.ItemEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.inventory.container.ChestContainer
-import net.minecraft.inventory.container.Container
 import net.minecraft.inventory.container.ContainerType
 import net.minecraft.item.Item
+import net.minecraft.item.ItemStack
+import net.minecraft.item.Items
+import net.minecraft.nbt.CompoundNBT
 import net.minecraft.tileentity.ChestTileEntity
 import net.minecraft.tileentity.ShulkerBoxTileEntity
 import net.minecraft.tileentity.TileEntity
@@ -15,7 +19,6 @@ import net.minecraft.util.text.TranslationTextComponent
 import net.minecraft.world.World
 import org.jglrxavpok.moarboats.common.EntityEntries
 import org.jglrxavpok.moarboats.common.containers.ContainerTypes
-import org.jglrxavpok.moarboats.common.containers.EmptyContainer
 import org.jglrxavpok.moarboats.common.containers.UtilityChestContainer
 import org.jglrxavpok.moarboats.common.containers.UtilityShulkerContainer
 import org.jglrxavpok.moarboats.common.entities.UtilityBoatEntity
@@ -51,9 +54,18 @@ class ChestBoatEntity(world: World): UtilityBoatEntity<ChestTileEntity, UtilityC
         return TranslationTextComponent("moarboats.container.utility_boat", TranslationTextComponent("container.chest"))
     }
 
+    override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
+        super.dropItemsOnDeath(killedByPlayerInCreative)
+        if(!killedByPlayerInCreative) {
+            entityDropItem(ItemStack(Items.CHEST))
+        }
+    }
+
 }
 
 class ShulkerBoatEntity(world: World): UtilityBoatEntity<ShulkerBoxTileEntity, UtilityShulkerContainer>(EntityEntries.ShulkerBoat, world) {
+
+    // TODO: color?
 
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
         this.setPosition(x, y, z)
@@ -81,6 +93,23 @@ class ShulkerBoatEntity(world: World): UtilityBoatEntity<ShulkerBoxTileEntity, U
 
     override fun getDisplayName(): ITextComponent {
         return TranslationTextComponent("moarboats.container.utility_boat", TranslationTextComponent("container.shulkerBox"))
+    }
+
+    override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
+        dropBaseBoat(killedByPlayerInCreative)
+        val tileEntity = getBackingTileEntity()!!
+        if(!killedByPlayerInCreative || !tileEntity.isEmpty) {
+            val stack = ShulkerBoxBlock.getColoredItemStack(null) // TODO: color
+            val nbt = tileEntity.saveToNbt(CompoundNBT())
+            if (!nbt.isEmpty) {
+                stack.setTagInfo("BlockEntityTag", nbt)
+            }
+
+            if (tileEntity.hasCustomName()) {
+                stack.displayName = tileEntity.customName
+            }
+            entityDropItem(stack)
+        }
     }
 
 }
@@ -115,4 +144,10 @@ class EnderChestBoatEntity(world: World): UtilityBoatEntity<TileEntity, ChestCon
         return TranslationTextComponent("moarboats.container.utility_boat", TranslationTextComponent("block.minecraft.ender_chest"))
     }
 
+    override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
+        super.dropItemsOnDeath(killedByPlayerInCreative)
+        if(!killedByPlayerInCreative) {
+            entityDropItem(ItemStack(Items.ENDER_CHEST))
+        }
+    }
 }

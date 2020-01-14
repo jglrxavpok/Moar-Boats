@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "moarboats:utility_boat_ender_chest",
+  "ingredients": [
+    {
+      "item": "minecraft:oak_boat"
+    },
+    {
+      "item": "minecraft:ender_chest"
+    }
+  ],
+  "result": {
+    "item": "moarboats:oak_ender_chest_boat"
+  }
+}

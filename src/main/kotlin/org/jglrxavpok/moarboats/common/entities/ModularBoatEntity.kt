@@ -1,6 +1,5 @@
 package org.jglrxavpok.moarboats.common.entities
 
-import net.minecraft.block.Blocks as MCBlocks
 import net.minecraft.block.BlockState
 import net.minecraft.block.DispenserBlock
 import net.minecraft.dispenser.IDispenseItemBehavior
@@ -19,7 +18,6 @@ import net.minecraft.tileentity.DispenserTileEntity
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.util.*
 import net.minecraft.util.math.*
-import net.minecraft.util.text.StringTextComponent
 import net.minecraft.util.text.TranslationTextComponent
 import net.minecraft.world.World
 import net.minecraftforge.common.capabilities.Capability
@@ -28,7 +26,6 @@ import net.minecraftforge.common.util.Constants
 import net.minecraftforge.common.util.LazyOptional
 import net.minecraftforge.energy.CapabilityEnergy
 import net.minecraftforge.energy.IEnergyStorage
-import net.minecraftforge.fluids.FluidActionResult
 import net.minecraftforge.fluids.FluidStack
 import net.minecraftforge.fluids.IFluidTank
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler
@@ -56,6 +53,7 @@ import org.jglrxavpok.moarboats.extensions.loadInventory
 import org.jglrxavpok.moarboats.extensions.saveInventory
 import org.jglrxavpok.moarboats.extensions.setDirty
 import java.util.*
+import net.minecraft.block.Blocks as MCBlocks
 
 class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat, world), IInventory, ICapabilityProvider, IEnergyStorage, IFluidHandler, IFluidTank, IEntityAdditionalSpawnData {
 
@@ -195,6 +193,14 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
             }
         }
 
+        return openGui(player, hand)
+    }
+
+    override fun openGuiIfPossible(player: PlayerEntity): Boolean {
+        return openGui(player, player.activeHand)
+    }
+
+    private fun openGui(player: PlayerEntity, hand: Hand): Boolean {
         val validOwner = isValidOwner(player)
         val canOpenGui = validOwner && !modules.any { it.onInteract(this, player, hand, player.isSneaking) }
         if(canOpenGui) {
@@ -423,7 +429,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
 
     override fun getPickedResult(target: RayTraceResult): ItemStack {
         val stack = ItemStack(ModularBoatItem[color], 1)
-        stack.displayName = StringTextComponent(stack.displayName.formattedText+" - Copy") // TODO: use TranslationTextComponent
+        stack.displayName = TranslationTextComponent("moarboats.item.modular_boat.copy", stack.displayName)
         val boatData = stack.getOrCreateChildTag("boat_data")
         writeAdditional(boatData)
         stack.setTagInfo("boat_data", boatData)
