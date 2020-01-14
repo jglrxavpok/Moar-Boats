@@ -1,14 +1,13 @@
 package org.jglrxavpok.moarboats.integration
 
 import com.google.common.reflect.ClassPath
+import net.minecraft.data.DataGenerator
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraftforge.client.model.generators.ExistingFileHelper
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.ModList
-import net.minecraftforge.fml.ModLoadingContext
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
-import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent
-import net.minecraftforge.fml.event.lifecycle.FMLModIdMappingEvent
+import net.minecraftforge.fml.event.lifecycle.GatherDataEvent
 import net.minecraftforge.registries.IForgeRegistry
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModuleEntry
@@ -40,6 +39,7 @@ interface MoarBoatsPlugin {
     @OnlyIn(Dist.CLIENT)
     fun registerModuleRenderers(registry: IForgeRegistry<BoatModuleRenderer>) {}
 
+    fun registerProviders(event: GatherDataEvent, generator: DataGenerator, existingFileHelper: ExistingFileHelper) {}
 }
 
 /**

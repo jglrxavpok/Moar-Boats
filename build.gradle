@@ -117,6 +117,8 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.14.4-28.1.111'
     compile "kottle:Kottle:$kottleVersion"
     mod "kottle:Kottle:$kottleVersion"
+    compile "com.github.glitchfiend.biomesoplenty:BiomesOPlenty:1.14.4-9.0.0.262:universal"
+    mod "com.github.glitchfiend.biomesoplenty:BiomesOPlenty:1.14.4-9.0.0.262:universal"
 
     // You may put jars on which you depend on in ./libs or you may define them like so..
     // compile "some.group:artifact:version:classifier"

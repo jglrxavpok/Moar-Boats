@@ -1,4 +1,4 @@
-package org.jglrxavpok.moarboats.datagen
+package org.jglrxavpok.moarboats.integration.biomesoplenty
 
 import net.minecraft.block.Block
 import net.minecraft.block.Blocks
@@ -17,11 +17,14 @@ import net.minecraftforge.registries.GameData
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.Items
 import org.jglrxavpok.moarboats.common.items.UtilityBoatItem
+import org.jglrxavpok.moarboats.datagen.GetBoatItemFromType
+import org.jglrxavpok.moarboats.datagen.UtilityBoatType2Block
 import java.util.function.Consumer
 
-class UtilityBoatRecipes(generator: DataGenerator): RecipeProvider(generator) {
+class BOPRecipeProvider(generator: DataGenerator): RecipeProvider(generator) {
 
     override fun registerRecipes(consumer: Consumer<IFinishedRecipe>) {
+        // todo
         for(item in Items.list) {
             if(item is UtilityBoatItem) {
                 registerRecipe(consumer, item)
@@ -30,6 +33,7 @@ class UtilityBoatRecipes(generator: DataGenerator): RecipeProvider(generator) {
     }
 
     private fun registerRecipe(consumer: Consumer<IFinishedRecipe>, item: UtilityBoatItem) {
+        // todo
         MoarBoats.logger.info("Generating recipe for item ${item.registryName}")
         ShapelessRecipeBuilder.shapelessRecipe(item)
                 .setGroup("moarboats:utility_boat_${item.containerType}")

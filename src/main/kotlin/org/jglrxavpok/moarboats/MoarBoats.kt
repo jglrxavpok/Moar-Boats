@@ -48,7 +48,6 @@ import org.jglrxavpok.moarboats.common.*
 import org.jglrxavpok.moarboats.common.blocks.*
 import org.jglrxavpok.moarboats.common.containers.*
 import org.jglrxavpok.moarboats.common.entities.UtilityBoatEntity
-import org.jglrxavpok.moarboats.common.entities.utilityboats.*
 import org.jglrxavpok.moarboats.common.items.*
 import org.jglrxavpok.moarboats.common.modules.*
 import org.jglrxavpok.moarboats.common.modules.inventories.ChestModuleInventory
@@ -373,8 +372,11 @@ object MoarBoats {
                     return delegate.exists(loc, type, pathSuffix, pathPrefix)
                 }
             }
+            PopulateBoatTypeCache() // called here too in addition to the PostCompleteEvent listener as the PostCompleteEvent is fired only ingame
+            // todo: populate cache with plugins
             generator.addProvider(JsonModelGenerator(generator, ModID, existingFileHelper))
             generator.addProvider(UtilityBoatRecipes(generator))
+            plugins.forEach { it.registerProviders(event, generator, existingFileHelper) }
         }
     }
 }
