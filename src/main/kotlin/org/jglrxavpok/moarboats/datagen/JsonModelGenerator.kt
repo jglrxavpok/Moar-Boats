@@ -8,6 +8,7 @@ import net.minecraft.util.ResourceLocation
 import net.minecraftforge.client.model.generators.ExistingFileHelper
 import net.minecraftforge.client.model.generators.ItemModelProvider
 import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.common.data.BoatType
 
 class JsonModelGenerator(generator: DataGenerator, modid: String, existingFile: ExistingFileHelper): ItemModelProvider(generator, modid, existingFile) {
     override fun getName(): String {
@@ -19,7 +20,7 @@ class JsonModelGenerator(generator: DataGenerator, modid: String, existingFile: 
         val outputFolder = generator.outputFolder
 
         // utility boats
-        for (type in BoatEntity.Type.values()) {
+        for (type in BoatType.values()) {
             for(containerType in UtilityBoatTypeList) {
                 val name = "${type.getName()}_${containerType}_boat"
                 withExistingParent(name, ResourceLocation("item/generated"))

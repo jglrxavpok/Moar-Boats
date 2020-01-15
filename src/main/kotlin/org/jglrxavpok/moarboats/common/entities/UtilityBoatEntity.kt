@@ -35,10 +35,10 @@ import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleInventory
 import org.jglrxavpok.moarboats.common.containers.ContainerTypes
 import org.jglrxavpok.moarboats.common.containers.UtilityContainer
+import org.jglrxavpok.moarboats.common.data.BoatType
 import org.jglrxavpok.moarboats.common.modules.OarEngineModule
 import org.jglrxavpok.moarboats.common.network.SUtilityTileEntityUpdate
 import org.jglrxavpok.moarboats.common.state.BoatProperty
-import org.jglrxavpok.moarboats.datagen.GetBoatItemFromType
 import org.jglrxavpok.moarboats.extensions.Fluids
 import java.lang.Exception
 import java.util.*
@@ -49,7 +49,7 @@ import java.util.*
 abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, world: World): BasicBoatEntity(type, world), INamedContainerProvider
     where TE: TileEntity, C: Container
 {
-    internal var boatType: BoatEntity.Type = BoatEntity.Type.OAK
+    internal var boatType: BoatType = BoatType.OAK
 
     companion object {
         val InvalidPosition = BlockPos(0, -1, 0) // out of bounds so backing tile entities don't modify the world
@@ -150,7 +150,7 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
 
     override fun readAdditional(compound: CompoundNBT) {
         super.readAdditional(compound)
-        boatType = BoatEntity.Type.getTypeFromString(compound.getString("boatType"))
+        boatType = BoatType.getTypeFromString(compound.getString("boatType"))
         backingTileEntity?.read(compound.getCompound("backingTileEntity"))
     }
 
@@ -180,7 +180,7 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
     }
 
     fun getBaseBoatItem(): Item {
-        return GetBoatItemFromType(boatType) ?: Items.AIR
+        return BoatType.getBoatItemFromType(boatType) ?: Items.AIR
     }
 
     override fun saveState(module: BoatModule, isLocal: Boolean) {

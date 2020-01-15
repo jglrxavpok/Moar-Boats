@@ -40,6 +40,7 @@ interface MoarBoatsPlugin {
     fun registerModuleRenderers(registry: IForgeRegistry<BoatModuleRenderer>) {}
 
     fun registerProviders(event: GatherDataEvent, generator: DataGenerator, existingFileHelper: ExistingFileHelper) {}
+    fun populateBoatTypes() {}
 }
 
 /**

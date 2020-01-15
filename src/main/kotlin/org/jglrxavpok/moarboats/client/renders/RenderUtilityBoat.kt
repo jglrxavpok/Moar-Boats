@@ -29,14 +29,11 @@ class RenderUtilityBoat<T: UtilityBoatEntity<*,*>>(renderManager: EntityRenderer
         val RopeAnchorTextureLocation = ResourceLocation(MoarBoats.ModID, "textures/entity/ropeanchor.png")
     }
 
-    // load from BoatRenderer in case the class is modified for modded wood types
-    private val textures: Array<ResourceLocation> = ObfuscationReflectionHelper.findField(BoatRenderer::class.java, "field_110782_f").get(null) as Array<ResourceLocation>
-
     val model = ModelModularBoat()
     val ropeAnchorModel = ModelBoatLinkerAnchor()
 
     override fun getEntityTexture(entity: T): ResourceLocation {
-        return textures[entity.getBoatType().ordinal]
+        return entity.getBoatType().getTexture()
     }
 
     override fun doRender(entity: T, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float) {

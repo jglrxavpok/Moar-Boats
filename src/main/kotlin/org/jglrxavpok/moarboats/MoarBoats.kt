@@ -47,6 +47,7 @@ import org.jglrxavpok.moarboats.datagen.JsonModelGenerator
 import org.jglrxavpok.moarboats.common.*
 import org.jglrxavpok.moarboats.common.blocks.*
 import org.jglrxavpok.moarboats.common.containers.*
+import org.jglrxavpok.moarboats.common.data.BoatType
 import org.jglrxavpok.moarboats.common.entities.UtilityBoatEntity
 import org.jglrxavpok.moarboats.common.items.*
 import org.jglrxavpok.moarboats.common.modules.*
@@ -54,7 +55,6 @@ import org.jglrxavpok.moarboats.common.modules.inventories.ChestModuleInventory
 import org.jglrxavpok.moarboats.common.modules.inventories.EngineModuleInventory
 import org.jglrxavpok.moarboats.common.modules.inventories.SimpleModuleInventory
 import org.jglrxavpok.moarboats.common.tileentity.*
-import org.jglrxavpok.moarboats.datagen.PopulateBoatTypeCache
 import org.jglrxavpok.moarboats.datagen.UtilityBoatRecipes
 import org.jglrxavpok.moarboats.integration.LoadIntegrationPlugins
 import org.jglrxavpok.moarboats.integration.MoarBoatsPlugin
@@ -178,8 +178,6 @@ object MoarBoats {
         DistExecutor.callWhenOn(Dist.CLIENT) {
             Callable<Unit> {ClientEvents.postInit(event)}
         }
-
-        PopulateBoatTypeCache()
     }
 
     fun initDedicatedServer(event: FMLDedicatedServerSetupEvent) {
@@ -194,6 +192,8 @@ object MoarBoats {
                     .setName(registryID)
                     .setType(BoatModuleEntry::class.java)
                     .create()
+            BoatType.populateBoatTypeCache()
+            plugins.forEach { it.populateBoatTypes() }
         }
 
         @SubscribeEvent
@@ -372,7 +372,7 @@ object MoarBoats {
                     return delegate.exists(loc, type, pathSuffix, pathPrefix)
                 }
             }
-            PopulateBoatTypeCache() // called here too in addition to the PostCompleteEvent listener as the PostCompleteEvent is fired only ingame
+            BoatType.populateBoatTypeCache() // called here too in addition to the PostCompleteEvent listener as the PostCompleteEvent is fired only ingame
             // todo: populate cache with plugins
             generator.addProvider(JsonModelGenerator(generator, ModID, existingFileHelper))
             generator.addProvider(UtilityBoatRecipes(generator))
