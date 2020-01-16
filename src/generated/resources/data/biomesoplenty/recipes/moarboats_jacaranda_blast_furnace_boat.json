@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "moarboats:utility_boat_blast_furnace",
+  "ingredients": [
+    {
+      "item": "biomesoplenty:jacaranda_boat"
+    },
+    {
+      "item": "minecraft:blast_furnace"
+    }
+  ],
+  "result": {
+    "item": "moarboats:jacaranda_blast_furnace_boat"
+  }
+}

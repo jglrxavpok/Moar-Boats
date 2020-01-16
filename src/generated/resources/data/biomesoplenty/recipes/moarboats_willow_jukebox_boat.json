@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "moarboats:utility_boat_jukebox",
+  "ingredients": [
+    {
+      "item": "biomesoplenty:willow_boat"
+    },
+    {
+      "item": "minecraft:jukebox"
+    }
+  ],
+  "result": {
+    "item": "moarboats:willow_jukebox_boat"
+  }
+}

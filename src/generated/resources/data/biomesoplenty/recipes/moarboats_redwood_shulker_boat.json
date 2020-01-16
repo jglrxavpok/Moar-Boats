@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "moarboats:utility_boat_shulker",
+  "ingredients": [
+    {
+      "item": "biomesoplenty:redwood_boat"
+    },
+    {
+      "item": "minecraft:shulker_box"
+    }
+  ],
+  "result": {
+    "item": "moarboats:redwood_shulker_boat"
+  }
+}

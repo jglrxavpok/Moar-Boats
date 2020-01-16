@@ -1,0 +1,8 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "biomesoplenty:item/hellbark_boat",
+    "layer1": "moarboats:items/utility/blast_furnace",
+    "layer2": "moarboats:items/utility/paddle"
+  }
+}

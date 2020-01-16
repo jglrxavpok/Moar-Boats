@@ -1,0 +1,8 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "biomesoplenty:item/jacaranda_boat",
+    "layer1": "moarboats:items/utility/stonecutter",
+    "layer2": "moarboats:items/utility/paddle"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "moarboats:utility_boat_jukebox",
+  "ingredients": [
+    {
+      "item": "biomesoplenty:ethereal_boat"
+    },
+    {
+      "item": "minecraft:jukebox"
+    }
+  ],
+  "result": {
+    "item": "moarboats:ethereal_jukebox_boat"
+  }
+}

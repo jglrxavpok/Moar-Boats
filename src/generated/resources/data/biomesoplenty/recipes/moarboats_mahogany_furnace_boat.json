@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "moarboats:utility_boat_furnace",
+  "ingredients": [
+    {
+      "item": "biomesoplenty:mahogany_boat"
+    },
+    {
+      "item": "minecraft:furnace"
+    }
+  ],
+  "result": {
+    "item": "moarboats:mahogany_furnace_boat"
+  }
+}

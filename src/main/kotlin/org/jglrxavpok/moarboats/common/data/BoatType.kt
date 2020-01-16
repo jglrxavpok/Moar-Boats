@@ -13,7 +13,7 @@ interface BoatType {
 
     companion object {
         private val boatTypes = mutableListOf<BoatType>()
-        private val boatCache = mutableMapOf<BoatType, Item>()
+        private val boatCache = mutableMapOf<BoatType, () -> Item>()
 
         val OAK = createFromVanilla(BoatEntity.Type.OAK)
 
@@ -29,7 +29,7 @@ interface BoatType {
             for(boatItem in GameData.getWrapper(Item::class.java).iterator()) {
                 if(boatItem is BoatItem) {
                     val boatType = createFromVanilla(typeField[boatItem] as BoatEntity.Type)
-                    registerBoatType(boatType, boatItem)
+                    registerBoatType(boatType) {boatItem}
                 }
             }
         }
@@ -49,18 +49,27 @@ interface BoatType {
             override fun getTexture(): ResourceLocation {
                 return textures[type.ordinal]
             }
+
+            override fun getOriginModID(): String {
+                return MoarBoats.ModID
+            }
+
+            override fun toString(): String {
+                return "Vanilla BoatType ${getName()} from ${getOriginModID()}"
+            }
         }
 
-        fun registerBoatType(boatType: BoatType, boatItem: Item) {
+        fun registerBoatType(boatType: BoatType, boatItem: () -> Item) {
             boatTypes += boatType
             boatCache[boatType] = boatItem
-            MoarBoats.logger.info("Boat ${boatItem.registryName} is of type $boatType")
+            MoarBoats.logger.info("Registered boat type $boatType")
         }
 
-        fun getBoatItemFromType(boatType: BoatType) = boatCache[boatType]
+        fun getBoatItemFromType(boatType: BoatType) = boatCache[boatType]?.invoke() ?: null
 
     }
 
     fun getName(): String
+    fun getOriginModID(): String
     fun getTexture(): ResourceLocation
 }

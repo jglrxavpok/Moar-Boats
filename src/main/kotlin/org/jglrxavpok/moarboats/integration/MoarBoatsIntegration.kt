@@ -7,6 +7,7 @@ import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.client.model.generators.ExistingFileHelper
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.ModList
+import net.minecraftforge.fml.StartupMessageManager
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent
 import net.minecraftforge.registries.IForgeRegistry
 import org.jglrxavpok.moarboats.MoarBoats
@@ -14,6 +15,8 @@ import org.jglrxavpok.moarboats.api.BoatModuleEntry
 import org.jglrxavpok.moarboats.client.renders.BoatModuleRenderer
 import org.jglrxavpok.moarboats.common.network.MBMessageHandler
 import org.jglrxavpok.moarboats.common.network.MoarBoatsPacket
+import java.lang.IllegalStateException
+import java.lang.reflect.Proxy
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
@@ -56,22 +59,24 @@ fun LoadIntegrationPlugins(): List<MoarBoatsPlugin> {
      */
     fun tryGetPlugin(info: ClassPath.ClassInfo): MoarBoatsPlugin? {
         try {
-            val clazz = info.load()
+            val clazz = MoarBoatsIntegration::class.java.classLoader.loadClass(info.name)
+           // val clazz = info.load()
             val valid = with(clazz) {
-                if(!MoarBoatsPlugin::class.java.isAssignableFrom(this))
+                if(!MoarBoatsPlugin::class.java.isAssignableFrom(clazz))
                     return@with false
-                val integration = this.getAnnotation(MoarBoatsIntegration::class.java)
-                MoarBoats.logger.info("Found candidate ${info.name} with dependency ${integration.dependency}")
-                if(ModList.get().isLoaded(integration.dependency))
+                val dependency = clazz.getAnnotation(MoarBoatsIntegration::class.java).dependency
+                MoarBoats.logger.info("Found candidate ${info.name} with dependency $dependency")
+                if(ModList.get().isLoaded(dependency))
                     true
                 else {
-                    MoarBoats.logger.warn("Dependency ${integration.dependency} not found for plugin $canonicalName")
+                    MoarBoats.logger.warn("Dependency $dependency not found for plugin $canonicalName")
                     false
                 }
             }
             if(valid) {
                 return clazz.newInstance() as MoarBoatsPlugin
             }
+            throw IllegalStateException("Found MoarBoatsIntegration annotation on a class that does not implement MoarBoatsPlugin")
         } catch (t: Throwable) {
             MoarBoats.logger.error("Failed to load plugin ${info.name}", t)
         }
@@ -80,11 +85,12 @@ fun LoadIntegrationPlugins(): List<MoarBoatsPlugin> {
     // Go through all classes that have @MoarBoatsIntegration
     val classpath = ClassPath.from(MoarBoats::class.java.classLoader)
     val classes = classpath.topLevelClasses.filter {
-        if(it.name == "module-info") {
+        if(it.name == "module-info" || it.name.startsWith("META-INF")) {
             return@filter false
         }
         try {
-            val clazz = it.load()
+            val clazz = MoarBoatsIntegration::class.java.classLoader.loadClass(it.name)
+
             clazz.isAnnotationPresent(MoarBoatsIntegration::class.java)
         } catch (e: Throwable) {
             // Google Classpath somehow found a class that doesn't exist or doesn't load correctly ¯\_(ツ)_/¯
@@ -93,14 +99,16 @@ fun LoadIntegrationPlugins(): List<MoarBoatsPlugin> {
     }
     val plugins = mutableListOf<MoarBoatsPlugin>()
     MoarBoats.logger.info("Starting search for plugins")
+    StartupMessageManager.addModMessage("[Moar Boats] Starting search for plugins")
     classes.forEach { info ->
         MoarBoats.logger.debug("Looking for potential plugin in ${info.name}")
-        val plugin = tryGetPlugin(info)
-        plugin?.let { plugins += it }
+        val plugin = tryGetPlugin(info) ?: return@forEach
+        plugin.let { plugins += it }
     }
 
     // Just for rendering, display "None" if no plugin loaded, "plugin1, plugin2, ..." if some loaded
     val pluginList = if(plugins.isEmpty()) "None" else plugins.joinToString(", ") { it::class.java.canonicalName }
     MoarBoats.logger.info("Found and loaded plugins: $pluginList")
+    StartupMessageManager.addModMessage("[Moar Boats] Finished search for plugins")
     return plugins
 }

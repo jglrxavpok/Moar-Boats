@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "moarboats:utility_boat_grindstone",
+  "ingredients": [
+    {
+      "item": "biomesoplenty:jacaranda_boat"
+    },
+    {
+      "item": "minecraft:grindstone"
+    }
+  ],
+  "result": {
+    "item": "moarboats:jacaranda_grindstone_boat"
+  }
+}

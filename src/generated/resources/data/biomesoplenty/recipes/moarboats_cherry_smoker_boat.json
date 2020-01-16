@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "moarboats:utility_boat_smoker",
+  "ingredients": [
+    {
+      "item": "biomesoplenty:cherry_boat"
+    },
+    {
+      "item": "minecraft:smoker"
+    }
+  ],
+  "result": {
+    "item": "moarboats:cherry_smoker_boat"
+  }
+}

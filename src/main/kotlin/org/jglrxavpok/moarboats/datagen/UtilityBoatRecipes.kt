@@ -5,6 +5,7 @@ import net.minecraft.data.DataGenerator
 import net.minecraft.data.IFinishedRecipe
 import net.minecraft.data.RecipeProvider
 import net.minecraft.data.ShapelessRecipeBuilder
+import net.minecraft.util.ResourceLocation
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.Items
 import org.jglrxavpok.moarboats.common.data.BoatType
@@ -23,11 +24,12 @@ class UtilityBoatRecipes(generator: DataGenerator): RecipeProvider(generator) {
 
     private fun registerRecipe(consumer: Consumer<IFinishedRecipe>, item: UtilityBoatItem) {
         MoarBoats.logger.info("Generating recipe for item ${item.registryName}")
+        val baseBoat = BoatType.getBoatItemFromType(item.boatType)!!
         ShapelessRecipeBuilder.shapelessRecipe(item)
                 .setGroup("moarboats:utility_boat_${item.containerType}")
-                .addIngredient(BoatType.getBoatItemFromType(item.boatType)!!)
+                .addIngredient(baseBoat)
                 .addIngredient(UtilityBoatType2Block(item.containerType))
                 .addCriterion("in_water", this.enteredBlock(Blocks.WATER))
-                .build(consumer)
+                .build(consumer, ResourceLocation(item.boatType.getOriginModID(), "moarboats_${item.registryName!!.path}"))
     }
 }

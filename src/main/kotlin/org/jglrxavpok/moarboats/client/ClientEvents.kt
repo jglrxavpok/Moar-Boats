@@ -309,6 +309,8 @@ object ClientEvents {
     @SubscribeEvent
     fun onInventoryOpened(keyEvent: InputEvent.KeyInputEvent) {
         val mc = Minecraft.getInstance()
+        if(mc.world == null)
+            return // must be playing
         if(mc.gameSettings.keyBindInventory.key.keyCode == keyEvent.key) {
             val player = mc.player
             if(player.ridingEntity is BasicBoatEntity) {

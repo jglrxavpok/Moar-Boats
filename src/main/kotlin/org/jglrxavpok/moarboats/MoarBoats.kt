@@ -372,11 +372,11 @@ object MoarBoats {
                     return delegate.exists(loc, type, pathSuffix, pathPrefix)
                 }
             }
-            BoatType.populateBoatTypeCache() // called here too in addition to the PostCompleteEvent listener as the PostCompleteEvent is fired only ingame
-            // todo: populate cache with plugins
-            generator.addProvider(JsonModelGenerator(generator, ModID, existingFileHelper))
+            generator.addProvider(JsonModelGenerator(generator, ModID, "minecraft", existingFileHelper))
             generator.addProvider(UtilityBoatRecipes(generator))
             plugins.forEach { it.registerProviders(event, generator, existingFileHelper) }
+            println("gather data2")
+            generator.run()
         }
     }
 }

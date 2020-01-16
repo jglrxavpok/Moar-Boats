@@ -1,8 +1,19 @@
 package org.jglrxavpok.moarboats.integration.biomesoplenty
 
+import biomesoplenty.api.item.BOPItems
+import biomesoplenty.common.entity.item.BoatEntityBOP
+import biomesoplenty.common.item.BoatItemBOP
 import net.minecraft.data.DataGenerator
+import net.minecraft.entity.item.BoatEntity
+import net.minecraft.item.BoatItem
+import net.minecraft.item.Item
+import net.minecraft.resources.ResourcePackType
+import net.minecraft.util.ResourceLocation
 import net.minecraftforge.client.model.generators.ExistingFileHelper
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent
+import net.minecraftforge.registries.GameData
+import org.jglrxavpok.moarboats.common.data.BoatType
 import org.jglrxavpok.moarboats.datagen.JsonModelGenerator
 import org.jglrxavpok.moarboats.integration.MoarBoatsIntegration
 import org.jglrxavpok.moarboats.integration.MoarBoatsPlugin
@@ -10,8 +21,43 @@ import org.jglrxavpok.moarboats.integration.MoarBoatsPlugin
 @MoarBoatsIntegration("biomesoplenty")
 class BOPPlugin: MoarBoatsPlugin {
 
+    override fun populateBoatTypes() {
+        BoatEntityBOP.Type.values().forEach {
+            val name = it.getName()
+            val type = createFromBOP(it)
+            val item = { GameData.getWrapper(Item::class.java).getValue(ResourceLocation("biomesoplenty", name+"_boat"))!!.get() }
+            BoatType.registerBoatType(type, item)
+        }
+    }
+
+    private fun createFromBOP(type: BoatEntityBOP.Type): BoatType {
+        return object: BoatType {
+            override fun getName(): String {
+                return type.getName()
+            }
+
+            override fun getOriginModID(): String {
+                return "biomesoplenty"
+            }
+
+            override fun getTexture(): ResourceLocation {
+                return ResourceLocation("biomesoplenty:entity/boat/${getName()}")
+            }
+
+            override fun toString(): String {
+                return "Biomes'O'Plenty BoatType ${getName()} from ${getOriginModID()}"
+            }
+        }
+    }
+
     override fun registerProviders(event: GatherDataEvent, generator: DataGenerator, existingFileHelper: ExistingFileHelper) {
-        generator.addProvider(JsonModelGenerator(generator, "biomesoplenty", existingFileHelper))
-        generator.addProvider(BOPRecipeProvider(generator))
+        val fileHelper = object: ExistingFileHelper(emptyList(), true) {
+            override fun exists(loc: ResourceLocation?, type: ResourcePackType?, pathSuffix: String?, pathPrefix: String?): Boolean {
+                if(loc?.namespace == "biomesoplenty")
+                    return true
+                return existingFileHelper.exists(loc, type, pathSuffix, pathPrefix)
+            }
+        }
+        generator.addProvider(JsonModelGenerator(generator, "biomesoplenty", "biomesoplenty", fileHelper))
     }
 }

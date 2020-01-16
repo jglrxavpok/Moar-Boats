@@ -1,0 +1,8 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "biomesoplenty:item/magic_boat",
+    "layer1": "moarboats:items/utility/cartography_table",
+    "layer2": "moarboats:items/utility/paddle"
+  }
+}

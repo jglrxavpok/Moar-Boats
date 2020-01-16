@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "moarboats:utility_boat_crafting_table",
+  "ingredients": [
+    {
+      "item": "biomesoplenty:magic_boat"
+    },
+    {
+      "item": "minecraft:crafting_table"
+    }
+  ],
+  "result": {
+    "item": "moarboats:magic_crafting_table_boat"
+  }
+}
