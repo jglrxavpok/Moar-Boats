@@ -40,8 +40,12 @@ class BOPPlugin: MoarBoatsPlugin {
                 return "biomesoplenty"
             }
 
+            override fun getBaseBoatOriginModID(): String {
+                return "biomesoplenty"
+            }
+
             override fun getTexture(): ResourceLocation {
-                return ResourceLocation("biomesoplenty:entity/boat/${getName()}")
+                return ResourceLocation("biomesoplenty:textures/entity/boat/${getName()}.png")
             }
 
             override fun toString(): String {

@@ -275,7 +275,7 @@ abstract class UtilityBoatItem(val boatType: BoatType, val containerType: String
     open fun getContainerDisplayName(): ITextComponent = TranslationTextComponent("container.$containerType")
 
     override fun getDisplayName(stack: ItemStack): ITextComponent {
-        return TranslationTextComponent("item.moarboats.utility_boat.name", TranslationTextComponent("item.minecraft.${boatType.getName()}_boat"), getContainerDisplayName())
+        return TranslationTextComponent("item.moarboats.utility_boat.name", TranslationTextComponent("item.${boatType.getOriginModID()}.${boatType.getName()}_boat"), getContainerDisplayName())
     }
 }
 

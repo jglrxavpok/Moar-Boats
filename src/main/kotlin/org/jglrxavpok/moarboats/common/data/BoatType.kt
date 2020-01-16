@@ -54,6 +54,10 @@ interface BoatType {
                 return MoarBoats.ModID
             }
 
+            override fun getBaseBoatOriginModID(): String {
+                return "minecraft"
+            }
+
             override fun toString(): String {
                 return "Vanilla BoatType ${getName()} from ${getOriginModID()}"
             }
@@ -71,5 +75,6 @@ interface BoatType {
 
     fun getName(): String
     fun getOriginModID(): String
+    fun getBaseBoatOriginModID(): String
     fun getTexture(): ResourceLocation
 }

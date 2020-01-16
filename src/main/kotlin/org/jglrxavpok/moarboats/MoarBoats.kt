@@ -2,6 +2,7 @@ package org.jglrxavpok.moarboats
 
 import net.alexwells.kottle.FMLKotlinModLoadingContext
 import net.alexwells.kottle.KotlinEventBusSubscriber
+import net.minecraft.block.AirBlock
 import net.minecraft.block.Block
 import net.minecraft.block.material.Material
 import net.minecraft.block.material.MaterialColor
@@ -17,7 +18,9 @@ import net.minecraft.resources.ResourcePackType
 import net.minecraft.server.dedicated.DedicatedServer
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.tileentity.TileEntityType
+import net.minecraft.util.NonNullList
 import net.minecraft.util.ResourceLocation
+import net.minecraft.util.registry.Registry
 import net.minecraft.world.dimension.DimensionType
 import net.minecraft.world.storage.DimensionSavedDataManager
 import net.minecraftforge.api.distmarker.Dist
@@ -43,7 +46,6 @@ import org.jglrxavpok.moarboats.api.BoatModuleEntry
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.api.registerModule
 import org.jglrxavpok.moarboats.client.ClientEvents
-import org.jglrxavpok.moarboats.datagen.JsonModelGenerator
 import org.jglrxavpok.moarboats.common.*
 import org.jglrxavpok.moarboats.common.blocks.*
 import org.jglrxavpok.moarboats.common.containers.*
@@ -55,6 +57,7 @@ import org.jglrxavpok.moarboats.common.modules.inventories.ChestModuleInventory
 import org.jglrxavpok.moarboats.common.modules.inventories.EngineModuleInventory
 import org.jglrxavpok.moarboats.common.modules.inventories.SimpleModuleInventory
 import org.jglrxavpok.moarboats.common.tileentity.*
+import org.jglrxavpok.moarboats.datagen.JsonModelGenerator
 import org.jglrxavpok.moarboats.datagen.UtilityBoatRecipes
 import org.jglrxavpok.moarboats.integration.LoadIntegrationPlugins
 import org.jglrxavpok.moarboats.integration.MoarBoatsPlugin
@@ -104,6 +107,17 @@ object MoarBoats {
         @OnlyIn(Dist.CLIENT)
         override fun createIcon(): ItemStack {
             return ItemStack(ModularBoatItem[DyeColor.WHITE])
+        }
+
+        override fun fill(items: NonNullList<ItemStack>) {
+            for (block in Blocks.list) {
+                if(block.asItem() !is AirItem) {
+                    block.fillItemGroup(this, items)
+                }
+            }
+            for (item in Items.list) {
+                item.fillItemGroup(this, items)
+            }
         }
     }
 
