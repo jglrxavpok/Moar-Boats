@@ -51,6 +51,13 @@ class BOPPlugin: MoarBoatsPlugin {
             override fun toString(): String {
                 return "Biomes'O'Plenty BoatType ${getName()} from ${getOriginModID()}"
             }
+
+            override fun equals(other: Any?): Boolean {
+                if(other is BoatType) {
+                    return BoatType.checkEqual(this, other)
+                }
+                return super.equals(other)
+            }
         }
     }
 

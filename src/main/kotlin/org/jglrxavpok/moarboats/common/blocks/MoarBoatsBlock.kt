@@ -7,7 +7,7 @@ import org.jglrxavpok.moarboats.MoarBoats
 
 abstract class MoarBoatsBlock(properties: Block.Properties): Block(properties) {
 
-    open val itemGroup: ItemGroup = MoarBoats.CreativeTab
+    open val itemGroup: ItemGroup = MoarBoats.MainCreativeTab
 
     constructor(): this(Block.Properties.create(MoarBoats.MachineMaterial, MaterialColor.IRON).hardnessAndResistance(0.5f, 10.5f))
 

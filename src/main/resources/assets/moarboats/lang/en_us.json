@@ -26,6 +26,7 @@
     "gui.engine.estimatedTime": "Estimated running time",
     "gui.engine.lock": "Lock in place",
     "itemGroup.moarboats": "Moar Boats",
+    "itemGroup.moarboats_utility": "Moar Boats Utility Boats",
 
     "_comment": "1.2.0",
     "inventory.fishing": "Fishing module",

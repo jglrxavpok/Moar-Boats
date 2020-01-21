@@ -2,7 +2,6 @@ package org.jglrxavpok.moarboats
 
 import net.alexwells.kottle.FMLKotlinModLoadingContext
 import net.alexwells.kottle.KotlinEventBusSubscriber
-import net.minecraft.block.AirBlock
 import net.minecraft.block.Block
 import net.minecraft.block.material.Material
 import net.minecraft.block.material.MaterialColor
@@ -20,7 +19,6 @@ import net.minecraft.tileentity.TileEntity
 import net.minecraft.tileentity.TileEntityType
 import net.minecraft.util.NonNullList
 import net.minecraft.util.ResourceLocation
-import net.minecraft.util.registry.Registry
 import net.minecraft.world.dimension.DimensionType
 import net.minecraft.world.storage.DimensionSavedDataManager
 import net.minecraftforge.api.distmarker.Dist
@@ -102,7 +100,7 @@ object MoarBoats {
 
     val MachineMaterial = Material(MaterialColor.IRON, false, true, true, true, true, false, false, PushReaction.BLOCK)
 
-    val CreativeTab = object: ItemGroup("moarboats") {
+    val MainCreativeTab = object: ItemGroup("moarboats") {
 
         @OnlyIn(Dist.CLIENT)
         override fun createIcon(): ItemStack {
@@ -115,6 +113,20 @@ object MoarBoats {
                     block.fillItemGroup(this, items)
                 }
             }
+            for (item in Items.list) {
+                item.fillItemGroup(this, items)
+            }
+        }
+    }
+
+    val UtilityBoatTab = object: ItemGroup("moarboats_utility") {
+
+        @OnlyIn(Dist.CLIENT)
+        override fun createIcon(): ItemStack {
+            return ItemStack(ChestBoatItem[BoatType.OAK])
+        }
+
+        override fun fill(items: NonNullList<ItemStack>) {
             for (item in Items.list) {
                 item.fillItemGroup(this, items)
             }
@@ -251,7 +263,7 @@ object MoarBoats {
             e.registry.registerAll(*Items.list.toTypedArray())
             for(block in Blocks.list) {
                 if(!e.registry.containsKey(block.registryName)) { // don't overwrite already existing items
-                    e.registry.register(BlockItem(block, Item.Properties().group(MoarBoats.CreativeTab)).setRegistryName(block.registryName))
+                    e.registry.register(BlockItem(block, Item.Properties().group(MoarBoats.MainCreativeTab)).setRegistryName(block.registryName))
                 }
             }
         }
@@ -389,7 +401,6 @@ object MoarBoats {
             generator.addProvider(JsonModelGenerator(generator, ModID, "minecraft", existingFileHelper))
             generator.addProvider(UtilityBoatRecipes(generator))
             plugins.forEach { it.registerProviders(event, generator, existingFileHelper) }
-            println("gather data2")
             generator.run()
         }
     }

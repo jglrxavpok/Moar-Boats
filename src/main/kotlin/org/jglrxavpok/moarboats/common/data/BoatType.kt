@@ -61,6 +61,13 @@ interface BoatType {
             override fun toString(): String {
                 return "Vanilla BoatType ${getName()} from ${getOriginModID()}"
             }
+
+            override fun equals(other: Any?): Boolean {
+                if(other is BoatType) {
+                    return BoatType.checkEqual(this, other)
+                }
+                return super.equals(other)
+            }
         }
 
         fun registerBoatType(boatType: BoatType, boatItem: () -> Item) {
@@ -70,6 +77,10 @@ interface BoatType {
         }
 
         fun getBoatItemFromType(boatType: BoatType) = boatCache[boatType]?.invoke() ?: null
+
+        fun checkEqual(typeA: BoatType, typeB: BoatType): Boolean {
+            return typeA.getName() == typeB.getName() && typeA.getOriginModID() == typeB.getOriginModID()
+        }
 
     }
 

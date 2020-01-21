@@ -1,6 +1,5 @@
 package org.jglrxavpok.moarboats.common.items
 
-import net.minecraft.entity.item.BoatEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.DyeColor
 import net.minecraft.item.Item
@@ -161,6 +160,10 @@ class GrindstoneBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "grindst
     override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
         return GrindstoneBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = this@GrindstoneBoatItem.boatType }
     }
+
+    override fun getDisplayName(stack: ItemStack): ITextComponent {
+        return TranslationTextComponent("item.moarboats.utility_boat.name", TranslationTextComponent("item.${boatType.getBaseBoatOriginModID()}.${boatType.getName()}_boat"), TranslationTextComponent("block.minecraft.grindstone"))
+    }
 }
 
 class CartographyTableBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "cartography_table") {
@@ -266,7 +269,7 @@ class JukeboxBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "jukebox") 
     }
 }
 
-abstract class UtilityBoatItem(val boatType: BoatType, val containerType: String): BaseBoatItem() {
+abstract class UtilityBoatItem(val boatType: BoatType, val containerType: String): BaseBoatItem({ group(MoarBoats.UtilityBoatTab) }) {
 
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "${boatType.getName()}_${containerType}_boat")
@@ -275,11 +278,11 @@ abstract class UtilityBoatItem(val boatType: BoatType, val containerType: String
     open fun getContainerDisplayName(): ITextComponent = TranslationTextComponent("container.$containerType")
 
     override fun getDisplayName(stack: ItemStack): ITextComponent {
-        return TranslationTextComponent("item.moarboats.utility_boat.name", TranslationTextComponent("item.${boatType.getOriginModID()}.${boatType.getName()}_boat"), getContainerDisplayName())
+        return TranslationTextComponent("item.moarboats.utility_boat.name", TranslationTextComponent("item.${boatType.getBaseBoatOriginModID()}.${boatType.getName()}_boat"), getContainerDisplayName())
     }
 }
 
-abstract class BaseBoatItem: Item(Item.Properties().group(MoarBoats.CreativeTab).maxStackSize(1)) {
+abstract class BaseBoatItem(propertiesModifier: Item.Properties.() -> Unit = {}): Item(Item.Properties().group(MoarBoats.MainCreativeTab).maxStackSize(1).also(propertiesModifier)) {
 
     override fun onItemRightClick(levelIn: World, playerIn: PlayerEntity, handIn: Hand): ActionResult<ItemStack> {
         val itemstack = playerIn.getHeldItem(handIn)
