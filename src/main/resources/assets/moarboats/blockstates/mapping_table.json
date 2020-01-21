@@ -1,6 +1,5 @@
 {
   "variants": {
-    "": {"model": "moarboats:block/mapping_table"},
-    "inventory": {"model": "moarboats:block/mapping_table"}
+    "": {"model": "moarboats:block/mapping_table"}
   }
 }

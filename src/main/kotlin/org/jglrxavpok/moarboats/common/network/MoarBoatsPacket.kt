@@ -183,8 +183,9 @@ interface MoarBoatsPacket {
                         } catch (e: UnsupportedOperationException) {
                             throw UnsupportedOperationException("I don't know how to deal with type ${type.canonicalName}")
                         }
+                    } else {
+                        throw UnsupportedOperationException("I don't know how to deal with type ${type.canonicalName}")
                     }
-                    throw UnsupportedOperationException("I don't know how to deal with type ${type.canonicalName}")
                 }
             }
         }
