@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "moarboats:utility_boat_blast_furnace",
+  "ingredients": [
+    {
+      "item": "minecraft:spruce_boat"
+    },
+    {
+      "item": "minecraft:blast_furnace"
+    }
+  ],
+  "result": {
+    "item": "moarboats:minecraft_spruce_blast_furnace_boat"
+  }
+}

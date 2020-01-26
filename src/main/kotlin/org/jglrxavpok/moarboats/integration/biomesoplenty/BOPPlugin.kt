@@ -1,16 +1,11 @@
 package org.jglrxavpok.moarboats.integration.biomesoplenty
 
-import biomesoplenty.api.item.BOPItems
 import biomesoplenty.common.entity.item.BoatEntityBOP
-import biomesoplenty.common.item.BoatItemBOP
 import net.minecraft.data.DataGenerator
-import net.minecraft.entity.item.BoatEntity
-import net.minecraft.item.BoatItem
 import net.minecraft.item.Item
 import net.minecraft.resources.ResourcePackType
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.client.model.generators.ExistingFileHelper
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent
 import net.minecraftforge.registries.GameData
 import org.jglrxavpok.moarboats.common.data.BoatType
@@ -32,7 +27,11 @@ class BOPPlugin: MoarBoatsPlugin {
 
     private fun createFromBOP(type: BoatEntityBOP.Type): BoatType {
         return object: BoatType {
-            override fun getName(): String {
+            override fun getFullName(): String {
+                return "biomesoplenty_${type.getName()}"
+            }
+
+            override fun getShortName(): String {
                 return type.getName()
             }
 
@@ -45,11 +44,11 @@ class BOPPlugin: MoarBoatsPlugin {
             }
 
             override fun getTexture(): ResourceLocation {
-                return ResourceLocation("biomesoplenty:textures/entity/boat/${getName()}.png")
+                return ResourceLocation("biomesoplenty:textures/entity/boat/${getFullName()}.png")
             }
 
             override fun toString(): String {
-                return "Biomes'O'Plenty BoatType ${getName()} from ${getOriginModID()}"
+                return "Biomes'O'Plenty BoatType ${getFullName()} from ${getOriginModID()}"
             }
 
             override fun equals(other: Any?): Boolean {

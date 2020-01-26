@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "moarboats:utility_boat_cartography_table",
+  "ingredients": [
+    {
+      "item": "biomesoplenty:ethereal_boat"
+    },
+    {
+      "item": "minecraft:cartography_table"
+    }
+  ],
+  "result": {
+    "item": "moarboats:biomesoplenty_ethereal_cartography_table_boat"
+  }
+}

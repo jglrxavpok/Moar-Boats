@@ -1,9 +1,6 @@
 package org.jglrxavpok.moarboats.datagen
 
-import com.google.gson.Gson
 import net.minecraft.data.DataGenerator
-import net.minecraft.data.IDataProvider
-import net.minecraft.entity.item.BoatEntity
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.client.model.generators.ExistingFileHelper
 import net.minecraftforge.client.model.generators.ItemModelProvider
@@ -21,9 +18,9 @@ class JsonModelGenerator(generator: DataGenerator, val boatModID: String, val ba
             if(type.getOriginModID() != boatModID)
                 continue
             for(containerType in UtilityBoatTypeList) {
-                val name = "${type.getName()}_${containerType}_boat"
+                val name = "${type.getFullName()}_${containerType}_boat"
                 withExistingParent("${MoarBoats.ModID}:$name", ResourceLocation("item/generated"))
-                        .texture("layer0", ResourceLocation("$baseBoatModID:item/${type.getName()}_boat"))
+                        .texture("layer0", ResourceLocation("$baseBoatModID:item/${type.getShortName()}_boat"))
                         .texture("layer1", ResourceLocation("moarboats:items/utility/${containerType}"))
                         .texture("layer2", ResourceLocation("moarboats:items/utility/paddle"))
             }

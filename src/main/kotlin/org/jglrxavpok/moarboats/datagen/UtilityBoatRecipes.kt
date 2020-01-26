@@ -17,6 +17,9 @@ class UtilityBoatRecipes(generator: DataGenerator): RecipeProvider(generator) {
     override fun registerRecipes(consumer: Consumer<IFinishedRecipe>) {
         for(item in Items.list) {
             if(item is UtilityBoatItem) {
+                if(item.containerType == "shulker") {
+                    continue // shulker boats use a SpecialRecipe instance
+                }
                 registerRecipe(consumer, item)
             }
         }

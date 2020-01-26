@@ -162,7 +162,7 @@ class GrindstoneBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "grindst
     }
 
     override fun getDisplayName(stack: ItemStack): ITextComponent {
-        return TranslationTextComponent("item.moarboats.utility_boat.name", TranslationTextComponent("item.${boatType.getBaseBoatOriginModID()}.${boatType.getName()}_boat"), TranslationTextComponent("block.minecraft.grindstone"))
+        return TranslationTextComponent("item.moarboats.utility_boat.name", TranslationTextComponent("item.${boatType.getBaseBoatOriginModID()}.${boatType.getFullName()}_boat"), TranslationTextComponent("block.minecraft.grindstone"))
     }
 }
 
@@ -272,13 +272,13 @@ class JukeboxBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "jukebox") 
 abstract class UtilityBoatItem(val boatType: BoatType, val containerType: String): BaseBoatItem({ group(MoarBoats.UtilityBoatTab) }) {
 
     init {
-        registryName = ResourceLocation(MoarBoats.ModID, "${boatType.getName()}_${containerType}_boat")
+        registryName = ResourceLocation(MoarBoats.ModID, "${boatType.getFullName()}_${containerType}_boat")
     }
 
     open fun getContainerDisplayName(): ITextComponent = TranslationTextComponent("container.$containerType")
 
     override fun getDisplayName(stack: ItemStack): ITextComponent {
-        return TranslationTextComponent("item.moarboats.utility_boat.name", TranslationTextComponent("item.${boatType.getBaseBoatOriginModID()}.${boatType.getName()}_boat"), getContainerDisplayName())
+        return TranslationTextComponent("item.moarboats.utility_boat.name", TranslationTextComponent("item.${boatType.getBaseBoatOriginModID()}.${boatType.getShortName()}_boat"), getContainerDisplayName())
     }
 }
 

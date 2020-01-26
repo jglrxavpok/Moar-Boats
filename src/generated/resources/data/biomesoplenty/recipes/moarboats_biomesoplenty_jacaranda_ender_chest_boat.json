@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "moarboats:utility_boat_ender_chest",
+  "ingredients": [
+    {
+      "item": "biomesoplenty:jacaranda_boat"
+    },
+    {
+      "item": "minecraft:ender_chest"
+    }
+  ],
+  "result": {
+    "item": "moarboats:biomesoplenty_jacaranda_ender_chest_boat"
+  }
+}

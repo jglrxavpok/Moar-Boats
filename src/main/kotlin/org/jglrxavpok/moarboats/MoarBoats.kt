@@ -367,6 +367,8 @@ object MoarBoats {
 
             ContainerTypes.CartographyTableBoat = event.registerUtilityContainer("cartography_table")
 
+            ContainerTypes.StonecutterBoat = event.registerUtilityContainer("stonecutter")
+
             ContainerTypes.ChestBoat = event.registerUtilityContainer("chest")
 
             ContainerTypes.EnderChestBoat = event.registerUtilityContainer("ender_chest")

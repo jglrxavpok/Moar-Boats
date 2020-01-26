@@ -5,9 +5,7 @@ import net.minecraft.dispenser.IDispenseItemBehavior
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.LivingEntity
-import net.minecraft.entity.item.BoatEntity
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.entity.player.ServerPlayerEntity
 import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.container.Container
@@ -28,13 +26,11 @@ import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.TranslationTextComponent
 import net.minecraft.world.World
 import net.minecraftforge.fml.network.NetworkHooks
-import net.minecraftforge.fml.network.PacketDispatcher
 import net.minecraftforge.fml.network.PacketDistributor
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleInventory
 import org.jglrxavpok.moarboats.common.containers.ContainerTypes
-import org.jglrxavpok.moarboats.common.containers.UtilityContainer
 import org.jglrxavpok.moarboats.common.data.BoatType
 import org.jglrxavpok.moarboats.common.modules.OarEngineModule
 import org.jglrxavpok.moarboats.common.network.SUtilityTileEntityUpdate
@@ -142,7 +138,7 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
 
     override fun writeAdditional(compound: CompoundNBT) {
         super.writeAdditional(compound)
-        compound.putString("boatType", boatType.getName())
+        compound.putString("boatType", boatType.getFullName())
         if(backingTileEntity != null) {
             compound.put("backingTileEntity", backingTileEntity.write(CompoundNBT()))
         }

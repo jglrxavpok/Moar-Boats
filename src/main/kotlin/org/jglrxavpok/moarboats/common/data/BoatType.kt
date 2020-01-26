@@ -35,14 +35,18 @@ interface BoatType {
         }
 
         fun getTypeFromString(name: String): BoatType {
-            return values().first { it.getName() == name }
+            return values().first { it.getFullName() == name }
         }
 
         // load from BoatRenderer in case the class is modified for modded wood types
         private val textures: Array<ResourceLocation> by lazy { ObfuscationReflectionHelper.findField(BoatRenderer::class.java, "field_110782_f").get(null) as Array<ResourceLocation> }
 
         fun createFromVanilla(type: BoatEntity.Type): BoatType = object : BoatType {
-            override fun getName(): String {
+            override fun getFullName(): String {
+                return "minecraft_${type.getName()}"
+            }
+
+            override fun getShortName(): String {
                 return type.getName()
             }
 
@@ -59,7 +63,7 @@ interface BoatType {
             }
 
             override fun toString(): String {
-                return "Vanilla BoatType ${getName()} from ${getOriginModID()}"
+                return "Vanilla BoatType ${getFullName()} from ${getOriginModID()}"
             }
 
             override fun equals(other: Any?): Boolean {
@@ -79,12 +83,21 @@ interface BoatType {
         fun getBoatItemFromType(boatType: BoatType) = boatCache[boatType]?.invoke() ?: null
 
         fun checkEqual(typeA: BoatType, typeB: BoatType): Boolean {
-            return typeA.getName() == typeB.getName() && typeA.getOriginModID() == typeB.getOriginModID()
+            return typeA.getFullName() == typeB.getFullName() && typeA.getOriginModID() == typeB.getOriginModID()
         }
 
     }
 
-    fun getName(): String
+    /**
+     * Full name of this boat type: modid+type name (eg: minecraft_oak, biomesoplenty_fir, etc.)
+     */
+    fun getFullName(): String
+
+    /**
+     * Short name of this boat type (eg: oak, fir, birch, etc.)
+     */
+    fun getShortName(): String
+
     fun getOriginModID(): String
     fun getBaseBoatOriginModID(): String
     fun getTexture(): ResourceLocation

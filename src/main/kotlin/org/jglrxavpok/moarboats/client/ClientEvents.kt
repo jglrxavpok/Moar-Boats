@@ -8,6 +8,7 @@ import net.minecraft.client.GameSettings
 import net.minecraft.client.Minecraft
 import net.minecraft.client.audio.ISound
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity
+import net.minecraft.client.gui.IngameGui
 import net.minecraft.client.gui.ScreenManager
 import net.minecraft.client.gui.screen.inventory.ChestScreen
 import net.minecraft.client.renderer.Tessellator
@@ -311,6 +312,9 @@ object ClientEvents {
         val mc = Minecraft.getInstance()
         if(mc.world == null)
             return // must be playing
+        if(mc.currentScreen !is IngameGui) { // must not be in a menu
+            return
+        }
         if(mc.gameSettings.keyBindInventory.key.keyCode == keyEvent.key) {
             val player = mc.player
             if(player.ridingEntity is BasicBoatEntity) {
