@@ -19,13 +19,13 @@ class BOPPlugin: MoarBoatsPlugin {
     override fun populateBoatTypes() {
         BoatEntityBOP.Type.values().forEach {
             val name = it.getName()
-            val type = createFromBOP(it)
             val item = { GameData.getWrapper(Item::class.java).getValue(ResourceLocation("biomesoplenty", name+"_boat"))!!.get() }
-            BoatType.registerBoatType(type, item)
+            val type = createFromBOP(it, item)
+            BoatType.registerBoatType(type)
         }
     }
 
-    private fun createFromBOP(type: BoatEntityBOP.Type): BoatType {
+    private fun createFromBOP(type: BoatEntityBOP.Type, itemProvider: () -> Item): BoatType {
         return object: BoatType {
             override fun getFullName(): String {
                 return "biomesoplenty_${type.getName()}"
@@ -44,7 +44,7 @@ class BOPPlugin: MoarBoatsPlugin {
             }
 
             override fun getTexture(): ResourceLocation {
-                return ResourceLocation("biomesoplenty:textures/entity/boat/${getFullName()}.png")
+                return ResourceLocation("biomesoplenty:textures/entity/boat/${getShortName()}.png")
             }
 
             override fun toString(): String {
@@ -56,6 +56,10 @@ class BOPPlugin: MoarBoatsPlugin {
                     return BoatType.checkEqual(this, other)
                 }
                 return super.equals(other)
+            }
+
+            override fun provideBoatItem(): Item {
+                return itemProvider()
             }
         }
     }

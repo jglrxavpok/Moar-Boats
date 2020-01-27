@@ -171,5 +171,6 @@
 
     "__comment": "6.1.0.0",
     "moarboats.container.utility_boat": "Bateau avec %s",
+    "item.moarboats.colored_utility_boat.name": "%1$s avec %2$s (%3$s)",
     "item.moarboats.utility_boat.name": "%1$s avec %2$s"
 }

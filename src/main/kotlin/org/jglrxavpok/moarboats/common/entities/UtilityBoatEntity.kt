@@ -176,7 +176,7 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
     }
 
     fun getBaseBoatItem(): Item {
-        return BoatType.getBoatItemFromType(boatType) ?: Items.AIR
+        return boatType.provideBoatItem()
     }
 
     override fun saveState(module: BoatModule, isLocal: Boolean) {

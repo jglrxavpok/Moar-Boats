@@ -130,9 +130,9 @@ object ClientEvents {
         registerUtilityBoat(CartographyTableBoatEntity::class.java) { boat -> Blocks.CARTOGRAPHY_TABLE.defaultState }
         registerUtilityBoat(StonecutterBoatEntity::class.java) { boat -> Blocks.STONECUTTER.defaultState }
         registerUtilityBoat(ChestBoatEntity::class.java) { boat -> Blocks.CHEST.defaultState.with(HorizontalBlock.HORIZONTAL_FACING, Direction.SOUTH) }
-        registerUtilityBoat(ShulkerBoatEntity::class.java) { boat -> Blocks.SHULKER_BOX.defaultState }
         registerUtilityBoat(EnderChestBoatEntity::class.java) { boat -> Blocks.ENDER_CHEST.defaultState.with(HorizontalBlock.HORIZONTAL_FACING, Direction.EAST) }
         registerUtilityBoat(JukeboxBoatEntity::class.java) { boat -> Blocks.JUKEBOX.defaultState }
+        registerUtilityBoat(ShulkerBoatEntity::class.java) { boat -> ShulkerBoxBlock.getBlockByColor(boat.dyeColor).defaultState }
 
         BoatModuleRenderingRegistry.register(FurnaceEngineRenderer)
         BoatModuleRenderingRegistry.register(ChestModuleRenderer)
@@ -312,8 +312,10 @@ object ClientEvents {
         val mc = Minecraft.getInstance()
         if(mc.world == null)
             return // must be playing
-        if(mc.currentScreen !is IngameGui) { // must not be in a menu
-            return
+        if(mc.currentScreen != null) {
+            if(mc.currentScreen !is IngameGui) { // must not be in a menu
+                return
+            }
         }
         if(mc.gameSettings.keyBindInventory.key.keyCode == keyEvent.key) {
             val player = mc.player

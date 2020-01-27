@@ -227,11 +227,21 @@ class ShulkerBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "shulker") 
     }
 
     override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
-        return ShulkerBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = this@ShulkerBoatItem.boatType }
+        return ShulkerBoatEntity(DyeColor.byTranslationKey(itemstack.getOrCreateChildTag("AdditionalData").getString("Color"), null), levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z)
+                .apply { boatType = this@ShulkerBoatItem.boatType }
+                .apply { getBackingTileEntity()!!.read(itemstack.getOrCreateChildTag("AdditionalData").getCompound("TileEntityData")) }
     }
 
     override fun getContainerDisplayName(): ITextComponent {
         return TranslationTextComponent("container.shulkerBox")
+    }
+
+    override fun getDisplayName(stack: ItemStack): ITextComponent {
+        val color = DyeColor.byTranslationKey(stack.getOrCreateChildTag("AdditionalData").getString("Color"), null)
+        if(color != null) {
+            return TranslationTextComponent("item.moarboats.colored_utility_boat.name", TranslationTextComponent("item.${boatType.getBaseBoatOriginModID()}.${boatType.getShortName()}_boat"), getContainerDisplayName(), TranslationTextComponent("color.minecraft.${color.translationKey}"))
+        }
+        return super.getDisplayName(stack)
     }
 }
 

@@ -4,6 +4,7 @@ import net.minecraft.client.renderer.entity.BoatRenderer
 import net.minecraft.entity.item.BoatEntity
 import net.minecraft.item.BoatItem
 import net.minecraft.item.Item
+import net.minecraft.item.Items
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper
 import net.minecraftforge.registries.GameData
@@ -13,9 +14,8 @@ interface BoatType {
 
     companion object {
         private val boatTypes = mutableListOf<BoatType>()
-        private val boatCache = mutableMapOf<BoatType, () -> Item>()
 
-        val OAK = createFromVanilla(BoatEntity.Type.OAK)
+        val OAK = createFromVanilla(Items.OAK_BOAT, BoatEntity.Type.OAK)
 
         fun values(): List<BoatType> {
             return boatTypes
@@ -28,8 +28,8 @@ interface BoatType {
             val typeField = ObfuscationReflectionHelper.findField(BoatItem::class.java, "field_185057_a")
             for(boatItem in GameData.getWrapper(Item::class.java).iterator()) {
                 if(boatItem is BoatItem) {
-                    val boatType = createFromVanilla(typeField[boatItem] as BoatEntity.Type)
-                    registerBoatType(boatType) {boatItem}
+                    val boatType = createFromVanilla(boatItem, typeField[boatItem] as BoatEntity.Type)
+                    registerBoatType(boatType)
                 }
             }
         }
@@ -41,7 +41,7 @@ interface BoatType {
         // load from BoatRenderer in case the class is modified for modded wood types
         private val textures: Array<ResourceLocation> by lazy { ObfuscationReflectionHelper.findField(BoatRenderer::class.java, "field_110782_f").get(null) as Array<ResourceLocation> }
 
-        fun createFromVanilla(type: BoatEntity.Type): BoatType = object : BoatType {
+        fun createFromVanilla(baseItem: Item, type: BoatEntity.Type): BoatType = object : BoatType {
             override fun getFullName(): String {
                 return "minecraft_${type.getName()}"
             }
@@ -72,15 +72,16 @@ interface BoatType {
                 }
                 return super.equals(other)
             }
+
+            override fun provideBoatItem(): Item {
+                return baseItem
+            }
         }
 
-        fun registerBoatType(boatType: BoatType, boatItem: () -> Item) {
+        fun registerBoatType(boatType: BoatType) {
             boatTypes += boatType
-            boatCache[boatType] = boatItem
             MoarBoats.logger.info("Registered boat type $boatType")
         }
-
-        fun getBoatItemFromType(boatType: BoatType) = boatCache[boatType]?.invoke() ?: null
 
         fun checkEqual(typeA: BoatType, typeB: BoatType): Boolean {
             return typeA.getFullName() == typeB.getFullName() && typeA.getOriginModID() == typeB.getOriginModID()
@@ -101,4 +102,9 @@ interface BoatType {
     fun getOriginModID(): String
     fun getBaseBoatOriginModID(): String
     fun getTexture(): ResourceLocation
+
+    /**
+     * Returns the boat item corresponding to this boat type
+     */
+    fun provideBoatItem(): Item
 }
