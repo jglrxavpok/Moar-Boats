@@ -1,6 +1,7 @@
 package org.jglrxavpok.moarboats.integration.ironchests
 
 import com.progwml6.ironchest.common.blocks.ChestType
+import com.progwml6.ironchest.common.inventory.DirtChestSlot
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.inventory.container.ContainerType
@@ -16,15 +17,29 @@ class ContainerIronChestModule(containerID: Int, playerInventory: PlayerInventor
     val chestInventory = boat.getInventory(module)
 
     init {
-        val numCols = chestType.rowLength
-        val numRows = chestType.rowCount
-        for (row in 0 until numRows) {
-            for (column in 0 until numCols) {
-                this.addSlot(Slot(chestInventory, column + row * numCols, 12 + column * 18, 18 + row * 18))
+        if (chestType == ChestType.DIRTCHEST9000) {
+            addSlot(DirtChestSlot(chestInventory, 0, 12 + 4 * 18, 8 + 2 * 18))
+        } else {
+            val numCols = chestType.rowLength
+            val numRows = chestType.rowCount
+            for (row in 0 until numRows) {
+                for (column in 0 until numCols) {
+                    this.addSlot(Slot(chestInventory, column + row * numCols, 12 + column * 18, 18 + row * 18))
+                }
             }
         }
 
-        addPlayerSlots(isLarge = false)
+        val xStart = (chestType.xSize - 162) / 2 + 1
+
+        for (row in 0..2) {
+            for (j in 0..8) {
+                this.addSlot(Slot(playerInventory, j + row * 9 + 9, xStart + j * 18, chestType.ySize - (4 - row) * 18 - 10))
+            }
+        }
+
+        for (k in 0..8) {
+            this.addSlot(Slot(playerInventory, k, xStart + k * 18, chestType.ySize - 24))
+        }
         this.trackIntArray(chestInventory.additionalData)
     }
 
