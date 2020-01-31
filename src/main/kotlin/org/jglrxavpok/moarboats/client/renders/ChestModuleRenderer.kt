@@ -13,7 +13,6 @@ object ChestModuleRenderer : BoatModuleRenderer() {
 
     init {
         registryName = ChestModule.id
-
     }
 
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, EntityRendererManager: EntityRendererManager) {

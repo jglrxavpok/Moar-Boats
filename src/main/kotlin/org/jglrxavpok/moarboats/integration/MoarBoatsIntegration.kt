@@ -7,6 +7,7 @@ import net.minecraftforge.client.model.generators.ExistingFileHelper
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.ModList
 import net.minecraftforge.fml.StartupMessageManager
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent
 import net.minecraftforge.registries.IForgeRegistry
 import org.jglrxavpok.moarboats.MoarBoats
@@ -39,6 +40,13 @@ interface MoarBoatsPlugin {
     @OnlyIn(Dist.CLIENT)
     fun registerModuleRenderers(registry: IForgeRegistry<BoatModuleRenderer>) {}
 
+    /**
+     * MoarBoats passes the FMLClientSetupEvent to its plugins when it receives it.
+     * It is not necessary to register screen factories for modules as MoarBoats will do it automatically
+     */
+    @OnlyIn(Dist.CLIENT)
+    fun onClientSetup(event: FMLClientSetupEvent) {}
+
     fun registerProviders(event: GatherDataEvent, generator: DataGenerator, existingFileHelper: ExistingFileHelper) {}
     fun populateBoatTypes() {}
 }
@@ -52,8 +60,6 @@ fun LoadIntegrationPlugins(): List<MoarBoatsPlugin> {
     MoarBoats.logger.info("Starting search for plugins")
     StartupMessageManager.addModMessage("[Moar Boats] Starting search for plugins")
 
-    // TODO: Use IMC messages?
-    
     /**
      * Tries to load the plugin from the given ASMData, also verifies that the dependency is present
      */

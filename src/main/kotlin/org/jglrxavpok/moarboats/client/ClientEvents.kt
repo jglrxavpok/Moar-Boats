@@ -116,6 +116,8 @@ object ClientEvents {
             ChestScreen(container, playerInv, title)
         }
 
+        MoarBoats.plugins.forEach { it.onClientSetup(event) }
+
         JavaHelpers.registerGuis()
 
         val mc = event.minecraftSupplier.get()
