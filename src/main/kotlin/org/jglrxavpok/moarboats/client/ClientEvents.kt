@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList
 import com.mojang.blaze3d.platform.GlStateManager
 import net.alexwells.kottle.KotlinEventBusSubscriber
 import net.minecraft.block.*
-import net.minecraft.client.GameSettings
 import net.minecraft.client.Minecraft
 import net.minecraft.client.audio.ISound
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity
@@ -214,53 +213,58 @@ object ClientEvents {
         }
     }
 
-    // COPY PASTED FROM PlayerRenderer
-    private fun renderArmFirstPerson(p_187456_1_: Float, swingProgress: Float, p_187456_3_: HandSide) {
+    // COPY PASTED FROM FirstPersonRenderer
+    private fun renderArmFirstPerson(equippedProgress: Float, swingProgress: Float, side: HandSide) {
         val mc = Minecraft.getInstance()
-        val rightHanded = p_187456_3_ != HandSide.LEFT
-        val f = if(rightHanded) 1.0f else -1.0f
+        val rightHanded = side !== HandSide.LEFT
+        val f = if (rightHanded) 1.0f else -1.0f
         val f1 = MathHelper.sqrt(swingProgress)
         val f2 = -0.3f * MathHelper.sin(f1 * Math.PI.toFloat())
         val f3 = 0.4f * MathHelper.sin(f1 * (Math.PI.toFloat() * 2f))
         val f4 = -0.4f * MathHelper.sin(swingProgress * Math.PI.toFloat())
-        GlStateManager.translatef(f * (f2 + 0.64000005f), f3 + -0.6f + p_187456_1_ * -0.6f, f4 + -0.71999997f)
+        GlStateManager.translatef(f * (f2 + 0.64000005f), f3 + -0.6f + equippedProgress * -0.6f, f4 + -0.71999997f)
         GlStateManager.rotatef(f * 45.0f, 0.0f, 1.0f, 0.0f)
         val f5 = MathHelper.sin(swingProgress * swingProgress * Math.PI.toFloat())
         val f6 = MathHelper.sin(f1 * Math.PI.toFloat())
         GlStateManager.rotatef(f * f6 * 70.0f, 0.0f, 1.0f, 0.0f)
         GlStateManager.rotatef(f * f5 * -20.0f, 0.0f, 0.0f, 1.0f)
-        val player = mc.player
-        mc.textureManager.bindTexture(player.locationSkin)
+        val player: AbstractClientPlayerEntity = mc.player
+        mc.getTextureManager().bindTexture(player.getLocationSkin())
         GlStateManager.translatef(f * -1.0f, 3.6f, 3.5f)
         GlStateManager.rotatef(f * 120.0f, 0.0f, 0.0f, 1.0f)
         GlStateManager.rotatef(200.0f, 1.0f, 0.0f, 0.0f)
         GlStateManager.rotatef(f * -135.0f, 0.0f, 1.0f, 0.0f)
         GlStateManager.translatef(f * 5.6f, 0.0f, 0.0f)
-        val PlayerRenderer = mc.renderManager.getRenderer(player) as PlayerRenderer
-        val model = PlayerRenderer.entityModel
+        val renderplayer = mc.renderManager.getRenderer(player) as PlayerRenderer
         GlStateManager.disableCull()
 
+        val model = renderplayer.entityModel
         val arm = if(rightHanded) model.bipedRightArm else model.bipedLeftArm
+        val armWear = if(rightHanded) model.bipedRightArmwear else model.bipedLeftArmwear
         renderArm(arm, player, model)
 
         GlStateManager.enableCull()
     }
 
     private fun renderArm(arm: RendererModel, clientPlayer: AbstractClientPlayerEntity, playerModel: PlayerModel<AbstractClientPlayerEntity>) {
+        val f = 1.0f
         GlStateManager.color3f(1.0f, 1.0f, 1.0f)
-        val scale = 0.0625f
+        val f1 = 0.0625f
         GlStateManager.enableBlend()
-        playerModel.isSneak = false
         playerModel.swingProgress = 0.0f
+        playerModel.isSneak = false
+        playerModel.swimAnimation = 0.0f
         playerModel.setRotationAngles(clientPlayer, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0625f)
 
+        val scale = 0.0625f
+        Minecraft.getInstance().textureManager.bindTexture(hookTextureLocation)
         GlStateManager.pushMatrix()
-        arm.rotateAngleX = 0.0f
-        GlStateManager.translatef(arm.rotationPointX, arm.rotationPointY, arm.rotationPointZ)
-        GlStateManager.translatef(arm.offsetX * scale, arm.offsetY * scale, arm.offsetZ * scale)
-        GlStateManager.rotatef((arm.rotateAngleZ * 180f / Math.PI).toFloat(), 0f, 0f, 1f)
-        GlStateManager.rotatef((arm.rotateAngleY * 180f / Math.PI).toFloat(), 0f, 1f, 0f)
-        GlStateManager.rotatef((arm.rotateAngleX * 180f / Math.PI).toFloat(), 1f, 0f, 0f)
+        GlStateManager.translatef(arm.offsetX, arm.offsetY, arm.offsetZ)
+
+        GlStateManager.translatef(arm.rotationPointX * scale, arm.rotationPointY * scale, arm.rotationPointZ * scale)
+        GlStateManager.rotatef(arm.rotateAngleZ * (180f / Math.PI.toFloat()), 0.0f, 0.0f, 1.0f)
+        GlStateManager.rotatef(arm.rotateAngleY * (180f / Math.PI.toFloat()), 0.0f, 1.0f, 0.0f)
+        GlStateManager.rotatef(arm.rotateAngleX * (180f / Math.PI.toFloat()), 1.0f, 0.0f, 0.0f)
 
         val tess = Tessellator.getInstance()
         val buffer = tess.buffer

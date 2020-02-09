@@ -13,6 +13,11 @@ import org.jglrxavpok.moarboats.client.gui.GuiModuleBase
 class GuiIronChestModule(containerID: Int, playerInventory: PlayerInventory, module: BoatModule, boat: IControllable, val chestType: ChestType):
         GuiModuleBase<ContainerIronChestModule>(module, boat, playerInventory, ContainerIronChestModule(containerID, playerInventory, module, boat, chestType)) {
 
+    init {
+        shouldRenderInventoryName = false
+        renderPlayerInventoryTitle = false
+    }
+
     override val moduleBackground = chestType.guiTexture
     override val moduleTitle = TranslationTextComponent(
             when (chestType) {
@@ -37,6 +42,7 @@ class GuiIronChestModule(containerID: Int, playerInventory: PlayerInventory, mod
     }
 
     override fun drawGuiContainerForegroundLayer(mouseX: Int, mouseY: Int) {
+        super.drawGuiContainerForegroundLayer(mouseX, mouseY)
         font.drawString(moduleTitle.formattedText, 8.0f, 6.0f, 4210752)
         font.drawString(playerInventory.displayName.formattedText, 8.0f, (ySize - 96 + 2).toFloat(), 4210752)
     }
