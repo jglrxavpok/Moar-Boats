@@ -5,6 +5,7 @@ import com.progwml6.ironchest.common.blocks.ChestType
 import net.minecraft.client.gui.ScreenManager
 import net.minecraft.inventory.container.ContainerType
 import net.minecraft.util.ResourceLocation
+import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
 import net.minecraftforge.registries.ForgeRegistries
 import net.minecraftforge.registries.IForgeRegistry
@@ -18,6 +19,7 @@ import org.jglrxavpok.moarboats.integration.MoarBoatsIntegration
 import org.jglrxavpok.moarboats.integration.MoarBoatsPlugin
 
 @MoarBoatsIntegration("ironchest")
+@Mod("moarboats_ironchests_integration")
 class IronChestsPlugin: MoarBoatsPlugin {
 
     override fun registerModules(registry: IForgeRegistry<BoatModuleEntry>) {

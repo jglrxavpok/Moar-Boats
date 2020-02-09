@@ -17,9 +17,9 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: "kotlin"
 apply plugin: 'maven-publish'
 
-version = "1.14.4-6.1.0.0"
+version = "1.14.4-6.1.0.0-1.0.0.0"
 group = "org.jglrxavpok.moarboats" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "moarboats"
+archivesBaseName = "moarboats-ironchests-plugin"
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 compileKotlin.kotlinOptions.jvmTarget = compileTestKotlin.kotlinOptions.jvmTarget = '1.8'
@@ -58,7 +58,7 @@ minecraft {
 
             mods {
                 moarboats {
-                    ideaModule "${rootProject.name}.main"
+                    ideaModule "${rootProject.name}.${project.name}.main"
                     source sourceSets.main
                 }
             }
@@ -76,7 +76,7 @@ minecraft {
 
             mods {
                 moarboats {
-                    ideaModule "${rootProject.name}.main"
+                    ideaModule "${rootProject.name}.${project.name}.main"
                     source sourceSets.main
                 }
             }
@@ -97,7 +97,7 @@ minecraft {
 
             mods {
                 moarboats {
-                    ideaModule "${rootProject.name}.main"
+                    ideaModule "${rootProject.name}.${project.name}.main"
                     source sourceSets.main
                 }
             }
@@ -107,6 +107,10 @@ minecraft {
 
 repositories {
     maven { url 'https://minecraft.curseforge.com/api/maven/' }
+    maven {
+        name 'DVS1 Maven FS'
+        url 'http://dvs1.progwml6.com/files/maven'
+    }
 }
 
 configurations {
@@ -119,7 +123,10 @@ dependencies {
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     minecraft 'net.minecraftforge:forge:1.14.4-28.1.111'
     compile "kottle:Kottle:$kottleVersion"
+    compile "com.progwml6.ironchest:ironchest:1.14.4-9.1.5"
 
+    compile rootProject
+    mod rootProject
     // You may put jars on which you depend on in ./libs or you may define them like so..
     // compile "some.group:artifact:version:classifier"
     // compile "some.group:artifact:version"
@@ -142,7 +149,7 @@ dependencies {
 
 task installMods(type: Copy, dependsOn: "deinstallMods") {
     from { configurations.mod }
-    include "**/*.jar"
+    include "**/*moarboats*.jar"
     into file("run/mods")
 }
 
@@ -158,7 +165,7 @@ project.afterEvaluate {
 jar {
     manifest {
         attributes([
-            "Specification-Title": "Moar Boats",
+            "Specification-Title": "Iron-Chests Moar Boats plugin",
             "Specification-Vendor": "jglrxavpok",
             "Specification-Version": "1", // We are version 1 of ourselves
             "Implementation-Title": project.name,

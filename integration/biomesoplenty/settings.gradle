@@ -1,0 +1,2 @@
+include ":moarboats"
+project(":moarboats").projectDir = file("../../.")

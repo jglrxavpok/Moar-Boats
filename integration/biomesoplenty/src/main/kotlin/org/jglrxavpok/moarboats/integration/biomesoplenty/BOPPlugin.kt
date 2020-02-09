@@ -6,6 +6,7 @@ import net.minecraft.item.Item
 import net.minecraft.resources.ResourcePackType
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.client.model.generators.ExistingFileHelper
+import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent
 import net.minecraftforge.registries.GameData
 import org.jglrxavpok.moarboats.common.data.BoatType
@@ -14,6 +15,7 @@ import org.jglrxavpok.moarboats.integration.MoarBoatsIntegration
 import org.jglrxavpok.moarboats.integration.MoarBoatsPlugin
 
 @MoarBoatsIntegration("biomesoplenty")
+@Mod("moarboats_biomesoplenty_integration")
 class BOPPlugin: MoarBoatsPlugin {
 
     override fun populateBoatTypes() {
