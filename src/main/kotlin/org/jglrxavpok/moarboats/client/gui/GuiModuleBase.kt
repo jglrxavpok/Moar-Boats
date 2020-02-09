@@ -29,7 +29,7 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
     val mc: Minecraft = Minecraft.getInstance()
     val tabs = mutableListOf<ModuleTab>()
 
-    val moduleTitle = TranslationTextComponent("inventory.${module.id.path}")
+    open val moduleTitle = TranslationTextComponent("inventory.${module.id.path}")
 
     private val BACKGROUND_TEXTURE = ResourceLocation(MoarBoats.ModID, "textures/gui/default_background.png")
     private val BACKGROUND_TEXTURE_LARGE = ResourceLocation(MoarBoats.ModID, "textures/gui/default_background_large.png")
