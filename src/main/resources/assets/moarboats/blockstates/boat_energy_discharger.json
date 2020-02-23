@@ -1,8 +1,5 @@
 {
   "variants": {
-    "inventory": {
-      "model": "moarboats:block/energy_discharger"
-    },
     "facing=down": {
       "model": "moarboats:block/energy_discharger",
       "x": 180

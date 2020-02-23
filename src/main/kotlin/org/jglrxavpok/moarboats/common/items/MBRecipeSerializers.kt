@@ -5,15 +5,17 @@ import net.minecraft.inventory.CraftingInventory
 import net.minecraft.inventory.IInventory
 import net.minecraft.item.crafting.IRecipe
 import net.minecraft.item.crafting.IRecipeSerializer
+import net.minecraft.item.crafting.SpecialRecipeSerializer
 import net.minecraft.network.PacketBuffer
 import net.minecraft.util.ResourceLocation
 
 object MBRecipeSerializers {
 
-    val MapWithPath = IRecipeSerializer.register("map_with_path", SingletonSerializer(MapWithPathRecipe))
-    val BoatColoring = IRecipeSerializer.register("color_modular_boat", SingletonSerializer(ModularBoatColoringRecipe))
-    val UpgradeToGoldenTicket = IRecipeSerializer.register("upgrade_to_golden_ticket", SingletonSerializer(UpgradeToGoldenTicketRecipe))
-    val CopyGoldenTicket = IRecipeSerializer.register("copy_golden_ticket", SingletonSerializer(GoldenTicketCopyRecipe))
+    val MapWithPath = IRecipeSerializer.register("moarboats:map_with_path", SingletonSerializer(MapWithPathRecipe))
+    val BoatColoring = IRecipeSerializer.register("moarboats:color_modular_boat", SingletonSerializer(ModularBoatColoringRecipe))
+    val UpgradeToGoldenTicket = IRecipeSerializer.register("moarboats:upgrade_to_golden_ticket", SingletonSerializer(UpgradeToGoldenTicketRecipe))
+    val CopyGoldenTicket = IRecipeSerializer.register("moarboats:copy_golden_ticket", SingletonSerializer(GoldenTicketCopyRecipe))
+    val ShulkerBoat = IRecipeSerializer.register("moarboats:shulker_boat", SpecialRecipeSerializer { _ -> ShulkerBoatRecipe })
 
     class SingletonSerializer<T: IRecipe<CraftingInventory>>(val recipe: T): IRecipeSerializer<T> {
         override fun getRegistryName(): ResourceLocation? {

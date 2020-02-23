@@ -1,0 +1,6 @@
+rootProject.name = 'moarboats'
+include ":biomesoplenty_integration"
+project(":biomesoplenty_integration").projectDir = file("integration/biomesoplenty")
+
+include ":ironchests_integration"
+project(":ironchests_integration").projectDir = file("integration/ironchests")

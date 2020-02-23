@@ -30,7 +30,7 @@ abstract class BoatModuleInventory(val inventoryName: String, val slotCount: Int
         }
     }
 
-    internal var additionalData: IIntArray = AdditionalDataArray()
+    var additionalData: IIntArray = AdditionalDataArray()
 
     fun getField(id: Int): Int {
         val key = id2key(id)

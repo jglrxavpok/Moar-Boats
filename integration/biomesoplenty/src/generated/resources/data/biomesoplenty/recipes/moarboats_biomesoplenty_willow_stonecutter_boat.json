@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "moarboats:utility_boat_stonecutter",
+  "ingredients": [
+    {
+      "item": "biomesoplenty:willow_boat"
+    },
+    {
+      "item": "minecraft:stonecutter"
+    }
+  ],
+  "result": {
+    "item": "moarboats:biomesoplenty_willow_stonecutter_boat"
+  }
+}

@@ -26,6 +26,7 @@
     "gui.engine.estimatedTime": "Estimated running time",
     "gui.engine.lock": "Lock in place",
     "itemGroup.moarboats": "Moar Boats",
+    "itemGroup.moarboats_utility": "Moar Boats Utility Boats",
 
     "_comment": "1.2.0",
     "inventory.fishing": "Fishing module",
@@ -184,5 +185,11 @@
     "entity.moarboats.animal_boat": "Animal Boat",
 
     "item.moarboats.cargo_stopper": "Cargo Stopper",
-    "moarboats.tile.cargo_stopper.description": "Similar to a Waterborne Redstone Comparator. Emits in ALL directions (therefore can stop boats)."
+    "moarboats.tile.cargo_stopper.description": "Similar to a Waterborne Redstone Comparator. Emits in ALL directions (therefore can stop boats).",
+
+    "__comment": "6.1.0.0",
+    "moarboats.container.utility_boat": "%s Boat",
+    "item.moarboats.colored_utility_boat.name": "%2$s %1$s (%3$s)",
+    "item.moarboats.utility_boat.name": "%2$s %1$s",
+    "moarboats.item.modular_boat.copy": "%s - Copy"
 }

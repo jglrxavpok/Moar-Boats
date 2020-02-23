@@ -3,10 +3,13 @@ package org.jglrxavpok.moarboats.client
 import com.google.common.collect.ImmutableList
 import com.mojang.blaze3d.platform.GlStateManager
 import net.alexwells.kottle.KotlinEventBusSubscriber
+import net.minecraft.block.*
 import net.minecraft.client.Minecraft
+import net.minecraft.client.audio.ISound
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity
-import net.minecraft.client.gui.IHasContainer
+import net.minecraft.client.gui.IngameGui
 import net.minecraft.client.gui.ScreenManager
+import net.minecraft.client.gui.screen.inventory.ChestScreen
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.entity.PlayerRenderer
 import net.minecraft.client.renderer.entity.model.PlayerModel
@@ -15,41 +18,46 @@ import net.minecraft.client.renderer.model.ModelBox
 import net.minecraft.client.renderer.model.ModelRotation
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.inventory.container.ContainerType
-import net.minecraft.util.Hand
-import net.minecraft.util.HandSide
-import net.minecraft.util.ResourceLocation
+import net.minecraft.item.MusicDiscItem
+import net.minecraft.state.properties.AttachFace
+import net.minecraft.util.*
 import net.minecraft.util.math.MathHelper
-import net.minecraft.util.registry.Registry
+import net.minecraft.world.World
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraftforge.client.event.InputEvent
 import net.minecraftforge.client.event.ModelBakeEvent
 import net.minecraftforge.client.event.RenderSpecificHandEvent
 import net.minecraftforge.client.model.ItemLayerModel
 import net.minecraftforge.client.model.ModelLoader
 import net.minecraftforge.common.MinecraftForge
+import net.minecraftforge.event.entity.EntityJoinWorldEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.client.registry.RenderingRegistry
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent
-import net.minecraftforge.registries.GameData
-import net.minecraftforge.registries.IForgeRegistry
+import net.minecraftforge.fml.network.PacketDistributor
+import org.jglrxavpok.moarboats.JavaHelpers
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.client.gui.*
 import org.jglrxavpok.moarboats.client.models.ModelPatreonHook
 import org.jglrxavpok.moarboats.client.renders.*
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
-import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
-import org.jglrxavpok.moarboats.common.containers.ContainerMappingTable
 import org.jglrxavpok.moarboats.common.containers.ContainerTypes
 import org.jglrxavpok.moarboats.common.data.MapImageStripe
 import org.jglrxavpok.moarboats.common.entities.AnimalBoatEntity
+import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
+import org.jglrxavpok.moarboats.common.entities.UtilityBoatEntity
+import org.jglrxavpok.moarboats.common.entities.utilityboats.*
+import org.jglrxavpok.moarboats.common.network.CShowBoatMenu
 
 @KotlinEventBusSubscriber(value = [Dist.CLIENT], modid = MoarBoats.ModID)
 object ClientEvents {
 
+    // World -> Boat ID -> ISound
+    private val recordCache = mutableMapOf<World, MutableMap<Int, ISound>>()
     private val stripes = mutableMapOf<String, MapImageStripe>()
 
     val hookTextureLocation = ResourceLocation(MoarBoats.ModID, "textures/hook.png")
@@ -91,9 +99,41 @@ object ClientEvents {
             GuiEnergy(ContainerTypes.EnergyDischarger, container.containerID, container.te, playerInv.player)
         }
 
+        ScreenManager.registerFactory(ContainerTypes.FurnaceBoat) { container, playerInv, title ->
+            UtilityFurnaceScreen(container, playerInv, title)
+        }
+
+        ScreenManager.registerFactory(ContainerTypes.SmokerBoat) { container, playerInv, title ->
+            UtilitySmokerScreen(container, playerInv, title)
+        }
+
+        ScreenManager.registerFactory(ContainerTypes.BlastFurnaceBoat) { container, playerInv, title ->
+            UtilityBlastFurnaceScreen(container, playerInv, title)
+        }
+
+        ScreenManager.registerFactory(ContainerTypes.EnderChestBoat) { container, playerInv, title ->
+            ChestScreen(container, playerInv, title)
+        }
+
+        MoarBoats.plugins.forEach { it.onClientSetup(event) }
+
+        JavaHelpers.registerGuis()
+
         val mc = event.minecraftSupplier.get()
         RenderingRegistry.registerEntityRenderingHandler(ModularBoatEntity::class.java, ::RenderModularBoat)
         RenderingRegistry.registerEntityRenderingHandler(AnimalBoatEntity::class.java, ::RenderAnimalBoat)
+        registerUtilityBoat(FurnaceBoatEntity::class.java) { boat -> Blocks.FURNACE.defaultState.with(AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }
+        registerUtilityBoat(SmokerBoatEntity::class.java) { boat -> Blocks.SMOKER.defaultState.with(AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }
+        registerUtilityBoat(BlastFurnaceBoatEntity::class.java) { boat -> Blocks.BLAST_FURNACE.defaultState.with(AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }
+        registerUtilityBoat(CraftingTableBoatEntity::class.java) { boat -> Blocks.CRAFTING_TABLE.defaultState }
+        registerUtilityBoat(GrindstoneBoatEntity::class.java) { boat -> Blocks.GRINDSTONE.defaultState.with(GrindstoneBlock.FACE, AttachFace.FLOOR) }
+        registerUtilityBoat(LoomBoatEntity::class.java) { boat -> Blocks.LOOM.defaultState }
+        registerUtilityBoat(CartographyTableBoatEntity::class.java) { boat -> Blocks.CARTOGRAPHY_TABLE.defaultState }
+        registerUtilityBoat(StonecutterBoatEntity::class.java) { boat -> Blocks.STONECUTTER.defaultState }
+        registerUtilityBoat(ChestBoatEntity::class.java) { boat -> Blocks.CHEST.defaultState.with(HorizontalBlock.HORIZONTAL_FACING, Direction.SOUTH) }
+        registerUtilityBoat(EnderChestBoatEntity::class.java) { boat -> Blocks.ENDER_CHEST.defaultState.with(HorizontalBlock.HORIZONTAL_FACING, Direction.EAST) }
+        registerUtilityBoat(JukeboxBoatEntity::class.java) { boat -> Blocks.JUKEBOX.defaultState }
+        registerUtilityBoat(ShulkerBoatEntity::class.java) { boat -> ShulkerBoxBlock.getBlockByColor(boat.dyeColor).defaultState }
 
         BoatModuleRenderingRegistry.register(FurnaceEngineRenderer)
         BoatModuleRenderingRegistry.register(ChestModuleRenderer)
@@ -118,6 +158,10 @@ object ClientEvents {
         }
     }
 
+    private fun <T: UtilityBoatEntity<*,*>> registerUtilityBoat(klass: Class<T>, blockstateProvider: (T) -> BlockState) {
+        RenderingRegistry.registerEntityRenderingHandler(klass) { RenderUtilityBoat(it, blockstateProvider) }
+    }
+
     fun postInit(evt: FMLLoadCompleteEvent) {
         val mc = Minecraft.getInstance()
         mc.renderManager.skinMap["default"]!!.apply {
@@ -125,6 +169,20 @@ object ClientEvents {
         }
         mc.renderManager.skinMap["slim"]!!.apply {
             this.addLayer(MoarBoatsPatreonHookLayer(this))
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @SubscribeEvent
+    fun onEntityJoinWorld(event: EntityJoinWorldEvent) {
+        if(event.entity is PlayerEntity) {
+            for(list in recordCache.values) {
+                for(source in list) {
+                    Minecraft.getInstance().soundHandler.stop(source.value)
+                }
+                list.clear()
+            }
+            recordCache.clear()
         }
     }
 
@@ -155,53 +213,58 @@ object ClientEvents {
         }
     }
 
-    // COPY PASTED FROM PlayerRenderer
-    private fun renderArmFirstPerson(p_187456_1_: Float, swingProgress: Float, p_187456_3_: HandSide) {
+    // COPY PASTED FROM FirstPersonRenderer
+    private fun renderArmFirstPerson(equippedProgress: Float, swingProgress: Float, side: HandSide) {
         val mc = Minecraft.getInstance()
-        val rightHanded = p_187456_3_ != HandSide.LEFT
-        val f = if(rightHanded) 1.0f else -1.0f
+        val rightHanded = side !== HandSide.LEFT
+        val f = if (rightHanded) 1.0f else -1.0f
         val f1 = MathHelper.sqrt(swingProgress)
         val f2 = -0.3f * MathHelper.sin(f1 * Math.PI.toFloat())
         val f3 = 0.4f * MathHelper.sin(f1 * (Math.PI.toFloat() * 2f))
         val f4 = -0.4f * MathHelper.sin(swingProgress * Math.PI.toFloat())
-        GlStateManager.translatef(f * (f2 + 0.64000005f), f3 + -0.6f + p_187456_1_ * -0.6f, f4 + -0.71999997f)
+        GlStateManager.translatef(f * (f2 + 0.64000005f), f3 + -0.6f + equippedProgress * -0.6f, f4 + -0.71999997f)
         GlStateManager.rotatef(f * 45.0f, 0.0f, 1.0f, 0.0f)
         val f5 = MathHelper.sin(swingProgress * swingProgress * Math.PI.toFloat())
         val f6 = MathHelper.sin(f1 * Math.PI.toFloat())
         GlStateManager.rotatef(f * f6 * 70.0f, 0.0f, 1.0f, 0.0f)
         GlStateManager.rotatef(f * f5 * -20.0f, 0.0f, 0.0f, 1.0f)
-        val player = mc.player
-        mc.textureManager.bindTexture(player.locationSkin)
+        val player: AbstractClientPlayerEntity = mc.player
+        mc.getTextureManager().bindTexture(player.getLocationSkin())
         GlStateManager.translatef(f * -1.0f, 3.6f, 3.5f)
         GlStateManager.rotatef(f * 120.0f, 0.0f, 0.0f, 1.0f)
         GlStateManager.rotatef(200.0f, 1.0f, 0.0f, 0.0f)
         GlStateManager.rotatef(f * -135.0f, 0.0f, 1.0f, 0.0f)
         GlStateManager.translatef(f * 5.6f, 0.0f, 0.0f)
-        val PlayerRenderer = mc.renderManager.getRenderer(player) as PlayerRenderer
-        val model = PlayerRenderer.entityModel
+        val renderplayer = mc.renderManager.getRenderer(player) as PlayerRenderer
         GlStateManager.disableCull()
 
+        val model = renderplayer.entityModel
         val arm = if(rightHanded) model.bipedRightArm else model.bipedLeftArm
+        val armWear = if(rightHanded) model.bipedRightArmwear else model.bipedLeftArmwear
         renderArm(arm, player, model)
 
         GlStateManager.enableCull()
     }
 
     private fun renderArm(arm: RendererModel, clientPlayer: AbstractClientPlayerEntity, playerModel: PlayerModel<AbstractClientPlayerEntity>) {
+        val f = 1.0f
         GlStateManager.color3f(1.0f, 1.0f, 1.0f)
-        val scale = 0.0625f
+        val f1 = 0.0625f
         GlStateManager.enableBlend()
-        playerModel.isSneak = false
         playerModel.swingProgress = 0.0f
+        playerModel.isSneak = false
+        playerModel.swimAnimation = 0.0f
         playerModel.setRotationAngles(clientPlayer, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0625f)
 
+        val scale = 0.0625f
+        Minecraft.getInstance().textureManager.bindTexture(hookTextureLocation)
         GlStateManager.pushMatrix()
-        arm.rotateAngleX = 0.0f
-        GlStateManager.translatef(arm.rotationPointX, arm.rotationPointY, arm.rotationPointZ)
-        GlStateManager.translatef(arm.offsetX * scale, arm.offsetY * scale, arm.offsetZ * scale)
-        GlStateManager.rotatef((arm.rotateAngleZ * 180f / Math.PI).toFloat(), 0f, 0f, 1f)
-        GlStateManager.rotatef((arm.rotateAngleY * 180f / Math.PI).toFloat(), 0f, 1f, 0f)
-        GlStateManager.rotatef((arm.rotateAngleX * 180f / Math.PI).toFloat(), 1f, 0f, 0f)
+        GlStateManager.translatef(arm.offsetX, arm.offsetY, arm.offsetZ)
+
+        GlStateManager.translatef(arm.rotationPointX * scale, arm.rotationPointY * scale, arm.rotationPointZ * scale)
+        GlStateManager.rotatef(arm.rotateAngleZ * (180f / Math.PI.toFloat()), 0.0f, 0.0f, 1.0f)
+        GlStateManager.rotatef(arm.rotateAngleY * (180f / Math.PI.toFloat()), 0.0f, 1.0f, 0.0f)
+        GlStateManager.rotatef(arm.rotateAngleX * (180f / Math.PI.toFloat()), 1.0f, 0.0f, 0.0f)
 
         val tess = Tessellator.getInstance()
         val buffer = tess.buffer
@@ -227,4 +290,44 @@ object ClientEvents {
     }
 
     fun getMapStripe(id: String) = stripes[id]
+
+    /**
+     * Plays a given record or stop playback, linked to a boat entity
+     */
+    fun playRecord(world: World, entityID: Int, musicDiscItem: MusicDiscItem?) {
+        val worldCache = recordCache.getOrPut(world, ::mutableMapOf)
+        if(entityID in worldCache) {
+            val previousSource = worldCache[entityID]!!
+            worldCache.remove(entityID)
+            Minecraft.getInstance().soundHandler.stop(previousSource)
+        }
+
+        if(musicDiscItem != null) {
+            val entity = world.getEntityByID(entityID) as? UtilityBoatEntity<*,*> ?: return
+            val recordSound = EntitySound(musicDiscItem.sound, SoundCategory.RECORDS, 4f, entity)
+            Minecraft.getInstance().soundHandler.play(recordSound)
+            worldCache[entityID] = recordSound
+
+            Minecraft.getInstance().ingameGUI.setRecordPlayingMessage(musicDiscItem.recordDescription.formattedText)
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @SubscribeEvent
+    fun onInventoryOpened(keyEvent: InputEvent.KeyInputEvent) {
+        val mc = Minecraft.getInstance()
+        if(mc.world == null)
+            return // must be playing
+        if(mc.currentScreen != null) {
+            if(mc.currentScreen !is IngameGui) { // must not be in a menu
+                return
+            }
+        }
+        if(mc.gameSettings.keyBindInventory.key.keyCode == keyEvent.key) {
+            val player = mc.player
+            if(player.ridingEntity is BasicBoatEntity) {
+                MoarBoats.network.send(PacketDistributor.SERVER.noArg(), CShowBoatMenu()) // send the request to the server so that a container can be opened on the server-side if necessary
+            }
+        }
+    }
 }

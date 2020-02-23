@@ -23,7 +23,6 @@
     ],
     "facing=west,powered=false": [
       { "model": "moarboats:block/waterborne_redstone_unpowered", "y": 270 }
-    ],
-    "inventory": {"model": "moarboats:block/waterborne_redstone_powered"}
+    ]
   }
 }

@@ -8,7 +8,7 @@ abstract class MoarBoatsItem(val id: String, propertiesChanger: Properties.() ->
         Item(Item.Properties()
                 .apply{
                     if(putInItemGroup) {
-                        this.group(MoarBoats.CreativeTab)
+                        this.group(MoarBoats.MainCreativeTab)
                     }
                 }
                 .also(propertiesChanger))

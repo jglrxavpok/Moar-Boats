@@ -167,5 +167,10 @@
     "entity.moarboats.animal_boat": "Bâteau pour animaux",
 
     "item.moarboats.cargo_stopper": "Stoppeur de cargo",
-    "moarboats.tile.cargo_stopper.description": "Similaire au Comparateur Flottant. Emet dans toutes les directions (peut stopper les bâteaux)"
+    "moarboats.tile.cargo_stopper.description": "Similaire au Comparateur Flottant. Emet dans toutes les directions (peut stopper les bâteaux)",
+
+    "__comment": "6.1.0.0",
+    "moarboats.container.utility_boat": "Bateau avec %s",
+    "item.moarboats.colored_utility_boat.name": "%1$s avec %2$s (%3$s)",
+    "item.moarboats.utility_boat.name": "%1$s avec %2$s"
 }

@@ -8,18 +8,22 @@ import net.minecraft.block.material.MaterialColor
 import net.minecraft.block.material.PushReaction
 import net.minecraft.client.Minecraft
 import net.minecraft.entity.EntityType
+import net.minecraft.inventory.container.Container
 import net.minecraft.inventory.container.ContainerType
 import net.minecraft.item.*
 import net.minecraft.item.crafting.IRecipeSerializer
 import net.minecraft.network.datasync.DataSerializers
+import net.minecraft.resources.ResourcePackType
 import net.minecraft.server.dedicated.DedicatedServer
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.tileentity.TileEntityType
+import net.minecraft.util.NonNullList
 import net.minecraft.util.ResourceLocation
 import net.minecraft.world.dimension.DimensionType
 import net.minecraft.world.storage.DimensionSavedDataManager
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraftforge.client.model.generators.ExistingFileHelper
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.extensions.IForgeContainerType
 import net.minecraftforge.event.RegistryEvent
@@ -29,10 +33,7 @@ import net.minecraftforge.fml.DistExecutor
 import net.minecraftforge.fml.ModLoadingContext
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.config.ModConfig
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
-import net.minecraftforge.fml.event.lifecycle.FMLDedicatedServerSetupEvent
-import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent
+import net.minecraftforge.fml.event.lifecycle.*
 import net.minecraftforge.fml.network.NetworkRegistry
 import net.minecraftforge.registries.ForgeRegistries
 import net.minecraftforge.registries.ForgeRegistry
@@ -46,12 +47,16 @@ import org.jglrxavpok.moarboats.client.ClientEvents
 import org.jglrxavpok.moarboats.common.*
 import org.jglrxavpok.moarboats.common.blocks.*
 import org.jglrxavpok.moarboats.common.containers.*
+import org.jglrxavpok.moarboats.common.data.BoatType
+import org.jglrxavpok.moarboats.common.entities.UtilityBoatEntity
 import org.jglrxavpok.moarboats.common.items.*
 import org.jglrxavpok.moarboats.common.modules.*
 import org.jglrxavpok.moarboats.common.modules.inventories.ChestModuleInventory
 import org.jglrxavpok.moarboats.common.modules.inventories.EngineModuleInventory
 import org.jglrxavpok.moarboats.common.modules.inventories.SimpleModuleInventory
 import org.jglrxavpok.moarboats.common.tileentity.*
+import org.jglrxavpok.moarboats.datagen.JsonModelGenerator
+import org.jglrxavpok.moarboats.datagen.UtilityBoatRecipes
 import org.jglrxavpok.moarboats.integration.LoadIntegrationPlugins
 import org.jglrxavpok.moarboats.integration.MoarBoatsPlugin
 import org.jglrxavpok.moarboats.server.ServerEvents
@@ -69,7 +74,7 @@ object MoarBoats {
     internal var dedicatedServerInstance: DedicatedServer? = null
 
     val logger: Logger = LogManager.getLogger()
-    val NetworkingProtocolVersion = "v1.0"
+    val NetworkingProtocolVersion = "v1.1"
 
     val registryID = ResourceLocation(ModID, "modules")
     val network = NetworkRegistry.ChannelBuilder
@@ -95,11 +100,36 @@ object MoarBoats {
 
     val MachineMaterial = Material(MaterialColor.IRON, false, true, true, true, true, false, false, PushReaction.BLOCK)
 
-    val CreativeTab = object: ItemGroup("moarboats") {
+    val MainCreativeTab = object: ItemGroup("moarboats") {
 
         @OnlyIn(Dist.CLIENT)
         override fun createIcon(): ItemStack {
             return ItemStack(ModularBoatItem[DyeColor.WHITE])
+        }
+
+        override fun fill(items: NonNullList<ItemStack>) {
+            for (block in Blocks.list) {
+                if(block.asItem() !is AirItem) {
+                    block.fillItemGroup(this, items)
+                }
+            }
+            for (item in Items.list) {
+                item.fillItemGroup(this, items)
+            }
+        }
+    }
+
+    val UtilityBoatTab = object: ItemGroup("moarboats_utility") {
+
+        @OnlyIn(Dist.CLIENT)
+        override fun createIcon(): ItemStack {
+            return ItemStack(ChestBoatItem[BoatType.OAK])
+        }
+
+        override fun fill(items: NonNullList<ItemStack>) {
+            for (item in Items.list) {
+                item.fillItemGroup(this, items)
+            }
         }
     }
 
@@ -188,6 +218,8 @@ object MoarBoats {
                     .setName(registryID)
                     .setType(BoatModuleEntry::class.java)
                     .create()
+            BoatType.populateBoatTypeCache()
+            plugins.forEach { it.populateBoatTypes() }
         }
 
         @SubscribeEvent
@@ -231,7 +263,7 @@ object MoarBoats {
             e.registry.registerAll(*Items.list.toTypedArray())
             for(block in Blocks.list) {
                 if(!e.registry.containsKey(block.registryName)) { // don't overwrite already existing items
-                    e.registry.register(BlockItem(block, Item.Properties().group(MoarBoats.CreativeTab)).setRegistryName(block.registryName))
+                    e.registry.register(BlockItem(block, Item.Properties().group(MoarBoats.MainCreativeTab)).setRegistryName(block.registryName))
                 }
             }
         }
@@ -320,7 +352,58 @@ object MoarBoats {
                 return@create EmptyContainer(windowId, inv)
             }.setRegistryName(ModID, "none") as ContainerType<EmptyContainer>
             event.registry.register(ContainerTypes.Empty)
+
+            ContainerTypes.FurnaceBoat = event.registerUtilityContainer("furnace")
+
+            ContainerTypes.SmokerBoat = event.registerUtilityContainer("smoker")
+
+            ContainerTypes.BlastFurnaceBoat = event.registerUtilityContainer("blast_furnace")
+
+            ContainerTypes.CraftingBoat = event.registerUtilityContainer("crafting_table")
+
+            ContainerTypes.GrindstoneBoat = event.registerUtilityContainer("grindstone")
+
+            ContainerTypes.LoomBoat = event.registerUtilityContainer("loom")
+
+            ContainerTypes.CartographyTableBoat = event.registerUtilityContainer("cartography_table")
+
+            ContainerTypes.StonecutterBoat = event.registerUtilityContainer("stonecutter")
+
+            ContainerTypes.ChestBoat = event.registerUtilityContainer("chest")
+
+            ContainerTypes.EnderChestBoat = event.registerUtilityContainer("ender_chest")
+
+            ContainerTypes.ShulkerBoat = event.registerUtilityContainer("shulker")
         }
 
+        private fun <C: Container, B: UtilityBoatEntity<*, C>> RegistryEvent.Register<ContainerType<*>>.registerUtilityContainer(id: String): ContainerType<C> {
+            val type = IForgeContainerType.create { windowId, inv, data ->
+                val player = inv.player
+                val entityID = data.readInt()
+                val te = player.world.getEntityByID(entityID) as? B
+                te?.let {
+                    return@create te.createMenu(windowId, player.inventory, player)
+                }
+            }.setRegistryName(ModID, "${id}_boat") as ContainerType<C>
+            registry.register(type)
+            return type
+        }
+
+        @SubscribeEvent
+        fun gatherData(event: GatherDataEvent) {
+            val generator = event.generator
+            val delegate = event.existingFileHelper
+            val existingFileHelper = object: ExistingFileHelper(emptyList(), true) {
+                override fun exists(loc: ResourceLocation?, type: ResourcePackType?, pathSuffix: String?, pathPrefix: String?): Boolean {
+                    if(loc?.namespace == ModID)
+                        return true
+                    return delegate.exists(loc, type, pathSuffix, pathPrefix)
+                }
+            }
+            generator.addProvider(JsonModelGenerator(generator, ModID, "minecraft", existingFileHelper))
+            generator.addProvider(UtilityBoatRecipes(generator))
+            plugins.forEach { it.registerProviders(event, generator, existingFileHelper) }
+            generator.run()
+        }
     }
 }

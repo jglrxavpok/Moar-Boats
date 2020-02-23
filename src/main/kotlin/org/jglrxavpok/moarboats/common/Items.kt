@@ -24,7 +24,21 @@ object Items {
             MapItemWithPath,
             ChunkLoaderItem,
             OarsItem,
-            CargoStopperItem
+            CargoStopperItem,
+
+            *FurnaceBoatItem.AllVersions,
+            *SmokerBoatItem.AllVersions,
+            *BlastFurnaceBoatItem.AllVersions,
+            *CraftingTableBoatItem.AllVersions,
+            *GrindstoneBoatItem.AllVersions,
+            *LoomBoatItem.AllVersions,
+            *CartographyTableBoatItem.AllVersions,
+            *StonecutterBoatItem.AllVersions,
+            *ChestBoatItem.AllVersions,
+            *EnderChestBoatItem.AllVersions,
+            *ShulkerBoatItem.AllVersions,
+            *JukeboxBoatItem.AllVersions
+
     )
 
 }

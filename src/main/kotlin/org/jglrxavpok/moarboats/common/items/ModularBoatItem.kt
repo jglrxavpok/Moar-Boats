@@ -7,11 +7,15 @@ import net.minecraft.item.ItemStack
 import net.minecraft.stats.Stats
 import net.minecraft.util.*
 import net.minecraft.util.math.*
+import net.minecraft.util.text.ITextComponent
+import net.minecraft.util.text.TranslationTextComponent
 import net.minecraft.world.World
 import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.common.data.BoatType
 import org.jglrxavpok.moarboats.common.entities.AnimalBoatEntity
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
+import org.jglrxavpok.moarboats.common.entities.utilityboats.*
 import org.jglrxavpok.moarboats.extensions.Fluids
 
 class ModularBoatItem(val dyeColor: DyeColor): BaseBoatItem() {
@@ -89,7 +93,206 @@ object AnimalBoatItem: BaseBoatItem() {
     }
 }
 
-abstract class BaseBoatItem: Item(Item.Properties().group(MoarBoats.CreativeTab).maxStackSize(1)) {
+class FurnaceBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "furnace") {
+
+    companion object {
+        val AllVersions = BoatType.values().map { FurnaceBoatItem(it) }.toTypedArray()
+
+        operator fun get(woodType: BoatType) = AllVersions.first { it.boatType == woodType }
+    }
+
+    override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
+        return FurnaceBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = this@FurnaceBoatItem.boatType }
+    }
+}
+
+class SmokerBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "smoker") {
+
+    companion object {
+        val AllVersions = BoatType.values().map { SmokerBoatItem(it) }.toTypedArray()
+
+        operator fun get(woodType: BoatType) = AllVersions.first { it.boatType == woodType }
+    }
+
+    override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
+        return SmokerBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = this@SmokerBoatItem.boatType }
+    }
+}
+
+class BlastFurnaceBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "blast_furnace") {
+
+    companion object {
+        val AllVersions = BoatType.values().map { BlastFurnaceBoatItem(it) }.toTypedArray()
+
+        operator fun get(woodType: BoatType) = AllVersions.first { it.boatType == woodType }
+    }
+
+    override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
+        return BlastFurnaceBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = this@BlastFurnaceBoatItem.boatType }
+    }
+}
+
+class CraftingTableBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "crafting_table") {
+
+    companion object {
+        val AllVersions = BoatType.values().map { CraftingTableBoatItem(it) }.toTypedArray()
+
+        operator fun get(woodType: BoatType) = AllVersions.first { it.boatType == woodType }
+    }
+
+    override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
+        return CraftingTableBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = this@CraftingTableBoatItem.boatType }
+    }
+
+    override fun getContainerDisplayName(): ITextComponent {
+        return TranslationTextComponent("container.crafting")
+    }
+}
+
+class GrindstoneBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "grindstone") {
+
+    companion object {
+        val AllVersions = BoatType.values().map { GrindstoneBoatItem(it) }.toTypedArray()
+
+        operator fun get(woodType: BoatType) = AllVersions.first { it.boatType == woodType }
+    }
+
+    override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
+        return GrindstoneBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = this@GrindstoneBoatItem.boatType }
+    }
+
+    override fun getDisplayName(stack: ItemStack): ITextComponent {
+        return TranslationTextComponent("item.moarboats.utility_boat.name", TranslationTextComponent("item.${boatType.getBaseBoatOriginModID()}.${boatType.getFullName()}_boat"), TranslationTextComponent("block.minecraft.grindstone"))
+    }
+}
+
+class CartographyTableBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "cartography_table") {
+
+    companion object {
+        val AllVersions = BoatType.values().map { CartographyTableBoatItem(it) }.toTypedArray()
+
+        operator fun get(woodType: BoatType) = AllVersions.first { it.boatType == woodType }
+    }
+
+    override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
+        return CartographyTableBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = this@CartographyTableBoatItem.boatType }
+    }
+}
+
+class LoomBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "loom") {
+
+    companion object {
+        val AllVersions = BoatType.values().map { LoomBoatItem(it) }.toTypedArray()
+
+        operator fun get(woodType: BoatType) = AllVersions.first { it.boatType == woodType }
+    }
+
+    override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
+        return LoomBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = this@LoomBoatItem.boatType }
+    }
+}
+
+class StonecutterBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "stonecutter") {
+
+    companion object {
+        val AllVersions = BoatType.values().map { StonecutterBoatItem(it) }.toTypedArray()
+
+        operator fun get(woodType: BoatType) = AllVersions.first { it.boatType == woodType }
+    }
+
+    override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
+        return StonecutterBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = this@StonecutterBoatItem.boatType }
+    }
+}
+
+class ChestBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "chest") {
+
+    companion object {
+        val AllVersions = BoatType.values().map { ChestBoatItem(it) }.toTypedArray()
+
+        operator fun get(woodType: BoatType) = AllVersions.first { it.boatType == woodType }
+    }
+
+    override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
+        return ChestBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = this@ChestBoatItem.boatType }
+    }
+}
+
+class ShulkerBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "shulker") {
+
+    companion object {
+        val AllVersions = BoatType.values().map { ShulkerBoatItem(it) }.toTypedArray()
+
+        operator fun get(woodType: BoatType) = AllVersions.first { it.boatType == woodType }
+    }
+
+    override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
+        return ShulkerBoatEntity(DyeColor.byTranslationKey(itemstack.getOrCreateChildTag("AdditionalData").getString("Color"), null), levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z)
+                .apply { boatType = this@ShulkerBoatItem.boatType }
+                .apply { getBackingTileEntity()!!.read(itemstack.getOrCreateChildTag("AdditionalData").getCompound("TileEntityData")) }
+    }
+
+    override fun getContainerDisplayName(): ITextComponent {
+        return TranslationTextComponent("container.shulkerBox")
+    }
+
+    override fun getDisplayName(stack: ItemStack): ITextComponent {
+        val color = DyeColor.byTranslationKey(stack.getOrCreateChildTag("AdditionalData").getString("Color"), null)
+        if(color != null) {
+            return TranslationTextComponent("item.moarboats.colored_utility_boat.name", TranslationTextComponent("item.${boatType.getBaseBoatOriginModID()}.${boatType.getShortName()}_boat"), getContainerDisplayName(), TranslationTextComponent("color.minecraft.${color.translationKey}"))
+        }
+        return super.getDisplayName(stack)
+    }
+}
+
+class EnderChestBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "ender_chest") {
+
+    companion object {
+        val AllVersions = BoatType.values().map { EnderChestBoatItem(it) }.toTypedArray()
+
+        operator fun get(woodType: BoatType) = AllVersions.first { it.boatType == woodType }
+    }
+
+    override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
+        return EnderChestBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = this@EnderChestBoatItem.boatType }
+    }
+
+    override fun getContainerDisplayName(): ITextComponent {
+        return TranslationTextComponent("block.minecraft.ender_chest")
+    }
+}
+
+class JukeboxBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "jukebox") {
+
+    companion object {
+        val AllVersions = BoatType.values().map { JukeboxBoatItem(it) }.toTypedArray()
+
+        operator fun get(woodType: BoatType) = AllVersions.first { it.boatType == woodType }
+    }
+
+    override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
+        return JukeboxBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = this@JukeboxBoatItem.boatType }
+    }
+
+    override fun getContainerDisplayName(): ITextComponent {
+        return TranslationTextComponent("block.minecraft.jukebox")
+    }
+}
+
+abstract class UtilityBoatItem(val boatType: BoatType, val containerType: String): BaseBoatItem({ group(MoarBoats.UtilityBoatTab) }) {
+
+    init {
+        registryName = ResourceLocation(MoarBoats.ModID, "${boatType.getFullName()}_${containerType}_boat")
+    }
+
+    open fun getContainerDisplayName(): ITextComponent = TranslationTextComponent("container.$containerType")
+
+    override fun getDisplayName(stack: ItemStack): ITextComponent {
+        return TranslationTextComponent("item.moarboats.utility_boat.name", TranslationTextComponent("item.${boatType.getBaseBoatOriginModID()}.${boatType.getShortName()}_boat"), getContainerDisplayName())
+    }
+}
+
+abstract class BaseBoatItem(propertiesModifier: Item.Properties.() -> Unit = {}): Item(Item.Properties().group(MoarBoats.MainCreativeTab).maxStackSize(1).also(propertiesModifier)) {
 
     override fun onItemRightClick(levelIn: World, playerIn: PlayerEntity, handIn: Hand): ActionResult<ItemStack> {
         val itemstack = playerIn.getHeldItem(handIn)

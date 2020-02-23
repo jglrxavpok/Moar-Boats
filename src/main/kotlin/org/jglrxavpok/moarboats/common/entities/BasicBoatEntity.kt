@@ -12,6 +12,7 @@ import net.minecraft.entity.MoverType
 import net.minecraft.entity.item.ItemEntity
 import net.minecraft.entity.item.LeashKnotEntity
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.entity.player.ServerPlayerEntity
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundNBT
@@ -929,6 +930,12 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
         isSpeedImposed = true
         imposedSpeed = speed
     }
+
+    /**
+     * Open a menu for this boat for the given player
+     * Returns true if opening a menu was possible
+     */
+    abstract fun openGuiIfPossible(player: PlayerEntity): Boolean
 
 
 }

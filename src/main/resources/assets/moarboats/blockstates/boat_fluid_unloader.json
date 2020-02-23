@@ -1,8 +1,5 @@
 {
   "variants": {
-    "inventory": {
-      "model": "moarboats:block/fluid_unloader"
-    },
     "facing=down": {
       "model": "moarboats:block/fluid_unloader",
       "x": 180

@@ -1,0 +1,10 @@
+{
+  "homepage": "https://minecraft.curseforge.com/projects/moar-boats",
+  "1.14.4": {
+    "1.0.0": "+ First release"
+  },
+  "promos": {
+    "1.12.4-recommended": "1.0.0",
+    "1.14.4-latest": "1.0.0"
+  }
+}

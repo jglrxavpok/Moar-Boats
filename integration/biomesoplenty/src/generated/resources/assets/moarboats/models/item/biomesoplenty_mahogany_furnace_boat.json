@@ -1,0 +1,8 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "biomesoplenty:item/mahogany_boat",
+    "layer1": "moarboats:items/utility/furnace",
+    "layer2": "moarboats:items/utility/paddle"
+  }
+}

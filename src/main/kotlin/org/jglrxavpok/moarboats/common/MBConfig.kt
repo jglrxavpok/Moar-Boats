@@ -39,9 +39,28 @@ class MoarBoatsConfig {
         val chunkLoader = ChunkLoader(configBuilder)
 
         @JvmField
+        val furnaceBoats = FurnaceBoats(configBuilder)
+
+        @JvmField
         val misc = Misc(configBuilder)
 
         val spec = configBuilder.build()
+    }
+
+    class FurnaceBoats(builder: ForgeConfigSpec.Builder) {
+
+        val stateUpdateInterval: ForgeConfigSpec.IntValue
+
+        init {
+            builder.comment("Furnace boats")
+                    .push("furnaceBoats")
+
+            stateUpdateInterval = builder
+                    .comment("Time in ticks between two packets describing the state of furnaces (smoker, blaster, furnace) inside boats. Only graphical. -1 means no update")
+                    .defineInRange("stateUpdateInterval", 20, -1, Int.MAX_VALUE)
+
+            builder.pop()
+        }
     }
 
     class Fishing(builder: ForgeConfigSpec.Builder) {

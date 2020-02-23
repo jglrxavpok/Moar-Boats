@@ -167,4 +167,8 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(EntityEntries.AnimalBoat, 
     override fun <T> contains(property: BoatProperty<T>): Boolean {
         return false
     }
+
+    override fun openGuiIfPossible(player: PlayerEntity): Boolean {
+        return false
+    }
 }
