@@ -9,6 +9,7 @@ import net.minecraft.item.BlockItemUseContext
 import net.minecraft.state.DirectionProperty
 import net.minecraft.state.StateContainer
 import net.minecraft.tileentity.TileEntity
+import net.minecraft.util.ActionResultType
 import net.minecraft.util.Direction
 import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
@@ -16,7 +17,6 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.BlockRayTraceResult
 import net.minecraft.world.IBlockReader
 import net.minecraft.world.World
-import net.minecraft.world.chunk.BlockStateContainer
 import net.minecraftforge.fml.network.NetworkHooks
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
@@ -47,11 +47,11 @@ object BlockEnergyUnloader: MoarBoatsBlock() {
         return this.defaultState.with(Facing, context.nearestLookingDirection)
     }
 
-    override fun onBlockActivated(state: BlockState, worldIn: World, pos: BlockPos, playerIn: PlayerEntity, hand: Hand?, hit: BlockRayTraceResult): Boolean {
+    override fun onBlockActivated(state: BlockState, worldIn: World, pos: BlockPos, playerIn: PlayerEntity, hand: Hand?, hit: BlockRayTraceResult): ActionResultType {
         if(worldIn.isRemote)
-            return true
+            return ActionResultType.SUCCESS
         NetworkHooks.openGui(playerIn as ServerPlayerEntity, MoarBoatsGuiHandler.EnergyDischargerGuiInteraction(pos.x, pos.y, pos.z), pos)
-        return true
+        return ActionResultType.SUCCESS
     }
 
     override fun hasComparatorInputOverride(state: BlockState): Boolean {

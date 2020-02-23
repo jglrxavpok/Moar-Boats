@@ -47,7 +47,7 @@ object MoarBoatsGuiHandler {
         }
 
         override fun createMenu(containerID: Int, playerInventory: PlayerInventory, playerIn: PlayerEntity): Container? {
-            return BlockPos.PooledMutableBlockPos.retain(x, y, z).use {
+            return BlockPos.PooledMutable.retain(x, y, z).use {
                 val te = playerIn.world.getTileEntity(it) as? TE
                 if(te != null) {
                     containerGenerator(containerID, te, playerInventory, playerIn)

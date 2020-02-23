@@ -14,7 +14,7 @@ class SurroundingsMatrix(val size: Int) {
     }
 
     fun compute(world: World, centerX: Double, centerY: Double, centerZ: Double): SurroundingsMatrix {
-        val pos = BlockPos.PooledMutableBlockPos.retain()
+        val pos = BlockPos.PooledMutable.retain()
         for(xOffset in -halfSize until halfSize) {
             for(zOffset in -halfSize until halfSize) {
                 val worldX = centerX + xOffset

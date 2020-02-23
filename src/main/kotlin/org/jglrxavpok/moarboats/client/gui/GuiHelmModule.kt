@@ -81,10 +81,10 @@ class GuiHelmModule(containerID: Int, playerInventory: PlayerInventory, engine: 
         val x = guiLeft + xSize/2f - mapSize/2
         val y = guiTop.toDouble() + 5.0
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX)
-        bufferbuilder.pos(x, y+mapSize, 0.0).tex(0.0, 1.0).endVertex()
-        bufferbuilder.pos(x+mapSize, y+mapSize, 0.0).tex(1.0, 1.0).endVertex()
-        bufferbuilder.pos(x+mapSize, y, 0.0).tex(1.0, 0.0).endVertex()
-        bufferbuilder.pos(x, y, 0.0).tex(0.0, 0.0).endVertex()
+        bufferbuilder.pos(x, y+mapSize, 0.0).tex(0.0f, 1.0f).endVertex()
+        bufferbuilder.pos(x+mapSize, y+mapSize, 0.0).tex(1.0f, 1.0f).endVertex()
+        bufferbuilder.pos(x+mapSize, y, 0.0).tex(1.0f, 0.0f).endVertex()
+        bufferbuilder.pos(x, y, 0.0).tex(0.0f, 0.0f).endVertex()
         tessellator.draw()
         val stack = baseContainer.getSlot(0).stack
         var hasMap = false

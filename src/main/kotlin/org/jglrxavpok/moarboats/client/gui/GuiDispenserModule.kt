@@ -6,7 +6,7 @@ import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.util.Direction
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.TranslationTextComponent
-import net.minecraftforge.fml.client.config.GuiSlider
+import net.minecraftforge.fml.client.gui.widget.Slider
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
@@ -42,7 +42,7 @@ class GuiDispenserModule(containerID: Int, playerInv: PlayerInventory, module: B
     private val downFacingButton = GuiFacingButton(Direction.DOWN, 16, 16)
     private val facingButtons = arrayOf(frontFacingButton, backFacingButton, leftFacingButton, rightFacingButton, upFacingButton, downFacingButton)
 
-    private lateinit var periodSlider: GuiSlider
+    private lateinit var periodSlider: Slider
     private val sliderCallback = Button.IPressable { slider ->
         MoarBoats.network.sendToServer(CChangeDispenserPeriod(boat.entityID, module.id, periodSlider.value))
     }
@@ -50,7 +50,7 @@ class GuiDispenserModule(containerID: Int, playerInv: PlayerInventory, module: B
     override fun init() {
         super.init()
         val sliderWidth = width-10
-        periodSlider = GuiSlider(guiLeft+width/2-sliderWidth/2, guiTop + 100, sliderWidth, 20, "${sliderPrefix.formattedText} ", sliderSuffix.formattedText, 1.0, 100.0, 0.0, true, true, sliderCallback)
+        periodSlider = Slider(guiLeft+width/2-sliderWidth/2, guiTop + 100, sliderWidth, 20, "${sliderPrefix.formattedText} ", sliderSuffix.formattedText, 1.0, 100.0, 0.0, true, true, sliderCallback)
         periodSlider.value = dispensingModule.blockPeriodProperty[boat]
         addButton(periodSlider)
 

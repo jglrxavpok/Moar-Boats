@@ -33,7 +33,7 @@ inline fun <reified T: Entity> World.getEntities(type: EntityType<T>?, crossinli
     }
 }
 
-fun <T> BlockPos.PooledMutableBlockPos.use(action: (BlockPos.PooledMutableBlockPos) -> T): T {
+fun <T> BlockPos.PooledMutable.use(action: (BlockPos.PooledMutable) -> T): T {
     val result = action(this)
     this.close()
     return result

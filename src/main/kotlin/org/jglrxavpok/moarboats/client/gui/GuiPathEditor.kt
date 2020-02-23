@@ -16,7 +16,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.text.TranslationTextComponent
 import net.minecraft.world.dimension.DimensionType
 import net.minecraft.world.storage.MapData
-import net.minecraftforge.fml.client.config.GuiSlider
+import net.minecraftforge.fml.client.gui.widget.Slider
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.ClientEvents
 import org.jglrxavpok.moarboats.client.drawModalRectWithCustomSizedTexture
@@ -93,7 +93,7 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
     private val linesButton = GuiBinaryPropertyButton(Pair(propertyLinesText.formattedText, propertyPathfindingText.formattedText), Pair(5, 6), Button.IPressable {
         // TODO
     })
-    private lateinit var boostSlider: GuiSlider
+    private lateinit var boostSlider: Slider
     private val sliderCallback = Button.IPressable { slider ->
 
     }
@@ -108,8 +108,8 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
 
     private var lastMouseX = 0.0
     private var lastMouseY = 0.0
-    private var scrollX = size.toDouble()/2
-    private var scrollZ = size.toDouble()/2
+    private var scrollX = size.toFloat()/2f
+    private var scrollZ = size.toFloat()/2f
     private val world = player.world
 
     private val mapScreenSize = 200.0
@@ -160,7 +160,7 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
 
         loopingButton.propertyIndex = pathHolder.getLoopingOption().ordinal
 
-        boostSlider = GuiSlider(menuX, yOffset+20, 125, 20, "${boostSetting.formattedText}: ", "%", -50.0, 50.0, 0.0, false, true, sliderCallback)
+        boostSlider = Slider(menuX, yOffset+20, 125, 20, "${boostSetting.formattedText}: ", "%", -50.0, 50.0, 0.0, false, true, sliderCallback)
         addButton(boostSlider)
     }
 
@@ -193,8 +193,8 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
             val dx = mouseX-lastMouseX
             val dy = mouseY-lastMouseY
 
-            scrollX -= dx/currentZoom
-            scrollZ -= dy/currentZoom
+            scrollX -= (dx/currentZoom).toFloat()
+            scrollZ -= (dy/currentZoom).toFloat()
             lastMouseX = mouseX
             lastMouseY = mouseY
             return true
@@ -212,8 +212,8 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
     /**
      * Please free the returned blockpos
      */
-    private fun pixelsToWorldCoords(x: Double, y: Double): BlockPos.PooledMutableBlockPos {
-        val result = BlockPos.PooledMutableBlockPos.retain()
+    private fun pixelsToWorldCoords(x: Double, y: Double): BlockPos.PooledMutable {
+        val result = BlockPos.PooledMutable.retain()
 
         val invZoom = (1.0/currentZoom)
         val viewportSize = invZoom*size
@@ -283,7 +283,7 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
 
     override fun render(mouseX: Int, mouseY: Int, partialTicks: Float) {
         renderBackground()
-        val invZoom = 1.0/currentZoom
+        val invZoom = 1.0f/currentZoom
         val viewportSize = invZoom*size
         scrollX = scrollX.coerceIn(viewportSize/2 .. size-viewportSize/2)
         scrollZ = scrollZ.coerceIn(viewportSize/2 .. size-viewportSize/2)
@@ -387,12 +387,12 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
 
         glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE)
         glStencilFunc(GL_ALWAYS, 1, 0xFF) // always write 1 to buffer
-        val invZoom = (1.0/currentZoom)
+        val invZoom = (1.0f/currentZoom)
         val viewportSize = invZoom*size
-        val minU = ((scrollX-viewportSize/2)/size).coerceAtLeast(0.0)
-        val maxU = ((scrollX+viewportSize/2)/size).coerceAtMost(1.0)
-        val minV = ((scrollZ-viewportSize/2)/size).coerceAtLeast(0.0)
-        val maxV = ((scrollZ+viewportSize/2)/size).coerceAtMost(1.0)
+        val minU = ((scrollX-viewportSize/2)/size).coerceAtLeast(0.0f)
+        val maxU = ((scrollX+viewportSize/2)/size).coerceAtMost(1.0f)
+        val minV = ((scrollZ-viewportSize/2)/size).coerceAtLeast(0.0f)
+        val maxV = ((scrollZ+viewportSize/2)/size).coerceAtMost(1.0f)
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX)
         bufferbuilder.pos(0.0, 128.0, -0.009999999776482582).tex(minU, maxV).endVertex()
         bufferbuilder.pos(128.0, 128.0, -0.009999999776482582).tex(maxU, maxV).endVertex()

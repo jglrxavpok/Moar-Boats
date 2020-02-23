@@ -20,7 +20,6 @@ class MoarBoatsPatreonHookLayer(val playerRenderer: PlayerRenderer): LayerRender
     val hookModel = ModelPatreonHook()
     val hookTextureLocation = ResourceLocation(MoarBoats.ModID, "textures/hook.png")
 
-
     override fun shouldCombineTextures(): Boolean {
         return true
     }
@@ -38,7 +37,7 @@ class MoarBoatsPatreonHookLayer(val playerRenderer: PlayerRenderer): LayerRender
         GlStateManager.pushMatrix()
 
         val handSide = player.primaryHand
-        if(player.isSneaking) {
+        if(player.isCrouching) {
             GlStateManager.translatef(0.0f, 0.2f, 0.0f)
         }
         this.translateToHand(handSide)
@@ -58,6 +57,7 @@ class MoarBoatsPatreonHookLayer(val playerRenderer: PlayerRenderer): LayerRender
     }
 
     protected fun translateToHand(p_191361_1_: HandSide) {
+        // translateHand
         playerRenderer.entityModel.postRenderArm(0.0625f, p_191361_1_)
     }
 }

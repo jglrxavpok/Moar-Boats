@@ -15,9 +15,9 @@ fun drawModalRectWithCustomSizedTexture(x: Int, y: Int, startX: Float, startY: F
     val maxU = minU + width.toDouble()/textureWidth.toDouble()
     val maxV = minV + height.toDouble()/textureHeight.toDouble()
     buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX)
-    buffer.pos(x.toDouble(), y.toDouble(), 0.0).tex(minU.toDouble(), minV.toDouble()).endVertex()
-    buffer.pos((x+width).toDouble(), y.toDouble(), 0.0).tex(maxU.toDouble(), minV.toDouble()).endVertex()
-    buffer.pos((x+width).toDouble(), (y+height).toDouble(), 0.0).tex(maxU.toDouble(), maxV.toDouble()).endVertex()
-    buffer.pos(x.toDouble(), (y+height).toDouble(), 0.0).tex(minU.toDouble(), maxV.toDouble()).endVertex()
+    buffer.pos(x.toDouble(), y.toDouble(), 0.0).tex(minU.toFloat(), minV.toFloat()).endVertex()
+    buffer.pos((x+width).toDouble(), y.toDouble(), 0.0).tex(maxU.toFloat(), minV.toFloat()).endVertex()
+    buffer.pos((x+width).toDouble(), (y+height).toDouble(), 0.0).tex(maxU.toFloat(), maxV.toFloat()).endVertex()
+    buffer.pos(x.toDouble(), (y+height).toDouble(), 0.0).tex(minU.toFloat(), maxV.toFloat()).endVertex()
     tess.draw()
 }

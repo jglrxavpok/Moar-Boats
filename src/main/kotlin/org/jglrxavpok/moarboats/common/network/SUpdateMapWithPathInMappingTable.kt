@@ -27,8 +27,8 @@ class SUpdateMapWithPathInMappingTable: SxxUpdateMapWithPath {
 
         override fun updatePath(message: SUpdateMapWithPathInMappingTable, ctx: NetworkEvent.Context, list: ListNBT) {
             with(message) {
-                val pos = BlockPos.PooledMutableBlockPos.retain(tileEntityX, tileEntityY, tileEntityZ)
-                val te = Minecraft.getInstance().world.getTileEntity(pos)
+                val pos = BlockPos.PooledMutable.retain(tileEntityX, tileEntityY, tileEntityZ)
+                val te = Minecraft.getInstance().world!!.getTileEntity(pos)
                 when(te) {
                     is TileEntityMappingTable -> {
                         val stack = te.inventory.getStackInSlot(0)

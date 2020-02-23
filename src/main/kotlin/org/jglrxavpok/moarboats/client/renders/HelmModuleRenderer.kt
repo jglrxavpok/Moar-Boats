@@ -4,7 +4,7 @@ import net.minecraft.client.Minecraft
 import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.entity.EntityRendererManager
-import net.minecraft.client.renderer.entity.model.RendererModel
+import net.minecraft.client.renderer.model.ModelRenderer
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.item.FilledMapItem
 import net.minecraft.item.MapItem
@@ -72,10 +72,10 @@ object HelmModuleRenderer : BoatModuleRenderer() {
             val mapScale = 0.5f
             GlStateManager.scalef(mapScale, mapScale, mapScale)
             bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX)
-            bufferbuilder.pos(x, y+mapSize, 0.0).tex(0.0, 1.0).endVertex()
-            bufferbuilder.pos(x+mapSize, y+mapSize, 0.0).tex(1.0, 1.0).endVertex()
-            bufferbuilder.pos(x+mapSize, y, 0.0).tex(1.0, 0.0).endVertex()
-            bufferbuilder.pos(x, y, 0.0).tex(0.0, 0.0).endVertex()
+            bufferbuilder.pos(x, y+mapSize, 0.0).tex(0.0f, 1.0f).endVertex()
+            bufferbuilder.pos(x+mapSize, y+mapSize, 0.0).tex(1.0f, 1.0f).endVertex()
+            bufferbuilder.pos(x+mapSize, y, 0.0).tex(1.0f, 0.0f).endVertex()
+            bufferbuilder.pos(x, y, 0.0).tex(0.0f, 0.0f).endVertex()
             tessellator.draw()
 
             val mapdata = HelmModule.mapDataCopyProperty[boat]
@@ -85,7 +85,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         GlStateManager.popMatrix()
     }
 
-    private fun rotate(angle: Float, vararg modelParts: RendererModel) {
+    private fun rotate(angle: Float, vararg modelParts: ModelRenderer) {
         modelParts.forEach {
             it.rotateAngleX -= angle
         }
@@ -166,10 +166,10 @@ object HelmModuleRenderer : BoatModuleRenderer() {
 
         val thickness = 0.5
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR)
-        bufferbuilder.pos(0.0, thickness, 0.0).tex(0.0, 0.25 * pathTextureIndex).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
-        bufferbuilder.pos(0.0+length, thickness, 0.0).tex(1.0, 0.25 * pathTextureIndex).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
-        bufferbuilder.pos(0.0+length, 0.0, 0.0).tex(1.0, 0.25 * pathTextureIndex + 0.25).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
-        bufferbuilder.pos(0.0, 0.0, 0.0).tex(0.0, 0.25 * pathTextureIndex + 0.25).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
+        bufferbuilder.pos(0.0, thickness, 0.0).tex(0.0f, 0.25f * pathTextureIndex).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
+        bufferbuilder.pos(0.0+length, thickness, 0.0).tex(1.0f, 0.25f * pathTextureIndex).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
+        bufferbuilder.pos(0.0+length, 0.0, 0.0).tex(1.0f, 0.25f * pathTextureIndex + 0.25f).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
+        bufferbuilder.pos(0.0, 0.0, 0.0).tex(0.0f, 0.25f * pathTextureIndex + 0.25f).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
         tessellator.draw()
         GlStateManager.popMatrix()
     }
@@ -182,10 +182,10 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         val tessellator = Tessellator.getInstance()
         val bufferbuilder = tessellator.buffer
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR)
-        bufferbuilder.pos(x-spriteSize/2, y+spriteSize, 0.0).tex(0.0, 1.0).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
-        bufferbuilder.pos(x+spriteSize/2, y+spriteSize, 0.0).tex(1.0, 1.0).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
-        bufferbuilder.pos(x+spriteSize/2, y, 0.0).tex(1.0, 0.0).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
-        bufferbuilder.pos(x-spriteSize/2, y, 0.0).tex(0.0, 0.0).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
+        bufferbuilder.pos(x-spriteSize/2, y+spriteSize, 0.0).tex(0.0f, 1.0f).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
+        bufferbuilder.pos(x+spriteSize/2, y+spriteSize, 0.0).tex(1.0f, 1.0f).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
+        bufferbuilder.pos(x+spriteSize/2, y, 0.0).tex(1.0f, 0.0f).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
+        bufferbuilder.pos(x-spriteSize/2, y, 0.0).tex(0.0f, 0.0f).color(redModifier, greenModifier, blueModifier, 1f).endVertex()
         tessellator.draw()
     }
 }

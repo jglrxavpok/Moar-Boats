@@ -233,7 +233,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
         val j1 = MathHelper.ceil(axisalignedbb.maxZ)
         var flag = false
         this.waterLevel = java.lang.Double.MIN_VALUE
-        val currentBlockPos = BlockPos.PooledMutableBlockPos.retain()
+        val currentBlockPos = BlockPos.PooledMutable.retain()
 
         currentBlockPos.use { currentBlockPos ->
             for (k1 in i until j) {
@@ -273,7 +273,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
         var f = 0.0f
         var k1 = 0
 
-        BlockPos.PooledMutableBlockPos.retain().use { blockPos ->
+        BlockPos.PooledMutable.retain().use { blockPos ->
             for (l1 in i until j) {
                 for (i2 in i1 until j1) {
                     val j2 = (if (l1 != i && l1 != j - 1) 0 else 1) + if (i2 != i1 && i2 != j1 - 1) 0 else 1
@@ -329,7 +329,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
         val l = MathHelper.ceil(axisalignedbb.maxY - this.lastYd)
         val i1 = MathHelper.floor(axisalignedbb.minZ)
         val j1 = MathHelper.ceil(axisalignedbb.maxZ)
-        val currentPosition = BlockPos.PooledMutableBlockPos.retain()
+        val currentPosition = BlockPos.PooledMutable.retain()
 
         try {
             label108@
@@ -483,9 +483,9 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
 
     private fun breakLilypads() {
         val axisalignedbb = this.boundingBox
-        val min = BlockPos.PooledMutableBlockPos.retain(axisalignedbb.minX - 0.2, axisalignedbb.minY + 0.001, axisalignedbb.minZ - 0.2)
-        val max = BlockPos.PooledMutableBlockPos.retain(axisalignedbb.maxX + 0.2, axisalignedbb.maxY - 0.001, axisalignedbb.maxZ + 0.2)
-        val tmp = BlockPos.PooledMutableBlockPos.retain()
+        val min = BlockPos.PooledMutable.retain(axisalignedbb.minX - 0.2, axisalignedbb.minY + 0.001, axisalignedbb.minZ - 0.2)
+        val max = BlockPos.PooledMutable.retain(axisalignedbb.maxX + 0.2, axisalignedbb.maxY - 0.001, axisalignedbb.maxZ + 0.2)
+        val tmp = BlockPos.PooledMutable.retain()
 
         if (this.world.isAreaLoaded(min, max)) {
             for (i in min.x..max.x) {
@@ -598,7 +598,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
         val minZ = MathHelper.floor(axisalignedbb.minZ)
         val maxZ = MathHelper.ceil(axisalignedbb.maxZ)
         var foundLiquid = false
-        val currentBlockPos = BlockPos.PooledMutableBlockPos.retain()
+        val currentBlockPos = BlockPos.PooledMutable.retain()
 
         try {
             for (x in minX until maxX) {

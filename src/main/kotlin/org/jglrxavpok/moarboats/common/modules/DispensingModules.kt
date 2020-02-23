@@ -65,7 +65,7 @@ abstract class DispensingModule: BoatModule() {
                 dispenseItem(BOTTOM, from)
                 dispenseItem(MIDDLE, from)
                 dispenseItem(TOP, from)
-                BlockPos.PooledMutableBlockPos.retain(from.positionX, from.positionY, from.positionZ).use {
+                BlockPos.PooledMutable.retain(from.positionX, from.positionY, from.positionZ).use {
                     lastDispensePositionProperty[from] = it
                 }
             }
@@ -144,7 +144,7 @@ object DropperModule: DispensingModule() {
 
     override fun dispenseItem(row: Int, boat: IControllable) {
         val pos = boat.correspondingEntity.positionVec
-        val blockPos = BlockPos.PooledMutableBlockPos.retain(pos.x, pos.y+row + .75f, pos.z)
+        val blockPos = BlockPos.PooledMutable.retain(pos.x, pos.y+row + .75f, pos.z)
         val inventoryRowStart = (-row)*5 +5
         firstValidStack(inventoryRowStart, boat)?.let { (index, stack) ->
             val resultingStack = boat.dispense(dropBehavior, stack, overridePosition = blockPos, overrideFacing = facingProperty[boat])
@@ -159,7 +159,7 @@ object DispenserModule: DispensingModule() {
 
     override fun dispenseItem(row: Int, boat: IControllable) {
         val pos = boat.correspondingEntity.positionVec
-        val blockPos = BlockPos.PooledMutableBlockPos.retain(pos.x, pos.y+row + .75f, pos.z)
+        val blockPos = BlockPos.PooledMutable.retain(pos.x, pos.y+row + .75f, pos.z)
         val inventoryRowStart = (-row)*5 +5
         firstValidStack(inventoryRowStart, boat)?.let { (index, stack) ->
             val item = stack.item
@@ -184,7 +184,7 @@ object DispenserModule: DispensingModule() {
         boat.getInventory().syncToClient()
     }
 
-    private fun useBlockItem(item: BlockItem, world: World, stack: ItemStack, pos: BlockPos.PooledMutableBlockPos, boat: IControllable, row: Int) {
+    private fun useBlockItem(item: BlockItem, world: World, stack: ItemStack, pos: BlockPos.PooledMutable, boat: IControllable, row: Int) {
         val facing = boat.reorientate(facingProperty[boat]).opposite
         val blockPos = pos.offset(facing)
         val block = item.block

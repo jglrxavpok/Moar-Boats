@@ -7,6 +7,7 @@ import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.text.TranslationTextComponent
+import net.minecraft.world.dimension.DimensionType
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
@@ -60,7 +61,7 @@ object AnchorModule: BoatModule(), BlockReason {
         if(direction == -1) { // going down
             val nextY = anchorY + anchorDescentSpeed * direction
             anchorYProperty[from] = nextY
-            val pos = BlockPos.PooledMutableBlockPos.retain(anchorX, nextY, anchorZ)
+            val pos = BlockPos.PooledMutable.retain(anchorX, nextY, anchorZ)
             val world = from.worldRef
             if(world.getBlockState(pos).isValidPosition(world, pos)) {
                 // stop descent
@@ -117,7 +118,7 @@ object AnchorModule: BoatModule(), BlockReason {
             anchorYProperty[boat] = boat.positionY
             anchorZProperty[boat] = boat.positionZ
             player.sendStatusMessage(spawnPointSet, true)
-            player.setSpawnPoint(boat.correspondingEntity.position, true)
+            player.setSpawnPoint(boat.correspondingEntity.position, true, true, player.dimension)
         }
     }
 

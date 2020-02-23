@@ -7,6 +7,7 @@ import net.minecraft.entity.player.ServerPlayerEntity
 import net.minecraft.item.BlockItemUseContext
 import net.minecraft.state.StateContainer
 import net.minecraft.tileentity.TileEntity
+import net.minecraft.util.ActionResultType
 import net.minecraft.util.Direction
 import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
@@ -41,11 +42,11 @@ object BlockFluidLoader: MoarBoatsBlock() {
         return this.defaultState.with(Facing, Direction.getFacingDirections(context.player)[0])
     }
 
-    override fun onBlockActivated(state: BlockState, worldIn: World, pos: BlockPos, player: PlayerEntity, handIn: Hand, hit: BlockRayTraceResult): Boolean {
+    override fun onBlockActivated(state: BlockState, worldIn: World, pos: BlockPos, player: PlayerEntity, handIn: Hand, hit: BlockRayTraceResult): ActionResultType {
         if(worldIn.isRemote)
-            return true
+            return ActionResultType.SUCCESS
         NetworkHooks.openGui(player as ServerPlayerEntity, MoarBoatsGuiHandler.FluidLoaderGuiInteraction(pos.x, pos.y, pos.z), pos)
-        return true
+        return ActionResultType.SUCCESS
     }
 
     override fun hasComparatorInputOverride(state: BlockState): Boolean {

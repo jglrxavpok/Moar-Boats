@@ -12,7 +12,6 @@ import net.minecraft.util.text.TranslationTextComponent
 import net.minecraftforge.fluids.FluidStack
 import net.minecraftforge.fluids.FluidUtil
 import net.minecraftforge.fluids.capability.IFluidHandler
-import net.minecraftforge.fml.client.config.GuiUtils.drawTexturedModalRect
 import net.minecraftforge.registries.ForgeRegistries
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.containers.FluidContainer
@@ -31,9 +30,9 @@ class GuiFluid(type: ContainerType<*>, containerID: Int, val te: TileEntityListe
 
     override fun drawGuiContainerBackgroundLayer(partialTicks: Float, mouseX: Int, mouseY: Int) {
         mc.textureManager.bindTexture(defaultBackground)
-        drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize, blitOffset.toFloat())
+        blit(guiLeft, guiTop, 0, 0, xSize, ySize)
         mc.textureManager.bindTexture(fluidBackground)
-        drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize, blitOffset.toFloat())
+        blit(guiLeft, guiTop, 0, 0, xSize, ySize)
 
         if(fluid != null && fluid !is EmptyFluid) {
             GuiTankModule.renderFluidInGui(guiLeft + 56, guiTop + 80, fluid!!, fluidAmount, fluidCapacity, horizontalTilesCount = 4)

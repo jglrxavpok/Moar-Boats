@@ -94,7 +94,7 @@ abstract class BaseEngineModule: BoatModule() {
             val angle = (rotationYaw + 90f).toRadians()
             val distAlongLength = 0.0625f * 17f * -1f
 
-            val pos = BlockPos.PooledMutableBlockPos.retain(posX, posY-0.5, posZ)
+            val pos = BlockPos.PooledMutable.retain(posX, posY-0.5, posZ)
             val blockState = from.worldRef.getBlockState(pos)
 
             repeat(count) {

@@ -41,7 +41,7 @@ object FishingModuleRenderer : BoatModuleRenderer() {
         val rodStack = inventory.getStackInSlot(0)
 
         GlStateManager.pushLightingAttributes()
-        RenderHelper.enableGUIStandardItemLighting()
+        RenderHelper.enableStandardItemLighting()
 
         val hasRod = rodStack.item is FishingRodItem
         val ready = module.readyProperty[boat]
@@ -136,10 +136,10 @@ object FishingModuleRenderer : BoatModuleRenderer() {
         GlStateManager.rotatef((if (mc.renderManager.options.thirdPersonView == 2) -1 else 1).toFloat() * -mc.renderManager.info.projectedView.x.toFloat(), 1.0f, 0.0f, 0.0f)
 
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_NORMAL)
-        bufferbuilder.pos(-0.5, -0.5, 0.0).tex(0.03125, 0.09375).normal(0.0f, 1.0f, 0.0f).endVertex()
-        bufferbuilder.pos(0.5, -0.5, 0.0).tex(0.0625, 0.09375).normal(0.0f, 1.0f, 0.0f).endVertex()
-        bufferbuilder.pos(0.5, 0.5, 0.0).tex(0.0625, 0.0625).normal(0.0f, 1.0f, 0.0f).endVertex()
-        bufferbuilder.pos(-0.5, 0.5, 0.0).tex(0.03125, 0.0625).normal(0.0f, 1.0f, 0.0f).endVertex()
+        bufferbuilder.pos(-0.5, -0.5, 0.0).tex(0.03125f, 0.09375f).normal(0.0f, 1.0f, 0.0f).endVertex()
+        bufferbuilder.pos(0.5, -0.5, 0.0).tex(0.0625f, 0.09375f).normal(0.0f, 1.0f, 0.0f).endVertex()
+        bufferbuilder.pos(0.5, 0.5, 0.0).tex(0.0625f, 0.0625f).normal(0.0f, 1.0f, 0.0f).endVertex()
+        bufferbuilder.pos(-0.5, 0.5, 0.0).tex(0.03125f, 0.0625f).normal(0.0f, 1.0f, 0.0f).endVertex()
         tessellator.draw()
 
         GlStateManager.disableRescaleNormal()

@@ -2,6 +2,7 @@ package org.jglrxavpok.moarboats.client.gui
 
 import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.AbstractGui.blit
 import net.minecraft.client.gui.widget.list.ExtendedList
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
@@ -9,8 +10,6 @@ import net.minecraft.nbt.CompoundNBT
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.Util
 import net.minecraftforge.client.MinecraftForgeClient
-import net.minecraftforge.fml.client.config.GuiUtils.drawGradientRect
-import net.minecraftforge.fml.client.config.GuiUtils.drawTexturedModalRect
 import org.jglrxavpok.moarboats.client.gui.WaypointInfoEntry.Companion.ArrowsTexture
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL11.*
@@ -51,9 +50,9 @@ class WaypointListEntry(val parent: GuiMappingTable, val slot: CompoundNBT, val 
             val hoveredOffsetBottom = if(mouseY - slotTop >= slotHeight / 2) 1 else 0
             val hoveredOffsetTop = 1 - hoveredOffsetBottom
             if(index > 0)
-                drawTexturedModalRect(entryRight - 32, slotTop - 5, 64 + 32, hoveredOffsetTop * 32, 32, 32, 0f) // top
+                blit(entryRight - 32, slotTop - 5, 64 + 32, hoveredOffsetTop * 32, 32, 32) // top
             if(index < waypoints.size - 1)
-                drawTexturedModalRect(entryRight - 32, slotTop - 11, 64, hoveredOffsetBottom * 32, 32, 32, 0f) // bottom
+                blit(entryRight - 32, slotTop - 11, 64, hoveredOffsetBottom * 32, 32, 32) // bottom
         }
         slotTops[index] = slotTop
     }
@@ -96,7 +95,7 @@ class GuiWaypointList(val mc: Minecraft, val parent: GuiMappingTable, width: Int
 
     override fun renderBackground() {
         GlStateManager.disableLighting()
-        drawGradientRect(0, left, top, right, bottom, 0xFFC0C0C0.toInt(), 0xFFC0C0C0.toInt())
+        fillGradient(left, top, right, bottom, 0xFFC0C0C0.toInt(), 0xFFC0C0C0.toInt())
         GlStateManager.enableLighting()
     }
 

@@ -23,7 +23,7 @@ class UtilityBoatRecipes(generator: DataGenerator): RecipeProvider(generator) {
     private fun registerRecipe(consumer: Consumer<IFinishedRecipe>, item: UtilityBoatItem) {
         MoarBoats.logger.info("Generating recipe for item ${item.registryName}")
         if(item.containerType == "shulker") {
-            CustomRecipeBuilder.func_218656_a(MBRecipeSerializers.ShulkerBoat)
+            CustomRecipeBuilder.customRecipe(MBRecipeSerializers.ShulkerBoat)
                     .build(consumer, item.boatType.getOriginModID()+":moarboats_${item.registryName!!.path}")
         } else {
             val baseBoat = item.boatType.provideBoatItem()

@@ -17,6 +17,7 @@ import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.entities.utilityboats.*
 import org.jglrxavpok.moarboats.extensions.Fluids
+import java.util.*
 
 class ModularBoatItem(val dyeColor: DyeColor): BaseBoatItem() {
 
@@ -332,7 +333,7 @@ abstract class BaseBoatItem(propertiesModifier: Item.Properties.() -> Unit = {})
                 val entityboat = createBoat(levelIn, raytraceresult, inUsualFluid, itemstack, playerIn)
                 entityboat.rotationYaw = playerIn.rotationYaw
 
-                return if (levelIn.getCollisionShapes(entityboat, entityboat.boundingBox.grow(-0.1)).count() != 0L) {
+                return if (levelIn.func_226667_c_(entityboat, entityboat.boundingBox.grow(-0.1), Collections.emptySet()).count() != 0L) {
                     ActionResult(ActionResultType.FAIL, itemstack)
                 } else {
                     if (!levelIn.isRemote) {

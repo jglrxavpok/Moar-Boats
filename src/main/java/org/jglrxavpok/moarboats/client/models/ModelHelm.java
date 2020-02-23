@@ -1,8 +1,9 @@
 package org.jglrxavpok.moarboats.client.models;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.client.renderer.model.Model;
-import net.minecraft.client.renderer.entity.model.RendererModel;
+import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.entity.Entity;
 
 /**
@@ -10,81 +11,81 @@ import net.minecraft.entity.Entity;
  * Created using Tabula 7.0.0
  */
 public class ModelHelm extends EntityModel<Entity> {
-    public RendererModel helmBase;
-    public RendererModel bottom;
-    public RendererModel top;
-    public RendererModel left;
-    public RendererModel right;
-    public RendererModel frameCenter;
-    public RendererModel radiusRight;
-    public RendererModel radiusLeft;
-    public RendererModel radiusTop;
-    public RendererModel radiusBottom;
+    public ModelRenderer helmBase;
+    public ModelRenderer bottom;
+    public ModelRenderer top;
+    public ModelRenderer left;
+    public ModelRenderer right;
+    public ModelRenderer frameCenter;
+    public ModelRenderer radiusRight;
+    public ModelRenderer radiusLeft;
+    public ModelRenderer radiusTop;
+    public ModelRenderer radiusBottom;
 
     public ModelHelm() {
         this.textureWidth = 128;
         this.textureHeight = 64;
-        this.bottom = new RendererModel(this, 12, 0);
+        this.bottom = new ModelRenderer(this, 12, 0);
         this.bottom.setRotationPoint(10.299999999999999F, -7.299999999999999F, 0.0F);
         this.bottom.addBox(-0.5F, 4.0F, -5.0F, 1, 1, 10, 0.0F);
         this.setRotateAngle(bottom, 6.283185307179586F, 0.0F, -0.4363323129985824F);
-        this.radiusRight = new RendererModel(this, 24, 0);
+        this.radiusRight = new ModelRenderer(this, 24, 0);
         this.radiusRight.setRotationPoint(10.299999999999999F, -7.299999999999999F, 0.0F);
         this.radiusRight.addBox(-0.5F, -0.5F, 1.5F, 1, 1, 6, 0.0F);
         this.setRotateAngle(radiusRight, 6.283185307179586F, 0.0F, -0.4363323129985824F);
-        this.radiusBottom = new RendererModel(this, 90, 0);
+        this.radiusBottom = new ModelRenderer(this, 90, 0);
         this.radiusBottom.setRotationPoint(10.299999999999999F, -7.299999999999999F, 0.0F);
         this.radiusBottom.addBox(-0.5F, -0.5F, -7.5F, 1, 1, 6, 0.0F);
         this.setRotateAngle(radiusBottom, 7.853981633974483F, 0.0F, -0.4363323129985824F);
-        this.left = new RendererModel(this, 56, 0);
+        this.left = new ModelRenderer(this, 56, 0);
         this.left.setRotationPoint(10.299999999999999F, -7.299999999999999F, 0.0F);
         this.left.addBox(-0.5F, -6.0F, -5.0F, 1, 1, 10, 0.0F);
         this.setRotateAngle(left, 7.853981633974483F, 0.0F, -0.4363323129985824F);
-        this.right = new RendererModel(this, 78, 0);
+        this.right = new ModelRenderer(this, 78, 0);
         this.right.setRotationPoint(10.299999999999999F, -7.299999999999999F, 0.0F);
         this.right.addBox(-0.5F, 5.0F, -5.0F, 1, 1, 10, 0.0F);
         this.setRotateAngle(right, 7.853981633974483F, 0.0F, -0.4363323129985824F);
-        this.top = new RendererModel(this, 34, 0);
+        this.top = new ModelRenderer(this, 34, 0);
         this.top.setRotationPoint(10.299999999999999F, -7.299999999999999F, 0.0F);
         this.top.addBox(-0.5F, -5.0F, -5.0F, 1, 1, 10, 0.0F);
         this.setRotateAngle(top, 6.283185307179586F, 0.0F, -0.4363323129985824F);
-        this.radiusLeft = new RendererModel(this, 46, 0);
+        this.radiusLeft = new ModelRenderer(this, 46, 0);
         this.radiusLeft.setRotationPoint(10.299999999999999F, -7.299999999999999F, 0.0F);
         this.radiusLeft.addBox(-0.5F, -0.5F, -7.5F, 1, 1, 6, 0.0F);
         this.setRotateAngle(radiusLeft, 6.283185307179586F, 0.0F, -0.4363323129985824F);
-        this.helmBase = new RendererModel(this, 0, 0);
+        this.helmBase = new ModelRenderer(this, 0, 0);
         this.helmBase.setRotationPoint(9.0F, -8.0F, 0.0F);
         this.helmBase.addBox(-1.5F, 0.0F, -1.5F, 3, 11, 3, 0.0F);
-        this.radiusTop = new RendererModel(this, 68, 0);
+        this.radiusTop = new ModelRenderer(this, 68, 0);
         this.radiusTop.setRotationPoint(10.299999999999999F, -7.299999999999999F, 0.0F);
         this.radiusTop.addBox(-0.5F, -0.5F, 1.5F, 1, 1, 6, 0.0F);
         this.setRotateAngle(radiusTop, 7.853981633974483F, 0.0F, -0.4363323129985824F);
-        this.frameCenter = new RendererModel(this, 12, 0);
+        this.frameCenter = new ModelRenderer(this, 12, 0);
         this.frameCenter.setRotationPoint(10.299999999999999F, -7.299999999999999F, 0.0F);
         this.frameCenter.addBox(-0.5F, -1.5F, -1.5F, 1, 3, 3, 0.0F);
         this.setRotateAngle(frameCenter, 6.283185307179586F, 0.0F, -0.4363323129985824F);
     }
 
     @Override
-    public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5) { 
-        this.bottom.render(f5);
-        this.radiusRight.render(f5);
-        this.radiusBottom.render(f5);
-        this.left.render(f5);
-        this.right.render(f5);
-        this.top.render(f5);
-        this.radiusLeft.render(f5);
-        this.helmBase.render(f5);
-        this.radiusTop.render(f5);
-        this.frameCenter.render(f5);
+    public void render(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
+        this.bottom.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
+        this.radiusRight.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn););
+        this.radiusBottom.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn););
+        this.left.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn););
+        this.right.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn););
+        this.top.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn););
+        this.radiusLeft.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn););
+        this.helmBase.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn););
+        this.radiusTop.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn););
+        this.frameCenter.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn););
     }
 
     /**
      * This is a helper function from Tabula to set the rotation of model parts
      */
-    public void setRotateAngle(RendererModel RendererModel, float x, float y, float z) {
-        RendererModel.rotateAngleX = x;
-        RendererModel.rotateAngleY = y;
-        RendererModel.rotateAngleZ = z;
+    public void setRotateAngle(ModelRenderer ModelRenderer, float x, float y, float z) {
+        ModelRenderer.rotateAngleX = x;
+        ModelRenderer.rotateAngleY = y;
+        ModelRenderer.rotateAngleZ = z;
     }
 }

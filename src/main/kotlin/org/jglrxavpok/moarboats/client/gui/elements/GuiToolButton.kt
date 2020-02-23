@@ -6,7 +6,6 @@ import net.minecraft.client.gui.AbstractGui
 import net.minecraft.client.gui.widget.Widget
 import net.minecraft.client.gui.widget.button.Button
 import net.minecraft.util.ResourceLocation
-import net.minecraftforge.fml.client.config.GuiUtils.drawTexturedModalRect
 import org.jglrxavpok.moarboats.MoarBoats
 
 open class GuiToolButton(var text: String, var toolIconIndex: Int, val pressable: IPressable):
@@ -44,8 +43,8 @@ open class GuiToolButton(var text: String, var toolIconIndex: Int, val pressable
         GlStateManager.enableBlend()
         GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO)
         GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA)
-        drawTexturedModalRect(this.x, this.y, 0, 46 + stateOffset * 20, this.width / 2, this.height, blitOffset.toFloat())
-        drawTexturedModalRect(this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + stateOffset * 20, this.width / 2, this.height, blitOffset.toFloat())
+        blit(this.x, this.y, 0, 46 + stateOffset * 20, this.width / 2, this.height)
+        blit(this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + stateOffset * 20, this.width / 2, this.height)
     }
 
     override fun getYImage(mouseOver: Boolean): Int {

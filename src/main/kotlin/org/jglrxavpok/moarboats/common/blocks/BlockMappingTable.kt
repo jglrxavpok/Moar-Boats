@@ -7,6 +7,7 @@ import net.minecraft.entity.player.ServerPlayerEntity
 import net.minecraft.inventory.container.Container
 import net.minecraft.inventory.InventoryHelper
 import net.minecraft.tileentity.TileEntity
+import net.minecraft.util.ActionResultType
 import net.minecraft.util.Direction
 import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
@@ -58,11 +59,11 @@ object BlockMappingTable: MoarBoatsBlock({ sound(SoundType.STONE).hardnessAndRes
         } ?: 0
     }
 
-    override fun onBlockActivated(state: BlockState, levelIn: World, pos: BlockPos, playerIn: PlayerEntity, hand: Hand?, hit: BlockRayTraceResult): Boolean {
+    override fun onBlockActivated(state: BlockState, levelIn: World, pos: BlockPos, playerIn: PlayerEntity, hand: Hand?, hit: BlockRayTraceResult): ActionResultType {
         if(levelIn.isRemote) {
-            return true
+            return ActionResultType.SUCCESS
         }
         NetworkHooks.openGui(playerIn as ServerPlayerEntity, MoarBoatsGuiHandler.MappingTableGuiInteraction(pos.x, pos.y, pos.z), pos)
-        return true
+        return ActionResultType.SUCCESS
     }
 }

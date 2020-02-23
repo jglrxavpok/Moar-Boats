@@ -3,7 +3,6 @@ package org.jglrxavpok.moarboats.client.gui
 import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.util.ResourceLocation
-import net.minecraftforge.fml.client.config.GuiUtils.drawTexturedModalRect
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
@@ -34,6 +33,6 @@ class GuiBatteryModule(containerID: Int, playerInventory: PlayerInventory, modul
         mc.textureManager.bindTexture(moduleBackground)
         GlStateManager.disableCull()
         val energyHeight = (75 * (energyModule.getCurrentEnergy(boat)/energyModule.getMaxStorableEnergy(boat).toFloat())).toInt()
-        drawTexturedModalRect(guiLeft+60, guiTop+80, 201, 74, 55, -energyHeight, blitOffset.toFloat())
+        blit(guiLeft+60, guiTop+80, 201, 74, 55, -energyHeight)
     }
 }

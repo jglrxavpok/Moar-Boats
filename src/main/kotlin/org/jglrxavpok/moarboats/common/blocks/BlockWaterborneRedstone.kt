@@ -20,7 +20,7 @@ import net.minecraft.world.storage.loot.LootContext
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.items.WaterborneConductorItem
 
-object BlockWaterborneConductor: RedstoneDiodeBlock(Block.Properties.create(Material.MISCELLANEOUS).hardnessAndResistance(0f).sound(SoundType.WOOD)) {
+object BlockWaterborneConductor: RedstoneDiodeBlock(Block.Properties.create(Material.MISCELLANEOUS).notSolid().hardnessAndResistance(0f).sound(SoundType.WOOD)) {
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "waterborne_redstone")
         this.defaultState = stateContainer.baseState.with(HorizontalBlock.HORIZONTAL_FACING, Direction.NORTH).with(POWERED, false)
@@ -55,13 +55,6 @@ object BlockWaterborneConductor: RedstoneDiodeBlock(Block.Properties.create(Mate
         val posBehind = pos.offset(behindSide)
         val behind = levelIn.getBlockState(posBehind)
         return behind.getWeakPower(levelIn, posBehind, behindSide)
-    }
-
-    /**
-     * Used to determine ambient occlusion and culling when rebuilding chunks for render
-     */
-    override fun isSolid(state: BlockState): Boolean {
-        return false
     }
 
     override fun fillStateContainer(builder: StateContainer.Builder<Block, BlockState>) {

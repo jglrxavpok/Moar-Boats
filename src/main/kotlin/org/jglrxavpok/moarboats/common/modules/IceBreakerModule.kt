@@ -16,6 +16,7 @@ import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.items.IceBreakerItem
 import org.jglrxavpok.moarboats.extensions.getCenterForAllSides
+import java.util.*
 
 object IceBreakerModule: BoatModule() {
 
@@ -34,8 +35,8 @@ object IceBreakerModule: BoatModule() {
                 .offset(from.calculateAnchorPosition(BasicBoatEntity.FrontLink))
                 .offset(-from.positionX, -from.positionY - .75f, -from.positionZ)
                 .expand(1.0, 1.0, 1.0)
-        val collidedBB = level.getCollisionShapes(from.correspondingEntity, bb)
-        val blockPos = BlockPos.PooledMutableBlockPos.retain()
+        val collidedBB = level.func_226667_c_(from.correspondingEntity, bb, Collections.emptySet())
+        val blockPos = BlockPos.PooledMutable.retain()
         for(box in collidedBB) {
             val center = box.boundingBox.getCenterForAllSides()
             blockPos.setPos(center.x, center.y, center.z)
@@ -77,7 +78,7 @@ object IceBreakerModule: BoatModule() {
 
     private fun clearNotUpdatedFor(boat: IControllable, ticks: Int) {
         val state = boat.getState()
-        val pos = BlockPos.PooledMutableBlockPos.retain()
+        val pos = BlockPos.PooledMutable.retain()
         val keys = state.keySet().toList() // avoid ConcurrentModifException by copying the list
         for(key in keys) {
             if("Timestamp" in key) {

@@ -12,7 +12,6 @@ import net.minecraft.util.SoundEvents
 import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.TranslationTextComponent
-import net.minecraftforge.fml.client.config.GuiUtils.drawTexturedModalRect
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.network.COpenModuleGui
 import org.jglrxavpok.moarboats.api.BoatModule
@@ -130,7 +129,7 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
             mc.textureManager.bindTexture(BACKGROUND_TEXTURE)
         val i = (this.width - this.xSize) / 2
         val j = (this.height - this.ySize) / 2
-        drawTexturedModalRect(i, j, 0, 0, this.xSize, this.ySize, blitOffset.toFloat())
+        blit(i, j, 0, 0, this.xSize, this.ySize)
     }
 
     override fun drawGuiContainerBackgroundLayer(partialTicks: Float, mouseX: Int, mouseY: Int) {
@@ -147,7 +146,7 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
         val ownerUUID = boat.getOwnerIdOrNull()
         if(ownerUUID != null) {
             mc.textureManager.bindTexture(BACKGROUND_TEXTURE)
-            drawTexturedModalRect(i-21, j+3, 176, 57, 24, 26, blitOffset.toFloat())
+            blit(i-21, j+3, 176, 57, 24, 26)
             val info: NetworkPlayerInfo? = Minecraft.getInstance().connection!!.getPlayerInfo(ownerUUID)
             if(info != null) {
                 mc.textureManager.bindTexture(info.locationSkin)
@@ -164,7 +163,7 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
 
         GlStateManager.color4f(1.0f, 1.0f, 1.0f, 1.0f)
         mc.textureManager.bindTexture(moduleBackground)
-        drawTexturedModalRect(i, j, 0, 0, this.xSize, ySize, blitOffset.toFloat())
+        blit(i, j, 0, 0, this.xSize, ySize)
 
         drawModuleBackground(mouseX, mouseY)
     }
@@ -179,15 +178,15 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
         fun renderContents() {
             val selected = tabModule == module
             mc.textureManager.bindTexture(BACKGROUND_TEXTURE)
-            drawTexturedModalRect(x, y, 176, if(selected) 3 else 30, 26, 26, blitOffset.toFloat())
+            blit(x, y, 176, if(selected) 3 else 30, 26, 26)
 
             if(selected) {
-                drawTexturedModalRect(x+width - 4, y+5, 201, 8, 18, 17, blitOffset.toFloat())
+                blit(x+width - 4, y+5, 201, 8, 18, 17)
             }
 
             blitOffset = 100
             itemRenderer.zLevel = 100.0f
-            RenderHelper.enableGUIStandardItemLighting()
+            RenderHelper.enableStandardItemLighting()
             GlStateManager.color3f(1f, 1f, 1f)
             val itemstack = ItemStack(BoatModuleRegistry[tabModule.id].correspondingItem)
             val itemX = width/2 - 10 + x + 1

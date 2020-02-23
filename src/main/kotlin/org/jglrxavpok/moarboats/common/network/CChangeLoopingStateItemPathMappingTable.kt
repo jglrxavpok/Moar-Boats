@@ -32,7 +32,7 @@ class CChangeLoopingStateItemPathMappingTable: CChangeLoopingStateBase {
             with(message) {
                 val player = ctx.sender!!
                 val level = player.world
-                val pos = BlockPos.PooledMutableBlockPos.retain(teX, teY, teZ)
+                val pos = BlockPos.PooledMutable.retain(teX, teY, teZ)
                 val te = level.getTileEntity(pos)
                 pos.close()
                 if(te !is TileEntityMappingTable)

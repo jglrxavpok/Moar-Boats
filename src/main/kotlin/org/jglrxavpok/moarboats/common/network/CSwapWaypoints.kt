@@ -32,7 +32,7 @@ class CSwapWaypoints(): MoarBoatsPacket {
             with(message) {
                 val player = ctx.sender!!
                 val level = player.world
-                val pos = BlockPos.PooledMutableBlockPos.retain(x, y, z)
+                val pos = BlockPos.PooledMutable.retain(x, y, z)
                 val te = level.getTileEntity(pos)
                 pos.close()
                 return when(te) {

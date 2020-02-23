@@ -24,7 +24,7 @@ class SUpdateMapWithPathInBoat: SxxUpdateMapWithPath {
         override fun updatePath(message: SUpdateMapWithPathInBoat, ctx: NetworkEvent.Context, list: ListNBT) {
             with(message) {
                 val player = Minecraft.getInstance().player
-                val level = player.world
+                val level = player!!.world
                 val boat = level.getEntityByID(message.boatID) as? ModularBoatEntity ?: return
                 val stack = boat.getInventory(HelmModule).getStackInSlot(0)
                 if(stack.tag == null) {

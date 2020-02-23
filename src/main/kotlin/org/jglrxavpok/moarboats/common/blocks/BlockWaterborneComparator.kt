@@ -19,6 +19,7 @@ import net.minecraft.util.math.shapes.VoxelShapes
 import net.minecraft.world.IBlockReader
 import net.minecraft.world.IWorldReader
 import net.minecraft.world.World
+import net.minecraft.world.server.ServerWorld
 import net.minecraft.world.storage.loot.LootContext
 import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.IItemHandler
@@ -27,7 +28,7 @@ import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.items.WaterborneComparatorItem
 import java.util.*
 
-object BlockWaterborneComparator: RedstoneDiodeBlock(Block.Properties.create(Material.MISCELLANEOUS).tickRandomly().hardnessAndResistance(0f).sound(SoundType.WOOD)) {
+object BlockWaterborneComparator: RedstoneDiodeBlock(Block.Properties.create(Material.MISCELLANEOUS).notSolid().tickRandomly().hardnessAndResistance(0f).sound(SoundType.WOOD)) {
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "waterborne_comparator")
         this.defaultState = stateContainer.baseState.with(HorizontalBlock.HORIZONTAL_FACING, Direction.NORTH).with(POWERED, false)
@@ -64,7 +65,7 @@ object BlockWaterborneComparator: RedstoneDiodeBlock(Block.Properties.create(Mat
         return 0
     }
 
-    override fun tick(state: BlockState, worldIn: World, pos: BlockPos, random: Random) {
+    override fun tick(state: BlockState, worldIn: ServerWorld, pos: BlockPos, random: Random) {
         val produceSignal = shouldBePowered(worldIn, pos, state)
         when {
             produceSignal && !state.get(POWERED) -> worldIn.setBlockState(pos, state.with(POWERED, true).with(HorizontalBlock.HORIZONTAL_FACING, state.get(HorizontalBlock.HORIZONTAL_FACING)))
@@ -93,13 +94,6 @@ object BlockWaterborneComparator: RedstoneDiodeBlock(Block.Properties.create(Mat
             f /= inv.slots.toFloat()
             return MathHelper.floor(f * 14.0f) + if (i > 0) 1 else 0
         }
-    }
-
-    /**
-     * Used to determine ambient occlusion and culling when rebuilding chunks for render
-     */
-    override fun isSolid(state: BlockState): Boolean {
-        return false
     }
 
     override fun fillStateContainer(builder: StateContainer.Builder<Block, BlockState>) {

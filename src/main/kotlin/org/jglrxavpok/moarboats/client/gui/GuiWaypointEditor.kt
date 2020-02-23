@@ -10,8 +10,7 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.util.text.TextFormatting
 import net.minecraft.util.text.TranslationTextComponent
-import net.minecraftforge.fml.client.config.GuiCheckBox
-import net.minecraftforge.fml.client.config.GuiSlider
+import net.minecraftforge.fml.client.gui.widget.Slider
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.network.CModifyWaypoint
@@ -43,7 +42,7 @@ class GuiWaypointEditor(val player: PlayerEntity, val te: TileEntityMappingTable
 
     }
 
-    private val boostSlider = GuiSlider(0, 0, 125, 20, "${boostSetting.formattedText}: ", "%", -50.0, 50.0, 0.0, false, true, boostSliderCallback)
+    private val boostSlider = Slider(0, 0, 125, 20, "${boostSetting.formattedText}: ", "%", -50.0, 50.0, 0.0, false, true, boostSliderCallback)
     private val confirmButton = Button(0, 0, 150, 20, confirmText.formattedText) {
         storeIntoNBT()
         MoarBoats.network.sendToServer(CModifyWaypoint(te, index, waypointData))
@@ -55,7 +54,7 @@ class GuiWaypointEditor(val player: PlayerEntity, val te: TileEntityMappingTable
     private val refreshButton = Button(0, 0, 150, 20, refreshText.formattedText) {
         refreshList()
     }
-    private val hasBoostCheckbox = GuiCheckBox(0, 0, hasBoostSetting.formattedText, waypointData.getBoolean("hasBoost"))
+    private val hasBoostCheckbox = Checkbox(0, 0, hasBoostSetting.formattedText, waypointData.getBoolean("hasBoost"))
 
     private val intInputs by lazy {listOf(xInput, zInput)}
     private val doubleInputs by lazy {listOf<TextFieldWidget>()}
@@ -234,7 +233,7 @@ class GuiWaypointEditor(val player: PlayerEntity, val te: TileEntityMappingTable
         zInput.text = waypointInfo.z.toString()
         nameInput.text = waypointInfo.name
         if(waypointInfo.boost != null) {
-            hasBoostCheckbox.setIsChecked(true)
+            hasBoostCheckbox.setFocused(true)
             boostSlider.value = waypointInfo.boost
         }
     }

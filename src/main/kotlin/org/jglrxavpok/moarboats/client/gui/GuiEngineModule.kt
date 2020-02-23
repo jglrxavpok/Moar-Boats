@@ -11,8 +11,7 @@ import net.minecraft.item.Items
 import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.TranslationTextComponent
-import net.minecraftforge.fml.client.config.GuiSlider
-import net.minecraftforge.fml.client.config.GuiUtils.drawTexturedModalRect
+import net.minecraftforge.fml.client.gui.widget.Slider
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
@@ -52,11 +51,11 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
     private val unknownBlockReasonText = { str: String -> TranslationTextComponent("gui.engine.blocked.unknown", str) }
     private val imposedSpeedText = { str: String -> TranslationTextComponent("moarboats.gui.engine.imposed_boost", str) }
 
-    private lateinit var speedSlider: GuiSlider
+    private lateinit var speedSlider: Slider
     private val speedIconTexture = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/engines/speed_setting.png")
 
     private var prevSliderValue = 0.0
-    private val sliderCallback = GuiSlider.ISlider { slider ->
+    private val sliderCallback = Slider.ISlider { slider ->
         if(speedSlider.value != prevSliderValue) {
             prevSliderValue = speedSlider.value
             MoarBoats.network.sendToServer(CChangeEngineSpeed(boat.entityID, module.id, speedSlider.value.toFloat()/100f))
@@ -72,7 +71,7 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
         val speedSettingMargins = 30
         val speedSettingHorizontalSize = xSize - speedSettingMargins*2
 
-        speedSlider = GuiSlider(guiLeft + speedSettingMargins, guiTop + 90, speedSettingHorizontalSize, 20, "${speedSetting.formattedText}: ", "%", -50.0, 50.0, 0.0, false, true, Button.IPressable { slider -> }, sliderCallback)
+        speedSlider = Slider(guiLeft + speedSettingMargins, guiTop + 90, speedSettingHorizontalSize, 20, "${speedSetting.formattedText}: ", "%", -50.0, 50.0, 0.0, false, true, Button.IPressable { slider -> }, sliderCallback)
         addButton(speedSlider)
         speedSlider.value = (engine.speedProperty[boat].toDouble()) * 100f
     }
@@ -149,7 +148,7 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
         val textX = 88-16 - textWidth/2
         blitOffset = 100
         itemRenderer.zLevel = 100.0f
-        RenderHelper.enableGUIStandardItemLighting()
+        RenderHelper.enableStandardItemLighting()
         GlStateManager.color3f(1f, 1f, 1f)
         val itemX = textX+textWidth + 1
         val itemY = font.FONT_HEIGHT - 8 + y
@@ -166,10 +165,10 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
         val bufferbuilder = tessellator.buffer
         bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX)
         val margins = 0
-        val minU = 10.0/32.0
-        val maxU = 1.0
-        val minV = ordinal * 16.0 / 64.0
-        val maxV = (ordinal * 16.0 + 16.0) / 64.0
+        val minU = 10.0f/32.0f
+        val maxU = 1.0f
+        val minV = ordinal * 16.0f / 64.0f
+        val maxV = (ordinal * 16.0f + 16.0f) / 64.0f
         bufferbuilder
                 .pos((x+margins).toDouble(), (y+margins).toDouble(), 0.0)
                 .tex(minU, minV)
@@ -203,8 +202,8 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
         GlStateManager.pushMatrix()
         GlStateManager.scalef(scale, scale, scale)
         GlStateManager.translated((x/scale).toDouble(), (y/scale).toDouble(), 0.0)
-        drawTexturedModalRect(0, 0, 0, barIndex*10+5, (filledWidth).toInt(), 5, blitOffset.toFloat())
-        drawTexturedModalRect(filledWidth.toInt(), 0, filledWidth.toInt(), barIndex*10, (barWidth-filledWidth+1).toInt(), 5, blitOffset.toFloat())
+        blit(0, 0, 0, barIndex*10+5, (filledWidth).toInt(), 5)
+        blit(filledWidth.toInt(), 0, filledWidth.toInt(), barIndex*10, (barWidth-filledWidth+1).toInt(), 5)
         GlStateManager.popMatrix()
     }
 

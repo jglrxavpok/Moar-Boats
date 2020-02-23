@@ -23,7 +23,7 @@ class SUtilityTileEntityUpdate(): MoarBoatsPacket {
 
         override fun onMessage(message: SUtilityTileEntityUpdate, ctx: NetworkEvent.Context): MoarBoatsPacket? {
             val level = Minecraft.getInstance().world
-            val boat = level.getEntityByID(message.boatID) as? UtilityBoatEntity<*,*> ?: return null
+            val boat = level!!.getEntityByID(message.boatID) as? UtilityBoatEntity<*,*> ?: return null
             boat.updateTileEntity(message.data)
             return null
         }

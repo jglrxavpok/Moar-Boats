@@ -23,7 +23,7 @@ class SModuleData(): MoarBoatsPacket {
 
         override fun onMessage(message: SModuleData, ctx: NetworkEvent.Context): MoarBoatsPacket? {
             val level = Minecraft.getInstance().world
-            val boat = level.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
+            val boat = level!!.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
             boat.moduleData = message.data
             return null
         }

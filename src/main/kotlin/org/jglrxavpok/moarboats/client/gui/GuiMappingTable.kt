@@ -14,7 +14,6 @@ import net.minecraft.util.NonNullList
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.StringTextComponent
 import net.minecraft.util.text.TranslationTextComponent
-import net.minecraftforge.fml.client.config.GuiUtils.drawTexturedModalRect
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.gui.elements.GuiPropertyButton
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
@@ -145,10 +144,10 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
 
     override fun drawGuiContainerBackgroundLayer(partialTicks: Float, mouseX: Int, mouseY: Int) {
         mc.textureManager.bindTexture(Background)
-        drawTexturedModalRect(guiLeft, guiTop, 0, 0, this.xSize, this.ySize, blitOffset.toFloat())
+        blit(guiLeft, guiTop, 0, 0, this.xSize, this.ySize)
 
         mc.textureManager.bindTexture(EmptyBackground)
-        drawTexturedModalRect(guiLeft, guiTop, 0, 0, this.xSize, ySize, blitOffset.toFloat())
+        blit(guiLeft, guiTop, 0, 0, this.xSize, ySize)
     }
 
     override fun render(mouseX: Int, mouseY: Int, partialTicks: Float) {

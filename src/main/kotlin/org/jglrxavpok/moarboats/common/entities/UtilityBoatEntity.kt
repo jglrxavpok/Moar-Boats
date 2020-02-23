@@ -101,8 +101,7 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
     override fun tick() {
         super.tick()
         if(backingTileEntity != null) {
-            backingTileEntity.pos = InvalidPosition
-            backingTileEntity.world = world
+            backingTileEntity.setWorldAndPos(world, InvalidPosition)
             if(backingTileEntity is ITickableTileEntity) {
                 try {
                     backingTileEntity.tick()

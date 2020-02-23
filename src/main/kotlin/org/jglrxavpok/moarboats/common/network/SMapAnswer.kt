@@ -33,7 +33,7 @@ class SMapAnswer(): MoarBoatsPacket {
             val data = MapData(mapID)
             data.read(message.mapData)
             val level = Minecraft.getInstance().world
-            val boat = level.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
+            val boat = level!!.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
             val moduleLocation = message.moduleLocation
             val module = BoatModuleRegistry[moduleLocation].module
             module as HelmModule

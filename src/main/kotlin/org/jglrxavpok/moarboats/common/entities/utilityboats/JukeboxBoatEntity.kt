@@ -33,7 +33,7 @@ class JukeboxBoatEntity(world: World): UtilityBoatEntity<JukeboxTileEntity, Empt
         }
 
     private val hasRecord get() = !record.isEmpty
-    private val jukeboxPos = BlockPos.MutableBlockPos()
+    private val jukeboxPos = BlockPos.Mutable()
 
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
         this.setPosition(x, y, z)

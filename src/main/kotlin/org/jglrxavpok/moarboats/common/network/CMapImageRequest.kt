@@ -52,7 +52,7 @@ class CMapImageRequest(): MoarBoatsPacket {
             val maxX = xCenter+size/2-1
             val maxZ = minZ+ StripeLength -1
 
-            val blockPos = BlockPos.PooledMutableBlockPos.retain()
+            val blockPos = BlockPos.PooledMutable.retain()
             for(z in minZ..maxZ) {
                 for(x in minX..maxX) {
                     val pixelX = x-minX

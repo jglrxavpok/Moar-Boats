@@ -7,7 +7,6 @@ import net.minecraft.inventory.container.ContainerType
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.StringTextComponent
 import net.minecraft.util.text.TranslationTextComponent
-import net.minecraftforge.fml.client.config.GuiUtils.drawTexturedModalRect
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.containers.EnergyContainer
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergy
@@ -19,13 +18,13 @@ class GuiEnergy(type: ContainerType<EnergyContainer>, containerID: Int, val te: 
 
     override fun drawGuiContainerBackgroundLayer(partialTicks: Float, mouseX: Int, mouseY: Int) {
         getMinecraft().textureManager.bindTexture(defaultBackground)
-        drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize, blitOffset.toFloat())
+        blit(guiLeft, guiTop, 0, 0, xSize, ySize)
         getMinecraft().textureManager.bindTexture(energyBackground)
-        drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize, blitOffset.toFloat())
+        blit(guiLeft, guiTop, 0, 0, xSize, ySize)
 
         GlStateManager.disableCull()
         val energyHeight = (75 * (te.energy/te.maxEnergyStored.toFloat())).toInt()
-        drawTexturedModalRect(guiLeft+60, guiTop+80, 201, 74, 55, -energyHeight, blitOffset.toFloat())
+        blit(guiLeft+60, guiTop+80, 201, 74, 55, -energyHeight)
     }
 
     override fun drawGuiContainerForegroundLayer(mouseX: Int, mouseY: Int) {

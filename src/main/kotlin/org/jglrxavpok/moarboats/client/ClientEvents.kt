@@ -13,10 +13,11 @@ import net.minecraft.client.gui.screen.inventory.ChestScreen
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.entity.PlayerRenderer
 import net.minecraft.client.renderer.entity.model.PlayerModel
-import net.minecraft.client.renderer.entity.model.RendererModel
+import net.minecraft.client.renderer.model.ModelRenderer
 import net.minecraft.client.renderer.model.ModelBox
 import net.minecraft.client.renderer.model.ModelRotation
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
+import net.minecraft.entity.EntityType
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.MusicDiscItem
 import net.minecraft.state.properties.AttachFace
@@ -43,6 +44,7 @@ import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.client.gui.*
 import org.jglrxavpok.moarboats.client.models.ModelPatreonHook
 import org.jglrxavpok.moarboats.client.renders.*
+import org.jglrxavpok.moarboats.common.EntityEntries
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.containers.ContainerTypes
 import org.jglrxavpok.moarboats.common.data.MapImageStripe
@@ -62,8 +64,8 @@ object ClientEvents {
 
     val hookTextureLocation = ResourceLocation(MoarBoats.ModID, "textures/hook.png")
     val fakePlayerModel = PlayerModel<PlayerEntity>(0f, false)
-    val fakeArmRoot = RendererModel(fakePlayerModel, 32, 48)
-    val fakeArmwearRoot = RendererModel(fakePlayerModel, 48, 48)
+    val fakeArmRoot = ModelRenderer(fakePlayerModel, 32, 48)
+    val fakeArmwearRoot = ModelRenderer(fakePlayerModel, 48, 48)
     val armBox = ModelBox(fakeArmRoot,
             32, 48, -1.0f, -2.0f, -2.0f, 4, 9, 4, 0.0f)
     val armwearBox = ModelBox(fakeArmwearRoot,
@@ -120,20 +122,20 @@ object ClientEvents {
         JavaHelpers.registerGuis()
 
         val mc = event.minecraftSupplier.get()
-        RenderingRegistry.registerEntityRenderingHandler(ModularBoatEntity::class.java, ::RenderModularBoat)
-        RenderingRegistry.registerEntityRenderingHandler(AnimalBoatEntity::class.java, ::RenderAnimalBoat)
-        registerUtilityBoat(FurnaceBoatEntity::class.java) { boat -> Blocks.FURNACE.defaultState.with(AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }
-        registerUtilityBoat(SmokerBoatEntity::class.java) { boat -> Blocks.SMOKER.defaultState.with(AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }
-        registerUtilityBoat(BlastFurnaceBoatEntity::class.java) { boat -> Blocks.BLAST_FURNACE.defaultState.with(AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }
-        registerUtilityBoat(CraftingTableBoatEntity::class.java) { boat -> Blocks.CRAFTING_TABLE.defaultState }
-        registerUtilityBoat(GrindstoneBoatEntity::class.java) { boat -> Blocks.GRINDSTONE.defaultState.with(GrindstoneBlock.FACE, AttachFace.FLOOR) }
-        registerUtilityBoat(LoomBoatEntity::class.java) { boat -> Blocks.LOOM.defaultState }
-        registerUtilityBoat(CartographyTableBoatEntity::class.java) { boat -> Blocks.CARTOGRAPHY_TABLE.defaultState }
-        registerUtilityBoat(StonecutterBoatEntity::class.java) { boat -> Blocks.STONECUTTER.defaultState }
-        registerUtilityBoat(ChestBoatEntity::class.java) { boat -> Blocks.CHEST.defaultState.with(HorizontalBlock.HORIZONTAL_FACING, Direction.SOUTH) }
-        registerUtilityBoat(EnderChestBoatEntity::class.java) { boat -> Blocks.ENDER_CHEST.defaultState.with(HorizontalBlock.HORIZONTAL_FACING, Direction.EAST) }
-        registerUtilityBoat(JukeboxBoatEntity::class.java) { boat -> Blocks.JUKEBOX.defaultState }
-        registerUtilityBoat(ShulkerBoatEntity::class.java) { boat -> ShulkerBoxBlock.getBlockByColor(boat.dyeColor).defaultState }
+        RenderingRegistry.registerEntityRenderingHandler(EntityEntries.ModularBoat, ::RenderModularBoat)
+        RenderingRegistry.registerEntityRenderingHandler(EntityEntries.AnimalBoat, ::RenderAnimalBoat)
+        registerUtilityBoat(EntityEntries.FurnaceBoat) { boat -> Blocks.FURNACE.defaultState.with(AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }
+        registerUtilityBoat(EntityEntries.SmokerBoat) { boat -> Blocks.SMOKER.defaultState.with(AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }
+        registerUtilityBoat(EntityEntries.BlastFurnaceBoat) { boat -> Blocks.BLAST_FURNACE.defaultState.with(AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }
+        registerUtilityBoat(EntityEntries.CraftingTableBoat) { boat -> Blocks.CRAFTING_TABLE.defaultState }
+        registerUtilityBoat(EntityEntries.GrindstoneBoat) { boat -> Blocks.GRINDSTONE.defaultState.with(GrindstoneBlock.FACE, AttachFace.FLOOR) }
+        registerUtilityBoat(EntityEntries.LoomBoat) { boat -> Blocks.LOOM.defaultState }
+        registerUtilityBoat(EntityEntries.CartographyTableBoat) { boat -> Blocks.CARTOGRAPHY_TABLE.defaultState }
+        registerUtilityBoat(EntityEntries.StonecutterBoat) { boat -> Blocks.STONECUTTER.defaultState }
+        registerUtilityBoat(EntityEntries.ChestBoat) { boat -> Blocks.CHEST.defaultState.with(HorizontalBlock.HORIZONTAL_FACING, Direction.SOUTH) }
+        registerUtilityBoat(EntityEntries.EnderChestBoat) { boat -> Blocks.ENDER_CHEST.defaultState.with(HorizontalBlock.HORIZONTAL_FACING, Direction.EAST) }
+        registerUtilityBoat(EntityEntries.JukeboxBoat) { boat -> Blocks.JUKEBOX.defaultState }
+        registerUtilityBoat(EntityEntries.ShulkerBoat) { boat -> ShulkerBoxBlock.getBlockByColor(boat.dyeColor).defaultState }
 
         BoatModuleRenderingRegistry.register(FurnaceEngineRenderer)
         BoatModuleRenderingRegistry.register(ChestModuleRenderer)
@@ -158,8 +160,8 @@ object ClientEvents {
         }
     }
 
-    private fun <T: UtilityBoatEntity<*,*>> registerUtilityBoat(klass: Class<T>, blockstateProvider: (T) -> BlockState) {
-        RenderingRegistry.registerEntityRenderingHandler(klass) { RenderUtilityBoat(it, blockstateProvider) }
+    private fun <T: UtilityBoatEntity<*,*>> registerUtilityBoat(entityType: EntityType<T>, blockstateProvider: (T) -> BlockState) {
+        RenderingRegistry.registerEntityRenderingHandler(entityType) { RenderUtilityBoat(it, blockstateProvider) }
     }
 
     fun postInit(evt: FMLLoadCompleteEvent) {
@@ -197,8 +199,8 @@ object ClientEvents {
     @SubscribeEvent
     fun renderHand(event: RenderSpecificHandEvent) {
         val mc = Minecraft.getInstance()
-        val player = mc.player
-        if(mc.player.gameProfile.id.toString().toLowerCase() in MoarBoats.PatreonList) {
+        val player = mc.player!!
+        if(player.gameProfile.id.toString().toLowerCase() in MoarBoats.PatreonList) {
             if(event.hand == Hand.MAIN_HAND && player.getHeldItem(event.hand).isEmpty) {
                 if(MoarBoatsConfig.misc.hidePatreonHook.get()) {
                     return
@@ -228,7 +230,7 @@ object ClientEvents {
         val f6 = MathHelper.sin(f1 * Math.PI.toFloat())
         GlStateManager.rotatef(f * f6 * 70.0f, 0.0f, 1.0f, 0.0f)
         GlStateManager.rotatef(f * f5 * -20.0f, 0.0f, 0.0f, 1.0f)
-        val player: AbstractClientPlayerEntity = mc.player
+        val player: AbstractClientPlayerEntity = mc.player!!
         mc.getTextureManager().bindTexture(player.getLocationSkin())
         GlStateManager.translatef(f * -1.0f, 3.6f, 3.5f)
         GlStateManager.rotatef(f * 120.0f, 0.0f, 0.0f, 1.0f)
@@ -246,7 +248,7 @@ object ClientEvents {
         GlStateManager.enableCull()
     }
 
-    private fun renderArm(arm: RendererModel, clientPlayer: AbstractClientPlayerEntity, playerModel: PlayerModel<AbstractClientPlayerEntity>) {
+    private fun renderArm(arm: ModelRenderer, clientPlayer: AbstractClientPlayerEntity, playerModel: PlayerModel<AbstractClientPlayerEntity>) {
         val f = 1.0f
         GlStateManager.color3f(1.0f, 1.0f, 1.0f)
         val f1 = 0.0625f
@@ -324,7 +326,7 @@ object ClientEvents {
             }
         }
         if(mc.gameSettings.keyBindInventory.key.keyCode == keyEvent.key) {
-            val player = mc.player
+            val player = mc.player!!
             if(player.ridingEntity is BasicBoatEntity) {
                 MoarBoats.network.send(PacketDistributor.SERVER.noArg(), CShowBoatMenu()) // send the request to the server so that a container can be opened on the server-side if necessary
             }
