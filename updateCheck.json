@@ -25,6 +25,7 @@
     "5.0.0.0-beta1": "Port to 1.13.2"
   },
   "1.14.4": {
+    "6.1.0.0": "* New boat types: utility boats!\n* Plugins now available for Biomes'O'Plenty and IronChests support.",
     "6.0.0.0": "Port to 1.14.4"
   },
   "promos": {
