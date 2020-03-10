@@ -37,7 +37,7 @@ class RenderUtilityBoat<T: UtilityBoatEntity<*,*>>(renderManager: EntityRenderer
     }
 
     override fun doRender(entity: T, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float) {
-        bindTexture(getEntityTexture(entity))
+        this.renderManager.textureManager.bindTexture(getEntityTexture(entity))
         GlStateManager.pushMatrix()
         GlStateManager.disableCull()
         if(entity.isEntityInLava())
@@ -65,19 +65,19 @@ class RenderUtilityBoat<T: UtilityBoatEntity<*,*>>(renderManager: EntityRenderer
         GlStateManager.scalef(-1f, 1f, 1f)
         GlStateManager.translatef(1/16f/0.75f, -4f/16f, 0.5f)
         renderManager.textureManager.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE)
-        Minecraft.getInstance().blockRendererDispatcher.renderBlockBrightness(blockstateProvider(boat), boat.brightness)
+        BoatModuleRenderer.renderBlockState(renderManager, blockstateProvider(boat), boat.brightness)
         GlStateManager.popMatrix()
     }
 
     private fun renderLink(boatEntity: T, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float) {
-        bindTexture(RopeAnchorTextureLocation)
+        renderManager.textureManager.bindTexture(RopeAnchorTextureLocation)
         // front
         if(boatEntity.hasLink(BasicBoatEntity.FrontLink)) {
             boatEntity.getLinkedTo(BasicBoatEntity.FrontLink)?.let {
                 GlStateManager.pushMatrix()
                 GlStateManager.translatef(17f, -4f, 0f)
                 renderActualLink(boatEntity, it, BasicBoatEntity.FrontLink, entityYaw)
-                bindTexture(RopeAnchorTextureLocation)
+                renderManager.textureManager.bindTexture(RopeAnchorTextureLocation)
                 ropeAnchorModel.render(boatEntity, 0f, 0f, boatEntity.ticksExisted.toFloat(), 0f, 0f, 1f)
                 GlStateManager.popMatrix()
             }
@@ -89,7 +89,7 @@ class RenderUtilityBoat<T: UtilityBoatEntity<*,*>>(renderManager: EntityRenderer
                 GlStateManager.pushMatrix()
                 GlStateManager.translatef(-17f, -4f, 0f)
                 renderActualLink(boatEntity, it, BasicBoatEntity.BackLink, entityYaw)
-                bindTexture(RopeAnchorTextureLocation)
+                renderManager.textureManager.bindTexture(RopeAnchorTextureLocation)
                 ropeAnchorModel.render(boatEntity, 0f, 0f, boatEntity.ticksExisted.toFloat(), 0f, 0f, 1f)
                 GlStateManager.popMatrix()
             }
@@ -170,7 +170,7 @@ class RenderUtilityBoat<T: UtilityBoatEntity<*,*>>(renderManager: EntityRenderer
     override fun renderMultipass(entity: T, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float) {
         GlStateManager.pushMatrix()
         GlStateManager.disableCull()
-        bindTexture(TextureLocation)
+        renderManager.textureManager.bindTexture(TextureLocation)
         setTranslation(entity, x, y, z)
         setRotation(entity, entityYaw, partialTicks)
         setScale()

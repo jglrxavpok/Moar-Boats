@@ -16,18 +16,18 @@ object FurnaceEngineRenderer: BoatModuleRenderer() {
         registryName = FurnaceEngineModule.id
     }
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, EntityRendererManager: EntityRendererManager) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, entityRendererManager: EntityRendererManager) {
         module as FurnaceEngineModule
         GlStateManager.pushMatrix()
         GlStateManager.scalef(0.75f, 0.75f, 0.75f)
         GlStateManager.translatef(0.15f, -4f/16f, 0.5f)
-        EntityRendererManager.textureManager.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE)
+        entityRendererManager.textureManager.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE)
         val block = if(module.hasFuel(boat)) {
             Blocks.FURNACE.defaultState.with(FurnaceBlock.LIT, true)
         } else {
             Blocks.FURNACE.defaultState
         }
-        Minecraft.getInstance().blockRendererDispatcher.renderBlockBrightness(block, boat.brightness)
+        renderBlockState(entityRendererManager, block, boat.brightness)
         GlStateManager.popMatrix()
     }
 }

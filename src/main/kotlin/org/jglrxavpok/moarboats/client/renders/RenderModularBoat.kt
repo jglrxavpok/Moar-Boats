@@ -27,7 +27,7 @@ class RenderModularBoat(renderManager: EntityRendererManager): EntityRenderer<Mo
     override fun getEntityTexture(entity: ModularBoatEntity) = TextureLocation
 
     override fun doRender(entity: ModularBoatEntity, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float) {
-        bindTexture(TextureLocation)
+        renderManager.textureManager.bindTexture(TextureLocation)
         GlStateManager.pushMatrix()
         GlStateManager.disableCull()
         if(entity.isEntityInLava())
@@ -39,9 +39,9 @@ class RenderModularBoat(renderManager: EntityRendererManager): EntityRenderer<Mo
         setScale()
         model.noWater.showModel = false
         val color = entity.color.colorComponentValues
-        GlStateManager.color3f(color[0], color[1], color[2])
+        GlStateManager.color4f(color[0], color[1], color[2], 1f)
         model.render(entity, 0f, 0f, entity.ticksExisted.toFloat(), 0f, 0f, 1f)
-        GlStateManager.color3f(1f, 1f, 1f)
+        GlStateManager.color4f(1f, 1f, 1f, 1f)
         renderLink(entity, x, y, z, entityYaw, partialTicks)
         removeScale()
         entity.modules.forEach {
@@ -53,14 +53,14 @@ class RenderModularBoat(renderManager: EntityRendererManager): EntityRenderer<Mo
     }
 
     private fun renderLink(boatEntity: ModularBoatEntity, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float) {
-        bindTexture(RopeAnchorTextureLocation)
+        renderManager.textureManager.bindTexture(RopeAnchorTextureLocation)
         // front
         if(boatEntity.hasLink(BasicBoatEntity.FrontLink)) {
             boatEntity.getLinkedTo(BasicBoatEntity.FrontLink)?.let {
                 GlStateManager.pushMatrix()
                 GlStateManager.translatef(17f, -4f, 0f)
                 renderActualLink(boatEntity, it, BasicBoatEntity.FrontLink, entityYaw)
-                bindTexture(RopeAnchorTextureLocation)
+                renderManager.textureManager.bindTexture(RopeAnchorTextureLocation)
                 ropeAnchorModel.render(boatEntity, 0f, 0f, boatEntity.ticksExisted.toFloat(), 0f, 0f, 1f)
                 GlStateManager.popMatrix()
             }
@@ -72,7 +72,7 @@ class RenderModularBoat(renderManager: EntityRendererManager): EntityRenderer<Mo
                 GlStateManager.pushMatrix()
                 GlStateManager.translatef(-17f, -4f, 0f)
                 renderActualLink(boatEntity, it, BasicBoatEntity.BackLink, entityYaw)
-                bindTexture(RopeAnchorTextureLocation)
+                renderManager.textureManager.bindTexture(RopeAnchorTextureLocation)
                 ropeAnchorModel.render(boatEntity, 0f, 0f, boatEntity.ticksExisted.toFloat(), 0f, 0f, 1f)
                 GlStateManager.popMatrix()
             }
@@ -153,7 +153,7 @@ class RenderModularBoat(renderManager: EntityRendererManager): EntityRenderer<Mo
     override fun renderMultipass(entity: ModularBoatEntity, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float) {
         GlStateManager.pushMatrix()
         GlStateManager.disableCull()
-        bindTexture(TextureLocation)
+        renderManager.textureManager.bindTexture(TextureLocation)
         setTranslation(entity, x, y, z)
         setRotation(entity, entityYaw, partialTicks)
         setScale()

@@ -13,9 +13,10 @@ import net.minecraft.client.gui.screen.inventory.ChestScreen
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.entity.PlayerRenderer
 import net.minecraft.client.renderer.entity.model.PlayerModel
+import net.minecraft.client.renderer.model.Material
 import net.minecraft.client.renderer.model.ModelRenderer
-import net.minecraft.client.renderer.model.ModelBox
 import net.minecraft.client.renderer.model.ModelRotation
+import net.minecraft.client.renderer.texture.AtlasTexture
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.player.PlayerEntity
@@ -48,11 +49,8 @@ import org.jglrxavpok.moarboats.common.EntityEntries
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.containers.ContainerTypes
 import org.jglrxavpok.moarboats.common.data.MapImageStripe
-import org.jglrxavpok.moarboats.common.entities.AnimalBoatEntity
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
-import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.entities.UtilityBoatEntity
-import org.jglrxavpok.moarboats.common.entities.utilityboats.*
 import org.jglrxavpok.moarboats.common.network.CShowBoatMenu
 
 @KotlinEventBusSubscriber(value = [Dist.CLIENT], modid = MoarBoats.ModID)
@@ -66,10 +64,10 @@ object ClientEvents {
     val fakePlayerModel = PlayerModel<PlayerEntity>(0f, false)
     val fakeArmRoot = ModelRenderer(fakePlayerModel, 32, 48)
     val fakeArmwearRoot = ModelRenderer(fakePlayerModel, 48, 48)
-    val armBox = ModelBox(fakeArmRoot,
-            32, 48, -1.0f, -2.0f, -2.0f, 4, 9, 4, 0.0f)
-    val armwearBox = ModelBox(fakeArmwearRoot,
-            32, 48, -1.0f, -2.0f, -2.0f, 4, 9, 4, 0.0f + 0.25f)
+    val armBox = ModelRenderer.ModelBox(
+            32, 48, -1.0f, -2.0f, -2.0f, 4f, 9f, 4f, 0.0f, 0.0f, 0f, false, 64f, 64f)
+    val armwearBox = ModelRenderer.ModelBox(
+            32, 48, -1.0f, -2.0f, -2.0f, 4f, 9f, 4f, 0.0f + 0.25f, 0.25f, 0.25f, false, 64f, 64f)
     val hookModel = ModelPatreonHook()
 
     fun doClientStuff(event: FMLClientSetupEvent) {
@@ -191,7 +189,7 @@ object ClientEvents {
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     fun registerModels(event: ModelBakeEvent) {
-        val bakedModel = ItemLayerModel(ImmutableList.of(ResourceLocation("item/fishing_rod_cast"))).bake(event.modelLoader, ModelLoader.defaultTextureGetter(), ModelRotation.X0_Y0, DefaultVertexFormats.BLOCK)
+        val bakedModel = ItemLayerModel(ImmutableList.of(Material(AtlasTexture.LOCATION_BLOCKS_TEXTURE, ResourceLocation("item/fishing_rod_cast")))).bake(event.modelLoader, ModelLoader.defaultTextureGetter(), ModelRotation.X0_Y0, DefaultVertexFormats.BLOCK)
         event.modelRegistry[FishingModuleRenderer.CastFishingRodLocation] = bakedModel
     }
 
@@ -250,7 +248,7 @@ object ClientEvents {
 
     private fun renderArm(arm: ModelRenderer, clientPlayer: AbstractClientPlayerEntity, playerModel: PlayerModel<AbstractClientPlayerEntity>) {
         val f = 1.0f
-        GlStateManager.color3f(1.0f, 1.0f, 1.0f)
+        GlStateManager.color4f(1.0f, 1.0f, 1.0f, 1f)
         val f1 = 0.0625f
         GlStateManager.enableBlend()
         playerModel.swingProgress = 0.0f

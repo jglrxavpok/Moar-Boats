@@ -56,7 +56,7 @@ object FishingModuleRenderer : BoatModuleRenderer() {
             GlStateManager.enableBlend()
             GlStateManager.enableAlphaTest()
             GlStateManager.alphaFunc(516, 0.1f)
-            GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO)
+            GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.param, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.param, GlStateManager.SourceFactor.ONE.param, GlStateManager.DestFactor.ZERO.param)
             GlStateManager.pushMatrix()
             GlStateManager.scalef(-1f, 1f, 1f)
             mc.itemRenderer.renderItem(rodStack, model)
@@ -71,7 +71,7 @@ object FishingModuleRenderer : BoatModuleRenderer() {
             GlStateManager.alphaFunc(516, 0.1f)
             GlStateManager.enableBlend()
 
-            GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO)
+            GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.param, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.param, GlStateManager.SourceFactor.ONE.param, GlStateManager.DestFactor.ZERO.param)
 
             val stackToRender = if(hasRod) rodStack else StickStack
             mc.itemRenderer.renderItem(stackToRender, ItemCameraTransforms.TransformType.FIXED)

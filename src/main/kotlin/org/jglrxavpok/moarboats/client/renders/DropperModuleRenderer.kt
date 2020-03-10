@@ -16,7 +16,7 @@ object DropperModuleRenderer : BoatModuleRenderer() {
         registryName = DropperModule.id
     }
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, EntityRendererManager: EntityRendererManager) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, entityRendererManager: EntityRendererManager) {
         module as DropperModule
         GlStateManager.pushMatrix()
         GlStateManager.rotatef(180f, 0f, 1f, 0f)
@@ -24,9 +24,9 @@ object DropperModuleRenderer : BoatModuleRenderer() {
         GlStateManager.scalef(1f, 1f, 1f)
         GlStateManager.translatef(1f/ 16f * 0.75f, -4f/16f, +0.5f)
 
-        EntityRendererManager.textureManager.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE)
+        entityRendererManager.textureManager.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE)
         val block = Blocks.DROPPER
-        Minecraft.getInstance().blockRendererDispatcher.renderBlockBrightness(block.defaultState.with(DropperBlock.FACING, module.facingProperty[boat]), boat.brightness)
+        renderBlockState(entityRendererManager, block.defaultState.with(DropperBlock.FACING, module.facingProperty[boat]), boat.brightness)
         GlStateManager.popMatrix()
     }
 }

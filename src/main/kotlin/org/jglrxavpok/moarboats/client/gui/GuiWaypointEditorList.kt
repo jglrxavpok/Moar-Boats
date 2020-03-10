@@ -29,7 +29,7 @@ class WaypointInfoEntry(val parent: GuiWaypointEditor, val slot: WaypointInfo, v
         GlStateManager.disableLighting()
         // TODO: merge with rendering code of GuiWaypointList
         GlStateManager.pushMatrix()
-        GlStateManager.color3f(1f, 1f, 1f)
+        GlStateManager.color4f(1f, 1f, 1f, 1f)
         mc.textureManager.bindTexture(ArrowsTexture)
         val hovered = if(mouseX >= left && mouseX < left + 16 && mouseY >= slotTop && mouseY < slotTop + slotHeight) 1 else 0
 
@@ -54,7 +54,7 @@ class WaypointInfoEntry(val parent: GuiWaypointEditor, val slot: WaypointInfo, v
                 else ""
         mc.fontRenderer.drawString(text, 0f, 0f, 0xFFFFFF)
         GlStateManager.popMatrix()
-        GlStateManager.color3f(1f, 1f, 1f)
+        GlStateManager.color4f(1f, 1f, 1f, 1f)
         slotTops[this] = slotTop
         GlStateManager.popMatrix()
     }

@@ -149,7 +149,7 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
         blitOffset = 100
         itemRenderer.zLevel = 100.0f
         RenderHelper.enableStandardItemLighting()
-        GlStateManager.color3f(1f, 1f, 1f)
+        GlStateManager.color4f(1f, 1f, 1f, 1f)
         val itemX = textX+textWidth + 1
         val itemY = font.FONT_HEIGHT - 8 + y
         itemRenderer.renderItemIntoGUI(itemStack, itemX, itemY)

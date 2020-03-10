@@ -52,7 +52,7 @@ class GuiTankModule(containerID: Int, playerInventory: PlayerInventory, module: 
             val energyHeight = (73 * (fluidAmount/fluidCapacity.toFloat())).toInt()
             val mc = Minecraft.getInstance()
             mc.textureManager.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE)
-            val sprite = mc.textureMap.getAtlasSprite(fluid.attributes.stillTexture.toString())
+            val sprite = mc.getAtlasSpriteGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(fluid.attributes.stillTexture)
             val tessellator = Tessellator.getInstance()
             val buffer = tessellator.buffer
             buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX)
@@ -60,21 +60,21 @@ class GuiTankModule(containerID: Int, playerInventory: PlayerInventory, module: 
             for(xOffset in 0 until maxXOffset) {
                 val maxYOffset = energyHeight/16
                 for(yOffset in 0 until maxYOffset) {
-                    buffer.pos(leftX+xOffset*16.0, bottomY-yOffset*16.0, 0.0).tex(sprite.minU.toDouble(), sprite.minV.toDouble()).endVertex()
-                    buffer.pos(leftX+xOffset*16.0+16.0, bottomY-yOffset*16.0, 0.0).tex(sprite.maxU.toDouble(), sprite.minV.toDouble()).endVertex()
-                    buffer.pos(leftX+xOffset*16.0+16.0, bottomY-yOffset*16-16.0, 0.0).tex(sprite.maxU.toDouble(), sprite.maxV.toDouble()).endVertex()
-                    buffer.pos(leftX+xOffset*16.0, bottomY-yOffset*16-16.0, 0.0).tex(sprite.minU.toDouble(), sprite.maxV.toDouble()).endVertex()
+                    buffer.pos(leftX+xOffset*16.0, bottomY-yOffset*16.0, 0.0).tex(sprite.minU, sprite.minV).endVertex()
+                    buffer.pos(leftX+xOffset*16.0+16.0, bottomY-yOffset*16.0, 0.0).tex(sprite.maxU, sprite.minV).endVertex()
+                    buffer.pos(leftX+xOffset*16.0+16.0, bottomY-yOffset*16-16.0, 0.0).tex(sprite.maxU, sprite.maxV).endVertex()
+                    buffer.pos(leftX+xOffset*16.0, bottomY-yOffset*16-16.0, 0.0).tex(sprite.minU, sprite.maxV).endVertex()
                 }
 
                 // add little part on top
                 val remainingHeight = energyHeight % 16
-                val deltaH = remainingHeight/16.0
-                val minV = sprite.minV.toDouble()
-                val maxV = sprite.maxV.toDouble() * deltaH + (1.0-deltaH) * minV
-                buffer.pos(leftX+xOffset*16.0, bottomY-maxYOffset*16.0, 0.0).tex(sprite.minU.toDouble(), minV).endVertex()
-                buffer.pos(leftX+xOffset*16.0+16.0, bottomY-maxYOffset*16.0, 0.0).tex(sprite.maxU.toDouble(), minV).endVertex()
-                buffer.pos(leftX+xOffset*16.0+16.0, bottomY-maxYOffset*16.0-remainingHeight, 0.0).tex(sprite.maxU.toDouble(), maxV).endVertex()
-                buffer.pos(leftX+xOffset*16.0, bottomY-maxYOffset*16.0-remainingHeight, 0.0).tex(sprite.minU.toDouble(), maxV).endVertex()
+                val deltaH = remainingHeight/16.0f
+                val minV = sprite.minV
+                val maxV = sprite.maxV * deltaH + (1.0f-deltaH) * minV
+                buffer.pos(leftX+xOffset*16.0, bottomY-maxYOffset*16.0, 0.0).tex(sprite.minU, minV).endVertex()
+                buffer.pos(leftX+xOffset*16.0+16.0, bottomY-maxYOffset*16.0, 0.0).tex(sprite.maxU, minV).endVertex()
+                buffer.pos(leftX+xOffset*16.0+16.0, bottomY-maxYOffset*16.0-remainingHeight, 0.0).tex(sprite.maxU, maxV).endVertex()
+                buffer.pos(leftX+xOffset*16.0, bottomY-maxYOffset*16.0-remainingHeight, 0.0).tex(sprite.minU, maxV).endVertex()
             }
             tessellator.draw()
 

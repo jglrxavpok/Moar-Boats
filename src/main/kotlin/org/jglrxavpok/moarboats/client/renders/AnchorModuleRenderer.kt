@@ -1,15 +1,17 @@
 package org.jglrxavpok.moarboats.client.renders
 
-import net.minecraft.client.Minecraft
+import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.platform.GlStateManager
+import net.minecraft.block.Blocks
+import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.entity.EntityRendererManager
 import net.minecraft.client.renderer.texture.AtlasTexture
+import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
-import net.minecraft.block.Blocks
 import net.minecraft.util.math.MathHelper
-import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.api.BoatModule
+import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.AnchorModule
 import org.jglrxavpok.moarboats.extensions.toRadians
 
@@ -19,7 +21,7 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
         registryName = AnchorModule.id
     }
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, EntityRendererManager: EntityRendererManager) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, entityRendererManager: EntityRendererManager) {
         GlStateManager.pushMatrix()
         val anchor = module as AnchorModule
 
@@ -49,9 +51,7 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
         val anchorScale = 0.75
         GlStateManager.pushMatrix()
         GlStateManager.scaled(anchorScale, anchorScale, anchorScale)
-        EntityRendererManager.textureManager.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE)
-        Minecraft.getInstance().blockRendererDispatcher.renderBlockBrightness(Blocks.ANVIL.defaultState, boat.brightness)
-
+        renderBlockState(entityRendererManager, Blocks.ANVIL.defaultState, boat.brightness)
         GlStateManager.popMatrix()
         GlStateManager.translatef(+0.5f, +0.5f, -0.5f)
 

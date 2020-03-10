@@ -379,7 +379,7 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
         val bufferbuilder = tessellator.buffer
         mc.textureManager.bindTexture(areaResLocation)
         GlStateManager.enableBlend()
-        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE)
+        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.ONE.param, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.param, GlStateManager.SourceFactor.ZERO.param, GlStateManager.DestFactor.ONE.param)
         GlStateManager.disableAlphaTest()
 
         glEnable(GL_STENCIL_TEST)

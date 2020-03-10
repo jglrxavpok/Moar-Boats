@@ -1,8 +1,10 @@
 package org.jglrxavpok.moarboats.client
 
+import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity
+import net.minecraft.client.renderer.IRenderTypeBuffer
 import net.minecraft.client.renderer.entity.PlayerRenderer
 import net.minecraft.client.renderer.entity.layers.LayerRenderer
 import net.minecraft.client.renderer.entity.model.PlayerModel
@@ -24,7 +26,7 @@ class MoarBoatsPatreonHookLayer(val playerRenderer: PlayerRenderer): LayerRender
         return true
     }
 
-    override fun render(player: AbstractClientPlayerEntity, limbSwing: Float, limbSwingAmount: Float, partialTicks: Float, ageInTicks: Float, netHeadYaw: Float, headPitch: Float, scale: Float) {
+    override fun render(matrixStackIn: MatrixStack, bufferIn: IRenderTypeBuffer, packedLightIn: Int, player: AbstractClientPlayerEntity, limbSwing: Float, limbSwingAmount: Float, partialTicks: Float, ageInTicks: Float, netHeadYaw: Float, headPitch: Float) {
         if(MoarBoatsConfig.misc.hidePatreonHook.get()) {
             return
         }

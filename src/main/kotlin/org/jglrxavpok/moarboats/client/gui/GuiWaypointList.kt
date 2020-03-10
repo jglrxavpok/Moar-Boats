@@ -26,7 +26,7 @@ class WaypointListEntry(val parent: GuiMappingTable, val slot: CompoundNBT, val 
         val entryRight = left + entryWidth
 
         GlStateManager.disableLighting()
-        GlStateManager.color3f(1f, 1f, 1f)
+        GlStateManager.color4f(1f, 1f, 1f, 1f)
         if(index >= waypoints.size)
             return
         val slot = waypoints[index]
@@ -44,7 +44,7 @@ class WaypointListEntry(val parent: GuiMappingTable, val slot: CompoundNBT, val 
                 else ""
         mc.fontRenderer.drawString(text, 0f, 0f, 0xFFFFFF)
         GlStateManager.popMatrix()
-        GlStateManager.color3f(1f, 1f, 1f)
+        GlStateManager.color4f(1f, 1f, 1f, 1f)
         mc.textureManager.bindTexture(ArrowsTexture)
         if(mouseX >= entryRight - 32 && mouseX < entryRight && mouseY >= slotTop && mouseY <= slotTop + slotHeight) {
             val hoveredOffsetBottom = if(mouseY - slotTop >= slotHeight / 2) 1 else 0

@@ -27,7 +27,7 @@ class RenderAnimalBoat(EntityRendererManager: EntityRendererManager): EntityRend
     override fun getEntityTexture(entity: AnimalBoatEntity) = TextureLocation
 
     override fun doRender(entity: AnimalBoatEntity, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float) {
-        bindTexture(TextureLocation)
+        renderManager.textureManager.bindTexture(TextureLocation)
         GlStateManager.pushMatrix()
         GlStateManager.disableCull()
         if(entity.isEntityInLava())
@@ -46,7 +46,7 @@ class RenderAnimalBoat(EntityRendererManager: EntityRendererManager): EntityRend
     }
 
     private fun renderLink(boatEntity: AnimalBoatEntity, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float) {
-        bindTexture(RopeAnchorTextureLocation)
+        renderManager.textureManager.bindTexture(RopeAnchorTextureLocation)
         // front
 
         if(boatEntity.hasLink(BasicBoatEntity.FrontLink)) {
@@ -55,7 +55,7 @@ class RenderAnimalBoat(EntityRendererManager: EntityRendererManager): EntityRend
                 GlStateManager.translatef(17f, -4f, 0f)
                 GlStateManager.scalef(1f/1.5f, 1f, 1f/1.5f)
                 renderActualLink(boatEntity, it, BasicBoatEntity.FrontLink, entityYaw)
-                bindTexture(RopeAnchorTextureLocation)
+                renderManager.textureManager.bindTexture(RopeAnchorTextureLocation)
                 GlStateManager.scalef(1.5f, 1f, 1.5f)
                 ropeAnchorModel.render(boatEntity, 0f, 0f, boatEntity.ticksExisted.toFloat(), 0f, 0f, 1f)
                 GlStateManager.popMatrix()
@@ -69,7 +69,7 @@ class RenderAnimalBoat(EntityRendererManager: EntityRendererManager): EntityRend
                 GlStateManager.translatef(-17f, -4f, 0f)
                 GlStateManager.scalef(1f/1.5f, 1f, 1f/1.5f)
                 renderActualLink(boatEntity, it, BasicBoatEntity.BackLink, entityYaw)
-                bindTexture(RopeAnchorTextureLocation)
+                renderManager.textureManager.bindTexture(RopeAnchorTextureLocation)
                 GlStateManager.scalef(1.5f, 1f, 1.5f)
                 ropeAnchorModel.render(boatEntity, 0f, 0f, boatEntity.ticksExisted.toFloat(), 0f, 0f, 1f)
                 GlStateManager.popMatrix()
@@ -150,7 +150,7 @@ class RenderAnimalBoat(EntityRendererManager: EntityRendererManager): EntityRend
     override fun renderMultipass(entity: AnimalBoatEntity, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float) {
         GlStateManager.pushMatrix()
         GlStateManager.disableCull()
-        bindTexture(TextureLocation)
+        renderManager.textureManager.bindTexture(TextureLocation)
         setTranslation(entity, x, y, z)
         setRotation(entity, entityYaw, partialTicks)
         setScale()

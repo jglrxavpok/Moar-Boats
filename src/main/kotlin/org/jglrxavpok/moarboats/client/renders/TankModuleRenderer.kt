@@ -18,41 +18,41 @@ object TankModuleRenderer : BoatModuleRenderer() {
         registryName = FluidTankModule.id
     }
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, EntityRendererManager: EntityRendererManager) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, entityRendererManager: EntityRendererManager) {
         module as FluidTankModule
         GlStateManager.pushMatrix()
         GlStateManager.scalef(0.75f, 0.75f, 0.75f)
         GlStateManager.scalef(-1f, 1f, 1f)
         GlStateManager.translatef(-0.15f, -4f/16f, 0.5f)
-        EntityRendererManager.textureManager.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE)
+        entityRendererManager.textureManager.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE)
         val block = BlockBoatTank
-        Minecraft.getInstance().blockRendererDispatcher.renderBlockBrightness(block.defaultState, boat.brightness)
+        renderBlockState(entityRendererManager, block.defaultState, boat.brightness)
         val fluid = module.getFluidInside(boat)
         if(fluid != null && module.getFluidAmount(boat) > 0) {
             val scale = 1f/16f
             GlStateManager.scalef(scale, scale, scale)
             val tessellator = Tessellator.getInstance()
             val buffer = tessellator.buffer
-            val sprite = Minecraft.getInstance().textureMap.getAtlasSprite(fluid.attributes.stillTexture.toString())
+            val sprite = Minecraft.getInstance().getAtlasSpriteGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(fluid.attributes.stillTexture)
             Minecraft.getInstance().textureManager.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE)
             buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX)
-            val minU = sprite.minU.toDouble()
-            val maxU = sprite.maxU.toDouble()
-            val minV = sprite.minV.toDouble()
-            val maxV = sprite.maxV.toDouble()
+            val minU = sprite.minU
+            val maxU = sprite.maxU
+            val minV = sprite.minV
+            val maxV = sprite.maxV
             buffer.pos(1.0, 1.01, 1.0).tex(minU, minV).endVertex()
             buffer.pos(15.0, 1.01, 1.0).tex(maxU, minV).endVertex()
             buffer.pos(15.0, 1.01, 15.0).tex(maxU, maxV).endVertex()
             buffer.pos(1.0, 1.01, 15.0).tex(minU, maxV).endVertex()
 
-            val fillAmount = module.getFluidAmount(boat) / module.getCapacity(boat).toDouble()
+            val fillAmount = module.getFluidAmount(boat) / module.getCapacity(boat).toFloat()
             val height = 15.0* fillAmount
             buffer.pos(1.0, height, 1.0).tex(minU, minV).endVertex()
             buffer.pos(15.0, height, 1.0).tex(maxU, minV).endVertex()
             buffer.pos(15.0, height, 15.0).tex(maxU, maxV).endVertex()
             buffer.pos(1.0, height, 15.0).tex(minU, maxV).endVertex()
 
-            val bottomV = maxV * fillAmount + (1.0-fillAmount)*minV
+            val bottomV = maxV * fillAmount + (1.0f-fillAmount)*minV
             val topV = minV
             buffer.pos(1.0, height, 1.0).tex(minU, topV).endVertex()
             buffer.pos(15.0, height, 1.0).tex(maxU, topV).endVertex()

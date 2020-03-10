@@ -20,7 +20,7 @@ object SonarModuleRenderer : BoatModuleRenderer() {
 
     private val testMatrix = SurroundingsMatrix(32)
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, EntityRendererManager: EntityRendererManager) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, entityRendererManager: EntityRendererManager) {
         module as SonarModule
         GlStateManager.pushMatrix()
         GlStateManager.scalef(0.75f, 0.75f, 0.75f)
@@ -31,9 +31,9 @@ object SonarModuleRenderer : BoatModuleRenderer() {
                 GlStateManager.pushMatrix()
                 GlStateManager.translatef(xOffset, 4f/16f, zOffset)
                 GlStateManager.scalef(0.25f, 0.25f, 0.25f)
-                EntityRendererManager.textureManager.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE)
+                entityRendererManager.textureManager.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE)
                 val block = Blocks.NOTE_BLOCK
-                Minecraft.getInstance().blockRendererDispatcher.renderBlockBrightness(block.defaultState, boat.brightness)
+                renderBlockState(entityRendererManager, block.defaultState, boat.brightness)
                 GlStateManager.popMatrix()
             }
         }
@@ -55,7 +55,7 @@ object SonarModuleRenderer : BoatModuleRenderer() {
                         GlStateManager.rotatef(angle.toFloat(), 0f, 1f, 0f)
                         GlStateManager.scalef(0.1f, 0.1f, gradientVal.length().toFloat() * 0.1f)
                         if(!potentialState.isEmpty) {
-                            Minecraft.getInstance().blockRendererDispatcher.renderBlockBrightness(Blocks.EMERALD_BLOCK.defaultState, boat.brightness)
+                            renderBlockState(entityRendererManager, Blocks.EMERALD_BLOCK.defaultState, boat.brightness)
                         }
 
                         GlStateManager.popMatrix()

@@ -187,7 +187,7 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
             blitOffset = 100
             itemRenderer.zLevel = 100.0f
             RenderHelper.enableStandardItemLighting()
-            GlStateManager.color3f(1f, 1f, 1f)
+            GlStateManager.color4f(1f, 1f, 1f, 1f)
             val itemstack = ItemStack(BoatModuleRegistry[tabModule.id].correspondingItem)
             val itemX = width/2 - 10 + x + 1
             val itemY = height/2 - 8 + y
