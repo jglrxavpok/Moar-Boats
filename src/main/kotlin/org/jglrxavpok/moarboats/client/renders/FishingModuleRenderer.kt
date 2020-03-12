@@ -1,7 +1,9 @@
 package org.jglrxavpok.moarboats.client.renders
 
+import com.mojang.blaze3d.matrix.MatrixStack
 import net.minecraft.client.Minecraft
 import com.mojang.blaze3d.platform.GlStateManager
+import com.mojang.blaze3d.vertex.IVertexBuilder
 import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.entity.EntityRendererManager
@@ -28,7 +30,7 @@ object FishingModuleRenderer : BoatModuleRenderer() {
     val CastFishingRodLocation = ModelResourceLocation(MoarBoats.ModID, "item/vanilla/fishing_rod_cast")
     private val StickStack = ItemStack(Items.STICK)
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, EntityRendererManager: EntityRendererManager) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffer: IVertexBuilder, packedLightIn: Int, partialTicks: Float, entityYaw: Float, EntityRendererManager: EntityRendererManager) {
         module as FishingModule
         val mc = Minecraft.getInstance()
         GlStateManager.pushMatrix()

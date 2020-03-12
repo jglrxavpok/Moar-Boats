@@ -69,6 +69,11 @@ public class ModelModularBoat extends EntityModel<BasicBoatEntity> {
         this.boatSides1.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn););
     }
 
+    @Override
+    public void setRotationAngles(BasicBoatEntity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+
+    }
+
     /**
      * This is a helper function from Tabula to set the rotation of model parts
      */

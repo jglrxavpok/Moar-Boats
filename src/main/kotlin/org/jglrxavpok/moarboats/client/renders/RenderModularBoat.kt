@@ -1,9 +1,11 @@
 package org.jglrxavpok.moarboats.client.renders
 
+import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.platform.GlStateManager
-import net.minecraft.client.renderer.Tessellator
+import net.minecraft.client.renderer.*
 import net.minecraft.client.renderer.entity.EntityRenderer
 import net.minecraft.client.renderer.entity.EntityRendererManager
+import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.entity.Entity
 import net.minecraft.util.ResourceLocation
@@ -26,30 +28,32 @@ class RenderModularBoat(renderManager: EntityRendererManager): EntityRenderer<Mo
 
     override fun getEntityTexture(entity: ModularBoatEntity) = TextureLocation
 
-    override fun doRender(entity: ModularBoatEntity, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float) {
+    override fun render(entity: ModularBoatEntity, entityYaw: Float, partialTicks: Float, matrixStackIn: MatrixStack, bufferIn: IRenderTypeBuffer, packedLightIn: Int) {
+        matrixStackIn.push()
         renderManager.textureManager.bindTexture(TextureLocation)
-        GlStateManager.pushMatrix()
-        GlStateManager.disableCull()
         if(entity.isEntityInLava())
-            setTranslation(entity, x, y+0.20f, z)
-        else
-            setTranslation(entity, x, y, z)
-        setRotation(entity, entityYaw, partialTicks)
-        GlStateManager.enableRescaleNormal()
-        setScale()
+            setTranslation(matrixStackIn, entity, 0.0, 0.20, 0.0)
+        setRotation(matrixStackIn, entity, entityYaw, partialTicks)
+        setScale(matrixStackIn)
         model.noWater.showModel = false
         val color = entity.color.colorComponentValues
         GlStateManager.color4f(color[0], color[1], color[2], 1f)
-        model.render(entity, 0f, 0f, entity.ticksExisted.toFloat(), 0f, 0f, 1f)
+
+        this.model.setRotationAngles(entity, partialTicks, 0.0f, -0.1f, 0.0f, 0.0f)
+        val ivertexbuilder = bufferIn.getBuffer(this.model.getRenderType(getEntityTexture(entity)))
+        this.model.render(matrixStackIn, ivertexbuilder, packedLightIn, OverlayTexture.NO_OVERLAY, 1.0f, 1.0f, 1.0f, 1.0f)
+        val ivertexbuilder1 = bufferIn.getBuffer(RenderType.getWaterMask())
+        this.model.noWater.render(matrixStackIn, ivertexbuilder1, packedLightIn, OverlayTexture.NO_OVERLAY)
+
         GlStateManager.color4f(1f, 1f, 1f, 1f)
-        renderLink(entity, x, y, z, entityYaw, partialTicks)
-        removeScale()
+        renderLink(entity, 0.0, 0.0, 0.0, entityYaw, partialTicks)
+        removeScale(matrixStackIn)
         entity.modules.forEach {
-            BoatModuleRenderingRegistry.getValue(it.id)?.renderModule(entity, it, x, y, z, entityYaw, partialTicks, renderManager)
+            BoatModuleRenderingRegistry.getValue(it.id)?.renderModule(entity, it, matrixStackIn, ivertexbuilder, packedLightIn, partialTicks, entityYaw, renderManager)
         }
-        GlStateManager.disableRescaleNormal()
-        GlStateManager.enableCull()
-        GlStateManager.popMatrix()
+
+        matrixStackIn.pop()
+        super.render(entity, entityYaw, partialTicks, matrixStackIn, bufferIn, packedLightIn)
     }
 
     private fun renderLink(boatEntity: ModularBoatEntity, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float) {
@@ -115,25 +119,25 @@ class RenderModularBoat(renderManager: EntityRendererManager): EntityRenderer<Mo
         GlStateManager.popMatrix()
     }
 
-    private fun removeScale() {
+    private fun removeScale(matrixStack: MatrixStack) {
         val scale = 0.0625f
         val invScale = 1f/scale
-        GlStateManager.scalef(invScale, invScale, invScale)
-        GlStateManager.scalef(1.0f, -1.0f, 1.0f)
+        matrixStack.scale(invScale, invScale, invScale)
+        matrixStack.scale(1.0f, -1.0f, 1.0f)
     }
 
-    private fun setScale() {
+    private fun setScale(matrixStack: MatrixStack) {
         val scale = 0.0625f
-        GlStateManager.scalef(scale, scale, scale)
-        GlStateManager.scalef(1.0f, -1.0f, 1.0f)
+        matrixStack.scale(scale, scale, scale)
+        matrixStack.scale(1.0f, -1.0f, 1.0f)
     }
 
-    private fun setTranslation(entity: ModularBoatEntity, x: Double, y: Double, z: Double) {
-        GlStateManager.translated(x, y + 0.375f, z)
+    private fun setTranslation(matrixStack: MatrixStack, entity: ModularBoatEntity, x: Double, y: Double, z: Double) {
+        matrixStack.translate(x, y + 0.375f, z)
     }
 
-    private fun setRotation(entity: ModularBoatEntity, entityYaw: Float, partialTicks: Float) {
-        GlStateManager.rotatef(180.0f - entityYaw - 90f, 0.0f, 1.0f, 0.0f)
+    private fun setRotation(matrixStack: MatrixStack, entity: ModularBoatEntity, entityYaw: Float, partialTicks: Float) {
+        matrixStack.rotate(Quaternion(Vector3f.YP, 180.0f - entityYaw - 90f, true))
         val timeSinceHit = entity.timeSinceHit - partialTicks
         var damage = entity.damageTaken - partialTicks
 
@@ -142,27 +146,9 @@ class RenderModularBoat(renderManager: EntityRendererManager): EntityRenderer<Mo
         }
 
         if (timeSinceHit > 0.0f) {
-            GlStateManager.rotatef(MathHelper.sin(timeSinceHit) * timeSinceHit * damage / 10.0f * entity.forwardDirection, 1.0f, 0.0f, 0.0f)
+            matrixStack.rotate(Quaternion(Vector3f.XP, MathHelper.sin(timeSinceHit) * timeSinceHit * damage / 10.0f * entity.forwardDirection, true))
         }
 
-        GlStateManager.scalef(-1.0f, 1.0f, 1.0f)
-    }
-
-    override fun isMultipass() = true
-
-    override fun renderMultipass(entity: ModularBoatEntity, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float) {
-        GlStateManager.pushMatrix()
-        GlStateManager.disableCull()
-        renderManager.textureManager.bindTexture(TextureLocation)
-        setTranslation(entity, x, y, z)
-        setRotation(entity, entityYaw, partialTicks)
-        setScale()
-        model.noWater.showModel = true
-
-        GlStateManager.colorMask(false, false, false, false)
-        model.noWater.render(1f)
-        GlStateManager.colorMask(true, true, true, true)
-        GlStateManager.enableCull()
-        GlStateManager.popMatrix()
+        matrixStack.scale(-1.0f, 1.0f, 1.0f)
     }
 }

@@ -2,12 +2,12 @@ package org.jglrxavpok.moarboats.client.renders
 
 import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.platform.GlStateManager
+import com.mojang.blaze3d.vertex.IVertexBuilder
 import net.minecraft.block.Blocks
-import net.minecraft.client.Minecraft
+import net.minecraft.client.renderer.Quaternion
 import net.minecraft.client.renderer.Tessellator
+import net.minecraft.client.renderer.Vector3f
 import net.minecraft.client.renderer.entity.EntityRendererManager
-import net.minecraft.client.renderer.texture.AtlasTexture
-import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.util.math.MathHelper
 import org.jglrxavpok.moarboats.api.BoatModule
@@ -21,8 +21,8 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
         registryName = AnchorModule.id
     }
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, entityRendererManager: EntityRendererManager) {
-        GlStateManager.pushMatrix()
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffer: IVertexBuilder, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererManager) {
+        matrixStack.push()
         val anchor = module as AnchorModule
 
         var anchorX = anchor.anchorXProperty[boat]
@@ -33,9 +33,9 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
             val dx = -(anchorX - boat.positionX)
             val dy = anchorY - boat.positionY
             val dz = -(anchorZ - boat.positionZ)
-            GlStateManager.rotatef(180f - entityYaw - 90f, 0f, -1f, 0f)
-            GlStateManager.translated(dx, dy, dz)
-            GlStateManager.rotatef(180f - entityYaw - 90f, 0f, 1f, 0f)
+            matrixStack.rotate(Quaternion(Vector3f.YN, 180f - entityYaw - 90f, true))
+            matrixStack.translate(dx, dy, dz)
+            matrixStack.rotate(Quaternion(Vector3f.YP, 180f - entityYaw - 90f, true))
         } else {
             anchorX = boat.positionX
             anchorY = boat.positionY
@@ -45,15 +45,15 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
         val localX = -0.6
         val localY = 0.0
         val localZ = 0.7
-        GlStateManager.translated(localX, localY, localZ)
+        matrixStack.translate(localX, localY, localZ)
 
-        GlStateManager.translatef(-0.5f, -0.5f, 0.5f)
-        val anchorScale = 0.75
-        GlStateManager.pushMatrix()
-        GlStateManager.scaled(anchorScale, anchorScale, anchorScale)
+        matrixStack.translate(-0.5, -0.5, 0.5)
+        val anchorScale = 0.75f
+        matrixStack.push()
+        matrixStack.scale(anchorScale, anchorScale, anchorScale)
         renderBlockState(entityRendererManager, Blocks.ANVIL.defaultState, boat.brightness)
-        GlStateManager.popMatrix()
-        GlStateManager.translatef(+0.5f, +0.5f, -0.5f)
+        matrixStack.pop()
+        matrixStack.translate(+0.5, +0.5, -0.5)
 
         val radangle = (90f-entityYaw).toRadians()
         val dx = (anchorX-boat.x)
@@ -62,7 +62,7 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
         val localAnchorX = -MathHelper.sin(radangle) * dz + MathHelper.cos(radangle) * dx
         val localAnchorZ = MathHelper.cos(radangle) * dz + MathHelper.sin(radangle) * dx
         renderChain(localAnchorX, dy, localAnchorZ)
-        GlStateManager.popMatrix()
+        matrixStack.pop()
     }
 
     private fun renderChain(anchorX: Double, anchorY: Double, anchorZ: Double) {

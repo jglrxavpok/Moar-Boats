@@ -2,8 +2,8 @@ package org.jglrxavpok.moarboats.client.renders
 
 import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.platform.GlStateManager
+import com.mojang.blaze3d.vertex.IVertexBuilder
 import net.minecraft.block.BlockState
-import net.minecraft.block.Blocks
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.entity.EntityRendererManager
 import net.minecraft.client.renderer.texture.AtlasTexture
@@ -11,7 +11,6 @@ import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
 import net.minecraftforge.registries.ForgeRegistryEntry
-import net.minecraftforge.registries.IForgeRegistryEntry
 import net.minecraftforge.registries.RegistryBuilder
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
@@ -30,7 +29,7 @@ abstract class BoatModuleRenderer: ForgeRegistryEntry<BoatModuleRenderer>() {
         }
     }
 
-    abstract fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, entityRenderer: EntityRendererManager)
+    abstract fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffer: IVertexBuilder, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRenderer: EntityRendererManager)
 
     fun setScale() {
         val scale = 0.0625f

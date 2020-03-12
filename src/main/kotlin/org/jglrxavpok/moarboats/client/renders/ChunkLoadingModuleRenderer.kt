@@ -1,7 +1,11 @@
 package org.jglrxavpok.moarboats.client.renders
 
+import com.mojang.blaze3d.matrix.MatrixStack
 import net.minecraft.client.Minecraft
 import com.mojang.blaze3d.platform.GlStateManager
+import com.mojang.blaze3d.vertex.IVertexBuilder
+import net.minecraft.client.renderer.Quaternion
+import net.minecraft.client.renderer.Vector3f
 import net.minecraft.client.renderer.entity.EntityRendererManager
 import net.minecraft.client.renderer.model.ItemCameraTransforms
 import net.minecraft.client.renderer.texture.AtlasTexture
@@ -26,33 +30,33 @@ object ChunkLoadingModuleRenderer : BoatModuleRenderer() {
             Pair(1, -1)
     )
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float, EntityRendererManager: EntityRendererManager) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffer: IVertexBuilder, packedLightIn: Int, partialTicks: Float, entityYaw: Float, EntityRendererManager: EntityRendererManager) {
         module as ChunkLoadingModule
 
         val itemRenderer = Minecraft.getInstance().itemRenderer
         val entityRenderer = Minecraft.getInstance().renderManager
         // render pearls
         for((x, z) in corners) {
-            GlStateManager.pushMatrix()
-            GlStateManager.scalef(-1f, 1f, 1f)
+            matrixStack.push()
+            matrixStack.scale(-1f, 1f, 1f)
 
             val yOffset = 0.0625f * 16f /5f
             val length = 0.5f
             val width = .0625f * 15f
-            GlStateManager.translatef(x*width, yOffset, z*length)
-            GlStateManager.translated(0.025, 0.5, 0.0)
-            GlStateManager.enableRescaleNormal()
-            GlStateManager.rotatef(-entityYaw - 90f, 0.0f, -1.0f, 0.0f)
-            GlStateManager.rotatef(-entityRenderer.info.yaw, 0.0f, 1.0f, 0.0f)
-            GlStateManager.rotatef((if (entityRenderer.options.thirdPersonView == 2) -1 else 1).toFloat() * (-entityRenderer.info.pitch), 1.0f, 0.0f, 0.0f)
-            GlStateManager.rotatef(180.0f, 0.0f, 1.0f, 0.0f)
+            matrixStack.translate((x*width).toDouble(), yOffset.toDouble(), (z*length).toDouble())
+            matrixStack.translate(0.025, 0.5, 0.0)
+            matrixStack.enableRescaleNormal()
+            matrixStack.rotate(Quaternion(Vector3f.YN, -entityYaw - 90f, true))
+            matrixStack.rotate(Quaternion(Vector3f.YP, -entityRenderer.info.yaw, true))
+            matrixStack.rotate(Quaternion(Vector3f.XP, (if (entityRenderer.options.thirdPersonView == 2) -1 else 1).toFloat() * (-entityRenderer.info.pitch), true))
+            matrixStack.rotate(Quaternion(Vector3f.YP, 180.0f, true))
             entityRenderer.textureManager.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE)
 
             itemRenderer.renderItem(enderPearlStack, ItemCameraTransforms.TransformType.GROUND)
 
             GlStateManager.disableRescaleNormal()
 
-            GlStateManager.popMatrix()
+            matrixStack.pop()
         }
     }
 }
