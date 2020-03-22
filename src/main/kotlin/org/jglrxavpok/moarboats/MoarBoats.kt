@@ -209,7 +209,7 @@ object MoarBoats {
     fun initDedicatedServer(event: FMLDedicatedServerSetupEvent) {
     }
 
-    @KotlinEventBusSubscriber(modid = ModID, bus = KotlinEventBusSubscriber.Bus.MOD)
+    @Mod.EventBusSubscriber(modid = ModID, bus = Mod.EventBusSubscriber.Bus.MOD)
     object RegistryEvents {
         @SubscribeEvent
         fun createRegistry(e: RegistryEvent.NewRegistry) {

@@ -23,7 +23,7 @@ object IcebreakerModuleRenderer : BoatModuleRenderer() {
 
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererManager) {
         matrixStack.push()
-        matrixStack.scale(1f, -1f, 1f)
+        matrixStack.scale(-1f, -1f, 1f)
 
         model.render(matrixStack, buffers.getBuffer(RenderType.getEntityTranslucent(texture)), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f)
         matrixStack.pop()

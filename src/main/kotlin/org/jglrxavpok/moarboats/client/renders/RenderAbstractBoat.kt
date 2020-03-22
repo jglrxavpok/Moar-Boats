@@ -1,14 +1,13 @@
 package org.jglrxavpok.moarboats.client.renders
 
 import com.mojang.blaze3d.matrix.MatrixStack
-import com.mojang.blaze3d.platform.GlStateManager
-import com.mojang.blaze3d.systems.RenderSystem
-import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.*
+import net.minecraft.client.renderer.IRenderTypeBuffer
+import net.minecraft.client.renderer.Quaternion
+import net.minecraft.client.renderer.RenderType
+import net.minecraft.client.renderer.Vector3f
 import net.minecraft.client.renderer.entity.EntityRenderer
 import net.minecraft.client.renderer.entity.EntityRendererManager
 import net.minecraft.client.renderer.texture.OverlayTexture
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.entity.Entity
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
@@ -18,7 +17,6 @@ import org.jglrxavpok.moarboats.client.models.ModelBoatLinkerAnchor
 import org.jglrxavpok.moarboats.client.models.ModelModularBoat
 import org.jglrxavpok.moarboats.client.pos
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
-import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 
 abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRendererManager): EntityRenderer<T>(renderManager) {
 
@@ -35,19 +33,23 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
 
     override fun render(entity: T, entityYaw: Float, partialTicks: Float, matrixStackIn: MatrixStack, bufferIn: IRenderTypeBuffer, packedLightIn: Int) {
         matrixStackIn.push()
+        matrixStackIn.translate(0.0, 0.375, 0.0)
         if(entity.isEntityInLava())
             setTranslation(matrixStackIn, entity, 0.0, 0.20, 0.0)
 
         setRotation(matrixStackIn, entity, entityYaw, partialTicks)
-        model.noWater.showModel = false
 
         val color = getBoatColor(entity)
 
         this.model.setRotationAngles(entity, partialTicks, 0.0f, -0.1f, 0.0f, 0.0f)
-        val ivertexbuilder = bufferIn.getBuffer(this.model.getRenderType(getEntityTexture(entity)))
-        this.model.render(matrixStackIn, ivertexbuilder, packedLightIn, OverlayTexture.NO_OVERLAY, color[0], color[1], color[2], 1f)
-        val ivertexbuilder1 = bufferIn.getBuffer(RenderType.getWaterMask())
-        this.model.noWater.render(matrixStackIn, ivertexbuilder1, packedLightIn, OverlayTexture.NO_OVERLAY)
+
+        matrixStackIn.push()
+        matrixStackIn.scale(1f, -1f, 1f)
+        val usualBuffer = bufferIn.getBuffer(this.model.getRenderType(getEntityTexture(entity)))
+        this.model.render(matrixStackIn, usualBuffer, packedLightIn, OverlayTexture.NO_OVERLAY, color[0], color[1], color[2], 1f)
+        val noWaterBuffer = bufferIn.getBuffer(RenderType.getWaterMask())
+        this.model.noWater.render(matrixStackIn, noWaterBuffer, packedLightIn, OverlayTexture.NO_OVERLAY)
+        matrixStackIn.pop()
 
         renderLink(RenderInfo(matrixStackIn, bufferIn, packedLightIn), entity, 0.0, 0.0, 0.0, entityYaw, partialTicks)
         postModelRender(entity, entityYaw, partialTicks, matrixStackIn, bufferIn, packedLightIn)

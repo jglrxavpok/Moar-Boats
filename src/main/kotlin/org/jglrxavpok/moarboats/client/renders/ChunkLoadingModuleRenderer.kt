@@ -45,8 +45,8 @@ object ChunkLoadingModuleRenderer : BoatModuleRenderer() {
             val width = .0625f * 15f
             matrixStack.translate((x*width).toDouble(), yOffset.toDouble(), (z*length).toDouble())
             matrixStack.translate(0.025, 0.5, 0.0)
-            matrixStack.rotate(Quaternion(Vector3f.YN, -entityYaw - 90f, true))
-            matrixStack.rotate(Quaternion(Vector3f.YP, -entityRenderer.info.yaw, true))
+            matrixStack.rotate(Quaternion(Vector3f.YN, entityYaw + 90f, true))
+            matrixStack.rotate(Quaternion(Vector3f.YP, entityRenderer.info.yaw, true))
             matrixStack.rotate(Quaternion(Vector3f.XP, (if (entityRenderer.options.thirdPersonView == 2) -1 else 1).toFloat() * (-entityRenderer.info.pitch), true))
             matrixStack.rotate(Quaternion(Vector3f.YP, 180.0f, true))
             itemRenderer.renderItem(enderPearlStack, ItemCameraTransforms.TransformType.GROUND, packedLightIn, OverlayTexture.NO_OVERLAY, matrixStack, buffers)

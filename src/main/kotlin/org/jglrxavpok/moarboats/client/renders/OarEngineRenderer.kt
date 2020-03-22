@@ -26,6 +26,7 @@ object OarEngineRenderer : BoatModuleRenderer() {
         module as OarEngineModule
 
         matrixStack.push()
+        matrixStack.scale(-1f, 1f, 1f)
         matrixStack.translate(-0.25, 0.575, 0.0)
 
         val renderType = RenderType.getEntityTranslucent(BOAT_TEXTURES[boat.entityID % BOAT_TEXTURES.size])
@@ -47,6 +48,6 @@ object OarEngineRenderer : BoatModuleRenderer() {
 
         paddles.render(matrixStack, buffers.getBuffer(renderType), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f)
 
-        GlStateManager.popMatrix()
+        matrixStack.pop()
     }
 }

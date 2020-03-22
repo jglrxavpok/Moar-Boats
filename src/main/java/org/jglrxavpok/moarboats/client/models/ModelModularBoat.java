@@ -60,7 +60,6 @@ public class ModelModularBoat extends EntityModel<BasicBoatEntity> {
     @Override
     public void render(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
         this.frontAnchor.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
-        this.noWater.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
         this.backAnchor.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
         this.boatSides5.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
         this.boatSides2.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);

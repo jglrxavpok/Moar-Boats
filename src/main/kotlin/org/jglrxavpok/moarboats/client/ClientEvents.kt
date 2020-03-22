@@ -1,8 +1,10 @@
 package org.jglrxavpok.moarboats.client
 
+import com.google.common.base.Joiner
 import com.google.common.collect.ImmutableList
+import com.google.common.collect.Lists
 import com.mojang.blaze3d.systems.RenderSystem
-import net.alexwells.kottle.KotlinEventBusSubscriber
+import com.mojang.datafixers.util.Either
 import net.minecraft.block.*
 import net.minecraft.client.Minecraft
 import net.minecraft.client.audio.ISound
@@ -15,11 +17,9 @@ import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.Vector3f
 import net.minecraft.client.renderer.entity.PlayerRenderer
 import net.minecraft.client.renderer.entity.model.PlayerModel
-import net.minecraft.client.renderer.model.ItemOverrideList
-import net.minecraft.client.renderer.model.Material
-import net.minecraft.client.renderer.model.ModelRenderer
-import net.minecraft.client.renderer.model.ModelRotation
+import net.minecraft.client.renderer.model.*
 import net.minecraft.client.renderer.texture.AtlasTexture
+import net.minecraft.client.renderer.texture.MissingTextureSprite
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.player.PlayerEntity
@@ -33,12 +33,15 @@ import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.client.event.InputEvent
 import net.minecraftforge.client.event.ModelBakeEvent
 import net.minecraftforge.client.event.RenderHandEvent
+import net.minecraftforge.client.model.IModelConfiguration
 import net.minecraftforge.client.model.ItemLayerModel
 import net.minecraftforge.client.model.ModelLoader
+import net.minecraftforge.client.model.geometry.IModelGeometryPart
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.event.entity.EntityJoinWorldEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.client.registry.RenderingRegistry
+import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent
 import net.minecraftforge.fml.network.PacketDistributor
@@ -56,7 +59,7 @@ import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.entities.UtilityBoatEntity
 import org.jglrxavpok.moarboats.common.network.CShowBoatMenu
 
-@KotlinEventBusSubscriber(value = [Dist.CLIENT], modid = MoarBoats.ModID)
+@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE, value = [Dist.CLIENT], modid = MoarBoats.ModID)
 object ClientEvents {
 
     // World -> Boat ID -> ISound
@@ -72,6 +75,44 @@ object ClientEvents {
     }
 
     val hookModel = ModelPatreonHook()
+
+    @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, value = [Dist.CLIENT], modid = MoarBoats.ModID)
+    object ModBusHandler {
+        @OnlyIn(Dist.CLIENT)
+        @SubscribeEvent
+        fun registerModels(event: ModelBakeEvent) {
+            val modelConfiguration = object: IModelConfiguration {
+                override fun isShadedInGui() = true
+
+                override fun isTexturePresent(name: String) = MissingTextureSprite.getLocation() != resolveTexture(name).textureLocation
+
+                override fun getModelName() = FishingModuleRenderer.CastFishingRodLocation.toString()
+
+                override fun getCameraTransforms() = ItemCameraTransforms.DEFAULT
+
+                override fun getOwnerModel() = null
+
+                override fun isSideLit() = false
+
+                override fun resolveTexture(name: String): Material {
+                    return Material(AtlasTexture.LOCATION_BLOCKS_TEXTURE, ResourceLocation(name))
+                }
+
+                override fun getCombinedTransform(): IModelTransform {
+                    return ModelRotation.X0_Y0
+                }
+
+                override fun useSmoothLighting() = true
+
+                override fun getPartVisibility(part: IModelGeometryPart): Boolean {
+                    return true
+                }
+            }
+            val bakedModel = ItemLayerModel(ImmutableList.of(Material(AtlasTexture.LOCATION_BLOCKS_TEXTURE, ResourceLocation("item/fishing_rod_cast"))))
+                    .bake(modelConfiguration, event.modelLoader, ModelLoader.defaultTextureGetter(), ModelRotation.X0_Y0, ItemOverrideList.EMPTY, FishingModuleRenderer.CastFishingRodLocation)
+            event.modelRegistry[FishingModuleRenderer.CastFishingRodLocation] = bakedModel
+        }
+    }
 
     fun doClientStuff(event: FMLClientSetupEvent) {
         MinecraftForge.EVENT_BUS.register(this)
@@ -187,14 +228,6 @@ object ClientEvents {
             }
             recordCache.clear()
         }
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @SubscribeEvent
-    fun registerModels(event: ModelBakeEvent) {
-        val bakedModel = ItemLayerModel(ImmutableList.of(Material(AtlasTexture.LOCATION_BLOCKS_TEXTURE, ResourceLocation("item/fishing_rod_cast"))))
-                .bake(null, event.modelLoader, ModelLoader.defaultTextureGetter(), ModelRotation.X0_Y0, ItemOverrideList.EMPTY, FishingModuleRenderer.CastFishingRodLocation)
-        event.modelRegistry[FishingModuleRenderer.CastFishingRodLocation] = bakedModel
     }
 
     @OnlyIn(Dist.CLIENT)

@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.entity.EntityRendererManager
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.util.math.MathHelper
 import org.jglrxavpok.moarboats.api.BoatModule
+import org.jglrxavpok.moarboats.client.pos
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.AnchorModule
 import org.jglrxavpok.moarboats.extensions.toRadians
@@ -20,6 +21,7 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
 
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererManager) {
         matrixStack.push()
+        matrixStack.rotate(Vector3f.YP.rotationDegrees(90f))
         val anchor = module as AnchorModule
 
         var anchorX = anchor.anchorXProperty[boat]
@@ -42,6 +44,7 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
         val localX = -0.6
         val localY = 0.0
         val localZ = 0.7
+
         matrixStack.translate(localX, localY, localZ)
 
         matrixStack.translate(-0.5, -0.5, 0.5)
@@ -76,7 +79,8 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
 
         for (index in 0..segmentCount) {
             val step = index.toFloat() / segmentCount.toFloat()
-            bufferbuilder.pos(dx * step.toDouble(), dy * (step * step + step).toDouble() * 0.5 + 0.25, dz * step.toDouble()).color(0, 0, 0, 255).endVertex()
+            bufferbuilder.pos(matrixStack, dx * step.toDouble(), dy * (step * step + step).toDouble() * 0.5 + 0.25, dz * step.toDouble())
+                    .color(0, 0, 0, 255).endVertex()
         }
     }
 }

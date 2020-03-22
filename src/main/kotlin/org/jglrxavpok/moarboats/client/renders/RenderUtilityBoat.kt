@@ -5,6 +5,7 @@ import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.block.BlockState
 import net.minecraft.client.renderer.IRenderTypeBuffer
 import net.minecraft.client.renderer.Tessellator
+import net.minecraft.client.renderer.Vector3f
 import net.minecraft.client.renderer.entity.EntityRendererManager
 import net.minecraft.client.renderer.texture.AtlasTexture
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
@@ -27,8 +28,9 @@ class RenderUtilityBoat<T: UtilityBoatEntity<*,*>>(renderManager: EntityRenderer
 
     private fun renderBlockInBoat(boat: T, matrixStackIn: MatrixStack, bufferIn: IRenderTypeBuffer, packedLightIn: Int) {
         matrixStackIn.push()
+        matrixStackIn.rotate(Vector3f.YP.rotationDegrees(90f))
         matrixStackIn.scale(0.75f, 0.75f, 0.75f)
-        matrixStackIn.translate(1/16f/0.75, -4f/16.0, 0.5)
+        matrixStackIn.translate(-0.5, -4f/16.0, 1.0/16.0/0.75)
         BoatModuleRenderer.renderBlockState(matrixStackIn, bufferIn, packedLightIn, renderManager, blockstateProvider(boat), boat.brightness)
         matrixStackIn.pop()
     }
