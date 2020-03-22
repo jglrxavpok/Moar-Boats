@@ -22,7 +22,6 @@ object DropperModuleRenderer : BoatModuleRenderer() {
         matrixStack.push()
         matrixStack.rotate(Quaternion(0f, 180f, 0f, true))
         matrixStack.scale(0.75f, 0.75f, 0.75f)
-        matrixStack.scale(1f, 1f, 1f)
         matrixStack.translate(1f/ 16f * 0.75, -4.0/16.0, +0.5)
 
         val block = Blocks.DROPPER

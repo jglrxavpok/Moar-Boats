@@ -27,7 +27,6 @@ object SonarModuleRenderer : BoatModuleRenderer() {
         module as SonarModule
         matrixStack.push()
         matrixStack.scale(0.75f, 0.75f, 0.75f)
-        matrixStack.scale(-1f, 1f, 1f)
 
         for(xOffset in arrayOf(-1.25f, 1.0f)) {
             for(zOffset in arrayOf(-0.625f, 0.875f)) {

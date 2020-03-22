@@ -19,7 +19,6 @@ object ChestModuleRenderer : BoatModuleRenderer() {
         module as ChestModule
         matrixStack.push()
         matrixStack.scale(0.75f, 0.75f, 0.75f)
-        matrixStack.scale(-1f, 1f, 1f)
         matrixStack.translate(-0.15, -4.0/16.0, 0.5)
         val block = Blocks.CHEST
         renderBlockState(matrixStack, buffers, packedLightIn, entityRendererManager, block.defaultState, boat.brightness)

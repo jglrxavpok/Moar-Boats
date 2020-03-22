@@ -28,7 +28,6 @@ class RenderUtilityBoat<T: UtilityBoatEntity<*,*>>(renderManager: EntityRenderer
     private fun renderBlockInBoat(boat: T, matrixStackIn: MatrixStack, bufferIn: IRenderTypeBuffer, packedLightIn: Int) {
         matrixStackIn.push()
         matrixStackIn.scale(0.75f, 0.75f, 0.75f)
-        matrixStackIn.scale(-1f, 1f, 1f)
         matrixStackIn.translate(1/16f/0.75, -4f/16.0, 0.5)
         BoatModuleRenderer.renderBlockState(matrixStackIn, bufferIn, packedLightIn, renderManager, blockstateProvider(boat), boat.brightness)
         matrixStackIn.pop()

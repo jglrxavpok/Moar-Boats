@@ -37,7 +37,6 @@ object FishingModuleRenderer : BoatModuleRenderer() {
         val mc = Minecraft.getInstance()
         matrixStack.push()
         matrixStack.scale(0.75f, 0.75f, 0.75f)
-        matrixStack.scale(-1f, 1f, 1f)
         matrixStack.scale(-1.5f, 1.5f, 1.5f)
         matrixStack.translate(-0.75, 8f/16.0, 0.58)
 

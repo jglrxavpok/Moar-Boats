@@ -17,6 +17,7 @@ import net.minecraft.world.storage.MapData
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.client.RenderInfo
+import org.jglrxavpok.moarboats.client.addVertex
 import org.jglrxavpok.moarboats.client.models.ModelHelm
 import org.jglrxavpok.moarboats.common.data.LoopingOptions
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
@@ -63,9 +64,9 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         if(item is FilledMapItem) {
             val mc = Minecraft.getInstance()
 
-            val x = 0.0
-            val y = 0.0
-            val mapSize = 130.0
+            val x = 0.0f
+            val y = 0.0f
+            val mapSize = 130.0f
             matrixStack.scale(0.0078125f, 0.0078125f, 0.0078125f)
             matrixStack.translate(64.0, -128.0, 32.0)
             matrixStack.translate(3+7.0, 40.0, 0.0)
@@ -79,14 +80,14 @@ object HelmModuleRenderer : BoatModuleRenderer() {
             matrixStack.scale(mapScale, mapScale, mapScale)
 
             val backgroundBuffer = buffers.getBuffer(mapBackgroundRenderType)
-            backgroundBuffer.pos(x, y+mapSize, 0.0).tex(0.0f, 1.0f).endVertex()
-            backgroundBuffer.pos(x+mapSize, y+mapSize, 0.0).tex(1.0f, 1.0f).endVertex()
-            backgroundBuffer.pos(x+mapSize, y, 0.0).tex(1.0f, 0.0f).endVertex()
-            backgroundBuffer.pos(x, y, 0.0).tex(0.0f, 0.0f).endVertex()
-
+/* FIXME            backgroundBuffer.pos(matrixStack.last.matrix, x, y+mapSize, 0.0f).overlay(0).lightmap(packedLightIn).tex(0.0f, 1.0f).color(1f, 1f, 1f, 1f).normal(0f, 0f, 1f).endVertex()
+            backgroundBuffer.pos(matrixStack.last.matrix, x+mapSize, y+mapSize, 0.0f).overlay(0).lightmap(packedLightIn).tex(1.0f, 1.0f).color(1f, 1f, 1f, 1f).normal(0f, 0f, 1f).endVertex()
+            backgroundBuffer.pos(matrixStack.last.matrix, x+mapSize, y, 0.0f).overlay(0).lightmap(packedLightIn).tex(1.0f, 0.0f).color(1f, 1f, 1f, 1f).normal(0f, 0f, 1f).endVertex()
+            backgroundBuffer.pos(matrixStack.last.matrix, x, y, 0.0f).overlay(0).lightmap(packedLightIn).tex(0.0f, 0.0f).color(1f, 1f, 1f, 1f).normal(0f, 0f, 1f).endVertex()
+*/
             val mapdata = HelmModule.mapDataCopyProperty[boat]
             matrixStack.translate(0.0, 0.0, 1.0)
-            renderMap(RenderInfo(matrixStack, mc.renderTypeBuffers.bufferSource, packedLightIn), mapdata, x, y, mapSize, boat.x, boat.z, 7.0, HelmModule.waypointsProperty[boat], HelmModule.loopingProperty[boat] == LoopingOptions.Loops)
+            renderMap(RenderInfo(matrixStack, mc.renderTypeBuffers.bufferSource, packedLightIn), mapdata, x.toDouble(), y.toDouble(), mapSize.toDouble(), boat.x, boat.z, 7.0, HelmModule.waypointsProperty[boat], HelmModule.loopingProperty[boat] == LoopingOptions.Loops)
         }
         matrixStack.pop()
     }
@@ -171,18 +172,18 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         matrixStack.rotate(Quaternion(0f, 0f, (angle * 180.0 / Math.PI).toFloat(),true))
 
         val thickness = 0.5f
-        buffer.addVertex(0.0f, thickness, 0.0f, redModifier, greenModifier, blueModifier, 1f, 0.0f, 0.25f * pathTextureIndex, 0, renderInfo.combinedLight, 0f, 0f, 1f)
-        buffer.addVertex(0.0f+length, thickness, 0.0f, redModifier, greenModifier, blueModifier, 1f, 1.0f, 0.25f * pathTextureIndex, 0, renderInfo.combinedLight, 0f, 0f, 1f)
-        buffer.addVertex(0.0f+length, 0.0f, 0.0f, redModifier, greenModifier, blueModifier, 1f, 1.0f, 0.25f * pathTextureIndex + 0.25f, 0, renderInfo.combinedLight, 0f, 0f, 1f)
-        buffer.addVertex(0.0f, 0.0f, 0.0f, redModifier, greenModifier, blueModifier, 1f, 0.0f, 0.25f * pathTextureIndex + 0.25f, 0, renderInfo.combinedLight, 0f, 0f, 1f)
+        buffer.addVertex(matrixStack.last.matrix, 0.0f, thickness, 0.0f, redModifier, greenModifier, blueModifier, 1f, 0.0f, 0.25f * pathTextureIndex, 0, renderInfo.combinedLight, 0f, 0f, 1f)
+        buffer.addVertex(matrixStack.last.matrix, 0.0f+length, thickness, 0.0f, redModifier, greenModifier, blueModifier, 1f, 1.0f, 0.25f * pathTextureIndex, 0, renderInfo.combinedLight, 0f, 0f, 1f)
+        buffer.addVertex(matrixStack.last.matrix, 0.0f+length, 0.0f, 0.0f, redModifier, greenModifier, blueModifier, 1f, 1.0f, 0.25f * pathTextureIndex + 0.25f, 0, renderInfo.combinedLight, 0f, 0f, 1f)
+        buffer.addVertex(matrixStack.last.matrix, 0.0f, 0.0f, 0.0f, redModifier, greenModifier, blueModifier, 1f, 0.0f, 0.25f * pathTextureIndex + 0.25f, 0, renderInfo.combinedLight, 0f, 0f, 1f)
         matrixStack.pop()
     }
 
     fun renderSingleWaypoint(renderInfo: RenderInfo, buffer: IVertexBuilder, x: Double, y: Double, redModifier: Float = 1.0f, greenModifier: Float = 1.0f, blueModifier: Float = 1.0f) {
         val spriteSize = 8.0
-        buffer.addVertex((x-spriteSize/2).toFloat(), (y+spriteSize).toFloat(), 0.0f, redModifier, greenModifier, blueModifier, 1f, 0.0f, 1.0f, 0, renderInfo.combinedLight, 0f, 0f, 1f)
-        buffer.addVertex((x+spriteSize/2).toFloat(), (y+spriteSize).toFloat(), 0.0f, redModifier, greenModifier, blueModifier, 1f, 1.0f, 1.0f, 0, renderInfo.combinedLight, 0f, 0f, 1f)
-        buffer.addVertex((x+spriteSize/2).toFloat(), y.toFloat(), 0.0f, redModifier, greenModifier, blueModifier, 1f, 1.0f, 0.0f, 0, renderInfo.combinedLight, 0f, 0f, 1f)
-        buffer.addVertex((x-spriteSize/2).toFloat(), y.toFloat(), 0.0f, redModifier, greenModifier, blueModifier, 1f, 0.0f, 0.0f, 0, renderInfo.combinedLight, 0f, 0f, 1f)
+        buffer.addVertex(renderInfo.matrixStack.last.matrix, (x-spriteSize/2).toFloat(), (y+spriteSize).toFloat(), 0.0f, redModifier, greenModifier, blueModifier, 1f, 0.0f, 1.0f, 0, renderInfo.combinedLight, 0f, 0f, 1f)
+        buffer.addVertex(renderInfo.matrixStack.last.matrix, (x+spriteSize/2).toFloat(), (y+spriteSize).toFloat(), 0.0f, redModifier, greenModifier, blueModifier, 1f, 1.0f, 1.0f, 0, renderInfo.combinedLight, 0f, 0f, 1f)
+        buffer.addVertex(renderInfo.matrixStack.last.matrix, (x+spriteSize/2).toFloat(), y.toFloat(), 0.0f, redModifier, greenModifier, blueModifier, 1f, 1.0f, 0.0f, 0, renderInfo.combinedLight, 0f, 0f, 1f)
+        buffer.addVertex(renderInfo.matrixStack.last.matrix, (x-spriteSize/2).toFloat(), y.toFloat(), 0.0f, redModifier, greenModifier, blueModifier, 1f, 0.0f, 0.0f, 0, renderInfo.combinedLight, 0f, 0f, 1f)
     }
 }
