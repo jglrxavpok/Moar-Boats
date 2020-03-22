@@ -2,14 +2,18 @@ package org.jglrxavpok.moarboats.client.gui
 
 import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.AbstractGui
 import net.minecraft.client.gui.AbstractGui.blit
+import net.minecraft.client.gui.AbstractGui.innerBlit
 import net.minecraft.client.gui.widget.list.ExtendedList
 import net.minecraft.client.renderer.Tessellator
+import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.Util
 import net.minecraftforge.client.MinecraftForgeClient
+import org.jglrxavpok.moarboats.client.drawModalRectWithCustomSizedTexture
 import org.jglrxavpok.moarboats.client.gui.WaypointInfoEntry.Companion.ArrowsTexture
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL11.*
@@ -50,9 +54,9 @@ class WaypointListEntry(val parent: GuiMappingTable, val slot: CompoundNBT, val 
             val hoveredOffsetBottom = if(mouseY - slotTop >= slotHeight / 2) 1 else 0
             val hoveredOffsetTop = 1 - hoveredOffsetBottom
             if(index > 0)
-                blit(entryRight - 32, slotTop - 5, 64 + 32, hoveredOffsetTop * 32, 32, 32) // top
+                drawModalRectWithCustomSizedTexture(entryRight-32, slotTop-5, 32f+64f, hoveredOffsetTop * 32f, 32, 32, 256, 256)
             if(index < waypoints.size - 1)
-                blit(entryRight - 32, slotTop - 11, 64, hoveredOffsetBottom * 32, 32, 32) // bottom
+                drawModalRectWithCustomSizedTexture(entryRight-32, slotTop-11, 64f, hoveredOffsetBottom * 32f, 32, 32, 256, 256)
         }
         slotTops[index] = slotTop
     }

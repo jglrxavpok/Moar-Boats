@@ -2,8 +2,10 @@ package org.jglrxavpok.moarboats.client.renders
 
 import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.platform.GlStateManager
-import com.mojang.blaze3d.vertex.IVertexBuilder
+import net.minecraft.client.renderer.IRenderTypeBuffer
+import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.entity.EntityRendererManager
+import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
 import org.jglrxavpok.moarboats.api.BoatModule
@@ -20,13 +22,13 @@ object OarEngineRenderer : BoatModuleRenderer() {
     private val BOAT_TEXTURES = arrayOf(ResourceLocation("textures/entity/boat/oak.png"), ResourceLocation("textures/entity/boat/spruce.png"), ResourceLocation("textures/entity/boat/birch.png"), ResourceLocation("textures/entity/boat/jungle.png"), ResourceLocation("textures/entity/boat/acacia.png"), ResourceLocation("textures/entity/boat/dark_oak.png"))
     private val paddles = ModelVanillaOars()
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffer: IVertexBuilder, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRenderer: EntityRendererManager) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRenderer: EntityRendererManager) {
         module as OarEngineModule
 
         matrixStack.push()
         matrixStack.translate(-0.25, 0.575, 0.0)
 
-        entityRenderer.textureManager.bindTexture(BOAT_TEXTURES[boat.entityID % BOAT_TEXTURES.size])
+        val renderType = RenderType.getEntityTranslucent(BOAT_TEXTURES[boat.entityID % BOAT_TEXTURES.size])
 
         val angle = if(boat.controllingPassenger != null) -boat.distanceTravelled.toFloat()*2f else 0f
 
@@ -43,7 +45,7 @@ object OarEngineRenderer : BoatModuleRenderer() {
         paddles.paddles21.rotateAngleY = paddles.paddles20.rotateAngleY
         paddles.paddles21.rotateAngleZ = paddles.paddles20.rotateAngleZ
 
-        paddles.render(boat, 0f, 0f, 0f, 0f, 0f, 1f/16f)
+        paddles.render(matrixStack, buffers.getBuffer(renderType), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f)
 
         GlStateManager.popMatrix()
     }

@@ -3,7 +3,9 @@ package org.jglrxavpok.moarboats.client.renders
 import com.mojang.blaze3d.matrix.MatrixStack
 import net.minecraft.client.Minecraft
 import com.mojang.blaze3d.platform.GlStateManager
-import com.mojang.blaze3d.vertex.IVertexBuilder
+import com.mojang.blaze3d.systems.RenderSystem
+import net.minecraft.client.renderer.Atlases
+import net.minecraft.client.renderer.IRenderTypeBuffer
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.entity.EntityRendererManager
 import net.minecraft.client.renderer.texture.AtlasTexture
@@ -20,68 +22,58 @@ object TankModuleRenderer : BoatModuleRenderer() {
         registryName = FluidTankModule.id
     }
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffer: IVertexBuilder, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererManager) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererManager) {
         module as FluidTankModule
-        GlStateManager.pushMatrix()
-        GlStateManager.scalef(0.75f, 0.75f, 0.75f)
-        GlStateManager.scalef(-1f, 1f, 1f)
-        GlStateManager.translatef(-0.15f, -4f/16f, 0.5f)
-        entityRendererManager.textureManager.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE)
+        matrixStack.push()
+        matrixStack.scale(0.75f, 0.75f, 0.75f)
+        matrixStack.scale(-1f, 1f, 1f)
+        matrixStack.translate(-0.15, -4f/16.0, 0.5)
         val block = BlockBoatTank
-        renderBlockState(entityRendererManager, block.defaultState, boat.brightness)
+        renderBlockState(matrixStack, buffers, packedLightIn, entityRendererManager, block.defaultState, boat.brightness)
         val fluid = module.getFluidInside(boat)
         if(fluid != null && module.getFluidAmount(boat) > 0) {
             val scale = 1f/16f
-            GlStateManager.scalef(scale, scale, scale)
-            val tessellator = Tessellator.getInstance()
-            val buffer = tessellator.buffer
+            matrixStack.scale(scale, scale, scale)
             val sprite = Minecraft.getInstance().getAtlasSpriteGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(fluid.attributes.stillTexture)
-            Minecraft.getInstance().textureManager.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE)
-            buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX)
+            val buffer = buffers.getBuffer(Atlases.getTranslucentBlockType())
             val minU = sprite.minU
             val maxU = sprite.maxU
             val minV = sprite.minV
             val maxV = sprite.maxV
-            buffer.pos(1.0, 1.01, 1.0).tex(minU, minV).endVertex()
-            buffer.pos(15.0, 1.01, 1.0).tex(maxU, minV).endVertex()
-            buffer.pos(15.0, 1.01, 15.0).tex(maxU, maxV).endVertex()
-            buffer.pos(1.0, 1.01, 15.0).tex(minU, maxV).endVertex()
+            buffer.pos(1.0, 1.01, 1.0).tex(minU, minV).color(1f, 1f, 1f, 1f).normal(0f, 1f, 0f).endVertex()
+            buffer.pos(15.0, 1.01, 1.0).tex(maxU, minV).color(1f, 1f, 1f, 1f).normal(0f, 1f, 0f).endVertex()
+            buffer.pos(15.0, 1.01, 15.0).tex(maxU, maxV).color(1f, 1f, 1f, 1f).normal(0f, 1f, 0f).endVertex()
+            buffer.pos(1.0, 1.01, 15.0).tex(minU, maxV).color(1f, 1f, 1f, 1f).normal(0f, 1f, 0f).endVertex()
 
             val fillAmount = module.getFluidAmount(boat) / module.getCapacity(boat).toFloat()
             val height = 15.0* fillAmount
-            buffer.pos(1.0, height, 1.0).tex(minU, minV).endVertex()
-            buffer.pos(15.0, height, 1.0).tex(maxU, minV).endVertex()
-            buffer.pos(15.0, height, 15.0).tex(maxU, maxV).endVertex()
-            buffer.pos(1.0, height, 15.0).tex(minU, maxV).endVertex()
+            buffer.pos(1.0, height, 1.0).tex(minU, minV).color(1f, 1f, 1f, 1f).normal(0f, -1f, 0f).endVertex()
+            buffer.pos(15.0, height, 1.0).tex(maxU, minV).color(1f, 1f, 1f, 1f).normal(0f, -1f, 0f).endVertex()
+            buffer.pos(15.0, height, 15.0).tex(maxU, maxV).color(1f, 1f, 1f, 1f).normal(0f, -1f, 0f).endVertex()
+            buffer.pos(1.0, height, 15.0).tex(minU, maxV).color(1f, 1f, 1f, 1f).normal(0f, -1f, 0f).endVertex()
 
             val bottomV = maxV * fillAmount + (1.0f-fillAmount)*minV
             val topV = minV
-            buffer.pos(1.0, height, 1.0).tex(minU, topV).endVertex()
-            buffer.pos(15.0, height, 1.0).tex(maxU, topV).endVertex()
-            buffer.pos(15.0, 1.01, 1.0).tex(maxU, bottomV).endVertex()
-            buffer.pos(1.0, 1.01, 1.0).tex(minU, bottomV).endVertex()
+            buffer.pos(1.0, height, 1.0).tex(minU, topV).color(1f, 1f, 1f, 1f).normal(0f, 0f, 1f).endVertex()
+            buffer.pos(15.0, height, 1.0).tex(maxU, topV).color(1f, 1f, 1f, 1f).normal(0f, 0f, 1f).endVertex()
+            buffer.pos(15.0, 1.01, 1.0).tex(maxU, bottomV).color(1f, 1f, 1f, 1f).normal(0f, 0f, 1f).endVertex()
+            buffer.pos(1.0, 1.01, 1.0).tex(minU, bottomV).color(1f, 1f, 1f, 1f).normal(0f, 0f, 1f).endVertex()
 
-            buffer.pos(1.0, 1.01, 15.0).tex(minU, bottomV).endVertex()
-            buffer.pos(15.0, 1.01, 15.0).tex(maxU, bottomV).endVertex()
-            buffer.pos(15.0, height, 15.0).tex(maxU, topV).endVertex()
-            buffer.pos(1.0, height, 15.0).tex(minU, topV).endVertex()
+            buffer.pos(1.0, 1.01, 15.0).tex(minU, bottomV).color(1f, 1f, 1f, 1f).normal(0f, 0f, -1f).endVertex()
+            buffer.pos(15.0, 1.01, 15.0).tex(maxU, bottomV).color(1f, 1f, 1f, 1f).normal(0f, 0f, -1f).endVertex()
+            buffer.pos(15.0, height, 15.0).tex(maxU, topV).color(1f, 1f, 1f, 1f).normal(0f, 0f, -1f).endVertex()
+            buffer.pos(1.0, height, 15.0).tex(minU, topV).color(1f, 1f, 1f, 1f).normal(0f, 0f, -1f).endVertex()
 
-            buffer.pos(1.0, 1.01, 1.0).tex(minU, bottomV).endVertex()
-            buffer.pos(1.0, 1.01, 15.0).tex(maxU, bottomV).endVertex()
-            buffer.pos(1.0, height, 15.0).tex(maxU, topV).endVertex()
-            buffer.pos(1.0, height, 1.0).tex(minU, topV).endVertex()
+            buffer.pos(1.0, 1.01, 1.0).tex(minU, bottomV).color(1f, 1f, 1f, 1f).normal(1f, 0f, 0f).endVertex()
+            buffer.pos(1.0, 1.01, 15.0).tex(maxU, bottomV).color(1f, 1f, 1f, 1f).normal(1f, 0f, 0f).endVertex()
+            buffer.pos(1.0, height, 15.0).tex(maxU, topV).color(1f, 1f, 1f, 1f).normal(1f, 0f, 0f).endVertex()
+            buffer.pos(1.0, height, 1.0).tex(minU, topV).color(1f, 1f, 1f, 1f).normal(1f, 0f, 0f).endVertex()
 
-            buffer.pos(15.0, 1.01, 1.0).tex(minU, bottomV).endVertex()
-            buffer.pos(15.0, 1.01, 15.0).tex(maxU, bottomV).endVertex()
-            buffer.pos(15.0, height, 15.0).tex(maxU, topV).endVertex()
-            buffer.pos(15.0, height, 1.0).tex(minU, topV).endVertex()
-            if(fluid.attributes.luminosity > 0)
-                GlStateManager.disableLighting()
-
-            tessellator.draw()
-            if(fluid.attributes.luminosity > 0)
-                GlStateManager.enableLighting()
+            buffer.pos(15.0, 1.01, 1.0).tex(minU, bottomV).color(1f, 1f, 1f, 1f).normal(-1f, 0f, 0f).endVertex()
+            buffer.pos(15.0, 1.01, 15.0).tex(maxU, bottomV).color(1f, 1f, 1f, 1f).normal(-1f, 0f, 0f).endVertex()
+            buffer.pos(15.0, height, 15.0).tex(maxU, topV).color(1f, 1f, 1f, 1f).normal(-1f, 0f, 0f).endVertex()
+            buffer.pos(15.0, height, 1.0).tex(minU, topV).color(1f, 1f, 1f, 1f).normal(-1f, 0f, 0f).endVertex()
         }
-        GlStateManager.popMatrix()
+        matrixStack.pop()
     }
 }

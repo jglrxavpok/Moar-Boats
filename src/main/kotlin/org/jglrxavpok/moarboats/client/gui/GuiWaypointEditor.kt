@@ -12,6 +12,7 @@ import net.minecraft.util.text.TextFormatting
 import net.minecraft.util.text.TranslationTextComponent
 import net.minecraftforge.fml.client.gui.widget.Slider
 import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.client.gui.elements.Checkbox
 import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.network.CModifyWaypoint
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
@@ -54,7 +55,7 @@ class GuiWaypointEditor(val player: PlayerEntity, val te: TileEntityMappingTable
     private val refreshButton = Button(0, 0, 150, 20, refreshText.formattedText) {
         refreshList()
     }
-    private val hasBoostCheckbox = Checkbox(0, 0, hasBoostSetting.formattedText, waypointData.getBoolean("hasBoost"))
+    private val hasBoostCheckbox = Checkbox(hasBoostSetting.formattedText, waypointData.getBoolean("hasBoost"))
 
     private val intInputs by lazy {listOf(xInput, zInput)}
     private val doubleInputs by lazy {listOf<TextFieldWidget>()}
@@ -233,7 +234,7 @@ class GuiWaypointEditor(val player: PlayerEntity, val te: TileEntityMappingTable
         zInput.text = waypointInfo.z.toString()
         nameInput.text = waypointInfo.name
         if(waypointInfo.boost != null) {
-            hasBoostCheckbox.setFocused(true)
+            hasBoostCheckbox.isChecked = true
             boostSlider.value = waypointInfo.boost
         }
     }

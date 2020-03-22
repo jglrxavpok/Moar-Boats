@@ -69,15 +69,15 @@ public class ModelHelm extends EntityModel<Entity> {
     @Override
     public void render(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
         this.bottom.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
-        this.radiusRight.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn););
-        this.radiusBottom.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn););
-        this.left.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn););
-        this.right.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn););
-        this.top.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn););
-        this.radiusLeft.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn););
-        this.helmBase.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn););
-        this.radiusTop.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn););
-        this.frameCenter.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn););
+        this.radiusRight.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
+        this.radiusBottom.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
+        this.left.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
+        this.right.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
+        this.top.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
+        this.radiusLeft.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
+        this.helmBase.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
+        this.radiusTop.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
+        this.frameCenter.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
     }
 
     /**
@@ -87,5 +87,10 @@ public class ModelHelm extends EntityModel<Entity> {
         ModelRenderer.rotateAngleX = x;
         ModelRenderer.rotateAngleY = y;
         ModelRenderer.rotateAngleZ = z;
+    }
+
+    @Override
+    public void setRotationAngles(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+
     }
 }

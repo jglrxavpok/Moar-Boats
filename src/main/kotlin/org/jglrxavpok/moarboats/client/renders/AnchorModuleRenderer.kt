@@ -2,11 +2,8 @@ package org.jglrxavpok.moarboats.client.renders
 
 import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.platform.GlStateManager
-import com.mojang.blaze3d.vertex.IVertexBuilder
 import net.minecraft.block.Blocks
-import net.minecraft.client.renderer.Quaternion
-import net.minecraft.client.renderer.Tessellator
-import net.minecraft.client.renderer.Vector3f
+import net.minecraft.client.renderer.*
 import net.minecraft.client.renderer.entity.EntityRendererManager
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.util.math.MathHelper
@@ -21,7 +18,7 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
         registryName = AnchorModule.id
     }
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffer: IVertexBuilder, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererManager) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererManager) {
         matrixStack.push()
         val anchor = module as AnchorModule
 
@@ -51,7 +48,7 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
         val anchorScale = 0.75f
         matrixStack.push()
         matrixStack.scale(anchorScale, anchorScale, anchorScale)
-        renderBlockState(entityRendererManager, Blocks.ANVIL.defaultState, boat.brightness)
+        renderBlockState(matrixStack, buffers, packedLightIn, entityRendererManager, Blocks.ANVIL.defaultState, boat.brightness)
         matrixStack.pop()
         matrixStack.translate(+0.5, +0.5, -0.5)
 
@@ -61,33 +58,25 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
         val dz = (anchorZ-boat.z)
         val localAnchorX = -MathHelper.sin(radangle) * dz + MathHelper.cos(radangle) * dx
         val localAnchorZ = MathHelper.cos(radangle) * dz + MathHelper.sin(radangle) * dx
-        renderChain(localAnchorX, dy, localAnchorZ)
+        renderChain(matrixStack, buffers, localAnchorX, dy, localAnchorZ)
         matrixStack.pop()
     }
 
-    private fun renderChain(anchorX: Double, anchorY: Double, anchorZ: Double) {
-        val tessellator = Tessellator.getInstance()
-        val bufferbuilder = tessellator.buffer
+    private fun renderChain(matrixStack: MatrixStack, buffers: IRenderTypeBuffer, anchorX: Double, anchorY: Double, anchorZ: Double) {
 
-        val yOffset = -0.06f // small fix to make the rope actually connect both to the rod and to the hook
+        val yOffset = -0.06 // small fix to make the rope actually connect both to the rod and to the hook
 
         val dx = anchorX
         val dy = -anchorY -yOffset*2f
         val dz = anchorZ
-        GlStateManager.disableTexture()
-        GlStateManager.disableLighting()
-        bufferbuilder.begin(3, DefaultVertexFormats.POSITION_COLOR)
+        val bufferbuilder = buffers.getBuffer(RenderType.getLines())
         val segmentCount = 16
 
-        GlStateManager.translatef(0f, yOffset, 0f)
+        matrixStack.translate(0.0, yOffset, 0.0)
 
         for (index in 0..segmentCount) {
             val step = index.toFloat() / segmentCount.toFloat()
             bufferbuilder.pos(dx * step.toDouble(), dy * (step * step + step).toDouble() * 0.5 + 0.25, dz * step.toDouble()).color(0, 0, 0, 255).endVertex()
         }
-
-        tessellator.draw()
-        GlStateManager.enableLighting()
-        GlStateManager.enableTexture()
     }
 }

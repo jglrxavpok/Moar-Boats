@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.client.gui
 
+import com.mojang.blaze3d.matrix.MatrixStack
 import net.minecraft.client.Minecraft
 import net.minecraft.client.audio.SimpleSound
 import com.mojang.blaze3d.platform.GlStateManager
@@ -27,15 +28,17 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
 
     val mc: Minecraft = Minecraft.getInstance()
     val tabs = mutableListOf<ModuleTab>()
-
     open val moduleTitle = TranslationTextComponent("inventory.${module.id.path}")
 
     private val BACKGROUND_TEXTURE = ResourceLocation(MoarBoats.ModID, "textures/gui/default_background.png")
+
     private val BACKGROUND_TEXTURE_LARGE = ResourceLocation(MoarBoats.ModID, "textures/gui/default_background_large.png")
     protected var shouldRenderInventoryName = true
     protected var renderPlayerInventoryTitle = true
-
     protected abstract val moduleBackground: ResourceLocation
+
+    // used for rendering
+    protected val matrixStack = MatrixStack()
 
     override fun init() {
         this.xSize = computeSizeX()

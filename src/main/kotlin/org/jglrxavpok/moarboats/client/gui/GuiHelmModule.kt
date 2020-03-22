@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.client.gui
 
+import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.widget.button.Button
@@ -9,13 +10,13 @@ import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.item.FilledMapItem
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
-import net.minecraft.item.MapItem
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.TranslationTextComponent
 import net.minecraft.world.storage.MapData
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
+import org.jglrxavpok.moarboats.client.RenderInfo
 import org.jglrxavpok.moarboats.client.renders.HelmModuleRenderer
 import org.jglrxavpok.moarboats.common.containers.ContainerHelmModule
 import org.jglrxavpok.moarboats.common.data.LoopingOptions
@@ -88,6 +89,7 @@ class GuiHelmModule(containerID: Int, playerInventory: PlayerInventory, engine: 
         tessellator.draw()
         val stack = baseContainer.getSlot(0).stack
         var hasMap = false
+        val buffers = mc.renderTypeBuffers.bufferSource
         getMapData(stack)?.let { mapdata ->
             val item = stack.item
             val (waypoints, loopingOption) = when(item) {
@@ -95,14 +97,17 @@ class GuiHelmModule(containerID: Int, playerInventory: PlayerInventory, engine: 
                 is ItemPath -> Pair(item.getWaypointData(stack, MoarBoats.getLocalMapStorage()), item.getLoopingOptions(stack))
                 else -> return@let
             }
-            HelmModuleRenderer.renderMap(mapdata, x, y, mapSize, boat.positionX, boat.positionZ, margins, waypoints, loopingOption == LoopingOptions.Loops)
+            val renderInfo = RenderInfo(matrixStack, mc.renderTypeBuffers.bufferSource, 255)
+            HelmModuleRenderer.renderMap(renderInfo, mapdata, x, y, mapSize, boat.positionX, boat.positionZ, margins, waypoints, loopingOption == LoopingOptions.Loops)
 
             if(mouseX >= x+margins && mouseX <= x+mapSize-margins && mouseY >= y+margins && mouseY <= y+mapSize-margins) {
-                HelmModuleRenderer.renderSingleWaypoint(mouseX.toDouble(), mouseY.toDouble()-6.0)
+                val waypointBuffer = buffers.getBuffer(HelmModuleRenderer.waypointRenderType)
+                HelmModuleRenderer.renderSingleWaypoint(renderInfo, waypointBuffer, mouseX.toDouble(), mouseY.toDouble()-6.0)
             }
 
             hasMap = true
         }
+        buffers.finish() // render to screen
 
         if(!hasMap) {
             GlStateManager.pushMatrix()

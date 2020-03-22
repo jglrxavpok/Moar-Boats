@@ -28,16 +28,12 @@ public class ModelRudder extends EntityModel<Entity> {
 
     @Override
     public void render(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
-        this.rudderBase.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn););
-        this.rudderBlade.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn););
+        this.rudderBase.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
+        this.rudderBlade.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
     }
 
-    /**
-     * This is a helper function from Tabula to set the rotation of model parts
-     */
-    public void setRotateAngle(ModelRenderer ModelRenderer, float x, float y, float z) {
-        ModelRenderer.rotateAngleX = x;
-        ModelRenderer.rotateAngleY = y;
-        ModelRenderer.rotateAngleZ = z;
+    @Override
+    public void setRotationAngles(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+
     }
 }

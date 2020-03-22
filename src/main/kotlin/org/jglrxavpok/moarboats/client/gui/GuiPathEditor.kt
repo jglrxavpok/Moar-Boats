@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.client.gui
 
+import com.mojang.blaze3d.matrix.MatrixStack
 import net.minecraft.client.Minecraft
 import net.minecraft.client.audio.SimpleSound
 import net.minecraft.client.gui.widget.button.Button
@@ -14,18 +15,16 @@ import net.minecraft.nbt.CompoundNBT
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.text.TranslationTextComponent
-import net.minecraft.world.dimension.DimensionType
 import net.minecraft.world.storage.MapData
 import net.minecraftforge.fml.client.gui.widget.Slider
-import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.ClientEvents
+import org.jglrxavpok.moarboats.client.RenderInfo
 import org.jglrxavpok.moarboats.client.drawModalRectWithCustomSizedTexture
 import org.jglrxavpok.moarboats.client.gui.elements.GuiBinaryPropertyButton
 import org.jglrxavpok.moarboats.client.gui.elements.GuiPropertyButton
 import org.jglrxavpok.moarboats.client.gui.elements.GuiToolButton
 import org.jglrxavpok.moarboats.client.renders.HelmModuleRenderer
 import org.jglrxavpok.moarboats.common.data.LoopingOptions
-import org.jglrxavpok.moarboats.common.data.MapImageStripe
 import org.jglrxavpok.moarboats.common.data.PathHolder
 import org.jglrxavpok.moarboats.common.modules.HelmModule.StripeLength
 import org.lwjgl.opengl.GL11.*
@@ -433,6 +432,9 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
         var previousX = 0.0
         var previousZ = 0.0
         val first = waypointsData.firstOrNull() as? CompoundNBT
+        val renderInfo = RenderInfo(MatrixStack(), mc.renderTypeBuffers.bufferSource, 255)
+        val waypointBuffer = renderInfo.buffers.getBuffer(HelmModuleRenderer.waypointRenderType)
+        val pathBuffer = renderInfo.buffers.getBuffer(HelmModuleRenderer.pathRenderType)
         for((index, waypoint) in waypointsData.withIndex()) {
             waypoint as CompoundNBT
             val blockX = waypoint.getInt("x")
@@ -442,9 +444,9 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
             val renderX = waypointX/mapScreenSize*128.0
             val renderZ = waypointZ/mapScreenSize*128.0
             if(index == closestIndex) {
-                HelmModuleRenderer.renderSingleWaypoint(renderX, renderZ - 7.0, 1f, 0.3f, 0.3f)
+                HelmModuleRenderer.renderSingleWaypoint(renderInfo, waypointBuffer, renderX, renderZ - 7.0, 1f, 0.3f, 0.3f)
             } else {
-                HelmModuleRenderer.renderSingleWaypoint(renderX, renderZ - 7.0)
+                HelmModuleRenderer.renderSingleWaypoint(renderInfo, waypointBuffer, renderX, renderZ - 7.0)
             }
 
             if(waypoint.getBoolean("hasBoost")) {
@@ -459,7 +461,7 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
             }
 
             if(hasPrevious)
-                HelmModuleRenderer.renderPath(previousX, previousZ, renderX, renderZ)
+                HelmModuleRenderer.renderPath(renderInfo, pathBuffer, previousX, previousZ, renderX, renderZ)
             hasPrevious = true
             previousX = renderX
             previousZ = renderZ
@@ -470,9 +472,10 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
                 val (firstWaypointX, firstWaypointZ) = worldCoordsToPixels(firstBlockX, firstBlockZ)
                 val firstX = firstWaypointX/mapScreenSize*128.0
                 val firstZ = firstWaypointZ/mapScreenSize*128.0
-                HelmModuleRenderer.renderPath(renderX, renderZ, firstX, firstZ, redModifier = 0.15f)
+                HelmModuleRenderer.renderPath(renderInfo, pathBuffer, renderX, renderZ, firstX, firstZ, redModifier = 0.15f)
             }
         }
+        mc.renderTypeBuffers.bufferSource.finish()
 
         val iconScale = 0.5f
 

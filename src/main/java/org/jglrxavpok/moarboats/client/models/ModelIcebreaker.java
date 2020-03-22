@@ -31,7 +31,7 @@ public class ModelIcebreaker extends EntityModel<Entity> {
     @Override
     public void render(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
         this.icebreakerLeft.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
-        this.icebreakerRight.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn););
+        this.icebreakerRight.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
     }
 
     /**
@@ -41,5 +41,10 @@ public class ModelIcebreaker extends EntityModel<Entity> {
         ModelRenderer.rotateAngleX = x;
         ModelRenderer.rotateAngleY = y;
         ModelRenderer.rotateAngleZ = z;
+    }
+
+    @Override
+    public void setRotationAngles(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+
     }
 }

@@ -3,8 +3,9 @@ package org.jglrxavpok.moarboats.client.renders
 import com.mojang.blaze3d.matrix.MatrixStack
 import net.minecraft.client.Minecraft
 import com.mojang.blaze3d.platform.GlStateManager
-import com.mojang.blaze3d.vertex.IVertexBuilder
 import net.minecraft.block.Blocks
+import net.minecraft.client.renderer.IRenderTypeBuffer
+import net.minecraft.client.renderer.Quaternion
 import net.minecraft.client.renderer.entity.EntityRendererManager
 import net.minecraft.client.renderer.texture.AtlasTexture
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
@@ -22,51 +23,48 @@ object SonarModuleRenderer : BoatModuleRenderer() {
 
     private val testMatrix = SurroundingsMatrix(32)
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffer: IVertexBuilder, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererManager) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererManager) {
         module as SonarModule
-        GlStateManager.pushMatrix()
-        GlStateManager.scalef(0.75f, 0.75f, 0.75f)
-        GlStateManager.scalef(-1f, 1f, 1f)
+        matrixStack.push()
+        matrixStack.scale(0.75f, 0.75f, 0.75f)
+        matrixStack.scale(-1f, 1f, 1f)
 
         for(xOffset in arrayOf(-1.25f, 1.0f)) {
             for(zOffset in arrayOf(-0.625f, 0.875f)) {
-                GlStateManager.pushMatrix()
-                GlStateManager.translatef(xOffset, 4f/16f, zOffset)
-                GlStateManager.scalef(0.25f, 0.25f, 0.25f)
-                entityRendererManager.textureManager.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE)
+                matrixStack.push()
+                matrixStack.translate(xOffset.toDouble(), 4f/16.0, zOffset.toDouble())
+                matrixStack.scale(0.25f, 0.25f, 0.25f)
                 val block = Blocks.NOTE_BLOCK
-                renderBlockState(entityRendererManager, block.defaultState, boat.brightness)
-                GlStateManager.popMatrix()
+                renderBlockState(matrixStack, buffers, packedLightIn, entityRendererManager, block.defaultState, boat.brightness)
+                matrixStack.pop()
             }
         }
 
         // render gradient
         if(Minecraft.getInstance().gameSettings.reducedDebugInfo) {
-            GlStateManager.rotatef(-(180.0f - entityYaw - 90f), 0.0f, 1.0f, 0.0f)
+            matrixStack.rotate(Quaternion(-(180.0f - entityYaw - 90f), 0.0f, 0f, true))
             testMatrix.compute(boat.world, boat.positionX, boat.positionY, boat.positionZ).removeNotConnectedToCenter()
             val gradient = testMatrix.computeGradient()
             testMatrix.forEach { xOffset, zOffset, potentialState ->
                 if(potentialState != null) {
                     val gradientVal = gradient[testMatrix.pos2index(xOffset, zOffset)]
                     if(gradientVal.x.toInt() != 0 || gradientVal.y.toInt() != 0) {
-                        GlStateManager.pushMatrix()
-                        GlStateManager.scalef(0.25f, 0.25f, 0.25f)
-                        GlStateManager.translated(xOffset.toDouble(), 1.0, zOffset.toDouble())
+                        matrixStack.push()
+                        matrixStack.scale(0.25f, 0.25f, 0.25f)
+                        matrixStack.translate(xOffset.toDouble(), 1.0, zOffset.toDouble())
 
-                        val angle = atan2(gradientVal.y.toDouble(), gradientVal.x.toDouble()).toDegrees()
-                        GlStateManager.rotatef(angle.toFloat(), 0f, 1f, 0f)
-                        GlStateManager.scalef(0.1f, 0.1f, gradientVal.length().toFloat() * 0.1f)
+                        val angle = atan2(gradientVal.y, gradientVal.x)
+                        matrixStack.rotate(Quaternion(0f, angle.toFloat(), 0f, false))
+                        matrixStack.scale(0.1f, 0.1f, gradientVal.length().toFloat() * 0.1f)
                         if(!potentialState.isEmpty) {
-                            renderBlockState(entityRendererManager, Blocks.EMERALD_BLOCK.defaultState, boat.brightness)
+                            renderBlockState(matrixStack, buffers, packedLightIn, entityRendererManager, Blocks.EMERALD_BLOCK.defaultState, boat.brightness)
                         }
-
-                        GlStateManager.popMatrix()
+                        matrixStack.pop()
                     }
                 }
             }
-
         }
 
-        GlStateManager.popMatrix()
+        matrixStack.pop()
     }
 }

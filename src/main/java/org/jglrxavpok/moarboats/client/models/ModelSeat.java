@@ -28,16 +28,12 @@ public class ModelSeat extends EntityModel<Entity> {
 
     @Override
     public void render(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
-        this.seatBack.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn););
-        this.seat.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn););
+        this.seatBack.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
+        this.seat.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
     }
 
-    /**
-     * This is a helper function from Tabula to set the rotation of model parts
-     */
-    public void setRotateAngle(ModelRenderer ModelRenderer, float x, float y, float z) {
-        ModelRenderer.rotateAngleX = x;
-        ModelRenderer.rotateAngleY = y;
-        ModelRenderer.rotateAngleZ = z;
+    @Override
+    public void setRotationAngles(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+
     }
 }

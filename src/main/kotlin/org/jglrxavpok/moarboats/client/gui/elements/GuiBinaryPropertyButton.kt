@@ -1,6 +1,6 @@
 package org.jglrxavpok.moarboats.client.gui.elements
 
-class GuiBinaryPropertyButton(textPair: Pair<String, String>, iconPair: Pair<Int, Int>, pressable: IPressable):
+open class GuiBinaryPropertyButton(textPair: Pair<String, String>, iconPair: Pair<Int, Int>, pressable: IPressable):
         GuiPropertyButton(listOf(Pair(textPair.first, iconPair.first), Pair(textPair.second, iconPair.second)), pressable) {
 
     var inFirstState: Boolean
