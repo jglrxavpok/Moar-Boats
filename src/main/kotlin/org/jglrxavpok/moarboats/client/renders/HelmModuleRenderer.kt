@@ -50,7 +50,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererManager) {
         module as HelmModule
         matrixStack.push()
-        matrixStack.scale(-1f, -1f, 1f)
+        matrixStack.scale(1f, -1f, 1f)
         matrixStack.translate(0.2, -0f/16.0, 0.0)
 
         val frameAngle = module.rotationAngleProperty[boat].toRadians()

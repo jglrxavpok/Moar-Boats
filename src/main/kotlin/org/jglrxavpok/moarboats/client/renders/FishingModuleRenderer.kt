@@ -24,6 +24,7 @@ import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.client.pos
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.FishingModule
+import org.lwjgl.glfw.GLFW
 import java.util.*
 
 object FishingModuleRenderer : BoatModuleRenderer() {

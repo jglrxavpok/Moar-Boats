@@ -29,7 +29,7 @@ object SonarModuleRenderer : BoatModuleRenderer() {
         matrixStack.scale(0.75f, 0.75f, 0.75f)
 
         for(xOffset in arrayOf(-1.25f, 1.0f)) {
-            for(zOffset in arrayOf(-0.625f, 0.875f)) {
+            for(zOffset in arrayOf(-0.625f-0.25f, 0.875f-0.25f)) {
                 matrixStack.push()
                 matrixStack.translate(xOffset.toDouble(), 4f/16.0, zOffset.toDouble())
                 matrixStack.scale(0.25f, 0.25f, 0.25f)

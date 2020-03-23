@@ -24,7 +24,7 @@ object ChestModuleRenderer : BoatModuleRenderer() {
         matrixStack.rotate(Vector3f.YP.rotationDegrees(90f))
         matrixStack.scale(0.75f, 0.75f, 0.75f)
         matrixStack.translate(-0.5, -4f/16.0, 1.0/16.0/0.75)
-        val block = Blocks.CHEST.defaultState.with(ChestBlock.WATERLOGGED, true)
+        val block = Blocks.CHEST.defaultState
         renderBlockState(matrixStack, buffers, packedLightIn, entityRendererManager, block, boat.brightness)
         matrixStack.pop()
     }
