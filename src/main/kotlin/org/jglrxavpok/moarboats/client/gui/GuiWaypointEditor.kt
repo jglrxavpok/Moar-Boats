@@ -110,7 +110,7 @@ class GuiWaypointEditor(val player: PlayerEntity, val te: TileEntityMappingTable
         hasBoostCheckbox.x = width / 2 - hasBoostCheckbox.width / 2
         hasBoostCheckbox.y = 150
         boostSlider.x = width / 2 - boostSlider.width / 2
-        boostSlider.y = 165
+        boostSlider.y = 180
 
         boostSlider.value = waypointData.getDouble("boost") * 100
 
@@ -151,11 +151,11 @@ class GuiWaypointEditor(val player: PlayerEntity, val te: TileEntityMappingTable
     }
 
     private fun storeIntoNBT() {
-        waypointData.putString("name", nameInput.message)
+        waypointData.putString("name", nameInput.text)
         waypointData.putBoolean("hasBoost", hasBoostCheckbox.isChecked)
         waypointData.putDouble("boost", boostSlider.value / 100.0)
-        waypointData.putInt("x", toInt(xInput.message))
-        waypointData.putInt("z", toInt(zInput.message))
+        waypointData.putInt("x", toInt(xInput.text))
+        waypointData.putInt("z", toInt(zInput.text))
     }
 
     private fun toInt(txt: String): Int {

@@ -1,6 +1,7 @@
 package org.jglrxavpok.moarboats.client.gui
 
 import com.mojang.blaze3d.platform.GlStateManager
+import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.AbstractGui
 import net.minecraft.client.gui.AbstractGui.blit
@@ -29,7 +30,6 @@ class WaypointListEntry(val parent: GuiMappingTable, val slot: CompoundNBT, val 
         val slotHeight = entryHeight
         val entryRight = left + entryWidth
 
-        GlStateManager.disableLighting()
         GlStateManager.color4f(1f, 1f, 1f, 1f)
         if(index >= waypoints.size)
             return
@@ -50,6 +50,7 @@ class WaypointListEntry(val parent: GuiMappingTable, val slot: CompoundNBT, val 
         GlStateManager.popMatrix()
         GlStateManager.color4f(1f, 1f, 1f, 1f)
         mc.textureManager.bindTexture(ArrowsTexture)
+        RenderSystem.enableAlphaTest()
         if(mouseX >= entryRight - 32 && mouseX < entryRight && mouseY >= slotTop && mouseY <= slotTop + slotHeight) {
             val hoveredOffsetBottom = if(mouseY - slotTop >= slotHeight / 2) 1 else 0
             val hoveredOffsetTop = 1 - hoveredOffsetBottom
@@ -98,9 +99,7 @@ class GuiWaypointList(val mc: Minecraft, val parent: GuiMappingTable, width: Int
     val ArrowsTexture = ResourceLocation("minecraft", "textures/gui/resource_packs.png")
 
     override fun renderBackground() {
-        GlStateManager.disableLighting()
         fillGradient(left, top, right, bottom, 0xFFC0C0C0.toInt(), 0xFFC0C0C0.toInt())
-        GlStateManager.enableLighting()
     }
 
     override fun render(insideLeft: Int, insideTop: Int, partialTicks: Float) {
@@ -111,7 +110,7 @@ class GuiWaypointList(val mc: Minecraft, val parent: GuiMappingTable, width: Int
         glScissor((left*scaleX).toInt(), ((mc.mainWindow.scaledHeight-top-height)*scaleY).toInt(), (width*scaleX).toInt(), (height*scaleY).toInt())
 
         super.render(insideLeft, insideTop, partialTicks)
-
+        RenderSystem.disableAlphaTest()
         glDisable(GL_SCISSOR_TEST)
     }
 

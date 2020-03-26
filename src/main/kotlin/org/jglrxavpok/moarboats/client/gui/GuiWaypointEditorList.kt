@@ -1,11 +1,14 @@
 package org.jglrxavpok.moarboats.client.gui
 
 import com.mojang.blaze3d.platform.GlStateManager
+import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.widget.list.ExtendedList
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.Util
+import org.jglrxavpok.moarboats.client.drawModalRectWithCustomSizedTexture
+import org.jglrxavpok.moarboats.client.gui.elements.GuiToolButton
 import org.jglrxavpok.moarboats.integration.IWaypointProvider
 import org.jglrxavpok.moarboats.integration.WaypointInfo
 import org.jglrxavpok.moarboats.integration.WaypointProviders
@@ -37,7 +40,9 @@ class WaypointInfoEntry(val parent: GuiWaypointEditor, val slot: WaypointInfo, v
         GlStateManager.pushMatrix()
         GlStateManager.translatef(left.toFloat(), slotTop - 4f, 0f)
         GlStateManager.scaled(arrowScale, arrowScale, arrowScale)
-        list.blit(0, 0, 32, hovered * 32, 32, 32) // top
+        RenderSystem.enableAlphaTest()
+        RenderSystem.enableBlend()
+        drawModalRectWithCustomSizedTexture(0, 0, 32f/256f, (hovered*32)/256f,  32, 32, 256, 256)
         GlStateManager.popMatrix()
 
         val name = slot.name
