@@ -1,6 +1,7 @@
 package org.jglrxavpok.moarboats.client.gui
 
 import com.mojang.blaze3d.platform.GlStateManager
+import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.gui.widget.button.Button
 import net.minecraft.client.gui.widget.button.LockIconButton
 import net.minecraft.client.renderer.RenderHelper
@@ -149,7 +150,7 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
         blitOffset = 100
         itemRenderer.zLevel = 100.0f
         RenderHelper.enableStandardItemLighting()
-        GlStateManager.color4f(1f, 1f, 1f, 1f)
+        RenderSystem.color4f(1f, 1f, 1f, 1f)
         val itemX = textX+textWidth + 1
         val itemY = font.FONT_HEIGHT - 8 + y
         itemRenderer.renderItemIntoGUI(itemStack, itemX, itemY)
@@ -158,7 +159,7 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
     }
 
     private fun renderSpeedIcon(ordinal: Int, x: Int, y: Int) {
-        GlStateManager.color4f(1f, 1f, 1f, 1f)
+        RenderSystem.color4f(1f, 1f, 1f, 1f)
         val width = 20
         val height = 20
         val tessellator = Tessellator.getInstance()
@@ -187,11 +188,15 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
                 .endVertex()
 
         mc.textureManager.bindTexture(speedIconTexture)
-        GlStateManager.disableDepthTest()
-        GlStateManager.disableCull()
+        RenderSystem.disableDepthTest()
+        RenderSystem.disableCull()
+        RenderSystem.enableAlphaTest()
+        RenderSystem.enableBlend()
         tessellator.draw()
-        GlStateManager.enableCull()
-        GlStateManager.enableDepthTest()
+        RenderSystem.disableBlend()
+        RenderSystem.disableAlphaTest()
+        RenderSystem.enableCull()
+        RenderSystem.enableDepthTest()
     }
 
     private fun drawBar(x: Float, y: Float, barIndex: Int, barSize: Float, fill: Float) {

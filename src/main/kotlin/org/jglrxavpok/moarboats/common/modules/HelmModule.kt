@@ -26,6 +26,7 @@ import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiPathEditor
 import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
 import org.jglrxavpok.moarboats.common.data.*
+import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import org.jglrxavpok.moarboats.common.items.MapItemWithPath
 import org.jglrxavpok.moarboats.common.items.ItemPath
@@ -353,6 +354,21 @@ object HelmModule: BoatModule(), BlockReason {
             is ItemGoldenTicket -> {
                 val id = ItemGoldenTicket.getData(stack).mapID
                 GuiPathEditor(player, GoldenTicketPathHolder(stack, null, boat), mapData)
+            }
+            else -> null
+        }
+    }
+
+    fun getMapData(stack: ItemStack, boat: IControllable): MapData? {
+        return when (stack.item) {
+            is FilledMapItem -> mapDataCopyProperty[boat]
+            is MapItemWithPath -> {
+                val mapID = stack.tag?.getString("${MoarBoats.ModID}.mapID") ?: return null
+                MoarBoats.getLocalMapStorage().get({ MapData(mapID) }, mapID) as? MapData
+            }
+            is ItemGoldenTicket -> {
+                val mapID = ItemGoldenTicket.getData(stack).mapID
+                MoarBoats.getLocalMapStorage().get({ MapData(mapID) }, mapID) as? MapData
             }
             else -> null
         }

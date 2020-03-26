@@ -35,7 +35,7 @@ class GuiFluid(type: ContainerType<*>, containerID: Int, val te: TileEntityListe
         blit(guiLeft, guiTop, 0, 0, xSize, ySize)
 
         if(fluid != null && fluid !is EmptyFluid) {
-            GuiTankModule.renderFluidInGui(guiLeft + 56, guiTop + 80, fluid!!, fluidAmount, fluidCapacity, horizontalTilesCount = 4)
+            GuiTankModule.renderFluidInGui(guiLeft + 56, guiTop + 80, fluid!!, fluidAmount, fluidCapacity, horizontalTilesCount = 4, world = te.world!!, position = te.pos)
         }
     }
 

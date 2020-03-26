@@ -2,6 +2,7 @@ package org.jglrxavpok.moarboats.client.gui
 
 import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.platform.GlStateManager
+import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.widget.button.Button
 import net.minecraft.client.renderer.Tessellator
@@ -75,17 +76,16 @@ class GuiHelmModule(containerID: Int, playerInventory: PlayerInventory, engine: 
 
     override fun drawModuleBackground(mouseX: Int, mouseY: Int) {
         super.drawModuleBackground(mouseX, mouseY)
-        GlStateManager.disableLighting()
         this.mc.textureManager.bindTexture(RES_MAP_BACKGROUND)
         val tessellator = Tessellator.getInstance()
         val bufferbuilder = tessellator.buffer
         val x = guiLeft + xSize/2f - mapSize/2
         val y = guiTop.toDouble() + 5.0
-        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX)
-        bufferbuilder.pos(x, y+mapSize, 0.0).tex(0.0f, 1.0f).endVertex()
-        bufferbuilder.pos(x+mapSize, y+mapSize, 0.0).tex(1.0f, 1.0f).endVertex()
-        bufferbuilder.pos(x+mapSize, y, 0.0).tex(1.0f, 0.0f).endVertex()
-        bufferbuilder.pos(x, y, 0.0).tex(0.0f, 0.0f).endVertex()
+        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_COLOR_TEX_LIGHTMAP)
+        bufferbuilder.pos(x, y+mapSize, 0.0).color(1f, 1f, 1f, 1f).tex(0.0f, 1.0f).lightmap(15728880).endVertex()
+        bufferbuilder.pos(x+mapSize, y+mapSize, 0.0).color(1f, 1f, 1f, 1f).tex(1.0f, 1.0f).lightmap(15728880).endVertex()
+        bufferbuilder.pos(x+mapSize, y, 0.0).color(1f, 1f, 1f, 1f).tex(1.0f, 0.0f).lightmap(15728880).endVertex()
+        bufferbuilder.pos(x, y, 0.0).color(1f, 1f, 1f, 1f).tex(0.0f, 0.0f).lightmap(15728880).endVertex()
         tessellator.draw()
         val stack = baseContainer.getSlot(0).stack
         var hasMap = false
@@ -97,8 +97,8 @@ class GuiHelmModule(containerID: Int, playerInventory: PlayerInventory, engine: 
                 is ItemPath -> Pair(item.getWaypointData(stack, MoarBoats.getLocalMapStorage()), item.getLoopingOptions(stack))
                 else -> return@let
             }
-            val renderInfo = RenderInfo(matrixStack, mc.renderTypeBuffers.bufferSource, 255)
-            HelmModuleRenderer.renderMap(renderInfo, mapdata, x, y, mapSize, boat.positionX, boat.positionZ, margins, waypoints, loopingOption == LoopingOptions.Loops)
+            val renderInfo = RenderInfo(matrixStack, mc.renderTypeBuffers.bufferSource)
+            HelmModuleRenderer.renderMap(boat, renderInfo, mapdata, x, y, mapSize, boat.positionX, boat.positionZ, margins, waypoints, loopingOption == LoopingOptions.Loops)
 
             if(mouseX >= x+margins && mouseX <= x+mapSize-margins && mouseY >= y+margins && mouseY <= y+mapSize-margins) {
                 val waypointBuffer = buffers.getBuffer(HelmModuleRenderer.waypointRenderType)
@@ -110,31 +110,19 @@ class GuiHelmModule(containerID: Int, playerInventory: PlayerInventory, engine: 
         buffers.finish() // render to screen
 
         if(!hasMap) {
-            GlStateManager.pushMatrix()
-            GlStateManager.translatef(guiLeft.toFloat()+8f, guiTop.toFloat()+8f, 0f)
+            RenderSystem.pushMatrix()
+            RenderSystem.translatef(guiLeft.toFloat()+8f, guiTop.toFloat()+8f, 0f)
             Screen.fill(0, 0, 16, 16, 0x30ff0000)
             mc.itemRenderer.renderItemIntoGUI(mapStack, 0, 0)
-            GlStateManager.depthFunc(GL11.GL_GREATER)
+            RenderSystem.depthFunc(GL11.GL_GREATER)
             Screen.fill(0, 0, 16, 16, 0x30ffffff)
-            GlStateManager.depthFunc(GL11.GL_LEQUAL)
-            GlStateManager.popMatrix()
+            RenderSystem.depthFunc(GL11.GL_LEQUAL)
+            RenderSystem.popMatrix()
         }
-        GlStateManager.enableLighting()
     }
 
     private fun getMapData(stack: ItemStack): MapData? {
-        return when (stack.item) {
-            is FilledMapItem -> HelmModule.mapDataCopyProperty[boat]
-            is MapItemWithPath -> {
-                val mapID = stack.tag?.getString("${MoarBoats.ModID}.mapID") ?: return null
-                MoarBoats.getLocalMapStorage().get({ MapData(mapID) }, mapID) as? MapData
-            }
-            is ItemGoldenTicket -> {
-                val mapID = ItemGoldenTicket.getData(stack).mapID
-                MoarBoats.getLocalMapStorage().get({ MapData(mapID) }, mapID) as? MapData
-            }
-            else -> null
-        }
+        return HelmModule.getMapData(stack, boat)
     }
 
     override fun tick() {

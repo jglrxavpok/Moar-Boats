@@ -117,15 +117,15 @@ object FishingModuleRenderer : BoatModuleRenderer() {
         matrixStack.push()
         matrixStack.translate(x, y, z)
         matrixStack.scale(0.5f, 0.5f, 0.5f)
-        matrixStack.rotate(Quaternion(Vector3f.YN, entityYaw + 90f, true))
-        matrixStack.rotate(Quaternion(Vector3f.YP, entityRendererManager.info.yaw, true))
-        matrixStack.rotate(Quaternion(Vector3f.XP, (if (entityRendererManager.options.thirdPersonView == 2) -1 else 1).toFloat() * (-entityRendererManager.info.pitch), true))
-        matrixStack.rotate(Quaternion(Vector3f.YP, 180.0f, true))
+        matrixStack.rotate(Vector3f.YN.rotationDegrees(entityYaw + 90f))
+        matrixStack.rotate(Vector3f.YP.rotationDegrees(entityRendererManager.info.yaw))
+        matrixStack.rotate(Vector3f.XP.rotationDegrees(-entityRendererManager.info.pitch))
+        matrixStack.rotate(Vector3f.YP.rotationDegrees(180.0f))
 
-        bufferbuilder.pos(matrixStack, -0.5, -0.5, 0.0).color(1f, 1f, 1f, 1f).tex(0f, 1f).overlay(OverlayTexture.NO_OVERLAY).lightmap(packedLightIn).normal(0.0f, 1.0f, 0.0f).endVertex()
-        bufferbuilder.pos(matrixStack, 0.5, -0.5, 0.0).color(1f, 1f, 1f, 1f).tex(1f, 1f).overlay(OverlayTexture.NO_OVERLAY).lightmap(packedLightIn).normal(0.0f, 1.0f, 0.0f).endVertex()
-        bufferbuilder.pos(matrixStack, 0.5, 0.5, 0.0).color(1f, 1f, 1f, 1f).tex(1f, 0f).overlay(OverlayTexture.NO_OVERLAY).lightmap(packedLightIn).normal(0.0f, 1.0f, 0.0f).endVertex()
-        bufferbuilder.pos(matrixStack, -0.5, 0.5, 0.0).color(1f, 1f, 1f, 1f).tex(0f, 0f).overlay(OverlayTexture.NO_OVERLAY).lightmap(packedLightIn).normal(0.0f, 1.0f, 0.0f).endVertex()
+        bufferbuilder.pos(matrixStack, -0.5, -0.5, 0.0).color(1f, 1f, 1f, 1f).tex(0f, 1f).overlay(OverlayTexture.NO_OVERLAY).lightmap(packedLightIn).normal(matrixStack.last.normal, 0.0f, 1.0f, 0.0f).endVertex()
+        bufferbuilder.pos(matrixStack, 0.5, -0.5, 0.0).color(1f, 1f, 1f, 1f).tex(1f, 1f).overlay(OverlayTexture.NO_OVERLAY).lightmap(packedLightIn).normal(matrixStack.last.normal, 0.0f, 1.0f, 0.0f).endVertex()
+        bufferbuilder.pos(matrixStack, 0.5, 0.5, 0.0).color(1f, 1f, 1f, 1f).tex(1f, 0f).overlay(OverlayTexture.NO_OVERLAY).lightmap(packedLightIn).normal(matrixStack.last.normal, 0.0f, 1.0f, 0.0f).endVertex()
+        bufferbuilder.pos(matrixStack, -0.5, 0.5, 0.0).color(1f, 1f, 1f, 1f).tex(0f, 0f).overlay(OverlayTexture.NO_OVERLAY).lightmap(packedLightIn).normal(matrixStack.last.normal, 0.0f, 1.0f, 0.0f).endVertex()
 
         matrixStack.pop()
 

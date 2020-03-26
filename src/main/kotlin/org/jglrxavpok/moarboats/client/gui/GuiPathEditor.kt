@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.audio.SimpleSound
 import net.minecraft.client.gui.widget.button.Button
 import com.mojang.blaze3d.platform.GlStateManager
+import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.texture.DynamicTexture
@@ -28,6 +29,7 @@ import org.jglrxavpok.moarboats.common.data.LoopingOptions
 import org.jglrxavpok.moarboats.common.data.PathHolder
 import org.jglrxavpok.moarboats.common.modules.HelmModule.StripeLength
 import org.lwjgl.opengl.GL11.*
+import org.lwjgl.opengl.GL13.GL_TEXTURE0
 
 class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val mapData: MapData): Screen(TranslationTextComponent("moarboats.gui.path_editor")) {
 
@@ -295,6 +297,8 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
         font.drawStringWithShadow(toolsText.formattedText, menuX.toFloat(), menuY.toFloat(), 0xFFF0F0F0.toInt())
 
         getMinecraft().textureManager.bindTexture(GuiToolButton.WidgetsTextureLocation)
+        RenderSystem.enableAlphaTest()
+        RenderSystem.enableBlend()
         drawModalRectWithCustomSizedTexture(menuX, horizontalBarY, 0f, 100f, 120, 20, 120, 120)
         font.drawStringWithShadow(pathPropsText.formattedText, menuX.toFloat(), toolButtonListEndY.toFloat(), 0xFFF0F0F0.toInt())
 
@@ -314,7 +318,8 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
         }
 
 
-        GlStateManager.enableAlphaTest()
+        RenderSystem.disableAlphaTest()
+        RenderSystem.disableBlend()
     }
 
     private fun drawControls() {
@@ -331,6 +336,8 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
         GlStateManager.popMatrix()
 
         getMinecraft().textureManager.bindTexture(GuiToolButton.WidgetsTextureLocation)
+        RenderSystem.enableAlphaTest()
+        RenderSystem.enableBlend()
         drawModalRectWithCustomSizedTexture((borderX-120).toInt(), (y+5f).toInt(), 0f, 100f, 120, 20, 120, 120)
     }
 
@@ -432,9 +439,7 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
         var previousX = 0.0
         var previousZ = 0.0
         val first = waypointsData.firstOrNull() as? CompoundNBT
-        val renderInfo = RenderInfo(MatrixStack(), mc.renderTypeBuffers.bufferSource, 255)
-        val waypointBuffer = renderInfo.buffers.getBuffer(HelmModuleRenderer.waypointRenderType)
-        val pathBuffer = renderInfo.buffers.getBuffer(HelmModuleRenderer.pathRenderType)
+        val renderInfo = RenderInfo(MatrixStack(), mc.renderTypeBuffers.bufferSource)
         for((index, waypoint) in waypointsData.withIndex()) {
             waypoint as CompoundNBT
             val blockX = waypoint.getInt("x")
@@ -444,9 +449,9 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
             val renderX = waypointX/mapScreenSize*128.0
             val renderZ = waypointZ/mapScreenSize*128.0
             if(index == closestIndex) {
-                HelmModuleRenderer.renderSingleWaypoint(renderInfo, waypointBuffer, renderX, renderZ - 7.0, 1f, 0.3f, 0.3f)
+                HelmModuleRenderer.renderSingleWaypoint(renderInfo, renderInfo.buffers.getBuffer(HelmModuleRenderer.waypointRenderType), renderX, renderZ - 7.0, 1f, 0.3f, 0.3f)
             } else {
-                HelmModuleRenderer.renderSingleWaypoint(renderInfo, waypointBuffer, renderX, renderZ - 7.0)
+                HelmModuleRenderer.renderSingleWaypoint(renderInfo, renderInfo.buffers.getBuffer(HelmModuleRenderer.waypointRenderType), renderX, renderZ - 7.0)
             }
 
             if(waypoint.getBoolean("hasBoost")) {
@@ -461,7 +466,7 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
             }
 
             if(hasPrevious)
-                HelmModuleRenderer.renderPath(renderInfo, pathBuffer, previousX, previousZ, renderX, renderZ)
+                HelmModuleRenderer.renderPath(renderInfo, renderInfo.buffers.getBuffer(HelmModuleRenderer.pathRenderType), previousX, previousZ, renderX, renderZ)
             hasPrevious = true
             previousX = renderX
             previousZ = renderZ
@@ -472,9 +477,10 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
                 val (firstWaypointX, firstWaypointZ) = worldCoordsToPixels(firstBlockX, firstBlockZ)
                 val firstX = firstWaypointX/mapScreenSize*128.0
                 val firstZ = firstWaypointZ/mapScreenSize*128.0
-                HelmModuleRenderer.renderPath(renderInfo, pathBuffer, renderX, renderZ, firstX, firstZ, redModifier = 0.15f)
+                HelmModuleRenderer.renderPath(renderInfo, renderInfo.buffers.getBuffer(HelmModuleRenderer.pathRenderType), renderX, renderZ, firstX, firstZ, redModifier = 0.15f)
             }
         }
+
         mc.renderTypeBuffers.bufferSource.finish()
 
         val iconScale = 0.5f
