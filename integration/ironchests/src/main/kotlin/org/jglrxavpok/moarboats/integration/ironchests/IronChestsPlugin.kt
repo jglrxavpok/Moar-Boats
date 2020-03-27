@@ -1,7 +1,6 @@
 package org.jglrxavpok.moarboats.integration.ironchests
 
-import com.progwml6.ironchest.IronChest
-import com.progwml6.ironchest.common.blocks.ChestType
+import com.progwml6.ironchest.common.block.IronChestsTypes
 import net.minecraft.client.gui.ScreenManager
 import net.minecraft.inventory.container.ContainerType
 import net.minecraft.util.ResourceLocation
@@ -23,19 +22,19 @@ import org.jglrxavpok.moarboats.integration.MoarBoatsPlugin
 class IronChestsPlugin: MoarBoatsPlugin {
 
     override fun registerModules(registry: IForgeRegistry<BoatModuleEntry>) {
-        for(chestType in ChestType.values()) {
-            if(chestType == ChestType.WOOD)
+        for(chestType in IronChestsTypes.values()) {
+            if(chestType == IronChestsTypes.WOOD)
                 continue
-            MoarBoats.logger.debug("[IronChest-Integration] Registering module for chest type ${chestType.getName()}, item name is ${chestType.itemName}")
-            registry.registerModule(IronChestModule(chestType), ChestType.get(chestType).block.asItem(), { boat, module ->
+            MoarBoats.logger.debug("[IronChest-Integration] Registering module for chest type ${chestType.getName()}, item name is ${chestType.id}")
+            registry.registerModule(IronChestModule(chestType), IronChestsTypes.get(chestType).block.asItem(), { boat, module ->
                 SimpleModuleInventory(chestType.size, "ironchest_${chestType.getName()}", boat, module)
             })
         }
     }
 
     override fun registerModuleRenderers(registry: IForgeRegistry<BoatModuleRenderer>) {
-        for(chestType in ChestType.values()) {
-            if(chestType == ChestType.WOOD)
+        for(chestType in IronChestsTypes.values()) {
+            if(chestType == IronChestsTypes.WOOD)
                 continue
             registry.register(IronChestModuleRenderer(chestType))
         }

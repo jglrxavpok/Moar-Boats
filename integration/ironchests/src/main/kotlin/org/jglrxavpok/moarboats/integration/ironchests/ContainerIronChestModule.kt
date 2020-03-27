@@ -1,6 +1,6 @@
 package org.jglrxavpok.moarboats.integration.ironchests
 
-import com.progwml6.ironchest.common.blocks.ChestType
+import com.progwml6.ironchest.common.block.IronChestsTypes
 import com.progwml6.ironchest.common.inventory.DirtChestSlot
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
@@ -13,11 +13,11 @@ import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
 
-class ContainerIronChestModule(containerID: Int, playerInventory: PlayerInventory, module: BoatModule, boat: IControllable, val chestType: ChestType): ContainerBoatModule<ContainerIronChestModule>(module.containerType as ContainerType<ContainerIronChestModule>, containerID, playerInventory, module, boat) {
+class ContainerIronChestModule(containerID: Int, playerInventory: PlayerInventory, module: BoatModule, boat: IControllable, val chestType: IronChestsTypes): ContainerBoatModule<ContainerIronChestModule>(module.containerType as ContainerType<ContainerIronChestModule>, containerID, playerInventory, module, boat) {
     val chestInventory = boat.getInventory(module)
 
     init {
-        if (chestType == ChestType.DIRTCHEST9000) {
+        if (chestType == IronChestsTypes.DIRT) {
             addSlot(DirtChestSlot(chestInventory, 0, 12 + 4 * 18, 8 + 2 * 18))
         } else {
             val numCols = chestType.rowLength

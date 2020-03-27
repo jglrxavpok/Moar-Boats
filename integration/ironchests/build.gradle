@@ -123,7 +123,7 @@ dependencies {
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     minecraft 'net.minecraftforge:forge:1.15.2-31.1.15'
     compile "kottle:Kottle:$kottleVersion"
-    compile "com.progwml6.ironchest:ironchest:1.14.4-9.1.5"
+    compile "com.progwml6.ironchest:ironchest:1.15.2-10.0.3"
 
     compile rootProject
     mod rootProject
