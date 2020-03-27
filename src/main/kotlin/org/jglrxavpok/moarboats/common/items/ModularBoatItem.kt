@@ -163,7 +163,7 @@ class GrindstoneBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "grindst
     }
 
     override fun getDisplayName(stack: ItemStack): ITextComponent {
-        return TranslationTextComponent("item.moarboats.utility_boat.name", TranslationTextComponent("item.${boatType.getBaseBoatOriginModID()}.${boatType.getFullName()}_boat"), TranslationTextComponent("block.minecraft.grindstone"))
+        return TranslationTextComponent("item.moarboats.utility_boat.name", TranslationTextComponent("item.${boatType.getBaseBoatOriginModID()}.${boatType.getShortName()}_boat"), TranslationTextComponent("block.minecraft.grindstone"))
     }
 }
 

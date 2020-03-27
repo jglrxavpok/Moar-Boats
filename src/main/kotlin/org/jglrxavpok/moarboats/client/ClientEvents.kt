@@ -14,6 +14,7 @@ import net.minecraft.client.gui.ScreenManager
 import net.minecraft.client.gui.screen.inventory.ChestScreen
 import net.minecraft.client.renderer.Quaternion
 import net.minecraft.client.renderer.RenderType
+import net.minecraft.client.renderer.RenderTypeLookup
 import net.minecraft.client.renderer.Vector3f
 import net.minecraft.client.renderer.entity.PlayerRenderer
 import net.minecraft.client.renderer.entity.model.PlayerModel
@@ -53,6 +54,9 @@ import org.jglrxavpok.moarboats.client.models.ModelPatreonHook
 import org.jglrxavpok.moarboats.client.renders.*
 import org.jglrxavpok.moarboats.common.EntityEntries
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
+import org.jglrxavpok.moarboats.common.blocks.BlockCargoStopper
+import org.jglrxavpok.moarboats.common.blocks.BlockWaterborneComparator
+import org.jglrxavpok.moarboats.common.blocks.BlockWaterborneConductor
 import org.jglrxavpok.moarboats.common.containers.ContainerTypes
 import org.jglrxavpok.moarboats.common.data.MapImageStripe
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
@@ -200,6 +204,10 @@ object ClientEvents {
         MoarBoats.plugins.forEach {
             it.registerModuleRenderers(BoatModuleRenderingRegistry)
         }
+
+        RenderTypeLookup.setRenderLayer(BlockCargoStopper, RenderType.getCutoutMipped())
+        RenderTypeLookup.setRenderLayer(BlockWaterborneConductor, RenderType.getCutoutMipped())
+        RenderTypeLookup.setRenderLayer(BlockWaterborneComparator, RenderType.getCutoutMipped())
     }
 
     private fun <T: UtilityBoatEntity<*,*>> registerUtilityBoat(entityType: EntityType<T>, blockstateProvider: (T) -> BlockState) {

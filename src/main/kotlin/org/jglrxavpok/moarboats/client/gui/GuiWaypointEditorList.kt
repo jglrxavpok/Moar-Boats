@@ -4,11 +4,9 @@ import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.widget.list.ExtendedList
-import net.minecraft.client.renderer.Tessellator
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.Util
 import org.jglrxavpok.moarboats.client.drawModalRectWithCustomSizedTexture
-import org.jglrxavpok.moarboats.client.gui.elements.GuiToolButton
 import org.jglrxavpok.moarboats.integration.IWaypointProvider
 import org.jglrxavpok.moarboats.integration.WaypointInfo
 import org.jglrxavpok.moarboats.integration.WaypointProviders
@@ -42,7 +40,7 @@ class WaypointInfoEntry(val parent: GuiWaypointEditor, val slot: WaypointInfo, v
         GlStateManager.scaled(arrowScale, arrowScale, arrowScale)
         RenderSystem.enableAlphaTest()
         RenderSystem.enableBlend()
-        drawModalRectWithCustomSizedTexture(0, 0, 32f/256f, (hovered*32)/256f,  32, 32, 256, 256)
+        drawModalRectWithCustomSizedTexture(0, 0, 32f, hovered*32f,  32, 32, 256, 256)
         GlStateManager.popMatrix()
 
         val name = slot.name
@@ -103,6 +101,10 @@ class GuiWaypointEditorList(val mc: Minecraft, val parent: GuiWaypointEditor, wi
         }
     }
 
+    override fun renderHoleBackground(p_renderHoleBackground_1_: Int, p_renderHoleBackground_2_: Int, p_renderHoleBackground_3_: Int, p_renderHoleBackground_4_: Int) {
+
+    }
+
     override fun renderBackground() {
         blit(left, top, right, bottom, 0, 0)
     }
@@ -130,6 +132,10 @@ class GuiWaypointEditorList(val mc: Minecraft, val parent: GuiWaypointEditor, wi
 
     override fun getWidth(): Int {
         return width
+    }
+
+    override fun getScrollbarPosition(): Int {
+        return right
     }
 
     fun isNotEmpty() = waypoints.isNotEmpty()
