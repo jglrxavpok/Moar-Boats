@@ -44,6 +44,7 @@ import org.jglrxavpok.moarboats.api.BoatModuleEntry
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.api.registerModule
 import org.jglrxavpok.moarboats.client.ClientEvents
+import org.jglrxavpok.moarboats.client.DummyDimensionSavedDataManager
 import org.jglrxavpok.moarboats.common.*
 import org.jglrxavpok.moarboats.common.blocks.*
 import org.jglrxavpok.moarboats.common.containers.*
@@ -171,8 +172,7 @@ object MoarBoats {
                         Supplier { ->
                             when {
                                 Minecraft.getInstance().integratedServer != null /* LAN */ -> Minecraft.getInstance().integratedServer!!.getWorld(dimensionType).savedData
-
-                                else -> throw IllegalStateException("The server instance is neither non-null nor null. Something deeply broke somewhere")
+                                else -> DummyDimensionSavedDataManager
                             }
                         }
                     },
@@ -207,6 +207,7 @@ object MoarBoats {
     }
 
     fun initDedicatedServer(event: FMLDedicatedServerSetupEvent) {
+        dedicatedServerInstance = event.serverSupplier.get()
     }
 
     @KotlinEventBusSubscriber(modid = ModID, bus = KotlinEventBusSubscriber.Bus.MOD)
