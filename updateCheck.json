@@ -29,6 +29,7 @@
     "6.0.0.0": "Port to 1.14.4"
   },
   "1.15.2": {
+    "7.0.0.1": "Fix for crashes on dedicated servers",
     "7.0.0.0": "Port to 1.15.2"
   },
   "promos": {
