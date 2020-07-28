@@ -47,10 +47,10 @@ class GuiDispenserModule(containerID: Int, playerInv: PlayerInventory, module: B
         MoarBoats.network.sendToServer(CChangeDispenserPeriod(boat.entityID, module.id, periodSlider.value))
     }
 
-    override fun init() {
-        super.init()
+    override fun func_231160_c_() {
+        super.func_231160_c_()
         val sliderWidth = width-10
-        periodSlider = Slider(guiLeft+width/2-sliderWidth/2, guiTop + 100, sliderWidth, 20, "${sliderPrefix.formattedText} ", sliderSuffix.formattedText, 1.0, 100.0, 0.0, true, true, sliderCallback)
+        periodSlider = Slider(guiLeft+width/2-sliderWidth/2, guiTop + 100, sliderWidth, 20, "${sliderPrefix} ", sliderSuffix, 1.0, 100.0, 0.0, true, true, sliderCallback)
         periodSlider.value = dispensingModule.blockPeriodProperty[boat]
         addButton(periodSlider)
 
@@ -86,18 +86,18 @@ class GuiDispenserModule(containerID: Int, playerInv: PlayerInventory, module: B
     override fun drawModuleForeground(mouseX: Int, mouseY: Int) {
         val maxX = 78
         val startY = 26
-        val topWidth = font.getStringWidth(topRowText.formattedText)
-        drawString(font, topRowText.formattedText, maxX - topWidth, startY, 0xF0F0F0)
+        val topWidth = font.getStringWidth(topRowText)
+        drawString(font, topRowText, maxX - topWidth, startY, 0xF0F0F0)
 
-        val middleWidth = font.getStringWidth(middleRowText.formattedText)
-        drawString(font, middleRowText.formattedText, maxX - middleWidth, startY + 20, 0xF0F0F0)
+        val middleWidth = font.getStringWidth(middleRowText)
+        drawString(font, middleRowText, maxX - middleWidth, startY + 20, 0xF0F0F0)
 
-        val bottomWidth = font.getStringWidth(bottomRowText.formattedText)
-        drawString(font, bottomRowText.formattedText, maxX - bottomWidth, startY + 40, 0xF0F0F0)
+        val bottomWidth = font.getStringWidth(bottomRowText)
+        drawString(font, bottomRowText, maxX - bottomWidth, startY + 40, 0xF0F0F0)
 
-        drawCenteredString(font, periodText.formattedText, 88, 90, 0xF0F0F0)
+        drawCenteredString(font, periodText, 88, 90, 0xF0F0F0)
 
-        drawCenteredString(font, orientationText.formattedText, 32, 25, 0xF0F0F0)
+        drawCenteredString(font, orientationText, 32, 25, 0xF0F0F0)
     }
 
 }

@@ -1,6 +1,8 @@
 package org.jglrxavpok.moarboats.client.gui.elements
 
-open class GuiPropertyButton(val propertyRenderingInfo: List<Pair<String, Int>>, pressable: IPressable):
+import net.minecraft.util.text.ITextComponent
+
+open class GuiPropertyButton(val propertyRenderingInfo: List<Pair<ITextComponent, Int>>, pressable: IPressable):
         GuiToolButton(propertyRenderingInfo[0].first, propertyRenderingInfo[0].second, pressable) {
 
     var propertyIndex = 0

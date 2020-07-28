@@ -11,6 +11,7 @@ import net.minecraft.item.Items
 import net.minecraft.item.MusicDiscItem
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.tileentity.JukeboxTileEntity
+import net.minecraft.util.ActionResultType
 import net.minecraft.util.Hand
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.vector.Vector3d
@@ -52,11 +53,11 @@ class JukeboxBoatEntity(world: World): UtilityBoatEntity<JukeboxTileEntity, Empt
         super.tick()
     }
 
-    override fun processInitialInteract(player: PlayerEntity, hand: Hand): Boolean {
-        if (super.processInitialInteract(player, hand))
-            return true
+    override fun processInitialInteract(player: PlayerEntity, hand: Hand): ActionResultType {
+        if (super.processInitialInteract(player, hand) == ActionResultType.SUCCESS)
+            return ActionResultType.SUCCESS
         if (world.isRemote)
-            return true
+            return ActionResultType.SUCCESS
 
         if(player is ServerPlayerEntity) {
             val heldItem = player.getHeldItem(hand)
@@ -65,16 +66,14 @@ class JukeboxBoatEntity(world: World): UtilityBoatEntity<JukeboxTileEntity, Empt
                 if(!player.isCreative) {
                     heldItem.shrink(1)
                 }
-                println(">> adding $record")
-                return true
+                return ActionResultType.SUCCESS
             } else {
                 if(hasRecord) {
-                    println(">> removing $record")
                     ejectRecord()
                 }
             }
         }
-        return false
+        return ActionResultType.FAIL
     }
 
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {

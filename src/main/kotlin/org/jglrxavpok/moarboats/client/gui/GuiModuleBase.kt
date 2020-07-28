@@ -40,10 +40,10 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
     // used for rendering
     protected val matrixStack = MatrixStack()
 
-    override fun init() {
+    override fun func_231160_c_() {
         this.xSize = computeSizeX()
         this.ySize = computeSizeY()
-        super.init()
+        super.func_231160_c_()
         tabs.clear()
         val guiX = getGuiLeft()
         val guiY = getGuiTop()

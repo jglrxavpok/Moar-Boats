@@ -3,6 +3,7 @@ package org.jglrxavpok.moarboats.common.modules
 import net.minecraft.block.Blocks
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.client.gui.screen.Screen
+import net.minecraft.entity.player.ServerPlayerEntity
 import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
@@ -103,7 +104,7 @@ object AnchorModule: BoatModule(), BlockReason {
         return GuiAnchorModule(containerID, player.inventory, this, boat)
     }
 
-    fun deploy(boat: IControllable, player: PlayerEntity) {
+    fun deploy(boat: IControllable, player: ServerPlayerEntity) {
         val deployed = deployedProperty[boat]
         if(deployed) {
             anchorDirectionProperty[boat] = 1
@@ -116,7 +117,7 @@ object AnchorModule: BoatModule(), BlockReason {
             anchorYProperty[boat] = boat.positionY
             anchorZProperty[boat] = boat.positionZ
             player.sendStatusMessage(spawnPointSet, true)
-            player.setSpawnPoint(boat.correspondingEntity.positionVec, true, true, player.dimension)
+            player.func_241153_a_(player.func_241141_L_(), BlockPos(boat.correspondingEntity.positionVec), true, true)
         }
     }
 

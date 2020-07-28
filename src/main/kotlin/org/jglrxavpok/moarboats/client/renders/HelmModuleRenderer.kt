@@ -1,19 +1,18 @@
 package org.jglrxavpok.moarboats.client.renders
 
 import com.mojang.blaze3d.matrix.MatrixStack
-import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.IVertexBuilder
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.*
+import net.minecraft.client.renderer.IRenderTypeBuffer
+import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.entity.EntityRendererManager
 import net.minecraft.client.renderer.model.ModelRenderer
 import net.minecraft.client.renderer.texture.OverlayTexture
-import net.minecraft.item.FilledMapItem
-import net.minecraft.item.FilledMapItem.getMapData
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.nbt.ListNBT
 import net.minecraft.util.ResourceLocation
+import net.minecraft.util.math.vector.Quaternion
 import net.minecraft.world.storage.MapData
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
@@ -24,9 +23,7 @@ import org.jglrxavpok.moarboats.client.models.ModelHelm
 import org.jglrxavpok.moarboats.common.data.LoopingOptions
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.items.HelmItem
-import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import org.jglrxavpok.moarboats.common.items.ItemPath
-import org.jglrxavpok.moarboats.common.items.MapItemWithPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 import org.jglrxavpok.moarboats.extensions.toRadians
 import org.lwjgl.glfw.GLFW.glfwGetTime

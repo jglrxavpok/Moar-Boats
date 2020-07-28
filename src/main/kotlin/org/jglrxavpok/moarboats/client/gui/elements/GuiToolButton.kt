@@ -6,9 +6,10 @@ import net.minecraft.client.gui.AbstractGui
 import net.minecraft.client.gui.widget.Widget
 import net.minecraft.client.gui.widget.button.Button
 import net.minecraft.util.ResourceLocation
+import net.minecraft.util.text.ITextComponent
 import org.jglrxavpok.moarboats.MoarBoats
 
-open class GuiToolButton(var text: String, var toolIconIndex: Int, val pressable: IPressable):
+open class GuiToolButton(var text: ITextComponent, var toolIconIndex: Int, val pressable: IPressable):
         Button(0, 0, 20, 20, "", pressable) {
 
     companion object {

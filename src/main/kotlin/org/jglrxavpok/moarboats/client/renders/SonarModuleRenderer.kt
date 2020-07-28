@@ -55,7 +55,7 @@ object SonarModuleRenderer : BoatModuleRenderer() {
                         val angle = atan2(gradientVal.y, gradientVal.x)
                         matrixStack.rotate(Quaternion(0f, angle.toFloat(), 0f, false))
                         matrixStack.scale(0.1f, 0.1f, gradientVal.length().toFloat() * 0.1f)
-                        if(!potentialState.isEmpty) {
+                        if(!potentialState.fluidState.isEmpty) {
                             renderBlockState(matrixStack, buffers, packedLightIn, entityRendererManager, Blocks.EMERALD_BLOCK.defaultState, boat.brightness)
                         }
                         matrixStack.pop()

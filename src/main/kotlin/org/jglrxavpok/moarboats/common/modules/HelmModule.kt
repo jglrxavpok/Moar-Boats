@@ -240,7 +240,6 @@ object HelmModule: BoatModule(), BlockReason {
         val pos = overridingWaypointPos[boat]
         val dx = pos.x - boat.positionX
         val dz = pos.z - boat.positionZ
-        pos.close()
         if(dx*dx+dz*dz < MaxDistanceToWaypointSquared) {
             overrideWaypoint[boat] = false
             return true
@@ -275,7 +274,7 @@ object HelmModule: BoatModule(), BlockReason {
 
             overrideWaypoint[boat] = true
             val pos = overridingWaypointPos[boat]
-            pos.setBlockPos(closest.getInt("x"), 0, closest.getInt("z"))
+            pos.setPos(closest.getInt("x"), 0, closest.getInt("z"))
         }
     }
 

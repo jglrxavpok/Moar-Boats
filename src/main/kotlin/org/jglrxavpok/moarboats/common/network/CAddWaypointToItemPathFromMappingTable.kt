@@ -40,7 +40,6 @@ class CAddWaypointToItemPathFromMappingTable: CxxAddWaypointToItemPath {
                         null
                     }
                 }
-                pos.close()
                 return stack
             }
         }

@@ -23,8 +23,8 @@ class GuiRudderModule(containerID: Int, playerInventory: PlayerInventory, anchor
     val notBlockingText = TranslationTextComponent("moarboats.gui.rudder.nonblocking")
     val rudder = module as RudderModule
 
-    override fun init() {
-        super.init()
+    override fun func_231160_c_() {
+        super.func_231160_c_()
         blockButton.x = guiLeft + xSize / 2 - 70
         blockButton.y = guiTop + 30
         addButton(blockButton)

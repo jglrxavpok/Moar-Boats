@@ -3,6 +3,7 @@ package org.jglrxavpok.moarboats.client.gui
 import net.minecraft.client.gui.widget.button.Button
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.util.ResourceLocation
+import net.minecraft.util.text.StringTextComponent
 import net.minecraft.util.text.TranslationTextComponent
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
@@ -16,7 +17,7 @@ class GuiAnchorModule(containerID: Int, playerInventory: PlayerInventory, anchor
 
     override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/nothing.png")
 
-    val deployButton = Button(0,0, 140, 20, "") {
+    val deployButton = Button(0,0, 140, 20, StringTextComponent("")) {
         MoarBoats.network.sendToServer(CDeployAnchor(boat.entityID, module.id))
     }
     val deployedText = TranslationTextComponent("gui.anchor.deployed")
@@ -25,8 +26,8 @@ class GuiAnchorModule(containerID: Int, playerInventory: PlayerInventory, anchor
     val descText = TranslationTextComponent("gui.anchor.desc")
     val anchor = module as AnchorModule
 
-    override fun init() {
-        super.init()
+    override fun func_231160_c_() {
+        super.func_231160_c_()
         deployButton.x = guiLeft+width/2-70
         deployButton.y = guiTop+20
         addButton(deployButton)
@@ -35,18 +36,18 @@ class GuiAnchorModule(containerID: Int, playerInventory: PlayerInventory, anchor
     override fun tick() {
         super.tick()
         if(anchor.anchorDirectionProperty[boat] != 0) {
-            deployButton.message = movingAnchorText.formattedText
+            deployButton.message = movingAnchorText
             deployButton.active = false
         } else {
             val deployText = if(anchor.deployedProperty[boat]) deployedText else undeployedText
-            deployButton.message = deployText.formattedText
+            deployButton.message = deployText
             deployButton.active = true
         }
     }
 
     override fun drawModuleForeground(mouseX: Int, mouseY: Int) {
         super.drawModuleForeground(mouseX, mouseY)
-        font.drawSplitString(descText.formattedText, 0+20, 0+50, width-40, 0xF0F0F0)
+        font.drawSplitString(descText, 0+20, 0+50, width-40, 0xF0F0F0)
     }
 
 }

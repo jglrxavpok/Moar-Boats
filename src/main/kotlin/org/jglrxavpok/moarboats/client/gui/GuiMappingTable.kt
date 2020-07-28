@@ -41,7 +41,7 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
     private val propertyOneWayText = TranslationTextComponent("gui.path_editor.path_properties.one_way")
     private val propertyReverseCourseText = TranslationTextComponent("gui.path_editor.path_properties.reverse_course")
     private var buttonId = 0
-    private val addWaypointButton = Button(0, 0, 150, 20, addWaypointText.formattedText) {
+    private val addWaypointButton = Button(0, 0, 150, 20, addWaypointText) {
         waypointToEditAfterCreation = list.children().size
         if(container.getSlot(0).stack.item == ItemGoldenTicket) {
             MoarBoats.network.sendToServer(CAddWaypointToGoldenTicketFromMappingTable(te.pos, null, null, te))
@@ -49,7 +49,7 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
             MoarBoats.network.sendToServer(CAddWaypointToItemPathFromMappingTable(te.pos, null, null, te))
         }
     }
-    private val insertWaypointButton = Button(0, 0, 150, 20, insertWaypointText.formattedText) {
+    private val insertWaypointButton = Button(0, 0, 150, 20, insertWaypointText) {
         waypointToEditAfterCreation = selectedIndex+1
         if(container.getSlot(0).stack.item == ItemGoldenTicket) {
             MoarBoats.network.sendToServer(CAddWaypointToGoldenTicketFromMappingTable(te.pos, null, selectedIndex, te))
@@ -57,17 +57,17 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
             MoarBoats.network.sendToServer(CAddWaypointToItemPathFromMappingTable(te.pos, null, selectedIndex, te))
         }
     }
-    private val editWaypointButton = Button(0, 0, 150, 20, editWaypointText.formattedText) {
+    private val editWaypointButton = Button(0, 0, 150, 20, editWaypointText) {
         edit(selectedIndex)
     }
-    private val removeWaypointButton = Button(0, 0, 150, 20, removeWaypointText.formattedText) {
+    private val removeWaypointButton = Button(0, 0, 150, 20, removeWaypointText) {
         if(container.getSlot(0).stack.item == ItemGoldenTicket) {
             MoarBoats.network.sendToServer(CRemoveWaypointFromGoldenTicketFromMappingTable(selectedIndex, te))
         } else {
             MoarBoats.network.sendToServer(CRemoveWaypointFromMapWithPathFromMappingTable(selectedIndex, te))
         }
     }
-    private val loopingButton = GuiPropertyButton(listOf(Pair(propertyOneWayText.formattedText, 3), Pair(propertyLoopingText.formattedText, 2), Pair(propertyReverseCourseText.formattedText, 4)), Button.IPressable {
+    private val loopingButton = GuiPropertyButton(listOf(Pair(propertyOneWayText, 3), Pair(propertyLoopingText, 2), Pair(propertyReverseCourseText, 4)), Button.IPressable {
         MoarBoats.network.sendToServer(CChangeLoopingStateItemPathMappingTable(LoopingOptions.values()[(it as GuiPropertyButton).propertyIndex], te))
     })
     private val controls = listOf(addWaypointButton, insertWaypointButton, editWaypointButton, removeWaypointButton)
@@ -79,9 +79,9 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
     var selectedIndex: Int = 0
         private set
 
-    override fun init() {
+    override fun func_231160_c_() {
         this.ySize = 114 + 6 * 18
-        super.init()
+        super.func_231160_c_()
         val totalWidth = xSize*.90f
         val xStart = (xSize-totalWidth)/2f+guiLeft
         val listWidth = totalWidth.toInt()

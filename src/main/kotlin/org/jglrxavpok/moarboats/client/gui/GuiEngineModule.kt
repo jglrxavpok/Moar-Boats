@@ -63,8 +63,8 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
         }
     }
 
-    override fun init() {
-        super.init()
+    override fun func_231160_c_() {
+        super.func_231160_c_()
         lockInPlaceButton.x = guiLeft + xSize - lockInPlaceButton.width - 5
         lockInPlaceButton.y = guiTop + 5
         addButton(lockInPlaceButton)
@@ -85,7 +85,7 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
 
     override fun renderHoveredToolTip(mouseX: Int, mouseY: Int) {
         when {
-            lockInPlaceButton.isMouseOver(mouseX.toDouble(), mouseY.toDouble()) -> renderTooltip(lockText.formattedText, mouseX, mouseY)
+            lockInPlaceButton.isMouseOver(mouseX.toDouble(), mouseY.toDouble()) -> renderTooltip(lockText, mouseX, mouseY)
             else -> super.renderHoveredToolTip(mouseX, mouseY)
         }
     }
@@ -97,7 +97,7 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
 
 
         val infoY = 26
-        font.drawCenteredString(remainingCurrentItem.formattedText, 88, infoY, 0xFFFFFFFF.toInt(), shadow = true)
+        font.drawCenteredString(remainingCurrentItem, 88, infoY, 0xFFFFFFFF.toInt(), shadow = true)
 
         mc.textureManager.bindTexture(barsTexture)
         val barIndex = 4
@@ -105,22 +105,22 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
         val x = xSize/2f - barSize/2f
         drawBar(x, infoY+10f, barIndex, barSize, fill = if(remaining.isFinite()) remaining else 1f)
         if(estimatedTime.isInfinite()) {
-            font.drawCenteredString(estimatedTimeText.formattedText, 88, infoY+18, 0xFFF0F0F0.toInt(), shadow = true)
-            font.drawCenteredString(foreverText.formattedText, 88, infoY+28, 0xFF50A050.toInt())
+            font.drawCenteredString(estimatedTimeText, 88, infoY+18, 0xFFF0F0F0.toInt(), shadow = true)
+            font.drawCenteredString(foreverText, 88, infoY+28, 0xFF50A050.toInt())
         } else if(!estimatedTime.isNaN()) {
-            font.drawCenteredString(estimatedTimeText.formattedText, 88, infoY+18, 0xFFF0F0F0.toInt(), shadow = true)
+            font.drawCenteredString(estimatedTimeText, 88, infoY+18, 0xFFF0F0F0.toInt(), shadow = true)
             font.drawCenteredString("${estimatedTime.toInt()}s", 88, infoY+28, 0xFF50A050.toInt())
         }
         renderBlockReason(infoY+38)
-        font.drawCenteredString(speedSetting.formattedText, 88, infoY+52, 0xFFF0F0F0.toInt(), shadow = true)
+        font.drawCenteredString(speedSetting, 88, infoY+52, 0xFFF0F0F0.toInt(), shadow = true)
 //        if(boat.isSpeedImposed()) {
-            font.drawCenteredString(imposedSpeedText("${(boat.imposedSpeed * 100.0).toInt()}").formattedText, 88, infoY+42, 0xFFFFFF, shadow=true)
+            font.drawCenteredString(imposedSpeedText("${(boat.imposedSpeed * 100.0).toInt()}"), 88, infoY+42, 0xFFFFFF, shadow=true)
   //      }
 
         when {
-            speedSlider.valueInt == -50 -> font.drawCenteredString(minimumSpeedText.formattedText, 88, infoY + 70 + speedSlider.height, 0xFF0000F0.toInt())
-            speedSlider.valueInt == 50 -> font.drawCenteredString(maximumSpeedText.formattedText, 88, infoY + 70 + speedSlider.height, 0xFF0000F0.toInt())
-            speedSlider.valueInt == 0 -> font.drawCenteredString(normalSpeedText.formattedText, 88, infoY + 70 + speedSlider.height, 0xFF0000F0.toInt())
+            speedSlider.valueInt == -50 -> font.drawCenteredString(minimumSpeedText, 88, infoY + 70 + speedSlider.height, 0xFF0000F0.toInt())
+            speedSlider.valueInt == 50 -> font.drawCenteredString(maximumSpeedText, 88, infoY + 70 + speedSlider.height, 0xFF0000F0.toInt())
+            speedSlider.valueInt == 0 -> font.drawCenteredString(normalSpeedText, 88, infoY + 70 + speedSlider.height, 0xFF0000F0.toInt())
         }
 
         renderSpeedIcon(0, 5, infoY + 40 + speedSlider.height)
@@ -130,14 +130,14 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
     private fun renderBlockReason(y: Int) {
         when(boat.blockedReason) {
             NoBlockReason -> {}
-            BlockedByRedstone -> renderPrettyReason(y, lockedByRedstone.formattedText, RedstoneDustStack)
+            BlockedByRedstone -> renderPrettyReason(y, lockedByRedstone, RedstoneDustStack)
             else -> {
                 if(boat.blockedReason is BoatModule) {
                     val blockingModule = boat.blockedReason as BoatModule
                     val itemstack = ItemStack(BoatModuleRegistry[blockingModule.id].correspondingItem)
-                    renderPrettyReason(y, blockedByModuleText.formattedText, itemstack)
+                    renderPrettyReason(y, blockedByModuleText, itemstack)
                 } else {
-                    font.drawCenteredString(unknownBlockReasonText(boat.blockedReason.toString()).formattedText, 88, y, 0xFF0000)
+                    font.drawCenteredString(unknownBlockReasonText(boat.blockedReason.toString()), 88, y, 0xFF0000)
                 }
             }
         }
