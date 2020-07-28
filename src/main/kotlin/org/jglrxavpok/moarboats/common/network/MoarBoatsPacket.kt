@@ -127,7 +127,7 @@ interface MoarBoatsPacket {
                 ListNBT::class.java -> {
                     val container = CompoundNBT()
                     val list = value as ListNBT
-                    container.putInt("nbt_type", list.tagType)
+                    container.putInt("nbt_type", list.func_230528_d__().toInt())
                     container.put("_", list)
                     buffer.writeCompoundTag(container)
                 }

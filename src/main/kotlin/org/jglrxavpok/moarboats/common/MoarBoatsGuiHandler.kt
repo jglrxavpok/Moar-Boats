@@ -1,28 +1,22 @@
 package org.jglrxavpok.moarboats.common
 
-import net.minecraft.client.Minecraft
-import net.minecraft.client.entity.player.ClientPlayerEntity
-import net.minecraft.client.gui.screen.Screen
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.inventory.container.Container
+import net.minecraft.inventory.container.INamedContainerProvider
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.TranslationTextComponent
-import net.minecraft.inventory.container.INamedContainerProvider
-import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.StringTextComponent
-import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraft.util.text.TranslationTextComponent
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler
-import net.minecraftforge.fml.network.FMLPlayMessages
 import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.client.gui.GuiEnergy
-import org.jglrxavpok.moarboats.client.gui.GuiMappingTable
-import org.jglrxavpok.moarboats.common.containers.*
+import org.jglrxavpok.moarboats.common.containers.ContainerMappingTable
+import org.jglrxavpok.moarboats.common.containers.ContainerTypes
+import org.jglrxavpok.moarboats.common.containers.EnergyContainer
+import org.jglrxavpok.moarboats.common.containers.FluidContainer
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.tileentity.*
-import org.jglrxavpok.moarboats.extensions.use
 
 object MoarBoatsGuiHandler {
 
@@ -42,13 +36,15 @@ object MoarBoatsGuiHandler {
     }
 
     open class TileEntityInteraction<TE: TileEntity>(val identifier: String, val x: Int, val y: Int, val z: Int, val containerGenerator: (Int, TileEntity?, PlayerInventory, PlayerEntity) -> Container? = { _0, _1, _2, _3 -> null }): INamedContainerProvider {
+        private val blockPos = BlockPos.Mutable()
+
         override fun getDisplayName(): ITextComponent {
             return TranslationTextComponent("${MoarBoats.ModID}.inventory.$identifier.name")
         }
 
         override fun createMenu(containerID: Int, playerInventory: PlayerInventory, playerIn: PlayerEntity): Container? {
-            return BlockPos.PooledMutable.retain(x, y, z).use {
-                val te = playerIn.world.getTileEntity(it) as? TE
+            return blockPos.setPos(x,y, z).run {
+                val te = playerIn.world.getTileEntity(this) as? TE
                 if(te != null) {
                     containerGenerator(containerID, te, playerInventory, playerIn)
                 } else {

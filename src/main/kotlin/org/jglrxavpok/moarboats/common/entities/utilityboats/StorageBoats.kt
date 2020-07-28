@@ -14,7 +14,7 @@ import net.minecraft.nbt.CompoundNBT
 import net.minecraft.tileentity.ChestTileEntity
 import net.minecraft.tileentity.ShulkerBoxTileEntity
 import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.math.Vec3d
+import net.minecraft.util.math.vector.Vector3d
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.TranslationTextComponent
 import net.minecraft.world.World
@@ -31,7 +31,7 @@ class ChestBoatEntity(world: World): UtilityBoatEntity<ChestTileEntity, UtilityC
 
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
         this.setPosition(x, y, z)
-        this.motion = Vec3d.ZERO
+        this.motion = Vector3d.ZERO
         this.prevPosX = x
         this.prevPosY = y
         this.prevPosZ = z
@@ -73,7 +73,7 @@ class ShulkerBoatEntity(world: World): UtilityBoatEntity<ShulkerBoxTileEntity, U
     constructor(color: DyeColor?, level: World, x: Double, y: Double, z: Double): this(level) {
         this.dyeColor = color
         this.setPosition(x, y, z)
-        this.motion = Vec3d.ZERO
+        this.motion = Vector3d.ZERO
         this.prevPosX = x
         this.prevPosY = y
         this.prevPosZ = z
@@ -137,7 +137,7 @@ class EnderChestBoatEntity(world: World): UtilityBoatEntity<TileEntity, ChestCon
 
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
         this.setPosition(x, y, z)
-        this.motion = Vec3d.ZERO
+        this.motion = Vector3d.ZERO
         this.prevPosX = x
         this.prevPosY = y
         this.prevPosZ = z

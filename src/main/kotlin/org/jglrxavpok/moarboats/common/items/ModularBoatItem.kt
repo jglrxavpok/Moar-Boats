@@ -7,6 +7,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.stats.Stats
 import net.minecraft.util.*
 import net.minecraft.util.math.*
+import net.minecraft.util.math.vector.Vector3d
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.TranslationTextComponent
 import net.minecraft.world.World
@@ -230,7 +231,7 @@ class ShulkerBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "shulker") 
     override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
         return ShulkerBoatEntity(DyeColor.byTranslationKey(itemstack.getOrCreateChildTag("AdditionalData").getString("Color"), null), levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z)
                 .apply { boatType = this@ShulkerBoatItem.boatType }
-                .apply { getBackingTileEntity()!!.read(itemstack.getOrCreateChildTag("AdditionalData").getCompound("TileEntityData")) }
+                .apply { getBackingTileEntity()!!.deserializeNBT(itemstack.getOrCreateChildTag("AdditionalData").getCompound("TileEntityData")) }
     }
 
     override fun getContainerDisplayName(): ITextComponent {
@@ -302,7 +303,7 @@ abstract class BaseBoatItem(propertiesModifier: Item.Properties.() -> Unit = {})
         val d0 = playerIn.prevPosX + (playerIn.posX - playerIn.prevPosX) * 1.0
         val d1 = playerIn.prevPosY + (playerIn.posY - playerIn.prevPosY) * 1.0 + playerIn.getEyeHeight().toDouble()
         val d2 = playerIn.prevPosZ + (playerIn.posZ - playerIn.prevPosZ) * 1.0
-        val vec3d = Vec3d(d0, d1, d2)
+        val vec3d = Vector3d(d0, d1, d2)
         val f3 = MathHelper.cos(-f2 * 0.017453292f - Math.PI.toFloat())
         val f4 = MathHelper.sin(-f2 * 0.017453292f - Math.PI.toFloat())
         val f5 = -MathHelper.cos(-f1 * 0.017453292f)

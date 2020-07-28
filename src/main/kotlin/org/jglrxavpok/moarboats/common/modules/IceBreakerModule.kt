@@ -36,7 +36,7 @@ object IceBreakerModule: BoatModule() {
                 .offset(-from.positionX, -from.positionY - .75f, -from.positionZ)
                 .expand(1.0, 1.0, 1.0)
         val collidedBB = level.getCollisionShapes(from.correspondingEntity, bb, Collections.emptySet())
-        val blockPos = BlockPos.PooledMutable.retain()
+        val blockPos = BlockPos.Mutable()
         for(box in collidedBB) {
             val center = box.boundingBox.getCenterForAllSides()
             blockPos.setPos(center.x, center.y, center.z)
@@ -58,7 +58,6 @@ object IceBreakerModule: BoatModule() {
         clearNotUpdatedFor(from, 20)
 
         from.saveState()
-        blockPos.close()
     }
 
     private fun getBlockIndex(boat: IControllable, pos: BlockPos): Int {
@@ -78,7 +77,7 @@ object IceBreakerModule: BoatModule() {
 
     private fun clearNotUpdatedFor(boat: IControllable, ticks: Int) {
         val state = boat.getState()
-        val pos = BlockPos.PooledMutable.retain()
+        val pos = BlockPos.Mutable()
         val keys = state.keySet().toList() // avoid ConcurrentModifException by copying the list
         for(key in keys) {
             if("Timestamp" in key) {
@@ -94,7 +93,6 @@ object IceBreakerModule: BoatModule() {
                 }
             }
         }
-        pos.close()
     }
 
     private fun clearBreakProgress(boat: IControllable, pos: BlockPos) {

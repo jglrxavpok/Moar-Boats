@@ -36,7 +36,6 @@ object BlockEnergyUnloader: MoarBoatsBlock() {
         builder.add(Facing)
     }
 
-    override fun hasTileEntity() = true
     override fun hasTileEntity(state: BlockState) = true
 
     override fun createTileEntity(state: BlockState?, world: IBlockReader?): TileEntity? {

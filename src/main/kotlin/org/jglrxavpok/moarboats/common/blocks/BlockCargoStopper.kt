@@ -5,6 +5,7 @@ import net.minecraft.block.material.Material
 import net.minecraft.block.BlockState
 import net.minecraft.entity.LivingEntity
 import net.minecraft.item.ItemStack
+import net.minecraft.loot.LootContext
 import net.minecraft.state.StateContainer
 import net.minecraft.tags.FluidTags
 import net.minecraft.util.Direction
@@ -19,7 +20,6 @@ import net.minecraft.world.IBlockReader
 import net.minecraft.world.IWorldReader
 import net.minecraft.world.World
 import net.minecraft.world.server.ServerWorld
-import net.minecraft.world.storage.loot.LootContext
 import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.IItemHandler
 import org.jglrxavpok.moarboats.MoarBoats
@@ -27,7 +27,7 @@ import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.items.CargoStopperItem
 import java.util.*
 
-object BlockCargoStopper: RedstoneDiodeBlock(Block.Properties.create(Material.MISCELLANEOUS).notSolid().tickRandomly().hardnessAndResistance(0f).sound(SoundType.WOOD)) {
+object BlockCargoStopper: RedstoneDiodeBlock(Properties.create(Material.MISCELLANEOUS).notSolid().tickRandomly().hardnessAndResistance(0f).sound(SoundType.WOOD)) {
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "cargo_stopper")
         this.defaultState = stateContainer.baseState.with(HorizontalBlock.HORIZONTAL_FACING, Direction.NORTH).with(POWERED, false)

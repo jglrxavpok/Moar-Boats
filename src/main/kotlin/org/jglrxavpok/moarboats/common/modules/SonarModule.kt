@@ -5,7 +5,7 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.util.Hand
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
-import net.minecraft.util.math.Vec3d
+import net.minecraft.util.math.vector.Vector3d
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
@@ -36,10 +36,10 @@ object SonarModule: BoatModule() {
         val yawRad = (from.yaw).toRadians()
         val speed = Math.sqrt(from.velocityX*from.velocityX+from.velocityZ*from.velocityZ)
         if(speed > 0.01) {
-            val force = Vec3d(-localGradient.x.toDouble(), 0.0, -localGradient.y.toDouble())
+            val force = Vector3d(-localGradient.x.toDouble(), 0.0, -localGradient.y.toDouble())
             val cos = MathHelper.cos(yawRad).toDouble()
             val sin = MathHelper.sin(yawRad).toDouble()
-            val r = Vec3d(cos, 0.0, sin)
+            val r = Vector3d(cos, 0.0, sin)
             val moment = r.crossProduct(force)
             val angularRotation = (moment.y) / speed
             val rotationMultiplier = angularRotation.toFloat().toDegrees() / 500f

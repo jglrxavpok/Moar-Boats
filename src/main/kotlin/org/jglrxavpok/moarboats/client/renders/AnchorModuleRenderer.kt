@@ -1,12 +1,13 @@
 package org.jglrxavpok.moarboats.client.renders
 
 import com.mojang.blaze3d.matrix.MatrixStack
-import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.block.Blocks
-import net.minecraft.client.renderer.*
+import net.minecraft.client.renderer.IRenderTypeBuffer
+import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.entity.EntityRendererManager
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.util.math.MathHelper
+import net.minecraft.util.math.vector.Quaternion
+import net.minecraft.util.math.vector.Vector3f
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.client.pos
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity

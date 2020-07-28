@@ -26,8 +26,6 @@ object BlockMappingTable: MoarBoatsBlock({ sound(SoundType.STONE).hardnessAndRes
         registryName = ResourceLocation(MoarBoats.ModID, "mapping_table")
     }
 
-    override fun hasTileEntity() = true
-
     override fun hasTileEntity(state: BlockState) = true
 
     override fun createTileEntity(state: BlockState?, level: IBlockReader?): TileEntity? {

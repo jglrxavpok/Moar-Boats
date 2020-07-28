@@ -1,7 +1,5 @@
 package org.jglrxavpok.moarboats.common.network
 
-import net.minecraft.client.Minecraft
-import net.minecraft.world.dimension.DimensionType
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.fml.network.NetworkEvent
 import org.jglrxavpok.moarboats.client.ClientEvents

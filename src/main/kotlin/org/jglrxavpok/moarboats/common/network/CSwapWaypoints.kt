@@ -32,9 +32,8 @@ class CSwapWaypoints(): MoarBoatsPacket {
             with(message) {
                 val player = ctx.sender!!
                 val level = player.world
-                val pos = BlockPos.PooledMutable.retain(x, y, z)
+                val pos = BlockPos.Mutable(x, y, z)
                 val te = level.getTileEntity(pos)
-                pos.close()
                 return when(te) {
                     is TileEntityMappingTable -> {
                         val stack = te.inventory.getStackInSlot(0)

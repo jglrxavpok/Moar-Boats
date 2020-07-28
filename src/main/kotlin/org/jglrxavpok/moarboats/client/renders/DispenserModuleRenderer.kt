@@ -7,8 +7,8 @@ import net.minecraft.block.Blocks
 import net.minecraft.block.DispenserBlock
 import net.minecraft.block.DropperBlock
 import net.minecraft.client.renderer.IRenderTypeBuffer
-import net.minecraft.client.renderer.Quaternion
-import net.minecraft.client.renderer.Vector3f
+import net.minecraft.util.math.vector.Quaternion
+import net.minecraft.util.math.vector.Vector3f
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.common.modules.DispenserModule

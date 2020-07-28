@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.common.tileentity
 
+import net.minecraft.block.BlockState
 import net.minecraft.inventory.Inventory
 import net.minecraft.inventory.InventoryHelper
 import net.minecraft.inventory.ItemStackHelper
@@ -29,8 +30,8 @@ class TileEntityMappingTable: TileEntity(MoarBoats.TileEntityMappingTableType) {
         return super.write(compound)
     }
 
-    override fun read(compound: CompoundNBT) {
-        super.read(compound)
+    override fun deserializeNBT(state: BlockState, compound: CompoundNBT) {
+        super.deserializeNBT(state, compound)
         val invList = NonNullList.withSize(inventory.sizeInventory, ItemStack.EMPTY)
         ItemStackHelper.loadAllItems(compound, invList)
         inventory.clear()

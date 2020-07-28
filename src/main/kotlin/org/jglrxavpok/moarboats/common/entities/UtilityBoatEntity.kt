@@ -17,11 +17,12 @@ import net.minecraft.item.Items
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.tileentity.ITickableTileEntity
 import net.minecraft.tileentity.TileEntity
+import net.minecraft.util.ActionResultType
 import net.minecraft.util.Direction
 import net.minecraft.util.Hand
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
-import net.minecraft.util.math.Vec3d
+import net.minecraft.util.math.vector.Vector3d
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.TranslationTextComponent
 import net.minecraft.world.World
@@ -112,23 +113,23 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
         }
     }
 
-    override fun processInitialInteract(player: PlayerEntity, hand: Hand): Boolean {
-        if (super.processInitialInteract(player, hand))
-            return true
+    override fun processInitialInteract(player: PlayerEntity, hand: Hand): ActionResultType {
+        if (super.processInitialInteract(player, hand) == ActionResultType.SUCCESS)
+            return ActionResultType.SUCCESS
         if (world.isRemote)
-            return true
+            return ActionResultType.SUCCESS
 
         return openGuiIfPossible(player)
     }
 
-    override fun openGuiIfPossible(player: PlayerEntity): Boolean {
+    override fun openGuiIfPossible(player: PlayerEntity): ActionResultType {
         if(player is ServerPlayerEntity && getContainerType() != ContainerTypes.Empty) {
             NetworkHooks.openGui(player, this) {
                 it.writeInt(entityID)
             }
-            return true
+            return ActionResultType.SUCCESS
         }
-        return false
+        return ActionResultType.FAIL
     }
 
     override fun canFitPassenger(passenger: Entity): Boolean {
@@ -146,7 +147,7 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
     override fun readAdditional(compound: CompoundNBT) {
         super.readAdditional(compound)
         boatType = BoatType.getTypeFromString(compound.getString("boatType"))
-        backingTileEntity?.read(compound.getCompound("backingTileEntity"))
+        backingTileEntity?.deserializeNBT(compound.getCompound("backingTileEntity"))
     }
 
     override fun isValidLiquidBlock(pos: BlockPos) = Fluids.isUsualLiquidBlock(world, pos)
@@ -239,7 +240,7 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
             var f = 0.75f * 0.35f
             val f1 = ((if ( ! this.isAlive) 0.009999999776482582 else this.mountedYOffset) + passenger.yOffset).toFloat()
 
-            val vec3d = Vec3d(f.toDouble(), 0.0, 0.0).rotateYaw(-(this.rotationYaw) * 0.017453292f - Math.PI.toFloat() / 2f)
+            val vec3d = Vector3d(f.toDouble(), 0.0, 0.0).rotateYaw(-(this.rotationYaw) * 0.017453292f - Math.PI.toFloat() / 2f)
             passenger.setPosition(this.posX + vec3d.x, this.posY + f1.toDouble(), this.posZ + vec3d.z)
             passenger.rotationYaw += this.deltaRotation
             passenger.rotationYawHead = passenger.rotationYawHead + this.deltaRotation
@@ -248,7 +249,7 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
     }
 
     fun updateTileEntity(data: CompoundNBT) {
-        backingTileEntity?.read(data)
+        backingTileEntity?.deserializeNBT(data)
     }
 
     fun getBoatType() = boatType

@@ -29,7 +29,7 @@ class CAddWaypointToGoldenTicketFromMappingTable: CxxAddWaypointToItemPath {
 
         override fun getStack(message: CAddWaypointToGoldenTicketFromMappingTable, ctx: NetworkEvent.Context): ItemStack? {
             with(message) {
-                val pos = BlockPos.PooledMutable.retain(tileEntityX, tileEntityY, tileEntityZ)
+                val pos = BlockPos.Mutable(tileEntityX, tileEntityY, tileEntityZ)
                 val te = ctx.sender!!.world.getTileEntity(pos)
                 val stack = when(te) {
                     is TileEntityMappingTable -> {
@@ -40,7 +40,6 @@ class CAddWaypointToGoldenTicketFromMappingTable: CxxAddWaypointToItemPath {
                         null
                     }
                 }
-                pos.close()
                 if(stack != null) {
                     if(ItemGoldenTicket.isEmpty(stack)) {
                         ItemGoldenTicket.initStack(stack, UUID.randomUUID())

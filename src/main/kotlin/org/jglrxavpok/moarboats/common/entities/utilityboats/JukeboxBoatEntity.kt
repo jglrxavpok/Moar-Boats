@@ -13,7 +13,7 @@ import net.minecraft.nbt.CompoundNBT
 import net.minecraft.tileentity.JukeboxTileEntity
 import net.minecraft.util.Hand
 import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.Vec3d
+import net.minecraft.util.math.vector.Vector3d
 import net.minecraft.world.World
 import net.minecraftforge.fml.network.PacketDistributor
 import org.jglrxavpok.moarboats.MoarBoats
@@ -37,7 +37,7 @@ class JukeboxBoatEntity(world: World): UtilityBoatEntity<JukeboxTileEntity, Empt
 
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
         this.setPosition(x, y, z)
-        this.motion = Vec3d.ZERO
+        this.motion = Vector3d.ZERO
         this.prevPosX = x
         this.prevPosY = y
         this.prevPosZ = z
@@ -89,11 +89,11 @@ class JukeboxBoatEntity(world: World): UtilityBoatEntity<JukeboxTileEntity, Empt
 
     private fun insertRecord(stack: ItemStack) {
         record = stack
-        MoarBoats.network.send(PacketDistributor.NEAR.with { PacketDistributor.TargetPoint(positionX, positionY, positionZ, 64.0, world.dimension.type) }, SPlayRecordFromBoat(entityID, stack.item as? MusicDiscItem))
+        MoarBoats.network.send(PacketDistributor.NEAR.with { PacketDistributor.TargetPoint(positionX, positionY, positionZ, 64.0, world.func_234923_W_()) }, SPlayRecordFromBoat(entityID, stack.item as? MusicDiscItem))
     }
 
     private fun ejectRecord() {
-        MoarBoats.network.send(PacketDistributor.NEAR.with { PacketDistributor.TargetPoint(positionX, positionY, positionZ, 64.0, world.dimension.type) }, SPlayRecordFromBoat(entityID, null))
+        MoarBoats.network.send(PacketDistributor.NEAR.with { PacketDistributor.TargetPoint(positionX, positionY, positionZ, 64.0, world.func_234923_W_()) }, SPlayRecordFromBoat(entityID, null))
 
         entityDropItem(record!!.copy())
         record = ItemStack.EMPTY

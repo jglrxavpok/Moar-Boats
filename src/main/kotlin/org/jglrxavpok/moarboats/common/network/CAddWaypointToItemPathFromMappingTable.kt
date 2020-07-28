@@ -29,7 +29,7 @@ class CAddWaypointToItemPathFromMappingTable: CxxAddWaypointToItemPath {
 
         override fun getStack(message: CAddWaypointToItemPathFromMappingTable, ctx: NetworkEvent.Context): ItemStack? {
             with(message) {
-                val pos = BlockPos.PooledMutable.retain(tileEntityX, tileEntityY, tileEntityZ)
+                val pos = BlockPos.Mutable(tileEntityX, tileEntityY, tileEntityZ)
                 val te = ctx.sender!!.world.getTileEntity(pos)
                 val stack = when(te) {
                     is TileEntityMappingTable -> {

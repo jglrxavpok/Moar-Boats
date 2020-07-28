@@ -13,7 +13,7 @@ import net.minecraft.tileentity.TileEntity
 import net.minecraft.util.*
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
-import net.minecraft.util.math.Vec3d
+import net.minecraft.util.math.vector.Vector3d
 import net.minecraft.world.World
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleInventory
@@ -37,7 +37,7 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(EntityEntries.AnimalBoat, 
 
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
         this.setPosition(x, y, z)
-        this.motion = Vec3d.ZERO
+        this.motion = Vector3d.ZERO
         this.prevPosX = x
         this.prevPosY = y
         this.prevPosZ = z
@@ -81,12 +81,12 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(EntityEntries.AnimalBoat, 
     // MoarBoats code
     override fun controlBoat() { /* NOP */ }
 
-    override fun calculateAnchorPosition(linkType: Int): Vec3d {
+    override fun calculateAnchorPosition(linkType: Int): Vector3d {
         val distanceFromCenter = (0.0625f * 17f * if(linkType == BasicBoatEntity.FrontLink) 1f else -1f) *1.5f
         val anchorX = positionX + MathHelper.cos((yaw + 90f).toRadians()) * distanceFromCenter
         val anchorY = positionY + 0.0625f * 16f
         val anchorZ = positionZ + MathHelper.sin((yaw + 90f).toRadians()) * distanceFromCenter
-        return Vec3d(anchorX, anchorY, anchorZ)
+        return Vector3d(anchorX, anchorY, anchorZ)
     }
 
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
@@ -136,11 +136,11 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(EntityEntries.AnimalBoat, 
     override fun getZ() = posZ
 
     override fun getBlockState(): BlockState {
-        return world.getBlockState(position)
+        return world.getBlockState(blockPos)
     }
 
     override fun getBlockPos(): BlockPos {
-        return position
+        return super.func_233580_cy_()// TODO: check correct
     }
 
     override fun updatePassenger(passenger: Entity) {
@@ -168,7 +168,7 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(EntityEntries.AnimalBoat, 
         return false
     }
 
-    override fun openGuiIfPossible(player: PlayerEntity): Boolean {
-        return false
+    override fun openGuiIfPossible(player: PlayerEntity): ActionResultType {
+        return ActionResultType.FAIL
     }
 }

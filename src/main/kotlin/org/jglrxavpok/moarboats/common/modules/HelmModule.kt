@@ -37,7 +37,7 @@ import kotlin.math.atan2
 
 object HelmModule: BoatModule(), BlockReason {
 
-    private val noOverridePos = BlockPos.PooledMutable.retain()
+    private val noOverridePos = BlockPos.Mutable()
 
     override val id: ResourceLocation = ResourceLocation(MoarBoats.ModID, "helm")
     override val usesInventory = true
@@ -275,9 +275,7 @@ object HelmModule: BoatModule(), BlockReason {
 
             overrideWaypoint[boat] = true
             val pos = overridingWaypointPos[boat]
-            val newPos = BlockPos.PooledMutable.retain(closest.getInt("x"), 0, closest.getInt("z"))
-            overridingWaypointPos[boat] = newPos
-            newPos.close()
+            pos.setBlockPos(closest.getInt("x"), 0, closest.getInt("z"))
         }
     }
 

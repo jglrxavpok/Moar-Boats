@@ -28,7 +28,7 @@ class CRemoveWaypointFromGoldenTicketFromMappingTable: CxxRemoveWaypointToItemPa
 
         override fun getStack(message: CRemoveWaypointFromGoldenTicketFromMappingTable, ctx: NetworkEvent.Context): ItemStack? {
             with(message) {
-                val pos = BlockPos.PooledMutable.retain(tileEntityX, tileEntityY, tileEntityZ)
+                val pos = BlockPos.Mutable(tileEntityX, tileEntityY, tileEntityZ)
                 val te = ctx.sender!!.world.getTileEntity(pos)
                 val stack = when(te) {
                     is TileEntityMappingTable -> {
@@ -39,7 +39,6 @@ class CRemoveWaypointFromGoldenTicketFromMappingTable: CxxRemoveWaypointToItemPa
                         null
                     }
                 }
-                pos.close()
                 return stack
             }
         }

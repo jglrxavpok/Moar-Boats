@@ -6,7 +6,7 @@ import net.minecraft.client.renderer.texture.AtlasTexture
 import net.minecraft.block.Blocks
 import net.minecraft.block.FurnaceBlock
 import net.minecraft.client.renderer.IRenderTypeBuffer
-import net.minecraft.client.renderer.Vector3f
+import net.minecraft.util.math.vector.Vector3f
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.FurnaceEngineModule
 import org.jglrxavpok.moarboats.api.BoatModule

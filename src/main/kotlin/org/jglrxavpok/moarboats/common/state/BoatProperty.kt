@@ -3,7 +3,6 @@ package org.jglrxavpok.moarboats.common.state
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.nbt.ListNBT
 import net.minecraft.util.math.BlockPos
-import net.minecraft.world.dimension.DimensionType
 import net.minecraft.world.storage.MapData
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
@@ -73,14 +72,15 @@ class ArrayBoatProperty<T: Any>(module: BoatModule, id: String, val array: Array
 /**
  * Please release the positions after using them
  */
-class BlockPosProperty(module: BoatModule, id: String): BoatProperty<BlockPos.PooledMutable>(module, id) {
-    override val type: Class<out BlockPos.PooledMutable> = BlockPos.PooledMutable::class.java
-    override val readProperty: CompoundNBT.(String) -> BlockPos.PooledMutable = { id ->
-        val pos = BlockPos.PooledMutable.retain()
+class BlockPosProperty(module: BoatModule, id: String): BoatProperty<BlockPos.Mutable>(module, id) {
+    private val pos = BlockPos.Mutable()
+
+    override val type: Class<out BlockPos.Mutable> = BlockPos.Mutable::class.java
+    override val readProperty: CompoundNBT.(String) -> BlockPos.Mutable = { id ->
         pos.setPos(this.getInt(id+"_X"), this.getInt(id+"_Y"), this.getInt(id+"_Z"))
         pos
     }
-    override val writeProperty: CompoundNBT.(String, BlockPos.PooledMutable) -> Unit = { id, pos ->
+    override val writeProperty: CompoundNBT.(String, BlockPos.Mutable) -> Unit = { id, pos ->
         this.putInt(id+"_X", pos.x)
         this.putInt(id+"_Y", pos.y)
         this.putInt(id+"_Z", pos.z)

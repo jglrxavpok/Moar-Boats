@@ -4,7 +4,6 @@ import net.minecraft.block.material.MaterialColor
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import net.minecraft.world.chunk.ChunkStatus
-import net.minecraft.world.dimension.DimensionType
 import net.minecraft.world.storage.MapData
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.fml.network.NetworkEvent
@@ -52,7 +51,7 @@ class CMapImageRequest(): MoarBoatsPacket {
             val maxX = xCenter+size/2-1
             val maxZ = minZ+ StripeLength -1
 
-            val blockPos = BlockPos.PooledMutable.retain()
+            val blockPos = BlockPos.Mutable()
             for(z in minZ..maxZ) {
                 for(x in minX..maxX) {
                     val pixelX = x-minX
@@ -109,7 +108,6 @@ class CMapImageRequest(): MoarBoatsPacket {
                     }
                 }
             }
-            blockPos.close()
             return textureData
         }
 

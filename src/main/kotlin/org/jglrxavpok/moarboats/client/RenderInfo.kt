@@ -3,9 +3,6 @@ package org.jglrxavpok.moarboats.client
 import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.vertex.IVertexBuilder
 import net.minecraft.client.renderer.IRenderTypeBuffer
-import net.minecraft.client.renderer.Matrix4f
-import net.minecraft.client.renderer.Vector3f
-import net.minecraft.client.renderer.Vector4f
 
 data class RenderInfo(val matrixStack: MatrixStack, val buffers: IRenderTypeBuffer, val combinedLight: Int = 15728880) {
 }

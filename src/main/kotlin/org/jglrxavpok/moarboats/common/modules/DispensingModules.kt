@@ -27,7 +27,7 @@ import org.jglrxavpok.moarboats.common.state.ArrayBoatProperty
 import org.jglrxavpok.moarboats.common.state.BlockPosProperty
 import org.jglrxavpok.moarboats.common.state.DoubleBoatProperty
 import org.jglrxavpok.moarboats.extensions.Fluids
-import org.jglrxavpok.moarboats.extensions.use
+
 import java.util.regex.Pattern
 
 private val DISPENSE_BEHAVIOR_REGISTRY: Map<Item, IDispenseItemBehavior>
@@ -59,15 +59,14 @@ abstract class DispensingModule: BoatModule() {
     override fun update(from: IControllable) {
         if(!from.inLiquid() || from.worldRef.isRemote)
             return
-        lastDispensePositionProperty[from].use { pos ->
+        lastDispensePositionProperty[from].let { pos: BlockPos.Mutable ->
             val period = blockPeriodProperty[from]
             if(pos.distanceSq(from.positionX, from.positionY, from.positionZ, false) > period*period) {
                 dispenseItem(BOTTOM, from)
                 dispenseItem(MIDDLE, from)
                 dispenseItem(TOP, from)
-                BlockPos.PooledMutable.retain(from.positionX, from.positionY, from.positionZ).use {
-                    lastDispensePositionProperty[from] = it
-                }
+                pos.setPos(from.positionX, from.positionY, from.positionZ)
+                lastDispensePositionProperty[from] = pos
             }
         }
     }
@@ -144,14 +143,13 @@ object DropperModule: DispensingModule() {
 
     override fun dispenseItem(row: Int, boat: IControllable) {
         val pos = boat.correspondingEntity.positionVec
-        val blockPos = BlockPos.PooledMutable.retain(pos.x, pos.y+row + .75f, pos.z)
+        val blockPos = BlockPos.Mutable(pos.x, pos.y+row + .75f, pos.z)
         val inventoryRowStart = (-row)*5 +5
         firstValidStack(inventoryRowStart, boat)?.let { (index, stack) ->
             val resultingStack = boat.dispense(dropBehavior, stack, overridePosition = blockPos, overrideFacing = facingProperty[boat])
             boat.getInventory().setInventorySlotContents(index, resultingStack)
             boat.getInventory().syncToClient()
         }
-        blockPos.close()
     }
 }
 object DispenserModule: DispensingModule() {
@@ -159,7 +157,7 @@ object DispenserModule: DispensingModule() {
 
     override fun dispenseItem(row: Int, boat: IControllable) {
         val pos = boat.correspondingEntity.positionVec
-        val blockPos = BlockPos.PooledMutable.retain(pos.x, pos.y+row + .75f, pos.z)
+        val blockPos = BlockPos.Mutable(pos.x, pos.y+row + .75f, pos.z)
         val inventoryRowStart = (-row)*5 +5
         firstValidStack(inventoryRowStart, boat)?.let { (index, stack) ->
             val item = stack.item
@@ -175,7 +173,6 @@ object DispenserModule: DispensingModule() {
                 dispenseWithDefaultBehavior(boat, behavior, stack, blockPos, index)
             }
         }
-        blockPos.close()
     }
 
     private fun dispenseWithDefaultBehavior(boat: IControllable, behavior: IDispenseItemBehavior, stack: ItemStack, blockPos: BlockPos, index: Int) {
@@ -184,7 +181,7 @@ object DispenserModule: DispensingModule() {
         boat.getInventory().syncToClient()
     }
 
-    private fun useBlockItem(item: BlockItem, world: World, stack: ItemStack, pos: BlockPos.PooledMutable, boat: IControllable, row: Int) {
+    private fun useBlockItem(item: BlockItem, world: World, stack: ItemStack, pos: BlockPos, boat: IControllable, row: Int) {
         val facing = boat.reorientate(facingProperty[boat]).opposite
         val blockPos = pos.offset(facing)
         val block = item.block
@@ -224,7 +221,7 @@ object DispenserModule: DispensingModule() {
                 CompoundNBT1.putInt("y", pos.y)
 
                 if (CompoundNBT1 != CompoundNBT2) {
-                    tileentity.read(CompoundNBT1)
+                    tileentity.deserializeNBT(CompoundNBT1)
                     tileentity.markDirty()
                 }
             }

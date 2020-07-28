@@ -5,7 +5,7 @@ import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.block.BlockState
 import net.minecraft.client.renderer.IRenderTypeBuffer
 import net.minecraft.client.renderer.Tessellator
-import net.minecraft.client.renderer.Vector3f
+import net.minecraft.util.math.vector.Vector3f
 import net.minecraft.client.renderer.entity.EntityRendererManager
 import net.minecraft.client.renderer.texture.AtlasTexture
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats

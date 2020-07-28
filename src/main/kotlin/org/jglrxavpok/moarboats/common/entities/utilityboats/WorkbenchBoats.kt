@@ -8,7 +8,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.util.IWorldPosCallable
-import net.minecraft.util.math.Vec3d
+import net.minecraft.util.math.vector.Vector3d
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.TranslationTextComponent
 import net.minecraft.world.World
@@ -21,7 +21,7 @@ class CraftingTableBoatEntity(world: World): UtilityBoatEntity<TileEntity, Utili
 
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
         this.setPosition(x, y, z)
-        this.motion = Vec3d.ZERO
+        this.motion = Vector3d.ZERO
         this.prevPosX = x
         this.prevPosY = y
         this.prevPosZ = z
@@ -40,7 +40,7 @@ class CraftingTableBoatEntity(world: World): UtilityBoatEntity<TileEntity, Utili
     }
 
     override fun createMenu(windowID: Int, inv: PlayerInventory, player: PlayerEntity): UtilityWorkbenchContainer? {
-        return UtilityWorkbenchContainer(windowID, inv, IWorldPosCallable.of(player.world, player.position))
+        return UtilityWorkbenchContainer(windowID, inv, IWorldPosCallable.of(player.world, player.func_233580_cy_()))
     }
 
 
@@ -60,7 +60,7 @@ class GrindstoneBoatEntity(world: World): UtilityBoatEntity<TileEntity, UtilityG
 
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
         this.setPosition(x, y, z)
-        this.motion = Vec3d.ZERO
+        this.motion = Vector3d.ZERO
         this.prevPosX = x
         this.prevPosY = y
         this.prevPosZ = z
@@ -79,7 +79,7 @@ class GrindstoneBoatEntity(world: World): UtilityBoatEntity<TileEntity, UtilityG
     }
 
     override fun createMenu(windowID: Int, inv: PlayerInventory, player: PlayerEntity): UtilityGrindstoneContainer? {
-        return UtilityGrindstoneContainer(windowID, inv, IWorldPosCallable.of(player.world, player.position))
+        return UtilityGrindstoneContainer(windowID, inv, IWorldPosCallable.of(player.world, player.func_233580_cy_()))
     }
 
 
@@ -100,7 +100,7 @@ class LoomBoatEntity(world: World): UtilityBoatEntity<TileEntity, UtilityLoomCon
 
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
         this.setPosition(x, y, z)
-        this.motion = Vec3d.ZERO
+        this.motion = Vector3d.ZERO
         this.prevPosX = x
         this.prevPosY = y
         this.prevPosZ = z
@@ -119,7 +119,7 @@ class LoomBoatEntity(world: World): UtilityBoatEntity<TileEntity, UtilityLoomCon
     }
 
     override fun createMenu(windowID: Int, inv: PlayerInventory, player: PlayerEntity): UtilityLoomContainer? {
-        return UtilityLoomContainer(windowID, inv, IWorldPosCallable.of(player.world, player.position))
+        return UtilityLoomContainer(windowID, inv, IWorldPosCallable.of(player.world, player.func_233580_cy_()))
     }
 
     override fun getDisplayName(): ITextComponent {
@@ -138,7 +138,7 @@ class CartographyTableBoatEntity(world: World): UtilityBoatEntity<TileEntity, Ut
 
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
         this.setPosition(x, y, z)
-        this.motion = Vec3d.ZERO
+        this.motion = Vector3d.ZERO
         this.prevPosX = x
         this.prevPosY = y
         this.prevPosZ = z
@@ -157,7 +157,7 @@ class CartographyTableBoatEntity(world: World): UtilityBoatEntity<TileEntity, Ut
     }
 
     override fun createMenu(windowID: Int, inv: PlayerInventory, player: PlayerEntity): UtilityCartographyTableContainer? {
-        return UtilityCartographyTableContainer(windowID, inv, IWorldPosCallable.of(player.world, player.position))
+        return UtilityCartographyTableContainer(windowID, inv, IWorldPosCallable.of(player.world, player.func_233580_cy_()))
     }
 
     override fun getDisplayName(): ITextComponent {
@@ -176,7 +176,7 @@ class StonecutterBoatEntity(world: World): UtilityBoatEntity<TileEntity, Utility
 
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
         this.setPosition(x, y, z)
-        this.motion = Vec3d.ZERO
+        this.motion = Vector3d.ZERO
         this.prevPosX = x
         this.prevPosY = y
         this.prevPosZ = z
@@ -195,7 +195,7 @@ class StonecutterBoatEntity(world: World): UtilityBoatEntity<TileEntity, Utility
     }
 
     override fun createMenu(windowID: Int, inv: PlayerInventory, player: PlayerEntity): UtilityStonecutterContainer? {
-        return UtilityStonecutterContainer(windowID, inv, IWorldPosCallable.of(player.world, player.position))
+        return UtilityStonecutterContainer(windowID, inv, IWorldPosCallable.of(player.world, player.func_233580_cy_()))
     }
 
     override fun getDisplayName(): ITextComponent {

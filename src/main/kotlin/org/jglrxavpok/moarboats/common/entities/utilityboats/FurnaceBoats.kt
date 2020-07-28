@@ -12,7 +12,7 @@ import net.minecraft.tileentity.BlastFurnaceTileEntity
 import net.minecraft.tileentity.FurnaceTileEntity
 import net.minecraft.tileentity.SmokerTileEntity
 import net.minecraft.util.IIntArray
-import net.minecraft.util.math.Vec3d
+import net.minecraft.util.math.vector.Vector3d
 import net.minecraft.world.World
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper
 import org.jglrxavpok.moarboats.common.EntityEntries
@@ -30,7 +30,7 @@ class FurnaceBoatEntity(world: World): AbstractFurnaceBoatEntity<FurnaceTileEnti
 
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
         this.setPosition(x, y, z)
-        this.motion = Vec3d.ZERO
+        this.motion = Vector3d.ZERO
         this.prevPosX = x
         this.prevPosY = y
         this.prevPosZ = z
@@ -64,7 +64,7 @@ class FurnaceBoatEntity(world: World): AbstractFurnaceBoatEntity<FurnaceTileEnti
 class BlastFurnaceBoatEntity(world: World): AbstractFurnaceBoatEntity<BlastFurnaceTileEntity, UtilityBlastFurnaceContainer>(EntityEntries.BlastFurnaceBoat, world) {
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
         this.setPosition(x, y, z)
-        this.motion = Vec3d.ZERO
+        this.motion = Vector3d.ZERO
         this.prevPosX = x
         this.prevPosY = y
         this.prevPosZ = z
@@ -98,7 +98,7 @@ class BlastFurnaceBoatEntity(world: World): AbstractFurnaceBoatEntity<BlastFurna
 class SmokerBoatEntity(world: World): AbstractFurnaceBoatEntity<SmokerTileEntity, UtilitySmokerContainer>(EntityEntries.SmokerBoat, world) {
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
         this.setPosition(x, y, z)
-        this.motion = Vec3d.ZERO
+        this.motion = Vector3d.ZERO
         this.prevPosX = x
         this.prevPosY = y
         this.prevPosZ = z

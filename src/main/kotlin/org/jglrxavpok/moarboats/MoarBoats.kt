@@ -14,16 +14,18 @@ import net.minecraft.item.*
 import net.minecraft.item.crafting.IRecipeSerializer
 import net.minecraft.network.datasync.DataSerializers
 import net.minecraft.resources.ResourcePackType
+import net.minecraft.server.MinecraftServer
 import net.minecraft.server.dedicated.DedicatedServer
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.tileentity.TileEntityType
 import net.minecraft.util.NonNullList
 import net.minecraft.util.ResourceLocation
-import net.minecraft.world.dimension.DimensionType
+import net.minecraft.world.DimensionType
 import net.minecraft.world.storage.DimensionSavedDataManager
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.client.model.generators.ExistingFileHelper
+import net.minecraftforge.common.BiomeDictionary.Type.OVERWORLD
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.extensions.IForgeContainerType
 import net.minecraftforge.event.RegistryEvent
@@ -34,6 +36,7 @@ import net.minecraftforge.fml.ModLoadingContext
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.config.ModConfig
 import net.minecraftforge.fml.event.lifecycle.*
+import net.minecraftforge.fml.event.server.FMLServerStartingEvent
 import net.minecraftforge.fml.network.NetworkRegistry
 import net.minecraftforge.registries.ForgeRegistries
 import net.minecraftforge.registries.ForgeRegistry
@@ -72,7 +75,7 @@ object MoarBoats {
 
     const val ModID = "moarboats"
 
-    internal var dedicatedServerInstance: DedicatedServer? = null
+    internal var dedicatedServerInstance: MinecraftServer? = null
 
     val logger: Logger = LogManager.getLogger()
     val NetworkingProtocolVersion = "v1.1"
@@ -99,7 +102,7 @@ object MoarBoats {
         }
     }
 
-    val MachineMaterial = Material(MaterialColor.IRON, false, true, true, true, true, false, false, PushReaction.BLOCK)
+    val MachineMaterial = Material(MaterialColor.IRON, false, true, true, true, true, false, PushReaction.BLOCK)
 
     val MainCreativeTab = object: ItemGroup("moarboats") {
 
@@ -206,8 +209,8 @@ object MoarBoats {
         }
     }
 
-    fun initDedicatedServer(event: FMLDedicatedServerSetupEvent) {
-        dedicatedServerInstance = event.serverSupplier.get()
+    fun initDedicatedServer(event: FMLServerStartingEvent) {
+        dedicatedServerInstance = event.server
     }
 
     @Mod.EventBusSubscriber(modid = ModID, bus = Mod.EventBusSubscriber.Bus.MOD)

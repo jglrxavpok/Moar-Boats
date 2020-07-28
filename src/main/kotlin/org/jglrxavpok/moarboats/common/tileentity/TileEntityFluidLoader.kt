@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.common.tileentity
 
+import net.minecraft.block.BlockState
 import net.minecraft.entity.Entity
 import net.minecraft.fluid.Fluid
 import net.minecraft.nbt.CompoundNBT
@@ -168,8 +169,8 @@ class TileEntityFluidLoader: TileEntityListenable(MoarBoats.TileEntityFluidLoade
         return super.write(compound)
     }
 
-    override fun read(compound: CompoundNBT) {
-        super.read(compound)
+    override fun deserializeNBT(state: BlockState, compound: CompoundNBT) {
+        super.deserializeNBT(state, compound)
         fluid = ForgeRegistries.FLUIDS.getValue(ResourceLocation(compound.getString("fluidName")))
         amount = compound.getInt("fluidAmount")
     }

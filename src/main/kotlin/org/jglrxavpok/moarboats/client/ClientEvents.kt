@@ -1,10 +1,7 @@
 package org.jglrxavpok.moarboats.client
 
-import com.google.common.base.Joiner
 import com.google.common.collect.ImmutableList
-import com.google.common.collect.Lists
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.datafixers.util.Either
 import net.minecraft.block.*
 import net.minecraft.client.Minecraft
 import net.minecraft.client.audio.ISound
@@ -12,10 +9,8 @@ import net.minecraft.client.entity.player.AbstractClientPlayerEntity
 import net.minecraft.client.gui.IngameGui
 import net.minecraft.client.gui.ScreenManager
 import net.minecraft.client.gui.screen.inventory.ChestScreen
-import net.minecraft.client.renderer.Quaternion
 import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.RenderTypeLookup
-import net.minecraft.client.renderer.Vector3f
 import net.minecraft.client.renderer.entity.PlayerRenderer
 import net.minecraft.client.renderer.entity.model.PlayerModel
 import net.minecraft.client.renderer.model.*
@@ -28,6 +23,8 @@ import net.minecraft.item.MusicDiscItem
 import net.minecraft.state.properties.AttachFace
 import net.minecraft.util.*
 import net.minecraft.util.math.MathHelper
+import net.minecraft.util.math.vector.Quaternion
+import net.minecraft.util.math.vector.Vector3f
 import net.minecraft.world.World
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
@@ -98,8 +95,8 @@ object ClientEvents {
 
                 override fun isSideLit() = false
 
-                override fun resolveTexture(name: String): Material {
-                    return Material(AtlasTexture.LOCATION_BLOCKS_TEXTURE, ResourceLocation(name))
+                override fun resolveTexture(name: String): RenderMaterial {
+                    return RenderMaterial(AtlasTexture.LOCATION_BLOCKS_TEXTURE, ResourceLocation(name))
                 }
 
                 override fun getCombinedTransform(): IModelTransform {
@@ -112,7 +109,7 @@ object ClientEvents {
                     return true
                 }
             }
-            val bakedModel = ItemLayerModel(ImmutableList.of(Material(AtlasTexture.LOCATION_BLOCKS_TEXTURE, ResourceLocation("item/fishing_rod_cast"))))
+            val bakedModel = ItemLayerModel(ImmutableList.of(RenderMaterial(AtlasTexture.LOCATION_BLOCKS_TEXTURE, ResourceLocation("item/fishing_rod_cast"))))
                     .bake(modelConfiguration, event.modelLoader, ModelLoader.defaultTextureGetter(), ModelRotation.X0_Y0, ItemOverrideList.EMPTY, FishingModuleRenderer.CastFishingRodLocation)
             event.modelRegistry[FishingModuleRenderer.CastFishingRodLocation] = bakedModel
         }
@@ -348,7 +345,7 @@ object ClientEvents {
             Minecraft.getInstance().soundHandler.play(recordSound)
             worldCache[entityID] = recordSound
 
-            Minecraft.getInstance().ingameGUI.setRecordPlayingMessage(musicDiscItem.recordDescription.formattedText)
+            Minecraft.getInstance().ingameGUI.func_238451_a_(musicDiscItem.func_234801_g_())
         }
     }
 

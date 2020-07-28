@@ -1,12 +1,9 @@
 package org.jglrxavpok.moarboats.client
 
 import com.mojang.blaze3d.matrix.MatrixStack
-import com.mojang.blaze3d.platform.GlStateManager
-import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity
 import net.minecraft.client.renderer.IRenderTypeBuffer
 import net.minecraft.client.renderer.RenderType
-import net.minecraft.client.renderer.Vector3f
 import net.minecraft.client.renderer.entity.PlayerRenderer
 import net.minecraft.client.renderer.entity.layers.LayerRenderer
 import net.minecraft.client.renderer.entity.model.IHasArm
@@ -15,6 +12,7 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.util.Hand
 import net.minecraft.util.HandSide
 import net.minecraft.util.ResourceLocation
+import net.minecraft.util.math.vector.Vector3f
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.models.ModelPatreonHook
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig

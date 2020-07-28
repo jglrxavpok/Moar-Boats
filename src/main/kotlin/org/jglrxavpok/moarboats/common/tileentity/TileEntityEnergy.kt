@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.common.tileentity
 
+import net.minecraft.block.BlockState
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.tileentity.TileEntityType
 import net.minecraft.util.Direction
@@ -19,8 +20,8 @@ abstract class TileEntityEnergy(tileEntityType: TileEntityType<out TileEntityEne
     protected abstract val maxReceivableEnergy: Int
     protected abstract val maxExtractableEnergy: Int
 
-    override fun read(compound: CompoundNBT) {
-        super.read(compound)
+    override fun deserializeNBT(state: BlockState, compound: CompoundNBT) {
+        super.deserializeNBT(state, compound)
         energy = compound.getInt("energy")
     }
 

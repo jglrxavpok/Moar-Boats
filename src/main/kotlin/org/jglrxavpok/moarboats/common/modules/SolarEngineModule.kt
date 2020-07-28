@@ -37,7 +37,7 @@ object SolarEngineModule : BaseEngineModule() {
 
     override fun remainingTimeInPercent(from: IControllable): Float {
         val levelIn = from.worldRef
-        val pos = from.correspondingEntity.position
+        val pos = from.correspondingEntity.func_233580_cy_()
         var diff = levelIn.getLightFor(LightType.SKY, pos) - levelIn.skylightSubtracted
         var angle = levelIn.getCelestialAngle(1.0f)
 

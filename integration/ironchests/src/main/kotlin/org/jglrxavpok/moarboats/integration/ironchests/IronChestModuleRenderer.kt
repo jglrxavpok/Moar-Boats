@@ -6,7 +6,7 @@ import com.progwml6.ironchest.IronChests
 import com.progwml6.ironchest.common.block.IronChestsTypes
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.IRenderTypeBuffer
-import net.minecraft.client.renderer.Vector3f
+import net.minecraft.util.math.vector.Vector3f
 import net.minecraft.client.renderer.entity.EntityRendererManager
 import net.minecraft.client.renderer.texture.AtlasTexture
 import net.minecraft.util.ResourceLocation

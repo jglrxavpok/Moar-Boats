@@ -1,7 +1,6 @@
 package org.jglrxavpok.moarboats.common.network
 
 import net.minecraft.client.Minecraft
-import net.minecraft.world.dimension.DimensionType
 import net.minecraft.world.storage.DimensionSavedDataManager
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.fml.network.NetworkEvent

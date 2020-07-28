@@ -4,6 +4,7 @@ import net.minecraft.block.*
 import net.minecraft.block.material.Material
 import net.minecraft.entity.LivingEntity
 import net.minecraft.item.ItemStack
+import net.minecraft.loot.LootContext
 import net.minecraft.state.StateContainer
 import net.minecraft.tags.FluidTags
 import net.minecraft.util.Direction
@@ -15,11 +16,10 @@ import net.minecraft.util.math.shapes.VoxelShapes
 import net.minecraft.world.IBlockReader
 import net.minecraft.world.IWorldReader
 import net.minecraft.world.World
-import net.minecraft.world.storage.loot.LootContext
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.items.WaterborneConductorItem
 
-object BlockWaterborneConductor: RedstoneDiodeBlock(Block.Properties.create(Material.MISCELLANEOUS).notSolid().hardnessAndResistance(0f).sound(SoundType.WOOD)) {
+object BlockWaterborneConductor: RedstoneDiodeBlock(Properties.create(Material.MISCELLANEOUS).notSolid().hardnessAndResistance(0f).sound(SoundType.WOOD)) {
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "waterborne_redstone")
         this.defaultState = stateContainer.baseState.with(HorizontalBlock.HORIZONTAL_FACING, Direction.NORTH).with(POWERED, false)

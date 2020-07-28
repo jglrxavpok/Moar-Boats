@@ -50,7 +50,7 @@ abstract class BaseEngineModule: BoatModule() {
                 val storage = from.modules.firstOrNull { it.moduleSpot == Spot.Storage }
                 if(storage != null && storage.usesInventory) {
                     // todo: pool
-                    val hopperPos = BlockPos(from.correspondingEntity).up()
+                    val hopperPos = from.correspondingEntity.func_233580_cy_().up()
                     val blockState = from.worldRef.getBlockState(hopperPos)
                     if(blockState.block is HopperBlock) {
                         val te = from.worldRef.getTileEntity(hopperPos) as HopperTileEntity
@@ -94,7 +94,7 @@ abstract class BaseEngineModule: BoatModule() {
             val angle = (rotationYaw + 90f).toRadians()
             val distAlongLength = 0.0625f * 17f * -1f
 
-            val pos = BlockPos.PooledMutable.retain(posX, posY-0.5, posZ)
+            val pos = BlockPos.Mutable(posX, posY-0.5, posZ)
             val blockState = from.worldRef.getBlockState(pos)
 
             repeat(count) {
@@ -110,7 +110,6 @@ abstract class BaseEngineModule: BoatModule() {
                 }
                 from.worldRef.addParticle(particle, anchorX, anchorY, anchorZ, -from.velocityX, 1.0, -from.velocityZ)
             }
-            pos.close()
         }
     }
 

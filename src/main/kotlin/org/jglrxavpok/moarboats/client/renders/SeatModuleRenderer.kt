@@ -3,9 +3,9 @@ package org.jglrxavpok.moarboats.client.renders
 import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.client.renderer.IRenderTypeBuffer
-import net.minecraft.client.renderer.Quaternion
+import net.minecraft.util.math.vector.Quaternion
 import net.minecraft.client.renderer.RenderType
-import net.minecraft.client.renderer.Vector3f
+import net.minecraft.util.math.vector.Vector3f
 import net.minecraft.client.renderer.entity.EntityRendererManager
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.util.ResourceLocation

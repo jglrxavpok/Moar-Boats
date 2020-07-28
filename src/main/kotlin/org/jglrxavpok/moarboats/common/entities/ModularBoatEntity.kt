@@ -18,6 +18,7 @@ import net.minecraft.tileentity.DispenserTileEntity
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.util.*
 import net.minecraft.util.math.*
+import net.minecraft.util.math.vector.Vector3d
 import net.minecraft.util.text.TranslationTextComponent
 import net.minecraft.world.World
 import net.minecraftforge.common.capabilities.Capability
@@ -108,7 +109,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
 
     constructor(world: World, x: Double, y: Double, z: Double, color: DyeColor, owningMode: OwningMode, ownerUUID: UUID? = null): this(world) {
         this.setPosition(x, y, z)
-        this.motion = Vec3d.ZERO
+        this.motion = Vector3d.ZERO
         this.prevPosX = x
         this.prevPosY = y
         this.prevPosZ = z
@@ -164,18 +165,18 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
         return moduleInventories[key]!!
     }
 
-    override fun processInitialInteract(player: PlayerEntity, hand: Hand): Boolean {
-        if(super.processInitialInteract(player, hand))
-            return true
+    override fun processInitialInteract(player: PlayerEntity, hand: Hand): ActionResultType {
+        if(super.processInitialInteract(player, hand) == ActionResultType.SUCCESS)
+            return ActionResultType.SUCCESS
         if(world.isRemote)
-            return true
+            return ActionResultType.SUCCESS
         val heldItem = player.getHeldItem(hand)
         val moduleID = BoatModuleRegistry.findModule(heldItem)
         if(moduleID != null) {
             val entry = BoatModuleRegistry[moduleID]
             if(!entry.restriction()) {
                 player.sendStatusMessage(Restricted, true)
-                return false
+                return ActionResultType.FAIL
             }
             if(canFitModule(moduleID)) {
                 if(!player.isCreative) {
@@ -185,22 +186,22 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
                     }
                 }
                 addModule(moduleID, fromItem = heldItem)
-                return true
+                return ActionResultType.SUCCESS
             } else {
                 val correspondingModule = BoatModuleRegistry[moduleID].module
                 player.sendStatusMessage(TranslationTextComponent("general.occupiedSpot", correspondingModule.moduleSpot.text), true)
-                return true
+                return ActionResultType.SUCCESS
             }
         }
 
         return openGui(player, hand)
     }
 
-    override fun openGuiIfPossible(player: PlayerEntity): Boolean {
+    override fun openGuiIfPossible(player: PlayerEntity): ActionResultType {
         return openGui(player, player.activeHand)
     }
 
-    private fun openGui(player: PlayerEntity, hand: Hand): Boolean {
+    private fun openGui(player: PlayerEntity, hand: Hand): ActionResultType {
         val validOwner = isValidOwner(player)
         val canOpenGui = validOwner && !modules.any { it.onInteract(this, player, hand, player.isCrouching) }
         if(canOpenGui) {
@@ -212,7 +213,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
         } else if(!validOwner) {
             player.sendStatusMessage(TranslationTextComponent(LockedByOwner.key, ownerName ?: "<UNKNOWN>"), true)
         }
-        return true
+        return ActionResultType.SUCCESS
     }
 
     private fun isValidOwner(player: PlayerEntity): Boolean {
@@ -415,7 +416,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
             Direction.WEST, Direction.EAST, Direction.NORTH, Direction.SOUTH -> reorientate(overrideFacing)
             else -> overrideFacing
         }
-        moduleDispensePosition.setPos(overridePosition ?: position)
+        moduleDispensePosition.setPos(overridePosition ?: blockPos)
         return behavior.dispense(this, stack)
     }
 

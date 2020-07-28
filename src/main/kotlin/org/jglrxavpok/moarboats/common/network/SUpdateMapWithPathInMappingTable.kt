@@ -27,7 +27,7 @@ class SUpdateMapWithPathInMappingTable: SxxUpdateMapWithPath {
 
         override fun updatePath(message: SUpdateMapWithPathInMappingTable, ctx: NetworkEvent.Context, list: ListNBT) {
             with(message) {
-                val pos = BlockPos.PooledMutable.retain(tileEntityX, tileEntityY, tileEntityZ)
+                val pos = BlockPos.Mutable(tileEntityX, tileEntityY, tileEntityZ)
                 val te = Minecraft.getInstance().world!!.getTileEntity(pos)
                 when(te) {
                     is TileEntityMappingTable -> {
@@ -39,7 +39,6 @@ class SUpdateMapWithPathInMappingTable: SxxUpdateMapWithPath {
                     }
                     else -> MoarBoats.logger.error("No mapping table at $pos")
                 }
-                pos.close()
             }
         }
 

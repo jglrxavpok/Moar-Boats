@@ -27,7 +27,7 @@ import net.minecraft.util.*
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
-import net.minecraft.util.math.Vec3d
+import net.minecraft.util.math.vector.Vector3d
 import net.minecraft.util.math.shapes.IBooleanFunction
 import net.minecraft.util.math.shapes.VoxelShapes
 import net.minecraft.world.GameRules
@@ -44,7 +44,6 @@ import org.jglrxavpok.moarboats.common.modules.NoBlockReason
 import org.jglrxavpok.moarboats.extensions.Fluids
 import org.jglrxavpok.moarboats.extensions.getEntities
 import org.jglrxavpok.moarboats.extensions.toDegrees
-import org.jglrxavpok.moarboats.extensions.use
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.max
@@ -160,7 +159,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
 
     constructor(type: EntityType<out BasicBoatEntity>, world: World, x: Double, y: Double, z: Double): this(type, world) {
         this.setPosition(x, y, z)
-        this.motion = Vec3d.ZERO
+        this.motion = Vector3d.ZERO
         this.prevPosX = x
         this.prevPosY = y
         this.prevPosZ = z
@@ -233,20 +232,18 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
         val j1 = MathHelper.ceil(axisalignedbb.maxZ)
         var flag = false
         this.waterLevel = java.lang.Double.MIN_VALUE
-        val currentBlockPos = BlockPos.PooledMutable.retain()
+        val currentBlockPos = BlockPos.Mutable()
 
-        currentBlockPos.use { currentBlockPos ->
-            for (k1 in i until j) {
-                for (l1 in k until l) {
-                    for (i2 in i1 until j1) {
-                        currentBlockPos.setPos(k1, l1, i2)
+        for (k1 in i until j) {
+            for (l1 in k until l) {
+                for (i2 in i1 until j1) {
+                    currentBlockPos.setPos(k1, l1, i2)
 
-                        when {
-                            isValidLiquidBlock(currentBlockPos) -> {
-                                val liquidHeight = getLiquidHeight(world, currentBlockPos)
-                                this.waterLevel = max(liquidHeight.toDouble(), this.waterLevel)
-                                flag = flag or (axisalignedbb.minY < liquidHeight.toDouble())
-                            }
+                    when {
+                        isValidLiquidBlock(currentBlockPos) -> {
+                            val liquidHeight = getLiquidHeight(world, currentBlockPos)
+                            this.waterLevel = max(liquidHeight.toDouble(), this.waterLevel)
+                            flag = flag or (axisalignedbb.minY < liquidHeight.toDouble())
                         }
                     }
                 }
@@ -273,7 +270,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
         var f = 0.0f
         var k1 = 0
 
-        BlockPos.PooledMutable.retain().use { blockPos ->
+        BlockPos.Mutable().let { blockPos ->
             for (l1 in i until j) {
                 for (i2 in i1 until j1) {
                     val j2 = (if (l1 != i && l1 != j - 1) 0 else 1) + if (i2 != i1 && i2 != j1 - 1) 0 else 1
@@ -329,44 +326,40 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
         val l = MathHelper.ceil(axisalignedbb.maxY - this.lastYd)
         val i1 = MathHelper.floor(axisalignedbb.minZ)
         val j1 = MathHelper.ceil(axisalignedbb.maxZ)
-        val currentPosition = BlockPos.PooledMutable.retain()
+        val currentPosition = BlockPos.Mutable()
 
-        try {
-            label108@
+        label108@
 
-            for (k1 in k until l) {
-                var f = 0.0f
-                var l1 = i
+        for (k1 in k until l) {
+            var f = 0.0f
+            var l1 = i
 
-                while (true) {
-                    if (l1 >= j) {
-                        if (f < 1.0f) {
-                            return currentPosition.y.toFloat() + f
-                        }
-
-                        break
+            while (true) {
+                if (l1 >= j) {
+                    if (f < 1.0f) {
+                        return currentPosition.y.toFloat() + f
                     }
 
-                    for (i2 in i1 until j1) {
-                        currentPosition.setPos(l1, k1, i2)
-                        val iblockstate = this.world.getBlockState(currentPosition)
-
-                        if(isValidLiquidBlock(currentPosition))
-                            f = maxOf(f, Fluids.getBlockLiquidHeight(world, currentPosition))
-
-                        if (f >= 1.0f) {
-                            continue@label108
-                        }
-                    }
-
-                    ++l1
+                    break
                 }
-            }
 
-            return (l + 1).toFloat()
-        } finally {
-            currentPosition.close()
+                for (i2 in i1 until j1) {
+                    currentPosition.setPos(l1, k1, i2)
+                    val iblockstate = this.world.getBlockState(currentPosition)
+
+                    if(isValidLiquidBlock(currentPosition))
+                        f = maxOf(f, Fluids.getBlockLiquidHeight(world, currentPosition))
+
+                    if (f >= 1.0f) {
+                        continue@label108
+                    }
+                }
+
+                ++l1
+            }
         }
+
+        return (l + 1).toFloat()
     }
 
     override fun applyEntityCollision(entityIn: Entity) {
@@ -446,7 +439,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
                     val alpha = 0.5f
 
                     val anchorPos = calculateAnchorPosition(FrontLink)
-                    val otherAnchorPos = if(heading is BasicBoatEntity) heading.calculateAnchorPosition(BackLink) else heading.positionVector
+                    val otherAnchorPos = if(heading is BasicBoatEntity) heading.calculateAnchorPosition(BackLink) else heading.positionVec
                     // FIXME: handle case where targetYaw is ~0-180 and rotationYaw is ~180+ (avoid doing a crazy flip)
                     val targetYaw = computeTargetYaw(rotationYaw, anchorPos, otherAnchorPos)
                     rotationYaw = alpha * rotationYaw + targetYaw * (1f - alpha)
@@ -483,9 +476,9 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
 
     private fun breakLilypads() {
         val axisalignedbb = this.boundingBox
-        val min = BlockPos.PooledMutable.retain(axisalignedbb.minX - 0.2, axisalignedbb.minY + 0.001, axisalignedbb.minZ - 0.2)
-        val max = BlockPos.PooledMutable.retain(axisalignedbb.maxX + 0.2, axisalignedbb.maxY - 0.001, axisalignedbb.maxZ + 0.2)
-        val tmp = BlockPos.PooledMutable.retain()
+        val min = BlockPos.Mutable(axisalignedbb.minX - 0.2, axisalignedbb.minY + 0.001, axisalignedbb.minZ - 0.2)
+        val max = BlockPos.Mutable(axisalignedbb.maxX + 0.2, axisalignedbb.maxY - 0.001, axisalignedbb.maxZ + 0.2)
+        val tmp = BlockPos.Mutable()
 
         if (this.world.isAreaLoaded(min, max)) {
             for (i in min.x..max.x) {
@@ -518,13 +511,9 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
                 }
             }
         }
-
-        min.close()
-        max.close()
-        tmp.close()
     }
 
-    private fun computeTargetYaw(currentYaw: Float, anchorPos: Vec3d, otherAnchorPos: Vec3d): Float {
+    private fun computeTargetYaw(currentYaw: Float, anchorPos: Vector3d, otherAnchorPos: Vector3d): Float {
         val idealYaw = Math.atan2(otherAnchorPos.x - anchorPos.x, -(otherAnchorPos.z - anchorPos.z)).toFloat().toDegrees() + 180f
         var closestDistance = Float.POSITIVE_INFINITY
         var closest = idealYaw
@@ -598,31 +587,27 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
         val minZ = MathHelper.floor(axisalignedbb.minZ)
         val maxZ = MathHelper.ceil(axisalignedbb.maxZ)
         var foundLiquid = false
-        val currentBlockPos = BlockPos.PooledMutable.retain()
+        val currentBlockPos = BlockPos.Mutable()
 
-        try {
-            for (x in minX until maxX) {
-                for (y in maxY until aboveMaxYPos) {
-                    for (z in minZ until maxZ) {
-                        currentBlockPos.setPos(x, y, z)
-                        val block = this.world.getBlockState(currentBlockPos)
+        for (x in minX until maxX) {
+            for (y in maxY until aboveMaxYPos) {
+                for (z in minZ until maxZ) {
+                    currentBlockPos.setPos(x, y, z)
+                    val block = this.world.getBlockState(currentBlockPos)
 
-                        if (isValidLiquidBlock(currentBlockPos)) {
-                            val liquidLevel = getLiquidHeight(world, currentBlockPos).toDouble()
-                            if(aboveMaxY < liquidLevel) {
-                                if (Fluids.getLiquidLocalLevel(world, currentBlockPos) != 0) {
-                                    return Status.UNDER_FLOWING_LIQUID
-                                }
-
-                                foundLiquid = true
+                    if (isValidLiquidBlock(currentBlockPos)) {
+                        val liquidLevel = getLiquidHeight(world, currentBlockPos).toDouble()
+                        if(aboveMaxY < liquidLevel) {
+                            if (Fluids.getLiquidLocalLevel(world, currentBlockPos) != 0) {
+                                return Status.UNDER_FLOWING_LIQUID
                             }
 
+                            foundLiquid = true
                         }
+
                     }
                 }
             }
-        } finally {
-            currentBlockPos.close()
         }
 
         return if (foundLiquid) Status.UNDER_LIQUID else null
@@ -824,21 +809,21 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
         this.dataManager.register(LINK_TYPES[BackLink], NoLink)
     }
 
-    override fun processInitialInteract(player: PlayerEntity, hand: Hand): Boolean {
+    override fun processInitialInteract(player: PlayerEntity, hand: Hand): ActionResultType {
         if(world.isRemote)
-            return true
+            return ActionResultType.SUCCESS
         val itemstack = player.getHeldItem(hand)
         if(canStartRiding(player, itemstack, hand)) {
             if (!this.world.isRemote) {
                 player.startRiding(this)
             }
-            return true
+            return ActionResultType.SUCCESS
         }
         if(itemstack.item == RopeItem && !world.isRemote) {
             RopeItem.onLinkUsed(itemstack, player, hand, world, this)
-            return true
+            return ActionResultType.SUCCESS
         }
-        return false
+        return ActionResultType.SUCCESS
     }
 
     fun getLinkedTo(side: Int): Entity? {
@@ -908,7 +893,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
             var f = -0.75f * 0.5f
             val f1 = ((if ( ! this.isAlive) 0.009999999776482582 else this.mountedYOffset) + passenger.yOffset).toFloat()
 
-            val vec3d = Vec3d(f.toDouble(), 0.0, 0.0).rotateYaw(-(this.rotationYaw) * 0.017453292f - Math.PI.toFloat() / 2f)
+            val vec3d = Vector3d(f.toDouble(), 0.0, 0.0).rotateYaw(-(this.rotationYaw) * 0.017453292f - Math.PI.toFloat() / 2f)
             passenger.setPosition(this.posX + vec3d.x, this.posY + f1.toDouble(), this.posZ + vec3d.z)
             passenger.rotationYaw += this.deltaRotation
             passenger.rotationYawHead = passenger.rotationYawHead + this.deltaRotation
@@ -935,7 +920,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
      * Open a menu for this boat for the given player
      * Returns true if opening a menu was possible
      */
-    abstract fun openGuiIfPossible(player: PlayerEntity): Boolean
+    abstract fun openGuiIfPossible(player: PlayerEntity): ActionResultType
 
 
 }

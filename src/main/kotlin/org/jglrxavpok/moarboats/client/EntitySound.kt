@@ -14,9 +14,9 @@ class EntitySound(soundEvent: SoundEvent, category: SoundCategory, volume: Float
     }
 
     override fun tick() {
-        this.x = entity.posX.toFloat()
-        this.y = entity.posY.toFloat()
-        this.z = entity.posZ.toFloat()
+        this.x = entity.posX
+        this.y = entity.posY
+        this.z = entity.posZ
     }
 
 }
