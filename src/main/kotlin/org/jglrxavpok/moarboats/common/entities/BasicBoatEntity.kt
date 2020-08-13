@@ -412,14 +412,14 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
             damageTaken -= 1.0f
         }
 
-        val dx = posX-prevPosX;
-        val dy = posY-prevPosY;
-        val dz = posZ-prevPosZ;
+        val dx = x-prevPosX;
+        val dy = y-prevPosY;
+        val dz = z-prevPosZ;
         distanceTravelled += sqrt(dz*dz+dy*dy+dx*dx)
 
-        this.prevPosX = this.posX
-        this.prevPosY = this.posY
-        this.prevPosZ = this.posZ
+        this.prevPosX = this.x
+        this.prevPosY = this.y
+        this.prevPosZ = this.z
         super.tick()
 
         breakLinkIfNeeded(FrontLink)
@@ -433,9 +433,9 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
                 if (f > 3.0f) {
                     canControlItself = false
 
-                    val d1 = (heading.posY - this.posY) / f.toDouble()
-                    val d2 = (heading.posZ - this.posZ) / f.toDouble()
-                    val d0 = (heading.posX - this.posX) / f.toDouble()
+                    val d1 = (heading.y - this.y) / f.toDouble()
+                    val d2 = (heading.z - this.z) / f.toDouble()
+                    val d0 = (heading.x - this.x) / f.toDouble()
                     val alpha = 0.5f
 
                     val anchorPos = calculateAnchorPosition(FrontLink)
@@ -623,7 +623,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
 
         if (this.previousStatus == Status.IN_AIR && this.status != Status.IN_AIR && this.status != Status.ON_LAND) {
             this.waterLevel = this.boundingBox.minY + this.height.toDouble()
-            this.setPosition(this.posX, (this.getWaterLevelAbove() - this.height).toDouble() + 0.101, this.posZ)
+            this.setPosition(this.x, (this.getWaterLevelAbove() - this.height).toDouble() + 0.101, this.z)
             this.setMotion(motion.x, 0.0, motion.z)
             this.lastYd = 0.0
             this.status = Status.IN_LIQUID
@@ -894,7 +894,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
             val f1 = ((if ( ! this.isAlive) 0.009999999776482582 else this.mountedYOffset) + passenger.yOffset).toFloat()
 
             val vec3d = Vector3d(f.toDouble(), 0.0, 0.0).rotateYaw(-(this.rotationYaw) * 0.017453292f - Math.PI.toFloat() / 2f)
-            passenger.setPosition(this.posX + vec3d.x, this.posY + f1.toDouble(), this.posZ + vec3d.z)
+            passenger.setPosition(this.x + vec3d.x, this.y + f1.toDouble(), this.z + vec3d.z)
             passenger.rotationYaw += this.deltaRotation
             passenger.rotationYawHead = passenger.rotationYawHead + this.deltaRotation
             this.applyYawToEntity(passenger)

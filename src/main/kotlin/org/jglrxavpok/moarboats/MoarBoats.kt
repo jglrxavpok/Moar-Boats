@@ -19,8 +19,10 @@ import net.minecraft.server.dedicated.DedicatedServer
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.tileentity.TileEntityType
 import net.minecraft.util.NonNullList
+import net.minecraft.util.RegistryKey
 import net.minecraft.util.ResourceLocation
 import net.minecraft.world.DimensionType
+import net.minecraft.world.World
 import net.minecraft.world.storage.DimensionSavedDataManager
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
@@ -148,7 +150,7 @@ object MoarBoats {
     init {
         FMLKotlinModLoadingContext.get().modEventBus.addListener {event: FMLClientSetupEvent -> ClientEvents.doClientStuff(event)}
         FMLKotlinModLoadingContext.get().modEventBus.addListener {event: FMLCommonSetupEvent -> setup(event)}
-        FMLKotlinModLoadingContext.get().modEventBus.addListener {event: FMLDedicatedServerSetupEvent -> initDedicatedServer(event)}
+        FMLKotlinModLoadingContext.get().modEventBus.addListener {event: FMLServerStartingEvent -> initDedicatedServer(event)}
         FMLKotlinModLoadingContext.get().modEventBus.addListener {event: FMLLoadCompleteEvent -> postLoad(event)}
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, MoarBoatsConfig.spec)
 
@@ -167,14 +169,14 @@ object MoarBoats {
         plugins = LoadIntegrationPlugins()
     }
 
-    fun getLocalMapStorage(dimensionType: DimensionType = DimensionType.OVERWORLD): DimensionSavedDataManager {
+    fun getLocalMapStorage(dimensionType: RegistryKey<World> = World.OVERWORLD): DimensionSavedDataManager {
         try {
             return DistExecutor.runForDist(
                     // client
                     {
                         Supplier { ->
                             when {
-                                Minecraft.getInstance().integratedServer != null /* LAN */ -> Minecraft.getInstance().integratedServer!!.getWorld(dimensionType).savedData
+                                Minecraft.getInstance().integratedServer != null /* LAN */ -> Minecraft.getInstance().integratedServer!!.getWorld(dimensionType)?.savedData ?: error("Tried to get save data of an nonexistent dimension type? $dimensionType")
                                 else -> DummyDimensionSavedDataManager
                             }
                         }
@@ -183,7 +185,7 @@ object MoarBoats {
                     // server
                     {
                         Supplier<DimensionSavedDataManager> { ->
-                            dedicatedServerInstance!!.getWorld(dimensionType).savedData
+                            dedicatedServerInstance!!.getWorld(dimensionType)?.savedData ?: error("Tried to get save data of an nonexistent dimension type? $dimensionType")
                         }
                     }
             )

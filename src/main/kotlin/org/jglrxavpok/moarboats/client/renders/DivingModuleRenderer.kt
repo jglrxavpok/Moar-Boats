@@ -33,8 +33,8 @@ object DivingModuleRenderer: BoatModuleRenderer() {
         val anchorScale = 0.5f
         matrixStack.push()
         matrixStack.scale(anchorScale, -anchorScale, anchorScale)
-        matrixStack.rotate(Quaternion(0f, 90f, 0f, true))
-        bottleModel.render(matrixStack, buffers.getBuffer(RenderType.getEntityTranslucent(textureLocation)), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f)
+        matrixStack.multiply(Quaternion(0f, 90f, 0f, true))
+        bottleModel.render(matrixStack, buffers.getBuffer(RenderType.getEntityTranslucent(textureLocation)), packedLightIn, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f)
 
 
         matrixStack.pop()

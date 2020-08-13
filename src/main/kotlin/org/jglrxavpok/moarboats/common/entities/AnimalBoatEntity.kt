@@ -129,25 +129,15 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(EntityEntries.AnimalBoat, 
         return DispenserTileEntity() as T
     }
 
-    override fun getX() = posX
-
-    override fun getY() = posY
-
-    override fun getZ() = posZ
-
     override fun getBlockState(): BlockState {
         return world.getBlockState(blockPos)
-    }
-
-    override fun getBlockPos(): BlockPos {
-        return super.func_233580_cy_()// TODO: check correct
     }
 
     override fun updatePassenger(passenger: Entity) {
         if (this.isPassenger(passenger)) {
             val f1 = ((if ( ! this.isAlive) 0.009999999776482582 else this.mountedYOffset) + passenger.yOffset).toFloat()
 
-            passenger.setPosition(this.posX, this.posY + f1.toDouble(), this.posZ)
+            passenger.setPosition(this.x, this.y + f1.toDouble(), this.z)
             passenger.rotationYaw += this.deltaRotation
             passenger.rotationYawHead = passenger.rotationYawHead + this.deltaRotation
             this.applyYawToEntity(passenger)

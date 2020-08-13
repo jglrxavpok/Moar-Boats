@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.client.gui.elements
 
+import com.mojang.blaze3d.matrix.MatrixStack
 import net.minecraft.util.text.ITextComponent
 
 open class GuiPropertyButton(val propertyRenderingInfo: List<Pair<ITextComponent, Int>>, pressable: IPressable):
@@ -7,10 +8,10 @@ open class GuiPropertyButton(val propertyRenderingInfo: List<Pair<ITextComponent
 
     var propertyIndex = 0
 
-    override fun render(mouseX: Int, mouseY: Int, partialTicks: Float) {
+    override fun render(matrixStack: MatrixStack, mouseX: Int, mouseY: Int, partialTicks: Float) {
         text = propertyRenderingInfo[propertyIndex].first
         toolIconIndex = propertyRenderingInfo[propertyIndex].second
-        super.render(mouseX, mouseY, partialTicks)
+        super.render(matrixStack, mouseX, mouseY, partialTicks)
     }
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, buttonID: Int): Boolean {

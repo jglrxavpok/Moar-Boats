@@ -20,11 +20,11 @@ public class ModelIcebreaker extends EntityModel<Entity> {
         this.textureHeight = 16;
         this.icebreakerLeft = new ModelRenderer(this, 0, 0);
         this.icebreakerLeft.setRotationPoint(14.0F, 2.0F, 8.0F);
-        this.icebreakerLeft.addBox(0.0F, -2.5F, -0.5F, 11, 5, 1, 0.0F);
+        this.icebreakerLeft.addCuboid(0.0F, -2.5F, -0.5F, 11, 5, 1, 0.0F);
         this.setRotateAngle(icebreakerLeft, -0.4363323129985824F, 0.7853981633974483F, 0.0F);
         this.icebreakerRight = new ModelRenderer(this, 0, 0);
         this.icebreakerRight.setRotationPoint(14.0F, 2.0F, -8.0F);
-        this.icebreakerRight.addBox(0.0F, -2.5F, -0.5F, 11, 5, 1, 0.0F);
+        this.icebreakerRight.addCuboid(0.0F, -2.5F, -0.5F, 11, 5, 1, 0.0F);
         this.setRotateAngle(icebreakerRight, 0.4363323129985824F, -0.7853981633974483F, 0.0F);
     }
 
@@ -44,7 +44,7 @@ public class ModelIcebreaker extends EntityModel<Entity> {
     }
 
     @Override
-    public void setRotationAngles(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void setAngles(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 
     }
 }

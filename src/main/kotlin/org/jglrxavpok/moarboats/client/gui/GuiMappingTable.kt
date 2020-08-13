@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.client.gui
 
+import com.mojang.blaze3d.matrix.MatrixStack
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.widget.button.Button
 import net.minecraft.client.gui.screen.inventory.ContainerScreen
@@ -79,9 +80,9 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
     var selectedIndex: Int = 0
         private set
 
-    override fun func_231160_c_() {
+    override fun init() {
         this.ySize = 114 + 6 * 18
-        super.func_231160_c_()
+        super.init()
         val totalWidth = xSize*.90f
         val xStart = (xSize-totalWidth)/2f+guiLeft
         val listWidth = totalWidth.toInt()
@@ -142,21 +143,21 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
         return super.mouseScrolled(x, y, p_mouseScrolled_1_)
     }
 
-    override fun drawGuiContainerBackgroundLayer(partialTicks: Float, mouseX: Int, mouseY: Int) {
+    override fun drawBackground(matrixStack: MatrixStack, partialTicks: Float, mouseX: Int, mouseY: Int) {
         mc.textureManager.bindTexture(Background)
-        blit(guiLeft, guiTop, 0, 0, this.xSize, this.ySize)
+        drawTexture(matrixStack, guiLeft, guiTop, 0, 0, this.xSize, this.ySize)
 
         mc.textureManager.bindTexture(EmptyBackground)
-        blit(guiLeft, guiTop, 0, 0, this.xSize, ySize)
+        drawTexture(matrixStack, guiLeft, guiTop, 0, 0, this.xSize, ySize)
     }
 
-    override fun render(mouseX: Int, mouseY: Int, partialTicks: Float) {
-        super.render(mouseX, mouseY, partialTicks)
+    override fun render(matrixStack: MatrixStack, mouseX: Int, mouseY: Int, partialTicks: Float) {
+        super.render(matrixStack, mouseX, mouseY, partialTicks)
         synchronized(list) {
-            list.render(mouseX, mouseY, partialTicks)
+            list.render(matrixStack, mouseX, mouseY, partialTicks)
         }
 
-        renderHoveredToolTip(mouseX, mouseY)
+        drawMouseoverTooltip(matrixStack, mouseX, mouseY)
     }
 
     fun select(index: Int) {

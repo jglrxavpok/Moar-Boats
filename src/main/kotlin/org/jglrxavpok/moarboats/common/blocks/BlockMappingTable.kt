@@ -57,7 +57,7 @@ object BlockMappingTable: MoarBoatsBlock({ sound(SoundType.STONE).hardnessAndRes
         } ?: 0
     }
 
-    override fun onBlockActivated(state: BlockState, levelIn: World, pos: BlockPos, playerIn: PlayerEntity, hand: Hand?, hit: BlockRayTraceResult): ActionResultType {
+    override fun onUse(state: BlockState, levelIn: World, pos: BlockPos, playerIn: PlayerEntity, hand: Hand?, hit: BlockRayTraceResult): ActionResultType {
         if(levelIn.isRemote) {
             return ActionResultType.SUCCESS
         }

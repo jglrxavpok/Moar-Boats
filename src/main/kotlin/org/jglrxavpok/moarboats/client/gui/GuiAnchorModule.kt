@@ -26,8 +26,8 @@ class GuiAnchorModule(containerID: Int, playerInventory: PlayerInventory, anchor
     val descText = TranslationTextComponent("gui.anchor.desc")
     val anchor = module as AnchorModule
 
-    override fun func_231160_c_() {
-        super.func_231160_c_()
+    override fun init() {
+        super.init()
         deployButton.x = guiLeft+width/2-70
         deployButton.y = guiTop+20
         addButton(deployButton)
@@ -47,7 +47,7 @@ class GuiAnchorModule(containerID: Int, playerInventory: PlayerInventory, anchor
 
     override fun drawModuleForeground(mouseX: Int, mouseY: Int) {
         super.drawModuleForeground(mouseX, mouseY)
-        font.drawSplitString(descText, 0+20, 0+50, width-40, 0xF0F0F0)
+        textRenderer.drawTrimmed(descText, 0+20, 0+50, width-40, 0xF0F0F0)
     }
 
 }

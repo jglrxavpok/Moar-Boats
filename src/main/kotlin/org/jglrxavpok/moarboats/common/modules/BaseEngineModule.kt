@@ -50,7 +50,7 @@ abstract class BaseEngineModule: BoatModule() {
                 val storage = from.modules.firstOrNull { it.moduleSpot == Spot.Storage }
                 if(storage != null && storage.usesInventory) {
                     // todo: pool
-                    val hopperPos = from.correspondingEntity.func_233580_cy_().up()
+                    val hopperPos = from.correspondingEntity.blockPos.up()
                     val blockState = from.worldRef.getBlockState(hopperPos)
                     if(blockState.block is HopperBlock) {
                         val te = from.worldRef.getTileEntity(hopperPos) as HopperTileEntity

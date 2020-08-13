@@ -19,7 +19,7 @@ import net.minecraft.world.World
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.items.WaterborneConductorItem
 
-object BlockWaterborneConductor: RedstoneDiodeBlock(Properties.create(Material.MISCELLANEOUS).notSolid().hardnessAndResistance(0f).sound(SoundType.WOOD)) {
+object BlockWaterborneConductor: RedstoneDiodeBlock(Properties.create(Material.MISCELLANEOUS).nonOpaque().hardnessAndResistance(0f).sound(SoundType.WOOD)) {
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "waterborne_redstone")
         this.defaultState = stateContainer.baseState.with(HorizontalBlock.HORIZONTAL_FACING, Direction.NORTH).with(POWERED, false)

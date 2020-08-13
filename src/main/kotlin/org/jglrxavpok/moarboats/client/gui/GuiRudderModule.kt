@@ -3,6 +3,7 @@ package org.jglrxavpok.moarboats.client.gui
 import net.minecraft.client.gui.widget.button.Button
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.util.ResourceLocation
+import net.minecraft.util.text.StringTextComponent
 import net.minecraft.util.text.TranslationTextComponent
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
@@ -16,15 +17,15 @@ class GuiRudderModule(containerID: Int, playerInventory: PlayerInventory, anchor
 
     override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/nothing.png")
 
-    val blockButton = Button(0, 0, 140, 20, "") {
+    val blockButton = Button(0, 0, 140, 20, StringTextComponent("")) {
         MoarBoats.network.sendToServer(CChangeRudderBlocking(boat.entityID, module.id))
     }
     val blockingText = TranslationTextComponent("moarboats.gui.rudder.blocking")
     val notBlockingText = TranslationTextComponent("moarboats.gui.rudder.nonblocking")
     val rudder = module as RudderModule
 
-    override fun func_231160_c_() {
-        super.func_231160_c_()
+    override fun init() {
+        super.init()
         blockButton.x = guiLeft + xSize / 2 - 70
         blockButton.y = guiTop + 30
         addButton(blockButton)
@@ -34,7 +35,7 @@ class GuiRudderModule(containerID: Int, playerInventory: PlayerInventory, anchor
         super.tick()
         val deployText = if(rudder.BlockingProperty[boat]) blockingText else notBlockingText
         blockButton.active = true
-        blockButton.message = deployText.formattedText
+        blockButton.message = deployText.formatted()
     }
 
     override fun drawModuleForeground(mouseX: Int, mouseY: Int) {

@@ -41,7 +41,7 @@ object BlockFluidLoader: MoarBoatsBlock() {
         return this.defaultState.with(Facing, Direction.getFacingDirections(context.player)[0])
     }
 
-    override fun onBlockActivated(state: BlockState, worldIn: World, pos: BlockPos, player: PlayerEntity, handIn: Hand, hit: BlockRayTraceResult): ActionResultType {
+    override fun onUse(state: BlockState, worldIn: World, pos: BlockPos, player: PlayerEntity, handIn: Hand, hit: BlockRayTraceResult): ActionResultType {
         if(worldIn.isRemote)
             return ActionResultType.SUCCESS
         NetworkHooks.openGui(player as ServerPlayerEntity, MoarBoatsGuiHandler.FluidLoaderGuiInteraction(pos.x, pos.y, pos.z), pos)

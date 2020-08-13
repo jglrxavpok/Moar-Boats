@@ -1,14 +1,11 @@
 package org.jglrxavpok.moarboats.client.gui
 
-import com.mojang.blaze3d.matrix.MatrixStack
-import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.widget.button.Button
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.item.FilledMapItem
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.util.ResourceLocation
@@ -21,9 +18,7 @@ import org.jglrxavpok.moarboats.client.RenderInfo
 import org.jglrxavpok.moarboats.client.renders.HelmModuleRenderer
 import org.jglrxavpok.moarboats.common.containers.ContainerHelmModule
 import org.jglrxavpok.moarboats.common.data.LoopingOptions
-import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import org.jglrxavpok.moarboats.common.items.ItemPath
-import org.jglrxavpok.moarboats.common.items.MapItemWithPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 import org.jglrxavpok.moarboats.common.network.CChangeEngineMode
 import org.jglrxavpok.moarboats.common.network.CSaveItineraryToMap
@@ -61,8 +56,8 @@ class GuiHelmModule(containerID: Int, playerInventory: PlayerInventory, engine: 
         shouldRenderInventoryName = false
     }
 
-    override fun func_231160_c_() {
-        super.func_231160_c_()
+    override fun init() {
+        super.init()
         mapEditButton.width = (xSize * .75).toInt() /2
         mapEditButton.x = guiLeft + xSize/2 - mapEditButton.width
         mapEditButton.y = guiTop + (mapSize + 7).toInt()
@@ -81,15 +76,15 @@ class GuiHelmModule(containerID: Int, playerInventory: PlayerInventory, engine: 
         val bufferbuilder = tessellator.buffer
         val x = guiLeft + xSize/2f - mapSize/2
         val y = guiTop.toDouble() + 5.0
-        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_COLOR_TEX_LIGHTMAP)
-        bufferbuilder.pos(x, y+mapSize, 0.0).color(1f, 1f, 1f, 1f).tex(0.0f, 1.0f).lightmap(15728880).endVertex()
-        bufferbuilder.pos(x+mapSize, y+mapSize, 0.0).color(1f, 1f, 1f, 1f).tex(1.0f, 1.0f).lightmap(15728880).endVertex()
-        bufferbuilder.pos(x+mapSize, y, 0.0).color(1f, 1f, 1f, 1f).tex(1.0f, 0.0f).lightmap(15728880).endVertex()
-        bufferbuilder.pos(x, y, 0.0).color(1f, 1f, 1f, 1f).tex(0.0f, 0.0f).lightmap(15728880).endVertex()
+        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_COLOR_TEXTURE_LIGHT)
+        bufferbuilder.vertex(x, y+mapSize, 0.0).color(1f, 1f, 1f, 1f).texture(0.0f, 1.0f).light(15728880).endVertex()
+        bufferbuilder.vertex(x+mapSize, y+mapSize, 0.0).color(1f, 1f, 1f, 1f).texture(1.0f, 1.0f).light(15728880).endVertex()
+        bufferbuilder.vertex(x+mapSize, y, 0.0).color(1f, 1f, 1f, 1f).texture(1.0f, 0.0f).light(15728880).endVertex()
+        bufferbuilder.vertex(x, y, 0.0).color(1f, 1f, 1f, 1f).texture(0.0f, 0.0f).light(15728880).endVertex()
         tessellator.draw()
         val stack = baseContainer.getSlot(0).stack
         var hasMap = false
-        val buffers = mc.renderTypeBuffers.bufferSource
+        val buffers = mc.bufferBuilders.entityVertexConsumers
         getMapData(stack)?.let { mapdata ->
             val item = stack.item
             val (waypoints, loopingOption) = when(item) {
@@ -97,7 +92,7 @@ class GuiHelmModule(containerID: Int, playerInventory: PlayerInventory, engine: 
                 is ItemPath -> Pair(item.getWaypointData(stack, MoarBoats.getLocalMapStorage()), item.getLoopingOptions(stack))
                 else -> return@let
             }
-            val renderInfo = RenderInfo(matrixStack, mc.renderTypeBuffers.bufferSource)
+            val renderInfo = RenderInfo(matrixStack, mc.bufferBuilders.entityVertexConsumers)
             HelmModuleRenderer.renderMap(boat, renderInfo, mapdata, x, y, mapSize, boat.positionX, boat.positionZ, margins, waypoints, loopingOption == LoopingOptions.Loops)
 
             if(mouseX >= x+margins && mouseX <= x+mapSize-margins && mouseY >= y+margins && mouseY <= y+mapSize-margins) {
@@ -107,17 +102,17 @@ class GuiHelmModule(containerID: Int, playerInventory: PlayerInventory, engine: 
 
             hasMap = true
         }
-        buffers.finish() // render to screen
+        buffers.draw() // render to screen
 
         if(!hasMap) {
-            RenderSystem.pushMatrix()
-            RenderSystem.translatef(guiLeft.toFloat()+8f, guiTop.toFloat()+8f, 0f)
-            Screen.fill(0, 0, 16, 16, 0x30ff0000)
+            matrixStack.push()
+            matrixStack.translate(guiLeft.toDouble()+8.0, guiTop.toDouble()+8.0, 0.0)
+            Screen.fill(matrixStack, 0, 0, 16, 16, 0x30ff0000)
             mc.itemRenderer.renderItemIntoGUI(mapStack, 0, 0)
-            RenderSystem.depthFunc(GL11.GL_GREATER)
-            Screen.fill(0, 0, 16, 16, 0x30ffffff)
+            RenderSystem.depthFunc(GL11.GL_GREATER) // FIXME: this probably no longer works
+            Screen.fill(matrixStack, 0, 0, 16, 16, 0x30ffffff)
             RenderSystem.depthFunc(GL11.GL_LEQUAL)
-            RenderSystem.popMatrix()
+            matrixStack.pop()
         }
     }
 

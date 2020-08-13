@@ -16,6 +16,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.util.ResourceLocation
+import net.minecraft.util.registry.Registry
 import net.minecraftforge.client.model.data.EmptyModelData
 import net.minecraftforge.registries.GameData
 import net.minecraftforge.registries.RegistryManager
@@ -58,14 +59,14 @@ object FishingModuleRenderer : BoatModuleRenderer() {
         if(ready && hasRod && boat.inLiquid() && !boat.isEntityInLava()) {
             matrixStack.push()
             matrixStack.scale(-1f, 1f, 1f)
-            mc.itemRenderer.renderItem(rodStack, ItemCameraTransforms.TransformType.FIXED, false, matrixStack, buffers, packedLightIn, OverlayTexture.NO_OVERLAY, rodModel)
+            mc.itemRenderer.renderItem(rodStack, ItemCameraTransforms.TransformType.FIXED, false, matrixStack, buffers, packedLightIn, OverlayTexture.DEFAULT_UV, rodModel)
             matrixStack.pop()
 
             if(!playingAnimation)
                 renderHook(matrixStack, buffers, packedLightIn, entityYaw, entityRendererManager)
         } else {
             val stackToRender = if(hasRod) rodStack else StickStack
-            mc.itemRenderer.renderItem(stackToRender, ItemCameraTransforms.TransformType.FIXED, packedLightIn, OverlayTexture.NO_OVERLAY, matrixStack, buffers)
+            mc.itemRenderer.renderItem(stackToRender, ItemCameraTransforms.TransformType.FIXED, packedLightIn, OverlayTexture.DEFAULT_UV, matrixStack, buffers)
         }
         matrixStack.pop()
 
@@ -88,14 +89,14 @@ object FishingModuleRenderer : BoatModuleRenderer() {
             val fishScale = 0.25f
             matrixStack.scale(fishScale, fishScale, fishScale)
             val lootList = module.lastLootProperty[boat]
-            matrixStack.rotate(Quaternion(0f, boat.ticksExisted.toFloat()*4f, 0f, true))
+            matrixStack.multiply(Quaternion(0f, boat.ticksExisted.toFloat()*4f, 0f, true))
             for(lootInfo in lootList) {
                 lootInfo as CompoundNBT
-                val item = RegistryManager.ACTIVE.getRegistry<Item>(GameData.ITEMS).getValue(ResourceLocation(lootInfo.getString("name")))
+                val item = RegistryManager.ACTIVE.getRegistry<Item>(Registry.ITEM_KEY.registryName).getValue(ResourceLocation(lootInfo.getString("name")))
                 val stack = ItemStack(item!!, 1)
                 stack.damage = lootInfo.getInt("damage")
                 mc.itemRenderer.renderItem(stack, ItemCameraTransforms.TransformType.FIXED, packedLightIn, 0, matrixStack, buffers)
-                matrixStack.rotate(Quaternion(0f, 360f / lootList.size, 0f, true))
+                matrixStack.multiply(Quaternion(0f, 360f / lootList.size, 0f, true))
             }
             matrixStack.pop()
         }
@@ -117,15 +118,15 @@ object FishingModuleRenderer : BoatModuleRenderer() {
         matrixStack.push()
         matrixStack.translate(x, y, z)
         matrixStack.scale(0.5f, 0.5f, 0.5f)
-        matrixStack.rotate(Vector3f.YN.rotationDegrees(entityYaw + 90f))
-        matrixStack.rotate(Vector3f.YP.rotationDegrees(entityRendererManager.info.yaw))
-        matrixStack.rotate(Vector3f.XP.rotationDegrees(-entityRendererManager.info.pitch))
-        matrixStack.rotate(Vector3f.YP.rotationDegrees(180.0f))
+        matrixStack.multiply(Vector3f.NEGATIVE_Y.getDegreesQuaternion(entityYaw + 90f))
+        matrixStack.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(entityRendererManager.info.yaw))
+        matrixStack.multiply(Vector3f.POSITIVE_X.getDegreesQuaternion(-entityRendererManager.info.pitch))
+        matrixStack.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(180.0f))
 
-        bufferbuilder.pos(matrixStack, -0.5, -0.5, 0.0).color(1f, 1f, 1f, 1f).tex(0f, 1f).overlay(OverlayTexture.NO_OVERLAY).lightmap(packedLightIn).normal(matrixStack.last.normal, 0.0f, 1.0f, 0.0f).endVertex()
-        bufferbuilder.pos(matrixStack, 0.5, -0.5, 0.0).color(1f, 1f, 1f, 1f).tex(1f, 1f).overlay(OverlayTexture.NO_OVERLAY).lightmap(packedLightIn).normal(matrixStack.last.normal, 0.0f, 1.0f, 0.0f).endVertex()
-        bufferbuilder.pos(matrixStack, 0.5, 0.5, 0.0).color(1f, 1f, 1f, 1f).tex(1f, 0f).overlay(OverlayTexture.NO_OVERLAY).lightmap(packedLightIn).normal(matrixStack.last.normal, 0.0f, 1.0f, 0.0f).endVertex()
-        bufferbuilder.pos(matrixStack, -0.5, 0.5, 0.0).color(1f, 1f, 1f, 1f).tex(0f, 0f).overlay(OverlayTexture.NO_OVERLAY).lightmap(packedLightIn).normal(matrixStack.last.normal, 0.0f, 1.0f, 0.0f).endVertex()
+        bufferbuilder.pos(matrixStack, -0.5, -0.5, 0.0).color(1f, 1f, 1f, 1f).texture(0f, 1f).overlay(OverlayTexture.DEFAULT_UV).light(packedLightIn).normal(matrixStack.peek().normal, 0.0f, 1.0f, 0.0f).endVertex()
+        bufferbuilder.pos(matrixStack, 0.5, -0.5, 0.0).color(1f, 1f, 1f, 1f).texture(1f, 1f).overlay(OverlayTexture.DEFAULT_UV).light(packedLightIn).normal(matrixStack.peek().normal, 0.0f, 1.0f, 0.0f).endVertex()
+        bufferbuilder.pos(matrixStack, 0.5, 0.5, 0.0).color(1f, 1f, 1f, 1f).texture(1f, 0f).overlay(OverlayTexture.DEFAULT_UV).light(packedLightIn).normal(matrixStack.peek().normal, 0.0f, 1.0f, 0.0f).endVertex()
+        bufferbuilder.pos(matrixStack, -0.5, 0.5, 0.0).color(1f, 1f, 1f, 1f).texture(0f, 0f).overlay(OverlayTexture.DEFAULT_UV).light(packedLightIn).normal(matrixStack.peek().normal, 0.0f, 1.0f, 0.0f).endVertex()
 
         matrixStack.pop()
 

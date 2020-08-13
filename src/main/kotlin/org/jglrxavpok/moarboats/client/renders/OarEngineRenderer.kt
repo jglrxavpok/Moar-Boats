@@ -46,7 +46,7 @@ object OarEngineRenderer : BoatModuleRenderer() {
         paddles.paddles21.rotateAngleY = paddles.paddles20.rotateAngleY
         paddles.paddles21.rotateAngleZ = paddles.paddles20.rotateAngleZ
 
-        paddles.render(matrixStack, buffers.getBuffer(renderType), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f)
+        paddles.render(matrixStack, buffers.getBuffer(renderType), packedLightIn, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f)
 
         matrixStack.pop()
     }

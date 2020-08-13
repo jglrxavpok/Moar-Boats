@@ -5,6 +5,7 @@ import net.minecraft.client.gui.widget.button.ImageButton
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.util.Direction
 import net.minecraft.util.ResourceLocation
+import net.minecraft.util.text.StringTextComponent
 import net.minecraft.util.text.TranslationTextComponent
 import net.minecraftforge.fml.client.gui.widget.Slider
 import org.jglrxavpok.moarboats.MoarBoats
@@ -47,10 +48,10 @@ class GuiDispenserModule(containerID: Int, playerInv: PlayerInventory, module: B
         MoarBoats.network.sendToServer(CChangeDispenserPeriod(boat.entityID, module.id, periodSlider.value))
     }
 
-    override fun func_231160_c_() {
-        super.func_231160_c_()
+    override fun init() {
+        super.init()
         val sliderWidth = width-10
-        periodSlider = Slider(guiLeft+width/2-sliderWidth/2, guiTop + 100, sliderWidth, 20, "${sliderPrefix} ", sliderSuffix, 1.0, 100.0, 0.0, true, true, sliderCallback)
+        periodSlider = Slider(guiLeft+width/2-sliderWidth/2, guiTop + 100, sliderWidth, 20, StringTextComponent("${sliderPrefix} "), sliderSuffix, 1.0, 100.0, 0.0, true, true, sliderCallback)
         periodSlider.value = dispensingModule.blockPeriodProperty[boat]
         addButton(periodSlider)
 
@@ -84,20 +85,20 @@ class GuiDispenserModule(containerID: Int, playerInv: PlayerInventory, module: B
     }
 
     override fun drawModuleForeground(mouseX: Int, mouseY: Int) {
-        val maxX = 78
-        val startY = 26
-        val topWidth = font.getStringWidth(topRowText)
-        drawString(font, topRowText, maxX - topWidth, startY, 0xF0F0F0)
+        val maxX = 78f
+        val startY = 26f
+        val topWidth = textRenderer.getStringWidth(topRowText.formatted().string)
+        textRenderer.draw(matrixStack, topRowText, maxX - topWidth, startY, 0xF0F0F0)
 
-        val middleWidth = font.getStringWidth(middleRowText)
-        drawString(font, middleRowText, maxX - middleWidth, startY + 20, 0xF0F0F0)
+        val middleWidth = textRenderer.getStringWidth(middleRowText.formatted().string)
+        textRenderer.draw(matrixStack, middleRowText, maxX - middleWidth, startY + 20, 0xF0F0F0)
 
-        val bottomWidth = font.getStringWidth(bottomRowText)
-        drawString(font, bottomRowText, maxX - bottomWidth, startY + 40, 0xF0F0F0)
+        val bottomWidth = textRenderer.getStringWidth(bottomRowText.formatted().string)
+        textRenderer.draw(matrixStack, bottomRowText, maxX - bottomWidth, startY + 40, 0xF0F0F0)
 
-        drawCenteredString(font, periodText, 88, 90, 0xF0F0F0)
+        textRenderer.drawCenteredString(matrixStack, periodText, 88, 90, 0xF0F0F0)
 
-        drawCenteredString(font, orientationText, 32, 25, 0xF0F0F0)
+        textRenderer.drawCenteredString(matrixStack, orientationText, 32, 25, 0xF0F0F0)
     }
 
 }

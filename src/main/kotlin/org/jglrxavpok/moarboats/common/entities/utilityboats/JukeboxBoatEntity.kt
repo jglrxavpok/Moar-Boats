@@ -88,11 +88,11 @@ class JukeboxBoatEntity(world: World): UtilityBoatEntity<JukeboxTileEntity, Empt
 
     private fun insertRecord(stack: ItemStack) {
         record = stack
-        MoarBoats.network.send(PacketDistributor.NEAR.with { PacketDistributor.TargetPoint(positionX, positionY, positionZ, 64.0, world.func_234923_W_()) }, SPlayRecordFromBoat(entityID, stack.item as? MusicDiscItem))
+        MoarBoats.network.send(PacketDistributor.NEAR.with { PacketDistributor.TargetPoint(positionX, positionY, positionZ, 64.0, world.registryKey) }, SPlayRecordFromBoat(entityID, stack.item as? MusicDiscItem))
     }
 
     private fun ejectRecord() {
-        MoarBoats.network.send(PacketDistributor.NEAR.with { PacketDistributor.TargetPoint(positionX, positionY, positionZ, 64.0, world.func_234923_W_()) }, SPlayRecordFromBoat(entityID, null))
+        MoarBoats.network.send(PacketDistributor.NEAR.with { PacketDistributor.TargetPoint(positionX, positionY, positionZ, 64.0, world.registryKey) }, SPlayRecordFromBoat(entityID, null))
 
         entityDropItem(record!!.copy())
         record = ItemStack.EMPTY

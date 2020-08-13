@@ -4,7 +4,6 @@ import com.mojang.blaze3d.platform.GlStateManager
 import com.progwml6.ironchest.common.block.IronChestsTypes
 import net.minecraft.client.gui.AbstractGui
 import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.TranslationTextComponent
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
@@ -41,10 +40,10 @@ class GuiIronChestModule(containerID: Int, playerInventory: PlayerInventory, mod
         return chestType.ySize
     }
 
-    override fun drawGuiContainerForegroundLayer(mouseX: Int, mouseY: Int) {
-        super.drawGuiContainerForegroundLayer(mouseX, mouseY)
-        font.drawString(moduleTitle.formattedText, 8.0f, 6.0f, 4210752)
-        font.drawString(playerInventory.displayName.formattedText, 8.0f, (ySize - 96 + 2).toFloat(), 4210752)
+    override fun drawForeground(mouseX: Int, mouseY: Int) {
+        super.drawForeground(mouseX, mouseY)
+        font.drawString(moduleTitle.formatted(), 8.0f, 6.0f, 4210752)
+        font.drawString(playerInventory.displayName.formatted(), 8.0f, (ySize - 96 + 2).toFloat(), 4210752)
     }
 
 
@@ -56,6 +55,6 @@ class GuiIronChestModule(containerID: Int, playerInventory: PlayerInventory, mod
         val x = (width - xSize) / 2
         val y = (height - ySize) / 2
 
-        AbstractGui.blit(x, y, 0f, 0f, xSize, ySize, textureXSize, textureYSize)
+        AbstractGui.drawTexture(matrixStack, x, y, 0f, 0f, xSize, ySize, textureXSize, textureYSize)
     }
 }

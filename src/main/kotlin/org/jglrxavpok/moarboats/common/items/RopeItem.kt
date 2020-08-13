@@ -5,6 +5,7 @@ import net.minecraft.client.util.ITooltipFlag
 import net.minecraft.entity.Entity
 import net.minecraft.entity.item.LeashKnotEntity
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.item.ItemModelsProperties
 import net.minecraft.item.ItemStack
 import net.minecraft.item.ItemUseContext
 import net.minecraft.nbt.CompoundNBT
@@ -23,7 +24,7 @@ object RopeItem : MoarBoatsItem("rope") {
     }
 
     init {
-        addPropertyOverride(ResourceLocation("first_knot")) { stack, _, _ ->
+        ItemModelsProperties.register(this, ResourceLocation("first_knot")) { stack, _, _ ->
             if(getState(stack) == State.WAITING_NEXT) 1f else 0f
         }
     }

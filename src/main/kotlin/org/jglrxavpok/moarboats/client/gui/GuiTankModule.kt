@@ -35,7 +35,7 @@ class GuiTankModule(containerID: Int, playerInventory: PlayerInventory, module: 
         val localY = mouseY - guiTop
         if(localX in 60..(60+55) && localY in 6..(6+75)) {
             val fluidName = TranslationTextComponent(tankModule.getFluidInside(boat)?.attributes?.getTranslationKey(tankModule.getContents(boat)!!) ?: "nothing")
-            renderTooltip(TranslationTextComponent(MoarBoats.ModID+".tank_level", tankModule.getFluidAmount(boat), tankModule.getCapacity(boat), fluidName).formattedText, localX, localY)
+            renderTooltip(matrixStack, TranslationTextComponent(MoarBoats.ModID+".tank_level", tankModule.getFluidAmount(boat), tankModule.getCapacity(boat), fluidName).formatted(), localX, localY)
         }
     }
 
@@ -45,7 +45,7 @@ class GuiTankModule(containerID: Int, playerInventory: PlayerInventory, module: 
         GlStateManager.disableCull()
         val fluid = tankModule.getFluidInside(boat)
         if(fluid != null && fluid !is EmptyFluid) {
-            renderFluidInGui(guiLeft+56, guiTop+80, fluid, tankModule.getFluidAmount(boat), tankModule.getCapacity(boat), horizontalTilesCount = 4, world = boat.world, position = boat.correspondingEntity.position)
+            renderFluidInGui(guiLeft+56, guiTop+80, fluid, tankModule.getFluidAmount(boat), tankModule.getCapacity(boat), horizontalTilesCount = 4, world = boat.world, position = boat.correspondingEntity.blockPos)
         }
     }
 
@@ -57,7 +57,7 @@ class GuiTankModule(containerID: Int, playerInventory: PlayerInventory, module: 
             val energyHeight = (73 * (fluidAmount/fluidCapacity.toFloat())).toInt()
             val mc = Minecraft.getInstance()
             mc.textureManager.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE)
-            val sprite = mc.getAtlasSpriteGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(fluid.attributes.stillTexture)
+            val sprite = mc.getSpriteAtlas(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(fluid.attributes.stillTexture)
             val tessellator = Tessellator.getInstance()
             val buffer = tessellator.buffer
             buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR)
@@ -71,10 +71,10 @@ class GuiTankModule(containerID: Int, playerInventory: PlayerInventory, module: 
             for(xOffset in 0 until maxXOffset) {
                 val maxYOffset = energyHeight/16
                 for(yOffset in 0 until maxYOffset) {
-                    buffer.pos(leftX+xOffset*16.0, bottomY-yOffset*16.0, 0.0).tex(sprite.minU, sprite.minV).color(red, green, blue, 255).endVertex()
-                    buffer.pos(leftX+xOffset*16.0+16.0, bottomY-yOffset*16.0, 0.0).tex(sprite.maxU, sprite.minV).color(red, green, blue, 255).endVertex()
-                    buffer.pos(leftX+xOffset*16.0+16.0, bottomY-yOffset*16-16.0, 0.0).tex(sprite.maxU, sprite.maxV).color(red, green, blue, 255).endVertex()
-                    buffer.pos(leftX+xOffset*16.0, bottomY-yOffset*16-16.0, 0.0).tex(sprite.minU, sprite.maxV).color(red, green, blue, 255).endVertex()
+                    buffer.vertex(leftX+xOffset*16.0, bottomY-yOffset*16.0, 0.0).texture(sprite.minU, sprite.minV).color(red, green, blue, 255).endVertex()
+                    buffer.vertex(leftX+xOffset*16.0+16.0, bottomY-yOffset*16.0, 0.0).texture(sprite.maxU, sprite.minV).color(red, green, blue, 255).endVertex()
+                    buffer.vertex(leftX+xOffset*16.0+16.0, bottomY-yOffset*16-16.0, 0.0).texture(sprite.maxU, sprite.maxV).color(red, green, blue, 255).endVertex()
+                    buffer.vertex(leftX+xOffset*16.0, bottomY-yOffset*16-16.0, 0.0).texture(sprite.minU, sprite.maxV).color(red, green, blue, 255).endVertex()
                 }
 
                 // add little part on top
@@ -82,10 +82,10 @@ class GuiTankModule(containerID: Int, playerInventory: PlayerInventory, module: 
                 val deltaH = remainingHeight/16.0f
                 val minV = sprite.minV
                 val maxV = sprite.maxV * deltaH + (1.0f-deltaH) * minV
-                buffer.pos(leftX+xOffset*16.0, bottomY-maxYOffset*16.0, 0.0).tex(sprite.minU, minV).color(red, green, blue, 255).endVertex()
-                buffer.pos(leftX+xOffset*16.0+16.0, bottomY-maxYOffset*16.0, 0.0).tex(sprite.maxU, minV).color(red, green, blue, 255).endVertex()
-                buffer.pos(leftX+xOffset*16.0+16.0, bottomY-maxYOffset*16.0-remainingHeight, 0.0).tex(sprite.maxU, maxV).color(red, green, blue, 255).endVertex()
-                buffer.pos(leftX+xOffset*16.0, bottomY-maxYOffset*16.0-remainingHeight, 0.0).tex(sprite.minU, maxV).color(red, green, blue, 255).endVertex()
+                buffer.vertex(leftX+xOffset*16.0, bottomY-maxYOffset*16.0, 0.0).texture(sprite.minU, minV).color(red, green, blue, 255).endVertex()
+                buffer.vertex(leftX+xOffset*16.0+16.0, bottomY-maxYOffset*16.0, 0.0).texture(sprite.maxU, minV).color(red, green, blue, 255).endVertex()
+                buffer.vertex(leftX+xOffset*16.0+16.0, bottomY-maxYOffset*16.0-remainingHeight, 0.0).texture(sprite.maxU, maxV).color(red, green, blue, 255).endVertex()
+                buffer.vertex(leftX+xOffset*16.0, bottomY-maxYOffset*16.0-remainingHeight, 0.0).texture(sprite.minU, maxV).color(red, green, blue, 255).endVertex()
             }
             tessellator.draw()
 

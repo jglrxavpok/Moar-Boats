@@ -41,7 +41,7 @@ object SonarModuleRenderer : BoatModuleRenderer() {
 
         // render gradient
         if(Minecraft.getInstance().gameSettings.reducedDebugInfo) {
-            matrixStack.rotate(Quaternion(-(180.0f - entityYaw - 90f), 0.0f, 0f, true))
+            matrixStack.multiply(Quaternion(-(180.0f - entityYaw - 90f), 0.0f, 0f, true))
             testMatrix.compute(boat.world, boat.positionX, boat.positionY, boat.positionZ).removeNotConnectedToCenter()
             val gradient = testMatrix.computeGradient()
             testMatrix.forEach { xOffset, zOffset, potentialState ->
@@ -53,7 +53,7 @@ object SonarModuleRenderer : BoatModuleRenderer() {
                         matrixStack.translate(xOffset.toDouble(), 1.0, zOffset.toDouble())
 
                         val angle = atan2(gradientVal.y, gradientVal.x)
-                        matrixStack.rotate(Quaternion(0f, angle.toFloat(), 0f, false))
+                        matrixStack.multiply(Quaternion(0f, angle.toFloat(), 0f, false))
                         matrixStack.scale(0.1f, 0.1f, gradientVal.length().toFloat() * 0.1f)
                         if(!potentialState.fluidState.isEmpty) {
                             renderBlockState(matrixStack, buffers, packedLightIn, entityRendererManager, Blocks.EMERALD_BLOCK.defaultState, boat.brightness)

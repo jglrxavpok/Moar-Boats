@@ -3,6 +3,7 @@ package org.jglrxavpok.moarboats.common.state
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.nbt.ListNBT
 import net.minecraft.util.math.BlockPos
+import net.minecraft.world.World
 import net.minecraft.world.storage.MapData
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
@@ -89,7 +90,7 @@ class BlockPosProperty(module: BoatModule, id: String): BoatProperty<BlockPos.Mu
 
 object EmptyMapData : MapData("empty") {
     init {
-        this.dimension = DimensionType.OVERWORLD
+        this.dimension = World.OVERWORLD
     }
 }
 

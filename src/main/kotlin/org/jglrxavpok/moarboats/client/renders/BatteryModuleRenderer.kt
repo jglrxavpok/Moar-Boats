@@ -20,7 +20,7 @@ object BatteryModuleRenderer : BoatModuleRenderer() {
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererManager) {
         module as BatteryModule
         matrixStack.push()
-        matrixStack.rotate(Vector3f.YP.rotationDegrees(90f))
+        matrixStack.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(90f))
         matrixStack.scale(0.75f, 0.75f, 0.75f)
         matrixStack.translate(-0.5, -4f/16.0, 1.0/16.0/0.75)
 

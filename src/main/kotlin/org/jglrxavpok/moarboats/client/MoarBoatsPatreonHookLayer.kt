@@ -43,9 +43,9 @@ class MoarBoatsPatreonHookLayer(val playerRenderer: PlayerRenderer): LayerRender
 
         val handSide = player.primaryHand
         matrixStackIn.push()
-        (this.entityModel as IHasArm).translateHand(handSide, matrixStackIn)
-        matrixStackIn.rotate(Vector3f.XP.rotationDegrees(-90.0f))
-        matrixStackIn.rotate(Vector3f.YP.rotationDegrees(180.0f))
+        (this.entityModel as IHasArm).setArmAngle(handSide, matrixStackIn)
+        matrixStackIn.multiply(Vector3f.POSITIVE_X.getDegreesQuaternion(-90.0f))
+        matrixStackIn.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(180.0f))
         val flag = handSide == HandSide.LEFT
         matrixStackIn.translate(((if (flag) -1 else 1).toFloat() / 16.0f).toDouble(), 0.125, -0.625)
         hookModel.render(matrixStackIn, bufferIn.getBuffer(RenderType.getEntityTranslucent(hookTextureLocation)), packedLightIn, 0, 1f, 1f, 1f, 1f)

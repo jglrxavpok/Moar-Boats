@@ -21,7 +21,7 @@ abstract class BoatModuleRenderer: ForgeRegistryEntry<BoatModuleRenderer>() {
 
     companion object {
         fun renderBlockState(matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, entityRenderer: EntityRendererManager, state: BlockState, brightness: Float) {
-            Minecraft.getInstance().blockRendererDispatcher.renderBlock(state, matrixStack, buffers, packedLightIn, OverlayTexture.NO_OVERLAY)
+            Minecraft.getInstance().blockRendererDispatcher.renderBlockAsEntity(state, matrixStack, buffers, packedLightIn, OverlayTexture.DEFAULT_UV)
         }
     }
 

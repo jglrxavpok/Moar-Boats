@@ -22,7 +22,7 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
 
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererManager) {
         matrixStack.push()
-        matrixStack.rotate(Vector3f.YP.rotationDegrees(90f))
+        matrixStack.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(90f))
         val anchor = module as AnchorModule
 
         var anchorX = anchor.anchorXProperty[boat]
@@ -33,9 +33,9 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
             val dx = -(anchorX - boat.positionX)
             val dy = anchorY - boat.positionY
             val dz = -(anchorZ - boat.positionZ)
-            matrixStack.rotate(Quaternion(Vector3f.YN, 180f - entityYaw - 90f, true))
+            matrixStack.multiply(Quaternion(Vector3f.NEGATIVE_Y, 180f - entityYaw - 90f, true))
             matrixStack.translate(dx, dy, dz)
-            matrixStack.rotate(Quaternion(Vector3f.YP, 180f - entityYaw - 90f, true))
+            matrixStack.multiply(Quaternion(Vector3f.POSITIVE_Y, 180f - entityYaw - 90f, true))
         } else {
             anchorX = boat.positionX
             anchorY = boat.positionY

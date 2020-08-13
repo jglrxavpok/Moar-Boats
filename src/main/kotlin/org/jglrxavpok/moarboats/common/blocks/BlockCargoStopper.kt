@@ -27,7 +27,7 @@ import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.items.CargoStopperItem
 import java.util.*
 
-object BlockCargoStopper: RedstoneDiodeBlock(Properties.create(Material.MISCELLANEOUS).notSolid().tickRandomly().hardnessAndResistance(0f).sound(SoundType.WOOD)) {
+object BlockCargoStopper: RedstoneDiodeBlock(Properties.create(Material.MISCELLANEOUS).nonOpaque().tickRandomly().hardnessAndResistance(0f).sound(SoundType.WOOD)) {
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "cargo_stopper")
         this.defaultState = stateContainer.baseState.with(HorizontalBlock.HORIZONTAL_FACING, Direction.NORTH).with(POWERED, false)
@@ -64,7 +64,7 @@ object BlockCargoStopper: RedstoneDiodeBlock(Properties.create(Material.MISCELLA
         return 0
     }
 
-    override fun tick(state: BlockState, worldIn: ServerWorld, pos: BlockPos, rand: Random) {
+    override fun scheduledTick(state: BlockState, worldIn: ServerWorld, pos: BlockPos, rand: Random) {
         val produceSignal = shouldBePowered(worldIn, pos, state)
         when {
             produceSignal && !state[POWERED] -> worldIn.setBlockState(pos, state.with(POWERED, true).with(HorizontalBlock.HORIZONTAL_FACING, state.get(HorizontalBlock.HORIZONTAL_FACING)))

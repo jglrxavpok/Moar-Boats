@@ -22,13 +22,13 @@ public class ModelDivingBottle extends EntityModel<Entity> {
         this.textureHeight = 32;
         this.body = new ModelRenderer(this, 0, 0);
         this.body.setRotationPoint(0.0F, 0.0F, 0.0F);
-        this.body.addBox(-4.0F, 0.0F, -4.0F, 8, 16, 8, 0.0F);
+        this.body.addCuboid(-4.0F, 0.0F, -4.0F, 8, 16, 8, 0.0F);
         this.nozzle = new ModelRenderer(this, 24, 0);
         this.nozzle.setRotationPoint(0.0F, -5.5F, 0.0F);
-        this.nozzle.addBox(-0.5F, 0.0F, 0.0F, 1, 1, 3, 0.0F);
+        this.nozzle.addCuboid(-0.5F, 0.0F, 0.0F, 1, 1, 3, 0.0F);
         this.nozzle_attach = new ModelRenderer(this, 0, 0);
         this.nozzle_attach.setRotationPoint(0.0F, -6.0F, 0.0F);
-        this.nozzle_attach.addBox(-1.0F, 0.0F, -1.0F, 2, 6, 2, 0.0F);
+        this.nozzle_attach.addCuboid(-1.0F, 0.0F, -1.0F, 2, 6, 2, 0.0F);
     }
 
     @Override
@@ -39,7 +39,7 @@ public class ModelDivingBottle extends EntityModel<Entity> {
     }
 
     @Override
-    public void setRotationAngles(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void setAngles(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 
     }
 }

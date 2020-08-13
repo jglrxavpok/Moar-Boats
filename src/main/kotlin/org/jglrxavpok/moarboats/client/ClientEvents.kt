@@ -70,8 +70,8 @@ object ClientEvents {
     val hookTextureLocation = ResourceLocation(MoarBoats.ModID, "textures/hook.png")
     val fakePlayerModel = PlayerModel<PlayerEntity>(0f, false)
     val armModel = ModelRenderer(64, 64, 32, 48).apply {
-        addBox(-1.0f, -2.0f, -2.0f, 4f, 9f, 4f) // arm
-        addBox(-1.0f, -2.0f, -2.0f, 4f, 9f, 4f, 0.25f, false) // armwear
+        addCuboid(-1.0f, -2.0f, -2.0f, 4f, 9f, 4f) // arm
+        addCuboid(-1.0f, -2.0f, -2.0f, 4f, 9f, 4f, 0.25f, false) // armwear
         setRotationPoint(-5.0F, 2.0F + 0f, 0.0F)
     }
 
@@ -85,7 +85,7 @@ object ClientEvents {
             val modelConfiguration = object: IModelConfiguration {
                 override fun isShadedInGui() = true
 
-                override fun isTexturePresent(name: String) = MissingTextureSprite.getLocation() != resolveTexture(name).textureLocation
+                override fun isTexturePresent(name: String) = MissingTextureSprite.getLocation() != resolveTexture(name).textureId
 
                 override fun getModelName() = FishingModuleRenderer.CastFishingRodLocation.toString()
 
@@ -266,17 +266,17 @@ object ClientEvents {
         val f3 = 0.4f * MathHelper.sin(f1 * (Math.PI.toFloat() * 2f))
         val f4 = -0.4f * MathHelper.sin(swingProgress * Math.PI.toFloat())
         matrixStack.translate((f * (f2 + 0.64000005f)).toDouble(), (f3 + -0.6f + equippedProgress * -0.6f).toDouble(), (f4 + -0.71999997f).toDouble())
-        matrixStack.rotate(Vector3f.YP.rotationDegrees(f * 45.0f))
+        matrixStack.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(f * 45.0f))
         val f5 = MathHelper.sin(swingProgress * swingProgress * Math.PI.toFloat())
         val f6 = MathHelper.sin(f1 * Math.PI.toFloat())
-        matrixStack.rotate(Vector3f.YP.rotationDegrees(f * f6 * 70.0f))
-        matrixStack.rotate(Vector3f.ZP.rotationDegrees(f * f5 * -20.0f))
+        matrixStack.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(f * f6 * 70.0f))
+        matrixStack.multiply(Vector3f.POSITIVE_Z.getDegreesQuaternion(f * f5 * -20.0f))
         val player: AbstractClientPlayerEntity = mc.player!!
         mc.getTextureManager().bindTexture(player.locationSkin)
         matrixStack.translate((f * -1.0f).toDouble(), 3.6f.toDouble(), 3.5)
-        matrixStack.rotate(Vector3f.ZP.rotationDegrees(f * 120.0f))
-        matrixStack.rotate(Vector3f.XP.rotationDegrees(200.0f))
-        matrixStack.rotate(Vector3f.YP.rotationDegrees(f * -135.0f))
+        matrixStack.multiply(Vector3f.POSITIVE_Z.getDegreesQuaternion(f * 120.0f))
+        matrixStack.multiply(Vector3f.POSITIVE_X.getDegreesQuaternion(200.0f))
+        matrixStack.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(f * -135.0f))
         matrixStack.translate((f * 5.6f).toDouble(), 0.0, 0.0)
         val playerrenderer = mc.renderManager.getRenderer(player) as PlayerRenderer
 
@@ -295,29 +295,29 @@ object ClientEvents {
         val f1 = 0.0625f
         RenderSystem.enableBlend()
         playerModel.swingProgress = 0.0f
-        playerModel.isSneak = false
+        playerModel.isSneaking = false
         playerModel.swimAnimation = 0.0f
-        playerModel.setRotationAngles(clientPlayer, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f)
+        playerModel.setAngles(clientPlayer, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f)
 
         val scale = 0.0625
         matrixStack.push()
     //    matrixStack.translatef(arm.offsetX, arm.offsetY, arm.offsetZ)
 
         matrixStack.translate(arm.rotationPointX * scale, arm.rotationPointY * scale, arm.rotationPointZ * scale)
-        matrixStack.rotate(Quaternion(0f, 0f, arm.rotateAngleZ * (180f / Math.PI.toFloat()), true))
-        matrixStack.rotate(Quaternion(0f, arm.rotateAngleY * (180f / Math.PI.toFloat()), 0.0f, true))
-        matrixStack.rotate(Quaternion(arm.rotateAngleX * (180f / Math.PI.toFloat()), 0.0f, 0.0f, true))
+        matrixStack.multiply(Quaternion(0f, 0f, arm.rotateAngleZ * (180f / Math.PI.toFloat()), true))
+        matrixStack.multiply(Quaternion(0f, arm.rotateAngleY * (180f / Math.PI.toFloat()), 0.0f, true))
+        matrixStack.multiply(Quaternion(arm.rotateAngleX * (180f / Math.PI.toFloat()), 0.0f, 0.0f, true))
 
         matrixStack.push()
-        armModel.render(renderInfo.matrixStack, renderInfo.buffers.getBuffer(RenderType.getEntityTranslucent(clientPlayer.locationSkin)), renderInfo.combinedLight, OverlayTexture.NO_OVERLAY)
+        armModel.render(renderInfo.matrixStack, renderInfo.buffers.getBuffer(RenderType.getEntityTranslucent(clientPlayer.locationSkin)), renderInfo.combinedLight, OverlayTexture.DEFAULT_UV)
         matrixStack.pop()
 
         val hookScale = 4f / 11f
-        matrixStack.rotate(Quaternion(0f, -90f, 0f, true))
+        matrixStack.multiply(Quaternion(0f, -90f, 0f, true))
         matrixStack.scale(hookScale, -hookScale, hookScale)
         matrixStack.translate(-1f / 16.0, 0.0, -1f / 16.0)
         matrixStack.translate(0.0, -1.25, 0.0)
-        hookModel.render(renderInfo.matrixStack, renderInfo.buffers.getBuffer(RenderType.getEntityTranslucent(hookTextureLocation)), renderInfo.combinedLight, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f)
+        hookModel.render(renderInfo.matrixStack, renderInfo.buffers.getBuffer(RenderType.getEntityTranslucent(hookTextureLocation)), renderInfo.combinedLight, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f)
         matrixStack.pop()
         RenderSystem.disableBlend()
     }
@@ -345,7 +345,7 @@ object ClientEvents {
             Minecraft.getInstance().soundHandler.play(recordSound)
             worldCache[entityID] = recordSound
 
-            Minecraft.getInstance().ingameGUI.func_238451_a_(musicDiscItem.func_234801_g_())
+            Minecraft.getInstance().ingameGUI.setRecordPlayingOverlay(musicDiscItem.description)
         }
     }
 

@@ -11,7 +11,7 @@ import net.minecraft.world.IBlockReader
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.OnlyUsableOnBoats
 
-object BlockBoatTank: MoarBoatsBlock({ notSolid() }) {
+object BlockBoatTank: MoarBoatsBlock({ nonOpaque() }) {
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "boat_tank")
     }

@@ -27,42 +27,42 @@ public class ModelHelm extends EntityModel<Entity> {
         this.textureHeight = 64;
         this.bottom = new ModelRenderer(this, 12, 0);
         this.bottom.setRotationPoint(10.299999999999999F, -7.299999999999999F, 0.0F);
-        this.bottom.addBox(-0.5F, 4.0F, -5.0F, 1, 1, 10, 0.0F);
+        this.bottom.addCuboid(-0.5F, 4.0F, -5.0F, 1, 1, 10, 0.0F);
         this.setRotateAngle(bottom, 6.283185307179586F, 0.0F, -0.4363323129985824F);
         this.radiusRight = new ModelRenderer(this, 24, 0);
         this.radiusRight.setRotationPoint(10.299999999999999F, -7.299999999999999F, 0.0F);
-        this.radiusRight.addBox(-0.5F, -0.5F, 1.5F, 1, 1, 6, 0.0F);
+        this.radiusRight.addCuboid(-0.5F, -0.5F, 1.5F, 1, 1, 6, 0.0F);
         this.setRotateAngle(radiusRight, 6.283185307179586F, 0.0F, -0.4363323129985824F);
         this.radiusBottom = new ModelRenderer(this, 90, 0);
         this.radiusBottom.setRotationPoint(10.299999999999999F, -7.299999999999999F, 0.0F);
-        this.radiusBottom.addBox(-0.5F, -0.5F, -7.5F, 1, 1, 6, 0.0F);
+        this.radiusBottom.addCuboid(-0.5F, -0.5F, -7.5F, 1, 1, 6, 0.0F);
         this.setRotateAngle(radiusBottom, 7.853981633974483F, 0.0F, -0.4363323129985824F);
         this.left = new ModelRenderer(this, 56, 0);
         this.left.setRotationPoint(10.299999999999999F, -7.299999999999999F, 0.0F);
-        this.left.addBox(-0.5F, -6.0F, -5.0F, 1, 1, 10, 0.0F);
+        this.left.addCuboid(-0.5F, -6.0F, -5.0F, 1, 1, 10, 0.0F);
         this.setRotateAngle(left, 7.853981633974483F, 0.0F, -0.4363323129985824F);
         this.right = new ModelRenderer(this, 78, 0);
         this.right.setRotationPoint(10.299999999999999F, -7.299999999999999F, 0.0F);
-        this.right.addBox(-0.5F, 5.0F, -5.0F, 1, 1, 10, 0.0F);
+        this.right.addCuboid(-0.5F, 5.0F, -5.0F, 1, 1, 10, 0.0F);
         this.setRotateAngle(right, 7.853981633974483F, 0.0F, -0.4363323129985824F);
         this.top = new ModelRenderer(this, 34, 0);
         this.top.setRotationPoint(10.299999999999999F, -7.299999999999999F, 0.0F);
-        this.top.addBox(-0.5F, -5.0F, -5.0F, 1, 1, 10, 0.0F);
+        this.top.addCuboid(-0.5F, -5.0F, -5.0F, 1, 1, 10, 0.0F);
         this.setRotateAngle(top, 6.283185307179586F, 0.0F, -0.4363323129985824F);
         this.radiusLeft = new ModelRenderer(this, 46, 0);
         this.radiusLeft.setRotationPoint(10.299999999999999F, -7.299999999999999F, 0.0F);
-        this.radiusLeft.addBox(-0.5F, -0.5F, -7.5F, 1, 1, 6, 0.0F);
+        this.radiusLeft.addCuboid(-0.5F, -0.5F, -7.5F, 1, 1, 6, 0.0F);
         this.setRotateAngle(radiusLeft, 6.283185307179586F, 0.0F, -0.4363323129985824F);
         this.helmBase = new ModelRenderer(this, 0, 0);
         this.helmBase.setRotationPoint(9.0F, -8.0F, 0.0F);
-        this.helmBase.addBox(-1.5F, 0.0F, -1.5F, 3, 11, 3, 0.0F);
+        this.helmBase.addCuboid(-1.5F, 0.0F, -1.5F, 3, 11, 3, 0.0F);
         this.radiusTop = new ModelRenderer(this, 68, 0);
         this.radiusTop.setRotationPoint(10.299999999999999F, -7.299999999999999F, 0.0F);
-        this.radiusTop.addBox(-0.5F, -0.5F, 1.5F, 1, 1, 6, 0.0F);
+        this.radiusTop.addCuboid(-0.5F, -0.5F, 1.5F, 1, 1, 6, 0.0F);
         this.setRotateAngle(radiusTop, 7.853981633974483F, 0.0F, -0.4363323129985824F);
         this.frameCenter = new ModelRenderer(this, 12, 0);
         this.frameCenter.setRotationPoint(10.299999999999999F, -7.299999999999999F, 0.0F);
-        this.frameCenter.addBox(-0.5F, -1.5F, -1.5F, 1, 3, 3, 0.0F);
+        this.frameCenter.addCuboid(-0.5F, -1.5F, -1.5F, 1, 3, 3, 0.0F);
         this.setRotateAngle(frameCenter, 6.283185307179586F, 0.0F, -0.4363323129985824F);
     }
 
@@ -90,7 +90,7 @@ public class ModelHelm extends EntityModel<Entity> {
     }
 
     @Override
-    public void setRotationAngles(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void setAngles(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 
     }
 }

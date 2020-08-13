@@ -41,14 +41,14 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
 
         val color = getBoatColor(entity)
 
-        this.model.setRotationAngles(entity, partialTicks, 0.0f, -0.1f, 0.0f, 0.0f)
+        this.model.setAngles(entity, partialTicks, 0.0f, -0.1f, 0.0f, 0.0f)
 
         matrixStackIn.push()
         matrixStackIn.scale(1f, -1f, 1f)
-        val usualBuffer = bufferIn.getBuffer(this.model.getRenderType(getEntityTexture(entity)))
-        this.model.render(matrixStackIn, usualBuffer, packedLightIn, OverlayTexture.NO_OVERLAY, color[0], color[1], color[2], 1f)
+        val usualBuffer = bufferIn.getBuffer(this.model.getLayer(getEntityTexture(entity)))
+        this.model.render(matrixStackIn, usualBuffer, packedLightIn, OverlayTexture.DEFAULT_UV, color[0], color[1], color[2], 1f)
         val noWaterBuffer = bufferIn.getBuffer(RenderType.getWaterMask())
-        this.model.noWater.render(matrixStackIn, noWaterBuffer, packedLightIn, OverlayTexture.NO_OVERLAY)
+        this.model.noWater.render(matrixStackIn, noWaterBuffer, packedLightIn, OverlayTexture.DEFAULT_UV)
         matrixStackIn.pop()
 
         renderLink(RenderInfo(matrixStackIn, bufferIn, packedLightIn), entity, 0.0, 0.0, 0.0, entityYaw, partialTicks)
@@ -95,7 +95,7 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
         val translateZ = anchorOther.z - anchorThis.z
 
         matrixStack.push()
-        matrixStack.rotate(Quaternion(0f, -(180.0f - entityYaw - 90f), 0.0f, true))
+        matrixStack.multiply(Quaternion(0f, -(180.0f - entityYaw - 90f), 0.0f, true))
 
         val bufferbuilder = renderInfo.buffers.getBuffer(RenderType.getLines())
         val l = 32
@@ -117,7 +117,7 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
     }
 
     private fun setRotation(matrixStack: MatrixStack, entity: T, entityYaw: Float, partialTicks: Float) {
-        matrixStack.rotate(Quaternion(Vector3f.YP, 180.0f - entityYaw - 90f, true))
+        matrixStack.multiply(Quaternion(Vector3f.POSITIVE_Y, 180.0f - entityYaw - 90f, true))
         val timeSinceHit = entity.timeSinceHit - partialTicks
         var damage = entity.damageTaken - partialTicks
 
@@ -126,7 +126,7 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
         }
 
         if (timeSinceHit > 0.0f) {
-            matrixStack.rotate(Quaternion(Vector3f.XP, MathHelper.sin(timeSinceHit) * timeSinceHit * damage / 10.0f * entity.forwardDirection, true))
+            matrixStack.multiply(Quaternion(Vector3f.POSITIVE_X, MathHelper.sin(timeSinceHit) * timeSinceHit * damage / 10.0f * entity.forwardDirection, true))
         }
     }
 }

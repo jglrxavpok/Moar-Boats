@@ -20,10 +20,10 @@ public class ModelSeat extends EntityModel<Entity> {
         this.textureHeight = 64;
         this.seatBack = new ModelRenderer(this, 30, 0);
         this.seatBack.setRotationPoint(0.0F, 0.0F, 0.0F);
-        this.seatBack.addBox(-5.0F, -8.0F, 4.0F, 10, 8, 1, 0.0F);
+        this.seatBack.addCuboid(-5.0F, -8.0F, 4.0F, 10, 8, 1, 0.0F);
         this.seat = new ModelRenderer(this, 0, 0);
         this.seat.setRotationPoint(0.0F, 0.0F, 0.0F);
-        this.seat.addBox(-5.0F, 0.0F, -5.0F, 10, 1, 10, 0.0F);
+        this.seat.addCuboid(-5.0F, 0.0F, -5.0F, 10, 1, 10, 0.0F);
     }
 
     @Override
@@ -33,7 +33,7 @@ public class ModelSeat extends EntityModel<Entity> {
     }
 
     @Override
-    public void setRotationAngles(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void setAngles(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 
     }
 }

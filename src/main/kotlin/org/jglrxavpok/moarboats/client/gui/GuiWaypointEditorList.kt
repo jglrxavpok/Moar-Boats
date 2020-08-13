@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.client.gui
 
+import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.Minecraft
@@ -21,7 +22,7 @@ class WaypointInfoEntry(val parent: GuiWaypointEditor, val slot: WaypointInfo, v
     private var lastClickTime: Long = -1L
     private val mc = Minecraft.getInstance()
 
-    override fun render(index: Int, y: Int, x: Int, entryWidth: Int, entryHeight: Int, mouseX: Int, mouseY: Int, p_194999_5_: Boolean, partialTicks: Float) {
+    override fun render(matrixStack: MatrixStack, index: Int, y: Int, x: Int, entryWidth: Int, entryHeight: Int, mouseX: Int, mouseY: Int, p_194999_5_: Boolean, partialTicks: Float) {
         if(index >= waypoints.size)
             return
         val slotTop = y
@@ -29,37 +30,37 @@ class WaypointInfoEntry(val parent: GuiWaypointEditor, val slot: WaypointInfo, v
         val slotHeight = entryHeight
         GlStateManager.disableLighting()
         // TODO: merge with rendering code of GuiWaypointList
-        GlStateManager.pushMatrix()
+        matrixStack.push()
         GlStateManager.color4f(1f, 1f, 1f, 1f)
         mc.textureManager.bindTexture(ArrowsTexture)
         val hovered = if(mouseX >= left && mouseX < left + 16 && mouseY >= slotTop && mouseY < slotTop + slotHeight) 1 else 0
 
         val arrowScale = 0.75
-        GlStateManager.pushMatrix()
-        GlStateManager.translatef(left.toFloat(), slotTop - 4f, 0f)
-        GlStateManager.scaled(arrowScale, arrowScale, arrowScale)
+        matrixStack.push()
+        matrixStack.translate(left.toDouble(), slotTop - 4.0, 0.0)
+        matrixStack.scale(arrowScale.toFloat(), arrowScale.toFloat(), arrowScale.toFloat())
         RenderSystem.enableAlphaTest()
         RenderSystem.enableBlend()
-        drawModalRectWithCustomSizedTexture(0, 0, 32f, hovered*32f,  32, 32, 256, 256)
-        GlStateManager.popMatrix()
+        drawModalRectWithCustomSizedTexture(matrixStack, 0, 0, 32f, hovered*32f, 32, 32, 256, 256)
+        matrixStack.pop()
 
         val name = slot.name
 
-        GlStateManager.translatef(16f, 0f, 0f)
+        matrixStack.translate(16.0, 0.0, 0.0)
 
-        mc.fontRenderer.drawString(name, left + 4f, slotTop + 1f, 0xFFFFFF)
-        GlStateManager.pushMatrix()
-        GlStateManager.translatef(left + 4f, slotTop + 10f, 0f)
+        mc.fontRenderer.draw(matrixStack, name, left + 4f, slotTop + 1f, 0xFFFFFF)
+        matrixStack.push()
+        matrixStack.translate(left + 4.0, slotTop + 10.0, 0.0)
         val scale = 0.5f
-        GlStateManager.scalef(scale, scale, 1f)
+        matrixStack.scale(scale, scale, 1f)
         val text = "X: ${slot.x}, Z: ${slot.z}" +
                 if(slot.boost != null) " (${(slot.boost * 100).toInt()}%)"
                 else ""
-        mc.fontRenderer.drawString(text, 0f, 0f, 0xFFFFFF)
-        GlStateManager.popMatrix()
+        mc.fontRenderer.draw(matrixStack, text, 0f, 0f, 0xFFFFFF)
+        matrixStack.pop()
         GlStateManager.color4f(1f, 1f, 1f, 1f)
         slotTops[this] = slotTop
-        GlStateManager.popMatrix()
+        matrixStack.pop()
     }
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
@@ -101,20 +102,16 @@ class GuiWaypointEditorList(val mc: Minecraft, val parent: GuiWaypointEditor, wi
         }
     }
 
-    override fun renderHoleBackground(p_renderHoleBackground_1_: Int, p_renderHoleBackground_2_: Int, p_renderHoleBackground_3_: Int, p_renderHoleBackground_4_: Int) {
-
+    override fun renderBackground(matrixStack: MatrixStack) {
+        drawTexture(matrixStack, left, top, right, bottom, 0, 0)
     }
 
-    override fun renderBackground() {
-        blit(left, top, right, bottom, 0, 0)
-    }
-
-    override fun render(insideLeft: Int, insideTop: Int, partialTicks: Float) {
-        val scaleX = mc.mainWindow.width/mc.mainWindow.scaledWidth.toDouble()
-        val scaleY = mc.mainWindow.height/mc.mainWindow.scaledHeight.toDouble()
+    override fun render(matrixStack: MatrixStack, insideLeft: Int, insideTop: Int, partialTicks: Float) {
+        val scaleX = mc.window.width/mc.window.scaledWidth.toDouble()
+        val scaleY = mc.window.height/mc.window.scaledHeight.toDouble()
         GL11.glEnable(GL11.GL_SCISSOR_TEST)
-        GL11.glScissor((left * scaleX).toInt(), ((mc.mainWindow.scaledHeight - top - height) * scaleY).toInt(), (width * scaleX).toInt(), (height * scaleY).toInt())
-        super.render(insideLeft, insideTop, partialTicks)
+        GL11.glScissor((left * scaleX).toInt(), ((mc.window.scaledHeight - top - height) * scaleY).toInt(), (width * scaleX).toInt(), (height * scaleY).toInt())
+        super.render(matrixStack, insideLeft, insideTop, partialTicks)
         GL11.glDisable(GL11.GL_SCISSOR_TEST)
     }
 
@@ -134,7 +131,7 @@ class GuiWaypointEditorList(val mc: Minecraft, val parent: GuiWaypointEditor, wi
         return width
     }
 
-    override fun getScrollbarPosition(): Int {
+    override fun getScrollbarPositionX(): Int {
         return right
     }
 

@@ -102,7 +102,7 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
     override fun tick() {
         super.tick()
         if(backingTileEntity != null) {
-            backingTileEntity.setWorldAndPos(world, InvalidPosition)
+            backingTileEntity.setLocation(world, InvalidPosition)
             if(backingTileEntity is ITickableTileEntity) {
                 try {
                     backingTileEntity.tick()
@@ -215,10 +215,6 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
         return null
     }
 
-    override fun getX() = posX
-    override fun getY() = posY
-    override fun getZ() = posZ
-
     override fun getBlockState(): BlockState? {
         return null
     }
@@ -241,7 +237,7 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
             val f1 = ((if ( ! this.isAlive) 0.009999999776482582 else this.mountedYOffset) + passenger.yOffset).toFloat()
 
             val vec3d = Vector3d(f.toDouble(), 0.0, 0.0).rotateYaw(-(this.rotationYaw) * 0.017453292f - Math.PI.toFloat() / 2f)
-            passenger.setPosition(this.posX + vec3d.x, this.posY + f1.toDouble(), this.posZ + vec3d.z)
+            passenger.setPosition(this.x + vec3d.x, this.y + f1.toDouble(), this.z + vec3d.z)
             passenger.rotationYaw += this.deltaRotation
             passenger.rotationYawHead = passenger.rotationYawHead + this.deltaRotation
             this.applyYawToEntity(passenger)

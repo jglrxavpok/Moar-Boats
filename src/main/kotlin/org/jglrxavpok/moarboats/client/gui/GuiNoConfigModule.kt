@@ -17,7 +17,7 @@ class GuiNoConfigModule(containerID: Int, playerInventory: PlayerInventory, modu
 
     override fun drawModuleForeground(mouseX: Int, mouseY: Int) {
         super.drawModuleForeground(mouseX, mouseY)
-        drawCenteredString(font, nothingToDo.formattedText, xSize/2, 30, 0xFFFFFF)
-        drawCenteredString(font, enjoyTheTrip.formattedText, xSize/2, 40, 0xFFFFFF)
+        textRenderer.drawCenteredString(matrixStack, nothingToDo.formatted(), xSize/2, 30, 0xFFFFFF)
+        textRenderer.drawCenteredString(matrixStack, enjoyTheTrip.formatted(), xSize/2, 40, 0xFFFFFF)
     }
 }

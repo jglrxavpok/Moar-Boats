@@ -20,10 +20,10 @@ public class ModelRudder extends EntityModel<Entity> {
         this.textureHeight = 16;
         this.rudderBase = new ModelRenderer(this, 14, 0);
         this.rudderBase.setRotationPoint(16.0F, -2.0F, 0.0F);
-        this.rudderBase.addBox(0.0F, 0.0F, 0.0F, 1, 6, 1, 0.0F);
+        this.rudderBase.addCuboid(0.0F, 0.0F, 0.0F, 1, 6, 1, 0.0F);
         this.rudderBlade = new ModelRenderer(this, 0, 0);
         this.rudderBlade.setRotationPoint(16.5F, -2.0F, 0.5F);
-        this.rudderBlade.addBox(0.5F, 2.0F, -0.5F, 6, 9, 1, 0.0F);
+        this.rudderBlade.addCuboid(0.5F, 2.0F, -0.5F, 6, 9, 1, 0.0F);
     }
 
     @Override
@@ -33,7 +33,7 @@ public class ModelRudder extends EntityModel<Entity> {
     }
 
     @Override
-    public void setRotationAngles(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void setAngles(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 
     }
 }

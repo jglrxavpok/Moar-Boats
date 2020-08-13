@@ -28,32 +28,32 @@ public class ModelModularBoat extends EntityModel<BasicBoatEntity> {
         this.textureHeight = 64;
         this.frontAnchor = new ModelRenderer(this, 40, 19);
         this.frontAnchor.setRotationPoint(17.0F, -5.6F, 0.0F);
-        this.frontAnchor.addBox(-1.0F, 0.0F, -1.0F, 2, 7, 2, 0.0F);
+        this.frontAnchor.addCuboid(-1.0F, 0.0F, -1.0F, 2, 7, 2, 0.0F);
         this.noWater = new ModelRenderer(this, 0, 0);
         this.noWater.setRotationPoint(0.0F, -3.0F, 1.0F);
-        this.noWater.addBox(-14.0F, -9.0F, -3.0F, 28, 16, 3, 0.0F);
+        this.noWater.addCuboid(-14.0F, -9.0F, -3.0F, 28, 16, 3, 0.0F);
         this.setRotateAngle(noWater, 1.5707963705062866F, 0.0F, 0.0F);
         this.backAnchor = new ModelRenderer(this, 48, 19);
         this.backAnchor.setRotationPoint(-17.0F, -5.0F, 0.0F);
-        this.backAnchor.addBox(-1.0F, 0.0F, -1.0F, 2, 7, 2, 0.0F);
+        this.backAnchor.addCuboid(-1.0F, 0.0F, -1.0F, 2, 7, 2, 0.0F);
         this.boatSides5 = new ModelRenderer(this, 0, 43);
         this.boatSides5.setRotationPoint(0.0F, 4.0F, 9.0F);
-        this.boatSides5.addBox(-14.0F, -7.0F, -1.0F, 28, 6, 2, 0.0F);
+        this.boatSides5.addCuboid(-14.0F, -7.0F, -1.0F, 28, 6, 2, 0.0F);
         this.boatSides2 = new ModelRenderer(this, 0, 19);
         this.boatSides2.setRotationPoint(-15.0F, 4.0F, 4.0F);
-        this.boatSides2.addBox(-13.0F, -7.0F, -1.0F, 18, 6, 2, 0.0F);
+        this.boatSides2.addCuboid(-13.0F, -7.0F, -1.0F, 18, 6, 2, 0.0F);
         this.setRotateAngle(boatSides2, 0.0F, 4.71238899230957F, 0.0F);
         this.boatSides4 = new ModelRenderer(this, 0, 35);
         this.boatSides4.setRotationPoint(0.0F, 4.0F, -9.0F);
-        this.boatSides4.addBox(-14.0F, -7.0F, -1.0F, 28, 6, 2, 0.0F);
+        this.boatSides4.addCuboid(-14.0F, -7.0F, -1.0F, 28, 6, 2, 0.0F);
         this.setRotateAngle(boatSides4, 0.0F, 3.1415927410125732F, 0.0F);
         this.boatSides3 = new ModelRenderer(this, 0, 27);
         this.boatSides3.setRotationPoint(15.0F, 4.0F, 0.0F);
-        this.boatSides3.addBox(-8.0F, -7.0F, -1.0F, 16, 6, 2, 0.0F);
+        this.boatSides3.addCuboid(-8.0F, -7.0F, -1.0F, 16, 6, 2, 0.0F);
         this.setRotateAngle(boatSides3, 0.0F, 1.5707963705062866F, 0.0F);
         this.boatSides1 = new ModelRenderer(this, 0, 0);
         this.boatSides1.setRotationPoint(0.0F, 3.0F, 1.0F);
-        this.boatSides1.addBox(-14.0F, -9.0F, -3.0F, 28, 16, 3, 0.0F);
+        this.boatSides1.addCuboid(-14.0F, -9.0F, -3.0F, 28, 16, 3, 0.0F);
         this.setRotateAngle(boatSides1, 1.5707963705062866F, 0.0F, 0.0F);
     }
 
@@ -69,7 +69,7 @@ public class ModelModularBoat extends EntityModel<BasicBoatEntity> {
     }
 
     @Override
-    public void setRotationAngles(BasicBoatEntity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void setAngles(BasicBoatEntity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 
     }
 

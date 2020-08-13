@@ -45,7 +45,7 @@ abstract class WaterborneItem(id: String) : MoarBoatsItem(id) {
 
                 if (correspondingBlock.isValidPosition(correspondingBlock.defaultState, levelIn, blockpos1) && levelIn.isAirBlock(blockpos1)) {
                     // special case for handling block placement with water lilies
-                    val blocksnapshot = net.minecraftforge.common.util.BlockSnapshot.getBlockSnapshot(levelIn, blockpos1)
+                    val blocksnapshot = net.minecraftforge.common.util.BlockSnapshot.create(levelIn, blockpos1)
                     levelIn.setBlockState(blockpos1, correspondingBlock.defaultState)
                     if (net.minecraftforge.event.ForgeEventFactory.onBlockPlace(playerIn, blocksnapshot, net.minecraft.util.Direction.UP)) {
                         blocksnapshot.restore(true, false)

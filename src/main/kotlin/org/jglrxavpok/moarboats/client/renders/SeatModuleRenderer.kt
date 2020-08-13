@@ -25,11 +25,11 @@ object SeatModuleRenderer : BoatModuleRenderer() {
 
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRenderer: EntityRendererManager) {
         matrixStack.push()
-        matrixStack.rotate(Vector3f.YP.rotationDegrees(90f))
+        matrixStack.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(90f))
         matrixStack.scale(1f, -1f, 1f)
         matrixStack.translate(0.0, 2f/16.0, 7.0/16.0)
         val renderType = RenderType.getEntityTranslucent(BOAT_TEXTURES[boat.entityID % BOAT_TEXTURES.size])
-        model.render(matrixStack, buffers.getBuffer(renderType), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f)
+        model.render(matrixStack, buffers.getBuffer(renderType), packedLightIn, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f)
         matrixStack.pop()
     }
 }

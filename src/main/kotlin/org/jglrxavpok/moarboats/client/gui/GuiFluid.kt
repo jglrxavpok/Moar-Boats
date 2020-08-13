@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.client.gui
 
+import com.mojang.blaze3d.matrix.MatrixStack
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.screen.inventory.ContainerScreen
 import net.minecraft.entity.player.PlayerEntity
@@ -28,23 +29,23 @@ class GuiFluid(type: ContainerType<*>, containerID: Int, val te: TileEntityListe
 
     private val mc = Minecraft.getInstance()
 
-    override fun drawGuiContainerBackgroundLayer(partialTicks: Float, mouseX: Int, mouseY: Int) {
+    override fun drawBackground(matrixStack: MatrixStack, partialTicks: Float, mouseX: Int, mouseY: Int) {
         mc.textureManager.bindTexture(defaultBackground)
-        blit(guiLeft, guiTop, 0, 0, xSize, ySize)
+        drawTexture(matrixStack, guiLeft, guiTop, 0, 0, xSize, ySize)
         mc.textureManager.bindTexture(fluidBackground)
-        blit(guiLeft, guiTop, 0, 0, xSize, ySize)
+        drawTexture(matrixStack, guiLeft, guiTop, 0, 0, xSize, ySize)
 
         if(fluid != null && fluid !is EmptyFluid) {
             GuiTankModule.renderFluidInGui(guiLeft + 56, guiTop + 80, fluid!!, fluidAmount, fluidCapacity, horizontalTilesCount = 4, world = te.world!!, position = te.pos)
         }
     }
 
-    override fun drawGuiContainerForegroundLayer(mouseX: Int, mouseY: Int) {
-        super.drawGuiContainerForegroundLayer(mouseX, mouseY)
+    override fun drawForeground(matrixStack: MatrixStack, mouseX: Int, mouseY: Int) {
+        super.drawForeground(matrixStack, mouseX, mouseY)
         val localX = mouseX - guiLeft
         val localY = mouseY - guiTop
         if(localX in 60..(60+55) && localY in 6..(6+75)) {
-            renderTooltip(TranslationTextComponent(MoarBoats.ModID+".tank_level", fluidAmount, fluidCapacity, TranslationTextComponent(fluid?.attributes?.getTranslationKey(FluidStack(fluid!!, fluidAmount))) ?: "nothing").formattedText, localX, localY)
+            renderTooltip(matrixStack, TranslationTextComponent(MoarBoats.ModID+".tank_level", fluidAmount, fluidCapacity, TranslationTextComponent(fluid?.attributes?.getTranslationKey(FluidStack(fluid!!, fluidAmount))) ?: "nothing").formatted(), localX, localY)
         }
     }
 
