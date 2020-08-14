@@ -203,7 +203,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
 
     private fun openGui(player: PlayerEntity, hand: Hand): ActionResultType {
         val validOwner = isValidOwner(player)
-        val canOpenGui = validOwner && !modules.any { it.onInteract(this, player, hand, player.isCrouching) }
+        val canOpenGui = validOwner && !modules.any { it.onInteract(this, player, hand, player.isSneaking) }
         if(canOpenGui) {
             if(modules.isNotEmpty() && !world.isRemote) {
                 NetworkHooks.openGui(player as ServerPlayerEntity, MoarBoatsGuiHandler.ModulesGuiInteraction(entityID, -1, findFirstModuleToShowOnGui().id.toString())) {

@@ -78,6 +78,8 @@ object FishingModule : BoatModule() {
 
             val randNumber = from.moduleRNG.nextInt((400 - lureSpeed*50)*9) / MoarBoatsConfig.fishing.speedMultiplier.get()
             if(randNumber <= 1f) {
+                // TODO: open waters from 1.16
+
                 val luck = EnchantmentHelper.getFishingLuckBonus(rodStack)
                 // catch fish
                 val builder = LootContext.Builder(from.worldRef as ServerWorld)

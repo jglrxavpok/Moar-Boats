@@ -31,7 +31,7 @@ class GuiDispenserModule(containerID: Int, playerInv: PlayerInventory, module: B
     private val facingSelectionTexLocation = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/dispenser_facings.png")
 
     private inner class GuiFacingButton(val facing: Direction, texturetranslateX: Int, texturetranslateY: Int):
-            ImageButton(facing.ordinal, 0, 0, 16, 16, texturetranslateX, texturetranslateY, facingSelectionTexLocation, {
+            ImageButton(0, 0, 16, 16, texturetranslateX, texturetranslateY, 32, facingSelectionTexLocation, {
         MoarBoats.network.sendToServer(CChangeDispenserFacing(boat.entityID, module.id, facing))
     })
 
@@ -50,8 +50,8 @@ class GuiDispenserModule(containerID: Int, playerInv: PlayerInventory, module: B
 
     override fun init() {
         super.init()
-        val sliderWidth = width-10
-        periodSlider = Slider(guiLeft+width/2-sliderWidth/2, guiTop + 100, sliderWidth, 20, StringTextComponent("${sliderPrefix} "), sliderSuffix, 1.0, 100.0, 0.0, true, true, sliderCallback)
+        val sliderWidth = xSize-10
+        periodSlider = Slider(guiLeft+xSize/2-sliderWidth/2, guiTop + 100, sliderWidth, 20, StringTextComponent("${sliderPrefix.string} "), sliderSuffix, 1.0, 100.0, 0.0, true, true, sliderCallback)
         periodSlider.value = dispensingModule.blockPeriodProperty[boat]
         addButton(periodSlider)
 

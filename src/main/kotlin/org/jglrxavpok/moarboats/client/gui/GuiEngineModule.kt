@@ -155,7 +155,10 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
         RenderSystem.color4f(1f, 1f, 1f, 1f)
         val itemX = textX+textWidth + 1
         val itemY = textRenderer.FONT_HEIGHT - 8 + y
+        RenderSystem.pushMatrix()
+        RenderSystem.multMatrix(matrixStack.peek().model)
         itemRenderer.renderItemIntoGUI(itemStack, itemX, itemY)
+        RenderSystem.popMatrix()
         itemRenderer.zLevel = 0.0f
         zOffset = 0
     }
