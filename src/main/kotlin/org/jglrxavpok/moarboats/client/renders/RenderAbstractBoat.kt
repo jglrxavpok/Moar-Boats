@@ -2,15 +2,16 @@ package org.jglrxavpok.moarboats.client.renders
 
 import com.mojang.blaze3d.matrix.MatrixStack
 import net.minecraft.client.renderer.IRenderTypeBuffer
-import net.minecraft.util.math.vector.Quaternion
 import net.minecraft.client.renderer.RenderType
-import net.minecraft.util.math.vector.Vector3f
 import net.minecraft.client.renderer.entity.EntityRenderer
 import net.minecraft.client.renderer.entity.EntityRendererManager
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.entity.Entity
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
+import net.minecraft.util.math.vector.Matrix3f
+import net.minecraft.util.math.vector.Quaternion
+import net.minecraft.util.math.vector.Vector3f
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.RenderInfo
 import org.jglrxavpok.moarboats.client.models.ModelBoatLinkerAnchor
@@ -44,7 +45,7 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
         this.model.setAngles(entity, partialTicks, 0.0f, -0.1f, 0.0f, 0.0f)
 
         matrixStackIn.push()
-        matrixStackIn.scale(1f, -1f, 1f)
+        matrixStackIn.scale(-1.0f, -1.0f, 1.0f)
         val usualBuffer = bufferIn.getBuffer(this.model.getLayer(getEntityTexture(entity)))
         this.model.render(matrixStackIn, usualBuffer, packedLightIn, OverlayTexture.DEFAULT_UV, color[0], color[1], color[2], 1f)
         val noWaterBuffer = bufferIn.getBuffer(RenderType.getWaterMask())

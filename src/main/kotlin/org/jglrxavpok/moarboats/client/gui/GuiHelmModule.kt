@@ -108,8 +108,13 @@ class GuiHelmModule(containerID: Int, playerInventory: PlayerInventory, engine: 
             matrixStack.push()
             matrixStack.translate(guiLeft.toDouble()+8.0, guiTop.toDouble()+8.0, 0.0)
             Screen.fill(matrixStack, 0, 0, 16, 16, 0x30ff0000)
+
+            RenderSystem.pushMatrix()
+            RenderSystem.multMatrix(matrixStack.peek().model)
             mc.itemRenderer.renderItemIntoGUI(mapStack, 0, 0)
-            RenderSystem.depthFunc(GL11.GL_GREATER) // FIXME: this probably no longer works
+            RenderSystem.popMatrix()
+
+            RenderSystem.depthFunc(GL11.GL_GREATER)
             Screen.fill(matrixStack, 0, 0, 16, 16, 0x30ffffff)
             RenderSystem.depthFunc(GL11.GL_LEQUAL)
             matrixStack.pop()

@@ -45,7 +45,7 @@ class GuiWaypointEditor(val player: PlayerEntity, val te: TileEntityMappingTable
 
     }
 
-    private val boostSlider = Slider(0, 0, 125, 20, StringTextComponent("${boostSetting.formatted()}: "), StringTextComponent("%"), -50.0, 50.0, 0.0, false, true, boostSliderCallback)
+    private val boostSlider = Slider(0, 0, 125, 20, StringTextComponent("${boostSetting.formatted().string}: "), StringTextComponent("%"), -50.0, 50.0, 0.0, false, true, boostSliderCallback)
     private val confirmButton = Button(0, 0, 150, 20, confirmText.formatted()) {
         storeIntoNBT()
         MoarBoats.network.sendToServer(CModifyWaypoint(te, index, waypointData))
@@ -178,11 +178,11 @@ class GuiWaypointEditor(val player: PlayerEntity, val te: TileEntityMappingTable
             it.render(matrixStack, mouseX, mouseY, partialTicks)
         }
 
-        textRenderer.drawCenteredString(matrixStack, TextFormatting.UNDERLINE.toString() + TranslationTextComponent("moarboats.gui.waypoint_editor", nameInput.text).formatted(), width / 2, 15, 0xFFFFFF, shadow = true)
-        textRenderer.drawCenteredString(matrixStack, TextFormatting.UNDERLINE.toString() + positionTitleText.formatted(), width / 2, 75, 0xFFFFFF, shadow = true)
+        textRenderer.drawCenteredString(matrixStack, TextFormatting.UNDERLINE.toString() + TranslationTextComponent("moarboats.gui.waypoint_editor", nameInput.text).formatted().string, width / 2, 15, 0xFFFFFF, shadow = true)
+        textRenderer.drawCenteredString(matrixStack, TextFormatting.UNDERLINE.toString() + positionTitleText.formatted().string, width / 2, 75, 0xFFFFFF, shadow = true)
         textRenderer.draw(matrixStack, "X:", xInput.x - 10f, xInput.y + xInput.height / 2 - textRenderer.FONT_HEIGHT / 2f, 0xFFFFFF)
         textRenderer.draw(matrixStack, "Z:", zInput.x - 10f, xInput.y + xInput.height / 2 - textRenderer.FONT_HEIGHT / 2f, 0xFFFFFF)
-        textRenderer.drawCenteredString(matrixStack, TextFormatting.UNDERLINE.toString() + miscText.formatted(), width / 2, 135, 0xFFFFFF, shadow = true)
+        textRenderer.drawCenteredString(matrixStack, TextFormatting.UNDERLINE.toString() + miscText.formatted().string, width / 2, 135, 0xFFFFFF, shadow = true)
 
         matrixStack.push()
         matrixStack.translate(((width - (width * .2f) / 2f).toDouble()), 20.0, 0.0)

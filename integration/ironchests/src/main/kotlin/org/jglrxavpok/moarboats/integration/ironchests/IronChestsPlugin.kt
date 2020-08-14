@@ -25,9 +25,9 @@ class IronChestsPlugin: MoarBoatsPlugin {
         for(chestType in IronChestsTypes.values()) {
             if(chestType == IronChestsTypes.WOOD)
                 continue
-            MoarBoats.logger.debug("[IronChest-Integration] Registering module for chest type ${chestType.getName()}, item name is ${chestType.id}")
+            MoarBoats.logger.debug("[IronChest-Integration] Registering module for chest type ${chestType.id}, item name is ${chestType.id}")
             registry.registerModule(IronChestModule(chestType), IronChestsTypes.get(chestType).block.asItem(), { boat, module ->
-                SimpleModuleInventory(chestType.size, "ironchest_${chestType.getName()}", boat, module)
+                SimpleModuleInventory(chestType.size, "ironchest_${chestType.id}", boat, module)
             })
         }
     }

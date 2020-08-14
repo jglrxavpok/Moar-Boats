@@ -20,6 +20,7 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.api.IControllable
+import org.jglrxavpok.moarboats.client.pos
 import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
 import org.jglrxavpok.moarboats.common.modules.BaseEngineModule
 import org.jglrxavpok.moarboats.common.modules.BlockedByRedstone
@@ -74,7 +75,7 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
         val speedSettingMargins = 30
         val speedSettingHorizontalSize = xSize - speedSettingMargins*2
 
-        speedSlider = Slider(guiLeft + speedSettingMargins, guiTop + 90, speedSettingHorizontalSize, 20, StringTextComponent("${speedSetting.formatted()}: "), StringTextComponent("%"), -50.0, 50.0, 0.0, false, true, Button.IPressable { slider -> }, sliderCallback)
+        speedSlider = Slider(guiLeft + speedSettingMargins, guiTop + 90, speedSettingHorizontalSize, 20, StringTextComponent("${speedSetting.formatted().string}: "), StringTextComponent("%"), -50.0, 50.0, 0.0, false, true, Button.IPressable { slider -> }, sliderCallback)
         addButton(speedSlider)
         speedSlider.value = (engine.speedProperty[boat].toDouble()) * 100f
     }
@@ -97,7 +98,6 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
         val estimatedTotalTicks = engine.estimatedTotalTicks(boat)
         val estimatedTime = estimatedTotalTicks / 20
 
-
         val infoY = 26
         textRenderer.drawCenteredString(matrixStack, remainingCurrentItem, 88, infoY, 0xFFFFFFFF.toInt(), shadow = true)
 
@@ -119,10 +119,10 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
             textRenderer.drawCenteredString(matrixStack, imposedSpeedText("${(boat.imposedSpeed * 100.0).toInt()}"), 88, infoY+42, 0xFFFFFF, shadow=true)
   //      }
 
-        when {
-            speedSlider.valueInt == -50 -> textRenderer.drawCenteredString(matrixStack, minimumSpeedText, 88, infoY + 70 + speedSlider.height, 0xFF0000F0.toInt())
-            speedSlider.valueInt == 50 -> textRenderer.drawCenteredString(matrixStack, maximumSpeedText, 88, infoY + 70 + speedSlider.height, 0xFF0000F0.toInt())
-            speedSlider.valueInt == 0 -> textRenderer.drawCenteredString(matrixStack, normalSpeedText, 88, infoY + 70 + speedSlider.height, 0xFF0000F0.toInt())
+        when (speedSlider.valueInt) {
+            -50 -> textRenderer.drawCenteredString(matrixStack, minimumSpeedText, 88, infoY + 70 + speedSlider.height, 0xFF0000F0.toInt())
+            50 -> textRenderer.drawCenteredString(matrixStack, maximumSpeedText, 88, infoY + 70 + speedSlider.height, 0xFF0000F0.toInt())
+            0 -> textRenderer.drawCenteredString(matrixStack, normalSpeedText, 88, infoY + 70 + speedSlider.height, 0xFF0000F0.toInt())
         }
 
         renderSpeedIcon(0, 5, infoY + 40 + speedSlider.height)
@@ -173,19 +173,19 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
         val minV = ordinal * 16.0f / 64.0f
         val maxV = (ordinal * 16.0f + 16.0f) / 64.0f
         bufferbuilder
-                .vertex((x+margins).toDouble(), (y+margins).toDouble(), 0.0)
+                .pos(matrixStack, (x+margins).toDouble(), (y+margins).toDouble(), 0.0)
                 .texture(minU, minV)
                 .endVertex()
         bufferbuilder
-                .vertex((x+width - margins*2).toDouble(), (y+margins).toDouble(), 0.0)
+                .pos(matrixStack, (x+width - margins*2).toDouble(), (y+margins).toDouble(), 0.0)
                 .texture(maxU, minV)
                 .endVertex()
         bufferbuilder
-                .vertex((x+width - margins*2).toDouble(), (y+height - margins*2).toDouble(), 0.0)
+                .pos(matrixStack, (x+width - margins*2).toDouble(), (y+height - margins*2).toDouble(), 0.0)
                 .texture(maxU, maxV)
                 .endVertex()
         bufferbuilder
-                .vertex((x+margins).toDouble(), (y+height - margins*2).toDouble(), 0.0)
+                .pos(matrixStack, (x+margins).toDouble(), (y+height - margins*2).toDouble(), 0.0)
                 .texture(minU, maxV)
                 .endVertex()
 

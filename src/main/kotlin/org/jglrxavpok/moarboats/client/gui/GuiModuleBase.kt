@@ -110,7 +110,7 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
         if(shouldRenderInventoryName)
             this.textRenderer.draw(matrixStack, s, (this.xSize / 2 - this.textRenderer.getStringWidth(s.formatted().string) / 2).toFloat(), 6f, 4210752)
         if(renderPlayerInventoryTitle)
-            this.textRenderer.draw(matrixStack, playerInv.displayName.unformattedComponentText, 8f, this.ySize - 96 + 2f, 4210752)
+            this.textRenderer.draw(matrixStack, playerInv.displayName.string, 8f, this.ySize - 96 + 2f, 4210752)
         drawModuleForeground(mouseX, mouseY)
 
         if(mouseX in (guiLeft-24)..guiLeft && mouseY in (guiTop+3)..(guiTop+26)) {

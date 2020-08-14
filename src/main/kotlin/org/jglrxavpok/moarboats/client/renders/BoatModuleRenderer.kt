@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.texture.AtlasTexture
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
+import net.minecraftforge.client.model.data.EmptyModelData
 import net.minecraftforge.registries.ForgeRegistryEntry
 import net.minecraftforge.registries.RegistryBuilder
 import org.jglrxavpok.moarboats.MoarBoats
@@ -21,14 +22,14 @@ abstract class BoatModuleRenderer: ForgeRegistryEntry<BoatModuleRenderer>() {
 
     companion object {
         fun renderBlockState(matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, entityRenderer: EntityRendererManager, state: BlockState, brightness: Float) {
-            Minecraft.getInstance().blockRendererDispatcher.renderBlockAsEntity(state, matrixStack, buffers, packedLightIn, OverlayTexture.DEFAULT_UV)
+            Minecraft.getInstance().blockRendererDispatcher.renderBlock(state, matrixStack, buffers, packedLightIn, OverlayTexture.DEFAULT_UV, EmptyModelData.INSTANCE)
         }
     }
 
     abstract fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRenderer: EntityRendererManager)
 
     fun renderBlockState(matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, entityRenderer: EntityRendererManager, state: BlockState, brightness: Float) {
-        BoatModuleRenderer.Companion.renderBlockState(matrixStack, buffers, packedLightIn, entityRenderer, state, brightness)
+        BoatModuleRenderer.renderBlockState(matrixStack, buffers, packedLightIn, entityRenderer, state, brightness)
     }
 }
 

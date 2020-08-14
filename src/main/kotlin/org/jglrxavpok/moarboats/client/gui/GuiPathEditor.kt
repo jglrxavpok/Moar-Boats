@@ -26,6 +26,7 @@ import org.jglrxavpok.moarboats.client.drawModalRectWithCustomSizedTexture
 import org.jglrxavpok.moarboats.client.gui.elements.GuiBinaryPropertyButton
 import org.jglrxavpok.moarboats.client.gui.elements.GuiPropertyButton
 import org.jglrxavpok.moarboats.client.gui.elements.GuiToolButton
+import org.jglrxavpok.moarboats.client.pos
 import org.jglrxavpok.moarboats.client.renders.HelmModuleRenderer
 import org.jglrxavpok.moarboats.common.data.LoopingOptions
 import org.jglrxavpok.moarboats.common.data.PathHolder
@@ -400,10 +401,10 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
         val minV = ((scrollZ-viewportSize/2)/size).coerceAtLeast(0.0f)
         val maxV = ((scrollZ+viewportSize/2)/size).coerceAtMost(1.0f)
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX)
-        bufferbuilder.vertex(0.0, 128.0, -0.009999999776482582).texture(minU, maxV).endVertex()
-        bufferbuilder.vertex(128.0, 128.0, -0.009999999776482582).texture(maxU, maxV).endVertex()
-        bufferbuilder.vertex(128.0, 0.0, -0.009999999776482582).texture(maxU, minV).endVertex()
-        bufferbuilder.vertex(0.0, 0.0, -0.009999999776482582).texture(minU, minV).endVertex()
+        bufferbuilder.pos(matrixStack, 0.0, 128.0, -0.009999999776482582).texture(minU, maxV).endVertex()
+        bufferbuilder.pos(matrixStack, 128.0, 128.0, -0.009999999776482582).texture(maxU, maxV).endVertex()
+        bufferbuilder.pos(matrixStack, 128.0, 0.0, -0.009999999776482582).texture(maxU, minV).endVertex()
+        bufferbuilder.pos(matrixStack, 0.0, 0.0, -0.009999999776482582).texture(minU, minV).endVertex()
         tessellator.draw()
         GlStateManager.enableAlphaTest()
 
@@ -439,7 +440,7 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
         var previousX = 0.0
         var previousZ = 0.0
         val first = waypointsData.firstOrNull() as? CompoundNBT
-        val renderInfo = RenderInfo(MatrixStack(), mc.bufferBuilders.entityVertexConsumers)
+        val renderInfo = RenderInfo(matrixStack, mc.bufferBuilders.entityVertexConsumers)
         for((index, waypoint) in waypointsData.withIndex()) {
             waypoint as CompoundNBT
             val blockX = waypoint.getInt("x")
@@ -493,7 +494,11 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
             val (boatPixelX, boatPixelZ) = worldCoordsToPixels(blockPos.x, blockPos.z)
             val boatRenderX = boatPixelX/mapScreenSize*128.0
             val boatRenderZ = boatPixelZ/mapScreenSize*128.0
+
+            RenderSystem.pushMatrix()
+            RenderSystem.multMatrix(matrixStack.peek().model)
             mc.itemRenderer.renderItemIntoGUI(HelmModuleRenderer.helmStack, (boatRenderX/iconScale).toInt(), (boatRenderZ/iconScale).toInt())
+            RenderSystem.popMatrix()
 
             matrixStack.pop()
         }

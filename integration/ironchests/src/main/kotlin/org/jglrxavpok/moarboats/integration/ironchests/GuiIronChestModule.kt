@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.integration.ironchests
 
+import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.platform.GlStateManager
 import com.progwml6.ironchest.common.block.IronChestsTypes
 import net.minecraft.client.gui.AbstractGui
@@ -40,10 +41,10 @@ class GuiIronChestModule(containerID: Int, playerInventory: PlayerInventory, mod
         return chestType.ySize
     }
 
-    override fun drawForeground(mouseX: Int, mouseY: Int) {
-        super.drawForeground(mouseX, mouseY)
-        font.drawString(moduleTitle.formatted(), 8.0f, 6.0f, 4210752)
-        font.drawString(playerInventory.displayName.formatted(), 8.0f, (ySize - 96 + 2).toFloat(), 4210752)
+    override fun drawForeground(matrixStack: MatrixStack, mouseX: Int, mouseY: Int) {
+        super.drawForeground(matrixStack, mouseX, mouseY)
+        textRenderer.draw(matrixStack, moduleTitle.formatted().string, 8.0f, 6.0f, 4210752)
+        textRenderer.draw(matrixStack, playerInventory.displayName.string, 8.0f, (ySize - 96 + 2).toFloat(), 4210752)
     }
 
 

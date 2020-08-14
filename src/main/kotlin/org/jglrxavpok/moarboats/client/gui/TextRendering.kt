@@ -5,7 +5,7 @@ import net.minecraft.client.gui.FontRenderer
 import net.minecraft.util.text.ITextComponent
 
 fun FontRenderer.drawCenteredString(matrixStack: MatrixStack, text: ITextComponent, x: Int, y: Int, color: Int, shadow: Boolean = false) {
-    drawCenteredString(matrixStack, text.unformattedComponentText, x, y, color, shadow)
+    drawCenteredString(matrixStack, text.string, x, y, color, shadow)
 }
 
 fun FontRenderer.drawCenteredString(matrixStack: MatrixStack, text: String, x: Int, y: Int, color: Int, shadow: Boolean = false) {

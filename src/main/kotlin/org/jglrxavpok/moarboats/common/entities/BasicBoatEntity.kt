@@ -758,7 +758,9 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
             val pos = BlockPos(compound.getInt("linkBackX"), compound.getInt("linkBackY"), compound.getInt("linkBackZ"))
             readKnotLocations[BackLink] = Optional.of(pos)
         }
-        boatID = compound.getUniqueId("boatID")!!
+        if(compound.hasUniqueId("boatID")) {
+            boatID = compound.getUniqueId("boatID")
+        }
         knotLocations = listOf(*readKnotLocations)
 
         // reset runtime links
@@ -823,7 +825,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
             RopeItem.onLinkUsed(itemstack, player, hand, world, this)
             return ActionResultType.SUCCESS
         }
-        return ActionResultType.SUCCESS
+        return ActionResultType.PASS
     }
 
     fun getLinkedTo(side: Int): Entity? {
