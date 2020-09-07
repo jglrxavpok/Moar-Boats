@@ -19,6 +19,7 @@ import net.minecraft.client.renderer.texture.MissingTextureSprite
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.item.ItemModelsProperties
 import net.minecraft.item.MusicDiscItem
 import net.minecraft.state.properties.AttachFace
 import net.minecraft.util.*
@@ -58,6 +59,7 @@ import org.jglrxavpok.moarboats.common.containers.ContainerTypes
 import org.jglrxavpok.moarboats.common.data.MapImageStripe
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.entities.UtilityBoatEntity
+import org.jglrxavpok.moarboats.common.items.RopeItem
 import org.jglrxavpok.moarboats.common.network.CShowBoatMenu
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE, value = [Dist.CLIENT], modid = MoarBoats.ModID)
@@ -116,6 +118,10 @@ object ClientEvents {
     }
 
     fun doClientStuff(event: FMLClientSetupEvent) {
+        ItemModelsProperties.register(RopeItem, ResourceLocation("first_knot")) { stack, _, _ ->
+            if(RopeItem.getState(stack) == RopeItem.State.WAITING_NEXT) 1f else 0f
+        }
+
         MinecraftForge.EVENT_BUS.register(this)
 
         for(moduleEntry in BoatModuleRegistry.forgeRegistry.values) {
@@ -295,7 +301,7 @@ object ClientEvents {
         val f1 = 0.0625f
         RenderSystem.enableBlend()
         playerModel.swingProgress = 0.0f
-        playerModel.isSneaking = false
+        playerModel.sneaking = false
         playerModel.swimAnimation = 0.0f
         playerModel.setAngles(clientPlayer, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f)
 

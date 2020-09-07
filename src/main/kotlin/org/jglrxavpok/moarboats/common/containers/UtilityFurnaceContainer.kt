@@ -8,11 +8,12 @@ import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.container.AbstractFurnaceContainer
 import net.minecraft.inventory.container.SmokerContainer
 import net.minecraft.item.crafting.IRecipeType
+import net.minecraft.item.crafting.RecipeBookCategory
 import net.minecraft.util.IIntArray
 
 class UtilityFurnaceContainer: AbstractFurnaceContainer {
-    constructor(p_i50082_1_: Int, p_i50082_2_: PlayerInventory?) : super(ContainerTypes.FurnaceBoat, IRecipeType.SMELTING, p_i50082_1_, p_i50082_2_) {}
-    constructor(p_i50083_1_: Int, p_i50083_2_: PlayerInventory?, p_i50083_3_: IInventory?, p_i50083_4_: IIntArray?) : super(ContainerTypes.FurnaceBoat, IRecipeType.SMELTING, p_i50083_1_, p_i50083_2_, p_i50083_3_, p_i50083_4_) {}
+    constructor(p_i50082_1_: Int, p_i50082_2_: PlayerInventory?) : super(ContainerTypes.FurnaceBoat, IRecipeType.SMELTING, RecipeBookCategory.FURNACE, p_i50082_1_, p_i50082_2_) {}
+    constructor(p_i50083_1_: Int, p_i50083_2_: PlayerInventory?, p_i50083_3_: IInventory?, p_i50083_4_: IIntArray?) : super(ContainerTypes.FurnaceBoat, IRecipeType.SMELTING, RecipeBookCategory.FURNACE, p_i50083_1_, p_i50083_2_, p_i50083_3_, p_i50083_4_) {}
 
     override fun canInteractWith(p_75145_1_: PlayerEntity): Boolean {
         return true
@@ -24,8 +25,8 @@ class UtilityFurnaceContainer: AbstractFurnaceContainer {
 }
 
 class UtilitySmokerContainer: AbstractFurnaceContainer {
-    constructor(p_i50082_1_: Int, p_i50082_2_: PlayerInventory?) : super(ContainerTypes.SmokerBoat, IRecipeType.SMOKING, p_i50082_1_, p_i50082_2_) {}
-    constructor(p_i50083_1_: Int, p_i50083_2_: PlayerInventory?, p_i50083_3_: IInventory?, p_i50083_4_: IIntArray?) : super(ContainerTypes.SmokerBoat, IRecipeType.SMOKING, p_i50083_1_, p_i50083_2_, p_i50083_3_, p_i50083_4_) {}
+    constructor(p_i50082_1_: Int, p_i50082_2_: PlayerInventory?) : super(ContainerTypes.SmokerBoat, IRecipeType.SMOKING, RecipeBookCategory.SMOKER, p_i50082_1_, p_i50082_2_) {}
+    constructor(p_i50083_1_: Int, p_i50083_2_: PlayerInventory?, p_i50083_3_: IInventory?, p_i50083_4_: IIntArray?) : super(ContainerTypes.SmokerBoat, IRecipeType.SMOKING, RecipeBookCategory.SMOKER, p_i50083_1_, p_i50083_2_, p_i50083_3_, p_i50083_4_) {}
 
     override fun canInteractWith(p_75145_1_: PlayerEntity): Boolean {
         return true
@@ -37,8 +38,8 @@ class UtilitySmokerContainer: AbstractFurnaceContainer {
 }
 
 class UtilityBlastFurnaceContainer: AbstractFurnaceContainer {
-    constructor(p_i50082_1_: Int, p_i50082_2_: PlayerInventory?) : super(ContainerTypes.BlastFurnaceBoat, IRecipeType.BLASTING, p_i50082_1_, p_i50082_2_) {}
-    constructor(p_i50083_1_: Int, p_i50083_2_: PlayerInventory?, p_i50083_3_: IInventory?, p_i50083_4_: IIntArray?) : super(ContainerTypes.BlastFurnaceBoat, IRecipeType.BLASTING, p_i50083_1_, p_i50083_2_, p_i50083_3_, p_i50083_4_) {}
+    constructor(p_i50082_1_: Int, p_i50082_2_: PlayerInventory?) : super(ContainerTypes.BlastFurnaceBoat, IRecipeType.BLASTING, RecipeBookCategory.BLAST_FURNACE, p_i50082_1_, p_i50082_2_) {}
+    constructor(p_i50083_1_: Int, p_i50083_2_: PlayerInventory?, p_i50083_3_: IInventory?, p_i50083_4_: IIntArray?) : super(ContainerTypes.BlastFurnaceBoat, IRecipeType.BLASTING, RecipeBookCategory.BLAST_FURNACE, p_i50083_1_, p_i50083_2_, p_i50083_3_, p_i50083_4_) {}
 
     override fun canInteractWith(p_75145_1_: PlayerEntity): Boolean {
         return true

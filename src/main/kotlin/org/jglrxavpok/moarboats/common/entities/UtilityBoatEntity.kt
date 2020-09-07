@@ -26,6 +26,7 @@ import net.minecraft.util.math.vector.Vector3d
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.TranslationTextComponent
 import net.minecraft.world.World
+import net.minecraft.world.server.ServerWorld
 import net.minecraftforge.fml.network.NetworkHooks
 import net.minecraftforge.fml.network.PacketDistributor
 import org.jglrxavpok.moarboats.MoarBoats
@@ -219,8 +220,8 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
         return null
     }
 
-    override fun getWorld(): World {
-        return world
+    override fun getWorld(): ServerWorld? {
+        return world as? ServerWorld
     }
 
     override fun getBlockPos(): BlockPos {

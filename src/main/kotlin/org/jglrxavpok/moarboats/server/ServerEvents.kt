@@ -1,11 +1,9 @@
 package org.jglrxavpok.moarboats.server
 
-import net.alexwells.kottle.KotlinEventBusSubscriber
 import net.minecraft.entity.player.ServerPlayerEntity
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.nbt.ListNBT
 import net.minecraft.world.server.ServerWorld
-import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.event.entity.living.LivingEvent
 import net.minecraftforge.event.world.WorldEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent

@@ -9,6 +9,7 @@ import net.minecraft.crash.ReportedException
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.MoverType
+import net.minecraft.entity.Pose
 import net.minecraft.entity.item.ItemEntity
 import net.minecraft.entity.item.LeashKnotEntity
 import net.minecraft.entity.player.PlayerEntity
@@ -168,14 +169,6 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
     override fun isEntityInLava() = isInLava
 
     fun hasLink(linkType: Int) = linkEntityTypes[linkType] != NoLink
-
-    override fun getCollisionBox(entityIn: Entity): AxisAlignedBB? {
-        return if (entityIn.canBePushed()) entityIn.boundingBox else null
-    }
-
-    override fun getCollisionBoundingBox(): AxisAlignedBB? {
-        return this.boundingBox
-    }
 
     /**
      * Returns true if this entity should push and be pushed by other entities when colliding.

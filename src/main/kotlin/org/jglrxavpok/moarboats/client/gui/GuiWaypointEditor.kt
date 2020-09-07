@@ -85,7 +85,7 @@ class GuiWaypointEditor(val player: PlayerEntity, val te: TileEntityMappingTable
         zInput.text = waypointData.getInt("z").toString()
 
         nameInput.x = width / 2 - nameInput.width / 2
-        nameInput.y = 15 + nameInput.height
+        nameInput.y = 15 + nameInput.unusedGetHeight()
 
         intInputs.forEach {input ->
             input.setValidator { str ->
@@ -96,7 +96,7 @@ class GuiWaypointEditor(val player: PlayerEntity, val te: TileEntityMappingTable
         val margin = 10
         confirmButton.x = width / 2 - confirmButton.width - margin
         cancelButton.x = width / 2 + margin
-        confirmButton.y = height - confirmButton.height - 5
+        confirmButton.y = height - confirmButton.unusedGetHeight() - 5
         cancelButton.y = confirmButton.y
 
         val positionInputs = listOf(xInput, zInput)
@@ -180,8 +180,8 @@ class GuiWaypointEditor(val player: PlayerEntity, val te: TileEntityMappingTable
 
         textRenderer.drawCenteredString(matrixStack, TextFormatting.UNDERLINE.toString() + TranslationTextComponent("moarboats.gui.waypoint_editor", nameInput.text).formatted().string, width / 2, 15, 0xFFFFFF, shadow = true)
         textRenderer.drawCenteredString(matrixStack, TextFormatting.UNDERLINE.toString() + positionTitleText.formatted().string, width / 2, 75, 0xFFFFFF, shadow = true)
-        textRenderer.draw(matrixStack, "X:", xInput.x - 10f, xInput.y + xInput.height / 2 - textRenderer.FONT_HEIGHT / 2f, 0xFFFFFF)
-        textRenderer.draw(matrixStack, "Z:", zInput.x - 10f, xInput.y + xInput.height / 2 - textRenderer.FONT_HEIGHT / 2f, 0xFFFFFF)
+        textRenderer.draw(matrixStack, "X:", xInput.x - 10f, xInput.y + xInput.unusedGetHeight() / 2 - textRenderer.FONT_HEIGHT / 2f, 0xFFFFFF)
+        textRenderer.draw(matrixStack, "Z:", zInput.x - 10f, xInput.y + xInput.unusedGetHeight() / 2 - textRenderer.FONT_HEIGHT / 2f, 0xFFFFFF)
         textRenderer.drawCenteredString(matrixStack, TextFormatting.UNDERLINE.toString() + miscText.formatted().string, width / 2, 135, 0xFFFFFF, shadow = true)
 
         matrixStack.push()

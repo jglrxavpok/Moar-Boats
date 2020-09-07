@@ -44,8 +44,8 @@ open class GuiToolButton(var text: ITextComponent, var toolIconIndex: Int, val p
         this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height
         val stateOffset = this.getYImage(this.isHovered)
         GlStateManager.enableBlend()
-        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.field_225655_p_, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.field_225654_o_, GlStateManager.SourceFactor.ONE.field_225655_p_, GlStateManager.DestFactor.ZERO.field_225654_o_)
-        GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA.field_225655_p_, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.field_225654_o_)
+        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.field_22545, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.field_22528, GlStateManager.SourceFactor.ONE.field_22545, GlStateManager.DestFactor.ZERO.field_22528)
+        GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA.field_22545, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.field_22528)
         drawTexture(matrixStack, this.x, this.y, 0, 46 + stateOffset * 20, this.width / 2, this.height)
         drawTexture(matrixStack, this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + stateOffset * 20, this.width / 2, this.height)
     }

@@ -113,7 +113,7 @@ object BoatModuleRegistry {
     fun findModule(heldItem: ItemStack): ResourceLocation? {
         for((key, entry) in forgeRegistry.entries) {
             if(entry.correspondingItem == heldItem.item)
-                return key
+                return key.value
         }
         return null
     }

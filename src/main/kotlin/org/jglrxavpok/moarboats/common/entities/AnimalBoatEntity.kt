@@ -15,6 +15,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.vector.Vector3d
 import net.minecraft.world.World
+import net.minecraft.world.server.ServerWorld
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleInventory
 import org.jglrxavpok.moarboats.common.EntityEntries
@@ -43,8 +44,8 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(EntityEntries.AnimalBoat, 
         this.prevPosZ = z
     }
 
-    override fun getWorld(): World {
-        return this.worldRef
+    override fun getWorld(): ServerWorld? {
+        return this.worldRef as? ServerWorld
     }
 
     override fun getBoatItem() = AnimalBoatItem

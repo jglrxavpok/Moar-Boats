@@ -117,7 +117,7 @@ object AnchorModule: BoatModule(), BlockReason {
             anchorYProperty[boat] = boat.positionY
             anchorZProperty[boat] = boat.positionZ
             player.sendStatusMessage(spawnPointSet, true)
-            player.setSpawnPoint(boat.worldRef.registryKey, BlockPos(boat.correspondingEntity.positionVec), true, true)
+            player.setSpawnPoint(boat.worldRef.registryKey, BlockPos(boat.correspondingEntity.positionVec), boat.yaw, true, true)
         }
     }
 

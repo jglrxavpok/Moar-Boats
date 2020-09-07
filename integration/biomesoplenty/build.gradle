@@ -17,7 +17,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: "kotlin"
 apply plugin: 'maven-publish'
 
-version = "1.15.2-1.0.0"
+version = "1.16.1-1.0.0"
 group = "org.jglrxavpok.moarboats" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "moarboats-biomesoplenty-plugin"
 
@@ -119,7 +119,7 @@ dependencies {
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     minecraft 'net.minecraftforge:forge:1.16.1-32.0.93'
     compile "kottle:Kottle:$kottleVersion"
-    compile "com.github.glitchfiend.biomesoplenty:BiomesOPlenty:1.16.1-11.0.0.390:universal"
+    compile "com.github.glitchfiend.biomesoplenty:BiomesOPlenty:1.16.1-11.0.0.393:universal"
 
     compile rootProject
     mod rootProject

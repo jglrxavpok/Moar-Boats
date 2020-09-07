@@ -3,8 +3,8 @@ package org.jglrxavpok.moarboats.integration
 import net.minecraft.data.DataGenerator
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
-import net.minecraftforge.client.model.generators.ExistingFileHelper
 import net.minecraftforge.common.MinecraftForge
+import net.minecraftforge.common.data.ExistingFileHelper
 import net.minecraftforge.fml.ModList
 import net.minecraftforge.fml.StartupMessageManager
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent

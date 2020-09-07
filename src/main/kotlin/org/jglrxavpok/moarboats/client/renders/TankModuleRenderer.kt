@@ -36,7 +36,7 @@ object TankModuleRenderer : BoatModuleRenderer() {
             val scale = 1f/16f
             matrixStack.scale(scale, scale, scale)
             val sprite = Minecraft.getInstance().getSpriteAtlas(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(fluid.attributes.stillTexture)
-            val buffer = buffers.getBuffer(Atlases.func_239280_i_())
+            val buffer = buffers.getBuffer(Atlases.getEntityTranslucentCull())
             val minU = sprite.minU
             val maxU = sprite.maxU
             val minV = sprite.minV

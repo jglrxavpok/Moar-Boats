@@ -20,13 +20,13 @@ interface MBMessageHandler<REQ: MoarBoatsPacket, REPLY: MoarBoatsPacket?> {
         val reply = onMessage(packet, ctx)
         ctx.packetHandled = true
         reply?.let {
-            val target = DistExecutor.runForDist(
+            val target = DistExecutor.safeRunForDist(
                     // client
-                    { Supplier<PacketDistributor.PacketTarget> {
-                        PacketDistributor.SERVER.noArg()
+                    { DistExecutor.SafeSupplier<PacketDistributor.PacketTarget> {
+                            PacketDistributor.SERVER.noArg()
                     }},
                     // server
-                    { Supplier<PacketDistributor.PacketTarget> {
+                    { DistExecutor.SafeSupplier<PacketDistributor.PacketTarget> {
                         PacketDistributor.PLAYER.with { ctx.sender }
                     }}
             )

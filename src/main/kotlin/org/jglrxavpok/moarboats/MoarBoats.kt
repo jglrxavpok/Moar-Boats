@@ -1,7 +1,6 @@
 package org.jglrxavpok.moarboats
 
 import net.alexwells.kottle.FMLKotlinModLoadingContext
-import net.alexwells.kottle.KotlinEventBusSubscriber
 import net.minecraft.block.Block
 import net.minecraft.block.material.Material
 import net.minecraft.block.material.MaterialColor
@@ -15,20 +14,17 @@ import net.minecraft.item.crafting.IRecipeSerializer
 import net.minecraft.network.datasync.DataSerializers
 import net.minecraft.resources.ResourcePackType
 import net.minecraft.server.MinecraftServer
-import net.minecraft.server.dedicated.DedicatedServer
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.tileentity.TileEntityType
 import net.minecraft.util.NonNullList
 import net.minecraft.util.RegistryKey
 import net.minecraft.util.ResourceLocation
-import net.minecraft.world.DimensionType
 import net.minecraft.world.World
 import net.minecraft.world.storage.DimensionSavedDataManager
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
-import net.minecraftforge.client.model.generators.ExistingFileHelper
-import net.minecraftforge.common.BiomeDictionary.Type.OVERWORLD
 import net.minecraftforge.common.MinecraftForge
+import net.minecraftforge.common.data.ExistingFileHelper
 import net.minecraftforge.common.extensions.IForgeContainerType
 import net.minecraftforge.event.RegistryEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
@@ -37,7 +33,10 @@ import net.minecraftforge.fml.DistExecutor
 import net.minecraftforge.fml.ModLoadingContext
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.config.ModConfig
-import net.minecraftforge.fml.event.lifecycle.*
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
+import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent
+import net.minecraftforge.fml.event.lifecycle.GatherDataEvent
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent
 import net.minecraftforge.fml.network.NetworkRegistry
 import net.minecraftforge.registries.ForgeRegistries
@@ -171,12 +170,13 @@ object MoarBoats {
 
     fun getLocalMapStorage(dimensionType: RegistryKey<World> = World.OVERWORLD): DimensionSavedDataManager {
         try {
-            return DistExecutor.runForDist(
+            return DistExecutor.safeRunForDist(
                     // client
                     {
-                        Supplier { ->
+                        DistExecutor.SafeSupplier { ->
                             when {
-                                Minecraft.getInstance().integratedServer != null /* LAN */ -> Minecraft.getInstance().integratedServer!!.getWorld(dimensionType)?.savedData ?: error("Tried to get save data of an nonexistent dimension type? $dimensionType")
+                                Minecraft.getInstance().integratedServer != null /* LAN */ -> Minecraft.getInstance().integratedServer!!.getWorld(dimensionType)?.savedData
+                                        ?: error("Tried to get save data of an nonexistent dimension type? $dimensionType")
                                 else -> DummyDimensionSavedDataManager
                             }
                         }
@@ -184,7 +184,7 @@ object MoarBoats {
 
                     // server
                     {
-                        Supplier<DimensionSavedDataManager> { ->
+                        DistExecutor.SafeSupplier<DimensionSavedDataManager> { ->
                             dedicatedServerInstance!!.getWorld(dimensionType)?.savedData ?: error("Tried to get save data of an nonexistent dimension type? $dimensionType")
                         }
                     }

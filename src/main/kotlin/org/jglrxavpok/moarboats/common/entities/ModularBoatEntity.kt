@@ -21,6 +21,7 @@ import net.minecraft.util.math.*
 import net.minecraft.util.math.vector.Vector3d
 import net.minecraft.util.text.TranslationTextComponent
 import net.minecraft.world.World
+import net.minecraft.world.server.ServerWorld
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.common.capabilities.ICapabilityProvider
 import net.minecraftforge.common.util.Constants
@@ -138,8 +139,8 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
         }
     }
 
-    override fun getWorld(): World {
-        return worldRef
+    override fun getWorld(): ServerWorld? {
+        return worldRef as? ServerWorld
     }
 
     override fun controlBoat() {

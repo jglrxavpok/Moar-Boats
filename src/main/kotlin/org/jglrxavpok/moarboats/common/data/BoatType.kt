@@ -7,6 +7,7 @@ import net.minecraft.item.Item
 import net.minecraft.item.Items
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper
+import net.minecraftforge.registries.ForgeRegistries
 import net.minecraftforge.registries.GameData
 import org.jglrxavpok.moarboats.MoarBoats
 
@@ -26,7 +27,7 @@ interface BoatType {
          */
         internal fun populateBoatTypeCache() {
             val typeField = ObfuscationReflectionHelper.findField(BoatItem::class.java, "field_185057_a")
-            for(boatItem in GameData.getWrapper(Item::class.java).iterator()) {
+            for(boatItem in ForgeRegistries.ITEMS.values) {
                 if(boatItem is BoatItem) {
                     val boatType = createFromVanilla(boatItem, typeField[boatItem] as BoatEntity.Type)
                     registerBoatType(boatType)

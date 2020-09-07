@@ -39,7 +39,7 @@ object SolarEngineModule : BaseEngineModule() {
         val levelIn = from.worldRef
         val pos = from.correspondingEntity.blockPos
         var diff = levelIn.getLightLevel(LightType.SKY, pos) - levelIn.skylightSubtracted
-        var angle = levelIn.getCelestialAngle(1.0f)
+        var angle = levelIn.getCelestialAngleRadians(1.0f)
 
         if (invertedProperty[from]) {
             diff = 15 - diff

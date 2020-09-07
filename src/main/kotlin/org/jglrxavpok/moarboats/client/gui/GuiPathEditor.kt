@@ -139,7 +139,7 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
             button.x = menuX
             button.y = menuY+yOffset
             addButton(button)
-            yOffset += button.height
+            yOffset += button.unusedGetHeight()
             yOffset += spacing
             button.selected = false
         }
@@ -152,14 +152,14 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
             button.x = menuX
             button.y = menuY+yOffset
             addButton(button)
-            yOffset += button.height
+            yOffset += button.unusedGetHeight()
             yOffset += spacing
         }
 
         markerButton.selected = true
 
         refreshMapButton.x = width/2-refreshMapButton.width/2
-        refreshMapButton.y = height-refreshMapButton.height-2
+        refreshMapButton.y = height-refreshMapButton.unusedGetHeight()-2
 
         loopingButton.propertyIndex = pathHolder.getLoopingOption().ordinal
 
@@ -386,7 +386,7 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
         val bufferbuilder = tessellator.buffer
         mc.textureManager.bindTexture(areaResLocation)
         GlStateManager.enableBlend()
-        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.ONE.field_225655_p_, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.field_225654_o_, GlStateManager.SourceFactor.ZERO.field_225655_p_, GlStateManager.DestFactor.ONE.field_225654_o_)
+        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.ONE.field_22545, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.field_22528, GlStateManager.SourceFactor.ZERO.field_22545, GlStateManager.DestFactor.ONE.field_22528)
         GlStateManager.disableAlphaTest()
 
         glEnable(GL_STENCIL_TEST)

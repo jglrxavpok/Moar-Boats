@@ -120,13 +120,13 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
   //      }
 
         when (speedSlider.valueInt) {
-            -50 -> textRenderer.drawCenteredString(matrixStack, minimumSpeedText, 88, infoY + 70 + speedSlider.height, 0xFF0000F0.toInt())
-            50 -> textRenderer.drawCenteredString(matrixStack, maximumSpeedText, 88, infoY + 70 + speedSlider.height, 0xFF0000F0.toInt())
-            0 -> textRenderer.drawCenteredString(matrixStack, normalSpeedText, 88, infoY + 70 + speedSlider.height, 0xFF0000F0.toInt())
+            -50 -> textRenderer.drawCenteredString(matrixStack, minimumSpeedText, 88, infoY + 70 + speedSlider.unusedGetHeight(), 0xFF0000F0.toInt())
+            50 -> textRenderer.drawCenteredString(matrixStack, maximumSpeedText, 88, infoY + 70 + speedSlider.unusedGetHeight(), 0xFF0000F0.toInt())
+            0 -> textRenderer.drawCenteredString(matrixStack, normalSpeedText, 88, infoY + 70 + speedSlider.unusedGetHeight(), 0xFF0000F0.toInt())
         }
 
-        renderSpeedIcon(0, 5, infoY + 40 + speedSlider.height)
-        renderSpeedIcon(2, xSize - 25, infoY + 40 + speedSlider.height)
+        renderSpeedIcon(0, 5, infoY + 40 + speedSlider.unusedGetHeight())
+        renderSpeedIcon(2, xSize - 25, infoY + 40 + speedSlider.unusedGetHeight())
     }
 
     private fun renderBlockReason(y: Int) {

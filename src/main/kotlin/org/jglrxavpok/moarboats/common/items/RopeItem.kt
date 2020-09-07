@@ -23,12 +23,6 @@ object RopeItem : MoarBoatsItem("rope") {
         READY
     }
 
-    init {
-        ItemModelsProperties.register(this, ResourceLocation("first_knot")) { stack, _, _ ->
-            if(getState(stack) == State.WAITING_NEXT) 1f else 0f
-        }
-    }
-
     private val ropeInfo = TranslationTextComponent("item.rope.description")
 
     private fun setLinked(levelIn: World, stack: ItemStack, entity: BasicBoatEntity) {

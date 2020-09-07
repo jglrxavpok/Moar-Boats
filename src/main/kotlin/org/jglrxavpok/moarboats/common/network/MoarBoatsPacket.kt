@@ -3,11 +3,13 @@ package org.jglrxavpok.moarboats.common.network
 import net.minecraft.inventory.ItemStackHelper
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
+import net.minecraft.item.Items
 import net.minecraft.item.MusicDiscItem
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.nbt.ListNBT
 import net.minecraft.network.PacketBuffer
 import net.minecraft.util.*
+import net.minecraftforge.registries.ForgeRegistries
 import net.minecraftforge.registries.GameData
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.data.LoopingOptions
@@ -270,7 +272,7 @@ interface MoarBoatsPacket {
                 }
 
                 SoundEvent::class.java -> {
-                    GameData.getWrapper(SoundEvent::class.java).getValue(ResourceLocation(buffer.readString(200)))
+                    ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation(buffer.readString(200)))
                 }
 
                 SoundCategory::class.java -> {
@@ -283,7 +285,7 @@ interface MoarBoatsPacket {
                 }
 
                 Item::class.java -> {
-                    GameData.getWrapper(Item::class.java).getOrDefault(buffer.readResourceLocation())
+                    ForgeRegistries.ITEMS.getValue(buffer.readResourceLocation()) ?: Items.AIR
                 }
 
                 // Moar Boats special types
