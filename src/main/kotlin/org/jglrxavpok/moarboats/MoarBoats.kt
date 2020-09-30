@@ -1,6 +1,5 @@
 package org.jglrxavpok.moarboats
 
-import net.alexwells.kottle.FMLKotlinModLoadingContext
 import net.minecraft.block.Block
 import net.minecraft.block.material.Material
 import net.minecraft.block.material.MaterialColor
@@ -65,6 +64,7 @@ import org.jglrxavpok.moarboats.datagen.UtilityBoatRecipes
 import org.jglrxavpok.moarboats.integration.LoadIntegrationPlugins
 import org.jglrxavpok.moarboats.integration.MoarBoatsPlugin
 import org.jglrxavpok.moarboats.server.ServerEvents
+import thedarkcolour.kotlinforforge.forge.MOD_CONTEXT
 import java.net.URL
 import java.util.concurrent.Callable
 import java.util.function.Supplier
@@ -147,10 +147,10 @@ object MoarBoats {
     lateinit var TileEntityMappingTableType: TileEntityType<TileEntityMappingTable>
 
     init {
-        FMLKotlinModLoadingContext.get().modEventBus.addListener {event: FMLClientSetupEvent -> ClientEvents.doClientStuff(event)}
-        FMLKotlinModLoadingContext.get().modEventBus.addListener {event: FMLCommonSetupEvent -> setup(event)}
-        FMLKotlinModLoadingContext.get().modEventBus.addListener {event: FMLServerStartingEvent -> initDedicatedServer(event)}
-        FMLKotlinModLoadingContext.get().modEventBus.addListener {event: FMLLoadCompleteEvent -> postLoad(event)}
+        MOD_CONTEXT.getKEventBus().addListener(ClientEvents::doClientStuff)
+        MOD_CONTEXT.getKEventBus().addListener(this::setup)
+        MOD_CONTEXT.getKEventBus().addListener(this::initDedicatedServer)
+        MOD_CONTEXT.getKEventBus().addListener(this::postLoad)
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, MoarBoatsConfig.spec)
 
         MinecraftForge.EVENT_BUS.register(MoarBoatsGuiHandler)

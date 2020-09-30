@@ -1,5 +1,5 @@
-modLoader="kotlinfml" #mandatory
-loaderVersion="[2,)" #mandatory (24 is current forge version)
+modLoader="kotlinforforge" #mandatory
+loaderVersion="[1,)" #mandatory (24 is current forge version)
 issueTrackerURL="http://github.com/jglrxavpok/Moar-Boats/issues" #optional
 license="All rights reserved"
 
@@ -19,13 +19,13 @@ Adds more uses to boats!
 [[dependencies.moarboats]]
     modId="forge" #mandatory
     mandatory=true #mandatory
-    versionRange="[32,)" #mandatory
+    versionRange="[34,)" #mandatory
     ordering="NONE"
     side="BOTH"
 
 [[dependencies.moarboats]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.16.2]"
+    versionRange="[1.16.3]"
     ordering="NONE"
     side="BOTH"
