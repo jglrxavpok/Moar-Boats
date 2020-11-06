@@ -53,7 +53,7 @@ class BoatPathHolder(val boat: IControllable): PathHolder {
     }
 
     override fun getHolderLocation(): BlockPos {
-        return boat.blockPos
+        return BlockPos(boat.positionX, boat.positionY, boat.positionZ)
     }
 }
 

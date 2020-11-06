@@ -44,10 +44,6 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(EntityEntries.AnimalBoat, 
         this.prevPosZ = z
     }
 
-    override fun getWorld(): ServerWorld? {
-        return this.worldRef as? ServerWorld
-    }
-
     override fun getBoatItem() = AnimalBoatItem
 
     override fun getOwnerIdOrNull(): UUID? {
@@ -124,14 +120,6 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(EntityEntries.AnimalBoat, 
 
     override fun reorientate(overrideFacing: Direction): Direction {
         return overrideFacing
-    }
-
-    override fun <T : TileEntity?> getBlockTileEntity(): T {
-        return DispenserTileEntity() as T
-    }
-
-    override fun getBlockState(): BlockState {
-        return world.getBlockState(blockPos)
     }
 
     override fun updatePassenger(passenger: Entity) {

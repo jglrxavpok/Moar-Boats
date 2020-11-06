@@ -206,26 +206,12 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
 
     fun getBackingTileEntity() = backingTileEntity
 
-    override fun <T : TileEntity?> getBlockTileEntity() = backingTileEntity as? T
-
     override fun getOwnerIdOrNull(): UUID? {
         return null
     }
 
     override fun getOwnerNameOrNull(): String? {
         return null
-    }
-
-    override fun getBlockState(): BlockState? {
-        return null
-    }
-
-    override fun getWorld(): ServerWorld? {
-        return world as? ServerWorld
-    }
-
-    override fun getBlockPos(): BlockPos {
-        return InvalidPosition
     }
 
     override fun getControllingPassenger(): Entity? {

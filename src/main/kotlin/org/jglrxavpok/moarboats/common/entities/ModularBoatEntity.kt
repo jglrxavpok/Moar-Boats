@@ -2,6 +2,7 @@ package org.jglrxavpok.moarboats.common.entities
 
 import net.minecraft.block.BlockState
 import net.minecraft.block.DispenserBlock
+import net.minecraft.dispenser.IBlockSource
 import net.minecraft.dispenser.IDispenseItemBehavior
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.PlayerEntity
@@ -104,6 +105,38 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
         private set
     var ownerName: String? = null
         private set
+
+    val blockSource = object: IBlockSource {
+        override fun getX(): Double {
+            return this@ModularBoatEntity.x
+        }
+
+        override fun getY(): Double {
+            return this@ModularBoatEntity.y
+        }
+
+        override fun getZ(): Double {
+            return this@ModularBoatEntity.z
+        }
+
+        override fun getBlockPos(): BlockPos {
+            return this@ModularBoatEntity.getBlockPos()
+        }
+
+        override fun getBlockState(): BlockState {
+            return world.getBlockState(blockPos)
+        }
+
+        override fun <T : TileEntity?> getBlockTileEntity(): T? {
+            return embeddedDispenserTileEntity as? T
+        }
+
+        override fun getWorld(): ServerWorld? {
+            return world as? ServerWorld
+        }
+
+    }
+
     init {
         this.preventEntitySpawning = true
     }
@@ -137,10 +170,6 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
         if(ownerUUID != null && ownerName == null) {
             ownerName = world.getPlayerByUuid(ownerUUID)?.name?.unformattedComponentText
         }
-    }
-
-    override fun getWorld(): ServerWorld? {
-        return worldRef as? ServerWorld
     }
 
     override fun controlBoat() {
@@ -418,7 +447,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
             else -> overrideFacing
         }
         moduleDispensePosition.setPos(overridePosition ?: blockPos)
-        return behavior.dispense(this, stack)
+        return behavior.dispense(blockSource, stack)
     }
 
     /**
@@ -526,18 +555,6 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
         } ?: ItemStack.EMPTY
     }
 
-    // === Start of IBlockSource methods
-    override fun <T : TileEntity> getBlockTileEntity(): T {
-        return embeddedDispenserTileEntity as T
-    }
-
-    override fun getBlockState(): BlockState {
-        return MCBlocks.DISPENSER.defaultState.with(DispenserBlock.FACING, moduleDispenseFacing)
-    }
-
-    override fun getBlockPos(): BlockPos {
-        return moduleDispensePosition
-    }
     // === Start of passengers code ===
 
     override fun canStartRiding(player: PlayerEntity, heldItem: ItemStack, hand: Hand): Boolean {
@@ -659,4 +676,5 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
     fun findFirstModuleToShowOnGui(): BoatModule {
         return sortModulesByInterestingness().first()
     }
+
 }

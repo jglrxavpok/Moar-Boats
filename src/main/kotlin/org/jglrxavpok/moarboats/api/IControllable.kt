@@ -10,13 +10,14 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.vector.Vector3d
 import net.minecraft.world.World
+import net.minecraft.world.server.ServerWorld
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.modules.BlockReason
 import org.jglrxavpok.moarboats.common.state.BoatProperty
 import org.jglrxavpok.moarboats.extensions.toRadians
 import java.util.*
 
-interface IControllable: IBlockSource {
+interface IControllable {
 
     val entityID: Int
     val modules: List<BoatModule>
@@ -32,6 +33,8 @@ interface IControllable: IBlockSource {
     val moduleRNG: Random
     val blockedReason: BlockReason
     val imposedSpeed: Float
+
+    val world: World get()= worldRef
 
     fun inLiquid(): Boolean
     fun isEntityInLava(): Boolean
