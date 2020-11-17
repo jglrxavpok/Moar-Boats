@@ -38,17 +38,16 @@ object ChunkLoadingModuleRenderer : BoatModuleRenderer() {
         // render pearls
         for((x, z) in corners) {
             matrixStack.push()
-            matrixStack.scale(-1f, 1f, 1f)
+            matrixStack.scale(1f, 1f, 1f)
 
             val yOffset = 0.0625f * 16f /5f
             val length = 0.5f
             val width = .0625f * 15f
-            matrixStack.translate((x*width).toDouble(), yOffset.toDouble(), (z*length).toDouble())
-            matrixStack.translate(0.025, 0.5, 0.0)
-            matrixStack.multiply(Vector3f.NEGATIVE_Y.getDegreesQuaternion(entityYaw + 90f))
-            matrixStack.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(entityRenderer.info.yaw))
+            matrixStack.translate(-(x*width).toDouble(), yOffset.toDouble(), (z*length).toDouble())
+            matrixStack.translate(-0.025, 0.5, 0.0)
+            matrixStack.multiply(Vector3f.NEGATIVE_Y.getDegreesQuaternion(entityYaw))
+            matrixStack.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(-entityRenderer.info.yaw))
             matrixStack.multiply(Vector3f.POSITIVE_X.getDegreesQuaternion(-entityRenderer.info.pitch))
-            matrixStack.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(180.0f))
             itemRenderer.renderItem(enderPearlStack, ItemCameraTransforms.TransformType.GROUND, packedLightIn, OverlayTexture.DEFAULT_UV, matrixStack, buffers)
 
             matrixStack.pop()

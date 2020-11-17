@@ -148,6 +148,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
         this.prevPosY = y
         this.prevPosZ = z
         this.color = color
+        println("setColor = $color")
         this.owningMode = owningMode
         this.ownerUUID = ownerUUID
     }
@@ -259,6 +260,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
     }
 
     override fun writeAdditional(compound: CompoundNBT) {
+        println("writeAdditional = $color")
         super.writeAdditional(compound)
         val list = ListNBT()
         for(moduleID in moduleLocations) {
@@ -283,7 +285,9 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
     }
 
     public override fun readAdditional(compound: CompoundNBT) {
+        println("readAdditional = $color")
         super.readAdditional(compound)
+        println("super.readAdditional = $color")
         moduleLocations.clear()
         moduleData = compound.getCompound("state")
         val list = compound.getList("modules", Constants.NBT.TAG_COMPOUND)
@@ -300,17 +304,14 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
         }
         moduleRNG = Random(boatID.leastSignificantBits)
         fun colorFromString(str: String): DyeColor {
-            return DyeColor.values().find { it.name == str } ?: DyeColor.WHITE
+            return DyeColor.values().find { it.name.toLowerCase() == str.toLowerCase() } ?: DyeColor.WHITE
         }
-        color = if(compound.contains("color"))
-            colorFromString(compound.getString("color"))
-        else
-            DyeColor.WHITE
+        if(compound.contains("color"))
+            color = colorFromString(compound.getString("color"))
 
-        ownerUUID = if(compound.hasUniqueId("ownerUUID")) {
-            compound.getUniqueId("ownerUUID")
-        } else {
-            null
+        println("readAdditional, read color = $color")
+        if(compound.hasUniqueId("ownerUUID")) {
+            ownerUUID = compound.getUniqueId("ownerUUID")
         }
         if(compound.contains("ownerName"))
             ownerName = compound.getString("ownerName")

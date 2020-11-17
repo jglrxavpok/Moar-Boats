@@ -59,13 +59,13 @@ public class ModelModularBoat extends EntityModel<BasicBoatEntity> {
 
     @Override
     public void render(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
-        this.frontAnchor.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
-        this.backAnchor.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
-        this.boatSides5.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
-        this.boatSides2.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
-        this.boatSides4.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
-        this.boatSides3.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
-        this.boatSides1.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
+        this.frontAnchor.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+        this.backAnchor.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+        this.boatSides5.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+        this.boatSides2.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+        this.boatSides4.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+        this.boatSides3.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+        this.boatSides1.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
     }
 
     @Override
