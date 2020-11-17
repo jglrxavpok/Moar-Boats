@@ -10,6 +10,7 @@ import net.minecraft.inventory.container.Container
 import net.minecraft.inventory.container.ContainerType
 import net.minecraft.item.*
 import net.minecraft.item.crafting.IRecipeSerializer
+import net.minecraft.item.crafting.SpecialRecipeSerializer
 import net.minecraft.network.datasync.DataSerializers
 import net.minecraft.resources.ResourcePackType
 import net.minecraft.server.MinecraftServer
@@ -296,10 +297,17 @@ object MoarBoats {
 
         @SubscribeEvent
         fun registerRecipes(event: RegistryEvent.Register<IRecipeSerializer<*>>) {
-            event.registry.register(MBRecipeSerializers.MapWithPath);
-            event.registry.register(MBRecipeSerializers.BoatColoring);
-            event.registry.register(MBRecipeSerializers.UpgradeToGoldenTicket);
-            event.registry.register(MBRecipeSerializers.CopyGoldenTicket);
+            MBRecipeSerializers.MapWithPath = MBRecipeSerializers.SingletonSerializer(MapWithPathRecipe).apply { setRegistryName(ResourceLocation(ModID, "map_with_path")) }.also(event.registry::register)
+            MBRecipeSerializers.BoatColoring = MBRecipeSerializers.SingletonSerializer(ModularBoatColoringRecipe).apply { setRegistryName(ResourceLocation(ModID, "color_modular_boat")) }.also(event.registry::register)
+            MBRecipeSerializers.UpgradeToGoldenTicket = MBRecipeSerializers.SingletonSerializer(UpgradeToGoldenTicketRecipe).apply { setRegistryName(ResourceLocation(ModID, "upgrade_to_golden_ticket")) }.also(event.registry::register)
+            MBRecipeSerializers.CopyGoldenTicket = MBRecipeSerializers.SingletonSerializer(GoldenTicketCopyRecipe).apply { setRegistryName(ResourceLocation(ModID, "copy_golden_ticket")) }.also(event.registry::register)
+            MBRecipeSerializers.ShulkerBoat = SpecialRecipeSerializer { _ -> ShulkerBoatRecipe }.apply { setRegistryName(ModID, "shulker_boat") }.also(event.registry::register)
+
+            event.registry.register(MBRecipeSerializers.MapWithPath)
+            event.registry.register(MBRecipeSerializers.BoatColoring)
+            event.registry.register(MBRecipeSerializers.UpgradeToGoldenTicket)
+            event.registry.register(MBRecipeSerializers.CopyGoldenTicket)
+            event.registry.register(MBRecipeSerializers.ShulkerBoat)
         }
 
         @SubscribeEvent

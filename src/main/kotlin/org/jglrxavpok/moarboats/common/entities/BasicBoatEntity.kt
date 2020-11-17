@@ -866,13 +866,11 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
     }
 
     override fun readSpawnData(additionalData: PacketBuffer) {
-        println("writeSpawnData")
         val data = additionalData.readCompoundTag()
         readAdditional(data!!)
     }
 
     override fun writeSpawnData(buffer: PacketBuffer) {
-        println("writeSpawnData")
         val nbtData = CompoundNBT()
         writeAdditional(nbtData)
         buffer.writeCompoundTag(nbtData)
