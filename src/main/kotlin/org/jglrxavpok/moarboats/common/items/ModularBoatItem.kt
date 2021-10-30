@@ -65,20 +65,20 @@ class ModularBoatItem(val dyeColor: DyeColor): BaseBoatItem() {
     }
 
     init {
-        registryName = ResourceLocation(MoarBoats.ModID, "modular_boat_${dyeColor.translationKey}")
+        registryName = ResourceLocation(MoarBoats.ModID, "modular_boat_${dyeColor.getName()}")
     }
 
     override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
         val color = dyeColor
         return ModularBoatEntity(
                 levelIn,
-                raytraceresult.hitVec.x,
-                if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y,
-                raytraceresult.hitVec.z,
+                raytraceresult.location.x,
+                if (inUsualFluid) raytraceresult.location.y - 0.12 else raytraceresult.location.y,
+                raytraceresult.location.z,
                 color,
                 ModularBoatEntity.OwningMode.PlayerOwned,
                 playerIn.gameProfile.id).apply {
-                    readAdditional(itemstack.getOrCreateChildTag("boat_data"))
+                    readAdditional(itemstack.getOrCreateTagElement("boat_data"))
                 }
     }
 
@@ -91,7 +91,7 @@ object AnimalBoatItem: BaseBoatItem() {
     }
 
     override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
-        return AnimalBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z)
+        return AnimalBoatEntity(levelIn, raytraceresult.location.x, if (inUsualFluid) raytraceresult.location.y - 0.12 else raytraceresult.location.y, raytraceresult.location.z)
     }
 }
 
@@ -104,7 +104,7 @@ class FurnaceBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "furnace") 
     }
 
     override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
-        return FurnaceBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = this@FurnaceBoatItem.boatType }
+        return FurnaceBoatEntity(levelIn, raytraceresult.location.x, if (inUsualFluid) raytraceresult.location.y - 0.12 else raytraceresult.location.y, raytraceresult.location.z).apply { boatType = this@FurnaceBoatItem.boatType }
     }
 }
 
@@ -117,7 +117,7 @@ class SmokerBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "smoker") {
     }
 
     override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
-        return SmokerBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = this@SmokerBoatItem.boatType }
+        return SmokerBoatEntity(levelIn, raytraceresult.location.x, if (inUsualFluid) raytraceresult.location.y - 0.12 else raytraceresult.location.y, raytraceresult.location.z).apply { boatType = this@SmokerBoatItem.boatType }
     }
 }
 
@@ -130,7 +130,7 @@ class BlastFurnaceBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "blast
     }
 
     override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
-        return BlastFurnaceBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = this@BlastFurnaceBoatItem.boatType }
+        return BlastFurnaceBoatEntity(levelIn, raytraceresult.location.x, if (inUsualFluid) raytraceresult.location.y - 0.12 else raytraceresult.location.y, raytraceresult.location.z).apply { boatType = this@BlastFurnaceBoatItem.boatType }
     }
 }
 
@@ -143,7 +143,7 @@ class CraftingTableBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "craf
     }
 
     override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
-        return CraftingTableBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = this@CraftingTableBoatItem.boatType }
+        return CraftingTableBoatEntity(levelIn, raytraceresult.location.x, if (inUsualFluid) raytraceresult.location.y - 0.12 else raytraceresult.location.y, raytraceresult.location.z).apply { boatType = this@CraftingTableBoatItem.boatType }
     }
 
     override fun getContainerDisplayName(): ITextComponent {
@@ -160,7 +160,7 @@ class GrindstoneBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "grindst
     }
 
     override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
-        return GrindstoneBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = this@GrindstoneBoatItem.boatType }
+        return GrindstoneBoatEntity(levelIn, raytraceresult.location.x, if (inUsualFluid) raytraceresult.location.y - 0.12 else raytraceresult.location.y, raytraceresult.location.z).apply { boatType = this@GrindstoneBoatItem.boatType }
     }
 
     override fun getDisplayName(stack: ItemStack): ITextComponent {
@@ -177,7 +177,7 @@ class CartographyTableBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "c
     }
 
     override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
-        return CartographyTableBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = this@CartographyTableBoatItem.boatType }
+        return CartographyTableBoatEntity(levelIn, raytraceresult.location.x, if (inUsualFluid) raytraceresult.location.y - 0.12 else raytraceresult.location.y, raytraceresult.location.z).apply { boatType = this@CartographyTableBoatItem.boatType }
     }
 }
 
@@ -190,7 +190,7 @@ class LoomBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "loom") {
     }
 
     override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
-        return LoomBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = this@LoomBoatItem.boatType }
+        return LoomBoatEntity(levelIn, raytraceresult.location.x, if (inUsualFluid) raytraceresult.location.y - 0.12 else raytraceresult.location.y, raytraceresult.location.z).apply { boatType = this@LoomBoatItem.boatType }
     }
 }
 
@@ -203,7 +203,7 @@ class StonecutterBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "stonec
     }
 
     override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
-        return StonecutterBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = this@StonecutterBoatItem.boatType }
+        return StonecutterBoatEntity(levelIn, raytraceresult.location.x, if (inUsualFluid) raytraceresult.location.y - 0.12 else raytraceresult.location.y, raytraceresult.location.z).apply { boatType = this@StonecutterBoatItem.boatType }
     }
 }
 
@@ -216,7 +216,7 @@ class ChestBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "chest") {
     }
 
     override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
-        return ChestBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = this@ChestBoatItem.boatType }
+        return ChestBoatEntity(levelIn, raytraceresult.location.x, if (inUsualFluid) raytraceresult.location.y - 0.12 else raytraceresult.location.y, raytraceresult.location.z).apply { boatType = this@ChestBoatItem.boatType }
     }
 }
 
@@ -229,9 +229,9 @@ class ShulkerBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "shulker") 
     }
 
     override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
-        return ShulkerBoatEntity(DyeColor.byTranslationKey(itemstack.getOrCreateChildTag("AdditionalData").getString("Color"), null), levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z)
+        return ShulkerBoatEntity(DyeColor.byName(itemstack.getOrCreateTagElement("AdditionalData").getString("Color"), null), levelIn, raytraceresult.location.x, if (inUsualFluid) raytraceresult.location.y - 0.12 else raytraceresult.location.y, raytraceresult.location.z)
                 .apply { boatType = this@ShulkerBoatItem.boatType }
-                .apply { getBackingTileEntity()!!.deserializeNBT(itemstack.getOrCreateChildTag("AdditionalData").getCompound("TileEntityData")) }
+                .apply { getBackingTileEntity()!!.deserializeNBT(itemstack.getOrCreateTagElement("AdditionalData").getCompound("TileEntityData")) }
     }
 
     override fun getContainerDisplayName(): ITextComponent {
@@ -239,7 +239,7 @@ class ShulkerBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "shulker") 
     }
 
     override fun getDisplayName(stack: ItemStack): ITextComponent {
-        val color = DyeColor.byTranslationKey(stack.getOrCreateChildTag("AdditionalData").getString("Color"), null)
+        val color = DyeColor.byName(stack.getOrCreateTagElement("AdditionalData").getString("Color"), null)
         if(color != null) {
             return TranslationTextComponent("item.moarboats.colored_utility_boat.name", TranslationTextComponent("item.${boatType.getBaseBoatOriginModID()}.${boatType.getShortName()}_boat"), getContainerDisplayName(), TranslationTextComponent("color.minecraft.${color.translationKey}"))
         }
@@ -256,7 +256,7 @@ class EnderChestBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "ender_c
     }
 
     override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
-        return EnderChestBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = this@EnderChestBoatItem.boatType }
+        return EnderChestBoatEntity(levelIn, raytraceresult.location.x, if (inUsualFluid) raytraceresult.location.y - 0.12 else raytraceresult.location.y, raytraceresult.location.z).apply { boatType = this@EnderChestBoatItem.boatType }
     }
 
     override fun getContainerDisplayName(): ITextComponent {
@@ -273,7 +273,7 @@ class JukeboxBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "jukebox") 
     }
 
     override fun createBoat(levelIn: World, raytraceresult: RayTraceResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: PlayerEntity): BasicBoatEntity {
-        return JukeboxBoatEntity(levelIn, raytraceresult.hitVec.x, if (inUsualFluid) raytraceresult.hitVec.y - 0.12 else raytraceresult.hitVec.y, raytraceresult.hitVec.z).apply { boatType = this@JukeboxBoatItem.boatType }
+        return JukeboxBoatEntity(levelIn, raytraceresult.location.x, if (inUsualFluid) raytraceresult.location.y - 0.12 else raytraceresult.location.y, raytraceresult.location.z).apply { boatType = this@JukeboxBoatItem.boatType }
     }
 
     override fun getContainerDisplayName(): ITextComponent {
@@ -281,7 +281,7 @@ class JukeboxBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "jukebox") 
     }
 }
 
-abstract class UtilityBoatItem(val boatType: BoatType, val containerType: String): BaseBoatItem({ group(MoarBoats.UtilityBoatTab) }) {
+abstract class UtilityBoatItem(val boatType: BoatType, val containerType: String): BaseBoatItem({ tab(MoarBoats.UtilityBoatTab) }) {
 
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "${boatType.getFullName()}_${containerType}_boat")
@@ -294,10 +294,10 @@ abstract class UtilityBoatItem(val boatType: BoatType, val containerType: String
     }
 }
 
-abstract class BaseBoatItem(propertiesModifier: Item.Properties.() -> Unit = {}): Item(Item.Properties().group(MoarBoats.MainCreativeTab).maxStackSize(1).also(propertiesModifier)) {
+abstract class BaseBoatItem(propertiesModifier: Item.Properties.() -> Unit = {}): Item(Item.Properties().tab(MoarBoats.MainCreativeTab).maxStackSize(1).also(propertiesModifier)) {
 
     override fun onItemRightClick(levelIn: World, playerIn: PlayerEntity, handIn: Hand): ActionResult<ItemStack> {
-        val itemstack = playerIn.getHeldItem(handIn)
+        val itemstack = playerIn.getItemInHand(handIn)
         val f1 = playerIn.prevRotationPitch + (playerIn.rotationPitch - playerIn.prevRotationPitch) * 1.0f
         val f2 = playerIn.prevRotationYaw + (playerIn.rotationYaw - playerIn.prevRotationYaw) * 1.0f
         val d0 = playerIn.prevPosX + (playerIn.x - playerIn.prevPosX) * 1.0
@@ -337,8 +337,8 @@ abstract class BaseBoatItem(propertiesModifier: Item.Properties.() -> Unit = {})
                 return if (levelIn.getBlockCollisions(entityboat, entityboat.boundingBox.grow(-0.1)).count() != 0L) {
                     ActionResult(ActionResultType.FAIL, itemstack)
                 } else {
-                    if (!levelIn.isRemote) {
-                        levelIn.addEntity(entityboat)
+                    if (!levelIn.isClientSide) {
+                        levelIn.addFreshEntity(entityboat)
                     }
 
                     if (!playerIn.isCreative) {

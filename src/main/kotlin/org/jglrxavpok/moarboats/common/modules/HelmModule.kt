@@ -80,10 +80,10 @@ object HelmModule: BoatModule(), BlockReason {
         overrideWaypoint[boat] = false
         overridingWaypointPos[boat] = noOverridePos
         super.onInit(boat, fromItem)
-        if(boat.worldRef.isRemote) {
-            val stack = boat.getInventory().getStackInSlot(0)
+        if(boat.worldRef.isClientSide) {
+            val stack = boat.getInventory().getItem(0)
             if(!stack.isEmpty && stack.item is FilledMapItem) {
-                val id = stack.damage
+                val id = stack.damageValue
                 MoarBoats.network.sendToServer(CMapRequest("map_$id", boat.entityID, this.id))
             }
         }
@@ -92,7 +92,7 @@ object HelmModule: BoatModule(), BlockReason {
     override fun controlBoat(from: IControllable) {
         if(!from.inLiquid())
             return
-        val stack = from.getInventory().getStackInSlot(0)
+        val stack = from.getInventory().getItem(0)
         val item = stack.item
         try {
             val (waypoints, loopingOption) = when (item) {
@@ -146,7 +146,7 @@ object HelmModule: BoatModule(), BlockReason {
             isEngineOn[boat] = (engine as BaseEngineModule).hasFuel(boat)
         }
 
-        val stack = boat.getInventory().getStackInSlot(0)
+        val stack = boat.getInventory().getItem(0)
         val item = stack.item
         val pair: Pair<ListNBT, LoopingOptions>
         try {
@@ -173,10 +173,10 @@ object HelmModule: BoatModule(), BlockReason {
             return
         }
         val mapdata = mapDataCopyProperty[boat]
-        if (!boat.worldRef.isRemote) {
+        if (!boat.worldRef.isClientSide) {
             xCenterProperty[boat] = mapdata.xCenter
             zCenterProperty[boat] = mapdata.zCenter
-        } else if(mapdata == EmptyMapData || boat.correspondingEntity.ticksExisted % MapUpdatePeriod == 0) {
+        } else if(mapdata == EmptyMapData || boat.correspondingEntity.tickCount % MapUpdatePeriod == 0) {
             val id = FilledMapItem.getMapId(stack)
             MoarBoats.network.sendToServer(CMapRequest("map_$id", boat.entityID, this.id))
         }
@@ -279,7 +279,7 @@ object HelmModule: BoatModule(), BlockReason {
     }
 
     override fun onAddition(to: IControllable) {
-        if(!to.worldRef.isRemote) {
+        if(!to.worldRef.isClientSide) {
             xCenterProperty[to] = 0
             zCenterProperty[to] = 0
             waypointsProperty[to] = ListNBT()

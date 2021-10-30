@@ -82,7 +82,7 @@ object BlockWaterborneComparator: RedstoneDiodeBlock(Properties.create(Material.
             var f = 0.0f
 
             for (slotIndex in 0 until inv.slots) {
-                val itemstack = inv.getStackInSlot(slotIndex)
+                val itemstack = inv.getItem(slotIndex)
 
                 if (!itemstack.isEmpty) {
                     f += itemstack.count.toFloat() / Math.min(inv.getSlotLimit(slotIndex), itemstack.maxStackSize).toFloat()

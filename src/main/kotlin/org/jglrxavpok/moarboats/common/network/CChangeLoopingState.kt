@@ -22,8 +22,8 @@ class CChangeLoopingState(): MoarBoatsPacket {
 
         override fun onMessage(message: CChangeLoopingState, ctx: NetworkEvent.Context): MoarBoatsPacket? {
             val player = ctx.sender!!
-            val level = player.world
-            val boat = level.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
+            val level = player.level
+            val boat = level.getEntity(message.boatID) as? ModularBoatEntity ?: return null
 
             HelmModule.loopingProperty[boat] = message.loopingOption
             return null

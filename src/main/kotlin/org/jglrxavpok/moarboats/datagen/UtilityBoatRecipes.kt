@@ -24,16 +24,16 @@ class UtilityBoatRecipes(generator: DataGenerator): RecipeProvider(generator) {
     private fun registerRecipe(consumer: Consumer<IFinishedRecipe>, item: UtilityBoatItem) {
         MoarBoats.logger.info("Generating recipe for item ${item.registryName}")
         if(item.containerType == "shulker") {
-            CustomRecipeBuilder.func_218656_a(MBRecipeSerializers.ShulkerBoat)
-                    .build(consumer, item.boatType.getOriginModID()+":moarboats_${item.registryName!!.path}")
+            CustomRecipeBuilder.special(MBRecipeSerializers.ShulkerBoat)
+                    .save(consumer, item.boatType.getOriginModID()+":moarboats_${item.registryName!!.path}")
         } else {
             val baseBoat = item.boatType.provideBoatItem()
-            ShapelessRecipeBuilder.shapelessRecipe(item)
-                    .setGroup("moarboats:utility_boat_${item.containerType}")
-                    .addIngredient(baseBoat)
-                    .addIngredient(UtilityBoatType2Block(item.containerType))
-                    .addCriterion("in_water", EnterBlockTrigger.Instance.forBlock(Blocks.WATER))
-                    .build(consumer, ResourceLocation(item.boatType.getOriginModID(), "moarboats_${item.registryName!!.path}"))
+            ShapelessRecipeBuilder.shapeless(item)
+                    .group("moarboats:utility_boat_${item.containerType}")
+                    .requires(baseBoat)
+                    .requires(UtilityBoatType2Block(item.containerType))
+                    .unlockedBy("in_water", EnterBlockTrigger.Instance.entersBlock(Blocks.WATER))
+                    .save(consumer, ResourceLocation(item.boatType.getOriginModID(), "moarboats_${item.registryName!!.path}"))
         }
     }
 }

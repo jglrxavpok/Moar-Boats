@@ -23,7 +23,7 @@ class WaypointListEntry(val parent: GuiMappingTable, val slot: CompoundNBT, val 
         val slotHeight = entryHeight
         val entryRight = left + entryWidth
 
-        GlStateManager.color4f(1f, 1f, 1f, 1f)
+        GlStateManager._color4f(1f, 1f, 1f, 1f)
         if(index >= waypoints.size)
             return
         val slot = waypoints[index]
@@ -31,18 +31,18 @@ class WaypointListEntry(val parent: GuiMappingTable, val slot: CompoundNBT, val 
         if(name.isEmpty()) {
             name = "Waypoint ${index + 1}"
         }
-        mc.fontRenderer.draw(matrixStack, name, left + 4f, slotTop + 1f, 0xFFFFFF)
-        matrixStack.push()
+        mc.font.draw(matrixStack, name, left + 4f, slotTop + 1f, 0xFFFFFF)
+        matrixStack.pushPose()
         matrixStack.translate(left + 4.0, slotTop + 10.0, 0.0)
         val scale = 0.5f
         matrixStack.scale(scale, scale, 1f)
         val text = "X: ${slot.getDouble("x")}, Z: ${slot.getDouble("z")}" +
                 if(slot.getBoolean("hasBoost")) " (${(slot.getDouble("boost") * 100).toInt()}%)"
                 else ""
-        mc.fontRenderer.draw(matrixStack, text, 0f, 0f, 0xFFFFFF)
-        matrixStack.pop()
-        GlStateManager.color4f(1f, 1f, 1f, 1f)
-        mc.textureManager.bindTexture(ArrowsTexture)
+        mc.font.draw(matrixStack, text, 0f, 0f, 0xFFFFFF)
+        matrixStack.popPose()
+        GlStateManager._color4f(1f, 1f, 1f, 1f)
+        mc.textureManager.bind(ArrowsTexture)
         RenderSystem.enableAlphaTest()
         if(mouseX >= entryRight - 32 && mouseX < entryRight && mouseY >= slotTop && mouseY <= slotTop + slotHeight) {
             val hoveredOffsetBottom = if(mouseY - slotTop >= slotHeight / 2) 1 else 0
@@ -77,7 +77,7 @@ class WaypointListEntry(val parent: GuiMappingTable, val slot: CompoundNBT, val 
         return true
     }
 
-    private fun doubleClick() = Util.milliTime() - this.lastClickTime < 250L
+    private fun doubleClick() = Util.getMillis() - this.lastClickTime < 250L
 
 }
 

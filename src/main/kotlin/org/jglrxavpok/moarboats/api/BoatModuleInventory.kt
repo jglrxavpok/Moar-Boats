@@ -56,12 +56,12 @@ abstract class BoatModuleInventory(val inventoryName: String, val slotCount: Int
     fun add(stack: ItemStack): ItemStack {
         val itemstack = stack.copy()
 
-        for(i in 0 until this.sizeInventory) {
-            val stackInSlot = this.getStackInSlot(i)
+        for(i in 0 until this.containerSize) {
+            val stackInSlot = this.getItem(i)
 
             if(stackInSlot.isEmpty) {
-                this.setInventorySlotContents(i, itemstack)
-                this.markDirty()
+                this.setItem(i, itemstack)
+                this.setChanged()
                 return ItemStack.EMPTY
             }
 
@@ -74,7 +74,7 @@ abstract class BoatModuleInventory(val inventoryName: String, val slotCount: Int
                     itemstack.shrink(canFit)
 
                     if(itemstack.isEmpty) {
-                        this.markDirty()
+                        this.setChanged()
                         return ItemStack.EMPTY
                     }
                 }
@@ -82,14 +82,14 @@ abstract class BoatModuleInventory(val inventoryName: String, val slotCount: Int
         }
 
         if(itemstack.count != stack.count) {
-            this.markDirty()
+            this.setChanged()
         }
 
         return itemstack
     }
 
     fun syncToClient() {
-        if(!boat.worldRef.isRemote) {
+        if(!boat.worldRef.isClientSide) {
             MoarBoats.network.send(PacketDistributor.ALL.noArg(), SSyncInventory(boat.entityID, module.id, list))
         }
     }
@@ -101,12 +101,12 @@ abstract class BoatModuleInventory(val inventoryName: String, val slotCount: Int
      * WARNING: This only checks if a SINGLE item can fit, not a whole stack
      */
     fun canAddAnyFrom(inv: IInventory): Boolean {
-        for(i in 0 until inv.sizeInventory) {
-            val itemstack = inv.getStackInSlot(i)
+        for(i in 0 until inv.containerSize) {
+            val itemstack = inv.getItem(i)
             if(itemstack.isEmpty)
                 continue
-            for(j in 0 until this.sizeInventory) {
-                val stackInSlot = this.getStackInSlot(j)
+            for(j in 0 until this.containerSize) {
+                val stackInSlot = this.getItem(j)
 
                 if(stackInSlot.isEmpty) {
                     return true

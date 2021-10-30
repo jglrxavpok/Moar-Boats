@@ -22,10 +22,10 @@ object IcebreakerModuleRenderer : BoatModuleRenderer() {
     val texture = ResourceLocation(MoarBoats.ModID, "textures/entity/icebreaker.png")
 
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererManager) {
-        matrixStack.push()
+        matrixStack.pushPose()
         matrixStack.scale(-1f, -1f, 1f)
 
         model.render(matrixStack, buffers.getBuffer(RenderType.getEntityTranslucent(texture)), packedLightIn, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f)
-        matrixStack.pop()
+        matrixStack.popPose()
     }
 }

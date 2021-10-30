@@ -49,18 +49,18 @@ class JukeboxBoatEntity(world: World): UtilityBoatEntity<JukeboxTileEntity, Empt
     }
 
     override fun tick() {
-        jukeboxPos.setPos(positionX, positionY, positionZ)
+        jukeboxPos.set(positionX, positionY, positionZ)
         super.tick()
     }
 
     override fun processInitialInteract(player: PlayerEntity, hand: Hand): ActionResultType {
         if (super.processInitialInteract(player, hand) == ActionResultType.SUCCESS)
             return ActionResultType.SUCCESS
-        if (world.isRemote)
+        if (world.isClientSide)
             return ActionResultType.SUCCESS
 
         if(player is ServerPlayerEntity) {
-            val heldItem = player.getHeldItem(hand)
+            val heldItem = player.getItemInHand(hand)
             if(heldItem.item is MusicDiscItem && !hasRecord) {
                 insertRecord(heldItem.copy())
                 if(!player.isCreative) {
@@ -102,7 +102,7 @@ class JukeboxBoatEntity(world: World): UtilityBoatEntity<JukeboxTileEntity, Empt
         super.writeAdditional(compound)
         compound.putBoolean("hasRecord", hasRecord)
         if(hasRecord) {
-            compound.put("record", record!!.write(CompoundNBT()))
+            compound.put("record", record!!.save(CompoundNBT()))
         }
     }
 
@@ -110,7 +110,7 @@ class JukeboxBoatEntity(world: World): UtilityBoatEntity<JukeboxTileEntity, Empt
         super.readAdditional(compound)
         val hasRecord = compound.getBoolean("hasRecord")
         record = if(hasRecord) {
-            ItemStack.read(compound.getCompound("record"))
+            ItemStack.of(compound.getCompound("record"))
         } else {
             ItemStack.EMPTY
         }

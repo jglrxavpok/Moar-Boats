@@ -33,7 +33,7 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
     abstract fun postModelRender(entity: T, entityYaw: Float, partialTicks: Float, matrixStackIn: MatrixStack, bufferIn: IRenderTypeBuffer, packedLightIn: Int)
 
     override fun render(entity: T, entityYaw: Float, partialTicks: Float, matrixStackIn: MatrixStack, bufferIn: IRenderTypeBuffer, packedLightIn: Int) {
-        matrixStackIn.push()
+        matrixStackIn.pushPose()
         matrixStackIn.translate(0.0, 0.375, 0.0)
         if(entity.isEntityInLava())
             setTranslation(matrixStackIn, entity, 0.0, 0.20, 0.0)
@@ -44,44 +44,44 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
 
         this.model.setAngles(entity, partialTicks, 0.0f, -0.1f, 0.0f, 0.0f)
 
-        matrixStackIn.push()
+        matrixStackIn.pushPose()
         matrixStackIn.scale(-1.0f, -1.0f, 1.0f)
         val usualBuffer = bufferIn.getBuffer(this.model.getLayer(getEntityTexture(entity)))
         this.model.render(matrixStackIn, usualBuffer, packedLightIn, OverlayTexture.DEFAULT_UV, color[0], color[1], color[2], 1f)
         val noWaterBuffer = bufferIn.getBuffer(RenderType.getWaterMask())
         this.model.noWater.render(matrixStackIn, noWaterBuffer, packedLightIn, OverlayTexture.DEFAULT_UV)
-        matrixStackIn.pop()
+        matrixStackIn.popPose()
 
         renderLink(RenderInfo(matrixStackIn, bufferIn, packedLightIn), entity, 0.0, 0.0, 0.0, entityYaw, partialTicks)
         postModelRender(entity, entityYaw, partialTicks, matrixStackIn, bufferIn, packedLightIn)
-        matrixStackIn.pop()
+        matrixStackIn.popPose()
         super.render(entity, entityYaw, partialTicks, matrixStackIn, bufferIn, packedLightIn)
     }
 
     private fun renderLink(renderInfo: RenderInfo, boatEntity: T, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float) {
         val matrixStack = renderInfo.matrixStack
-        renderManager.textureManager.bindTexture(RopeAnchorTextureLocation)
+        renderManager.textureManager.bind(RopeAnchorTextureLocation)
         // front
         val ropeBuffer = renderInfo.buffers.getBuffer(RenderType.getEntityTranslucent(RopeAnchorTextureLocation))
         if(boatEntity.hasLink(BasicBoatEntity.FrontLink)) {
             boatEntity.getLinkedTo(BasicBoatEntity.FrontLink)?.let {
-                matrixStack.push()
+                matrixStack.pushPose()
                 matrixStack.translate(17.0, -4.0, 0.0)
                 renderActualLink(renderInfo, boatEntity, it, BasicBoatEntity.FrontLink, entityYaw)
                 ropeAnchorModel.render(matrixStack, ropeBuffer, renderInfo.combinedLight, 0, 1f, 1f, 1f, 1f)
-                matrixStack.pop()
+                matrixStack.popPose()
             }
         }
 
         // back
         if(boatEntity.hasLink(BasicBoatEntity.BackLink)) {
             boatEntity.getLinkedTo(BasicBoatEntity.BackLink)?.let {
-                matrixStack.push()
+                matrixStack.pushPose()
                 matrixStack.translate(-17.0, -4.0, 0.0)
                 renderActualLink(renderInfo, boatEntity, it, BasicBoatEntity.BackLink, entityYaw)
-                renderManager.textureManager.bindTexture(RopeAnchorTextureLocation)
+                renderManager.textureManager.bind(RopeAnchorTextureLocation)
                 ropeAnchorModel.render(matrixStack, ropeBuffer, renderInfo.combinedLight, 0, 1f, 1f, 1f, 1f)
-                matrixStack.pop()
+                matrixStack.popPose()
             }
         }
     }
@@ -95,8 +95,8 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
         val translateY = anchorOther.y - anchorThis.y
         val translateZ = anchorOther.z - anchorThis.z
 
-        matrixStack.push()
-        matrixStack.multiply(Quaternion(0f, -(180.0f - entityYaw - 90f), 0.0f, true))
+        matrixStack.pushPose()
+        matrixStack.mulPose(Quaternion(0f, -(180.0f - entityYaw - 90f), 0.0f, true))
 
         val bufferbuilder = renderInfo.buffers.getBuffer(RenderType.getLines())
         val l = 32
@@ -110,7 +110,7 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
             bufferbuilder.endVertex()
         }
 
-        matrixStack.pop()
+        matrixStack.popPose()
     }
 
     private fun setTranslation(matrixStack: MatrixStack, entity: T, x: Double, y: Double, z: Double) {
@@ -118,7 +118,7 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
     }
 
     private fun setRotation(matrixStack: MatrixStack, entity: T, entityYaw: Float, partialTicks: Float) {
-        matrixStack.multiply(Quaternion(Vector3f.POSITIVE_Y, 180.0f - entityYaw - 90f, true))
+        matrixStack.mulPose(Quaternion(Vector3f.POSITIVE_Y, 180.0f - entityYaw - 90f, true))
         val timeSinceHit = entity.timeSinceHit - partialTicks
         var damage = entity.damageTaken - partialTicks
 
@@ -127,7 +127,7 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
         }
 
         if (timeSinceHit > 0.0f) {
-            matrixStack.multiply(Quaternion(Vector3f.POSITIVE_X, MathHelper.sin(timeSinceHit) * timeSinceHit * damage / 10.0f * entity.forwardDirection, true))
+            matrixStack.mulPose(Quaternion(Vector3f.POSITIVE_X, MathHelper.sin(timeSinceHit) * timeSinceHit * damage / 10.0f * entity.forwardDirection, true))
         }
     }
 }

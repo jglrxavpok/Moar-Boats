@@ -133,6 +133,7 @@
     "moarboats.gui.mapping_table.add": "Ajouter",
     "moarboats.gui.mapping_table.edit": "Editer",
     "moarboats.gui.mapping_table.insert": "Insérer",
+    "moarboats.gui.mapping_table.title": "Table de cartographie",
     "moarboats.gui.waypoint_editor.has_boost": "A un boost de vitesse",
     "moarboats.gui.waypoint_editor": "Edition de la balise: %s",
     "moarboats.gui.waypoint_editor.position": "Position",

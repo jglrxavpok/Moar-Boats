@@ -24,8 +24,8 @@ object TankModuleRenderer : BoatModuleRenderer() {
 
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererManager) {
         module as FluidTankModule
-        matrixStack.push()
-        matrixStack.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(90f))
+        matrixStack.pushPose()
+        matrixStack.mulPose(Vector3f.POSITIVE_Y.getDegreesQuaternion(90f))
         matrixStack.scale(0.75f, 0.75f, 0.75f)
         matrixStack.translate(-0.5, -4f/16.0, 1.0/16.0/0.75)
 
@@ -82,6 +82,6 @@ object TankModuleRenderer : BoatModuleRenderer() {
             buffer.pos(matrixStack,15.0, height, 15.0).color(red, green, blue, 255).texture(maxU, topV).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(matrixStack, -1f, 0f, 0f).endVertex()
             buffer.pos(matrixStack,15.0, height, 1.0).color(red, green, blue, 255).texture(minU, topV).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(matrixStack, -1f, 0f, 0f).endVertex()
         }
-        matrixStack.pop()
+        matrixStack.popPose()
     }
 }

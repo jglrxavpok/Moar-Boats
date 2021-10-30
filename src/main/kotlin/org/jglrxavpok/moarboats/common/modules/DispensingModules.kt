@@ -57,15 +57,15 @@ abstract class DispensingModule: BoatModule() {
     override fun controlBoat(from: IControllable) { }
 
     override fun update(from: IControllable) {
-        if(!from.inLiquid() || from.worldRef.isRemote)
+        if(!from.inLiquid() || from.worldRef.isClientSide)
             return
         lastDispensePositionProperty[from].let { pos: BlockPos.Mutable ->
             val period = blockPeriodProperty[from]
-            if(pos.distanceSq(from.positionX, from.positionY, from.positionZ, false) > period*period) {
+            if(pos.distSqr(from.positionX, from.positionY, from.positionZ, false) > period*period) {
                 dispenseItem(BOTTOM, from)
                 dispenseItem(MIDDLE, from)
                 dispenseItem(TOP, from)
-                pos.setPos(from.positionX, from.positionY, from.positionZ)
+                pos.set(from.positionX, from.positionY, from.positionZ)
                 lastDispensePositionProperty[from] = pos
             }
         }
@@ -76,7 +76,7 @@ abstract class DispensingModule: BoatModule() {
     protected fun firstValidStack(startIndex: Int, boat: IControllable): Pair<Int, ItemStack>? {
         val inv = boat.getInventory()
         return (0..4)
-                .map { offset -> inv.getStackInSlot(startIndex+offset) }
+                .map { offset -> inv.getItem(startIndex+offset) }
                 .filter { !it.isEmpty }
                 .filter(this::isAllowed)
                 .mapIndexed { index, itemStack -> Pair(startIndex+index, itemStack) }
@@ -97,7 +97,7 @@ abstract class DispensingModule: BoatModule() {
             val name = matcher.group(2)
             val metadata = matcher.group(3)
             if(metadata?.isNotEmpty() == true) {
-                if(metadata.drop(1).toInt() != stack.damage)
+                if(metadata.drop(1).toInt() != stack.damageValue)
                     return@any false
             }
             val location =
@@ -147,7 +147,7 @@ object DropperModule: DispensingModule() {
         val inventoryRowStart = (-row)*5 +5
         firstValidStack(inventoryRowStart, boat)?.let { (index, stack) ->
             val resultingStack = boat.dispense(dropBehavior, stack, overridePosition = blockPos, overrideFacing = facingProperty[boat])
-            boat.getInventory().setInventorySlotContents(index, resultingStack)
+            boat.getInventory().setItem(index, resultingStack)
             boat.getInventory().syncToClient()
         }
     }
@@ -177,13 +177,13 @@ object DispenserModule: DispensingModule() {
 
     private fun dispenseWithDefaultBehavior(boat: IControllable, behavior: IDispenseItemBehavior, stack: ItemStack, blockPos: BlockPos, index: Int) {
         val resultingStack = boat.dispense(behavior, stack, overridePosition = blockPos, overrideFacing = facingProperty[boat])
-        boat.getInventory().setInventorySlotContents(index, resultingStack)
+        boat.getInventory().setItem(index, resultingStack)
         boat.getInventory().syncToClient()
     }
 
     private fun useBlockItem(item: BlockItem, world: World, stack: ItemStack, pos: BlockPos, boat: IControllable, row: Int) {
         val facing = boat.reorientate(facingProperty[boat]).opposite
-        val blockPos = pos.offset(facing)
+        val blockPos = pos.relative(facing)
         val block = item.block
         val newState = block.defaultState // TODO: handle multiple types?
         if(world.isAirBlock(blockPos) || Fluids.isUsualLiquidBlock(world, blockPos)) {
@@ -207,13 +207,13 @@ object DispenserModule: DispensingModule() {
 
     // adapted from BlockItem.java
     private fun setTileEntityNBT(worldIn: World, pos: BlockPos, stackIn: ItemStack) {
-        val CompoundNBT = stackIn.getOrCreateChildTag("BlockEntityTag")
+        val CompoundNBT = stackIn.getOrCreateTagElement("BlockEntityTag")
 
         if (CompoundNBT != null) {
-            val tileentity = worldIn.getTileEntity(pos)
+            val tileentity = worldIn.getBlockEntity(pos)
 
             if (tileentity != null) {
-                val CompoundNBT1 = tileentity.write(CompoundNBT())
+                val CompoundNBT1 = tileentity.save(CompoundNBT())
                 val CompoundNBT2 = CompoundNBT1.copy()
                 CompoundNBT1.merge(CompoundNBT)
                 CompoundNBT1.putInt("x", pos.x)
@@ -222,7 +222,7 @@ object DispenserModule: DispensingModule() {
 
                 if (CompoundNBT1 != CompoundNBT2) {
                     tileentity.deserializeNBT(CompoundNBT1)
-                    tileentity.markDirty()
+                    tileentity.setChanged()
                 }
             }
         }

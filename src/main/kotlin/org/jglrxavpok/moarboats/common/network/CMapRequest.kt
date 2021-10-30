@@ -27,16 +27,16 @@ class CMapRequest(): MoarBoatsPacket {
 
         override fun onMessage(message: CMapRequest, ctx: NetworkEvent.Context): SMapAnswer? {
             val player = ctx.sender!!
-            val level = player.world
-            val boat = level.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
+            val level = player.level
+            val boat = level.getEntity(message.boatID) as? ModularBoatEntity ?: return null
             val moduleLocation = message.moduleLocation
             val module = BoatModuleRegistry[moduleLocation].module
-            val stack = boat.getInventory(module).getStackInSlot(0)
+            val stack = boat.getInventory(module).getItem(0)
             val item = stack.item as? FilledMapItem ?: return null // Got request while there was no map!
             val mapName = message.mapName
-            val mapdata = FilledMapItem.getData(stack, boat.worldRef)!!
+            val mapdata = FilledMapItem.getSavedData(stack, boat.worldRef)!!
             val packet = SMapAnswer(mapName, message.boatID, message.moduleLocation)
-            mapdata.write(packet.mapData)
+            mapdata.save(packet.mapData)
             module as HelmModule
             module.receiveMapData(boat, mapdata)
             return packet

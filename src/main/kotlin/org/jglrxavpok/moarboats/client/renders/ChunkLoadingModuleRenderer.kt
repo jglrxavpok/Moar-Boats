@@ -37,7 +37,7 @@ object ChunkLoadingModuleRenderer : BoatModuleRenderer() {
         val entityRenderer = Minecraft.getInstance().renderManager
         // render pearls
         for((x, z) in corners) {
-            matrixStack.push()
+            matrixStack.pushPose()
             matrixStack.scale(1f, 1f, 1f)
 
             val yOffset = 0.0625f * 16f /5f
@@ -45,12 +45,12 @@ object ChunkLoadingModuleRenderer : BoatModuleRenderer() {
             val width = .0625f * 15f
             matrixStack.translate(-(x*width).toDouble(), yOffset.toDouble(), (z*length).toDouble())
             matrixStack.translate(-0.025, 0.5, 0.0)
-            matrixStack.multiply(Vector3f.NEGATIVE_Y.getDegreesQuaternion(entityYaw))
-            matrixStack.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(-entityRenderer.info.yaw))
-            matrixStack.multiply(Vector3f.POSITIVE_X.getDegreesQuaternion(-entityRenderer.info.pitch))
+            matrixStack.mulPose(Vector3f.NEGATIVE_Y.getDegreesQuaternion(entityYaw))
+            matrixStack.mulPose(Vector3f.POSITIVE_Y.getDegreesQuaternion(-entityRenderer.info.yaw))
+            matrixStack.mulPose(Vector3f.POSITIVE_X.getDegreesQuaternion(-entityRenderer.info.pitch))
             itemRenderer.renderItem(enderPearlStack, ItemCameraTransforms.TransformType.GROUND, packedLightIn, OverlayTexture.DEFAULT_UV, matrixStack, buffers)
 
-            matrixStack.pop()
+            matrixStack.popPose()
         }
     }
 }

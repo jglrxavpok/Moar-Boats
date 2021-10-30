@@ -47,7 +47,7 @@ object BlockEnergyUnloader: MoarBoatsBlock() {
     }
 
     override fun onUse(state: BlockState, worldIn: World, pos: BlockPos, playerIn: PlayerEntity, hand: Hand?, hit: BlockRayTraceResult): ActionResultType {
-        if(worldIn.isRemote)
+        if(worldIn.isClientSide)
             return ActionResultType.SUCCESS
         NetworkHooks.openGui(playerIn as ServerPlayerEntity, MoarBoatsGuiHandler.EnergyDischargerGuiInteraction(pos.x, pos.y, pos.z), pos)
         return ActionResultType.SUCCESS
@@ -58,7 +58,7 @@ object BlockEnergyUnloader: MoarBoatsBlock() {
     }
 
     override fun getComparatorInputOverride(blockState: BlockState, worldIn: World, pos: BlockPos): Int {
-        return (worldIn.getTileEntity(pos) as? TileEntityEnergyUnloader)?.getRedstonePower() ?: 0
+        return (worldIn.getBlockEntity(pos) as? TileEntityEnergyUnloader)?.getRedstonePower() ?: 0
     }
 
 }

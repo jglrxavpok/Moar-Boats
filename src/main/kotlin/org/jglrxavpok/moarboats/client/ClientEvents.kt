@@ -247,16 +247,16 @@ object ClientEvents {
         val mc = Minecraft.getInstance()
         val player = mc.player!!
         if(player.gameProfile.id.toString().toLowerCase() in MoarBoats.PatreonList) {
-            if(event.hand == Hand.MAIN_HAND && player.getHeldItem(event.hand).isEmpty) {
+            if(event.hand == Hand.MAIN_HAND && player.getItemInHand(event.hand).isEmpty) {
                 if(MoarBoatsConfig.misc.hidePatreonHook.get()) {
                     return
                 }
 
                 event.isCanceled = true
 
-                event.matrixStack.push()
+                event.matrixStack.pushPose()
                 renderArmFirstPerson(RenderInfo(event.matrixStack, event.buffers, event.light), event.equipProgress, event.swingProgress, player.primaryHand)
-                event.matrixStack.pop()
+                event.matrixStack.popPose()
             }
         }
     }
@@ -272,17 +272,17 @@ object ClientEvents {
         val f3 = 0.4f * MathHelper.sin(f1 * (Math.PI.toFloat() * 2f))
         val f4 = -0.4f * MathHelper.sin(swingProgress * Math.PI.toFloat())
         matrixStack.translate((f * (f2 + 0.64000005f)).toDouble(), (f3 + -0.6f + equippedProgress * -0.6f).toDouble(), (f4 + -0.71999997f).toDouble())
-        matrixStack.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(f * 45.0f))
+        matrixStack.mulPose(Vector3f.POSITIVE_Y.getDegreesQuaternion(f * 45.0f))
         val f5 = MathHelper.sin(swingProgress * swingProgress * Math.PI.toFloat())
         val f6 = MathHelper.sin(f1 * Math.PI.toFloat())
-        matrixStack.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(f * f6 * 70.0f))
-        matrixStack.multiply(Vector3f.POSITIVE_Z.getDegreesQuaternion(f * f5 * -20.0f))
+        matrixStack.mulPose(Vector3f.POSITIVE_Y.getDegreesQuaternion(f * f6 * 70.0f))
+        matrixStack.mulPose(Vector3f.POSITIVE_Z.getDegreesQuaternion(f * f5 * -20.0f))
         val player: AbstractClientPlayerEntity = mc.player!!
         mc.getTextureManager().bindTexture(player.locationSkin)
         matrixStack.translate((f * -1.0f).toDouble(), 3.6f.toDouble(), 3.5)
-        matrixStack.multiply(Vector3f.POSITIVE_Z.getDegreesQuaternion(f * 120.0f))
-        matrixStack.multiply(Vector3f.POSITIVE_X.getDegreesQuaternion(200.0f))
-        matrixStack.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(f * -135.0f))
+        matrixStack.mulPose(Vector3f.POSITIVE_Z.getDegreesQuaternion(f * 120.0f))
+        matrixStack.mulPose(Vector3f.POSITIVE_X.getDegreesQuaternion(200.0f))
+        matrixStack.mulPose(Vector3f.POSITIVE_Y.getDegreesQuaternion(f * -135.0f))
         matrixStack.translate((f * 5.6f).toDouble(), 0.0, 0.0)
         val playerrenderer = mc.renderManager.getRenderer(player) as PlayerRenderer
 
@@ -306,25 +306,25 @@ object ClientEvents {
         playerModel.setAngles(clientPlayer, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f)
 
         val scale = 0.0625
-        matrixStack.push()
+        matrixStack.pushPose()
     //    matrixStack.translatef(arm.offsetX, arm.offsetY, arm.offsetZ)
 
         matrixStack.translate(arm.rotationPointX * scale, arm.rotationPointY * scale, arm.rotationPointZ * scale)
-        matrixStack.multiply(Quaternion(0f, 0f, arm.rotateAngleZ * (180f / Math.PI.toFloat()), true))
-        matrixStack.multiply(Quaternion(0f, arm.rotateAngleY * (180f / Math.PI.toFloat()), 0.0f, true))
-        matrixStack.multiply(Quaternion(arm.rotateAngleX * (180f / Math.PI.toFloat()), 0.0f, 0.0f, true))
+        matrixStack.mulPose(Quaternion(0f, 0f, arm.rotateAngleZ * (180f / Math.PI.toFloat()), true))
+        matrixStack.mulPose(Quaternion(0f, arm.rotateAngleY * (180f / Math.PI.toFloat()), 0.0f, true))
+        matrixStack.mulPose(Quaternion(arm.rotateAngleX * (180f / Math.PI.toFloat()), 0.0f, 0.0f, true))
 
-        matrixStack.push()
+        matrixStack.pushPose()
         armModel.render(renderInfo.matrixStack, renderInfo.buffers.getBuffer(RenderType.getEntityTranslucent(clientPlayer.locationSkin)), renderInfo.combinedLight, OverlayTexture.DEFAULT_UV)
-        matrixStack.pop()
+        matrixStack.popPose()
 
         val hookScale = 4f / 11f
-        matrixStack.multiply(Quaternion(0f, -90f, 0f, true))
+        matrixStack.mulPose(Quaternion(0f, -90f, 0f, true))
         matrixStack.scale(hookScale, -hookScale, hookScale)
         matrixStack.translate(-1f / 16.0, 0.0, -1f / 16.0)
         matrixStack.translate(0.0, -1.25, 0.0)
         hookModel.render(renderInfo.matrixStack, renderInfo.buffers.getBuffer(RenderType.getEntityTranslucent(hookTextureLocation)), renderInfo.combinedLight, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f)
-        matrixStack.pop()
+        matrixStack.popPose()
         RenderSystem.disableBlend()
     }
 
@@ -346,7 +346,7 @@ object ClientEvents {
         }
 
         if(musicDiscItem != null) {
-            val entity = world.getEntityByID(entityID) as? UtilityBoatEntity<*,*> ?: return
+            val entity = world.getEntity(entityID) as? UtilityBoatEntity<*,*> ?: return
             val recordSound = EntitySound(musicDiscItem.sound, SoundCategory.RECORDS, 4f, entity)
             Minecraft.getInstance().soundHandler.play(recordSound)
             worldCache[entityID] = recordSound

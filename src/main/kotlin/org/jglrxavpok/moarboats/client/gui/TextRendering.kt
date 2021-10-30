@@ -9,7 +9,7 @@ fun FontRenderer.drawCenteredString(matrixStack: MatrixStack, text: ITextCompone
 }
 
 fun FontRenderer.drawCenteredString(matrixStack: MatrixStack, text: String, x: Int, y: Int, color: Int, shadow: Boolean = false) {
-    val textWidth = this.getStringWidth(text)
+    val textWidth = this.width(text)
     val textX = x - textWidth / 2
     if(shadow)
         draw(matrixStack, text, textX.toFloat(), y.toFloat(), color)

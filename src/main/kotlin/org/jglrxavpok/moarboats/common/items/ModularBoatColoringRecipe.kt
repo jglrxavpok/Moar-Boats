@@ -35,8 +35,8 @@ object ModularBoatColoringRecipe: ICraftingRecipe {
         var globalColor: DyeColor? = null
         var boatCount = 0
         var dyeCount = 0
-        for(i in 0 until inv.sizeInventory) {
-            val stack = inv.getStackInSlot(i)
+        for(i in 0 until inv.containerSize) {
+            val stack = inv.getItem(i)
             if(DyeColor.getColor(stack) != null) {
                 val dyeColor = DyeColor.getColor(stack)
                 if(dyeColor != null) {
@@ -65,8 +65,8 @@ object ModularBoatColoringRecipe: ICraftingRecipe {
         var globalColor: DyeColor? = null
         var boatCount = 0
         var dyeCount = 0
-        for(i in 0 until inv.sizeInventory) {
-            val stack = inv.getStackInSlot(i)
+        for(i in 0 until inv.containerSize) {
+            val stack = inv.getItem(i)
             if(DyeColor.getColor(stack) != null) {
                 val dyeColor = DyeColor.getColor(stack)
                 if(dyeColor != null) {

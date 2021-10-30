@@ -41,8 +41,8 @@ object ShulkerBoatRecipe: ICraftingRecipe {
     override fun getCraftingResult(inv: CraftingInventory): ItemStack {
         var boatType: BoatType? = null
         var shulkerBox: ItemStack? = null
-        for(i in 0 until inv.sizeInventory) {
-            val stack = inv.getStackInSlot(i)
+        for(i in 0 until inv.containerSize) {
+            val stack = inv.getItem(i)
             val correspondingBoatType = getBoatType(stack.item)
             if(correspondingBoatType != null) {
                 if(boatType != null) {
@@ -60,10 +60,10 @@ object ShulkerBoatRecipe: ICraftingRecipe {
         }
         if(shulkerBox != null && boatType != null) {
             val stack = ItemStack(ShulkerBoatItem[boatType])
-            stack.getOrCreateChildTag("AdditionalData").put("TileEntityData", shulkerBox.getOrCreateChildTag("BlockEntityTag"))
+            stack.getOrCreateTagElement("AdditionalData").put("TileEntityData", shulkerBox.getOrCreateTagElement("BlockEntityTag"))
             val color = ShulkerBoxBlock.getColorFromItem(shulkerBox.item)
             if(color != null) {
-                stack.getOrCreateChildTag("AdditionalData").putString("Color", color.translationKey)
+                stack.getOrCreateTagElement("AdditionalData").putString("Color", color.getName())
             }
             return stack
         }

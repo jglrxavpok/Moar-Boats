@@ -69,9 +69,9 @@ object FishingModule : BoatModule() {
         readyProperty[from] = ready
 
         val inventory = from.getInventory()
-        val rodStack = inventory.getStackInSlot(0)
+        val rodStack = inventory.getItem(0)
         val hasRod = rodStack.item is FishingRodItem
-        if(ready && hasRod && !from.worldRef.isRemote && from.inLiquid() && !from.isEntityInLava()) { // you can go fishing
+        if(ready && hasRod && !from.worldRef.isClientSide && from.inLiquid() && !from.isEntityInLava()) { // you can go fishing
             storageModule as BoatModule
 
             val lureSpeed = EnchantmentHelper.getFishingSpeedBonus(rodStack)
@@ -85,12 +85,12 @@ object FishingModule : BoatModule() {
                 val builder = LootContext.Builder(from.worldRef as ServerWorld)
                 builder.withLuck(luck.toFloat())
                 val params = LootParameterSet.Builder().build()
-                val result = from.worldRef.server!!.lootTableManager.getLootTableFromLocation(LootTables.GAMEPLAY_FISHING).generate(builder.build(params))
+                val result = from.worldRef.server!!.lootTables.get(LootTables.FISHING).getRandomItems(builder.create(params))
                 val lootList = ListNBT()
                 result.forEach {
                     val info = CompoundNBT()
                     info.putString("name", it.item.registryName.toString())
-                    info.putInt("damage", it.damage)
+                    info.putInt("damage", it.damageValue)
                     lootList.add(info)
                 }
                 lastLootProperty[from] = lootList
@@ -98,7 +98,7 @@ object FishingModule : BoatModule() {
 
                 val storageInventory = from.getInventory(storageModule)
                 val damageAmount = 1
-                val broken = rodStack.attemptDamageItem(damageAmount, from.moduleRNG, null)
+                val broken = rodStack.hurt(damageAmount, from.moduleRNG, null)
                 for(loot in result) {
                     val remaining = storageInventory.add(loot)
                     if(!remaining.isEmpty) {
@@ -109,7 +109,7 @@ object FishingModule : BoatModule() {
                     breakRod(from)
                     changeRodIfPossible(from)
                     return
-                } else if(rodStack.damage >= rodStack.maxDamage - MoarBoatsConfig.fishing.remainingUsesBeforeRemoval.get()) {
+                } else if(rodStack.damageValue >= rodStack.maxDamage - MoarBoatsConfig.fishing.remainingUsesBeforeRemoval.get()) {
                     changeRodIfPossible(from)
                     return
                 }
@@ -135,20 +135,20 @@ object FishingModule : BoatModule() {
             val inventory = from.getInventory()
             val storageInventory = from.getInventory(storageModule)
             var foundReplacement = false
-            for(index in 0 until storageInventory.sizeInventory) {
-                val stack = storageInventory.getStackInSlot(index)
-                if(stack.item is FishingRodItem && stack.damage < stack.maxDamage - MoarBoatsConfig.fishing.remainingUsesBeforeRemoval.get()) {
+            for(index in 0 until storageInventory.containerSize) {
+                val stack = storageInventory.getItem(index)
+                if(stack.item is FishingRodItem && stack.damageValue < stack.maxDamage - MoarBoatsConfig.fishing.remainingUsesBeforeRemoval.get()) {
                     // Swap rods if possible
                     foundReplacement = true
-                    storageInventory.setInventorySlotContents(index, inventory.getStackInSlot(0))
-                    inventory.setInventorySlotContents(0, stack)
+                    storageInventory.setItem(index, inventory.getItem(0))
+                    inventory.setItem(0, stack)
                     break
                 }
             }
             if(!foundReplacement) {
-                val rod = inventory.getStackInSlot(0)
+                val rod = inventory.getItem(0)
                 val remaining = storageInventory.add(rod)
-                inventory.setInventorySlotContents(0, remaining)
+                inventory.setItem(0, remaining)
             }
             inventory.syncToClient()
             storageInventory.syncToClient()
@@ -156,7 +156,7 @@ object FishingModule : BoatModule() {
     }
 
     private fun breakRod(from: IControllable) {
-        from.getInventory().setInventorySlotContents(0, ItemStack.EMPTY)
+        from.getInventory().setItem(0, ItemStack.EMPTY)
         MoarBoats.network.send(PacketDistributor.ALL.noArg(), SPlaySound(from.positionX, from.positionY, from.positionZ, SoundEvents.ITEM_SHIELD_BREAK, SoundCategory.PLAYERS, 0.8f, 0.8f + Math.random().toFloat() * 0.4f))
     }
 
@@ -167,7 +167,7 @@ object FishingModule : BoatModule() {
     override fun onInit(to: IControllable, fromItem: ItemStack?) {
         super.onInit(to, fromItem)
         if(fromItem != null) {
-            to.getInventory().setInventorySlotContents(0, fromItem.copy())
+            to.getInventory().setItem(0, fromItem.copy())
         }
     }
 

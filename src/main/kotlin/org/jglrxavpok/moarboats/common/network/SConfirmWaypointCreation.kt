@@ -23,8 +23,8 @@ class SConfirmWaypointCreation(): MoarBoatsPacket {
         override val receiverSide = Dist.CLIENT
 
         override fun onMessage(message: SConfirmWaypointCreation, ctx: NetworkEvent.Context): MoarBoatsPacket? {
-            if(Minecraft.getInstance().currentScreen is GuiMappingTable) {
-                val mappingTable = Minecraft.getInstance().currentScreen as GuiMappingTable
+            if(Minecraft.getInstance().screen is GuiMappingTable) {
+                val mappingTable = Minecraft.getInstance().screen as GuiMappingTable
                 mappingTable.confirmWaypointCreation(message.data)
             }
             return null

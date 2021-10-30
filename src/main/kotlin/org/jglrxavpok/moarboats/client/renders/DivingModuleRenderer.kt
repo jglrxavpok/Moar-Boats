@@ -23,7 +23,7 @@ object DivingModuleRenderer: BoatModuleRenderer() {
     val textureLocation = ResourceLocation(MoarBoats.ModID, "textures/entity/diving_bottle.png")
 
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererManager) {
-        matrixStack.push()
+        matrixStack.pushPose()
 
         val localX = -0.8
         val localY = 0.25
@@ -31,14 +31,14 @@ object DivingModuleRenderer: BoatModuleRenderer() {
         matrixStack.translate(localX, localY, localZ)
 
         val anchorScale = 0.5f
-        matrixStack.push()
+        matrixStack.pushPose()
         matrixStack.scale(anchorScale, -anchorScale, anchorScale)
-        matrixStack.multiply(Quaternion(0f, 90f, 0f, true))
+        matrixStack.mulPose(Quaternion(0f, 90f, 0f, true))
         bottleModel.render(matrixStack, buffers.getBuffer(RenderType.getEntityTranslucent(textureLocation)), packedLightIn, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f)
 
 
-        matrixStack.pop()
-        matrixStack.pop()
+        matrixStack.popPose()
+        matrixStack.popPose()
     }
 
 }

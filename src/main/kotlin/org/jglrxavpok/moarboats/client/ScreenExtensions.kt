@@ -10,15 +10,15 @@ import org.lwjgl.opengl.GL11
  */
 fun drawModalRectWithCustomSizedTexture(matrixStack: MatrixStack, x: Int, y: Int, startX: Float, startY: Float, width: Int, height: Int, textureWidth: Int, textureHeight: Int) {
     val tess = Tessellator.getInstance()
-    val buffer = tess.buffer
+    val buffer = tess.builder
     val minU = startX / textureWidth.toDouble()
     val minV = startY / textureHeight.toDouble()
     val maxU = minU + width.toDouble()/textureWidth.toDouble()
     val maxV = minV + height.toDouble()/textureHeight.toDouble()
     buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX)
-    buffer.pos(matrixStack, x.toDouble(), y.toDouble(), 0.0).texture(minU.toFloat(), minV.toFloat()).endVertex()
-    buffer.pos(matrixStack, (x+width).toDouble(), y.toDouble(), 0.0).texture(maxU.toFloat(), minV.toFloat()).endVertex()
-    buffer.pos(matrixStack, (x+width).toDouble(), (y+height).toDouble(), 0.0).texture(maxU.toFloat(), maxV.toFloat()).endVertex()
-    buffer.pos(matrixStack, x.toDouble(), (y+height).toDouble(), 0.0).texture(minU.toFloat(), maxV.toFloat()).endVertex()
-    tess.draw()
+    buffer.pos(matrixStack, x.toDouble(), y.toDouble(), 0.0).uv(minU.toFloat(), minV.toFloat()).endVertex()
+    buffer.pos(matrixStack, (x+width).toDouble(), y.toDouble(), 0.0).uv(maxU.toFloat(), minV.toFloat()).endVertex()
+    buffer.pos(matrixStack, (x+width).toDouble(), (y+height).toDouble(), 0.0).uv(maxU.toFloat(), maxV.toFloat()).endVertex()
+    buffer.pos(matrixStack, x.toDouble(), (y+height).toDouble(), 0.0).uv(minU.toFloat(), maxV.toFloat()).endVertex()
+    tess.end()
 }

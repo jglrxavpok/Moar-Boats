@@ -17,9 +17,9 @@ class CRemoveWaypointFromGoldenTicketFromMappingTable: CxxRemoveWaypointToItemPa
     var tileEntityZ: Int = 0
 
     constructor(index: Int, mappingTable: TileEntityMappingTable): super(index) {
-        this.tileEntityX = mappingTable.pos.x
-        this.tileEntityY = mappingTable.pos.y
-        this.tileEntityZ = mappingTable.pos.z
+        this.tileEntityX = mappingTable.blockPos.x
+        this.tileEntityY = mappingTable.blockPos.y
+        this.tileEntityZ = mappingTable.blockPos.z
     }
 
     object Handler: CxxRemoveWaypointToItemPath.Handler<CRemoveWaypointFromGoldenTicketFromMappingTable, SSetGoldenItinerary>() {
@@ -29,10 +29,10 @@ class CRemoveWaypointFromGoldenTicketFromMappingTable: CxxRemoveWaypointToItemPa
         override fun getStack(message: CRemoveWaypointFromGoldenTicketFromMappingTable, ctx: NetworkEvent.Context): ItemStack? {
             with(message) {
                 val pos = BlockPos.Mutable(tileEntityX, tileEntityY, tileEntityZ)
-                val te = ctx.sender!!.world.getTileEntity(pos)
+                val te = ctx.sender!!.level.getBlockEntity(pos)
                 val stack = when(te) {
                     is TileEntityMappingTable -> {
-                        te.inventory.getStackInSlot(0)
+                        te.inventory.getItem(0)
                     }
                     else -> {
                         MoarBoats.logger.error("Invalid tile entity when trying to remove waypoint at $pos")

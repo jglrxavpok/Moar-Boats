@@ -42,7 +42,7 @@ object BlockFluidUnloader: MoarBoatsBlock() {
     }
 
     override fun onUse(state: BlockState, worldIn: World, pos: BlockPos, player: PlayerEntity, handIn: Hand, hit: BlockRayTraceResult): ActionResultType {
-        if(worldIn.isRemote)
+        if(worldIn.isClientSide)
             return ActionResultType.SUCCESS
         NetworkHooks.openGui(player as ServerPlayerEntity, MoarBoatsGuiHandler.FluidUnloaderGuiInteraction(pos.x, pos.y, pos.z), pos)
         return ActionResultType.SUCCESS
@@ -53,7 +53,7 @@ object BlockFluidUnloader: MoarBoatsBlock() {
     }
 
     override fun getComparatorInputOverride(blockState: BlockState, worldIn: World, pos: BlockPos): Int {
-        return (worldIn.getTileEntity(pos) as? TileEntityFluidUnloader)?.getRedstonePower() ?: 0
+        return (worldIn.getBlockEntity(pos) as? TileEntityFluidUnloader)?.getRedstonePower() ?: 0
     }
 
 }

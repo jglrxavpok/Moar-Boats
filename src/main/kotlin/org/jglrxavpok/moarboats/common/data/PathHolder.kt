@@ -25,7 +25,7 @@ interface PathHolder {
 
 class BoatPathHolder(val boat: IControllable): PathHolder {
     override fun getBaseMapID(): String {
-        return HelmModule.mapDataCopyProperty[boat].name
+        return HelmModule.mapDataCopyProperty[boat].id
     }
 
     override fun sendWorldImageRequest(mapID: String) {

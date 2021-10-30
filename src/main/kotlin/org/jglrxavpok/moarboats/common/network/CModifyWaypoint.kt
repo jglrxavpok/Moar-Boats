@@ -20,9 +20,9 @@ class CModifyWaypoint(): MoarBoatsPacket {
     private var teZ = 0
 
     constructor(te: TileEntityMappingTable, index: Int, waypointData: CompoundNBT): this() {
-        this.teX = te.pos.x
-        this.teY = te.pos.y
-        this.teZ = te.pos.z
+        this.teX = te.blockPos.x
+        this.teY = te.blockPos.y
+        this.teZ = te.blockPos.z
         this.index = index
         this.waypointData = waypointData
     }
@@ -34,12 +34,12 @@ class CModifyWaypoint(): MoarBoatsPacket {
         override fun onMessage(message: CModifyWaypoint, ctx: NetworkEvent.Context): MoarBoatsPacket? {
             with(message) {
                 val player = ctx.sender!!
-                val level = player.world
+                val level = player.level
                 val pos = BlockPos.Mutable(teX, teY, teZ)
-                val te = level.getTileEntity(pos)
+                val te = level.getBlockEntity(pos)
                 when(te) {
                     is TileEntityMappingTable -> {
-                        val stack = te.inventory.getStackInSlot(0)
+                        val stack = te.inventory.getItem(0)
                         val item = stack.item as ItemPath
                         item.getWaypointData(stack, MoarBoats.getLocalMapStorage()).set(index, waypointData)
                     }

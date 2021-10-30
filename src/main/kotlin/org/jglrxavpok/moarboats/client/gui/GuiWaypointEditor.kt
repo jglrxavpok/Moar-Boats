@@ -25,7 +25,7 @@ class GuiWaypointEditor(val player: PlayerEntity, val te: TileEntityMappingTable
 
     val mc = Minecraft.getInstance() // forces 'mc' to hold a value when initializing the scrolling list below (waypointList)
 
-    private val waypointData = te.inventory.getStackInSlot(0).let {
+    private val waypointData = te.inventory.getItem(0).let {
         (it.item as ItemPath).getWaypointData(it, MoarBoats.getLocalMapStorage())[index] as CompoundNBT
     }
 
@@ -38,9 +38,9 @@ class GuiWaypointEditor(val player: PlayerEntity, val te: TileEntityMappingTable
     private val waypointsText = TranslationTextComponent("moarboats.gui.waypoint_editor.existing_waypoints")
     private val miscText = TranslationTextComponent("moarboats.gui.generic.misc")
     private var id = 0
-    private val xInput by lazy {TextFieldWidget(textRenderer, 0, 0, 100, 20, StringTextComponent(""))}
-    private val zInput by lazy {TextFieldWidget(textRenderer, 0, 0, 100, 20, StringTextComponent(""))}
-    private val nameInput by lazy {TextFieldWidget(textRenderer, 0, 0, 200, 20, StringTextComponent(""))}
+    private val xInput by lazy {TextFieldWidget(font, 0, 0, 100, 20, StringTextComponent(""))}
+    private val zInput by lazy {TextFieldWidget(font, 0, 0, 100, 20, StringTextComponent(""))}
+    private val nameInput by lazy {TextFieldWidget(font, 0, 0, 200, 20, StringTextComponent(""))}
     private val boostSliderCallback = Button.IPressable {press ->
 
     }
@@ -178,18 +178,18 @@ class GuiWaypointEditor(val player: PlayerEntity, val te: TileEntityMappingTable
             it.render(matrixStack, mouseX, mouseY, partialTicks)
         }
 
-        textRenderer.drawCenteredString(matrixStack, TextFormatting.UNDERLINE.toString() + TranslationTextComponent("moarboats.gui.waypoint_editor", nameInput.text).formatted().string, width / 2, 15, 0xFFFFFF, shadow = true)
-        textRenderer.drawCenteredString(matrixStack, TextFormatting.UNDERLINE.toString() + positionTitleText.formatted().string, width / 2, 75, 0xFFFFFF, shadow = true)
-        textRenderer.draw(matrixStack, "X:", xInput.x - 10f, xInput.y + xInput.unusedGetHeight() / 2 - textRenderer.FONT_HEIGHT / 2f, 0xFFFFFF)
-        textRenderer.draw(matrixStack, "Z:", zInput.x - 10f, xInput.y + xInput.unusedGetHeight() / 2 - textRenderer.FONT_HEIGHT / 2f, 0xFFFFFF)
-        textRenderer.drawCenteredString(matrixStack, TextFormatting.UNDERLINE.toString() + miscText.formatted().string, width / 2, 135, 0xFFFFFF, shadow = true)
+        font.drawCenteredString(matrixStack, TextFormatting.UNDERLINE.toString() + TranslationTextComponent("moarboats.gui.waypoint_editor", nameInput.text).formatted().string, width / 2, 15, 0xFFFFFF, shadow = true)
+        font.drawCenteredString(matrixStack, TextFormatting.UNDERLINE.toString() + positionTitleText.formatted().string, width / 2, 75, 0xFFFFFF, shadow = true)
+        font.draw(matrixStack, "X:", xInput.x - 10f, xInput.y + xInput.unusedGetHeight() / 2 - font.FONT_HEIGHT / 2f, 0xFFFFFF)
+        font.draw(matrixStack, "Z:", zInput.x - 10f, xInput.y + xInput.unusedGetHeight() / 2 - font.FONT_HEIGHT / 2f, 0xFFFFFF)
+        font.drawCenteredString(matrixStack, TextFormatting.UNDERLINE.toString() + miscText.formatted().string, width / 2, 135, 0xFFFFFF, shadow = true)
 
-        matrixStack.push()
+        matrixStack.pushPose()
         matrixStack.translate(((width - (width * .2f) / 2f).toDouble()), 20.0, 0.0)
         val scale = 0.75f
         matrixStack.scale(scale, scale, 1f)
-        textRenderer.drawCenteredString(matrixStack, waypointsText.formatted(), 0, 0, 0xFFFFFF, shadow = true)
-        matrixStack.pop()
+        font.drawCenteredString(matrixStack, waypointsText.formatted(), 0, 0, 0xFFFFFF, shadow = true)
+        matrixStack.popPose()
     }
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, mouseButton: Int): Boolean {

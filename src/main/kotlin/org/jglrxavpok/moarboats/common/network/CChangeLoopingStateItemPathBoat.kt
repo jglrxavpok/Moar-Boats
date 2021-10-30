@@ -28,9 +28,9 @@ class CChangeLoopingStateItemPathBoat: CChangeLoopingStateBase {
         override fun onMessage(message: CChangeLoopingStateItemPathBoat, ctx: NetworkEvent.Context): MoarBoatsPacket? {
             with(message) {
                 val player = ctx.sender!!
-                val level = player.world
-                val boat = level.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
-                val stack = boat.getInventory(HelmModule).getStackInSlot(0)
+                val level = player.level
+                val boat = level.getEntity(message.boatID) as? ModularBoatEntity ?: return null
+                val stack = boat.getInventory(HelmModule).getItem(0)
                 val item = stack.item
                 if(item is ItemPath) {
                     item.setLoopingOptions(stack, message.loopingOption)

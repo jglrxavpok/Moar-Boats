@@ -37,9 +37,9 @@ object SolarEngineModule : BaseEngineModule() {
 
     override fun remainingTimeInPercent(from: IControllable): Float {
         val levelIn = from.worldRef
-        val pos = from.correspondingEntity.blockPos
-        var diff = levelIn.getLightLevel(LightType.SKY, pos) - levelIn.skylightSubtracted
-        var angle = levelIn.getCelestialAngleRadians(1.0f)
+        val pos = from.correspondingEntity.blockPosition()
+        var diff = levelIn.getLightLevel(LightType.SKY, pos) - levelIn.skyDarken
+        var angle = levelIn.getSunAngle(1.0f)
 
         if (invertedProperty[from]) {
             diff = 15 - diff
@@ -55,7 +55,7 @@ object SolarEngineModule : BaseEngineModule() {
     }
 
     override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean): Boolean {
-        if(sneaking && player.getHeldItem(hand).isEmpty) {
+        if(sneaking && player.getItemInHand(hand).isEmpty) {
             invertedProperty[from] = !invertedProperty[from]
             return true
         }

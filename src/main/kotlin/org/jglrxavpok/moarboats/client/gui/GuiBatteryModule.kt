@@ -31,8 +31,8 @@ class GuiBatteryModule(containerID: Int, playerInventory: PlayerInventory, modul
 
     override fun drawModuleBackground(mouseX: Int, mouseY: Int) {
         super.drawModuleBackground(mouseX, mouseY)
-        mc.textureManager.bindTexture(moduleBackground)
-        GlStateManager.disableCull()
+        mc.textureManager.bind(moduleBackground)
+        GlStateManager._disableCull()
         val energyHeight = (75 * (energyModule.getCurrentEnergy(boat)/energyModule.getMaxStorableEnergy(boat).toFloat())).toInt()
         drawTexture(matrixStack, guiLeft+60, guiTop+80, 201, 74, 55, -energyHeight)
     }

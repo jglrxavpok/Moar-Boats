@@ -22,7 +22,7 @@ class COpenModuleGui(): MoarBoatsPacket {
 
         override fun onMessage(message: COpenModuleGui, ctx: NetworkEvent.Context): MoarBoatsPacket? {
             val player = ctx.sender!!
-            val boat = player.world.getEntityByID(message.boatID) as? ModularBoatEntity
+            val boat = player.level.getEntity(message.boatID) as? ModularBoatEntity
             if(boat == null) {
                 MoarBoats.logger.debug("$player tried to open boat menu while the boat with ID ${message.boatID} is not loaded (or doesn't exist?)")
                 return null

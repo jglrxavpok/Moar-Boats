@@ -9,18 +9,18 @@ object Fluids {
         val fluidState = level.getFluidState(pos)
         return when {
             fluidState.isEmpty -> 0f
-            else -> pos.y+fluidState.height
+            else -> pos.y+fluidState.ownHeight
         }
     }
 
-    fun getLiquidLocalLevel(level: World, pos: BlockPos) = level.getFluidState(pos).level
+    fun getLiquidLocalLevel(level: World, pos: BlockPos) = level.getFluidState(pos).ownHeight
 
     fun getBlockLiquidHeight(level: World, pos: BlockPos): Float {
         val state = level.getFluidState(pos)
-        val stateAbove = level.getFluidState(pos.up())
+        val stateAbove = level.getFluidState(pos.above())
         return when {
             !stateAbove.isEmpty -> 1.0f
-            else -> 1.0f - state.height
+            else -> 1.0f - state.ownHeight
         }
     }
 

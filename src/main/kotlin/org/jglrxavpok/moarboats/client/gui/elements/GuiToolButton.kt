@@ -30,17 +30,17 @@ open class GuiToolButton(var text: ITextComponent, var toolIconIndex: Int, val p
             val toolY = toolIconIndex / ToolIconCountPerLine
             val minU = toolX.toFloat() * 20f
             val minV = toolY.toFloat() * 20f
-            mc.textureManager.bindTexture(WidgetsTextureLocation)
+            mc.textureManager.bind(WidgetsTextureLocation)
             AbstractGui.drawTexture(matrixStack, x, y, minU, minV, 20, 20, WidgetsTextureSize, WidgetsTextureSize)
 
-            val textY = y + height / 2f - mc.fontRenderer.FONT_HEIGHT / 2f
-            mc.fontRenderer.drawWithShadow(matrixStack, text, x + width + 4f, textY, 0xFFF0F0F0.toInt())
+            val textY = y + height / 2f - mc.font.FONT_HEIGHT / 2f
+            mc.font.drawWithShadow(matrixStack, text, x + width + 4f, textY, 0xFFF0F0F0.toInt())
         }
     }
 
     private fun renderButtonBackground(matrixStack: MatrixStack, mc: Minecraft, mouseX: Int, mouseY: Int) {
-        mc.textureManager.bindTexture(Widget.WIDGETS_LOCATION)
-        GlStateManager.color4f(1.0f, 1.0f, 1.0f, 1.0f)
+        mc.textureManager.bind(Widget.WIDGETS_LOCATION)
+        GlStateManager._color4f(1.0f, 1.0f, 1.0f, 1.0f)
         this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height
         val stateOffset = this.getYImage(this.isHovered)
         GlStateManager.enableBlend()

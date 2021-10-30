@@ -40,7 +40,7 @@ class CraftingTableBoatEntity(world: World): UtilityBoatEntity<TileEntity, Utili
     }
 
     override fun createMenu(windowID: Int, inv: PlayerInventory, player: PlayerEntity): UtilityWorkbenchContainer? {
-        return UtilityWorkbenchContainer(windowID, inv, IWorldPosCallable.of(player.world, player.blockPos))
+        return UtilityWorkbenchContainer(windowID, inv, IWorldPosCallable.create(player.level, player.blockPosition()))
     }
 
 
@@ -79,7 +79,7 @@ class GrindstoneBoatEntity(world: World): UtilityBoatEntity<TileEntity, UtilityG
     }
 
     override fun createMenu(windowID: Int, inv: PlayerInventory, player: PlayerEntity): UtilityGrindstoneContainer? {
-        return UtilityGrindstoneContainer(windowID, inv, IWorldPosCallable.of(player.world, player.blockPos))
+        return UtilityGrindstoneContainer(windowID, inv, IWorldPosCallable.create(player.level, player.blockPosition()))
     }
 
 
@@ -119,7 +119,7 @@ class LoomBoatEntity(world: World): UtilityBoatEntity<TileEntity, UtilityLoomCon
     }
 
     override fun createMenu(windowID: Int, inv: PlayerInventory, player: PlayerEntity): UtilityLoomContainer? {
-        return UtilityLoomContainer(windowID, inv, IWorldPosCallable.of(player.world, player.blockPos))
+        return UtilityLoomContainer(windowID, inv, IWorldPosCallable.create(player.level, player.blockPosition()))
     }
 
     override fun getDisplayName(): ITextComponent {
@@ -157,7 +157,7 @@ class CartographyTableBoatEntity(world: World): UtilityBoatEntity<TileEntity, Ut
     }
 
     override fun createMenu(windowID: Int, inv: PlayerInventory, player: PlayerEntity): UtilityCartographyTableContainer? {
-        return UtilityCartographyTableContainer(windowID, inv, IWorldPosCallable.of(player.world, player.blockPos))
+        return UtilityCartographyTableContainer(windowID, inv, IWorldPosCallable.create(player.level, player.blockPosition()))
     }
 
     override fun getDisplayName(): ITextComponent {
@@ -195,7 +195,7 @@ class StonecutterBoatEntity(world: World): UtilityBoatEntity<TileEntity, Utility
     }
 
     override fun createMenu(windowID: Int, inv: PlayerInventory, player: PlayerEntity): UtilityStonecutterContainer? {
-        return UtilityStonecutterContainer(windowID, inv, IWorldPosCallable.of(player.world, player.blockPos))
+        return UtilityStonecutterContainer(windowID, inv, IWorldPosCallable.create(player.level, player.blockPosition()))
     }
 
     override fun getDisplayName(): ITextComponent {

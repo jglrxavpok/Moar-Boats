@@ -21,13 +21,13 @@ import kotlin.math.ceil
 
 class TileEntityFluidLoader: TileEntityListenable(MoarBoats.TileEntityFluidLoaderType), ITickableTileEntity, IFluidHandler, IFluidTank {
 
-    val blockFacing: Direction get()= world!!.getBlockState(pos).get(Facing)
+    val blockFacing: Direction get()= level!!.getBlockState(blockPos).getValue(Facing)
     private var fluid: Fluid? = null
     private var amount: Int = 0
     private var working: Boolean = false
 
     override fun tick() {
-        if(world!!.isRemote)
+        if(level!!.isClientSide)
             return
         working = false
         updateListeners()
@@ -35,8 +35,8 @@ class TileEntityFluidLoader: TileEntityListenable(MoarBoats.TileEntityFluidLoade
         if(fluid == null)
             return
 
-        val aabb = create3x3AxisAlignedBB(pos.offset(blockFacing))
-        val entities = world!!.getEntitiesWithinAABB(Entity::class.java, aabb) { e -> e != null && e.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null).isPresent }
+        val aabb = create3x3AxisAlignedBB(blockPos.relative(blockFacing))
+        val entities = level!!.getEntitiesWithinAABB(Entity::class.java, aabb) { e -> e != null && e.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null).isPresent }
 
         val totalFluidToSend = minOf(MoarBoatsConfig.fluidLoader.sendAmount.get(), amount)
         val entityCount = entities.size
@@ -68,7 +68,7 @@ class TileEntityFluidLoader: TileEntityListenable(MoarBoats.TileEntityFluidLoade
         val maxDrainable = minOf(maxDrain, amount)
         if(action.execute()) {
             amount -= maxDrainable
-            markDirty()
+            setChanged()
         }
         return FluidStack(fluid, maxDrainable)
     }
@@ -104,7 +104,7 @@ class TileEntityFluidLoader: TileEntityListenable(MoarBoats.TileEntityFluidLoade
         val maxFillable = minOf(resource.amount, getCapacity()-amount)
         if(action.execute()) {
             amount += maxFillable
-            markDirty()
+            setChanged()
         }
         return maxFillable
     }
@@ -163,10 +163,10 @@ class TileEntityFluidLoader: TileEntityListenable(MoarBoats.TileEntityFluidLoade
         return super.getCapability(capability, facing)
     }
 
-    override fun write(compound: CompoundNBT): CompoundNBT {
+    override fun save(compound: CompoundNBT): CompoundNBT {
         compound.putInt("fluidAmount", amount)
         compound.putString("fluidName", fluid?.registryName?.toString() ?: "")
-        return super.write(compound)
+        return super.save(compound)
     }
 
     override fun deserializeNBT(state: BlockState, compound: CompoundNBT) {

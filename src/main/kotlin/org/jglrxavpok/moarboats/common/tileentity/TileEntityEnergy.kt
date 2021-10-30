@@ -42,7 +42,7 @@ abstract class TileEntityEnergy(tileEntityType: TileEntityType<out TileEntityEne
         val actuallyExtracted = energy - newEnergyLevel
         if(!simulate) {
             energy -= maxExtracted
-            markDirty()
+            setChanged()
         }
         return actuallyExtracted
     }
@@ -55,7 +55,7 @@ abstract class TileEntityEnergy(tileEntityType: TileEntityType<out TileEntityEne
         val actuallyReceived = newEnergyLevel - energy
         if(!simulate) {
             energy += maxExtracted
-            markDirty()
+            setChanged()
         }
         return actuallyReceived
     }
@@ -71,7 +71,7 @@ abstract class TileEntityEnergy(tileEntityType: TileEntityType<out TileEntityEne
             energyActuallySent += it.receiveEnergy(energyToSendToASingleNeighbor, false)
         }
         energy -= energyActuallySent
-        markDirty()
+        setChanged()
     }
 
     fun pullEnergyFromNeighbors(totalEnergyToReceive: Int, facings: List<Direction> = Direction.values().toList()) {
@@ -85,7 +85,7 @@ abstract class TileEntityEnergy(tileEntityType: TileEntityType<out TileEntityEne
             energyActuallyReceived += it.extractEnergy(energyToReceiveFromASingleNeighbor, false)
         }
         energy += energyActuallyReceived
-        markDirty()
+        setChanged()
     }
 
     private fun neighborsThatCanReceivePower(facings: List<Direction> = Direction.values().toList(), powerFunction: (IEnergyStorage) -> Boolean) =
@@ -103,7 +103,7 @@ abstract class TileEntityEnergy(tileEntityType: TileEntityType<out TileEntityEne
     }
 
     private fun getPowerCapability(pos: BlockPos, facing: Direction): LazyOptional<IEnergyStorage> {
-        val te = world!!.getTileEntity(pos)
+        val te = world!!.getBlockEntity(pos)
         if(te != null) {
             return te.getCapability(CapabilityEnergy.ENERGY)
         }
@@ -114,7 +114,7 @@ abstract class TileEntityEnergy(tileEntityType: TileEntityType<out TileEntityEne
         if(amount > energy)
             return false
         energy -= amount
-        markDirty()
+        setChanged()
         return true
     }
 

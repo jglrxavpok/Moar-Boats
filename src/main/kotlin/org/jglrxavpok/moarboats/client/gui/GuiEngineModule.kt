@@ -99,30 +99,30 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
         val estimatedTime = estimatedTotalTicks / 20
 
         val infoY = 26
-        textRenderer.drawCenteredString(matrixStack, remainingCurrentItem, 88, infoY, 0xFFFFFFFF.toInt(), shadow = true)
+        font.drawCenteredString(matrixStack, remainingCurrentItem, 88, infoY, 0xFFFFFFFF.toInt(), shadow = true)
 
-        mc.textureManager.bindTexture(barsTexture)
+        mc.textureManager.bind(barsTexture)
         val barIndex = 4
         val barSize = xSize*.85f
         val x = xSize/2f - barSize/2f
         drawBar(x, infoY+10f, barIndex, barSize, fill = if(remaining.isFinite()) remaining else 1f)
         if(estimatedTime.isInfinite()) {
-            textRenderer.drawCenteredString(matrixStack, estimatedTimeText, 88, infoY+18, 0xFFF0F0F0.toInt(), shadow = true)
-            textRenderer.drawCenteredString(matrixStack, foreverText, 88, infoY+28, 0xFF50A050.toInt())
+            font.drawCenteredString(matrixStack, estimatedTimeText, 88, infoY+18, 0xFFF0F0F0.toInt(), shadow = true)
+            font.drawCenteredString(matrixStack, foreverText, 88, infoY+28, 0xFF50A050.toInt())
         } else if(!estimatedTime.isNaN()) {
-            textRenderer.drawCenteredString(matrixStack, estimatedTimeText, 88, infoY+18, 0xFFF0F0F0.toInt(), shadow = true)
-            textRenderer.drawCenteredString(matrixStack, "${estimatedTime.toInt()}s", 88, infoY+28, 0xFF50A050.toInt())
+            font.drawCenteredString(matrixStack, estimatedTimeText, 88, infoY+18, 0xFFF0F0F0.toInt(), shadow = true)
+            font.drawCenteredString(matrixStack, "${estimatedTime.toInt()}s", 88, infoY+28, 0xFF50A050.toInt())
         }
         renderBlockReason(infoY+38)
-        textRenderer.drawCenteredString(matrixStack, speedSetting, 88, infoY+52, 0xFFF0F0F0.toInt(), shadow = true)
+        font.drawCenteredString(matrixStack, speedSetting, 88, infoY+52, 0xFFF0F0F0.toInt(), shadow = true)
 //        if(boat.isSpeedImposed()) {
-            textRenderer.drawCenteredString(matrixStack, imposedSpeedText("${(boat.imposedSpeed * 100.0).toInt()}"), 88, infoY+42, 0xFFFFFF, shadow=true)
+            font.drawCenteredString(matrixStack, imposedSpeedText("${(boat.imposedSpeed * 100.0).toInt()}"), 88, infoY+42, 0xFFFFFF, shadow=true)
   //      }
 
         when (speedSlider.valueInt) {
-            -50 -> textRenderer.drawCenteredString(matrixStack, minimumSpeedText, 88, infoY + 70 + speedSlider.unusedGetHeight(), 0xFF0000F0.toInt())
-            50 -> textRenderer.drawCenteredString(matrixStack, maximumSpeedText, 88, infoY + 70 + speedSlider.unusedGetHeight(), 0xFF0000F0.toInt())
-            0 -> textRenderer.drawCenteredString(matrixStack, normalSpeedText, 88, infoY + 70 + speedSlider.unusedGetHeight(), 0xFF0000F0.toInt())
+            -50 -> font.drawCenteredString(matrixStack, minimumSpeedText, 88, infoY + 70 + speedSlider.unusedGetHeight(), 0xFF0000F0.toInt())
+            50 -> font.drawCenteredString(matrixStack, maximumSpeedText, 88, infoY + 70 + speedSlider.unusedGetHeight(), 0xFF0000F0.toInt())
+            0 -> font.drawCenteredString(matrixStack, normalSpeedText, 88, infoY + 70 + speedSlider.unusedGetHeight(), 0xFF0000F0.toInt())
         }
 
         renderSpeedIcon(0, 5, infoY + 40 + speedSlider.unusedGetHeight())
@@ -139,24 +139,24 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
                     val itemstack = ItemStack(BoatModuleRegistry[blockingModule.id].correspondingItem)
                     renderPrettyReason(y, blockedByModuleText, itemstack)
                 } else {
-                    textRenderer.drawCenteredString(matrixStack, unknownBlockReasonText(boat.blockedReason.toString()), 88, y, 0xFF0000)
+                    font.drawCenteredString(matrixStack, unknownBlockReasonText(boat.blockedReason.toString()), 88, y, 0xFF0000)
                 }
             }
         }
     }
 
     private fun renderPrettyReason(y: Int, text: ITextComponent, itemStack: ItemStack) {
-        textRenderer.drawCenteredString(matrixStack, text, 88-16, y, 0xFF0000)
-        val textWidth = textRenderer.getStringWidth(text.unformattedComponentText)
+        font.drawCenteredString(matrixStack, text, 88-16, y, 0xFF0000)
+        val textWidth = font.width(text.unformattedComponentText)
         val textX = 88-16 - textWidth/2
         zOffset = 100
         itemRenderer.zLevel = 100.0f
         RenderHelper.enableGuiDepthLighting()
         RenderSystem.color4f(1f, 1f, 1f, 1f)
         val itemX = textX+textWidth + 1
-        val itemY = textRenderer.FONT_HEIGHT - 8 + y
+        val itemY = font.FONT_HEIGHT - 8 + y
         RenderSystem.pushMatrix()
-        RenderSystem.multMatrix(matrixStack.peek().model)
+        RenderSystem.multMatrix(matrixStack.last().pose())
         itemRenderer.renderItemIntoGUI(itemStack, itemX, itemY)
         RenderSystem.popMatrix()
         itemRenderer.zLevel = 0.0f
@@ -192,7 +192,7 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
                 .texture(minU, maxV)
                 .endVertex()
 
-        mc.textureManager.bindTexture(speedIconTexture)
+        mc.textureManager.bind(speedIconTexture)
         RenderSystem.disableDepthTest()
         RenderSystem.disableCull()
         RenderSystem.enableAlphaTest()
@@ -209,12 +209,12 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
         val filledWidth = fill * barWidth
 
         val scale = barSize/barWidth
-        GlStateManager.pushMatrix()
-        GlStateManager.scalef(scale, scale, scale)
-        GlStateManager.translated((x/scale).toDouble(), (y/scale).toDouble(), 0.0)
+        GlStateManager._pushMatrix()
+        GlStateManager._scalef(scale, scale, scale)
+        GlStateManager._translated((x/scale).toDouble(), (y/scale).toDouble(), 0.0)
         drawTexture(matrixStack, 0, 0, 0, barIndex*10+5, (filledWidth).toInt(), 5)
         drawTexture(matrixStack, filledWidth.toInt(), 0, filledWidth.toInt(), barIndex*10, (barWidth-filledWidth+1).toInt(), 5)
-        GlStateManager.popMatrix()
+        GlStateManager._popMatrix()
     }
 
 }

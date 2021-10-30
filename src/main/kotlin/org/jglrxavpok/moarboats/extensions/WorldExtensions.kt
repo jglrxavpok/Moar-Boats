@@ -10,7 +10,7 @@ import java.util.*
 import java.util.function.Predicate
 
 fun World.getEntityByUUID(id: UUID): Entity? {
-    return this.getEntities<Entity>(null) {true}.find { it.uniqueID == id }
+    return this.getEntities<Entity>(null) {true}.find { it.uuid == id }
 }
 
 inline fun <reified T: Entity> World.getEntities(type: EntityType<T>?, crossinline predicate: (T) -> Boolean): List<Entity> {
@@ -23,7 +23,7 @@ inline fun <reified T: Entity> World.getEntities(type: EntityType<T>?, crossinli
             }
         })
     } else {
-        (this as ClientWorld).allEntities.filter { it ->
+        (this as ClientWorld).entitiesForRendering().filter { it ->
             if(it is T) {
                 (type == null || it.type == type) && predicate(it as T)
             } else {

@@ -20,15 +20,15 @@ open class BlockBoatModuleRenderer(id: ResourceLocation, private val spot: BoatM
 
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRenderer: EntityRendererManager) {
         val block = blockStateProvider(boat, module)
-        matrixStack.push()
+        matrixStack.pushPose()
 
         when(spot) {
             BoatModule.Spot.Storage -> {
-                matrixStack.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(90f))
+                matrixStack.mulPose(Vector3f.POSITIVE_Y.getDegreesQuaternion(90f))
             }
 
             BoatModule.Spot.Engine -> {
-                matrixStack.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(-90f))
+                matrixStack.mulPose(Vector3f.POSITIVE_Y.getDegreesQuaternion(-90f))
             }
 
             else -> {}// Unsupported spot
@@ -37,6 +37,6 @@ open class BlockBoatModuleRenderer(id: ResourceLocation, private val spot: BoatM
         matrixStack.scale(0.75f, 0.75f, 0.75f)
         matrixStack.translate(-0.5, -4f/16.0, 1.0/16.0/0.75)
         renderBlockState(matrixStack, buffers, packedLightIn, entityRenderer, block, boat.brightness)
-        matrixStack.pop()
+        matrixStack.popPose()
     }
 }

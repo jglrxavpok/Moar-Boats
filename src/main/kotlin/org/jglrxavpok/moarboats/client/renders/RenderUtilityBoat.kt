@@ -27,12 +27,12 @@ class RenderUtilityBoat<T: UtilityBoatEntity<*,*>>(renderManager: EntityRenderer
     }
 
     private fun renderBlockInBoat(boat: T, matrixStackIn: MatrixStack, bufferIn: IRenderTypeBuffer, packedLightIn: Int) {
-        matrixStackIn.push()
-        matrixStackIn.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(90f))
+        matrixStackIn.pushPose()
+        matrixStackIn.mulPose(Vector3f.POSITIVE_Y.getDegreesQuaternion(90f))
         matrixStackIn.scale(0.75f, 0.75f, 0.75f)
         matrixStackIn.translate(-0.5, -4f/16.0, 1.0/16.0/0.75)
         BoatModuleRenderer.renderBlockState(matrixStackIn, bufferIn, packedLightIn, renderManager, blockstateProvider(boat), boat.brightness)
-        matrixStackIn.pop()
+        matrixStackIn.popPose()
     }
 
     override fun getBoatColor(boat: T) = RenderAbstractBoat.WhiteColor

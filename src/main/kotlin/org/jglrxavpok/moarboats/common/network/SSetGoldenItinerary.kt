@@ -27,8 +27,8 @@ class SSetGoldenItinerary(): MoarBoatsPacket {
 
             val mc = Minecraft.getInstance()
 
-            if(mc.currentScreen is GuiMappingTable) {
-                (mc.currentScreen as GuiMappingTable).reload()
+            if(mc.screen is GuiMappingTable) {
+                (mc.screen as GuiMappingTable).reload()
             }
             return null
         }

@@ -52,7 +52,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
 
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererManager) {
         module as HelmModule
-        matrixStack.push()
+        matrixStack.pushPose()
         matrixStack.scale(1f, -1f, 1f)
         matrixStack.translate(0.2, -0f/16.0, 0.0)
 
@@ -62,7 +62,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         rotate(-frameAngle, model.frameCenter, model.left, model.radiusLeft, model.right, model.radiusRight, model.top, model.radiusTop, model.bottom, model.radiusBottom)
 
         val inventory = boat.getInventory(module)
-        val stack = inventory.getStackInSlot(0)
+        val stack = inventory.getItem(0)
         val item = stack.item
         HelmModule.getMapData(stack, boat)?.let { mapdata ->
             val mc = Minecraft.getInstance()
@@ -73,21 +73,21 @@ object HelmModuleRenderer : BoatModuleRenderer() {
             matrixStack.scale(0.0078125f, 0.0078125f, 0.0078125f)
             matrixStack.translate(64.0, -128.0, 32.0)
             matrixStack.translate(3+7.0, 40.0, 0.0)
-            matrixStack.multiply(Quaternion(0f, 90f, 0f, true))
-            matrixStack.multiply(Quaternion(25f, 0f, 0f, true))
+            matrixStack.mulPose(Quaternion(0f, 90f, 0f, true))
+            matrixStack.mulPose(Quaternion(25f, 0f, 0f, true))
 
             matrixStack.translate(32.0, 32.0, 0.0)
-            matrixStack.multiply(Quaternion(0f, 0f, -frameAngle, false))
+            matrixStack.mulPose(Quaternion(0f, 0f, -frameAngle, false))
             matrixStack.translate(-32.0, -32.0, 0.0)
             val mapScale = 0.5f
             matrixStack.scale(mapScale, mapScale, mapScale)
 
             val backgroundBuffer = buffers.getBuffer(mapBackgroundRenderType)
 
-            backgroundBuffer.vertex(matrixStack.peek().model, x, y+mapSize, 0.0f).color(1f, 1f, 1f, 1f).texture(0.0f, 1.0f).overlay(OverlayTexture.DEFAULT_UV).light(packedLightIn).normal(matrixStack.peek().normal, 0f, 0f, 1f).endVertex()
-            backgroundBuffer.vertex(matrixStack.peek().model, x+mapSize, y+mapSize, 0.0f).color(1f, 1f, 1f, 1f).texture(1.0f, 1.0f).overlay(OverlayTexture.DEFAULT_UV).light(packedLightIn).normal(matrixStack.peek().normal, 0f, 0f, 1f).endVertex()
-            backgroundBuffer.vertex(matrixStack.peek().model, x+mapSize, y, 0.0f).color(1f, 1f, 1f, 1f).texture(1.0f, 0.0f).overlay(OverlayTexture.DEFAULT_UV).light(packedLightIn).normal(matrixStack.peek().normal, 0f, 0f, 1f).endVertex()
-            backgroundBuffer.vertex(matrixStack.peek().model, x, y, 0.0f).color(1f, 1f, 1f, 1f).texture(0.0f, 0.0f).overlay(OverlayTexture.DEFAULT_UV).light(packedLightIn).normal(matrixStack.peek().normal, 0f, 0f, 1f).endVertex()
+            backgroundBuffer.vertex(matrixStack.last().pose(), x, y+mapSize, 0.0f).color(1f, 1f, 1f, 1f).texture(0.0f, 1.0f).overlay(OverlayTexture.DEFAULT_UV).light(packedLightIn).normal(matrixStack.last().normal(), 0f, 0f, 1f).endVertex()
+            backgroundBuffer.vertex(matrixStack.last().pose(), x+mapSize, y+mapSize, 0.0f).color(1f, 1f, 1f, 1f).texture(1.0f, 1.0f).overlay(OverlayTexture.DEFAULT_UV).light(packedLightIn).normal(matrixStack.last().normal(), 0f, 0f, 1f).endVertex()
+            backgroundBuffer.vertex(matrixStack.last().pose(), x+mapSize, y, 0.0f).color(1f, 1f, 1f, 1f).texture(1.0f, 0.0f).overlay(OverlayTexture.DEFAULT_UV).light(packedLightIn).normal(matrixStack.last().normal(), 0f, 0f, 1f).endVertex()
+            backgroundBuffer.vertex(matrixStack.last().pose(), x, y, 0.0f).color(1f, 1f, 1f, 1f).texture(0.0f, 0.0f).overlay(OverlayTexture.DEFAULT_UV).light(packedLightIn).normal(matrixStack.last().normal(), 0f, 0f, 1f).endVertex()
 
             matrixStack.translate(0.0, 0.0, 1.0)
 
@@ -98,7 +98,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
             }
             renderMap(boat, RenderInfo(matrixStack, mc.bufferBuilders.entityVertexConsumers, packedLightIn), mapdata, x.toDouble(), y.toDouble(), mapSize.toDouble(), boat.x, boat.z, 7.0, waypoints, loopingOption == LoopingOptions.Loops)
         }
-        matrixStack.pop()
+        matrixStack.popPose()
     }
 
     private fun rotate(angle: Float, vararg modelParts: ModelRenderer) {
@@ -110,7 +110,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
     fun renderMap(boat: IControllable, renderInfo: RenderInfo, mapdata: MapData, x: Double, y: Double, mapSize: Double, worldX: Double, worldZ: Double, margins: Double = 7.0, waypointsData: ListNBT, loops: Boolean) {
         val mc = Minecraft.getInstance()
         val matrixStack = renderInfo.matrixStack
-        matrixStack.push()
+        matrixStack.pushPose()
         matrixStack.translate(x+margins, y+margins, 0.0)
         matrixStack.scale(0.0078125f, 0.0078125f, 0.0078125f)
         matrixStack.scale((mapSize-margins*2).toFloat(), (mapSize-margins*2).toFloat(), 1.0f)
@@ -127,12 +127,12 @@ object HelmModuleRenderer : BoatModuleRenderer() {
 
         val iconScale = 0.5f
 
-        matrixStack.push()
+        matrixStack.pushPose()
         matrixStack.scale(iconScale, iconScale, iconScale)
         matrixStack.translate(-8.0, -8.0, 0.0)
         //mc.itemRenderer.renderItemIntoGUI(helmStack, (boatRenderX/iconScale).toInt(), (boatRenderZ/iconScale).toInt())
 
-        matrixStack.pop()
+        matrixStack.popPose()
 
         // render waypoints and path
         var hasPrevious = false
@@ -158,7 +158,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
                 renderPath(renderInfo, renderInfo.buffers.getBuffer(pathRenderType), x, z, firstX, firstZ, redModifier = 0.15f)
             }
         }
-        matrixStack.pop()
+        matrixStack.popPose()
     }
 
     fun renderPath(renderInfo: RenderInfo, buffer: IVertexBuilder, previousX: Double, previousZ: Double, x: Double, z: Double, redModifier: Float = 1.0f, greenModifier: Float = 1.0f, blueModifier: Float = 1.0f) {
@@ -170,16 +170,16 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         val dz = z - previousZ
         val length = sqrt(dx*dx+dz*dz).toFloat()
         val angle = atan2(dz, dx)
-        matrixStack.push()
+        matrixStack.pushPose()
         matrixStack.translate(previousX, previousZ, 0.0)
-        matrixStack.multiply(Quaternion(0f, 0f, (angle * 180.0 / Math.PI).toFloat(),true))
+        matrixStack.mulPose(Quaternion(0f, 0f, (angle * 180.0 / Math.PI).toFloat(),true))
 
         val thickness = 0.5f
         buffer.addVertex(matrixStack, 0.0f, thickness, 0.0f, redModifier, greenModifier, blueModifier, 1f, 0.0f, 0.25f * pathTextureIndex, OverlayTexture.DEFAULT_UV, renderInfo.combinedLight, 0f, 0f, 1f)
         buffer.addVertex(matrixStack, 0.0f+length, thickness, 0.0f, redModifier, greenModifier, blueModifier, 1f, 1.0f, 0.25f * pathTextureIndex, OverlayTexture.DEFAULT_UV, renderInfo.combinedLight, 0f, 0f, 1f)
         buffer.addVertex(matrixStack, 0.0f+length, 0.0f, 0.0f, redModifier, greenModifier, blueModifier, 1f, 1.0f, 0.25f * pathTextureIndex + 0.25f, OverlayTexture.DEFAULT_UV, renderInfo.combinedLight, 0f, 0f, 1f)
         buffer.addVertex(matrixStack, 0.0f, 0.0f, 0.0f, redModifier, greenModifier, blueModifier, 1f, 0.0f, 0.25f * pathTextureIndex + 0.25f, OverlayTexture.DEFAULT_UV, renderInfo.combinedLight, 0f, 0f, 1f)
-        matrixStack.pop()
+        matrixStack.popPose()
     }
 
     fun renderSingleWaypoint(renderInfo: RenderInfo, buffer: IVertexBuilder, x: Double, y: Double, redModifier: Float = 1.0f, greenModifier: Float = 1.0f, blueModifier: Float = 1.0f) {

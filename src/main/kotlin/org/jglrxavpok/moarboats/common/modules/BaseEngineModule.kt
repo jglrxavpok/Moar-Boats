@@ -45,15 +45,15 @@ abstract class BaseEngineModule: BoatModule() {
         }
 
         if(lockedByRedstoneProperty[from]) {
-            if( ! from.worldRef.isRemote) {
+            if( ! from.worldRef.isClientSide) {
                 // special case for full hoppers (see issue #81 on GitHub)
                 val storage = from.modules.firstOrNull { it.moduleSpot == Spot.Storage }
                 if(storage != null && storage.usesInventory) {
                     // todo: pool
-                    val hopperPos = from.correspondingEntity.blockPos.up()
+                    val hopperPos = from.correspondingEntity.blockPosition().above()
                     val blockState = from.worldRef.getBlockState(hopperPos)
                     if(blockState.block is HopperBlock) {
-                        val te = from.worldRef.getTileEntity(hopperPos) as HopperTileEntity
+                        val te = from.worldRef.getBlockEntity(hopperPos) as HopperTileEntity
                         val storageInventory = from.getInventory(storage)
                         if( ! storageInventory.canAddAnyFrom(te)) {
                             return // bypass lock

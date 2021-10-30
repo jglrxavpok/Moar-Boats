@@ -31,7 +31,7 @@ object RopeItem : MoarBoatsItem("rope") {
 
     private fun getLinked(levelIn: World, stack: ItemStack): BasicBoatEntity? {
         val id = nbt(stack).getInt("linked")
-        return levelIn.getEntityByID(id) as BasicBoatEntity?
+        return levelIn.getEntity(id) as BasicBoatEntity?
     }
 
     private fun nbt(stack: ItemStack): CompoundNBT {
@@ -51,7 +51,7 @@ object RopeItem : MoarBoatsItem("rope") {
     }
 
     override fun onItemRightClick(levelIn: World, playerIn: PlayerEntity, handIn: Hand): ActionResult<ItemStack> {
-        resetLinked(playerIn.getHeldItem(handIn))
+        resetLinked(playerIn.getItemInHand(handIn))
         return super.onItemRightClick(levelIn, playerIn, handIn)
     }
 
@@ -85,14 +85,14 @@ object RopeItem : MoarBoatsItem("rope") {
     }
 
     override fun onItemUse(context: ItemUseContext): ActionResultType {
-        val levelIn: World = context.world
-        val pos: BlockPos = context.pos
+        val levelIn: World = context.level
+        val pos: BlockPos = context.clickedPos
         val block = levelIn.getBlockState(pos).block
-        val stack = context.item
+        val stack = context.itemInHand
         return when {
             block is FenceBlock && getState(stack) == State.WAITING_NEXT -> {
-                if(!levelIn.isRemote) {
-                    val knot = LeashKnotEntity.create(levelIn, pos)
+                if(!levelIn.isClientSide) {
+                    val knot = LeashKnotEntity.getOrCreateKnot(levelIn, pos)
                     val target = getLinked(levelIn, stack) ?: return ActionResultType.PASS
                     target.linkTo(knot, BasicBoatEntity.FrontLink)
                 }
@@ -111,8 +111,8 @@ object RopeItem : MoarBoatsItem("rope") {
     fun onEntityInteract(player: PlayerEntity, stack: ItemStack, entity: Entity): ActionResultType {
         if(getState(stack) == State.WAITING_NEXT) {
             if(entity is LeashKnotEntity) {
-                val level = player.world
-                if(!level.isRemote) {
+                val level = player.level
+                if(!level.isClientSide) {
                     val target = getLinked(level, stack) ?: return ActionResultType.PASS
                     target.linkTo(entity, BasicBoatEntity.FrontLink)
                 }

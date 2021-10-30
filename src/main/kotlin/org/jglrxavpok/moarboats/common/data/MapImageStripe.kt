@@ -13,13 +13,13 @@ class MapImageStripe(val id: String): WorldSavedData(id) {
         this.textureStripe = textureStripe
     }
 
-    override fun write(compound: CompoundNBT): CompoundNBT {
+    override fun save(compound: CompoundNBT): CompoundNBT {
         compound.putInt("index", index)
         compound.putIntArray("stripe", textureStripe)
         return compound
     }
 
-    override fun read(nbt: CompoundNBT) {
+    override fun load(nbt: CompoundNBT) {
         index = nbt.getInt("index")
         textureStripe = nbt.getIntArray("stripe")
     }

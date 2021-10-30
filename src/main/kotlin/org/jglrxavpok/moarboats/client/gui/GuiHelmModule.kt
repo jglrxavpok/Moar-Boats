@@ -71,20 +71,20 @@ class GuiHelmModule(containerID: Int, playerInventory: PlayerInventory, engine: 
 
     override fun drawModuleBackground(mouseX: Int, mouseY: Int) {
         super.drawModuleBackground(mouseX, mouseY)
-        this.mc.textureManager.bindTexture(RES_MAP_BACKGROUND)
+        this.mc.textureManager.bind(RES_MAP_BACKGROUND)
         val tessellator = Tessellator.getInstance()
-        val bufferbuilder = tessellator.buffer
+        val bufferbuilder = tessellator.builder
         val x = guiLeft + xSize/2f - mapSize/2
         val y = guiTop.toDouble() + 5.0
-        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_COLOR_TEXTURE_LIGHT)
-        bufferbuilder.vertex(x, y+mapSize, 0.0).color(1f, 1f, 1f, 1f).texture(0.0f, 1.0f).light(15728880).endVertex()
-        bufferbuilder.vertex(x+mapSize, y+mapSize, 0.0).color(1f, 1f, 1f, 1f).texture(1.0f, 1.0f).light(15728880).endVertex()
-        bufferbuilder.vertex(x+mapSize, y, 0.0).color(1f, 1f, 1f, 1f).texture(1.0f, 0.0f).light(15728880).endVertex()
-        bufferbuilder.vertex(x, y, 0.0).color(1f, 1f, 1f, 1f).texture(0.0f, 0.0f).light(15728880).endVertex()
-        tessellator.draw()
-        val stack = baseContainer.getSlot(0).stack
+        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_COLOR_TEX_LIGHTMAP)
+        bufferbuilder.vertex(x, y+mapSize, 0.0).color(1f, 1f, 1f, 1f).uv(0.0f, 1.0f).light(15728880).endVertex()
+        bufferbuilder.vertex(x+mapSize, y+mapSize, 0.0).color(1f, 1f, 1f, 1f).uv(1.0f, 1.0f).light(15728880).endVertex()
+        bufferbuilder.vertex(x+mapSize, y, 0.0).color(1f, 1f, 1f, 1f).uv(1.0f, 0.0f).light(15728880).endVertex()
+        bufferbuilder.vertex(x, y, 0.0).color(1f, 1f, 1f, 1f).uv(0.0f, 0.0f).light(15728880).endVertex()
+        tessellator.end()
+        val stack = baseContainer.getSlot(0).item
         var hasMap = false
-        val buffers = mc.bufferBuilders.entityVertexConsumers
+        val buffers = mc.renderBuffers().bufferSource()
         getMapData(stack)?.let { mapdata ->
             val item = stack.item
             val (waypoints, loopingOption) = when(item) {
@@ -92,7 +92,7 @@ class GuiHelmModule(containerID: Int, playerInventory: PlayerInventory, engine: 
                 is ItemPath -> Pair(item.getWaypointData(stack, MoarBoats.getLocalMapStorage()), item.getLoopingOptions(stack))
                 else -> return@let
             }
-            val renderInfo = RenderInfo(matrixStack, mc.bufferBuilders.entityVertexConsumers)
+            val renderInfo = RenderInfo(matrixStack, buffers)
             HelmModuleRenderer.renderMap(boat, renderInfo, mapdata, x, y, mapSize, boat.positionX, boat.positionZ, margins, waypoints, loopingOption == LoopingOptions.Loops)
 
             if(mouseX >= x+margins && mouseX <= x+mapSize-margins && mouseY >= y+margins && mouseY <= y+mapSize-margins) {
@@ -102,22 +102,22 @@ class GuiHelmModule(containerID: Int, playerInventory: PlayerInventory, engine: 
 
             hasMap = true
         }
-        buffers.draw() // render to screen
+        buffers.endBatch() // render to screen
 
         if(!hasMap) {
-            matrixStack.push()
+            matrixStack.pushPose()
             matrixStack.translate(guiLeft.toDouble()+8.0, guiTop.toDouble()+8.0, 0.0)
             Screen.fill(matrixStack, 0, 0, 16, 16, 0x30ff0000)
 
             RenderSystem.pushMatrix()
-            RenderSystem.multMatrix(matrixStack.peek().model)
+            RenderSystem.multMatrix(matrixStack.last().pose())
             mc.itemRenderer.renderItemIntoGUI(mapStack, 0, 0)
             RenderSystem.popMatrix()
 
             RenderSystem.depthFunc(GL11.GL_GREATER)
             Screen.fill(matrixStack, 0, 0, 16, 16, 0x30ffffff)
             RenderSystem.depthFunc(GL11.GL_LEQUAL)
-            matrixStack.pop()
+            matrixStack.popPose()
         }
     }
 
@@ -127,9 +127,9 @@ class GuiHelmModule(containerID: Int, playerInventory: PlayerInventory, engine: 
 
     override fun tick() {
         super.tick()
-        val mapData = getMapData(baseContainer.getSlot(0).stack)
+        val mapData = getMapData(baseContainer.getSlot(0).item)
         mapEditButton.active = mapData != null && mapData != EmptyMapData
-        saveButton.active = mapData != null && mapData != EmptyMapData && baseContainer.getSlot(0).stack.item == Items.FILLED_MAP
+        saveButton.active = mapData != null && mapData != EmptyMapData && baseContainer.getSlot(0).item.item == Items.FILLED_MAP
     }
 
 }

@@ -25,7 +25,7 @@ import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.network.*
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 
-class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val playerInv: PlayerInventory): ContainerScreen<ContainerMappingTable>(ContainerMappingTable(containerID, te, playerInv), playerInv, TranslationTextComponent("moarboats.inventory.mapping_table")), IContainerListener {
+class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val playerInv: PlayerInventory): ContainerScreen<ContainerMappingTable>(ContainerMappingTable(containerID, te, playerInv), playerInv, TranslationTextComponent("moarboats.gui.mapping_table.title")), IContainerListener {
 
     companion object {
         private val EmptyBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/helm.png")
@@ -45,17 +45,17 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
     private val addWaypointButton = Button(0, 0, 150, 20, addWaypointText) {
         waypointToEditAfterCreation = list.children().size
         if(container.getSlot(0).stack.item == ItemGoldenTicket) {
-            MoarBoats.network.sendToServer(CAddWaypointToGoldenTicketFromMappingTable(te.pos, null, null, te))
+            MoarBoats.network.sendToServer(CAddWaypointToGoldenTicketFromMappingTable(te.blockPos, null, null, te))
         } else {
-            MoarBoats.network.sendToServer(CAddWaypointToItemPathFromMappingTable(te.pos, null, null, te))
+            MoarBoats.network.sendToServer(CAddWaypointToItemPathFromMappingTable(te.blockPos, null, null, te))
         }
     }
     private val insertWaypointButton = Button(0, 0, 150, 20, insertWaypointText) {
         waypointToEditAfterCreation = selectedIndex+1
         if(container.getSlot(0).stack.item == ItemGoldenTicket) {
-            MoarBoats.network.sendToServer(CAddWaypointToGoldenTicketFromMappingTable(te.pos, null, selectedIndex, te))
+            MoarBoats.network.sendToServer(CAddWaypointToGoldenTicketFromMappingTable(te.blockPos, null, selectedIndex, te))
         } else {
-            MoarBoats.network.sendToServer(CAddWaypointToItemPathFromMappingTable(te.pos, null, selectedIndex, te))
+            MoarBoats.network.sendToServer(CAddWaypointToItemPathFromMappingTable(te.blockPos, null, selectedIndex, te))
         }
     }
     private val editWaypointButton = Button(0, 0, 150, 20, editWaypointText) {
@@ -144,10 +144,10 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
     }
 
     override fun drawBackground(matrixStack: MatrixStack, partialTicks: Float, mouseX: Int, mouseY: Int) {
-        mc.textureManager.bindTexture(Background)
+        mc.textureManager.bind(Background)
         drawTexture(matrixStack, guiLeft, guiTop, 0, 0, this.xSize, this.ySize)
 
-        mc.textureManager.bindTexture(EmptyBackground)
+        mc.textureManager.bind(EmptyBackground)
         drawTexture(matrixStack, guiLeft, guiTop, 0, 0, this.xSize, ySize)
     }
 
@@ -190,7 +190,7 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
     }
 
     override fun sendAllContents(containerToSend: Container, itemsList: NonNullList<ItemStack>) {
-        this.sendSlotContents(containerToSend, 0, containerToSend.getSlot(0).stack)
+        this.sendSlotContents(containerToSend, 0, containerToSend.getSlot(0).item)
     }
 
     fun confirmWaypointCreation(data: ListNBT) {
@@ -219,11 +219,11 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
 
     fun swap(index1: Int, index2: Int) {
         if(index1 in 0 until list.children().size && index2 in 0 until list.children().size)
-            MoarBoats.network.sendToServer(CSwapWaypoints(index1, index2, te.pos))
+            MoarBoats.network.sendToServer(CSwapWaypoints(index1, index2, te.blockPos))
     }
 
     fun reload() {
-        resetList(te.inventory.getStackInSlot(0))
+        resetList(te.inventory.getItem(0))
     }
 
 }

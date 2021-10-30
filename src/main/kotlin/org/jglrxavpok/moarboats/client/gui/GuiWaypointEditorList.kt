@@ -28,39 +28,39 @@ class WaypointInfoEntry(val parent: GuiWaypointEditor, val slot: WaypointInfo, v
         val slotTop = y
         val left = x
         val slotHeight = entryHeight
-        GlStateManager.disableLighting()
+        GlStateManager._disableLighting()
         // TODO: merge with rendering code of GuiWaypointList
-        matrixStack.push()
-        GlStateManager.color4f(1f, 1f, 1f, 1f)
-        mc.textureManager.bindTexture(ArrowsTexture)
+        matrixStack.pushPose()
+        GlStateManager._color4f(1f, 1f, 1f, 1f)
+        mc.textureManager.bind(ArrowsTexture)
         val hovered = if(mouseX >= left && mouseX < left + 16 && mouseY >= slotTop && mouseY < slotTop + slotHeight) 1 else 0
 
         val arrowScale = 0.75
-        matrixStack.push()
+        matrixStack.pushPose()
         matrixStack.translate(left.toDouble(), slotTop - 4.0, 0.0)
         matrixStack.scale(arrowScale.toFloat(), arrowScale.toFloat(), arrowScale.toFloat())
         RenderSystem.enableAlphaTest()
         RenderSystem.enableBlend()
         drawModalRectWithCustomSizedTexture(matrixStack, 0, 0, 32f, hovered*32f, 32, 32, 256, 256)
-        matrixStack.pop()
+        matrixStack.popPose()
 
         val name = slot.name
 
         matrixStack.translate(16.0, 0.0, 0.0)
 
-        mc.fontRenderer.draw(matrixStack, name, left + 4f, slotTop + 1f, 0xFFFFFF)
-        matrixStack.push()
+        mc.font.draw(matrixStack, name, left + 4f, slotTop + 1f, 0xFFFFFF)
+        matrixStack.pushPose()
         matrixStack.translate(left + 4.0, slotTop + 10.0, 0.0)
         val scale = 0.5f
         matrixStack.scale(scale, scale, 1f)
         val text = "X: ${slot.x}, Z: ${slot.z}" +
                 if(slot.boost != null) " (${(slot.boost * 100).toInt()}%)"
                 else ""
-        mc.fontRenderer.draw(matrixStack, text, 0f, 0f, 0xFFFFFF)
-        matrixStack.pop()
-        GlStateManager.color4f(1f, 1f, 1f, 1f)
+        mc.font.draw(matrixStack, text, 0f, 0f, 0xFFFFFF)
+        matrixStack.popPose()
+        GlStateManager._color4f(1f, 1f, 1f, 1f)
         slotTops[this] = slotTop
-        matrixStack.pop()
+        matrixStack.popPose()
     }
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
@@ -75,11 +75,11 @@ class WaypointInfoEntry(val parent: GuiWaypointEditor, val slot: WaypointInfo, v
                 parent.loadFromWaypointInfo(slot)
             }
         }
-        this.lastClickTime = Util.milliTime()
+        this.lastClickTime = Util.getMillis()
         return super.mouseClicked(mouseX, mouseY, button)
     }
 
-    private fun doubleClick() = Util.milliTime() - this.lastClickTime < 250L
+    private fun doubleClick() = Util.getMillis() - this.lastClickTime < 250L
 }
 
 class GuiWaypointEditorList(val mc: Minecraft, val parent: GuiWaypointEditor, width: Int, height: Int, top: Int, left: Int, val entryHeight: Int):

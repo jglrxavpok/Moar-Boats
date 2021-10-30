@@ -87,8 +87,8 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
     fun sendTileEntityUpdate() {
         if(backingTileEntity == null)
             return
-        if(!world.isRemote) {
-            val data = backingTileEntity.write(CompoundNBT())
+        if(!world.isClientSide) {
+            val data = backingTileEntity.save(CompoundNBT())
             MoarBoats.network.send(PacketDistributor.ALL.noArg(), SUtilityTileEntityUpdate(entityID, data))
         }
     }
@@ -117,7 +117,7 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
     override fun processInitialInteract(player: PlayerEntity, hand: Hand): ActionResultType {
         if (super.processInitialInteract(player, hand) == ActionResultType.SUCCESS)
             return ActionResultType.SUCCESS
-        if (world.isRemote)
+        if (world.isClientSide)
             return ActionResultType.SUCCESS
 
         return openGuiIfPossible(player)
@@ -141,7 +141,7 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
         super.writeAdditional(compound)
         compound.putString("boatType", boatType.getFullName())
         if(backingTileEntity != null) {
-            compound.put("backingTileEntity", backingTileEntity.write(CompoundNBT()))
+            compound.put("backingTileEntity", backingTileEntity.save(CompoundNBT()))
         }
     }
 
@@ -161,8 +161,8 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
         dropBaseBoat(killedByPlayerInCreative)
         val tileEntity = getBackingTileEntity()
         if(tileEntity is IInventory) {
-            for (i in 0 until tileEntity.sizeInventory) {
-                val stack = tileEntity.getStackInSlot(i)
+            for (i in 0 until tileEntity.containerSize) {
+                val stack = tileEntity.getItem(i)
                 if(stack.isEmpty)
                     continue
                 entityDropItem(stack.copy())

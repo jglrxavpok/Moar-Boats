@@ -29,10 +29,10 @@ class GuiFluid(type: ContainerType<*>, containerID: Int, val te: TileEntityListe
 
     private val mc = Minecraft.getInstance()
 
-    override fun drawBackground(matrixStack: MatrixStack, partialTicks: Float, mouseX: Int, mouseY: Int) {
-        mc.textureManager.bindTexture(defaultBackground)
+    override fun renderBg(matrixStack: MatrixStack, partialTicks: Float, mouseX: Int, mouseY: Int) {
+        mc.textureManager.bind(defaultBackground)
         drawTexture(matrixStack, guiLeft, guiTop, 0, 0, xSize, ySize)
-        mc.textureManager.bindTexture(fluidBackground)
+        mc.textureManager.bind(fluidBackground)
         drawTexture(matrixStack, guiLeft, guiTop, 0, 0, xSize, ySize)
 
         if(fluid != null && fluid !is EmptyFluid) {

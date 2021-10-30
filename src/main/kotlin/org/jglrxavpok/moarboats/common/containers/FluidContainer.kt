@@ -24,8 +24,8 @@ class FluidContainer(containerType: ContainerType<*>, containerID: Int, val te: 
         te.removeContainerListener(this)
     }
 
-    override fun detectAndSendChanges() {
-        super.detectAndSendChanges()
+    override fun broadcastChanges() {
+        super.broadcastChanges()
         if(player !is ServerPlayerEntity)
             return
         val teFluidName: String

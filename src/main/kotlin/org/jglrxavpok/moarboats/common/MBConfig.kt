@@ -59,7 +59,7 @@ class MoarBoatsConfig {
                     .comment("Time in ticks between two packets describing the state of furnaces (smoker, blaster, furnace) inside boats. Only graphical. -1 means no update")
                     .defineInRange("stateUpdateInterval", 20, -1, Int.MAX_VALUE)
 
-            builder.pop()
+            builder.popPose()
         }
     }
 
@@ -82,7 +82,7 @@ class MoarBoatsConfig {
                     .translation(MoarBoats.ModID + ".fishing.speedmultiplier")
                     .defineInRange("speedMultiplier", 1.0, 10e-16, 100.0)
 
-            builder.pop()
+            builder.popPose()
         }
     }
 
@@ -100,7 +100,7 @@ class MoarBoatsConfig {
                     .comment("The total amount of energy a single boat battery can hold at once")
                     .translation(MoarBoats.ModID + ".boatbattery.maxenergy")
                     .defineInRange("maxEnergy", 25000, 1, Int.MAX_VALUE)
-            builder.pop()
+            builder.popPose()
         }
     }
 
@@ -126,7 +126,7 @@ class MoarBoatsConfig {
             pullAmount = builder
                     .comment("The energy amount that can be received in a tick (in RF/FE)")
                     .defineInRange("pullAmount", 200, 1, Int.MAX_VALUE)
-            builder.pop()
+            builder.popPose()
         }
     }
 
@@ -142,7 +142,7 @@ class MoarBoatsConfig {
             tankCapacity = builder
                     .comment("The fluid capacity of the on-board fluid tank")
                     .defineInRange("tankCapacity", 10000, 1, Int.MAX_VALUE)
-            builder.pop()
+            builder.popPose()
         }
     }
 
@@ -164,7 +164,7 @@ class MoarBoatsConfig {
             capacity = builder
                     .comment("The total amount of fluid the fluid loader can hold at once (in mB)")
                     .defineInRange("capacity", 5000, 1, Int.MAX_VALUE)
-            builder.pop()
+            builder.popPose()
         }
     }
 
@@ -186,7 +186,7 @@ class MoarBoatsConfig {
             capacity = builder
                     .comment("The total amount of fluid the fluid unloader can hold at once (in mB)")
                     .defineInRange("capacity", 5000, 1, Int.MAX_VALUE)
-            builder.pop()
+            builder.popPose()
         }
     }
 
@@ -207,7 +207,7 @@ class MoarBoatsConfig {
             items = builder
                     .comment("List of item IDs to allow/disallow, must match '^([a-z_]+:)?([a-z_]+)(\\/\\d+)?$' (domain:name/metadata with 'domain:' and 'metadata' optional)")
                     .define("items", listOf())
-            builder.pop()
+            builder.popPose()
         }
     }
 
@@ -224,7 +224,7 @@ class MoarBoatsConfig {
                     .comment("Do you want to allow the chunk loader module on your server?")
                     .translation(MoarBoats.ModID + ".chunkloader.allowed")
                     .define("allowed", true)
-            builder.pop()
+            builder.popPose()
         }
     }
 
@@ -242,7 +242,7 @@ class MoarBoatsConfig {
                     .comment("Hide the Patreon hook?")
                     .translation(MoarBoats.ModID + ".hide_patreon_hook")
                     .define("hidePatreonHook", false)
-            builder.pop()
+            builder.popPose()
         }
     }
 

@@ -10,13 +10,13 @@ import org.jglrxavpok.moarboats.common.modules.ChestModule
 import org.jglrxavpok.moarboats.common.modules.DispenserModule
 import org.jglrxavpok.moarboats.common.modules.DropperModule
 
-object ChestModuleRenderer: BlockBoatModuleRenderer(ChestModule.id, BoatModule.Spot.Storage, Blocks.CHEST.defaultState)
+object ChestModuleRenderer: BlockBoatModuleRenderer(ChestModule.id, BoatModule.Spot.Storage, Blocks.CHEST.defaultBlockState())
 
-object BatteryModuleRenderer: BlockBoatModuleRenderer(BatteryModule.id, BoatModule.Spot.Storage, BlockBoatBattery.defaultState)
+object BatteryModuleRenderer: BlockBoatModuleRenderer(BatteryModule.id, BoatModule.Spot.Storage, BlockBoatBattery.defaultBlockState())
 
 object DispenserModuleRenderer: BlockBoatModuleRenderer(DispenserModule.id, BoatModule.Spot.Storage,
-        { b, _ -> Blocks.DISPENSER.defaultState.with(DispenserBlock.FACING, DispenserModule.facingProperty[b])})
+        { b, _ -> Blocks.DISPENSER.defaultBlockState().with(DispenserBlock.FACING, DispenserModule.facingProperty[b])})
 
 object DropperModuleRenderer: BlockBoatModuleRenderer(DropperModule.id, BoatModule.Spot.Storage,
-        { b, _ -> Blocks.DROPPER.defaultState.with(DropperBlock.FACING, DropperModule.facingProperty[b])})
+        { b, _ -> Blocks.DROPPER.defaultBlockState().with(DropperBlock.FACING, DropperModule.facingProperty[b])})
 

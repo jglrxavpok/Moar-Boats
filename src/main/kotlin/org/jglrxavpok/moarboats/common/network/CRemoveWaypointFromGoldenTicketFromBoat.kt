@@ -24,9 +24,9 @@ class CRemoveWaypointFromGoldenTicketFromBoat: CxxRemoveWaypointToItemPath {
         override fun getStack(message: CRemoveWaypointFromGoldenTicketFromBoat, ctx: NetworkEvent.Context): ItemStack? {
             with(message) {
                 val player = ctx.sender!!
-                val level = player.world
-                val boat = level.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
-                return boat.getInventory(HelmModule).getStackInSlot(0)
+                val level = player.level
+                val boat = level.getEntity(message.boatID) as? ModularBoatEntity ?: return null
+                return boat.getInventory(HelmModule).getItem(0)
             }
         }
 

@@ -22,9 +22,9 @@ class TileEntityMappingTable: TileEntity(MoarBoats.TileEntityMappingTableType) {
     val invWrapper = InvWrapper(inventory)
 
     override fun write(compound: CompoundNBT): CompoundNBT {
-        val invList = NonNullList.withSize(inventory.sizeInventory, ItemStack.EMPTY)
-        for(i in 0 until inventory.sizeInventory) {
-            invList[i] = inventory.getStackInSlot(i) ?: ItemStack.EMPTY
+        val invList = NonNullList.withSize(inventory.containerSize, ItemStack.EMPTY)
+        for(i in 0 until inventory.containerSize) {
+            invList[i] = inventory.getItem(i) ?: ItemStack.EMPTY
         }
         ItemStackHelper.saveAllItems(compound, invList)
         return super.write(compound)
@@ -32,11 +32,11 @@ class TileEntityMappingTable: TileEntity(MoarBoats.TileEntityMappingTableType) {
 
     override fun deserializeNBT(state: BlockState, compound: CompoundNBT) {
         super.deserializeNBT(state, compound)
-        val invList = NonNullList.withSize(inventory.sizeInventory, ItemStack.EMPTY)
+        val invList = NonNullList.withSize(inventory.containerSize, ItemStack.EMPTY)
         ItemStackHelper.loadAllItems(compound, invList)
         inventory.clear()
-        for(i in 0 until inventory.sizeInventory) {
-            inventory.setInventorySlotContents(i, invList.get(i))
+        for(i in 0 until inventory.containerSize) {
+            inventory.setItem(i, invList.get(i))
         }
     }
 

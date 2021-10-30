@@ -19,9 +19,9 @@ class CChangeLoopingStateItemPathMappingTable: CChangeLoopingStateBase {
     var teZ: Int = -1
 
     constructor(loopingOption: LoopingOptions, mappingTable: TileEntityMappingTable): super(loopingOption) {
-        this.teX = mappingTable.pos.x
-        this.teY = mappingTable.pos.y
-        this.teZ = mappingTable.pos.z
+        this.teX = mappingTable.blockPos.x
+        this.teY = mappingTable.blockPos.y
+        this.teZ = mappingTable.blockPos.z
     }
 
     object Handler: MBMessageHandler<CChangeLoopingStateItemPathMappingTable, MoarBoatsPacket?> {
@@ -31,12 +31,12 @@ class CChangeLoopingStateItemPathMappingTable: CChangeLoopingStateBase {
         override fun onMessage(message: CChangeLoopingStateItemPathMappingTable, ctx: NetworkEvent.Context): MoarBoatsPacket? {
             with(message) {
                 val player = ctx.sender!!
-                val level = player.world
+                val level = player.level
                 val pos = BlockPos.Mutable(teX, teY, teZ)
-                val te = level.getTileEntity(pos)
+                val te = level.getBlockEntity(pos)
                 if(te !is TileEntityMappingTable)
                     return null
-                val stack = te.inventory.getStackInSlot(0)
+                val stack = te.inventory.getItem(0)
                 val item = stack.item
                 if(item is ItemPath) {
                     item.setLoopingOptions(stack, message.loopingOption)

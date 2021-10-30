@@ -78,7 +78,7 @@ class BlockPosProperty(module: BoatModule, id: String): BoatProperty<BlockPos.Mu
 
     override val type: Class<out BlockPos.Mutable> = BlockPos.Mutable::class.java
     override val readProperty: CompoundNBT.(String) -> BlockPos.Mutable = { id ->
-        pos.setPos(this.getInt(id+"_X"), this.getInt(id+"_Y"), this.getInt(id+"_Z"))
+        pos.set(this.getInt(id+"_X"), this.getInt(id+"_Y"), this.getInt(id+"_Z"))
         pos
     }
     override val writeProperty: CompoundNBT.(String, BlockPos.Mutable) -> Unit = { id, pos ->
@@ -103,13 +103,13 @@ class MapDataProperty(module: BoatModule, id: String): BoatProperty<MapData>(mod
         else {
             val name = this.getString("mapName")
             val data = this.getCompound("mapData")
-            MapData(name).apply { read(data) }
+            MapData(name).apply { load(data) }
         }
     }
 
     override val writeProperty: CompoundNBT.(String, MapData) -> Unit = { id, mapData ->
-        putString("mapName", mapData.name)
-        val mapDataNBT = mapData.write(CompoundNBT())
+        putString("mapName", mapData.id)
+        val mapDataNBT = mapData.save(CompoundNBT())
         put("mapData", mapDataNBT)
     }
 }

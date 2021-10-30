@@ -35,8 +35,8 @@ object UpgradeToGoldenTicketRecipe: ICraftingRecipe {
         var emptyTickets = 0
         var fullMaps = 0
         var fullMap: ItemStack? = null
-        for(i in 0 until inv.sizeInventory) {
-            val stack = inv.getStackInSlot(i)
+        for(i in 0 until inv.containerSize) {
+            val stack = inv.getItem(i)
             if(stack.item == ItemGoldenTicket) {
                 if(ItemGoldenTicket.isEmpty(stack)) {
                     emptyTickets++
@@ -61,8 +61,8 @@ object UpgradeToGoldenTicketRecipe: ICraftingRecipe {
     override fun matches(inv: CraftingInventory, levelIn: World?): Boolean {
         var emptyTickets = 0
         var fullMaps = 0
-        for(i in 0 until inv.sizeInventory) {
-            val stack = inv.getStackInSlot(i)
+        for(i in 0 until inv.containerSize) {
+            val stack = inv.getItem(i)
             if(stack.item == ItemGoldenTicket) {
                 if(ItemGoldenTicket.isEmpty(stack)) {
                     emptyTickets++

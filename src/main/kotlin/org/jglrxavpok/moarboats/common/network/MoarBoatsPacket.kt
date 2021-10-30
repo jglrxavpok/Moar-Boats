@@ -82,9 +82,9 @@ interface MoarBoatsPacket {
                 val list = field.getter.call(packet) as List<ItemStack>
                 buffer.writeInt(list.size)
                 val nbt = CompoundNBT()
-                val tmpList = NonNullList.from(ItemStack.EMPTY, *list.toTypedArray())
+                val tmpList = NonNullList.of(ItemStack.EMPTY, *list.toTypedArray())
                 ItemStackHelper.saveAllItems(nbt, tmpList)
-                buffer.writeCompoundTag(nbt)
+                buffer.writeNbt(nbt)
                 return
             }
             write(field[packet] as Any, buffer)
@@ -104,13 +104,13 @@ interface MoarBoatsPacket {
                 Short::class.java, java.lang.Short::class.java, java.lang.Short.TYPE -> buffer.writeShort((value as Short).toInt())
                 Double::class.java, java.lang.Double::class.java, java.lang.Double.TYPE -> buffer.writeDouble(value as Double)
                 Float::class.java, java.lang.Float::class.java, java.lang.Float.TYPE -> buffer.writeFloat(value as Float)
-                String::class.java -> buffer.writeString(value as String)
+                String::class.java -> buffer.writeUtf(value as String)
 
                 ArrayList::class.java, LinkedList::class.java, List::class.java, MutableList::class.java -> {
                     val list = value as List<out Any>
                     buffer.writeInt(list.size)
                     if(list.isNotEmpty()) {
-                        buffer.writeString(list[0].javaClass.canonicalName) // used to know the type when loading
+                        buffer.writeUtf(list[0].javaClass.canonicalName) // used to know the type when loading
                         list.forEach { elem ->
                             write(elem, buffer)
                         }
@@ -131,16 +131,16 @@ interface MoarBoatsPacket {
                     val list = value as ListNBT
                     container.putInt("nbt_type", list.elementType.toInt())
                     container.put("_", list)
-                    buffer.writeCompoundTag(container)
+                    buffer.writeNbt(container)
                 }
 
                 CompoundNBT::class.java -> {
-                    buffer.writeCompoundTag(value as CompoundNBT)
+                    buffer.writeNbt(value as CompoundNBT)
                 }
 
                 ResourceLocation::class.java -> {
                     val path = (value as ResourceLocation).toString()
-                    buffer.writeString(path)
+                    buffer.writeUtf(path)
                 }
 
                 Direction::class.java -> {
@@ -148,7 +148,7 @@ interface MoarBoatsPacket {
                 }
 
                 SoundEvent::class.java -> {
-                    buffer.writeString((value as SoundEvent).registryName.toString())
+                    buffer.writeUtf((value as SoundEvent).registryName.toString())
                 }
 
                 SoundCategory::class.java -> {
@@ -157,8 +157,8 @@ interface MoarBoatsPacket {
 
                 ItemStack::class.java -> {
                     val stack = value as ItemStack
-                    val nbt = stack.write(CompoundNBT())
-                    buffer.writeCompoundTag(nbt)
+                    val nbt = stack.save(CompoundNBT())
+                    buffer.writeNbt(nbt)
                 }
 
                 MusicDiscItem::class.java -> {
@@ -168,9 +168,9 @@ interface MoarBoatsPacket {
                 // Moar Boats special types
                 ItemGoldenTicket.WaypointData::class.java -> {
                     val data = (value as ItemGoldenTicket.WaypointData)
-                    buffer.writeString(data.uuid)
+                    buffer.writeUtf(data.uuid)
                     val nbt = data.write(CompoundNBT())
-                    buffer.writeCompoundTag(nbt)
+                    buffer.writeNbt(nbt)
                 }
 
                 LoopingOptions::class.java -> {
@@ -207,7 +207,7 @@ interface MoarBoatsPacket {
             if(field.javaField!!.annotations.any { it.annotationClass == ItemStackList::class }) {
                 val size = buffer.readInt()
                 val tmpList = NonNullList.withSize(size, ItemStack.EMPTY)
-                val nbt = buffer.readCompoundTag()!!
+                val nbt = buffer.readNbt()!!
                 ItemStackHelper.loadAllItems(nbt, tmpList)
                 field[packet] = mutableListOf<ItemStack>().apply { addAll(tmpList) }
                 return
@@ -231,13 +231,13 @@ interface MoarBoatsPacket {
                 Short::class.java, java.lang.Short::class.java, java.lang.Short.TYPE -> buffer.readShort()
                 Double::class.java, java.lang.Double::class.java, java.lang.Double.TYPE -> buffer.readDouble()
                 Float::class.java, java.lang.Float::class.java, java.lang.Float.TYPE -> buffer.readFloat()
-                String::class.java -> buffer.readString(200)
+                String::class.java -> buffer.readUtf(200)
 
                 ArrayList::class.java, List::class.java, MutableList::class.java -> {
                     mutableListOf<T>().apply {
                         val size = buffer.readInt()
                         if(size > 0) {
-                            val clazzName = Class.forName(buffer.readString(200))
+                            val clazzName = Class.forName(buffer.readUtf(200))
                             for(i in 0 until size) {
                                 this += read(clazzName, buffer) as T
                             }
@@ -246,7 +246,7 @@ interface MoarBoatsPacket {
                 }
 
                 ListNBT::class.java -> {
-                    val container = buffer.readCompoundTag()!!
+                    val container = buffer.readNbt()!!
                     val type = container.getInt("nbt_type")
                     container.getList("_", type)
                 }
@@ -260,11 +260,11 @@ interface MoarBoatsPacket {
 
                 // MC Types
                 CompoundNBT::class.java -> {
-                    buffer.readCompoundTag()!!
+                    buffer.readNbt()!!
                 }
 
                 ResourceLocation::class.java -> {
-                    ResourceLocation(buffer.readString(200))
+                    ResourceLocation(buffer.readUtf(200))
                 }
 
                 Direction::class.java -> {
@@ -272,7 +272,7 @@ interface MoarBoatsPacket {
                 }
 
                 SoundEvent::class.java -> {
-                    ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation(buffer.readString(200)))
+                    ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation(buffer.readUtf(200)))
                 }
 
                 SoundCategory::class.java -> {
@@ -280,8 +280,8 @@ interface MoarBoatsPacket {
                 }
 
                 ItemStack::class.java -> {
-                    val nbt = buffer.readCompoundTag()
-                    ItemStack.read(nbt)
+                    val nbt = buffer.readNbt()
+                    ItemStack.of(nbt)
                 }
 
                 Item::class.java -> {
@@ -290,8 +290,8 @@ interface MoarBoatsPacket {
 
                 // Moar Boats special types
                 ItemGoldenTicket.WaypointData::class.java -> {
-                    val uuid = buffer.readString(100)
-                    val nbt = buffer.readCompoundTag()!!
+                    val uuid = buffer.readUtf(100)
+                    val nbt = buffer.readNbt()!!
                     ItemGoldenTicket.WaypointData(uuid).apply { read(nbt) }
                 }
 

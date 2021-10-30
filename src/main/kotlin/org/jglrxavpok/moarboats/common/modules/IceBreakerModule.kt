@@ -39,7 +39,7 @@ object IceBreakerModule: BoatModule() {
         val blockPos = BlockPos.Mutable()
         for(box in collidedBB) {
             val center = box.boundingBox.getCenterForAllSides()
-            blockPos.setPos(center.x, center.y, center.z)
+            blockPos.set(center.x, center.y, center.z)
             val blockAtCenter = level.getBlockState(blockPos)
             if(blockAtCenter.block is IceBlock) {
                 var progress = getBreakProgress(from, blockPos)
@@ -51,7 +51,7 @@ object IceBreakerModule: BoatModule() {
                     level.sendBlockBreakProgress(fakeEntityID, BlockPos(blockPos), (progress * 10f).toInt())
                 } else {
                     clearBreakProgress(from, blockPos)
-                    level.setBlockState(blockPos, Blocks.WATER.defaultState)
+                    level.setBlockState(blockPos, Blocks.WATER.defaultBlockState())
                 }
             }
         }
@@ -62,7 +62,7 @@ object IceBreakerModule: BoatModule() {
 
     private fun getBlockIndex(boat: IControllable, pos: BlockPos): Int {
         val state = boat.getState()
-        for((index, key) in state.keySet().withIndex()) {
+        for((index, key) in state.allKeys.withIndex()) {
             if ("Timestamp" in key) {
                 val positions = key.split("_").drop(1).map { it.drop(1).toInt() }
                 val x = positions[0]
@@ -78,16 +78,16 @@ object IceBreakerModule: BoatModule() {
     private fun clearNotUpdatedFor(boat: IControllable, ticks: Int) {
         val state = boat.getState()
         val pos = BlockPos.Mutable()
-        val keys = state.keySet().toList() // avoid ConcurrentModifException by copying the list
+        val keys = state.allKeys.toList() // avoid ConcurrentModifException by copying the list
         for(key in keys) {
             if("Timestamp" in key) {
-                val timeDiff = boat.correspondingEntity.ticksExisted - state.getInt(key)
+                val timeDiff = boat.correspondingEntity.tickCount - state.getInt(key)
                 if(timeDiff >= ticks) {
                     val positions = key.split("_").drop(1).map { it.drop(1).toInt() }
                     val x = positions[0]
                     val y = positions[1]
                     val z = positions[2]
-                    pos.setPos(x, y, z)
+                    pos.set(x, y, z)
                     boat.worldRef.sendBlockBreakProgress(boat.entityID, pos, -1)
                     clearBreakProgress(boat, pos)
                 }
@@ -104,7 +104,7 @@ object IceBreakerModule: BoatModule() {
     private fun setBreakProgress(boat: IControllable, pos: BlockPos, progress: Float) {
         val state = boat.getState()
         state.putFloat("breakProgress_X${pos.x}_Y${pos.y}_Z${pos.z}", progress)
-        state.putInt("breakTimestamp_X${pos.x}_Y${pos.y}_Z${pos.z}", boat.correspondingEntity.ticksExisted)
+        state.putInt("breakTimestamp_X${pos.x}_Y${pos.y}_Z${pos.z}", boat.correspondingEntity.tickCount)
     }
 
     private fun getBreakProgress(boat: IControllable, pos: BlockPos): Float {

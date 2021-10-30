@@ -30,12 +30,12 @@ object DivingModule: BoatModule() {
     override fun update(from: IControllable) {
         val world = from.worldRef
         val entities = world.getEntities<LivingEntity>(null) { entity ->
-            val correctDistance = entity?.getDistanceSq(from.correspondingEntity) ?: Double.POSITIVE_INFINITY <= maxDistSq
+            val correctDistance = entity?.distanceToSqr(from.correspondingEntity) ?: Double.POSITIVE_INFINITY <= maxDistSq
             val inWater = entity?.isInWater ?: false
             inWater && correctDistance
         }.map { it as LivingEntity }
         entities.forEach {
-            it.addPotionEffect(EffectInstance(Effects.WATER_BREATHING, 2, 1, true, true))
+            it.addEffect(EffectInstance(Effects.WATER_BREATHING, 2, 1, true, true))
         }
     }
 

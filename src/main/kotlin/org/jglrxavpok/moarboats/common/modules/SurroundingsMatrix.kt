@@ -21,7 +21,7 @@ class SurroundingsMatrix(val size: Int) {
                 val worldX = centerX + xOffset
                 val worldY = centerY
                 val worldZ = centerZ + zOffset
-                pos.setPos(worldX, worldY, worldZ)
+                pos.set(worldX, worldY, worldZ)
                 val blockState = world.getFluidState(pos)
                 internalMatrix[pos2index(xOffset, zOffset)] = blockState
             }

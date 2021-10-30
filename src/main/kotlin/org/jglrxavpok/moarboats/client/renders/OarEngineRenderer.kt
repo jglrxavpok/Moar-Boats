@@ -25,7 +25,7 @@ object OarEngineRenderer : BoatModuleRenderer() {
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRenderer: EntityRendererManager) {
         module as OarEngineModule
 
-        matrixStack.push()
+        matrixStack.pushPose()
         matrixStack.scale(-1f, 1f, 1f)
         matrixStack.translate(-0.25, 0.575, 0.0)
 
@@ -48,6 +48,6 @@ object OarEngineRenderer : BoatModuleRenderer() {
 
         paddles.render(matrixStack, buffers.getBuffer(renderType), packedLightIn, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f)
 
-        matrixStack.pop()
+        matrixStack.popPose()
     }
 }

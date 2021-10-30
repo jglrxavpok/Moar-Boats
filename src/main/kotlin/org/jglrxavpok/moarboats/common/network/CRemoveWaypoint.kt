@@ -21,8 +21,8 @@ class CRemoveWaypoint(): MoarBoatsPacket {
 
         override fun onMessage(message: CRemoveWaypoint, ctx: NetworkEvent.Context): MoarBoatsPacket? {
             val player = ctx.sender!!
-            val level = player.world
-            val boat = level.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
+            val level = player.level
+            val boat = level.getEntity(message.boatID) as? ModularBoatEntity ?: return null
 
             HelmModule.removeWaypoint(boat, message.waypointIndex)
             return null

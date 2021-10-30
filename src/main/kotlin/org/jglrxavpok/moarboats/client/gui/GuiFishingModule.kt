@@ -20,7 +20,7 @@ class GuiFishingModule(containerID: Int, playerInventory: PlayerInventory, fishi
     override fun drawModuleForeground(mouseX: Int, mouseY: Int) {
         super.drawModuleForeground(mouseX, mouseY)
         if(!fishingModule.readyProperty[boat]) {
-            textRenderer.drawCenteredString(matrixStack, missingStorage, width/2, 20, 0xFF4040)
+            font.drawCenteredString(matrixStack, missingStorage, width/2, 20, 0xFF4040)
         }
     }
 }

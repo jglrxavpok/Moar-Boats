@@ -104,23 +104,23 @@ object MoarBoats {
         }
     }
 
-    val MachineMaterial = Material(MaterialColor.IRON, false, true, true, true, true, false, PushReaction.BLOCK)
+    val MachineMaterial = Material(MaterialColor.METAL, false, true, true, true, true, false, PushReaction.BLOCK)
 
     val MainCreativeTab = object: ItemGroup("moarboats") {
 
         @OnlyIn(Dist.CLIENT)
-        override fun createIcon(): ItemStack {
+        override fun makeIcon(): ItemStack {
             return ItemStack(ModularBoatItem[DyeColor.WHITE])
         }
 
-        override fun fill(items: NonNullList<ItemStack>) {
+        override fun fillItemList(items: NonNullList<ItemStack>) {
             for (block in Blocks.list) {
                 if(block.asItem() !is AirItem) {
-                    block.fillItemGroup(this, items)
+                    block.fillItemCategory(this, items)
                 }
             }
             for (item in Items.list) {
-                item.fillItemGroup(this, items)
+                item.fillItemCategory(this, items)
             }
         }
     }
@@ -128,13 +128,13 @@ object MoarBoats {
     val UtilityBoatTab = object: ItemGroup("moarboats_utility") {
 
         @OnlyIn(Dist.CLIENT)
-        override fun createIcon(): ItemStack {
+        override fun makeIcon(): ItemStack {
             return ItemStack(ChestBoatItem[BoatType.OAK])
         }
 
-        override fun fill(items: NonNullList<ItemStack>) {
+        override fun fillItemList(items: NonNullList<ItemStack>) {
             for (item in Items.list) {
-                item.fillItemGroup(this, items)
+                item.fillItemCategory(this, items)
             }
         }
     }
@@ -176,7 +176,7 @@ object MoarBoats {
                     {
                         DistExecutor.SafeSupplier { ->
                             when {
-                                Minecraft.getInstance().integratedServer != null /* LAN */ -> Minecraft.getInstance().integratedServer!!.getWorld(dimensionType)?.savedData
+                                Minecraft.getInstance().singleplayerServer != null /* LAN */ -> Minecraft.getInstance().singleplayerServer!!.getLevel(dimensionType)?.dataStorage
                                         ?: error("Tried to get save data of an nonexistent dimension type? $dimensionType")
                                 else -> DummyDimensionSavedDataManager
                             }
@@ -186,7 +186,7 @@ object MoarBoats {
                     // server
                     {
                         DistExecutor.SafeSupplier<DimensionSavedDataManager> { ->
-                            dedicatedServerInstance!!.getWorld(dimensionType)?.savedData ?: error("Tried to get save data of an nonexistent dimension type? $dimensionType")
+                            dedicatedServerInstance!!.getLevel(dimensionType)?.dataStorage ?: error("Tried to get save data of an nonexistent dimension type? $dimensionType")
                         }
                     }
             )
@@ -270,7 +270,7 @@ object MoarBoats {
             e.registry.registerAll(*Items.list.toTypedArray())
             for(block in Blocks.list) {
                 if(!e.registry.containsKey(block.registryName)) { // don't overwrite already existing items
-                    e.registry.register(BlockItem(block, Item.Properties().group(MoarBoats.MainCreativeTab)).setRegistryName(block.registryName))
+                    e.registry.register(BlockItem(block, Item.Properties().tab(MoarBoats.MainCreativeTab)).setRegistryName(block.registryName))
                 }
             }
         }
@@ -285,7 +285,7 @@ object MoarBoats {
         }
 
         private inline fun <reified TE: TileEntity> RegistryEvent.Register<TileEntityType<*>>.registerTE(evt: RegistryEvent.Register<TileEntityType<*>>, noinline constructor: () -> TE, block: Block): TileEntityType<TE> {
-            val type = TileEntityType.Builder.create(Supplier<TE> { constructor() }, block).build(null).setRegistryName(block.registryName)
+            val type = TileEntityType.Builder.of(Supplier<TE> { constructor() }, block).build(null).setRegistryName(block.registryName)
             evt.registry.register(type)
             return type as TileEntityType<TE>
         }
@@ -315,7 +315,7 @@ object MoarBoats {
             ContainerTypes.MappingTable = IForgeContainerType.create { windowId, inv, data ->
                 val player = inv.player
                 val pos = data.readBlockPos()
-                val te = player.world.getTileEntity(pos)
+                val te = player.level.getBlockEntity(pos)
                 te?.let {
                     return@create ContainerMappingTable(windowId, it as TileEntityMappingTable, inv)
                 }
@@ -325,7 +325,7 @@ object MoarBoats {
             ContainerTypes.FluidLoader = IForgeContainerType.create { windowId, inv, data ->
                 val player = inv.player
                 val pos = data.readBlockPos()
-                val te = player.world.getTileEntity(pos) as? TileEntityListenable
+                val te = player.level.getBlockEntity(pos) as? TileEntityListenable
                 te?.let {
                     return@create FluidContainer(ContainerTypes.FluidLoader, windowId, te, te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY).orElseThrow(::NullPointerException), player)
                 }
@@ -335,7 +335,7 @@ object MoarBoats {
             ContainerTypes.FluidUnloader = IForgeContainerType.create { windowId, inv, data ->
                 val player = inv.player
                 val pos = data.readBlockPos()
-                val te = player.world.getTileEntity(pos) as? TileEntityListenable
+                val te = player.level.getBlockEntity(pos) as? TileEntityListenable
                 te?.let {
                     return@create FluidContainer(ContainerTypes.FluidUnloader, windowId, te, te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY).orElseThrow(::NullPointerException), player)
                 }
@@ -345,7 +345,7 @@ object MoarBoats {
             ContainerTypes.EnergyCharger = IForgeContainerType.create { windowId, inv, data ->
                 val player = inv.player
                 val pos = data.readBlockPos()
-                val te = player.world.getTileEntity(pos) as? TileEntityEnergy
+                val te = player.level.getBlockEntity(pos) as? TileEntityEnergy
                 te?.let {
                     return@create EnergyContainer(ContainerTypes.EnergyCharger, windowId, te, player)
                 }
@@ -355,7 +355,7 @@ object MoarBoats {
             ContainerTypes.EnergyDischarger = IForgeContainerType.create { windowId, inv, data ->
                 val player = inv.player
                 val pos = data.readBlockPos()
-                val te = player.world.getTileEntity(pos) as? TileEntityEnergy
+                val te = player.level.getBlockEntity(pos) as? TileEntityEnergy
                 te?.let {
                     return@create EnergyContainer(ContainerTypes.EnergyDischarger, windowId, te, player)
                 }
@@ -394,7 +394,7 @@ object MoarBoats {
             val type = IForgeContainerType.create { windowId, inv, data ->
                 val player = inv.player
                 val entityID = data.readInt()
-                val te = player.world.getEntityByID(entityID) as? B
+                val te = player.level.getEntity(entityID) as? B
                 te?.let {
                     return@create te.createMenu(windowId, player.inventory, player)
                 }

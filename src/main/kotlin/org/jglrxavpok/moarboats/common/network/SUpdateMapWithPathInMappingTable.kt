@@ -28,10 +28,10 @@ class SUpdateMapWithPathInMappingTable: SxxUpdateMapWithPath {
         override fun updatePath(message: SUpdateMapWithPathInMappingTable, ctx: NetworkEvent.Context, list: ListNBT) {
             with(message) {
                 val pos = BlockPos.Mutable(tileEntityX, tileEntityY, tileEntityZ)
-                val te = Minecraft.getInstance().world!!.getTileEntity(pos)
+                val te = Minecraft.getInstance().level!!.getBlockEntity(pos)
                 when(te) {
                     is TileEntityMappingTable -> {
-                        val stack = te.inventory.getStackInSlot(0)
+                        val stack = te.inventory.getItem(0)
                         if(stack.tag == null) {
                             stack.tag = CompoundNBT()
                         }

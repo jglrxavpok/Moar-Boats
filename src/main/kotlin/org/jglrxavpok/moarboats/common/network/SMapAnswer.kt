@@ -31,9 +31,9 @@ class SMapAnswer(): MoarBoatsPacket {
         override fun onMessage(message: SMapAnswer, ctx: NetworkEvent.Context): MoarBoatsPacket? {
             val mapID = message.mapName
             val data = MapData(mapID)
-            data.read(message.mapData)
-            val level = Minecraft.getInstance().world
-            val boat = level!!.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
+            data.load(message.mapData)
+            val level = Minecraft.getInstance().level
+            val boat = level!!.getEntity(message.boatID) as? ModularBoatEntity ?: return null
             val moduleLocation = message.moduleLocation
             val module = BoatModuleRegistry[moduleLocation].module
             module as HelmModule

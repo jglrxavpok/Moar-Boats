@@ -28,21 +28,21 @@ class CSaveItineraryToMap(): MoarBoatsPacket {
 
         override fun onMessage(message: CSaveItineraryToMap, ctx: NetworkEvent.Context): MoarBoatsPacket? {
             val player = ctx.sender!!
-            if(player.openContainer !is ContainerHelmModule) {
+            if(player.containerMenu !is ContainerHelmModule) {
                 MoarBoats.logger.warn("Player $player tried to save an itinerary to a map while not in a helm container, they might be lagging or cheating")
                 return null
             }
-            val world = player.world
-            val boat = world.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
+            val world = player.level
+            val boat = world.getEntity(message.boatID) as? ModularBoatEntity ?: return null
             val moduleLocation = message.moduleID
             val module = BoatModuleRegistry[moduleLocation].module
             module as HelmModule
             val list = module.waypointsProperty[boat].copy()
             val inv = boat.getInventory(module)
-            if(inv.getStackInSlot(0).item.item == Items.FILLED_MAP) {
-                val id = FilledMapItem.getMapId(inv.getStackInSlot(0))
-                inv.setInventorySlotContents(0, MapItemWithPath.createStack(list, "map_$id", module.loopingProperty[boat]))
-                player.openContainer.detectAndSendChanges()
+            if(inv.getItem(0).item.item == Items.FILLED_MAP) {
+                val id = FilledMapItem.getMapId(inv.getItem(0))
+                inv.setItem(0, MapItemWithPath.createStack(list, "map_$id", module.loopingProperty[boat]))
+                player.containerMenu.broadcastChanges()
             }
             return null
         }

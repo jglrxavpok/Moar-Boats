@@ -16,10 +16,10 @@ import org.jglrxavpok.moarboats.api.IControllable
 abstract class BaseModuleInventory(slotCount: Int, inventoryName: String, boat: IControllable, module: BoatModule):
         BoatModuleInventory(inventoryName, slotCount, boat, module, NonNullList.withSize(slotCount, ItemStack.EMPTY)) {
 
-    override fun markDirty() {
+    override fun setChanged() {
     }
 
-    override fun getStackInSlot(index: Int): ItemStack {
+    override fun getItem(index: Int): ItemStack {
         return list[index]
     }
 
@@ -53,7 +53,7 @@ abstract class BaseModuleInventory(slotCount: Int, inventoryName: String, boat: 
 
     }
 
-    override fun setInventorySlotContents(index: Int, stack: ItemStack) {
+    override fun setItem(index: Int, stack: ItemStack) {
         list[index] = stack
     }
 

@@ -18,12 +18,12 @@ class GuiEnergy(type: ContainerType<EnergyContainer>, containerID: Int, val te: 
     private val defaultBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/default_background.png")
 
     override fun drawBackground(matrixStack: MatrixStack, partialTicks: Float, mouseX: Int, mouseY: Int) {
-        minecraft.textureManager.bindTexture(defaultBackground)
+        minecraft.textureManager.bind(defaultBackground)
         drawTexture(matrixStack, guiLeft, guiTop, 0, 0, xSize, ySize)
-        minecraft.textureManager.bindTexture(energyBackground)
+        minecraft.textureManager.bind(energyBackground)
         drawTexture(matrixStack, guiLeft, guiTop, 0, 0, xSize, ySize)
 
-        GlStateManager.disableCull()
+        GlStateManager._disableCull()
         val energyHeight = (75 * (te.energy/te.maxEnergyStored.toFloat())).toInt()
         drawTexture(matrixStack, guiLeft+60, guiTop+80, 201, 74, 55, -energyHeight)
     }

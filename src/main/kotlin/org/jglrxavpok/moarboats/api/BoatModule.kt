@@ -30,7 +30,7 @@ abstract class BoatModule {
         IForgeContainerType.create { windowId, inv, data ->
             val player = inv.player
             val boatID = data.readInt()
-            val boat = player.world.getEntityByID(boatID) as ModularBoatEntity
+            val boat = player.level.getEntity(boatID) as ModularBoatEntity
             boat?.let {
                 return@create createContainer(windowId, player as ClientPlayerEntity, it)
             } ?: return@create null
@@ -113,7 +113,7 @@ object BoatModuleRegistry {
     fun findModule(heldItem: ItemStack): ResourceLocation? {
         for((key, entry) in forgeRegistry.entries) {
             if(entry.correspondingItem == heldItem.item)
-                return key.value
+                return key.registryName
         }
         return null
     }

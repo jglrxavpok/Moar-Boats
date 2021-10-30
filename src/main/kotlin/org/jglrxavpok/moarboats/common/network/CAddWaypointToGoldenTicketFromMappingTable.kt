@@ -18,9 +18,9 @@ class CAddWaypointToGoldenTicketFromMappingTable: CxxAddWaypointToItemPath {
     var tileEntityZ: Int = 0
 
     constructor(pos: BlockPos, boost: Double?, insertionIndex: Int?, mappingTable: TileEntityMappingTable): super(pos, boost, insertionIndex) {
-        this.tileEntityX = mappingTable.pos.x
-        this.tileEntityY = mappingTable.pos.y
-        this.tileEntityZ = mappingTable.pos.z
+        this.tileEntityX = mappingTable.blockPos.x
+        this.tileEntityY = mappingTable.blockPos.y
+        this.tileEntityZ = mappingTable.blockPos.z
     }
 
     object Handler: CxxAddWaypointToItemPath.Handler<CAddWaypointToGoldenTicketFromMappingTable, SSetGoldenItinerary>() {
@@ -30,10 +30,10 @@ class CAddWaypointToGoldenTicketFromMappingTable: CxxAddWaypointToItemPath {
         override fun getStack(message: CAddWaypointToGoldenTicketFromMappingTable, ctx: NetworkEvent.Context): ItemStack? {
             with(message) {
                 val pos = BlockPos.Mutable(tileEntityX, tileEntityY, tileEntityZ)
-                val te = ctx.sender!!.world.getTileEntity(pos)
+                val te = ctx.sender!!.level.getBlockEntity(pos)
                 val stack = when(te) {
                     is TileEntityMappingTable -> {
-                        te.inventory.getStackInSlot(0)
+                        te.inventory.getItem(0)
                     }
                     else -> {
                         MoarBoats.logger.error("Invalid tile entity when trying to add waypoint at $pos")

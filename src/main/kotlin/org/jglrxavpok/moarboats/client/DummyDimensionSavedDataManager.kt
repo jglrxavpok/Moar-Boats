@@ -15,16 +15,16 @@ object DummyDimensionSavedDataManager: DimensionSavedDataManager(File(".moarboat
 
     override fun <T : WorldSavedData?> get(defaultSupplier: Supplier<T>, name: String): T? {
         if(name.startsWith("map_")) {
-            return Minecraft.getInstance().world?.getMapData(name) as? T
+            return Minecraft.getInstance().level?.getMapData(name) as? T
         }
         return savedData[name] as T
     }
 
     override fun set(data: WorldSavedData) {
-        savedData[data.name] = data
+        savedData[data.id] = data
     }
 
-    override fun load(name: String, worldVersion: Int): CompoundNBT {
+    override fun readTagFromDisk(name: String, worldVersion: Int): CompoundNBT {
         return CompoundNBT()
     }
 

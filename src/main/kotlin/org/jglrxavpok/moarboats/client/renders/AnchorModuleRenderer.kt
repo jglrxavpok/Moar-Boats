@@ -21,8 +21,8 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
     }
 
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererManager) {
-        matrixStack.push()
-        matrixStack.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(90f))
+        matrixStack.pushPose()
+        matrixStack.mulPose(Vector3f.POSITIVE_Y.getDegreesQuaternion(90f))
         val anchor = module as AnchorModule
 
         var anchorX = anchor.anchorXProperty[boat]
@@ -33,9 +33,9 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
             val dx = -(anchorX - boat.positionX)
             val dy = anchorY - boat.positionY
             val dz = -(anchorZ - boat.positionZ)
-            matrixStack.multiply(Quaternion(Vector3f.NEGATIVE_Y, 180f - entityYaw - 90f, true))
+            matrixStack.mulPose(Quaternion(Vector3f.NEGATIVE_Y, 180f - entityYaw - 90f, true))
             matrixStack.translate(dx, dy, dz)
-            matrixStack.multiply(Quaternion(Vector3f.POSITIVE_Y, 180f - entityYaw - 90f, true))
+            matrixStack.mulPose(Quaternion(Vector3f.POSITIVE_Y, 180f - entityYaw - 90f, true))
         } else {
             anchorX = boat.positionX
             anchorY = boat.positionY
@@ -50,10 +50,10 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
 
         matrixStack.translate(-0.5, -0.5, 0.5)
         val anchorScale = 0.75f
-        matrixStack.push()
+        matrixStack.pushPose()
         matrixStack.scale(anchorScale, anchorScale, anchorScale)
         renderBlockState(matrixStack, buffers, packedLightIn, entityRendererManager, Blocks.ANVIL.defaultState, boat.brightness)
-        matrixStack.pop()
+        matrixStack.popPose()
         matrixStack.translate(+0.5, +0.5, -0.5)
 
         val radangle = (90f-entityYaw).toRadians()
@@ -63,7 +63,7 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
         val localAnchorX = -MathHelper.sin(radangle) * dz + MathHelper.cos(radangle) * dx
         val localAnchorZ = MathHelper.cos(radangle) * dz + MathHelper.sin(radangle) * dx
         renderChain(matrixStack, buffers, localAnchorX, dy, localAnchorZ)
-        matrixStack.pop()
+        matrixStack.popPose()
     }
 
     private fun renderChain(matrixStack: MatrixStack, buffers: IRenderTypeBuffer, anchorX: Double, anchorY: Double, anchorZ: Double) {

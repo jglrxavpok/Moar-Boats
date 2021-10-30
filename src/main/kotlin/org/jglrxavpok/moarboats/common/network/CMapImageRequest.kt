@@ -26,7 +26,7 @@ class CMapImageRequest(): MoarBoatsPacket {
 
         override fun onMessage(message: CMapImageRequest, ctx: NetworkEvent.Context): MoarBoatsPacket? {
             val player = ctx.sender!!
-            val world = player.world
+            val world = player.level
             val mapData = world.getMapData(message.mapName) as? MapData ?: return null
             val size = (1 shl mapData.scale.toInt())*128
             val stripes = size/ StripeLength
@@ -41,8 +41,8 @@ class CMapImageRequest(): MoarBoatsPacket {
         }
 
         private fun takeScreenshotOfMapArea(stripeIndex: Int, mapData: MapData, world: World): IntArray {
-            val xCenter = mapData.xCenter
-            val zCenter = mapData.zCenter
+            val xCenter = mapData.x
+            val zCenter = mapData.z
             val size = (1 shl mapData.scale.toInt())*128
             val textureData = IntArray(size* StripeLength)
             val minX = xCenter-size/2
@@ -67,10 +67,10 @@ class CMapImageRequest(): MoarBoatsPacket {
                     val mapColor = if (j / 4 == 0) {
                         (i + i / 128 and 1) * 8 + 16 shl 24
                     } else {
-                        getMapColor(MaterialColor.COLORS[j / 4], j and 3)
+                        getMapColor(MaterialColor.MATERIAL_COLORS[j / 4], j and 3)
                     }
                     val chunk = try {
-                        world.chunkProvider.getChunk(chunkX, chunkZ, ChunkStatus.FULL, false)
+                        world.chunkSource.getChunk(chunkX, chunkZ, ChunkStatus.FULL, false)
                     } catch(e: Exception) {
                         e.printStackTrace()
                         null
@@ -84,11 +84,11 @@ class CMapImageRequest(): MoarBoatsPacket {
                         continue
 
                     for(y in world.height downTo 0) {
-                        blockPos.setPos(x, y, z)
+                        blockPos.set(x, y, z)
                         val blockState = chunk.getBlockState(blockPos)
-                        val color = blockState.getMaterialColor(world, blockPos)
-                        if(color != MaterialColor.AIR) {
-                            textureData[pixelZ*size+pixelX] = (color.colorValue) or 0xFF000000.toInt()
+                        val color = blockState.getMapColor(world, blockPos)
+                        if(color != MaterialColor.NONE) {
+                            textureData[pixelZ*size+pixelX] = (color.col) or 0xFF000000.toInt()
 
                             if(blockState.material.isLiquid) {
                                 var depth = 0
@@ -97,7 +97,7 @@ class CMapImageRequest(): MoarBoatsPacket {
                                     blockPos.y--
                                     val blockBelow = world.getBlockState(blockPos)
                                     if( !blockBelow.material.isLiquid) {
-                                        textureData[pixelZ*size+pixelX] = (reduceBrightness(color.colorValue, depth)) or 0xFF000000.toInt()
+                                        textureData[pixelZ*size+pixelX] = (reduceBrightness(color.col, depth)) or 0xFF000000.toInt()
                                         break
                                     }
                                 }
@@ -130,9 +130,9 @@ class CMapImageRequest(): MoarBoatsPacket {
                 i = 180
             }
 
-            val j = (mapColor.colorValue shr 16 and 255) * i / 255
-            val k = (mapColor.colorValue shr 8 and 255) * i / 255
-            val l = (mapColor.colorValue and 255) * i / 255
+            val j = (mapColor.col shr 16 and 255) * i / 255
+            val k = (mapColor.col shr 8 and 255) * i / 255
+            val l = (mapColor.col and 255) * i / 255
             return -16777216 or (j shl 16) or (k shl 8) or l
         }
 

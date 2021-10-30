@@ -31,7 +31,7 @@ class SPlaySound(): MoarBoatsPacket {
         override val receiverSide = Dist.CLIENT
 
         override fun onMessage(message: SPlaySound, ctx: NetworkEvent.Context): MoarBoatsPacket? {
-            Minecraft.getInstance().world!!.playSound(
+            Minecraft.getInstance().level!!.playLocalSound(
                     message.x,
                     message.y,
                     message.z,

@@ -25,45 +25,45 @@ object SonarModuleRenderer : BoatModuleRenderer() {
 
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererManager) {
         module as SonarModule
-        matrixStack.push()
+        matrixStack.pushPose()
         matrixStack.scale(0.75f, 0.75f, 0.75f)
 
         for(xOffset in arrayOf(-1.25f, 1.0f)) {
             for(zOffset in arrayOf(-0.625f-0.25f, 0.875f-0.25f)) {
-                matrixStack.push()
+                matrixStack.pushPose()
                 matrixStack.translate(xOffset.toDouble(), 4f/16.0, zOffset.toDouble())
                 matrixStack.scale(0.25f, 0.25f, 0.25f)
                 val block = Blocks.NOTE_BLOCK
                 renderBlockState(matrixStack, buffers, packedLightIn, entityRendererManager, block.defaultState, boat.brightness)
-                matrixStack.pop()
+                matrixStack.popPose()
             }
         }
 
         // render gradient
         if(Minecraft.getInstance().gameSettings.reducedDebugInfo) {
-            matrixStack.multiply(Quaternion(-(180.0f - entityYaw - 90f), 0.0f, 0f, true))
+            matrixStack.mulPose(Quaternion(-(180.0f - entityYaw - 90f), 0.0f, 0f, true))
             testMatrix.compute(boat.world, boat.positionX, boat.positionY, boat.positionZ).removeNotConnectedToCenter()
             val gradient = testMatrix.computeGradient()
             testMatrix.forEach { xOffset, zOffset, potentialState ->
                 if(potentialState != null) {
                     val gradientVal = gradient[testMatrix.pos2index(xOffset, zOffset)]
                     if(gradientVal.x.toInt() != 0 || gradientVal.y.toInt() != 0) {
-                        matrixStack.push()
+                        matrixStack.pushPose()
                         matrixStack.scale(0.25f, 0.25f, 0.25f)
                         matrixStack.translate(xOffset.toDouble(), 1.0, zOffset.toDouble())
 
                         val angle = atan2(gradientVal.y, gradientVal.x)
-                        matrixStack.multiply(Quaternion(0f, angle.toFloat(), 0f, false))
+                        matrixStack.mulPose(Quaternion(0f, angle.toFloat(), 0f, false))
                         matrixStack.scale(0.1f, 0.1f, gradientVal.length().toFloat() * 0.1f)
                         if(!potentialState.fluidState.isEmpty) {
                             renderBlockState(matrixStack, buffers, packedLightIn, entityRendererManager, Blocks.EMERALD_BLOCK.defaultState, boat.brightness)
                         }
-                        matrixStack.pop()
+                        matrixStack.popPose()
                     }
                 }
             }
         }
 
-        matrixStack.pop()
+        matrixStack.popPose()
     }
 }

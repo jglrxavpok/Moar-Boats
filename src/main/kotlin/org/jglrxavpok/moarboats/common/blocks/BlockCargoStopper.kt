@@ -82,7 +82,7 @@ object BlockCargoStopper: RedstoneDiodeBlock(Properties.create(Material.MISCELLA
             var f = 0.0f
 
             for (slotIndex in 0 until inv.slots) {
-                val itemstack = inv.getStackInSlot(slotIndex)
+                val itemstack = inv.getItem(slotIndex)
 
                 if (!itemstack.isEmpty) {
                     f += itemstack.count.toFloat() / Math.min(inv.getSlotLimit(slotIndex), itemstack.maxStackSize).toFloat()

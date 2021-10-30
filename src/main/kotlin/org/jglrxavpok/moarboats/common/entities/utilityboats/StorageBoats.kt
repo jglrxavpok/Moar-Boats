@@ -104,7 +104,7 @@ class ShulkerBoatEntity(world: World): UtilityBoatEntity<ShulkerBoxTileEntity, U
         val tileEntity = getBackingTileEntity()!!
         if(!killedByPlayerInCreative || !tileEntity.isEmpty) {
             val stack = ShulkerBoxBlock.getColoredItemStack(dyeColor)
-            val nbt = tileEntity.saveToNbt(CompoundNBT())
+            val nbt = tileEntity.saveToTag(CompoundNBT())
             if (!nbt.isEmpty) {
                 stack.setTagInfo("BlockEntityTag", nbt)
             }
@@ -119,7 +119,7 @@ class ShulkerBoatEntity(world: World): UtilityBoatEntity<ShulkerBoxTileEntity, U
     override fun readAdditional(compound: CompoundNBT) {
         super.readAdditional(compound)
         dyeColor = if("Color" in compound) {
-            DyeColor.byTranslationKey(compound.getString("Color"), null)
+            DyeColor.byName(compound.getString("Color"), null)
         } else {
             null
         }
@@ -128,7 +128,7 @@ class ShulkerBoatEntity(world: World): UtilityBoatEntity<ShulkerBoxTileEntity, U
     override fun writeAdditional(compound: CompoundNBT) {
         super.writeAdditional(compound)
         if(dyeColor != null) {
-            compound.putString("Color", dyeColor?.translationKey)
+            compound.putString("Color", dyeColor?.getName())
         }
     }
 }
@@ -156,7 +156,7 @@ class EnderChestBoatEntity(world: World): UtilityBoatEntity<TileEntity, ChestCon
     }
 
     override fun createMenu(windowID: Int, inv: PlayerInventory, player: PlayerEntity): ChestContainer? {
-        return ChestContainer.createGeneric9X3(windowID, inv, player.inventoryEnderChest)
+        return ChestContainer.threeRows(windowID, inv, player.enderChestInventory)
     }
 
     override fun getDisplayName(): ITextComponent {

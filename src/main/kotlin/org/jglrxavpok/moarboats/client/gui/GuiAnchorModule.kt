@@ -47,7 +47,7 @@ class GuiAnchorModule(containerID: Int, playerInventory: PlayerInventory, anchor
 
     override fun drawModuleForeground(mouseX: Int, mouseY: Int) {
         super.drawModuleForeground(mouseX, mouseY)
-        textRenderer.drawTrimmed(descText, 0+20, 0+50, width-40, 0xF0F0F0)
+        font.drawWordWrap(descText, 0+20, 0+50, width-40, 0xF0F0F0)
     }
 
 }

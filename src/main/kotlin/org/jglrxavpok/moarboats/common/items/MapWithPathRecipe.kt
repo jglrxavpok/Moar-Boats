@@ -40,8 +40,8 @@ object MapWithPathRecipe: ICraftingRecipe {
         var filledMap: ItemStack? = null
         var blackDyeCount = 0
         var paperCount = 0
-        for(i in 0 until inv.sizeInventory) {
-            val stack = inv.getStackInSlot(i)
+        for(i in 0 until inv.containerSize) {
+            val stack = inv.getItem(i)
             when {
                 stack.item == Items.FILLED_MAP -> {
                     filledMap = stack
@@ -63,7 +63,7 @@ object MapWithPathRecipe: ICraftingRecipe {
         if(filledMap == null || featherCount != 1 || paperCount != 1 || blackDyeCount != 1)
             return ItemStack.EMPTY
 
-        val mapID = "map_${filledMap.damage}"
+        val mapID = "map_${filledMap.damageValue}"
         return MapItemWithPath.createStack(ListNBT(), mapID, LoopingOptions.NoLoop)
     }
 
@@ -72,8 +72,8 @@ object MapWithPathRecipe: ICraftingRecipe {
         var filledMap: ItemStack? = null
         var blackDyeCount = 0
         var paperCount = 0
-        for(i in 0 until inv.sizeInventory) {
-            val stack = inv.getStackInSlot(i)
+        for(i in 0 until inv.containerSize) {
+            val stack = inv.getItem(i)
             when {
                 stack.item == Items.FILLED_MAP -> {
                     filledMap = stack

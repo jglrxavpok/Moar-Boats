@@ -43,15 +43,15 @@ class GuiIronChestModule(containerID: Int, playerInventory: PlayerInventory, mod
 
     override fun drawForeground(matrixStack: MatrixStack, mouseX: Int, mouseY: Int) {
         super.drawForeground(matrixStack, mouseX, mouseY)
-        textRenderer.draw(matrixStack, moduleTitle.formatted().string, 8.0f, 6.0f, 4210752)
-        textRenderer.draw(matrixStack, playerInventory.displayName.string, 8.0f, (ySize - 96 + 2).toFloat(), 4210752)
+        font.draw(matrixStack, moduleTitle.formatted().string, 8.0f, 6.0f, 4210752)
+        font.draw(matrixStack, playerInventory.displayName.string, 8.0f, (ySize - 96 + 2).toFloat(), 4210752)
     }
 
 
     override fun drawModuleBackground(mouseX: Int, mouseY: Int) {
-        GlStateManager.color4f(1.0f, 1.0f, 1.0f, 1.0f)
+        GlStateManager._color4f(1.0f, 1.0f, 1.0f, 1.0f)
 
-        mc.textureManager.bindTexture(chestType.guiTexture)
+        mc.textureManager.bind(chestType.guiTexture)
 
         val x = (width - xSize) / 2
         val y = (height - ySize) / 2

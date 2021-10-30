@@ -40,7 +40,7 @@ object SonarModule: BoatModule() {
             val cos = MathHelper.cos(yawRad).toDouble()
             val sin = MathHelper.sin(yawRad).toDouble()
             val r = Vector3d(cos, 0.0, sin)
-            val moment = r.crossProduct(force)
+            val moment = r.cross(force)
             val angularRotation = (moment.y) / speed
             val rotationMultiplier = angularRotation.toFloat().toDegrees() / 500f
             from.turnLeft(rotationMultiplier)

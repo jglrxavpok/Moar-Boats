@@ -17,7 +17,7 @@ class TileEntityEnergyUnloader: TileEntityEnergy(MoarBoats.TileEntityEnergyUnloa
     val blockFacing: Direction get()= world!!.getBlockState(pos).get(Facing)
 
     override fun tick() {
-        if(world!!.isRemote)
+        if(world!!.isClientSide)
             return
         working = false
         updateListeners()
@@ -43,7 +43,7 @@ class TileEntityEnergyUnloader: TileEntityEnergy(MoarBoats.TileEntityEnergyUnloa
             }
         }
         energy += energyActuallyReceived
-        markDirty()
+        setChanged()
     }
 
     override fun getRedstonePower(): Int {

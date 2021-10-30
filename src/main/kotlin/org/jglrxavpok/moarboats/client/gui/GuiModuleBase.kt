@@ -108,9 +108,9 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
     override fun drawForeground(matrixStack: MatrixStack, mouseX: Int, mouseY: Int) {
         val s = moduleTitle.formatted()
         if(shouldRenderInventoryName)
-            this.textRenderer.draw(matrixStack, s, (this.xSize / 2 - this.textRenderer.getStringWidth(s.formatted().string) / 2).toFloat(), 6f, 4210752)
+            this.font.draw(matrixStack, s, (this.xSize / 2 - this.font.width(s.formatted().string) / 2).toFloat(), 6f, 4210752)
         if(renderPlayerInventoryTitle)
-            this.textRenderer.draw(matrixStack, playerInv.displayName.string, 8f, this.ySize - 96 + 2f, 4210752)
+            this.font.draw(matrixStack, playerInv.displayName.string, 8f, this.ySize - 96 + 2f, 4210752)
         drawModuleForeground(mouseX, mouseY)
 
         if(mouseX in (guiLeft-24)..guiLeft && mouseY in (guiTop+3)..(guiTop+26)) {
@@ -127,9 +127,9 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
     open fun drawModuleBackground(mouseX: Int, mouseY: Int) {}
     open fun drawBackground() {
         if(isLarge)
-            mc.textureManager.bindTexture(BACKGROUND_TEXTURE_LARGE)
+            mc.textureManager.bind(BACKGROUND_TEXTURE_LARGE)
         else
-            mc.textureManager.bindTexture(BACKGROUND_TEXTURE)
+            mc.textureManager.bind(BACKGROUND_TEXTURE)
         val i = (this.width - this.xSize) / 2
         val j = (this.height - this.ySize) / 2
         drawTexture(matrixStack, i, j, 0, 0, this.xSize, this.ySize)
@@ -138,34 +138,34 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
     override fun drawBackground(matrixStack: MatrixStack, partialTicks: Float, mouseX: Int, mouseY: Int) {
         val i = (this.width - this.xSize) / 2
         val j = (this.height - this.ySize) / 2
-        GlStateManager.color4f(1.0f, 1.0f, 1.0f, 1.0f)
+        GlStateManager._color4f(1.0f, 1.0f, 1.0f, 1.0f)
         drawBackground()
 
         for(moduleTab in tabs) {
             moduleTab.renderContents()
         }
-        GlStateManager.color4f(1.0f, 1.0f, 1.0f, 1.0f)
+        GlStateManager._color4f(1.0f, 1.0f, 1.0f, 1.0f)
 
         val ownerUUID = boat.getOwnerIdOrNull()
         if(ownerUUID != null) {
-            mc.textureManager.bindTexture(BACKGROUND_TEXTURE)
+            mc.textureManager.bind(BACKGROUND_TEXTURE)
             drawTexture(matrixStack, i-21, j+3, 176, 57, 24, 26)
             val info: NetworkPlayerInfo? = Minecraft.getInstance().connection!!.getPlayerInfo(ownerUUID)
             if(info != null) {
-                mc.textureManager.bindTexture(info.locationSkin)
+                mc.textureManager.bind(info.locationSkin)
             } else {
                 val skinLocation = DefaultPlayerSkin.getDefaultSkin(ownerUUID)
-                mc.textureManager.bindTexture(skinLocation)
+                mc.textureManager.bind(skinLocation)
             }
-            matrixStack.push()
+            matrixStack.pushPose()
             matrixStack.translate(i-21+5.0, j.toFloat()+5f+3.0, 0.0)
             matrixStack.scale(2f, 2f, 2f)
             drawModalRectWithCustomSizedTexture(matrixStack, 0, 0, 8f, 8f, 8, 8, 64, 64)
-            matrixStack.pop()
+            matrixStack.popPose()
         }
 
-        GlStateManager.color4f(1.0f, 1.0f, 1.0f, 1.0f)
-        mc.textureManager.bindTexture(moduleBackground)
+        GlStateManager._color4f(1.0f, 1.0f, 1.0f, 1.0f)
+        mc.textureManager.bind(moduleBackground)
         drawTexture(matrixStack, i, j, 0, 0, this.xSize, ySize)
 
         drawModuleBackground(mouseX, mouseY)
@@ -180,7 +180,7 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
 
         fun renderContents() {
             val selected = tabModule == module
-            mc.textureManager.bindTexture(BACKGROUND_TEXTURE)
+            mc.textureManager.bind(BACKGROUND_TEXTURE)
             drawTexture(matrixStack, x, y, 176, if(selected) 3 else 30, 26, 26)
 
             if(selected) {
@@ -190,13 +190,13 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
             zOffset = 100
             itemRenderer.zLevel = 100.0f
             RenderHelper.enableGuiDepthLighting()
-            GlStateManager.color4f(1f, 1f, 1f, 1f)
+            GlStateManager._color4f(1f, 1f, 1f, 1f)
             val itemstack = ItemStack(BoatModuleRegistry[tabModule.id].correspondingItem)
             val itemX = width/2 - 10 + x + 1
             val itemY = height/2 - 8 + y
-            matrixStack.push()
+            matrixStack.pushPose()
             itemRenderer.renderItemIntoGUI(itemstack, itemX, itemY)
-            matrixStack.pop()
+            matrixStack.popPose()
             itemRenderer.zLevel = 0.0f
             zOffset = 0
         }

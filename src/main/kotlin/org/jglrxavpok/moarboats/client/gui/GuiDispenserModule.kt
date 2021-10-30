@@ -87,18 +87,18 @@ class GuiDispenserModule(containerID: Int, playerInv: PlayerInventory, module: B
     override fun drawModuleForeground(mouseX: Int, mouseY: Int) {
         val maxX = 78f
         val startY = 26f
-        val topWidth = textRenderer.getStringWidth(topRowText.formatted().string)
-        textRenderer.draw(matrixStack, topRowText, maxX - topWidth, startY, 0xF0F0F0)
+        val topWidth = font.width(topRowText.formatted().string)
+        font.draw(matrixStack, topRowText, maxX - topWidth, startY, 0xF0F0F0)
 
-        val middleWidth = textRenderer.getStringWidth(middleRowText.formatted().string)
-        textRenderer.draw(matrixStack, middleRowText, maxX - middleWidth, startY + 20, 0xF0F0F0)
+        val middleWidth = font.width(middleRowText.formatted().string)
+        font.draw(matrixStack, middleRowText, maxX - middleWidth, startY + 20, 0xF0F0F0)
 
-        val bottomWidth = textRenderer.getStringWidth(bottomRowText.formatted().string)
-        textRenderer.draw(matrixStack, bottomRowText, maxX - bottomWidth, startY + 40, 0xF0F0F0)
+        val bottomWidth = font.width(bottomRowText.formatted().string)
+        font.draw(matrixStack, bottomRowText, maxX - bottomWidth, startY + 40, 0xF0F0F0)
 
-        textRenderer.drawCenteredString(matrixStack, periodText, 88, 90, 0xF0F0F0)
+        font.drawCenteredString(matrixStack, periodText, 88, 90, 0xF0F0F0)
 
-        textRenderer.drawCenteredString(matrixStack, orientationText, 32, 25, 0xF0F0F0)
+        font.drawCenteredString(matrixStack, orientationText, 32, 25, 0xF0F0F0)
     }
 
 }

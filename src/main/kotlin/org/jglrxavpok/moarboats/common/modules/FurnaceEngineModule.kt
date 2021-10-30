@@ -44,7 +44,7 @@ object FurnaceEngineModule : BaseEngineModule() {
     override fun estimatedTotalTicks(boat: IControllable): Float {
         val inv = boat.getInventory()
         val diff = remainingTimeInTicks(boat)
-        val currentStack = inv.getStackInSlot(0)
+        val currentStack = inv.getItem(0)
         return diff + currentStack.count * getFuelTime(currentStack)
     }
 
@@ -70,18 +70,18 @@ object FurnaceEngineModule : BaseEngineModule() {
         if(fuelTime < fuelTotalTime) {
             fuelTimeProperty[boat]++
         } else {
-            var stack = inv.getStackInSlot(0)
+            var stack = inv.getItem(0)
             if(stack.isEmpty) {
                 tryToFindFuel(boat)
-                stack = inv.getStackInSlot(0)
+                stack = inv.getItem(0)
             }
             val fuelItem = stack.item
             val itemFuelTime = getFuelTime(stack)
             if (itemFuelTime > 0 && !isStationary(boat)) { // don't consume a new item if you are not moving
                 if(fuelItem == Items.LAVA_BUCKET)
-                    inv.setInventorySlotContents(0, ItemStack(Items.BUCKET))
+                    inv.setItem(0, ItemStack(Items.BUCKET))
                 else
-                    inv.decrStackSize(0, 1)
+                    inv.removeItem(0, 1)
                 fuelTimeProperty[boat] = 0
                 fuelTotalTimeProperty[boat] = itemFuelTime
             }
@@ -100,11 +100,11 @@ object FurnaceEngineModule : BaseEngineModule() {
         if(storageModule != null) {
             val inventory = boat.getInventory()
             val storageInventory = boat.getInventory(storageModule)
-            for(index in 0 until storageInventory.sizeInventory) {
-                val stack = storageInventory.getStackInSlot(index)
+            for(index in 0 until storageInventory.containerSize) {
+                val stack = storageInventory.getItem(index)
                 if(isItemFuel(stack)) {
-                    storageInventory.setInventorySlotContents(index, ItemStack.EMPTY)
-                    inventory.setInventorySlotContents(0, stack)
+                    storageInventory.setItem(index, ItemStack.EMPTY)
+                    inventory.setItem(0, stack)
                     break
                 }
             }
@@ -133,7 +133,7 @@ object FurnaceEngineModule : BaseEngineModule() {
         } else {
             val item = stack.item
             val ret = stack.burnTime
-            ForgeEventFactory.getItemBurnTime(stack, if (ret == -1) (AbstractFurnaceTileEntity.getBurnTimes()).getOrDefault(item, 0) as Int else ret)
+            ForgeEventFactory.getItemBurnTime(stack, if (ret == -1) (AbstractFurnaceTileEntity.getFuel()).getOrDefault(item, 0) as Int else ret)
         }
     }
 

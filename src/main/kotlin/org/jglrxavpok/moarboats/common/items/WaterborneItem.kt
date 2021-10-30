@@ -27,7 +27,7 @@ abstract class WaterborneItem(id: String) : MoarBoatsItem(id) {
      * Called when the equipped item is right clicked.
      */
     override fun onItemRightClick(levelIn: World, playerIn: PlayerEntity, handIn: Hand): ActionResult<ItemStack> {
-        val itemstack = playerIn.getHeldItem(handIn)
+        val itemstack = playerIn.getItemInHand(handIn)
         val rawResult = rayTrace(levelIn, playerIn, RayTraceContext.FluidMode.ANY)
 
         if (rawResult == null) {
@@ -35,7 +35,7 @@ abstract class WaterborneItem(id: String) : MoarBoatsItem(id) {
         } else {
             if (rawResult.type == RayTraceResult.Type.BLOCK) {
                 val raytraceresult = rawResult as BlockRayTraceResult
-                val blockpos = raytraceresult.pos
+                val blockpos = raytraceresult.blockPos
 
                 if (!levelIn.isBlockModifiable(playerIn, blockpos) || !playerIn.canPlayerEdit(blockpos.offset(raytraceresult.face), raytraceresult.face, itemstack)) {
                     return ActionResult(ActionResultType.FAIL, itemstack)
@@ -43,10 +43,10 @@ abstract class WaterborneItem(id: String) : MoarBoatsItem(id) {
 
                 val blockpos1 = blockpos.up()
 
-                if (correspondingBlock.isValidPosition(correspondingBlock.defaultState, levelIn, blockpos1) && levelIn.isAirBlock(blockpos1)) {
+                if (correspondingBlock.isValidPosition(correspondingBlock.defaultBlockState(), levelIn, blockpos1) && levelIn.isAirBlock(blockpos1)) {
                     // special case for handling block placement with water lilies
                     val blocksnapshot = net.minecraftforge.common.util.BlockSnapshot.create(levelIn.registryKey, levelIn, blockpos1)
-                    levelIn.setBlockState(blockpos1, correspondingBlock.defaultState)
+                    levelIn.setBlockState(blockpos1, correspondingBlock.defaultBlockState())
                     if (net.minecraftforge.event.ForgeEventFactory.onBlockPlace(playerIn, blocksnapshot, net.minecraft.util.Direction.UP)) {
                         blocksnapshot.restore(true, false)
                         return ActionResult(ActionResultType.FAIL, itemstack)

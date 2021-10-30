@@ -23,8 +23,8 @@ class CDeployAnchor(): MoarBoatsPacket {
 
         override fun onMessage(message: CDeployAnchor, ctx: NetworkEvent.Context): MoarBoatsPacket? {
             val player = ctx.sender!!
-            val level = player.world
-            val boat = level.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
+            val level = player.level
+            val boat = level.getEntity(message.boatID) as? ModularBoatEntity ?: return null
             val moduleLocation = message.moduleLocation
             val module = BoatModuleRegistry[moduleLocation].module
             module as AnchorModule

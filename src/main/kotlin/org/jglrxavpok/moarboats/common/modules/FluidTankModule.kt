@@ -27,7 +27,7 @@ object FluidTankModule: BoatModule(), IFluidBoatModule {
     override val fluidAmountProperty = IntBoatProperty("fluid_amount")
 
     override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean): Boolean {
-        val heldItem = player.getHeldItem(hand)
+        val heldItem = player.getItemInHand(hand)
         val lazyCapa = heldItem.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null)
         if(lazyCapa.isPresent) {
             return lazyCapa.map { capability ->
@@ -36,7 +36,7 @@ object FluidTankModule: BoatModule(), IFluidBoatModule {
                     val accepted = this.fill(from, potentialDrain, IFluidHandler.FluidAction.SIMULATE)
                     if(accepted > 0) {
                         val drained = capability.drain(1000, IFluidHandler.FluidAction.EXECUTE)!!
-                        player.setHeldItem(hand, capability.container)
+                        player.setItemInHand(hand, capability.container)
                         this.fill(from, drained, IFluidHandler.FluidAction.EXECUTE)
                     }
                     true

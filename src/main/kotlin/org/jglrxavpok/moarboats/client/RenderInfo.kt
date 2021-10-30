@@ -9,19 +9,19 @@ data class RenderInfo(val matrixStack: MatrixStack, val buffers: IRenderTypeBuff
 
 fun IVertexBuilder.addVertex(matrixStack: MatrixStack, x: Float, y: Float, z: Float, redModifier: Float, greenModifier: Float, blueModifier: Float, alphaModifier: Float, u: Float, v: Float, overlayUV: Int, combinedLight: Int, normalX: Float, normalY: Float, normalZ: Float) {
     this
-            .vertex(matrixStack.peek().model, x, y, z)
+            .vertex(matrixStack.last().pose(), x, y, z)
             .color(redModifier, greenModifier, blueModifier, alphaModifier)
-            .texture(u, v)
-            .overlay(overlayUV)
+            .uv(u, v)
+            .overlayCoords(overlayUV)
             .light(combinedLight)
-            .normal(matrixStack.peek().normal, normalX, normalY, normalZ)
+            .normal(matrixStack.last().normal(), normalX, normalY, normalZ)
             .endVertex()
 }
 
 fun IVertexBuilder.normal(matrixStack: MatrixStack, x: Float, y: Float, z: Float): IVertexBuilder {
-    return normal(matrixStack.peek().normal, x, y, z)
+    return normal(matrixStack.last().normal(), x, y, z)
 }
 
 fun IVertexBuilder.pos(matrixStack: MatrixStack, x: Double, y: Double, z: Double): IVertexBuilder {
-    return vertex(matrixStack.peek().model, x.toFloat(), y.toFloat(), z.toFloat())
+    return vertex(matrixStack.last().pose(), x.toFloat(), y.toFloat(), z.toFloat())
 }

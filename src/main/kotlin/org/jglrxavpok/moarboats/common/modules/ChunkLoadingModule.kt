@@ -38,12 +38,12 @@ object ChunkLoadingModule: BoatModule() {
         if(!MoarBoatsConfig.chunkLoader.allowed.get())
             return
 
-        if(!from.world!!.isRemote) {
+        if(!from.world!!.isClientSide) {
             forceChunks(from)
             return
         }
 
-        if(!from.world!!.isRemote)
+        if(!from.world!!.isClientSide)
             return
         val yaw = (from.yaw+90f).toRadians().toDouble()//Math.toRadians(from.yaw.toDouble())
         val width = .0625f * 15f
@@ -61,7 +61,7 @@ object ChunkLoadingModule: BoatModule() {
     }
 
     private fun forceChunks(boat: IControllable) {
-        val centerPos = ChunkPos(boat.correspondingEntity.chunkCoordX, boat.correspondingEntity.chunkCoordZ)
+        val centerPos = ChunkPos(boat.correspondingEntity.xChunk, boat.correspondingEntity.zChunk)
         for(i in -2..2) {
             for(j in -2..2) {
                 boat.forceChunkLoad(centerPos.x+i, centerPos.z+j)
@@ -73,7 +73,7 @@ object ChunkLoadingModule: BoatModule() {
         super.onInit(to, fromItem)
         if(!MoarBoatsConfig.chunkLoader.allowed.get())
             return
-        if(!to.world!!.isRemote) {
+        if(!to.world!!.isClientSide) {
             forceChunks(to)
         }
     }

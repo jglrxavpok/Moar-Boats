@@ -22,7 +22,7 @@ import org.jglrxavpok.moarboats.common.network.SSetGoldenItinerary
 import java.util.*
 import java.util.concurrent.Callable
 
-abstract class ItemPath(id: String, putInItemGroup: Boolean = true): MoarBoatsItem(id, { this.maxStackSize(1) }, putInItemGroup) {
+abstract class ItemPath(id: String, putInItemGroup: Boolean = true): MoarBoatsItem(id, { this.stacksTo(1) }, putInItemGroup) {
 
     abstract fun getWaypointData(stack: ItemStack, mapStorage: DimensionSavedDataManager): ListNBT
 
@@ -89,14 +89,14 @@ object ItemGoldenTicket: ItemPath("golden_ticket") {
             return true
         }
 
-        override fun write(compound: CompoundNBT): CompoundNBT {
+        override fun save(compound: CompoundNBT): CompoundNBT {
             compound.put("${MoarBoats.ModID}.path", backingList)
             compound.putInt("${MoarBoats.ModID}.loopingOption", loopingOption.ordinal)
             compound.putString("${MoarBoats.ModID}.mapID", mapID)
             return compound
         }
 
-        override fun read(nbt: CompoundNBT) {
+        override fun load(nbt: CompoundNBT) {
             backingList = nbt.getList("${MoarBoats.ModID}.path", Constants.NBT.TAG_COMPOUND)
             if(nbt.getBoolean("${MoarBoats.ModID}.loops")) { // retro-compatibility
                 loopingOption = LoopingOptions.Loops
@@ -132,11 +132,11 @@ object ItemGoldenTicket: ItemPath("golden_ticket") {
     }
 
     fun initStack(stack: ItemStack, uuid: UUID) {
-        stack.getOrCreateChildTag("${MoarBoats.ModID}.path").putUniqueId("path_uuid", uuid)
+        stack.getOrCreateTagElement("${MoarBoats.ModID}.path").putUniqueId("path_uuid", uuid)
     }
 
     fun getUUID(stack: ItemStack): UUID? {
-        return stack.getChildTag("${MoarBoats.ModID}.path")?.getUniqueId("path_uuid")
+        return stack.getTagElement("${MoarBoats.ModID}.path")?.getUniqueId("path_uuid")
     }
 
     override fun getDisplayName(stack: ItemStack): ITextComponent {
@@ -148,11 +148,11 @@ object ItemGoldenTicket: ItemPath("golden_ticket") {
 
     fun createStack(uuid: String): ItemStack {
         val result = ItemStack(this)
-        result.getOrCreateChildTag("${MoarBoats.ModID}.path").putUniqueId("path_uuid", UUID.fromString(uuid))
+        result.getOrCreateTagElement("${MoarBoats.ModID}.path").putUUID("path_uuid", UUID.fromString(uuid))
         return result
     }
 
-    fun isEmpty(stack: ItemStack) = !stack.hasTag() || stack.getChildTag("${MoarBoats.ModID}.path") == null
+    fun isEmpty(stack: ItemStack) = !stack.hasTag() || stack.getTagElement("${MoarBoats.ModID}.path") == null
 
     fun updateItinerary(stack: ItemStack, map: MapItemWithPath, mapStack: ItemStack) {
         val mapStorage: DimensionSavedDataManager = MoarBoats.getLocalMapStorage()

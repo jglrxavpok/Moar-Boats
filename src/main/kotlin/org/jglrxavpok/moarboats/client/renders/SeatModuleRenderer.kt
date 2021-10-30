@@ -24,12 +24,12 @@ object SeatModuleRenderer : BoatModuleRenderer() {
     private val BOAT_TEXTURES = arrayOf(ResourceLocation("textures/block/oak_planks.png"), ResourceLocation("textures/block/spruce_planks.png"), ResourceLocation("textures/block/birch_planks.png"), ResourceLocation("textures/block/jungle_planks.png"), ResourceLocation("textures/block/acacia_planks.png"), ResourceLocation("textures/block/dark_oak_planks.png"))
 
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRenderer: EntityRendererManager) {
-        matrixStack.push()
-        matrixStack.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(90f))
+        matrixStack.pushPose()
+        matrixStack.mulPose(Vector3f.POSITIVE_Y.getDegreesQuaternion(90f))
         matrixStack.scale(1f, -1f, 1f)
         matrixStack.translate(0.0, 2f/16.0, 7.0/16.0)
         val renderType = RenderType.getEntityTranslucent(BOAT_TEXTURES[boat.entityID % BOAT_TEXTURES.size])
         model.render(matrixStack, buffers.getBuffer(renderType), packedLightIn, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f)
-        matrixStack.pop()
+        matrixStack.popPose()
     }
 }

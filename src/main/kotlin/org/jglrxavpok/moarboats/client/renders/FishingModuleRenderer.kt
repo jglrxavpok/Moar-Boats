@@ -44,23 +44,23 @@ object FishingModuleRenderer : BoatModuleRenderer() {
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererManager) {
         module as FishingModule
         val mc = Minecraft.getInstance()
-        matrixStack.push()
+        matrixStack.pushPose()
         matrixStack.scale(0.75f, 0.75f, 0.75f)
         matrixStack.scale(-1.5f, 1.5f, 1.5f)
         matrixStack.translate(-0.75, 8f/16.0, 0.58)
 
         val inventory = boat.getInventory(module)
-        val rodStack = inventory.getStackInSlot(0)
+        val rodStack = inventory.getItem(0)
 
         val hasRod = rodStack.item is FishingRodItem
         val ready = module.readyProperty[boat]
         val playingAnimation = module.playingAnimationProperty[boat]
 
         if(ready && hasRod && boat.inLiquid() && !boat.isEntityInLava()) {
-            matrixStack.push()
+            matrixStack.pushPose()
             matrixStack.scale(-1f, 1f, 1f)
             mc.itemRenderer.renderItem(rodStack, ItemCameraTransforms.TransformType.FIXED, false, matrixStack, buffers, packedLightIn, OverlayTexture.DEFAULT_UV, rodModel)
-            matrixStack.pop()
+            matrixStack.popPose()
 
             if(!playingAnimation)
                 renderHook(matrixStack, buffers, packedLightIn, entityYaw, entityRendererManager)
@@ -68,7 +68,7 @@ object FishingModuleRenderer : BoatModuleRenderer() {
             val stackToRender = if(hasRod) rodStack else StickStack
             mc.itemRenderer.renderItem(stackToRender, ItemCameraTransforms.TransformType.FIXED, packedLightIn, OverlayTexture.DEFAULT_UV, matrixStack, buffers)
         }
-        matrixStack.pop()
+        matrixStack.popPose()
 
         // draw fish flying out of water
         if(playingAnimation) {
@@ -84,21 +84,21 @@ object FishingModuleRenderer : BoatModuleRenderer() {
             val fishZ = hookZ * t
             val alpha = (t * (t-1.0))*4.0
             val fishY = hookY * alpha + 0.5f * (1f-alpha)
-            matrixStack.push()
+            matrixStack.pushPose()
             matrixStack.translate(fishX, fishY, fishZ)
             val fishScale = 0.25f
             matrixStack.scale(fishScale, fishScale, fishScale)
             val lootList = module.lastLootProperty[boat]
-            matrixStack.multiply(Quaternion(0f, boat.ticksExisted.toFloat()*4f, 0f, true))
+            matrixStack.mulPose(Quaternion(0f, boat.tickCount.toFloat()*4f, 0f, true))
             for(lootInfo in lootList) {
                 lootInfo as CompoundNBT
                 val item = RegistryManager.ACTIVE.getRegistry<Item>(Registry.ITEM_KEY.registryName).getValue(ResourceLocation(lootInfo.getString("name")))
                 val stack = ItemStack(item!!, 1)
                 stack.damage = lootInfo.getInt("damage")
                 mc.itemRenderer.renderItem(stack, ItemCameraTransforms.TransformType.FIXED, packedLightIn, 0, matrixStack, buffers)
-                matrixStack.multiply(Quaternion(0f, 360f / lootList.size, 0f, true))
+                matrixStack.mulPose(Quaternion(0f, 360f / lootList.size, 0f, true))
             }
-            matrixStack.pop()
+            matrixStack.popPose()
         }
     }
 
@@ -115,20 +115,20 @@ object FishingModuleRenderer : BoatModuleRenderer() {
 
         val bufferbuilder = buffers.getBuffer(bobberRenderType)
 
-        matrixStack.push()
+        matrixStack.pushPose()
         matrixStack.translate(x, y, z)
         matrixStack.scale(0.5f, 0.5f, 0.5f)
-        matrixStack.multiply(Vector3f.NEGATIVE_Y.getDegreesQuaternion(entityYaw + 90f))
-        matrixStack.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(entityRendererManager.info.yaw))
-        matrixStack.multiply(Vector3f.POSITIVE_X.getDegreesQuaternion(-entityRendererManager.info.pitch))
-        matrixStack.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(180.0f))
+        matrixStack.mulPose(Vector3f.NEGATIVE_Y.getDegreesQuaternion(entityYaw + 90f))
+        matrixStack.mulPose(Vector3f.POSITIVE_Y.getDegreesQuaternion(entityRendererManager.info.yaw))
+        matrixStack.mulPose(Vector3f.POSITIVE_X.getDegreesQuaternion(-entityRendererManager.info.pitch))
+        matrixStack.mulPose(Vector3f.POSITIVE_Y.getDegreesQuaternion(180.0f))
 
-        bufferbuilder.pos(matrixStack, -0.5, -0.5, 0.0).color(1f, 1f, 1f, 1f).texture(0f, 1f).overlay(OverlayTexture.DEFAULT_UV).light(packedLightIn).normal(matrixStack.peek().normal, 0.0f, 1.0f, 0.0f).endVertex()
-        bufferbuilder.pos(matrixStack, 0.5, -0.5, 0.0).color(1f, 1f, 1f, 1f).texture(1f, 1f).overlay(OverlayTexture.DEFAULT_UV).light(packedLightIn).normal(matrixStack.peek().normal, 0.0f, 1.0f, 0.0f).endVertex()
-        bufferbuilder.pos(matrixStack, 0.5, 0.5, 0.0).color(1f, 1f, 1f, 1f).texture(1f, 0f).overlay(OverlayTexture.DEFAULT_UV).light(packedLightIn).normal(matrixStack.peek().normal, 0.0f, 1.0f, 0.0f).endVertex()
-        bufferbuilder.pos(matrixStack, -0.5, 0.5, 0.0).color(1f, 1f, 1f, 1f).texture(0f, 0f).overlay(OverlayTexture.DEFAULT_UV).light(packedLightIn).normal(matrixStack.peek().normal, 0.0f, 1.0f, 0.0f).endVertex()
+        bufferbuilder.pos(matrixStack, -0.5, -0.5, 0.0).color(1f, 1f, 1f, 1f).texture(0f, 1f).overlay(OverlayTexture.DEFAULT_UV).light(packedLightIn).normal(matrixStack.last().normal(), 0.0f, 1.0f, 0.0f).endVertex()
+        bufferbuilder.pos(matrixStack, 0.5, -0.5, 0.0).color(1f, 1f, 1f, 1f).texture(1f, 1f).overlay(OverlayTexture.DEFAULT_UV).light(packedLightIn).normal(matrixStack.last().normal(), 0.0f, 1.0f, 0.0f).endVertex()
+        bufferbuilder.pos(matrixStack, 0.5, 0.5, 0.0).color(1f, 1f, 1f, 1f).texture(1f, 0f).overlay(OverlayTexture.DEFAULT_UV).light(packedLightIn).normal(matrixStack.last().normal(), 0.0f, 1.0f, 0.0f).endVertex()
+        bufferbuilder.pos(matrixStack, -0.5, 0.5, 0.0).color(1f, 1f, 1f, 1f).texture(0f, 0f).overlay(OverlayTexture.DEFAULT_UV).light(packedLightIn).normal(matrixStack.last().normal(), 0.0f, 1.0f, 0.0f).endVertex()
 
-        matrixStack.pop()
+        matrixStack.popPose()
 
         val dx = 0.0
         val dy = -y -yOffset*2f

@@ -37,7 +37,7 @@ object BlockMappingTable: MoarBoatsBlock({ sound(SoundType.STONE).hardnessAndRes
      */
     //BlockState state, level levelIn, BlockPos pos, BlockState newState, boolean isMoving)
     override fun onReplaced(state: BlockState, levelIn: World, pos: BlockPos, newState: BlockState, isMoving: Boolean) {
-        val tileentity = levelIn.getTileEntity(pos)
+        val tileentity = levelIn.getBlockEntity(pos)
 
         if (tileentity is TileEntityMappingTable) {
             InventoryHelper.dropInventoryItems(levelIn, pos, tileentity.inventory)
@@ -52,13 +52,13 @@ object BlockMappingTable: MoarBoatsBlock({ sound(SoundType.STONE).hardnessAndRes
     }
 
     override fun getComparatorInputOverride(blockState: BlockState, levelIn: World, pos: BlockPos): Int {
-        return (levelIn.getTileEntity(pos) as? TileEntityMappingTable)?.let {
+        return (levelIn.getBlockEntity(pos) as? TileEntityMappingTable)?.let {
             Container.calcRedstoneFromInventory(it.inventory)
         } ?: 0
     }
 
     override fun onUse(state: BlockState, levelIn: World, pos: BlockPos, playerIn: PlayerEntity, hand: Hand?, hit: BlockRayTraceResult): ActionResultType {
-        if(levelIn.isRemote) {
+        if(levelIn.isClientSide) {
             return ActionResultType.SUCCESS
         }
         NetworkHooks.openGui(playerIn as ServerPlayerEntity, MoarBoatsGuiHandler.MappingTableGuiInteraction(pos.x, pos.y, pos.z), pos)

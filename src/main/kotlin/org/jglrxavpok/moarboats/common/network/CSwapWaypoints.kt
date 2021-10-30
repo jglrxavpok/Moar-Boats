@@ -31,12 +31,12 @@ class CSwapWaypoints(): MoarBoatsPacket {
         override fun onMessage(message: CSwapWaypoints, ctx: NetworkEvent.Context): SConfirmWaypointSwap? {
             with(message) {
                 val player = ctx.sender!!
-                val level = player.world
+                val level = player.level
                 val pos = BlockPos.Mutable(x, y, z)
-                val te = level.getTileEntity(pos)
+                val te = level.getBlockEntity(pos)
                 return when(te) {
                     is TileEntityMappingTable -> {
-                        val stack = te.inventory.getStackInSlot(0)
+                        val stack = te.inventory.getItem(0)
                         val item = stack.item as ItemPath
                         item.getWaypointData(stack, MoarBoats.getLocalMapStorage()).swap(index1, index2)
                         SConfirmWaypointSwap()

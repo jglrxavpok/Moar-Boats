@@ -25,7 +25,7 @@ class SPlayRecordFromBoat(): MoarBoatsPacket {
 
         override fun onMessage(message: SPlayRecordFromBoat, ctx: NetworkEvent.Context): MoarBoatsPacket? {
             val player = Minecraft.getInstance().player
-            ClientEvents.playRecord(player!!.world, message.entityID, message.item)
+            ClientEvents.playRecord(player!!.level, message.entityID, message.item)
             return null
         }
     }

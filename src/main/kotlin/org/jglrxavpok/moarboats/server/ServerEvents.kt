@@ -22,12 +22,12 @@ object ServerEvents {
     @SubscribeEvent
     fun onPlayerUpdate(event: LivingEvent.LivingUpdateEvent) {
         val player = event.entityLiving as? ServerPlayerEntity ?: return
-        for(i in 0 until player.inventory.sizeInventory) {
-            val itemstack = player.inventory.getStackInSlot(i)
+        for(i in 0 until player.inventory.containerSize) {
+            val itemstack = player.inventory.getItem(i)
 
             if(!itemstack.isEmpty && itemstack.item == ItemGoldenTicket) {
                 if(!ItemGoldenTicket.isEmpty(itemstack)) {
-                    if(player.ticksExisted % 5 == 0) { // send every 5 ticks
+                    if(player.tickCount % 5 == 0) { // send every 5 ticks
                         val data = ItemGoldenTicket.getData(itemstack)
                         MoarBoats.network.send(PacketDistributor.PLAYER.with {player}, SSetGoldenItinerary(data))
                     }
@@ -39,7 +39,7 @@ object ServerEvents {
     @SubscribeEvent
     fun onWorldLoad(event: WorldEvent.Load) {
         val world = (event.world as? ServerWorld) ?: return
-        val chunks = world.savedData.getOrCreate({ForcedChunkList(ListNBT())}, "moarboats_forced_chunks")
+        val chunks = world.dataStorage.computeIfAbsent({ForcedChunkList(ListNBT())}, "moarboats_forced_chunks")
         for(nbt in chunks.list) {
             nbt as CompoundNBT
             val chunks = ForcedChunks(world)
@@ -57,7 +57,7 @@ object ServerEvents {
             nbtList.add(it.forcedChunks.write(CompoundNBT()))
         }
 
-        world.savedData.set(ForcedChunkList(nbtList))
-        world.savedData.save()
+        world.dataStorage.set(ForcedChunkList(nbtList))
+        world.dataStorage.save()
     }
 }

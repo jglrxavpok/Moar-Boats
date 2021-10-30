@@ -22,8 +22,8 @@ class SModuleData(): MoarBoatsPacket {
         override val receiverSide = Dist.CLIENT
 
         override fun onMessage(message: SModuleData, ctx: NetworkEvent.Context): MoarBoatsPacket? {
-            val level = Minecraft.getInstance().world
-            val boat = level!!.getEntityByID(message.boatID) as? ModularBoatEntity ?: return null
+            val level = Minecraft.getInstance().level
+            val boat = level!!.getEntity(message.boatID) as? ModularBoatEntity ?: return null
             boat.moduleData = message.data
             return null
         }
