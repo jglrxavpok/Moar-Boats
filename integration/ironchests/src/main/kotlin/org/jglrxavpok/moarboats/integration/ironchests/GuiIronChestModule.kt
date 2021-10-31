@@ -41,9 +41,9 @@ class GuiIronChestModule(containerID: Int, playerInventory: PlayerInventory, mod
         return chestType.ySize
     }
 
-    override fun drawForeground(matrixStack: MatrixStack, mouseX: Int, mouseY: Int) {
-        super.drawForeground(matrixStack, mouseX, mouseY)
-        font.draw(matrixStack, moduleTitle.formatted().string, 8.0f, 6.0f, 4210752)
+    override fun renderLabels(matrixStack: MatrixStack, mouseX: Int, mouseY: Int) {
+        super.renderLabels(matrixStack, mouseX, mouseY)
+        font.draw(matrixStack, moduleTitle/*.formatted()*/.string, 8.0f, 6.0f, 4210752)
         font.draw(matrixStack, playerInventory.displayName.string, 8.0f, (ySize - 96 + 2).toFloat(), 4210752)
     }
 

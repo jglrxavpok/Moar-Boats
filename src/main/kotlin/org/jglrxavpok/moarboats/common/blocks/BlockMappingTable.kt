@@ -20,7 +20,7 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 
-object BlockMappingTable: MoarBoatsBlock({ sound(SoundType.STONE).hardnessAndResistance(2.5f, 20f)}) {
+object BlockMappingTable: MoarBoatsBlock({ sound(SoundType.STONE).strength(2.5f, 20f)}) {
 
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "mapping_table")
@@ -40,7 +40,7 @@ object BlockMappingTable: MoarBoatsBlock({ sound(SoundType.STONE).hardnessAndRes
         val tileentity = levelIn.getBlockEntity(pos)
 
         if (tileentity is TileEntityMappingTable) {
-            InventoryHelper.dropInventoryItems(levelIn, pos, tileentity.inventory)
+            InventoryHelper.dropContents(levelIn, pos, tileentity.inventory)
             levelIn.updateComparatorOutputLevel(pos, this)
         }
 

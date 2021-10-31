@@ -19,14 +19,14 @@ import net.minecraft.world.World
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.items.WaterborneConductorItem
 
-object BlockWaterborneConductor: RedstoneDiodeBlock(Properties.create(Material.MISCELLANEOUS).nonOpaque().hardnessAndResistance(0f).sound(SoundType.WOOD)) {
+object BlockWaterborneConductor: RedstoneDiodeBlock(Properties.of(Material.DECORATION).noOcclusion().strength(0f).sound(SoundType.WOOD)) {
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "waterborne_redstone")
-        this.defaultState = stateContainer.baseState.with(HorizontalBlock.HORIZONTAL_FACING, Direction.NORTH).with(POWERED, false)
+        this.registerDefaultState(this.defaultBlockState().setValue(HorizontalBlock.FACING, Direction.NORTH).setValue(POWERED, false))
     }
 
     override fun canConnectRedstone(state: BlockState?, level: IBlockReader?, pos: BlockPos?, side: Direction?): Boolean {
-        return state != null && side != null && side != Direction.DOWN && side != Direction.UP && (side == state.get(HorizontalBlock.HORIZONTAL_FACING) || side == state.get(HorizontalBlock.HORIZONTAL_FACING).opposite)
+        return state != null && side != null && side != Direction.DOWN && side != Direction.UP && (side == state.getValue(HorizontalBlock.FACING) || side == state.getValue(HorizontalBlock.FACING).opposite)
     }
 
     override fun getCollisionShape(state: BlockState, worldIn: IBlockReader, pos: BlockPos, context: ISelectionContext): VoxelShape {
@@ -34,7 +34,7 @@ object BlockWaterborneConductor: RedstoneDiodeBlock(Properties.create(Material.M
     }
 
     override fun isValidPosition(state: BlockState, levelIn: IWorldReader, pos: BlockPos): Boolean {
-        return levelIn.getFluidState(pos.down()).isTagged(FluidTags.WATER)
+        return levelIn.getFluidState(pos.below()).isTagged(FluidTags.WATER)
     }
 
     override fun getDelay(state: BlockState?): Int {
@@ -42,7 +42,7 @@ object BlockWaterborneConductor: RedstoneDiodeBlock(Properties.create(Material.M
     }
 
     override fun getWeakPower(blockState: BlockState, blockAccess: IBlockReader?, pos: BlockPos?, side: Direction): Int {
-        return if (!blockState.get(POWERED)) {
+        return if (!blockState.getValue(POWERED)) {
             0
         } else {
             if (canConnectRedstone(blockState, blockAccess, pos, side)) getActiveSignal(blockAccess!!, pos!!, blockState) else 0
@@ -50,14 +50,14 @@ object BlockWaterborneConductor: RedstoneDiodeBlock(Properties.create(Material.M
     }
 
     override fun getActiveSignal(levelIn: IBlockReader, pos: BlockPos, state: BlockState): Int {
-        val behindSide = state.get(HorizontalBlock.HORIZONTAL_FACING)
+        val behindSide = state.getValue(HorizontalBlock.FACING)
         val posBehind = pos.offset(behindSide)
         val behind = levelIn.getBlockState(posBehind)
         return behind.getWeakPower(levelIn, posBehind, behindSide)
     }
 
-    override fun fillStateContainer(builder: StateContainer.Builder<Block, BlockState>) {
-        builder.add(HorizontalBlock.HORIZONTAL_FACING, POWERED)
+    override fun createBlockStateDefinition(builder: StateContainer.Builder<Block, BlockState>) {
+        builder.add(HorizontalBlock.FACING, POWERED)
     }
 
     override fun onReplaced(state: BlockState, levelIn: World, pos: BlockPos, newState: BlockState, isMoving: Boolean) {

@@ -25,7 +25,7 @@ class ContainerDispenserModule(containerID: Int, playerInv: PlayerInventory, mod
         }
 
         addPlayerSlots(isLarge = true)
-        this.trackIntArray(placerInventory.additionalData)
+        this.addDataSlots(placerInventory.additionalData)
     }
 
     override fun transferStackInSlot(playerIn: PlayerEntity, index: Int): ItemStack {

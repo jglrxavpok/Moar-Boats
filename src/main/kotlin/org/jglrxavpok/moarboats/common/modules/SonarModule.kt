@@ -85,6 +85,6 @@ object SonarModule: BoatModule() {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.entityDropItem(Blocks.NOTE_BLOCK.asItem(), 1)
+            boat.correspondingEntity.spawnAtLocation(Blocks.NOTE_BLOCK.asItem(), 1)
     }
 }

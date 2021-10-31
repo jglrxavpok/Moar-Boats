@@ -28,8 +28,8 @@ abstract class ItemPath(id: String, putInItemGroup: Boolean = true): MoarBoatsIt
 
     abstract fun getLoopingOptions(stack: ItemStack): LoopingOptions
 
-    override fun addInformation(stack: ItemStack, worldIn: World?, tooltip: MutableList<ITextComponent>, flagIn: ITooltipFlag) {
-        super.addInformation(stack, worldIn, tooltip, flagIn)
+    override fun appendHoverText(stack: ItemStack, worldIn: World?, tooltip: MutableList<ITextComponent>, flagIn: ITooltipFlag) {
+        super.appendHoverText(stack, worldIn, tooltip, flagIn)
         if(worldIn != null) {
             val mapStorage: DimensionSavedDataManager = MoarBoats.getLocalMapStorage()
             val list = getWaypointData(stack, mapStorage)
@@ -118,8 +118,8 @@ object ItemGoldenTicket: ItemPath("golden_ticket") {
         return getData(stack).loopingOption
     }
 
-    override fun addInformation(stack: ItemStack, worldIn: World?, tooltip: MutableList<ITextComponent>, flagIn: ITooltipFlag) {
-        super.addInformation(stack, worldIn, tooltip, flagIn)
+    override fun appendHoverText(stack: ItemStack, worldIn: World?, tooltip: MutableList<ITextComponent>, flagIn: ITooltipFlag) {
+        super.appendHoverText(stack, worldIn, tooltip, flagIn)
         val uuid = getUUID(stack)
         if(uuid != null) {
             tooltip.add(StringTextComponent("UUID: $uuid"))
@@ -132,11 +132,11 @@ object ItemGoldenTicket: ItemPath("golden_ticket") {
     }
 
     fun initStack(stack: ItemStack, uuid: UUID) {
-        stack.getOrCreateTagElement("${MoarBoats.ModID}.path").putUniqueId("path_uuid", uuid)
+        stack.getOrCreateTagElement("${MoarBoats.ModID}.path").putUUID("path_uuid", uuid)
     }
 
     fun getUUID(stack: ItemStack): UUID? {
-        return stack.getTagElement("${MoarBoats.ModID}.path")?.getUniqueId("path_uuid")
+        return stack.getTagElement("${MoarBoats.ModID}.path")?.getUUID("path_uuid")
     }
 
     override fun getDisplayName(stack: ItemStack): ITextComponent {

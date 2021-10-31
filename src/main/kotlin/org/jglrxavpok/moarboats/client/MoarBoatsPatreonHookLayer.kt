@@ -35,20 +35,20 @@ class MoarBoatsPatreonHookLayer(val playerRenderer: PlayerRenderer): LayerRender
             return // don't show for non-empty hands
 
         matrixStackIn.pushPose()
-        if (this.entityModel.isChild) {
+        if (this.model.isChild) {
             val f = 0.5f
             matrixStackIn.translate(0.0, 0.75, 0.0)
             matrixStackIn.scale(0.5f, 0.5f, 0.5f)
         }
 
-        val handSide = player.primaryHand
+        val handSide = player.mainArm
         matrixStackIn.pushPose()
         (this.entityModel as IHasArm).setArmAngle(handSide, matrixStackIn)
-        matrixStackIn.mulPose(Vector3f.POSITIVE_X.getDegreesQuaternion(-90.0f))
-        matrixStackIn.mulPose(Vector3f.POSITIVE_Y.getDegreesQuaternion(180.0f))
+        matrixStackIn.mulPose(Vector3f.XP.rotationDegrees(-90.0f))
+        matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(180.0f))
         val flag = handSide == HandSide.LEFT
         matrixStackIn.translate(((if (flag) -1 else 1).toFloat() / 16.0f).toDouble(), 0.125, -0.625)
-        hookModel.render(matrixStackIn, bufferIn.getBuffer(RenderType.getEntityTranslucent(hookTextureLocation)), packedLightIn, 0, 1f, 1f, 1f, 1f)
+        hookModel.render(matrixStackIn, bufferIn.getBuffer(RenderType.entityTranslucent(hookTextureLocation)), packedLightIn, 0, 1f, 1f, 1f, 1f)
         matrixStackIn.popPose()
 
         matrixStackIn.popPose()

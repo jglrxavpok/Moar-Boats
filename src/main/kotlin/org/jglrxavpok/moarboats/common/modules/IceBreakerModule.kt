@@ -51,7 +51,7 @@ object IceBreakerModule: BoatModule() {
                     level.sendBlockBreakProgress(fakeEntityID, BlockPos(blockPos), (progress * 10f).toInt())
                 } else {
                     clearBreakProgress(from, blockPos)
-                    level.setBlockState(blockPos, Blocks.WATER.defaultBlockState())
+                    level.setBlock(blockPos, Blocks.WATER.defaultBlockState())
                 }
             }
         }
@@ -120,6 +120,6 @@ object IceBreakerModule: BoatModule() {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.entityDropItem(IceBreakerItem, 1)
+            boat.correspondingEntity.spawnAtLocation(IceBreakerItem, 1)
     }
 }

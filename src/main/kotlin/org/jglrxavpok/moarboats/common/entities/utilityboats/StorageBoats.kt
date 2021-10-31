@@ -31,10 +31,10 @@ class ChestBoatEntity(world: World): UtilityBoatEntity<ChestTileEntity, UtilityC
 
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
         this.setPosition(x, y, z)
-        this.motion = Vector3d.ZERO
-        this.prevPosX = x
-        this.prevPosY = y
-        this.prevPosZ = z
+        this.deltaMovement = Vector3d.ZERO
+        this.xOld = x
+        this.yOld = y
+        this.zOld = z
     }
 
     override fun initBackingTileEntity(): ChestTileEntity? {
@@ -60,7 +60,7 @@ class ChestBoatEntity(world: World): UtilityBoatEntity<ChestTileEntity, UtilityC
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
         super.dropItemsOnDeath(killedByPlayerInCreative)
         if(!killedByPlayerInCreative) {
-            entityDropItem(ItemStack(Items.CHEST))
+            spawnAtLocation(ItemStack(Items.CHEST))
         }
     }
 
@@ -73,10 +73,10 @@ class ShulkerBoatEntity(world: World): UtilityBoatEntity<ShulkerBoxTileEntity, U
     constructor(color: DyeColor?, level: World, x: Double, y: Double, z: Double): this(level) {
         this.dyeColor = color
         this.setPosition(x, y, z)
-        this.motion = Vector3d.ZERO
-        this.prevPosX = x
-        this.prevPosY = y
-        this.prevPosZ = z
+        this.deltaMovement = Vector3d.ZERO
+        this.xOld = x
+        this.yOld = y
+        this.zOld = z
     }
 
     override fun initBackingTileEntity(): ShulkerBoxTileEntity? {
@@ -112,7 +112,7 @@ class ShulkerBoatEntity(world: World): UtilityBoatEntity<ShulkerBoxTileEntity, U
             if (tileEntity.hasCustomName()) {
                 stack.displayName = tileEntity.customName
             }
-            entityDropItem(stack)
+            spawnAtLocation(stack)
         }
     }
 
@@ -137,10 +137,10 @@ class EnderChestBoatEntity(world: World): UtilityBoatEntity<TileEntity, ChestCon
 
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
         this.setPosition(x, y, z)
-        this.motion = Vector3d.ZERO
-        this.prevPosX = x
-        this.prevPosY = y
-        this.prevPosZ = z
+        this.deltaMovement = Vector3d.ZERO
+        this.xOld = x
+        this.yOld = y
+        this.zOld = z
     }
 
     override fun initBackingTileEntity(): TileEntity? {
@@ -166,7 +166,7 @@ class EnderChestBoatEntity(world: World): UtilityBoatEntity<TileEntity, ChestCon
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
         super.dropItemsOnDeath(killedByPlayerInCreative)
         if(!killedByPlayerInCreative) {
-            entityDropItem(ItemStack(Items.ENDER_CHEST))
+            spawnAtLocation(ItemStack(Items.ENDER_CHEST))
         }
     }
 }

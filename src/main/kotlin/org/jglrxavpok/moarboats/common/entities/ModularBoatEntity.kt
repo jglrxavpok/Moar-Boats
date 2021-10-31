@@ -70,7 +70,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
     }
 
     override val entityID: Int
-        get() = this.entityId
+        get() = this.id
 
     override var moduleRNG = Random()
 
@@ -79,7 +79,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
         set(value) { entityData[MODULE_LOCATIONS] = value }
 
     var moduleData: CompoundNBT
-        get()= entityID[MODULE_DATA]
+        get()= entityData[MODULE_DATA]
         set(value) { entityData[MODULE_DATA] = value; entityData.setDirty(MODULE_DATA) }
 
     private var localModuleData = CompoundNBT()
@@ -107,31 +107,31 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
         private set
 
     val blockSource = object: IBlockSource {
-        override fun getX(): Double {
+        override fun x(): Double {
             return this@ModularBoatEntity.x
         }
 
-        override fun getY(): Double {
+        override fun y(): Double {
             return this@ModularBoatEntity.y
         }
 
-        override fun getZ(): Double {
+        override fun z(): Double {
             return this@ModularBoatEntity.z
         }
 
-        override fun getBlockPos(): BlockPos {
-            return this@ModularBoatEntity.getBlockPos()
+        override fun getPos(): BlockPos {
+            return this@ModularBoatEntity.blockPosition()
         }
 
         override fun getBlockState(): BlockState {
-            return world.getBlockState(blockPos)
+            return world.getBlockState(blockPosition())
         }
 
-        override fun <T : TileEntity?> getBlockTileEntity(): T? {
+        override fun <T : TileEntity?> getEntity(): T? {
             return embeddedDispenserTileEntity as? T
         }
 
-        override fun getWorld(): ServerWorld? {
+        override fun getLevel(): ServerWorld? {
             return world as? ServerWorld
         }
 
@@ -143,10 +143,10 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
 
     constructor(world: World, x: Double, y: Double, z: Double, color: DyeColor, owningMode: OwningMode, ownerUUID: UUID? = null): this(world) {
         this.setPosition(x, y, z)
-        this.motion = Vector3d.ZERO
-        this.prevPosX = x
-        this.prevPosY = y
-        this.prevPosZ = z
+        this.deltaMovement = Vector3d.ZERO
+        this.xOld = x
+        this.yOld = y
+        this.zOld = z
         this.color = color
         this.owningMode = owningMode
         this.ownerUUID = ownerUUID
@@ -168,7 +168,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
         super.tick()
 
         if(ownerUUID != null && ownerName == null) {
-            ownerName = world.getPlayerByUuid(ownerUUID)?.name?.unformattedComponentText
+            ownerName = world.getPlayerByUUID(ownerUUID)?.name?.contents
         }
     }
 
@@ -177,12 +177,12 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
         modules.forEach { it.controlBoat(this) }
 
         if(!blockedRotation) {
-            this.rotationYaw += this.deltaRotation
+            this.yRot += this.deltaRotation
         }
         if(!blockedMotion) {
-            this.setMotion(velocityX + (MathHelper.sin(-this.rotationYaw * 0.017453292f) * acceleration).toDouble(), velocityY, (velocityZ + MathHelper.cos(this.rotationYaw * 0.017453292f) * acceleration).toDouble())
+            this.setDeltaMovement(velocityX + (MathHelper.sin(-this.yRot * 0.017453292f) * acceleration).toDouble(), velocityY, (velocityZ + MathHelper.cos(this.yRot * 0.017453292f) * acceleration).toDouble())
         } else {
-            this.setMotion(0.0, motion.y, 0.0)
+            this.setDeltaMovement(0.0, deltaMovement.y, 0.0)
         }
     }
 
@@ -376,10 +376,10 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
         }
     }
 
-    override fun registerData() {
-        super.registerData()
-        this.entityData.register(MODULE_LOCATIONS, mutableListOf())
-        this.entityData.register(MODULE_DATA, CompoundNBT())
+    override fun defineSynchedData() {
+        super.defineSynchedData()
+        this.entityData.define(MODULE_LOCATIONS, mutableListOf())
+        this.entityData.define(MODULE_DATA, CompoundNBT())
     }
 
     fun addModule(location: ResourceLocation, addedByNBT: Boolean = false, fromItem: ItemStack? = null): BoatModule {
@@ -406,7 +406,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
 
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative) {
-            entityDropItem(ItemStack(ModularBoatItem[color], 1), 0.0f)
+            spawnAtLocation(ItemStack(ModularBoatItem[color], 1), 0.0f)
         }
         modules.forEach {
             dropItemsForModule(it, killedByPlayerInCreative)

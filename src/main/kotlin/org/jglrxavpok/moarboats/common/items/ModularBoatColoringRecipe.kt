@@ -25,13 +25,13 @@ object ModularBoatColoringRecipe: ICraftingRecipe {
         return MBRecipeSerializers.BoatColoring
     }
 
-    override fun canFit(width: Int, height: Int): Boolean {
+    override fun canCraftInDimensions(width: Int, height: Int): Boolean {
         return width*height >= 1+3
     }
 
-    override fun getRecipeOutput() = ItemStack.EMPTY
+    override fun getResultItem() = ItemStack.EMPTY
 
-    override fun getCraftingResult(inv: CraftingInventory): ItemStack {
+    override fun assemble(inv: CraftingInventory): ItemStack {
         var globalColor: DyeColor? = null
         var boatCount = 0
         var dyeCount = 0

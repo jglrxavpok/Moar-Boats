@@ -17,7 +17,7 @@ abstract class BoatModuleInventory(val inventoryName: String, val slotCount: Int
     abstract fun getFieldCount(): Int
 
     private inner class AdditionalDataArray: IIntArray {
-        override fun size(): Int {
+        override fun getCount(): Int {
             return getFieldCount()
         }
 
@@ -65,8 +65,8 @@ abstract class BoatModuleInventory(val inventoryName: String, val slotCount: Int
                 return ItemStack.EMPTY
             }
 
-            if(ItemStack.areItemsEqual(stackInSlot, itemstack)) {
-                val maxStackSize = this.inventoryStackLimit.coerceAtMost(stackInSlot.maxStackSize)
+            if(ItemStack.isSame(stackInSlot, itemstack)) {
+                val maxStackSize = this.maxStackSize.coerceAtMost(stackInSlot.maxStackSize)
                 val canFit = itemstack.count.coerceAtMost(maxStackSize - stackInSlot.count)
 
                 if(canFit > 0) {
@@ -112,8 +112,8 @@ abstract class BoatModuleInventory(val inventoryName: String, val slotCount: Int
                     return true
                 }
 
-                if(ItemStack.areItemsEqual(stackInSlot, itemstack)) {
-                    val maxStackSize = this.inventoryStackLimit.coerceAtMost(stackInSlot.maxStackSize)
+                if(ItemStack.isSame(stackInSlot, itemstack)) {
+                    val maxStackSize = this.maxStackSize.coerceAtMost(stackInSlot.maxStackSize)
                     val canFit = maxStackSize - stackInSlot.count > 0
 
                     if(canFit) {

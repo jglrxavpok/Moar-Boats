@@ -139,6 +139,6 @@ object FurnaceEngineModule : BaseEngineModule() {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.entityDropItem(Blocks.FURNACE.asItem(), 1)
+            boat.correspondingEntity.spawnAtLocation(Blocks.FURNACE.asItem(), 1)
     }
 }

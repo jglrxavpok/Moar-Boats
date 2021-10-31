@@ -11,7 +11,7 @@ import org.jglrxavpok.moarboats.common.modules.SolarEngineModule
 object CreativeEngineRenderer: BlockBoatModuleRenderer(CreativeEngineModule.id, BoatModule.Spot.Engine, Blocks.BEDROCK.defaultBlockState())
 
 object SolarEngineRenderer: BlockBoatModuleRenderer(SolarEngineModule.id, BoatModule.Spot.Engine,
-        {b,m -> Blocks.DAYLIGHT_DETECTOR.defaultBlockState().with(DaylightDetectorBlock.INVERTED, SolarEngineModule.invertedProperty[b])})
+        {b,m -> Blocks.DAYLIGHT_DETECTOR.defaultBlockState().setValue(DaylightDetectorBlock.INVERTED, SolarEngineModule.invertedProperty[b])})
 
 object FurnaceEngineRenderer: BlockBoatModuleRenderer(FurnaceEngineModule.id, BoatModule.Spot.Engine,
-        {b,m -> Blocks.FURNACE.defaultBlockState().with(FurnaceBlock.LIT, FurnaceEngineModule.hasFuel(b))})
+        {b,m -> Blocks.FURNACE.defaultBlockState().setValue(FurnaceBlock.LIT, FurnaceEngineModule.hasFuel(b))})

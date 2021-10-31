@@ -72,9 +72,9 @@ object ClientEvents {
     val hookTextureLocation = ResourceLocation(MoarBoats.ModID, "textures/hook.png")
     val fakePlayerModel = PlayerModel<PlayerEntity>(0f, false)
     val armModel = ModelRenderer(64, 64, 32, 48).apply {
-        addCuboid(-1.0f, -2.0f, -2.0f, 4f, 9f, 4f) // arm
-        addCuboid(-1.0f, -2.0f, -2.0f, 4f, 9f, 4f, 0.25f, false) // armwear
-        setRotationPoint(-5.0F, 2.0F + 0f, 0.0F)
+        addBox(-1.0f, -2.0f, -2.0f, 4f, 9f, 4f) // arm
+        addBox(-1.0f, -2.0f, -2.0f, 4f, 9f, 4f, 0.25f, false) // armwear
+        this.setPos(-5.0F, 2.0F + 0f, 0.0F)
     }
 
     val hookModel = ModelPatreonHook()
@@ -87,18 +87,18 @@ object ClientEvents {
             val modelConfiguration = object: IModelConfiguration {
                 override fun isShadedInGui() = true
 
-                override fun isTexturePresent(name: String) = MissingTextureSprite.getLocation() != resolveTexture(name).textureId
+                override fun isTexturePresent(name: String) = MissingTextureSprite.getLocation() != resolveTexture(name).texture()
 
                 override fun getModelName() = FishingModuleRenderer.CastFishingRodLocation.toString()
 
-                override fun getCameraTransforms() = ItemCameraTransforms.DEFAULT
+                override fun getCameraTransforms() = ItemCameraTransforms.NO_TRANSFORMS
 
                 override fun getOwnerModel() = null
 
                 override fun isSideLit() = false
 
                 override fun resolveTexture(name: String): RenderMaterial {
-                    return RenderMaterial(AtlasTexture.LOCATION_BLOCKS_TEXTURE, ResourceLocation(name))
+                    return RenderMaterial(AtlasTexture.LOCATION_BLOCKS, ResourceLocation(name))
                 }
 
                 override fun getCombinedTransform(): IModelTransform {
@@ -111,7 +111,7 @@ object ClientEvents {
                     return true
                 }
             }
-            val bakedModel = ItemLayerModel(ImmutableList.of(RenderMaterial(AtlasTexture.LOCATION_BLOCKS_TEXTURE, ResourceLocation("item/fishing_rod_cast"))))
+            val bakedModel = ItemLayerModel(ImmutableList.of(RenderMaterial(AtlasTexture.LOCATION_BLOCKS, ResourceLocation("item/fishing_rod_cast"))))
                     .bake(modelConfiguration, event.modelLoader, ModelLoader.defaultTextureGetter(), ModelRotation.X0_Y0, ItemOverrideList.EMPTY, FishingModuleRenderer.CastFishingRodLocation)
             event.modelRegistry[FishingModuleRenderer.CastFishingRodLocation] = bakedModel
         }
@@ -126,43 +126,43 @@ object ClientEvents {
 
         for(moduleEntry in BoatModuleRegistry.forgeRegistry.values) {
             MoarBoats.logger.debug("Confirming association of module ${moduleEntry.module.id} to container ${moduleEntry.module.containerType.registryName}")
-            ScreenManager.registerFactory(
+            ScreenManager.register(
                     moduleEntry.module.containerType,
                     moduleEntry.module.guiFactory())
         }
 
-        ScreenManager.registerFactory(ContainerTypes.MappingTable) { container, playerInv, title ->
+        ScreenManager.register(ContainerTypes.MappingTable) { container, playerInv, title ->
             GuiMappingTable(container.containerID, container.te, playerInv)
         }
 
-        ScreenManager.registerFactory(ContainerTypes.FluidLoader) { container, playerInv, title ->
+        ScreenManager.register(ContainerTypes.FluidLoader) { container, playerInv, title ->
             GuiFluid(ContainerTypes.FluidLoader, container.containerID, container.te, container.fluidCapability, playerInv.player)
         }
-        ScreenManager.registerFactory(ContainerTypes.FluidUnloader) { container, playerInv, title ->
+        ScreenManager.register(ContainerTypes.FluidUnloader) { container, playerInv, title ->
             GuiFluid(ContainerTypes.FluidUnloader, container.containerID, container.te, container.fluidCapability, playerInv.player)
         }
 
-        ScreenManager.registerFactory(ContainerTypes.EnergyCharger) { container, playerInv, title ->
+        ScreenManager.register(ContainerTypes.EnergyCharger) { container, playerInv, title ->
             GuiEnergy(ContainerTypes.EnergyCharger, container.containerID, container.te, playerInv.player)
         }
 
-        ScreenManager.registerFactory(ContainerTypes.EnergyDischarger) { container, playerInv, title ->
+        ScreenManager.register(ContainerTypes.EnergyDischarger) { container, playerInv, title ->
             GuiEnergy(ContainerTypes.EnergyDischarger, container.containerID, container.te, playerInv.player)
         }
 
-        ScreenManager.registerFactory(ContainerTypes.FurnaceBoat) { container, playerInv, title ->
+        ScreenManager.register(ContainerTypes.FurnaceBoat) { container, playerInv, title ->
             UtilityFurnaceScreen(container, playerInv, title)
         }
 
-        ScreenManager.registerFactory(ContainerTypes.SmokerBoat) { container, playerInv, title ->
+        ScreenManager.register(ContainerTypes.SmokerBoat) { container, playerInv, title ->
             UtilitySmokerScreen(container, playerInv, title)
         }
 
-        ScreenManager.registerFactory(ContainerTypes.BlastFurnaceBoat) { container, playerInv, title ->
+        ScreenManager.register(ContainerTypes.BlastFurnaceBoat) { container, playerInv, title ->
             UtilityBlastFurnaceScreen(container, playerInv, title)
         }
 
-        ScreenManager.registerFactory(ContainerTypes.EnderChestBoat) { container, playerInv, title ->
+        ScreenManager.register(ContainerTypes.EnderChestBoat) { container, playerInv, title ->
             ChestScreen(container, playerInv, title)
         }
 
@@ -173,18 +173,18 @@ object ClientEvents {
         val mc = event.minecraftSupplier.get()
         RenderingRegistry.registerEntityRenderingHandler(EntityEntries.ModularBoat, ::RenderModularBoat)
         RenderingRegistry.registerEntityRenderingHandler(EntityEntries.AnimalBoat, ::RenderAnimalBoat)
-        registerUtilityBoat(EntityEntries.FurnaceBoat) { boat -> Blocks.FURNACE.defaultState.with(AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }
-        registerUtilityBoat(EntityEntries.SmokerBoat) { boat -> Blocks.SMOKER.defaultState.with(AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }
-        registerUtilityBoat(EntityEntries.BlastFurnaceBoat) { boat -> Blocks.BLAST_FURNACE.defaultState.with(AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }
-        registerUtilityBoat(EntityEntries.CraftingTableBoat) { boat -> Blocks.CRAFTING_TABLE.defaultState }
-        registerUtilityBoat(EntityEntries.GrindstoneBoat) { boat -> Blocks.GRINDSTONE.defaultState.with(GrindstoneBlock.FACE, AttachFace.FLOOR) }
-        registerUtilityBoat(EntityEntries.LoomBoat) { boat -> Blocks.LOOM.defaultState }
-        registerUtilityBoat(EntityEntries.CartographyTableBoat) { boat -> Blocks.CARTOGRAPHY_TABLE.defaultState }
-        registerUtilityBoat(EntityEntries.StonecutterBoat) { boat -> Blocks.STONECUTTER.defaultState }
-        registerUtilityBoat(EntityEntries.ChestBoat) { boat -> Blocks.CHEST.defaultState.with(HorizontalBlock.HORIZONTAL_FACING, Direction.SOUTH) }
-        registerUtilityBoat(EntityEntries.EnderChestBoat) { boat -> Blocks.ENDER_CHEST.defaultState.with(HorizontalBlock.HORIZONTAL_FACING, Direction.EAST) }
-        registerUtilityBoat(EntityEntries.JukeboxBoat) { boat -> Blocks.JUKEBOX.defaultState }
-        registerUtilityBoat(EntityEntries.ShulkerBoat) { boat -> ShulkerBoxBlock.getBlockByColor(boat.dyeColor).defaultState }
+        registerUtilityBoat(EntityEntries.FurnaceBoat) { boat -> Blocks.FURNACE.defaultBlockState().setValue(AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }
+        registerUtilityBoat(EntityEntries.SmokerBoat) { boat -> Blocks.SMOKER.defaultBlockState().setValue(AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }
+        registerUtilityBoat(EntityEntries.BlastFurnaceBoat) { boat -> Blocks.BLAST_FURNACE.defaultBlockState().setValue(AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }
+        registerUtilityBoat(EntityEntries.CraftingTableBoat) { boat -> Blocks.CRAFTING_TABLE.defaultBlockState() }
+        registerUtilityBoat(EntityEntries.GrindstoneBoat) { boat -> Blocks.GRINDSTONE.defaultBlockState().setValue(GrindstoneBlock.FACE, AttachFace.FLOOR) }
+        registerUtilityBoat(EntityEntries.LoomBoat) { boat -> Blocks.LOOM.defaultBlockState() }
+        registerUtilityBoat(EntityEntries.CartographyTableBoat) { boat -> Blocks.CARTOGRAPHY_TABLE.defaultBlockState() }
+        registerUtilityBoat(EntityEntries.StonecutterBoat) { boat -> Blocks.STONECUTTER.defaultBlockState() }
+        registerUtilityBoat(EntityEntries.ChestBoat) { boat -> Blocks.CHEST.defaultBlockState().setValue(HorizontalBlock.FACING, Direction.SOUTH) }
+        registerUtilityBoat(EntityEntries.EnderChestBoat) { boat -> Blocks.ENDER_CHEST.defaultBlockState().setValue(HorizontalBlock.FACING, Direction.EAST) }
+        registerUtilityBoat(EntityEntries.JukeboxBoat) { boat -> Blocks.JUKEBOX.defaultBlockState() }
+        registerUtilityBoat(EntityEntries.ShulkerBoat) { boat -> ShulkerBoxBlock.getBlockByColor(boat.dyeColor).defaultBlockState() }
 
         BoatModuleRenderingRegistry.register(FurnaceEngineRenderer)
         BoatModuleRenderingRegistry.register(ChestModuleRenderer)
@@ -208,9 +208,9 @@ object ClientEvents {
             it.registerModuleRenderers(BoatModuleRenderingRegistry)
         }
 
-        RenderTypeLookup.setRenderLayer(BlockCargoStopper, RenderType.getCutoutMipped())
-        RenderTypeLookup.setRenderLayer(BlockWaterborneConductor, RenderType.getCutoutMipped())
-        RenderTypeLookup.setRenderLayer(BlockWaterborneComparator, RenderType.getCutoutMipped())
+        RenderTypeLookup.setRenderLayer(BlockCargoStopper, RenderType.cutoutMipped())
+        RenderTypeLookup.setRenderLayer(BlockWaterborneConductor, RenderType.cutoutMipped())
+        RenderTypeLookup.setRenderLayer(BlockWaterborneComparator, RenderType.cutoutMipped())
     }
 
     private fun <T: UtilityBoatEntity<*,*>> registerUtilityBoat(entityType: EntityType<T>, blockstateProvider: (T) -> BlockState) {
@@ -219,10 +219,10 @@ object ClientEvents {
 
     fun postInit(evt: FMLLoadCompleteEvent) {
         val mc = Minecraft.getInstance()
-        mc.renderManager.skinMap["default"]!!.apply {
+        mc.entityRenderDispatcher.skinMap["default"]!!.apply {
             this.addLayer(MoarBoatsPatreonHookLayer(this))
         }
-        mc.renderManager.skinMap["slim"]!!.apply {
+        mc.entityRenderDispatcher.skinMap["slim"]!!.apply {
             this.addLayer(MoarBoatsPatreonHookLayer(this))
         }
     }
@@ -233,7 +233,7 @@ object ClientEvents {
         if(event.entity is PlayerEntity) {
             for(list in recordCache.values) {
                 for(source in list) {
-                    Minecraft.getInstance().soundHandler.stop(source.value)
+                    Minecraft.getInstance().soundManager.stop(source.value)
                 }
                 list.clear()
             }
@@ -255,7 +255,7 @@ object ClientEvents {
                 event.isCanceled = true
 
                 event.matrixStack.pushPose()
-                renderArmFirstPerson(RenderInfo(event.matrixStack, event.buffers, event.light), event.equipProgress, event.swingProgress, player.primaryHand)
+                renderArmFirstPerson(RenderInfo(event.matrixStack, event.buffers, event.light), event.equipProgress, event.swingProgress, player.mainArm)
                 event.matrixStack.popPose()
             }
         }
@@ -272,23 +272,23 @@ object ClientEvents {
         val f3 = 0.4f * MathHelper.sin(f1 * (Math.PI.toFloat() * 2f))
         val f4 = -0.4f * MathHelper.sin(swingProgress * Math.PI.toFloat())
         matrixStack.translate((f * (f2 + 0.64000005f)).toDouble(), (f3 + -0.6f + equippedProgress * -0.6f).toDouble(), (f4 + -0.71999997f).toDouble())
-        matrixStack.mulPose(Vector3f.POSITIVE_Y.getDegreesQuaternion(f * 45.0f))
+        matrixStack.mulPose(Vector3f.YP.rotationDegrees(f * 45.0f))
         val f5 = MathHelper.sin(swingProgress * swingProgress * Math.PI.toFloat())
         val f6 = MathHelper.sin(f1 * Math.PI.toFloat())
-        matrixStack.mulPose(Vector3f.POSITIVE_Y.getDegreesQuaternion(f * f6 * 70.0f))
-        matrixStack.mulPose(Vector3f.POSITIVE_Z.getDegreesQuaternion(f * f5 * -20.0f))
+        matrixStack.mulPose(Vector3f.YP.rotationDegrees(f * f6 * 70.0f))
+        matrixStack.mulPose(Vector3f.ZP.rotationDegrees(f * f5 * -20.0f))
         val player: AbstractClientPlayerEntity = mc.player!!
-        mc.getTextureManager().bindTexture(player.locationSkin)
+        mc.getTextureManager().bind(player.skinTextureLocation)
         matrixStack.translate((f * -1.0f).toDouble(), 3.6f.toDouble(), 3.5)
-        matrixStack.mulPose(Vector3f.POSITIVE_Z.getDegreesQuaternion(f * 120.0f))
-        matrixStack.mulPose(Vector3f.POSITIVE_X.getDegreesQuaternion(200.0f))
-        matrixStack.mulPose(Vector3f.POSITIVE_Y.getDegreesQuaternion(f * -135.0f))
+        matrixStack.mulPose(Vector3f.ZP.rotationDegrees(f * 120.0f))
+        matrixStack.mulPose(Vector3f.XP.rotationDegrees(200.0f))
+        matrixStack.mulPose(Vector3f.YP.rotationDegrees(f * -135.0f))
         matrixStack.translate((f * 5.6f).toDouble(), 0.0, 0.0)
-        val playerrenderer = mc.renderManager.getRenderer(player) as PlayerRenderer
+        val playerrenderer = mc.entityRenderDispatcher.getRenderer(player) as PlayerRenderer
 
-        val model = playerrenderer.entityModel
-        val arm = if(rightHanded) model.bipedRightArm else model.bipedLeftArm
-        val armWear = if(rightHanded) model.bipedRightArmwear else model.bipedLeftArmwear
+        val model = playerrenderer.model
+        val arm = if(rightHanded) model.rightArm else model.leftArm
+        val armWear = if(rightHanded) model.rightSleeve else model.leftSleeve
         renderArm(renderInfo, arm, player, model)
 
         RenderSystem.enableCull()
@@ -300,22 +300,22 @@ object ClientEvents {
         RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1f)
         val f1 = 0.0625f
         RenderSystem.enableBlend()
-        playerModel.swingProgress = 0.0f
-        playerModel.sneaking = false
-        playerModel.swimAnimation = 0.0f
-        playerModel.setAngles(clientPlayer, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f)
+        playerModel.attackTime = 0.0f
+        playerModel.crouching = false
+        playerModel.swimAmount = 0.0f
+        playerModel.setupAnim(clientPlayer, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f)
 
         val scale = 0.0625
         matrixStack.pushPose()
     //    matrixStack.translatef(arm.offsetX, arm.offsetY, arm.offsetZ)
 
-        matrixStack.translate(arm.rotationPointX * scale, arm.rotationPointY * scale, arm.rotationPointZ * scale)
-        matrixStack.mulPose(Quaternion(0f, 0f, arm.rotateAngleZ * (180f / Math.PI.toFloat()), true))
-        matrixStack.mulPose(Quaternion(0f, arm.rotateAngleY * (180f / Math.PI.toFloat()), 0.0f, true))
-        matrixStack.mulPose(Quaternion(arm.rotateAngleX * (180f / Math.PI.toFloat()), 0.0f, 0.0f, true))
+        matrixStack.translate(arm.x * scale, arm.y * scale, arm.z * scale)
+        matrixStack.mulPose(Quaternion(0f, 0f, arm.zRot * (180f / Math.PI.toFloat()), true))
+        matrixStack.mulPose(Quaternion(0f, arm.yRot * (180f / Math.PI.toFloat()), 0.0f, true))
+        matrixStack.mulPose(Quaternion(arm.xRot * (180f / Math.PI.toFloat()), 0.0f, 0.0f, true))
 
         matrixStack.pushPose()
-        armModel.render(renderInfo.matrixStack, renderInfo.buffers.getBuffer(RenderType.getEntityTranslucent(clientPlayer.locationSkin)), renderInfo.combinedLight, OverlayTexture.DEFAULT_UV)
+        armModel.render(renderInfo.matrixStack, renderInfo.buffers.getBuffer(RenderType.entityTranslucent(clientPlayer.skinTextureLocation)), renderInfo.combinedLight, OverlayTexture.NO_OVERLAY)
         matrixStack.popPose()
 
         val hookScale = 4f / 11f
@@ -323,7 +323,7 @@ object ClientEvents {
         matrixStack.scale(hookScale, -hookScale, hookScale)
         matrixStack.translate(-1f / 16.0, 0.0, -1f / 16.0)
         matrixStack.translate(0.0, -1.25, 0.0)
-        hookModel.render(renderInfo.matrixStack, renderInfo.buffers.getBuffer(RenderType.getEntityTranslucent(hookTextureLocation)), renderInfo.combinedLight, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f)
+        hookModel.render(renderInfo.matrixStack, renderInfo.buffers.getBuffer(RenderType.entityTranslucent(hookTextureLocation)), renderInfo.combinedLight, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f)
         matrixStack.popPose()
         RenderSystem.disableBlend()
     }
@@ -342,16 +342,16 @@ object ClientEvents {
         if(entityID in worldCache) {
             val previousSource = worldCache[entityID]!!
             worldCache.remove(entityID)
-            Minecraft.getInstance().soundHandler.stop(previousSource)
+            Minecraft.getInstance().soundManager.stop(previousSource)
         }
 
         if(musicDiscItem != null) {
             val entity = world.getEntity(entityID) as? UtilityBoatEntity<*,*> ?: return
             val recordSound = EntitySound(musicDiscItem.sound, SoundCategory.RECORDS, 4f, entity)
-            Minecraft.getInstance().soundHandler.play(recordSound)
+            Minecraft.getInstance().soundManager.play(recordSound)
             worldCache[entityID] = recordSound
 
-            Minecraft.getInstance().ingameGUI.setRecordPlayingOverlay(musicDiscItem.description)
+            Minecraft.getInstance().gui.setNowPlaying(musicDiscItem.description)
         }
     }
 
@@ -359,14 +359,14 @@ object ClientEvents {
     @SubscribeEvent
     fun onInventoryOpened(keyEvent: InputEvent.KeyInputEvent) {
         val mc = Minecraft.getInstance()
-        if(mc.world == null)
+        if(mc.level == null)
             return // must be playing
-        if(mc.currentScreen != null) {
-            if(mc.currentScreen !is IngameGui) { // must not be in a menu
+        if(mc.screen != null) {
+            if(mc.screen !is IngameGui) { // must not be in a menu
                 return
             }
         }
-        if(mc.gameSettings.keyBindInventory.key.keyCode == keyEvent.key) {
+        if(mc.options.keyInventory.key.value == keyEvent.key) {
             val player = mc.player!!
             if(player.ridingEntity is BasicBoatEntity) {
                 MoarBoats.network.send(PacketDistributor.SERVER.noArg(), CShowBoatMenu()) // send the request to the server so that a container can be opened on the server-side if necessary

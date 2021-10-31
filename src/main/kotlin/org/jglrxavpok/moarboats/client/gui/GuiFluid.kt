@@ -36,16 +36,16 @@ class GuiFluid(type: ContainerType<*>, containerID: Int, val te: TileEntityListe
         drawTexture(matrixStack, guiLeft, guiTop, 0, 0, xSize, ySize)
 
         if(fluid != null && fluid !is EmptyFluid) {
-            GuiTankModule.renderFluidInGui(guiLeft + 56, guiTop + 80, fluid!!, fluidAmount, fluidCapacity, horizontalTilesCount = 4, world = te.world!!, position = te.pos)
+            GuiTankModule.renderFluidInGui(guiLeft + 56, guiTop + 80, fluid!!, fluidAmount, fluidCapacity, horizontalTilesCount = 4, world = te.level!!, position = te.blockPos)
         }
     }
 
-    override fun drawForeground(matrixStack: MatrixStack, mouseX: Int, mouseY: Int) {
-        super.drawForeground(matrixStack, mouseX, mouseY)
+    override fun renderLabels(matrixStack: MatrixStack, mouseX: Int, mouseY: Int) {
+        super.renderLabels(matrixStack, mouseX, mouseY)
         val localX = mouseX - guiLeft
         val localY = mouseY - guiTop
         if(localX in 60..(60+55) && localY in 6..(6+75)) {
-            renderTooltip(matrixStack, TranslationTextComponent(MoarBoats.ModID+".tank_level", fluidAmount, fluidCapacity, TranslationTextComponent(fluid?.attributes?.getTranslationKey(FluidStack(fluid!!, fluidAmount))) ?: "nothing").formatted(), localX, localY)
+            renderTooltip(matrixStack, TranslationTextComponent(MoarBoats.ModID+".tank_level", fluidAmount, fluidCapacity, TranslationTextComponent(fluid?.attributes?.getTranslationKey(FluidStack(fluid!!, fluidAmount))) ?: "nothing")/*.formatted()*/, localX, localY)
         }
     }
 

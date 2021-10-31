@@ -16,10 +16,10 @@ class UtilityContainer<T: Container>(type: ContainerType<T>, id: Int, val baseCo
     companion object {
         val resetDragMethod = ObfuscationReflectionHelper.findMethod(Container::class.java, "func_94533_d")
         val clearContainerMethod = ObfuscationReflectionHelper.findMethod(Container::class.java, "func_193327_a", PlayerEntity::class.java, World::class.java, IInventory::class.java)
-        val mergeItemStackMethod = ObfuscationReflectionHelper.findMethod(Container::class.java, "func_75135_a", ItemStack::class.java, Integer.TYPE, Integer.TYPE, java.lang.Boolean.TYPE)
+        val moveItemStackToMethod = ObfuscationReflectionHelper.findMethod(Container::class.java, "func_75135_a", ItemStack::class.java, Integer.TYPE, Integer.TYPE, java.lang.Boolean.TYPE)
     }
 
-    override fun canInteractWith(playerIn: PlayerEntity): Boolean {
+    override fun stillValid(playerIn: PlayerEntity): Boolean {
         return true
     }
 
@@ -95,15 +95,15 @@ class UtilityContainer<T: Container>(type: ContainerType<T>, id: Int, val baseCo
         return baseContainer.getCanCraft(player)
     }
 
-    override fun detectAndSendChanges() {
-        baseContainer.detectAndSendChanges()
+    override fun broadcastChanges() {
+        baseContainer.broadcastChanges()
     }
 
     override fun onCraftMatrixChanged(inventoryIn: IInventory) {
         baseContainer.onCraftMatrixChanged(inventoryIn)
     }
 
-    override fun mergeItemStack(stack: ItemStack, startIndex: Int, endIndex: Int, reverseDirection: Boolean): Boolean {
-        return mergeItemStackMethod(baseContainer, stack, startIndex, endIndex, reverseDirection) as Boolean
+    override fun moveItemStackTo(stack: ItemStack, startIndex: Int, endIndex: Int, reverseDirection: Boolean): Boolean {
+        return moveItemStackToMethod(baseContainer, stack, startIndex, endIndex, reverseDirection) as Boolean
     }
 }

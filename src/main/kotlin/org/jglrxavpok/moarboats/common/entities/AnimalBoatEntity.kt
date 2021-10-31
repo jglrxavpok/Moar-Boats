@@ -27,7 +27,7 @@ import java.util.*
 
 class AnimalBoatEntity(world: World): BasicBoatEntity(EntityEntries.AnimalBoat, world) {
     override val entityID: Int
-        get() = this.entityId
+        get() = this.id
 
     override val modules: List<BoatModule> = emptyList()
     override val moduleRNG: Random = Random()
@@ -38,10 +38,10 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(EntityEntries.AnimalBoat, 
 
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
         this.setPosition(x, y, z)
-        this.motion = Vector3d.ZERO
-        this.prevPosX = x
-        this.prevPosY = y
-        this.prevPosZ = z
+        this.deltaMovement = Vector3d.ZERO
+        this.xOld = x
+        this.yOld = y
+        this.zOld = z
     }
 
     override fun getBoatItem() = AnimalBoatItem
@@ -88,7 +88,7 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(EntityEntries.AnimalBoat, 
 
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative) {
-            entityDropItem(AnimalBoatItem, 1)
+            spawnAtLocation(AnimalBoatItem, 1)
         }
     }
 
@@ -127,8 +127,8 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(EntityEntries.AnimalBoat, 
             val f1 = ((if ( ! this.isAlive) 0.009999999776482582 else this.mountedYOffset) + passenger.yOffset).toFloat()
 
             passenger.setPosition(this.x, this.y + f1.toDouble(), this.z)
-            passenger.rotationYaw += this.deltaRotation
-            passenger.rotationYawHead = passenger.rotationYawHead + this.deltaRotation
+            passenger.yRot += this.deltaRotation
+            passenger.yRotHead = passenger.yRotHead + this.deltaRotation
             this.applyYawToEntity(passenger)
         }
     }

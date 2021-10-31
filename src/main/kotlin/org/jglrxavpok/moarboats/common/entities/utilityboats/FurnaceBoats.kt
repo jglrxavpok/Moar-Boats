@@ -30,10 +30,10 @@ class FurnaceBoatEntity(world: World): AbstractFurnaceBoatEntity<FurnaceTileEnti
 
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
         this.setPosition(x, y, z)
-        this.motion = Vector3d.ZERO
-        this.prevPosX = x
-        this.prevPosY = y
-        this.prevPosZ = z
+        this.deltaMovement = Vector3d.ZERO
+        this.xOld = x
+        this.yOld = y
+        this.zOld = z
     }
 
     override fun initBackingTileEntity(): FurnaceTileEntity {
@@ -56,7 +56,7 @@ class FurnaceBoatEntity(world: World): AbstractFurnaceBoatEntity<FurnaceTileEnti
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
         super.dropItemsOnDeath(killedByPlayerInCreative)
         if(!killedByPlayerInCreative) {
-            entityDropItem(ItemStack(Items.FURNACE))
+            spawnAtLocation(ItemStack(Items.FURNACE))
         }
     }
 }
@@ -64,10 +64,10 @@ class FurnaceBoatEntity(world: World): AbstractFurnaceBoatEntity<FurnaceTileEnti
 class BlastFurnaceBoatEntity(world: World): AbstractFurnaceBoatEntity<BlastFurnaceTileEntity, UtilityBlastFurnaceContainer>(EntityEntries.BlastFurnaceBoat, world) {
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
         this.setPosition(x, y, z)
-        this.motion = Vector3d.ZERO
-        this.prevPosX = x
-        this.prevPosY = y
-        this.prevPosZ = z
+        this.deltaMovement = Vector3d.ZERO
+        this.xOld = x
+        this.yOld = y
+        this.zOld = z
     }
 
     override fun initBackingTileEntity(): BlastFurnaceTileEntity {
@@ -90,7 +90,7 @@ class BlastFurnaceBoatEntity(world: World): AbstractFurnaceBoatEntity<BlastFurna
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
         super.dropItemsOnDeath(killedByPlayerInCreative)
         if(!killedByPlayerInCreative) {
-            entityDropItem(ItemStack(Items.BLAST_FURNACE))
+            spawnAtLocation(ItemStack(Items.BLAST_FURNACE))
         }
     }
 }
@@ -98,10 +98,10 @@ class BlastFurnaceBoatEntity(world: World): AbstractFurnaceBoatEntity<BlastFurna
 class SmokerBoatEntity(world: World): AbstractFurnaceBoatEntity<SmokerTileEntity, UtilitySmokerContainer>(EntityEntries.SmokerBoat, world) {
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
         this.setPosition(x, y, z)
-        this.motion = Vector3d.ZERO
-        this.prevPosX = x
-        this.prevPosY = y
-        this.prevPosZ = z
+        this.deltaMovement = Vector3d.ZERO
+        this.xOld = x
+        this.yOld = y
+        this.zOld = z
     }
 
     override fun initBackingTileEntity(): SmokerTileEntity {
@@ -124,7 +124,7 @@ class SmokerBoatEntity(world: World): AbstractFurnaceBoatEntity<SmokerTileEntity
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
         super.dropItemsOnDeath(killedByPlayerInCreative)
         if(!killedByPlayerInCreative) {
-            entityDropItem(ItemStack(Items.SMOKER))
+            spawnAtLocation(ItemStack(Items.SMOKER))
         }
     }
 }

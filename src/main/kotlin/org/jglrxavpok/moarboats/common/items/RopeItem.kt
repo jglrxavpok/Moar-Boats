@@ -103,8 +103,8 @@ object RopeItem : MoarBoatsItem("rope") {
         }
     }
 
-    override fun addInformation(stack: ItemStack, levelIn: World?, tooltip: MutableList<ITextComponent>, flagIn: ITooltipFlag) {
-        super.addInformation(stack, levelIn, tooltip, flagIn)
+    override fun appendHoverText(stack: ItemStack, levelIn: World?, tooltip: MutableList<ITextComponent>, flagIn: ITooltipFlag) {
+        super.appendHoverText(stack, levelIn, tooltip, flagIn)
         tooltip.add(ropeInfo)
     }
 

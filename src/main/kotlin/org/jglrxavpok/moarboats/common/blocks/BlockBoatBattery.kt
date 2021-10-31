@@ -16,8 +16,8 @@ object BlockBoatBattery: MoarBoatsBlock() {
         registryName = ResourceLocation(MoarBoats.ModID, "boat_battery")
     }
 
-    override fun addInformation(stack: ItemStack, worldIn: IBlockReader?, tooltip: MutableList<ITextComponent>, advanced: ITooltipFlag) {
-        super.addInformation(stack, worldIn, tooltip, advanced)
+    override fun appendHoverText(stack: ItemStack, worldIn: IBlockReader?, tooltip: MutableList<ITextComponent>, advanced: ITooltipFlag) {
+        super.appendHoverText(stack, worldIn, tooltip, advanced)
         tooltip.add(OnlyUsableOnBoats)
     }
 

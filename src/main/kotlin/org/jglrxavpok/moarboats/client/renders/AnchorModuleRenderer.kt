@@ -22,7 +22,7 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
 
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererManager) {
         matrixStack.pushPose()
-        matrixStack.mulPose(Vector3f.POSITIVE_Y.getDegreesQuaternion(90f))
+        matrixStack.mulPose(Vector3f.YP.rotationDegrees(90f))
         val anchor = module as AnchorModule
 
         var anchorX = anchor.anchorXProperty[boat]
@@ -33,9 +33,9 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
             val dx = -(anchorX - boat.positionX)
             val dy = anchorY - boat.positionY
             val dz = -(anchorZ - boat.positionZ)
-            matrixStack.mulPose(Quaternion(Vector3f.NEGATIVE_Y, 180f - entityYaw - 90f, true))
+            matrixStack.mulPose(Quaternion(Vector3f.YN, 180f - entityYaw - 90f, true))
             matrixStack.translate(dx, dy, dz)
-            matrixStack.mulPose(Quaternion(Vector3f.POSITIVE_Y, 180f - entityYaw - 90f, true))
+            matrixStack.mulPose(Quaternion(Vector3f.YP, 180f - entityYaw - 90f, true))
         } else {
             anchorX = boat.positionX
             anchorY = boat.positionY
@@ -52,7 +52,7 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
         val anchorScale = 0.75f
         matrixStack.pushPose()
         matrixStack.scale(anchorScale, anchorScale, anchorScale)
-        renderBlockState(matrixStack, buffers, packedLightIn, entityRendererManager, Blocks.ANVIL.defaultState, boat.brightness)
+        renderBlockState(matrixStack, buffers, packedLightIn, entityRendererManager, Blocks.ANVIL.defaultBlockState(), boat.brightness)
         matrixStack.popPose()
         matrixStack.translate(+0.5, +0.5, -0.5)
 
@@ -73,7 +73,7 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
         val dx = anchorX
         val dy = -anchorY -yOffset*2f
         val dz = anchorZ
-        val bufferbuilder = buffers.getBuffer(RenderType.getLines())
+        val bufferbuilder = buffers.getBuffer(RenderType.lines())
         val segmentCount = 16
 
         matrixStack.translate(0.0, yOffset, 0.0)

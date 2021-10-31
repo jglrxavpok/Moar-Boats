@@ -22,7 +22,7 @@ class ContainerHelmModule(containerID: Int, playerInventory: PlayerInventory, he
         this.addSlot(SlotMap(helmInventory, 0, 8, 8))
 
         addPlayerSlots(isLarge = true)
-        this.trackIntArray(helmInventory.additionalData)
+        this.addDataSlots(helmInventory.additionalData)
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -32,25 +32,25 @@ class ContainerHelmModule(containerID: Int, playerInventory: PlayerInventory, he
 
     override fun transferStackInSlot(playerIn: PlayerEntity, index: Int): ItemStack {
         var itemstack = ItemStack.EMPTY
-        val slot = this.inventorySlots[index]
+        val slot = this.items[index]
 
-        if (slot != null && slot.hasStack) {
+        if (slot != null && !slot.isEmpty) {
             val itemstack1 = slot.stack
             itemstack = itemstack1.copy()
 
             if (index != 0) {
                 if (isMapItem(itemstack1)) {
-                    if (!this.mergeItemStack(itemstack1, 0, 1, false)) {
+                    if (!this.moveItemStackTo(itemstack1, 0, 1, false)) {
                         return ItemStack.EMPTY
                     }
                 } else if (index in 1..27) {
-                    if (!this.mergeItemStack(itemstack1, 28, 37, false)) {
+                    if (!this.moveItemStackTo(itemstack1, 28, 37, false)) {
                         return ItemStack.EMPTY
                     }
-                } else if (index in 28..36 && !this.mergeItemStack(itemstack1, 1, 37, false)) {
+                } else if (index in 28..36 && !this.moveItemStackTo(itemstack1, 1, 37, false)) {
                     return ItemStack.EMPTY
                 }
-            } else if (!this.mergeItemStack(itemstack1, 1, 37, false)) {
+            } else if (!this.moveItemStackTo(itemstack1, 1, 37, false)) {
                 return ItemStack.EMPTY
             }
 

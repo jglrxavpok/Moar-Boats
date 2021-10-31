@@ -169,7 +169,7 @@ interface MoarBoatsPacket {
                 ItemGoldenTicket.WaypointData::class.java -> {
                     val data = (value as ItemGoldenTicket.WaypointData)
                     buffer.writeUtf(data.uuid)
-                    val nbt = data.write(CompoundNBT())
+                    val nbt = data.save(CompoundNBT())
                     buffer.writeNbt(nbt)
                 }
 
@@ -292,7 +292,7 @@ interface MoarBoatsPacket {
                 ItemGoldenTicket.WaypointData::class.java -> {
                     val uuid = buffer.readUtf(100)
                     val nbt = buffer.readNbt()!!
-                    ItemGoldenTicket.WaypointData(uuid).apply { read(nbt) }
+                    ItemGoldenTicket.WaypointData(uuid).apply { load(nbt) }
                 }
 
                 LoopingOptions::class.java -> {

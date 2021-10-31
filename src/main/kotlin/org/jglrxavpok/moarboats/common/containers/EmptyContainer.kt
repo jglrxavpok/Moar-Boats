@@ -13,7 +13,7 @@ open class EmptyContainer(containerID: Int, playerInventory: PlayerInventory, va
         addPlayerSlots(isLarge, xStart)
     }
 
-    override fun canInteractWith(playerIn: PlayerEntity): Boolean {
+    override fun stillValid(playerIn: PlayerEntity): Boolean {
         return true
     }
 }

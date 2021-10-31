@@ -21,7 +21,7 @@ import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 import org.jglrxavpok.moarboats.integration.WaypointInfo
 import org.jglrxavpok.moarboats.integration.WaypointProviders
 
-class GuiWaypointEditor(val player: PlayerEntity, val te: TileEntityMappingTable, val index: Int, val parent: GuiMappingTable): Screen(NarratorChatListener.EMPTY) {
+class GuiWaypointEditor(val player: PlayerEntity, val te: TileEntityMappingTable, val index: Int, val parent: GuiMappingTable): Screen(NarratorChatListener.NO_TITLE) {
 
     val mc = Minecraft.getInstance() // forces 'mc' to hold a value when initializing the scrolling list below (waypointList)
 
@@ -45,19 +45,19 @@ class GuiWaypointEditor(val player: PlayerEntity, val te: TileEntityMappingTable
 
     }
 
-    private val boostSlider = Slider(0, 0, 125, 20, StringTextComponent("${boostSetting.formatted().string}: "), StringTextComponent("%"), -50.0, 50.0, 0.0, false, true, boostSliderCallback)
-    private val confirmButton = Button(0, 0, 150, 20, confirmText.formatted()) {
+    private val boostSlider = Slider(0, 0, 125, 20, StringTextComponent("${boostSetting/*.formatted()*/.string}: "), StringTextComponent("%"), -50.0, 50.0, 0.0, false, true, boostSliderCallback)
+    private val confirmButton = Button(0, 0, 150, 20, confirmText/*.formatted()*/) {
         storeIntoNBT()
         MoarBoats.network.sendToServer(CModifyWaypoint(te, index, waypointData))
-        mc.displayGuiScreen(parent)
+        mc.setScreen(parent)
     }
-    private val cancelButton = Button(0, 0, 150, 20, cancelText.formatted()) {
-        mc.displayGuiScreen(parent)
+    private val cancelButton = Button(0, 0, 150, 20, cancelText/*.formatted()*/) {
+        mc.setScreen(parent)
     }
-    private val refreshButton = Button(0, 0, 150, 20, refreshText.formatted()) {
+    private val refreshButton = Button(0, 0, 150, 20, refreshText/*.formatted()*/) {
         refreshList()
     }
-    private val hasBoostCheckbox = Checkbox(hasBoostSetting.formatted(), waypointData.getBoolean("hasBoost"))
+    private val hasBoostCheckbox = Checkbox(hasBoostSetting/*.formatted()*/, waypointData.getBoolean("hasBoost"))
 
     private val intInputs by lazy {listOf(xInput, zInput)}
     private val doubleInputs by lazy {listOf<TextFieldWidget>()}
@@ -75,20 +75,20 @@ class GuiWaypointEditor(val player: PlayerEntity, val te: TileEntityMappingTable
         super.init()
 
         allInputs.forEach {
-            it.text = ""
+            it.value = ""
         }
 
         addButton(boostSlider)
 
-        nameInput.text = waypointData.getString("name")
-        xInput.text = waypointData.getInt("x").toString()
-        zInput.text = waypointData.getInt("z").toString()
+        nameInput.value = waypointData.getString("name")
+        xInput.value = waypointData.getInt("x").toString()
+        zInput.value = waypointData.getInt("z").toString()
 
         nameInput.x = width / 2 - nameInput.width / 2
-        nameInput.y = 15 + nameInput.unusedGetHeight()
+        nameInput.y = 15 + nameInput.height
 
         intInputs.forEach {input ->
-            input.setValidator { str ->
+            input.setFilter { str ->
                 str != null && (str == "-" || str.isEmpty() || str.toIntOrNull() != null)
             }
         }
@@ -96,7 +96,7 @@ class GuiWaypointEditor(val player: PlayerEntity, val te: TileEntityMappingTable
         val margin = 10
         confirmButton.x = width / 2 - confirmButton.width - margin
         cancelButton.x = width / 2 + margin
-        confirmButton.y = height - confirmButton.unusedGetHeight() - 5
+        confirmButton.y = height - confirmButton.height - 5
         cancelButton.y = confirmButton.y
 
         val positionInputs = listOf(xInput, zInput)
@@ -153,11 +153,11 @@ class GuiWaypointEditor(val player: PlayerEntity, val te: TileEntityMappingTable
     }
 
     private fun storeIntoNBT() {
-        waypointData.putString("name", nameInput.text)
+        waypointData.putString("name", nameInput.value)
         waypointData.putBoolean("hasBoost", hasBoostCheckbox.isChecked)
         waypointData.putDouble("boost", boostSlider.value / 100.0)
-        waypointData.putInt("x", toInt(xInput.text))
-        waypointData.putInt("z", toInt(zInput.text))
+        waypointData.putInt("x", toInt(xInput.value))
+        waypointData.putInt("z", toInt(zInput.value))
     }
 
     private fun toInt(txt: String): Int {
@@ -178,17 +178,17 @@ class GuiWaypointEditor(val player: PlayerEntity, val te: TileEntityMappingTable
             it.render(matrixStack, mouseX, mouseY, partialTicks)
         }
 
-        font.drawCenteredString(matrixStack, TextFormatting.UNDERLINE.toString() + TranslationTextComponent("moarboats.gui.waypoint_editor", nameInput.text).formatted().string, width / 2, 15, 0xFFFFFF, shadow = true)
-        font.drawCenteredString(matrixStack, TextFormatting.UNDERLINE.toString() + positionTitleText.formatted().string, width / 2, 75, 0xFFFFFF, shadow = true)
-        font.draw(matrixStack, "X:", xInput.x - 10f, xInput.y + xInput.unusedGetHeight() / 2 - font.FONT_HEIGHT / 2f, 0xFFFFFF)
-        font.draw(matrixStack, "Z:", zInput.x - 10f, xInput.y + xInput.unusedGetHeight() / 2 - font.FONT_HEIGHT / 2f, 0xFFFFFF)
-        font.drawCenteredString(matrixStack, TextFormatting.UNDERLINE.toString() + miscText.formatted().string, width / 2, 135, 0xFFFFFF, shadow = true)
+        font.drawCenteredString(matrixStack, TextFormatting.UNDERLINE.toString() + TranslationTextComponent("moarboats.gui.waypoint_editor", nameInput.value)/*.formatted()*/.string, width / 2, 15, 0xFFFFFF, shadow = true)
+        font.drawCenteredString(matrixStack, TextFormatting.UNDERLINE.toString() + positionTitleText/*.formatted()*/.string, width / 2, 75, 0xFFFFFF, shadow = true)
+        font.draw(matrixStack, "X:", xInput.x - 10f, xInput.y + xInput.height / 2 - font.lineHeight / 2f, 0xFFFFFF)
+        font.draw(matrixStack, "Z:", zInput.x - 10f, xInput.y + xInput.height / 2 - font.lineHeight / 2f, 0xFFFFFF)
+        font.drawCenteredString(matrixStack, TextFormatting.UNDERLINE.toString() + miscText/*.formatted()*/.string, width / 2, 135, 0xFFFFFF, shadow = true)
 
         matrixStack.pushPose()
         matrixStack.translate(((width - (width * .2f) / 2f).toDouble()), 20.0, 0.0)
         val scale = 0.75f
         matrixStack.scale(scale, scale, 1f)
-        font.drawCenteredString(matrixStack, waypointsText.formatted(), 0, 0, 0xFFFFFF, shadow = true)
+        font.drawCenteredString(matrixStack, waypointsText/*.formatted()*/, 0, 0, 0xFFFFFF, shadow = true)
         matrixStack.popPose()
     }
 
@@ -232,9 +232,9 @@ class GuiWaypointEditor(val player: PlayerEntity, val te: TileEntityMappingTable
     }
 
     fun loadFromWaypointInfo(waypointInfo: WaypointInfo) {
-        xInput.text = waypointInfo.x.toString()
-        zInput.text = waypointInfo.z.toString()
-        nameInput.text = waypointInfo.name
+        xInput.value = waypointInfo.x.toString()
+        zInput.value = waypointInfo.z.toString()
+        nameInput.value = waypointInfo.name
         if(waypointInfo.boost != null) {
             hasBoostCheckbox.isChecked = true
             boostSlider.value = waypointInfo.boost

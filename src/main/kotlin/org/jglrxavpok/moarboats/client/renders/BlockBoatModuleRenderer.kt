@@ -24,11 +24,11 @@ open class BlockBoatModuleRenderer(id: ResourceLocation, private val spot: BoatM
 
         when(spot) {
             BoatModule.Spot.Storage -> {
-                matrixStack.mulPose(Vector3f.POSITIVE_Y.getDegreesQuaternion(90f))
+                matrixStack.mulPose(Vector3f.YP.rotationDegrees(90f))
             }
 
             BoatModule.Spot.Engine -> {
-                matrixStack.mulPose(Vector3f.POSITIVE_Y.getDegreesQuaternion(-90f))
+                matrixStack.mulPose(Vector3f.YP.rotationDegrees(-90f))
             }
 
             else -> {}// Unsupported spot

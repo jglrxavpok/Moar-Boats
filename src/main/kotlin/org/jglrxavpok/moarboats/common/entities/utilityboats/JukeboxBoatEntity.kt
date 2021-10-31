@@ -38,10 +38,10 @@ class JukeboxBoatEntity(world: World): UtilityBoatEntity<JukeboxTileEntity, Empt
 
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
         this.setPosition(x, y, z)
-        this.motion = Vector3d.ZERO
-        this.prevPosX = x
-        this.prevPosY = y
-        this.prevPosZ = z
+        this.deltaMovement = Vector3d.ZERO
+        this.xOld = x
+        this.yOld = y
+        this.zOld = z
     }
 
     override fun initBackingTileEntity(): JukeboxTileEntity? {
@@ -79,7 +79,7 @@ class JukeboxBoatEntity(world: World): UtilityBoatEntity<JukeboxTileEntity, Empt
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
         dropBaseBoat(killedByPlayerInCreative)
         if(!killedByPlayerInCreative) {
-            entityDropItem(ItemStack(Items.JUKEBOX))
+            spawnAtLocation(ItemStack(Items.JUKEBOX))
         }
         if(hasRecord) {
             ejectRecord()
@@ -94,7 +94,7 @@ class JukeboxBoatEntity(world: World): UtilityBoatEntity<JukeboxTileEntity, Empt
     private fun ejectRecord() {
         MoarBoats.network.send(PacketDistributor.NEAR.with { PacketDistributor.TargetPoint(positionX, positionY, positionZ, 64.0, world.registryKey) }, SPlayRecordFromBoat(entityID, null))
 
-        entityDropItem(record!!.copy())
+        spawnAtLocation(record!!.copy())
         record = ItemStack.EMPTY
     }
 

@@ -29,24 +29,24 @@ object OarEngineRenderer : BoatModuleRenderer() {
         matrixStack.scale(-1f, 1f, 1f)
         matrixStack.translate(-0.25, 0.575, 0.0)
 
-        val renderType = RenderType.getEntityTranslucent(BOAT_TEXTURES[boat.entityID % BOAT_TEXTURES.size])
+        val renderType = RenderType.entityTranslucent(BOAT_TEXTURES[boat.entityID % BOAT_TEXTURES.size])
 
         val angle = if(boat.controllingPassenger != null) -boat.distanceTravelled.toFloat()*2f else 0f
 
         // from ModelBoat
-        paddles.paddles10.rotateAngleX = MathHelper.clampedLerp((-Math.PI.toFloat() / 3f).toDouble(), (-0.2617994f).toDouble(), ((MathHelper.sin(-angle) + 1.0f) / 2.0f).toDouble()).toFloat() + Math.PI.toFloat()*1/4f
-        paddles.paddles10.rotateAngleY = MathHelper.clampedLerp((-Math.PI.toFloat() / 4f).toDouble(), (Math.PI.toFloat() / 4f).toDouble(), ((MathHelper.sin(-angle + 1.0f) + 1.0f) / 2.0f).toDouble()).toFloat()
-        paddles.paddles11.rotateAngleX = paddles.paddles10.rotateAngleX
-        paddles.paddles11.rotateAngleY = paddles.paddles10.rotateAngleY
-        paddles.paddles11.rotateAngleZ = paddles.paddles10.rotateAngleZ
+        paddles.paddles10.xRot = MathHelper.clampedLerp((-Math.PI.toFloat() / 3f).toDouble(), (-0.2617994f).toDouble(), ((MathHelper.sin(-angle) + 1.0f) / 2.0f).toDouble()).toFloat() + Math.PI.toFloat()*1/4f
+        paddles.paddles10.yRot = MathHelper.clampedLerp((-Math.PI.toFloat() / 4f).toDouble(), (Math.PI.toFloat() / 4f).toDouble(), ((MathHelper.sin(-angle + 1.0f) + 1.0f) / 2.0f).toDouble()).toFloat()
+        paddles.paddles11.xRot = paddles.paddles10.xRot
+        paddles.paddles11.yRot = paddles.paddles10.yRot
+        paddles.paddles11.zRot = paddles.paddles10.zRot
 
-        paddles.paddles20.rotateAngleX = paddles.paddles10.rotateAngleX
-        paddles.paddles20.rotateAngleY = Math.PI.toFloat() - paddles.paddles10.rotateAngleY
-        paddles.paddles21.rotateAngleX = paddles.paddles20.rotateAngleX
-        paddles.paddles21.rotateAngleY = paddles.paddles20.rotateAngleY
-        paddles.paddles21.rotateAngleZ = paddles.paddles20.rotateAngleZ
+        paddles.paddles20.xRot = paddles.paddles10.xRot
+        paddles.paddles20.yRot = Math.PI.toFloat() - paddles.paddles10.yRot
+        paddles.paddles21.xRot = paddles.paddles20.xRot
+        paddles.paddles21.yRot = paddles.paddles20.yRot
+        paddles.paddles21.zRot = paddles.paddles20.zRot
 
-        paddles.render(matrixStack, buffers.getBuffer(renderType), packedLightIn, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f)
+        paddles.render(matrixStack, buffers.getBuffer(renderType), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f)
 
         matrixStack.popPose()
     }

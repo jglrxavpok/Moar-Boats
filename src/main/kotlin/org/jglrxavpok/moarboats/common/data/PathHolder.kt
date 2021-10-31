@@ -85,7 +85,7 @@ class MapWithPathHolder(stack: ItemStack, mappingTable: TileEntityMappingTable?,
 
 class GoldenTicketPathHolder(stack: ItemStack, mappingTable: TileEntityMappingTable?, boat: IControllable?): ItemPathHolder(stack, mappingTable, boat) {
     override fun nbt(): CompoundNBT {
-        return ItemGoldenTicket.getData(stack).write(CompoundNBT())
+        return ItemGoldenTicket.getData(stack).save(CompoundNBT())
     }
 
     override fun addWaypoint(pos: BlockPos, boost: Double?) {

@@ -294,15 +294,15 @@ abstract class UtilityBoatItem(val boatType: BoatType, val containerType: String
     }
 }
 
-abstract class BaseBoatItem(propertiesModifier: Item.Properties.() -> Unit = {}): Item(Item.Properties().tab(MoarBoats.MainCreativeTab).maxStackSize(1).also(propertiesModifier)) {
+abstract class BaseBoatItem(propertiesModifier: Item.Properties.() -> Unit = {}): Item(Item.Properties().tab(MoarBoats.MainCreativeTab).stacksTo(1).also(propertiesModifier)) {
 
     override fun onItemRightClick(levelIn: World, playerIn: PlayerEntity, handIn: Hand): ActionResult<ItemStack> {
         val itemstack = playerIn.getItemInHand(handIn)
-        val f1 = playerIn.prevRotationPitch + (playerIn.rotationPitch - playerIn.prevRotationPitch) * 1.0f
-        val f2 = playerIn.prevRotationYaw + (playerIn.rotationYaw - playerIn.prevRotationYaw) * 1.0f
-        val d0 = playerIn.prevPosX + (playerIn.x - playerIn.prevPosX) * 1.0
-        val d1 = playerIn.prevPosY + (playerIn.y - playerIn.prevPosY) * 1.0 + playerIn.getEyeHeight().toDouble()
-        val d2 = playerIn.prevPosZ + (playerIn.z - playerIn.prevPosZ) * 1.0
+        val f1 = playerIn.prevRotationPitch + (playerIn.xRot - playerIn.prevRotationPitch) * 1.0f
+        val f2 = playerIn.prevRotationYaw + (playerIn.yRot - playerIn.prevRotationYaw) * 1.0f
+        val d0 = playerIn.xOld + (playerIn.x - playerIn.xOld) * 1.0
+        val d1 = playerIn.yOld + (playerIn.y - playerIn.yOld) * 1.0 + playerIn.getEyeHeight().toDouble()
+        val d2 = playerIn.zOld + (playerIn.z - playerIn.zOld) * 1.0
         val vec3d = Vector3d(d0, d1, d2)
         val f3 = MathHelper.cos(-f2 * 0.017453292f - Math.PI.toFloat())
         val f4 = MathHelper.sin(-f2 * 0.017453292f - Math.PI.toFloat())
@@ -332,7 +332,7 @@ abstract class BaseBoatItem(propertiesModifier: Item.Properties.() -> Unit = {})
             } else {
                 val inUsualFluid = Fluids.isUsualLiquidBlock(levelIn, raytraceresult.pos)
                 val entityboat = createBoat(levelIn, raytraceresult, inUsualFluid, itemstack, playerIn)
-                entityboat.rotationYaw = playerIn.rotationYaw
+                entityboat.yRot = playerIn.yRot
 
                 return if (levelIn.getBlockCollisions(entityboat, entityboat.boundingBox.grow(-0.1)).count() != 0L) {
                     ActionResult(ActionResultType.FAIL, itemstack)

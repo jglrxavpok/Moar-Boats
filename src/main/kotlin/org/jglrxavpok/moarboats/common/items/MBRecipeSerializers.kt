@@ -30,15 +30,15 @@ object MBRecipeSerializers {
             return this
         }
 
-        override fun write(buffer: PacketBuffer, recipe: T) {
+        override fun toNetwork(buffer: PacketBuffer, recipe: T) {
 
         }
 
-        override fun read(recipeId: ResourceLocation, json: JsonObject): T {
+        override fun fromJson(recipeId: ResourceLocation, json: JsonObject): T {
             return recipe
         }
 
-        override fun read(recipeId: ResourceLocation, buffer: PacketBuffer): T {
+        override fun fromNetwork(recipeId: ResourceLocation, buffer: PacketBuffer): T {
             return recipe
         }
 

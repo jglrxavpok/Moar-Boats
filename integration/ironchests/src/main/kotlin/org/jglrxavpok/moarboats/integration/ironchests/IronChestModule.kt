@@ -37,6 +37,6 @@ class IronChestModule(val chestType: IronChestsTypes) : BoatModule() {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.entityDropItem(ForgeRegistries.ITEMS.getValue(ResourceLocation(chestType.id))!!, 1)
+            boat.correspondingEntity.spawnAtLocation(ForgeRegistries.ITEMS.getValue(ResourceLocation(chestType.id))!!, 1)
     }
 }

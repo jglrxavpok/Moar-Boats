@@ -34,13 +34,13 @@ object SonarModuleRenderer : BoatModuleRenderer() {
                 matrixStack.translate(xOffset.toDouble(), 4f/16.0, zOffset.toDouble())
                 matrixStack.scale(0.25f, 0.25f, 0.25f)
                 val block = Blocks.NOTE_BLOCK
-                renderBlockState(matrixStack, buffers, packedLightIn, entityRendererManager, block.defaultState, boat.brightness)
+                renderBlockState(matrixStack, buffers, packedLightIn, entityRendererManager, block.defaultBlockState(), boat.brightness)
                 matrixStack.popPose()
             }
         }
 
         // render gradient
-        if(Minecraft.getInstance().gameSettings.reducedDebugInfo) {
+        if(Minecraft.getInstance().options.reducedDebugInfo) {
             matrixStack.mulPose(Quaternion(-(180.0f - entityYaw - 90f), 0.0f, 0f, true))
             testMatrix.compute(boat.world, boat.positionX, boat.positionY, boat.positionZ).removeNotConnectedToCenter()
             val gradient = testMatrix.computeGradient()
@@ -56,7 +56,7 @@ object SonarModuleRenderer : BoatModuleRenderer() {
                         matrixStack.mulPose(Quaternion(0f, angle.toFloat(), 0f, false))
                         matrixStack.scale(0.1f, 0.1f, gradientVal.length().toFloat() * 0.1f)
                         if(!potentialState.fluidState.isEmpty) {
-                            renderBlockState(matrixStack, buffers, packedLightIn, entityRendererManager, Blocks.EMERALD_BLOCK.defaultState, boat.brightness)
+                            renderBlockState(matrixStack, buffers, packedLightIn, entityRendererManager, Blocks.EMERALD_BLOCK.defaultBlockState(), boat.brightness)
                         }
                         matrixStack.popPose()
                     }

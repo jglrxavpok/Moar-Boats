@@ -20,7 +20,7 @@ class ContainerFishingModule(containerID: Int, playerInventory: PlayerInventory,
         this.addSlot(SlotFishingRod(fishingModuleInv, 0, 80, 36))
 
         addPlayerSlots(isLarge = false)
-        this.trackIntArray(fishingModuleInv.additionalData)
+        this.addDataSlots(fishingModuleInv.additionalData)
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -30,25 +30,25 @@ class ContainerFishingModule(containerID: Int, playerInventory: PlayerInventory,
 
     override fun transferStackInSlot(playerIn: PlayerEntity, index: Int): ItemStack {
         var itemstack = ItemStack.EMPTY
-        val slot = this.inventorySlots[index]
+        val slot = this.items[index]
 
-        if (slot != null && slot.hasStack) {
+        if (slot != null && !slot.isEmpty) {
             val itemstack1 = slot.stack
             itemstack = itemstack1.copy()
 
             if (index != 0) {
                 if (isItemFishingRod(itemstack1)) {
-                    if (!this.mergeItemStack(itemstack1, 0, 1, false)) {
+                    if (!this.moveItemStackTo(itemstack1, 0, 1, false)) {
                         return ItemStack.EMPTY
                     }
                 } else if (index in 1..27) {
-                    if (!this.mergeItemStack(itemstack1, 28, 37, false)) {
+                    if (!this.moveItemStackTo(itemstack1, 28, 37, false)) {
                         return ItemStack.EMPTY
                     }
-                } else if (index in 28..36 && !this.mergeItemStack(itemstack1, 1, 37, false)) {
+                } else if (index in 28..36 && !this.moveItemStackTo(itemstack1, 1, 37, false)) {
                     return ItemStack.EMPTY
                 }
-            } else if (!this.mergeItemStack(itemstack1, 1, 37, false)) {
+            } else if (!this.moveItemStackTo(itemstack1, 1, 37, false)) {
                 return ItemStack.EMPTY
             }
 

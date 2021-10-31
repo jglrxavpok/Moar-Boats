@@ -29,13 +29,13 @@ object MapWithPathRecipe: ICraftingRecipe {
         return MBRecipeSerializers.MapWithPath
     }
 
-    override fun canFit(width: Int, height: Int): Boolean {
+    override fun canCraftInDimensions(width: Int, height: Int): Boolean {
         return width*height >= 4
     }
 
-    override fun getRecipeOutput() = ItemStack.EMPTY
+    override fun getResultItem() = ItemStack.EMPTY
 
-    override fun getCraftingResult(inv: CraftingInventory): ItemStack {
+    override fun assemble(inv: CraftingInventory): ItemStack {
         var featherCount = 0
         var filledMap: ItemStack? = null
         var blackDyeCount = 0

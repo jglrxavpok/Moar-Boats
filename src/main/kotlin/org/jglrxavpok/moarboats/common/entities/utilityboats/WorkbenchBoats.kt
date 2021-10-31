@@ -21,10 +21,10 @@ class CraftingTableBoatEntity(world: World): UtilityBoatEntity<TileEntity, Utili
 
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
         this.setPosition(x, y, z)
-        this.motion = Vector3d.ZERO
-        this.prevPosX = x
-        this.prevPosY = y
-        this.prevPosZ = z
+        this.deltaMovement = Vector3d.ZERO
+        this.xOld = x
+        this.yOld = y
+        this.zOld = z
     }
 
     override fun initBackingTileEntity(): TileEntity? {
@@ -51,7 +51,7 @@ class CraftingTableBoatEntity(world: World): UtilityBoatEntity<TileEntity, Utili
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
         super.dropItemsOnDeath(killedByPlayerInCreative)
         if(!killedByPlayerInCreative) {
-            entityDropItem(ItemStack(Items.CRAFTING_TABLE))
+            spawnAtLocation(ItemStack(Items.CRAFTING_TABLE))
         }
     }
 }
@@ -60,10 +60,10 @@ class GrindstoneBoatEntity(world: World): UtilityBoatEntity<TileEntity, UtilityG
 
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
         this.setPosition(x, y, z)
-        this.motion = Vector3d.ZERO
-        this.prevPosX = x
-        this.prevPosY = y
-        this.prevPosZ = z
+        this.deltaMovement = Vector3d.ZERO
+        this.xOld = x
+        this.yOld = y
+        this.zOld = z
     }
 
     override fun initBackingTileEntity(): TileEntity? {
@@ -90,7 +90,7 @@ class GrindstoneBoatEntity(world: World): UtilityBoatEntity<TileEntity, UtilityG
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
         super.dropItemsOnDeath(killedByPlayerInCreative)
         if(!killedByPlayerInCreative) {
-            entityDropItem(ItemStack(Items.GRINDSTONE))
+            spawnAtLocation(ItemStack(Items.GRINDSTONE))
         }
     }
 
@@ -100,10 +100,10 @@ class LoomBoatEntity(world: World): UtilityBoatEntity<TileEntity, UtilityLoomCon
 
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
         this.setPosition(x, y, z)
-        this.motion = Vector3d.ZERO
-        this.prevPosX = x
-        this.prevPosY = y
-        this.prevPosZ = z
+        this.deltaMovement = Vector3d.ZERO
+        this.xOld = x
+        this.yOld = y
+        this.zOld = z
     }
 
     override fun initBackingTileEntity(): TileEntity? {
@@ -129,7 +129,7 @@ class LoomBoatEntity(world: World): UtilityBoatEntity<TileEntity, UtilityLoomCon
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
         super.dropItemsOnDeath(killedByPlayerInCreative)
         if(!killedByPlayerInCreative) {
-            entityDropItem(ItemStack(Items.LOOM))
+            spawnAtLocation(ItemStack(Items.LOOM))
         }
     }
 }
@@ -138,10 +138,10 @@ class CartographyTableBoatEntity(world: World): UtilityBoatEntity<TileEntity, Ut
 
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
         this.setPosition(x, y, z)
-        this.motion = Vector3d.ZERO
-        this.prevPosX = x
-        this.prevPosY = y
-        this.prevPosZ = z
+        this.deltaMovement = Vector3d.ZERO
+        this.xOld = x
+        this.yOld = y
+        this.zOld = z
     }
 
     override fun initBackingTileEntity(): TileEntity? {
@@ -167,7 +167,7 @@ class CartographyTableBoatEntity(world: World): UtilityBoatEntity<TileEntity, Ut
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
         super.dropItemsOnDeath(killedByPlayerInCreative)
         if(!killedByPlayerInCreative) {
-            entityDropItem(ItemStack(Items.CARTOGRAPHY_TABLE))
+            spawnAtLocation(ItemStack(Items.CARTOGRAPHY_TABLE))
         }
     }
 }
@@ -176,10 +176,10 @@ class StonecutterBoatEntity(world: World): UtilityBoatEntity<TileEntity, Utility
 
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
         this.setPosition(x, y, z)
-        this.motion = Vector3d.ZERO
-        this.prevPosX = x
-        this.prevPosY = y
-        this.prevPosZ = z
+        this.deltaMovement = Vector3d.ZERO
+        this.xOld = x
+        this.yOld = y
+        this.zOld = z
     }
 
     override fun initBackingTileEntity(): TileEntity? {
@@ -205,7 +205,7 @@ class StonecutterBoatEntity(world: World): UtilityBoatEntity<TileEntity, Utility
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
         super.dropItemsOnDeath(killedByPlayerInCreative)
         if(!killedByPlayerInCreative) {
-            entityDropItem(ItemStack(Items.STONECUTTER))
+            spawnAtLocation(ItemStack(Items.STONECUTTER))
         }
     }
 }

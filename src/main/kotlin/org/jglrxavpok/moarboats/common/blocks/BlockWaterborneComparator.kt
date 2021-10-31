@@ -27,16 +27,16 @@ import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.items.WaterborneComparatorItem
 import java.util.*
 
-object BlockWaterborneComparator: RedstoneDiodeBlock(Properties.create(Material.MISCELLANEOUS).nonOpaque().tickRandomly().hardnessAndResistance(0f).sound(SoundType.WOOD)) {
+object BlockWaterborneComparator: RedstoneDiodeBlock(Properties.of(Material.DECORATION).noOcclusion().randomTicks().strength(0f).sound(SoundType.WOOD)) {
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "waterborne_comparator")
-        this.defaultState = stateContainer.baseState.with(HorizontalBlock.HORIZONTAL_FACING, Direction.NORTH).with(POWERED, false)
+        this.registerDefaultState(this.defaultBlockState().setValue(HorizontalBlock.FACING, Direction.NORTH).setValue(POWERED, false))
     }
 
     override fun ticksRandomly(state: BlockState) = true
 
     override fun canConnectRedstone(state: BlockState?, world: IBlockReader?, pos: BlockPos?, side: Direction?): Boolean {
-        return state != null && side != null && side != Direction.DOWN && side != Direction.UP && (side == state.get(HorizontalBlock.HORIZONTAL_FACING) || side == state.get(HorizontalBlock.HORIZONTAL_FACING).opposite)
+        return state != null && side != null && side != Direction.DOWN && side != Direction.UP && (side == state.getValue(HorizontalBlock.FACING) || side == state.get(HorizontalBlock.FACING).opposite)
     }
 
     override fun getCollisionShape(state: BlockState, worldIn: IBlockReader, pos: BlockPos, context: ISelectionContext): VoxelShape {
@@ -44,7 +44,7 @@ object BlockWaterborneComparator: RedstoneDiodeBlock(Properties.create(Material.
     }
 
     override fun isValidPosition(state: BlockState, worldIn: IWorldReader, pos: BlockPos): Boolean {
-        return worldIn.getFluidState(pos.down()).isTagged(FluidTags.WATER)
+        return worldIn.getFluidState(pos.below()).isTagged(FluidTags.WATER)
     }
 
     override fun getDelay(state: BlockState?): Int {
@@ -52,9 +52,9 @@ object BlockWaterborneComparator: RedstoneDiodeBlock(Properties.create(Material.
     }
 
     override fun getWeakPower(state: BlockState, blockAccess: IBlockReader, pos: BlockPos, side: Direction): Int {
-        if(blockAccess is World && side == state.get(HorizontalBlock.HORIZONTAL_FACING)) {
+        if(blockAccess is World && side == state.getValue(HorizontalBlock.FACING)) {
             val world = blockAccess
-            val aabb = AxisAlignedBB(pos.offset(state.get(HorizontalBlock.HORIZONTAL_FACING)))
+            val aabb = AxisAlignedBB(pos.offset(state.getValue(HorizontalBlock.FACING)))
             val entities = world.getEntitiesWithinAABB(BasicBoatEntity::class.java, aabb) { e -> e != null && e.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).isPresent }
             val first = entities.firstOrNull()
             return first?.let {
@@ -67,8 +67,8 @@ object BlockWaterborneComparator: RedstoneDiodeBlock(Properties.create(Material.
     override fun scheduledTick(state: BlockState, worldIn: ServerWorld, pos: BlockPos, random: Random) {
         val produceSignal = shouldBePowered(worldIn, pos, state)
         when {
-            produceSignal && !state.get(POWERED) -> worldIn.setBlockState(pos, state.with(POWERED, true).with(HorizontalBlock.HORIZONTAL_FACING, state.get(HorizontalBlock.HORIZONTAL_FACING)))
-            !produceSignal && state.get(POWERED) -> worldIn.setBlockState(pos, state.with(POWERED, false).with(HorizontalBlock.HORIZONTAL_FACING, state.get(HorizontalBlock.HORIZONTAL_FACING)))
+            produceSignal && !state.getValue(POWERED) -> worldIn.setBlock(pos, state.setValue(POWERED, true).setValue(HorizontalBlock.FACING, state.getValue(HorizontalBlock.FACING)))
+            !produceSignal && state.getValue(POWERED) -> worldIn.setBlock(pos, state.setValue(POWERED, false).setValue(HorizontalBlock.FACING, state.getValue(HorizontalBlock.FACING)))
         }
         worldIn.pendingBlockTicks.scheduleTick(pos, this, 2)
         notifyNeighbors(worldIn, pos, state)
@@ -95,8 +95,8 @@ object BlockWaterborneComparator: RedstoneDiodeBlock(Properties.create(Material.
         }
     }
 
-    override fun fillStateContainer(builder: StateContainer.Builder<Block, BlockState>) {
-        builder.add(HorizontalBlock.HORIZONTAL_FACING, POWERED)
+    override fun createBlockStateDefinition(builder: StateContainer.Builder<Block, BlockState>) {
+        builder.add(HorizontalBlock.FACING, POWERED)
     }
 
     override fun onReplaced(state: BlockState, worldIn: World, pos: BlockPos, newState: BlockState, isMoving: Boolean) {
@@ -114,7 +114,7 @@ object BlockWaterborneComparator: RedstoneDiodeBlock(Properties.create(Material.
     }
 
     override fun shouldBePowered(worldIn: World, pos: BlockPos, state: BlockState): Boolean {
-        return getWeakPower(state, worldIn, pos, state.get(HorizontalBlock.HORIZONTAL_FACING)) > 0
+        return getWeakPower(state, worldIn, pos, state.getValue(HorizontalBlock.FACING)) > 0
     }
 
     override fun getDrops(state: BlockState, builder: LootContext.Builder): MutableList<ItemStack> {

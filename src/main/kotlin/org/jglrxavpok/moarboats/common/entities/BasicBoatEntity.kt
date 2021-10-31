@@ -103,13 +103,13 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
     override val positionZ: Double
         get() = z
     override val velocityX: Double
-        get() = motion.x
+        get() = deltaMovement.x
     override val velocityY: Double
-        get() = motion.y
+        get() = deltaMovement.y
     override val velocityZ: Double
-        get() = motion.z
+        get() = deltaMovement.z
     override val yaw: Float
-        get() = rotationYaw
+        get() = yRot
     override val correspondingEntity = this
     /**
      * damage taken from the last hit.
@@ -160,10 +160,10 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
 
     constructor(type: EntityType<out BasicBoatEntity>, world: World, x: Double, y: Double, z: Double): this(type, world) {
         this.setPosition(x, y, z)
-        this.motion = Vector3d.ZERO
-        this.prevPosX = x
-        this.prevPosY = y
-        this.prevPosZ = z
+        this.deltaMovement = Vector3d.ZERO
+        this.xOld = x
+        this.yOld = y
+        this.zOld = z
     }
 
     override fun isEntityInLava() = isInLava
@@ -191,14 +191,14 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
         if (this.isInvulnerableTo(source)) {
             return false
         } else if (!this.world.isClientSide && this.isAlive) {
-            if (source is IndirectEntityDamageSource && source.getTrueSource() != null && this.isPassenger(source.getTrueSource()!!)) {
+            if (source is IndirectEntityDamageSource && source.entity != null && this.hasPassenger(source.entity!!)) {
                 return false
             } else {
                 forwardDirection = -forwardDirection
                 timeSinceHit = 10
                 damageTaken += amount * 10.0f
                 this.markVelocityChanged()
-                val flag = source.trueSource is PlayerEntity && (source.trueSource as PlayerEntity).isCreative
+                val flag = source.entity is PlayerEntity && (source.entity as PlayerEntity).isCreative
 
                 if (flag || this.damageTaken > 40.0f) {
                     if (this.world.gameRules.getBoolean(GameRules.RULE_DOENTITYDROPS)) {
@@ -405,14 +405,14 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
             damageTaken -= 1.0f
         }
 
-        val dx = x-prevPosX;
-        val dy = y-prevPosY;
-        val dz = z-prevPosZ;
+        val dx = x-xOld;
+        val dy = y-yOld;
+        val dz = z-zOld;
         distanceTravelled += sqrt(dz*dz+dy*dy+dx*dx)
 
-        this.prevPosX = this.x
-        this.prevPosY = this.y
-        this.prevPosZ = this.z
+        this.xOld = this.x
+        this.yOld = this.y
+        this.zOld = this.z
         super.tick()
 
         breakLinkIfNeeded(FrontLink)
@@ -432,13 +432,13 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
                     val alpha = 0.5f
 
                     val anchorPos = calculateAnchorPosition(FrontLink)
-                    val otherAnchorPos = if(heading is BasicBoatEntity) heading.calculateAnchorPosition(BackLink) else heading.positionVec
-                    // FIXME: handle case where targetYaw is ~0-180 and rotationYaw is ~180+ (avoid doing a crazy flip)
-                    val targetYaw = computeTargetYaw(rotationYaw, anchorPos, otherAnchorPos)
-                    rotationYaw = alpha * rotationYaw + targetYaw * (1f - alpha)
+                    val otherAnchorPos = if(heading is BasicBoatEntity) heading.calculateAnchorPosition(BackLink) else heading.position()
+                    // FIXME: handle case where targetYaw is ~0-180 and yRot is ~180+ (avoid doing a crazy flip)
+                    val targetYaw = computeTargetYaw(yRot, anchorPos, otherAnchorPos)
+                    yRot = alpha * yRot + targetYaw * (1f - alpha)
 
                     val speed = 0.2
-                    this.motion = motion.add(d0 * abs(d0) * speed, d1 * abs(d1) * speed, d2 * abs(d2) * speed)
+                    this.deltaMovement = deltaMovement.add(d0 * abs(d0) * speed, d1 * abs(d1) * speed, d2 * abs(d2) * speed)
                 }
             }
         }
@@ -454,7 +454,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
 
         breakLilypads()
 
-        this.move(MoverType.SELF, this.motion)
+        this.move(MoverType.SELF, this.deltaMovement)
 
         this.doBlockCollisions()
         val list = this.world.getEntitiesInAABBexcluding(this, this.boundingBox.expand(0.20000000298023224, -0.009999999776482582, 0.20000000298023224), EntityPredicates.pushableBy(this))
@@ -617,7 +617,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
         if (this.previousStatus == Status.IN_AIR && this.status != Status.IN_AIR && this.status != Status.ON_LAND) {
             this.waterLevel = this.boundingBox.minY + this.height.toDouble()
             this.setPosition(this.x, (this.getWaterLevelAbove() - this.height).toDouble() + 0.101, this.z)
-            this.setMotion(motion.x, 0.0, motion.z)
+            this.setDeltaMovement(deltaMovement.x, 0.0, deltaMovement.z)
             this.lastYd = 0.0
             this.status = Status.IN_LIQUID
         } else {
@@ -638,12 +638,12 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
                 Status.ON_LAND -> this.momentum = this.boatGlide
             }
 
-            var motionY = motion.y + verticalAcceleration
+            var motionY = deltaMovement.y + verticalAcceleration
             if (d2 > 0.0) {
                 motionY += d2 * 0.06153846016296973// * (1f/0.014f)
                 motionY *= 0.75
             }
-            this.setMotion(motion.x * momentum, motionY, motion.z * momentum)
+            this.setDeltaMovement(deltaMovement.x * momentum, deltaMovementY, deltaMovement.z * momentum)
             this.deltaRotation *= this.momentum
         }
     }
@@ -652,16 +652,16 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
      * Applies this boat's yaw to the given entity. Used to update the orientation of its passenger.
      */
     protected fun applyYawToEntity(entityToUpdate: Entity) {
-        entityToUpdate.setRenderYawOffset(this.rotationYaw)
-        val f = MathHelper.wrapDegrees(entityToUpdate.rotationYaw - this.rotationYaw)
+        entityToUpdate.setRenderYawOffset(this.yRot)
+        val f = MathHelper.wrapDegrees(entityToUpdate.yRot - this.yRot)
         val f1 = MathHelper.clamp(f, -105.0f, 105.0f)
         entityToUpdate.prevRotationYaw += f1 - f
-        entityToUpdate.rotationYaw += f1 - f
-        entityToUpdate.rotationYaw = entityToUpdate.rotationYaw
+        entityToUpdate.yRot += f1 - f
+        entityToUpdate.yRot = entityToUpdate.yRot
     }
 
     override fun updateFallState(y: Double, onGroundIn: Boolean, state: BlockState, pos: BlockPos) {
-        this.lastYd = this.motion.y
+        this.lastYd = this.deltaMovement.y
 
         // boats will not break when falling
         fallDistance = 0f;
@@ -686,7 +686,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
                 currentLinkTypes[linkType] = KnotLink
                 currentKnotLocations[linkType] = Optional.of(other.hangingPosition)
             }
-            entityData.set(LINKS_RUNTIME[linkType], other.entityId)
+            entityData.set(LINKS_RUNTIME[linkType], other.id)
         }
         links = listOf(*currentLinks)
         linkEntityTypes = listOf(*currentLinkTypes)
@@ -790,18 +790,18 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
         updateSide("Front", front)
     }
 
-    override fun registerData() {
-        this.entityData.register(TIME_SINCE_HIT, 0)
-        this.entityData.register(FORWARD_DIRECTION, 1)
-        this.entityData.register(DAMAGE_TAKEN, 0f)
-        this.entityData.register(BOAT_LINKS[FrontLink], Optional.empty())
-        this.entityData.register(BOAT_LINKS[BackLink], Optional.empty())
-        this.entityData.register(LINKS_RUNTIME[FrontLink], UnitializedLinkID)
-        this.entityData.register(LINKS_RUNTIME[BackLink], UnitializedLinkID)
-        this.entityData.register(KNOT_LOCATIONS[FrontLink], Optional.empty())
-        this.entityData.register(KNOT_LOCATIONS[BackLink], Optional.empty())
-        this.entityData.register(LINK_TYPES[FrontLink], NoLink)
-        this.entityData.register(LINK_TYPES[BackLink], NoLink)
+    override fun defineSynchedData() {
+        this.entityData.define(TIME_SINCE_HIT, 0)
+        this.entityData.define(FORWARD_DIRECTION, 1)
+        this.entityData.define(DAMAGE_TAKEN, 0f)
+        this.entityData.define(BOAT_LINKS[FrontLink], Optional.empty())
+        this.entityData.define(BOAT_LINKS[BackLink], Optional.empty())
+        this.entityData.define(LINKS_RUNTIME[FrontLink], UnitializedLinkID)
+        this.entityData.define(LINKS_RUNTIME[BackLink], UnitializedLinkID)
+        this.entityData.define(KNOT_LOCATIONS[FrontLink], Optional.empty())
+        this.entityData.define(KNOT_LOCATIONS[BackLink], Optional.empty())
+        this.entityData.define(LINK_TYPES[FrontLink], NoLink)
+        this.entityData.define(LINK_TYPES[BackLink], NoLink)
     }
 
     override fun processInitialInteract(player: PlayerEntity, hand: Hand): ActionResultType {
@@ -888,10 +888,10 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
             var f = -0.75f * 0.5f
             val f1 = ((if ( ! this.isAlive) 0.009999999776482582 else this.mountedYOffset) + passenger.yOffset).toFloat()
 
-            val vec3d = Vector3d(f.toDouble(), 0.0, 0.0).rotateYaw(-(this.rotationYaw) * 0.017453292f - Math.PI.toFloat() / 2f)
+            val vec3d = Vector3d(f.toDouble(), 0.0, 0.0).yRot(-(this.yRot) * 0.017453292f - Math.PI.toFloat() / 2f)
             passenger.setPosition(this.x + vec3d.x, this.y + f1.toDouble(), this.z + vec3d.z)
-            passenger.rotationYaw += this.deltaRotation
-            passenger.rotationYawHead = passenger.rotationYawHead + this.deltaRotation
+            passenger.yRot += this.deltaRotation
+            passenger.yRotHead = passenger.yRotHead + this.deltaRotation
             this.applyYawToEntity(passenger)
         }
     }

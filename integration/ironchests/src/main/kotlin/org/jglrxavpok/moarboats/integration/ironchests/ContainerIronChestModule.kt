@@ -40,7 +40,7 @@ class ContainerIronChestModule(containerID: Int, playerInventory: PlayerInventor
         for (k in 0..8) {
             this.addSlot(Slot(playerInventory, k, xStart + k * 18, chestType.ySize - 24))
         }
-        this.trackIntArray(chestInventory.additionalData)
+        this.addDataSlots(chestInventory.additionalData)
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -50,17 +50,17 @@ class ContainerIronChestModule(containerID: Int, playerInventory: PlayerInventor
 
     override fun transferStackInSlot(playerIn: PlayerEntity, index: Int): ItemStack {
         var itemstack = ItemStack.EMPTY
-        val slot = this.inventorySlots[index]
+        val slot = this.items[index]
 
-        if (slot != null && slot.hasStack) {
+        if (slot != null && !slot.isEmpty) {
             val itemstack1 = slot.stack
             itemstack = itemstack1.copy()
 
             if (index < 3 * 9) {
-                if (!this.mergeItemStack(itemstack1, 3 * 9, this.inventorySlots.size, true)) {
+                if (!this.moveItemStackTo(itemstack1, 3 * 9, this.items.size, true)) {
                     return ItemStack.EMPTY
                 }
-            } else if (!this.mergeItemStack(itemstack1, 0, 3 * 9, false)) {
+            } else if (!this.moveItemStackTo(itemstack1, 0, 3 * 9, false)) {
                 return ItemStack.EMPTY
             }
 

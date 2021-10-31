@@ -24,10 +24,10 @@ object BlockFluidUnloader: MoarBoatsBlock() {
 
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "boat_fluid_unloader")
-        defaultState = stateContainer.baseState.with(Facing, Direction.UP)
+        this.registerDefaultState(this.defaultBlockState().setValue(Facing, Direction.UP))
     }
 
-    override fun fillStateContainer(builder: StateContainer.Builder<Block, BlockState>) {
+    override fun createBlockStateDefinition(builder: StateContainer.Builder<Block, BlockState>) {
         builder.add(Facing)
     }
 
@@ -38,7 +38,7 @@ object BlockFluidUnloader: MoarBoatsBlock() {
     }
 
     override fun getStateForPlacement(context: BlockItemUseContext): BlockState? {
-        return this.defaultState.with(Facing, Direction.getFacingDirections(context.player)[0])
+        return this.defaultBlockState().setValue(Facing, Direction.getFacingDirections(context.player)[0])
     }
 
     override fun onUse(state: BlockState, worldIn: World, pos: BlockPos, player: PlayerEntity, handIn: Hand, hit: BlockRayTraceResult): ActionResultType {

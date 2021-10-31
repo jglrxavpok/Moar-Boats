@@ -10,14 +10,14 @@ import net.minecraft.tileentity.ShulkerBoxTileEntity
 
 class UtilityChestContainer(windowID: Int, playerInv: PlayerInventory, tileEntity: ChestTileEntity): ChestContainer(ContainerTypes.ChestBoat, windowID, playerInv, tileEntity, 3) {
 
-    override fun canInteractWith(playerIn: PlayerEntity): Boolean {
+    override fun stillValid(playerIn: PlayerEntity): Boolean {
         return true
     }
 }
 
 class UtilityShulkerContainer(windowID: Int, playerInv: PlayerInventory, tileEntity: ShulkerBoxTileEntity): ShulkerBoxContainer(windowID, playerInv, tileEntity) {
 
-    override fun canInteractWith(playerIn: PlayerEntity): Boolean {
+    override fun stillValid(playerIn: PlayerEntity): Boolean {
         return true
     }
 

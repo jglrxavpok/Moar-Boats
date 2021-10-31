@@ -35,7 +35,7 @@ class GuiRudderModule(containerID: Int, playerInventory: PlayerInventory, anchor
         super.tick()
         val deployText = if(rudder.BlockingProperty[boat]) blockingText else notBlockingText
         blockButton.active = true
-        blockButton.message = deployText.formatted()
+        blockButton.message = deployText/*.formatted()*/
     }
 
     override fun drawModuleForeground(mouseX: Int, mouseY: Int) {

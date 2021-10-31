@@ -11,8 +11,8 @@ object SeatItem : MoarBoatsItem("seat") {
 
     val description = TranslationTextComponent("item.seat.description")
 
-    override fun addInformation(stack: ItemStack, worldIn: World?, tooltip: MutableList<ITextComponent>, flagIn: ITooltipFlag) {
-        super.addInformation(stack, worldIn, tooltip, flagIn)
+    override fun appendHoverText(stack: ItemStack, worldIn: World?, tooltip: MutableList<ITextComponent>, flagIn: ITooltipFlag) {
+        super.appendHoverText(stack, worldIn, tooltip, flagIn)
         tooltip.add(description)
     }
 }

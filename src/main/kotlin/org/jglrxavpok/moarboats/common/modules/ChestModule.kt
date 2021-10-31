@@ -48,6 +48,6 @@ object ChestModule: BoatModule() {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.entityDropItem(Blocks.CHEST.asItem(), 1)
+            boat.correspondingEntity.spawnAtLocation(Blocks.CHEST.asItem(), 1)
     }
 }

@@ -20,7 +20,7 @@ import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.blocks.Facing
 
 class TileEntityFluidUnloader: TileEntityListenable(MoarBoats.TileEntityFluidUnloaderType), ITickableTileEntity, IFluidHandler, IFluidTank {
-    val blockFacing: Direction get()= level!!.getBlockState(blockPos).get(Facing)
+    val blockFacing: Direction get()= level!!.getBlockState(blockPos).getValue(Facing)
     private var fluid: Fluid? = null
     private var amount: Int = 0
     private var working: Boolean = false

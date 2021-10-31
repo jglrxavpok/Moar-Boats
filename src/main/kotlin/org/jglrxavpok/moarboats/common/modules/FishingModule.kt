@@ -102,7 +102,7 @@ object FishingModule : BoatModule() {
                 for(loot in result) {
                     val remaining = storageInventory.add(loot)
                     if(!remaining.isEmpty) {
-                        from.correspondingEntity.entityDropItem(loot, 0f)
+                        from.correspondingEntity.spawnAtLocation(loot, 0f)
                     }
                 }
                 if(broken) {
@@ -157,7 +157,7 @@ object FishingModule : BoatModule() {
 
     private fun breakRod(from: IControllable) {
         from.getInventory().setItem(0, ItemStack.EMPTY)
-        MoarBoats.network.send(PacketDistributor.ALL.noArg(), SPlaySound(from.positionX, from.positionY, from.positionZ, SoundEvents.ITEM_SHIELD_BREAK, SoundCategory.PLAYERS, 0.8f, 0.8f + Math.random().toFloat() * 0.4f))
+        MoarBoats.network.send(PacketDistributor.ALL.noArg(), SPlaySound(from.positionX, from.positionY, from.positionZ, SoundEvents.SHIELD_BREAK, SoundCategory.PLAYERS, 0.8f, 0.8f + Math.random().toFloat() * 0.4f))
     }
 
     override fun onAddition(to: IControllable) {
@@ -173,6 +173,6 @@ object FishingModule : BoatModule() {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.entityDropItem(Items.FISHING_ROD, 1)
+            boat.correspondingEntity.spawnAtLocation(Items.FISHING_ROD, 1)
     }
 }

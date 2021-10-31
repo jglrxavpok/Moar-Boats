@@ -27,10 +27,10 @@ import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.items.CargoStopperItem
 import java.util.*
 
-object BlockCargoStopper: RedstoneDiodeBlock(Properties.create(Material.MISCELLANEOUS).nonOpaque().tickRandomly().hardnessAndResistance(0f).sound(SoundType.WOOD)) {
+object BlockCargoStopper: RedstoneDiodeBlock(Properties.of(Material.DECORATION).noOcclusion().randomTicks().strength(0f).sound(SoundType.WOOD)) {
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "cargo_stopper")
-        this.defaultState = stateContainer.baseState.with(HorizontalBlock.HORIZONTAL_FACING, Direction.NORTH).with(POWERED, false)
+        this.registerDefaultState(this.defaultBlockState().setValue(HorizontalBlock.FACING, Direction.NORTH).setValue(POWERED, false))
     }
 
     override fun ticksRandomly(state: BlockState) = true
@@ -44,7 +44,7 @@ object BlockCargoStopper: RedstoneDiodeBlock(Properties.create(Material.MISCELLA
     }
 
     override fun isValidPosition(state: BlockState, worldIn: IWorldReader, pos: BlockPos): Boolean {
-        return worldIn.getFluidState(pos.down()).isTagged(FluidTags.WATER)
+        return worldIn.getFluidState(pos.below()).isTagged(FluidTags.WATER)
     }
 
     override fun getDelay(state: BlockState?): Int {
@@ -54,7 +54,7 @@ object BlockCargoStopper: RedstoneDiodeBlock(Properties.create(Material.MISCELLA
     override fun getWeakPower(state: BlockState, blockAccess: IBlockReader, pos: BlockPos, side: Direction): Int {
         if(blockAccess is World) {
             val world = blockAccess
-            val aabb = AxisAlignedBB(pos.offset(state.get(HorizontalBlock.HORIZONTAL_FACING)))
+            val aabb = AxisAlignedBB(pos.offset(state.getValue(HorizontalBlock.FACING)))
             val entities = world.getEntitiesWithinAABB(BasicBoatEntity::class.java, aabb) { e -> e != null && e.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).isPresent }
             val first = entities.firstOrNull()
             return first?.let {
@@ -67,8 +67,8 @@ object BlockCargoStopper: RedstoneDiodeBlock(Properties.create(Material.MISCELLA
     override fun scheduledTick(state: BlockState, worldIn: ServerWorld, pos: BlockPos, rand: Random) {
         val produceSignal = shouldBePowered(worldIn, pos, state)
         when {
-            produceSignal && !state[POWERED] -> worldIn.setBlockState(pos, state.with(POWERED, true).with(HorizontalBlock.HORIZONTAL_FACING, state.get(HorizontalBlock.HORIZONTAL_FACING)))
-            !produceSignal && state[POWERED] -> worldIn.setBlockState(pos, state.with(POWERED, false).with(HorizontalBlock.HORIZONTAL_FACING, state.get(HorizontalBlock.HORIZONTAL_FACING)))
+            produceSignal && !state[POWERED] -> worldIn.setBlock(pos, state.setValue(POWERED, true).setValue(HorizontalBlock.FACING, state.get(HorizontalBlock.FACING)))
+            !produceSignal && state[POWERED] -> worldIn.setBlock(pos, state.setValue(POWERED, false).setValue(HorizontalBlock.FACING, state.get(HorizontalBlock.FACING)))
         }
         worldIn.pendingBlockTicks.scheduleTick(pos, this, 2)
         notifyNeighbors(worldIn, pos, state)
@@ -82,7 +82,7 @@ object BlockCargoStopper: RedstoneDiodeBlock(Properties.create(Material.MISCELLA
             var f = 0.0f
 
             for (slotIndex in 0 until inv.slots) {
-                val itemstack = inv.getItem(slotIndex)
+                val itemstack = inv.getStackInSlot(slotIndex)
 
                 if (!itemstack.isEmpty) {
                     f += itemstack.count.toFloat() / Math.min(inv.getSlotLimit(slotIndex), itemstack.maxStackSize).toFloat()
@@ -95,8 +95,8 @@ object BlockCargoStopper: RedstoneDiodeBlock(Properties.create(Material.MISCELLA
         }
     }
 
-    override fun fillStateContainer(builder: StateContainer.Builder<Block, BlockState>) {
-        builder.add(HorizontalBlock.HORIZONTAL_FACING, POWERED)
+    override fun createBlockStateDefinition(builder: StateContainer.Builder<Block, BlockState>) {
+        builder.add(HorizontalBlock.FACING, POWERED)
     }
 
     override fun onReplaced(state: BlockState, worldIn: World, pos: BlockPos, newState: BlockState, isMoving: Boolean) {
@@ -114,7 +114,7 @@ object BlockCargoStopper: RedstoneDiodeBlock(Properties.create(Material.MISCELLA
     }
 
     override fun shouldBePowered(worldIn: World, pos: BlockPos, state: BlockState): Boolean {
-        return getWeakPower(state, worldIn, pos, state.get(HorizontalBlock.HORIZONTAL_FACING)) > 0
+        return getWeakPower(state, worldIn, pos, state.getValue(HorizontalBlock.FACING)) > 0
     }
 
     override fun getDrops(state: BlockState, builder: LootContext.Builder): MutableList<ItemStack> {

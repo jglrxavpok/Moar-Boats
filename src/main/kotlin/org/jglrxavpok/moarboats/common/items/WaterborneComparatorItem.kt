@@ -15,7 +15,7 @@ object WaterborneComparatorItem : WaterborneItem("waterborne_comparator") {
     override val correspondingBlock = BlockWaterborneComparator
     private val descriptionText = TranslationTextComponent(MoarBoats.ModID+".tile.waterborne_comparator.description")
 
-    override fun addInformation(stack: ItemStack?, player: World?, tooltip: MutableList<ITextComponent>, advanced: ITooltipFlag?) {
+    override fun appendHoverText(stack: ItemStack?, player: World?, tooltip: MutableList<ITextComponent>, advanced: ITooltipFlag?) {
         tooltip.add(descriptionText)
     }
 }

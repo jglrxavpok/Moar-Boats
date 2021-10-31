@@ -25,13 +25,13 @@ class RenderModularBoat(renderManager: EntityRendererManager): RenderAbstractBoa
         val TextureLocation = ResourceLocation(MoarBoats.ModID, "textures/entity/modularboat.png")
     }
 
-    override fun getEntityTexture(entity: ModularBoatEntity) = TextureLocation
+    override fun getTextureLocation(entity: ModularBoatEntity) = TextureLocation
 
-    override fun getBoatColor(boat: ModularBoatEntity) = boat.color.colorComponentValues
+    override fun getBoatColor(boat: ModularBoatEntity) = boat.color.textureDiffuseColors
 
     override fun postModelRender(entity: ModularBoatEntity, entityYaw: Float, partialTicks: Float, matrixStackIn: MatrixStack, bufferIn: IRenderTypeBuffer, packedLightIn: Int) {
         entity.modules.forEach {
-            BoatModuleRenderingRegistry.getValue(it.id)?.renderModule(entity, it, matrixStackIn, bufferIn, packedLightIn, partialTicks, entityYaw, renderManager)
+            BoatModuleRenderingRegistry.getValue(it.id)?.renderModule(entity, it, matrixStackIn, bufferIn, packedLightIn, partialTicks, entityYaw, entityRenderDispatcher)
         }
     }
 }

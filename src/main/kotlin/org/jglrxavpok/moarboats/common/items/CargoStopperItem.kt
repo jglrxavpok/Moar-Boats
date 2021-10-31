@@ -14,7 +14,7 @@ object CargoStopperItem : WaterborneItem("cargo_stopper") {
     override val correspondingBlock = BlockCargoStopper
     private val descriptionText = TranslationTextComponent(MoarBoats.ModID+".tile.cargo_stopper.description")
 
-    override fun addInformation(stack: ItemStack?, player: World?, tooltip: MutableList<ITextComponent>, advanced: ITooltipFlag?) {
+    override fun appendHoverText(stack: ItemStack?, player: World?, tooltip: MutableList<ITextComponent>, advanced: ITooltipFlag?) {
         tooltip.add(descriptionText)
     }
 }

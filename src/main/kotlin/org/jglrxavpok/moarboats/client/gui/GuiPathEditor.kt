@@ -69,19 +69,19 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
     private val boostSetting = TranslationTextComponent("gui.path_editor.controls.boost")
 
     private var buttonId = 0
-    private val refreshMapButton = Button(0, 0, 150, 20, refreshButtonText.formatted()) {
+    private val refreshMapButton = Button(0, 0, 150, 20, refreshButtonText/*.formatted()*/) {
         sentImageRequest = false
         mapHeight.fill(-1)
         stripesReceived.fill(false)
     }
     // Tools button
-    private val markerButton: GuiToolButton = GuiToolButton(toolMarkerText.formatted(), 0, Button.IPressable {
+    private val markerButton: GuiToolButton = GuiToolButton(toolMarkerText/*.formatted()*/, 0, Button.IPressable {
         toolButtonList.forEach {
             it.selected = false
         }
         (it as GuiToolButton).selected = true
     })
-    private val eraserButton: GuiToolButton = GuiToolButton(toolEraserText.formatted(), 1, Button.IPressable {
+    private val eraserButton: GuiToolButton = GuiToolButton(toolEraserText/*.formatted()*/, 1, Button.IPressable {
         toolButtonList.forEach {
             it.selected = false
         }
@@ -90,10 +90,10 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
     private val toolButtonList = listOf(markerButton, eraserButton)
 
     // Properties buttons
-    private val loopingButton = GuiPropertyButton(listOf(Pair(propertyOneWayText.formatted(), 3), Pair(propertyLoopingText.formatted(), 2), Pair(propertyReverseCourseText.formatted(), 4)), Button.IPressable {
+    private val loopingButton = GuiPropertyButton(listOf(Pair(propertyOneWayText.withStyle(), 3), Pair(propertyLoopingText/*.formatted()*/, 2), Pair(propertyReverseCourseText/*.formatted()*/, 4)), Button.IPressable {
         pathHolder.setLoopingState(LoopingOptions.values()[(it as GuiPropertyButton).propertyIndex])
     })
-    private val linesButton = GuiBinaryPropertyButton(Pair(propertyLinesText.formatted(), propertyPathfindingText.formatted()), Pair(5, 6), Button.IPressable {
+    private val linesButton = GuiBinaryPropertyButton(Pair(propertyLinesText/*.formatted()*/, propertyPathfindingText/*.formatted()*/), Pair(5, 6), Button.IPressable {
         // TODO
     })
     private lateinit var boostSlider: Slider
@@ -139,7 +139,7 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
             button.x = menuX
             button.y = menuY+yOffset
             addButton(button)
-            yOffset += button.unusedGetHeight()
+            yOffset += button.height
             yOffset += spacing
             button.selected = false
         }
@@ -152,18 +152,18 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
             button.x = menuX
             button.y = menuY+yOffset
             addButton(button)
-            yOffset += button.unusedGetHeight()
+            yOffset += button.height
             yOffset += spacing
         }
 
         markerButton.selected = true
 
         refreshMapButton.x = width/2-refreshMapButton.width/2
-        refreshMapButton.y = height-refreshMapButton.unusedGetHeight()-2
+        refreshMapButton.y = height-refreshMapButton.height-2
 
         loopingButton.propertyIndex = pathHolder.getLoopingOption().ordinal
 
-        boostSlider = Slider(menuX, yOffset+20, 125, 20, StringTextComponent("${boostSetting.formatted()}: "), StringTextComponent("%"), -50.0, 50.0, 0.0, false, true, sliderCallback)
+        boostSlider = Slider(menuX, yOffset+20, 125, 20, StringTextComponent("${boostSetting/*.formatted()*/}: "), StringTextComponent("%"), -50.0, 50.0, 0.0, false, true, sliderCallback)
         addButton(boostSlider)
     }
 
@@ -272,7 +272,7 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
         }
         if(closestIndex >= 0) {
             pathHolder.removeWaypoint(closestIndex)
-            getMinecraft().soundHandler.play(SimpleSound.master(SoundEvents.UI_BUTTON_CLICK, 0.5f))
+            getMinecraft().soundManager.play(SimpleSound.forUI(SoundEvents.UI_BUTTON_CLICK, 0.5f))
         }
     }
 
@@ -280,7 +280,7 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
         val pos = pixelsToWorldCoords(x, y)
         val boost = if(boostSlider.valueInt != 0) boostSlider.value/100.0 else null
         pathHolder.addWaypoint(pos, boost)
-        getMinecraft().soundHandler.play(SimpleSound.master(SoundEvents.UI_BUTTON_CLICK, 2.5f))
+        getMinecraft().soundManager.play(SimpleSound.forUI(SoundEvents.UI_BUTTON_CLICK, 2.5f))
     }
 
     override fun render(matrixStack: MatrixStack, mouseX: Int, mouseY: Int, partialTicks: Float) {
@@ -295,15 +295,15 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
         renderMap(matrixStack, mapX, mapY, 0.0, mapScreenSize, mouseX, mouseY)
 
         super.render(matrixStack, mouseX, mouseY, partialTicks)
-        font.drawWithShadow(matrixStack, toolsText.formatted(), menuX.toFloat(), menuY.toFloat(), 0xFFF0F0F0.toInt())
+        font.drawShadow(matrixStack, toolsText/*.formatted()*/, menuX.toFloat(), menuY.toFloat(), 0xFFF0F0F0.toInt())
 
         getMinecraft().textureManager.bind(GuiToolButton.WidgetsTextureLocation)
         RenderSystem.enableAlphaTest()
         RenderSystem.enableBlend()
         drawModalRectWithCustomSizedTexture(matrixStack, menuX, horizontalBarY, 0f, 100f, 120, 20, 120, 120)
-        font.drawWithShadow(matrixStack, pathPropsText.formatted(), menuX.toFloat(), toolButtonListEndY.toFloat(), 0xFFF0F0F0.toInt())
+        font.drawShadow(matrixStack, pathPropsText/*.formatted()*/, menuX.toFloat(), toolButtonListEndY.toFloat(), 0xFFF0F0F0.toInt())
 
-        font.drawCenteredString(matrixStack, titleText.formatted(), width/2, 10, 0xFFF0F0F0.toInt())
+        font.drawCenteredString(matrixStack, titleText/*.formatted()*/, width/2, 10, 0xFFF0F0F0.toInt())
 
         drawControls(matrixStack)
 
@@ -330,9 +330,9 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
         val scale = 0.5f
         matrixStack.pushPose()
         matrixStack.scale(scale, scale, 1f)
-        drawRightAligned(matrixStack, controlsText.formatted(), borderX.toFloat()/scale, y/scale, 0xFFF0F0F0.toInt(), shadow = true)
-        drawRightAligned(matrixStack, zoomText.formatted(), (borderX/scale).toFloat(), (y+20f)/scale, 0xFFF0F0F0.toInt())
-        drawRightAligned(matrixStack, moveMapText.formatted(), (borderX/scale).toFloat(), (y+30f)/scale, 0xFFF0F0F0.toInt())
+        drawRightAligned(matrixStack, controlsText/*.formatted()*/, borderX.toFloat()/scale, y/scale, 0xFFF0F0F0.toInt(), shadow = true)
+        drawRightAligned(matrixStack, zoomText/*.formatted()*/, (borderX/scale).toFloat(), (y+20f)/scale, 0xFFF0F0F0.toInt())
+        drawRightAligned(matrixStack, moveMapText/*.formatted()*/, (borderX/scale).toFloat(), (y+30f)/scale, 0xFFF0F0F0.toInt())
         matrixStack.popPose()
 
         getMinecraft().textureManager.bind(GuiToolButton.WidgetsTextureLocation)
@@ -342,11 +342,11 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
     }
 
     private fun drawRightAligned(matrixStack: MatrixStack, textComponent: ITextComponent, x: Float, textY: Float, color: Int, shadow: Boolean = false) {
-        val text = textComponent.unformattedComponentText
+        val text = textComponent.contents
         val width = font.width(text)
         val textX = x-width
         if(shadow) {
-            font.drawWithShadow(matrixStack, text, textX, textY, color)
+            font.drawShadow(matrixStack, text, textX, textY, color)
         } else {
             font.draw(matrixStack, text, textX, textY, color)
         }
@@ -497,7 +497,7 @@ class GuiPathEditor(val player: PlayerEntity, val pathHolder: PathHolder, val ma
 
             RenderSystem.pushMatrix()
             RenderSystem.multMatrix(matrixStack.last().pose())
-            mc.itemRenderer.renderItemIntoGUI(HelmModuleRenderer.helmStack, (boatRenderX/iconScale).toInt(), (boatRenderZ/iconScale).toInt())
+            mc.itemRenderer.renderGuiItem(HelmModuleRenderer.helmStack, (boatRenderX/iconScale).toInt(), (boatRenderZ/iconScale).toInt())
             RenderSystem.popMatrix()
 
             matrixStack.popPose()

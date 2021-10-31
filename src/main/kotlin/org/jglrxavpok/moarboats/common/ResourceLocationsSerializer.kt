@@ -6,7 +6,7 @@ import net.minecraft.network.datasync.IDataSerializer
 import net.minecraft.util.ResourceLocation
 
 object ResourceLocationsSerializer : IDataSerializer<MutableList<ResourceLocation>> {
-    override fun copyValue(value: MutableList<ResourceLocation>): MutableList<ResourceLocation> {
+    override fun copy(value: MutableList<ResourceLocation>): MutableList<ResourceLocation> {
         val copy = mutableListOf<ResourceLocation>()
         copy.addAll(value)
         return copy
@@ -22,7 +22,7 @@ object ResourceLocationsSerializer : IDataSerializer<MutableList<ResourceLocatio
         return result
     }
 
-    override fun createKey(id: Int): DataParameter<MutableList<ResourceLocation>> {
+    override fun createAccessor(id: Int): DataParameter<MutableList<ResourceLocation>> {
         return DataParameter<MutableList<ResourceLocation>>(id, this)
     }
 

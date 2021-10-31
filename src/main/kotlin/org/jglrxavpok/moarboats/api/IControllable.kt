@@ -83,7 +83,7 @@ interface IControllable {
      * Applies current yaw rotation to the vector
      */
     fun localToWorld(localVec: Vector3d): Vector3d {
-        return localVec.rotateYaw((180f - yaw).toRadians()).add(positionX, positionY, positionZ)
+        return localVec.yRot((180f - yaw).toRadians()).add(positionX, positionY, positionZ)
     }
 
     fun sortModulesByInterestingness(): Iterable<BoatModule> {

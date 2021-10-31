@@ -81,7 +81,7 @@ object AnchorModule: BoatModule(), BlockReason {
             anchorXProperty[from] = nextX
             anchorYProperty[from] = nextY
             anchorZProperty[from] = nextZ
-            if(from.correspondingEntity.positionVec.squareDistanceTo(nextX, nextY, nextZ) < 1.0) { // going up & less than half a block away
+            if(from.correspondingEntity.position().distanceToSqr(nextX, nextY, nextZ) < 1.0) { // going up & less than half a block away
                 // stop
                 anchorDirectionProperty[from] = 0
                 deployedProperty[from] = false
@@ -117,12 +117,12 @@ object AnchorModule: BoatModule(), BlockReason {
             anchorYProperty[boat] = boat.positionY
             anchorZProperty[boat] = boat.positionZ
             player.sendStatusMessage(spawnPointSet, true)
-            player.setSpawnPoint(boat.worldRef.registryKey, BlockPos(boat.correspondingEntity.positionVec), boat.yaw, true, true)
+            player.setSpawnPoint(boat.worldRef.registryKey, BlockPos(boat.correspondingEntity.position()), boat.yaw, true, true)
         }
     }
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.entityDropItem(Blocks.ANVIL.asItem(), 1)
+            boat.correspondingEntity.spawnAtLocation(Blocks.ANVIL.asItem(), 1)
     }
 }

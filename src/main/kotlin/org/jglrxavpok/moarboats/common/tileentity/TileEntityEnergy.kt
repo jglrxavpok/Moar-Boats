@@ -25,9 +25,9 @@ abstract class TileEntityEnergy(tileEntityType: TileEntityType<out TileEntityEne
         energy = compound.getInt("energy")
     }
 
-    override fun write(compound: CompoundNBT): CompoundNBT {
+    override fun save(compound: CompoundNBT): CompoundNBT {
         compound.putInt("energy", energy)
-        return super.write(compound)
+        return super.save(compound)
     }
 
     override fun getEnergyStored(): Int {
@@ -91,7 +91,7 @@ abstract class TileEntityEnergy(tileEntityType: TileEntityType<out TileEntityEne
     private fun neighborsThatCanReceivePower(facings: List<Direction> = Direction.values().toList(), powerFunction: (IEnergyStorage) -> Boolean) =
             facings
                     .map {
-                        val neighborPos = pos.offset(it)
+                        val neighborPos = blockPos.relative(it)
                         getPowerCapability(neighborPos, it.opposite)
                     }
                     .filter {it.isPresent}
@@ -103,7 +103,7 @@ abstract class TileEntityEnergy(tileEntityType: TileEntityType<out TileEntityEne
     }
 
     private fun getPowerCapability(pos: BlockPos, facing: Direction): LazyOptional<IEnergyStorage> {
-        val te = world!!.getBlockEntity(pos)
+        val te = level!!.getBlockEntity(pos)
         if(te != null) {
             return te.getCapability(CapabilityEnergy.ENERGY)
         }

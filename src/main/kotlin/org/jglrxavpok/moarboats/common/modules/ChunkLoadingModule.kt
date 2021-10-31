@@ -86,6 +86,6 @@ object ChunkLoadingModule: BoatModule() {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.entityDropItem(ChunkLoaderItem, 1)
+            boat.correspondingEntity.spawnAtLocation(ChunkLoaderItem, 1)
     }
 }

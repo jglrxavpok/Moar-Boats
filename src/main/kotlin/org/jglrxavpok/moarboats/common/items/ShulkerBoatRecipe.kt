@@ -28,17 +28,17 @@ object ShulkerBoatRecipe: ICraftingRecipe {
         return ResourceLocation(MoarBoats.ModID, "shulker_boat")
     }
 
-    override fun canFit(width: Int, height: Int): Boolean {
+    override fun canCraftInDimensions(width: Int, height: Int): Boolean {
         return width*height >= 2
     }
 
-    override fun getRecipeOutput() = ItemStack(ShulkerBoatItem[BoatType.OAK])
+    override fun getResultItem() = ItemStack(ShulkerBoatItem[BoatType.OAK])
 
     private fun getBoatType(item: Item): BoatType? {
         return BoatType.values().firstOrNull { it.provideBoatItem() == item }
     }
 
-    override fun getCraftingResult(inv: CraftingInventory): ItemStack {
+    override fun assemble(inv: CraftingInventory): ItemStack {
         var boatType: BoatType? = null
         var shulkerBox: ItemStack? = null
         for(i in 0 until inv.containerSize) {
@@ -71,6 +71,6 @@ object ShulkerBoatRecipe: ICraftingRecipe {
     }
 
     override fun matches(inv: CraftingInventory, worldIn: World?): Boolean {
-        return getCraftingResult(inv) != ItemStack.EMPTY
+        return assemble(inv) != ItemStack.EMPTY
     }
 }

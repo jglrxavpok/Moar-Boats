@@ -41,8 +41,8 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
     protected val matrixStack = MatrixStack()
 
     override fun init() {
-        this.xSize = computeSizeX()
-        this.ySize = computeSizeY()
+        this.width = computeSizeX()
+        this.height = computeSizeY()
         super.init()
         tabs.clear()
         val guiX = getGuiLeft()
@@ -56,7 +56,7 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
     }
 
     open fun computeSizeX(): Int {
-        return xSize // no change
+        return width // no change
     }
 
     open fun computeSizeY(): Int {
@@ -69,7 +69,7 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
     override fun render(matrixStack: MatrixStack, mouseX: Int, mouseY: Int, partialTicks: Float) {
         this.renderBackground(matrixStack)
         super.render(matrixStack, mouseX, mouseY, partialTicks)
-        this.drawMouseoverTooltip(matrixStack, mouseX, mouseY)
+        this.renderTooltip(matrixStack, mouseX, mouseY)
     }
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, mouseButton: Int): Boolean {
@@ -83,9 +83,9 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
         val hoveredTabIndex = tabs.indexOfFirst { it.isMouseOn(mouseX - 26+4, mouseY) }
         if(hoveredTabIndex != -1) {
             if(tabs[hoveredTabIndex].tabModule == module) {
-                mc.soundHandler.play(SimpleSound.master(SoundEvents.UI_BUTTON_CLICK, 0.5f))
+                mc.soundManager.play(SimpleSound.forUI(SoundEvents.UI_BUTTON_CLICK, 0.5f))
                 MoarBoats.network.sendToServer(CRemoveModule(boat.entityID, module.id))
-                playerInv.player.closeScreen()
+                playerInv.player.closeContainer()
                 return true
             }
         }
@@ -97,7 +97,7 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
         if(hoveredTabIndex != -1) {
             val tab = tabs[hoveredTabIndex]
             if(tab.tabModule != module) {
-                mc.soundHandler.play(SimpleSound.master(SoundEvents.UI_BUTTON_CLICK, 1.0f))
+                mc.soundManager.play(SimpleSound.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0f))
                 MoarBoats.network.sendToServer(COpenModuleGui(boat.entityID, tab.tabModule.id))
                 return true
             }
@@ -105,10 +105,10 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
         return false
     }
 
-    override fun drawForeground(matrixStack: MatrixStack, mouseX: Int, mouseY: Int) {
-        val s = moduleTitle.formatted()
+    override fun renderLabels(matrixStack: MatrixStack, mouseX: Int, mouseY: Int) {
+        val s = moduleTitle/*.formatted()*/
         if(shouldRenderInventoryName)
-            this.font.draw(matrixStack, s, (this.xSize / 2 - this.font.width(s.formatted().string) / 2).toFloat(), 6f, 4210752)
+            this.font.draw(matrixStack, s, (this.xSize / 2 - this.font.width(s/*.formatted()*/.string) / 2).toFloat(), 6f, 4210752)
         if(renderPlayerInventoryTitle)
             this.font.draw(matrixStack, playerInv.displayName.string, 8f, this.ySize - 96 + 2f, 4210752)
         drawModuleForeground(mouseX, mouseY)
@@ -116,7 +116,7 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
         if(mouseX in (guiLeft-24)..guiLeft && mouseY in (guiTop+3)..(guiTop+26)) {
             if(boat.getOwnerNameOrNull() != null) {
                 renderTooltip(matrixStack,
-                        TranslationTextComponent(LockedByOwner.key, boat.getOwnerNameOrNull()).formatted(),
+                        TranslationTextComponent(LockedByOwner.key, boat.getOwnerNameOrNull())/*.formatted()*/,
                         mouseX-guiLeft,
                         mouseY-guiTop)
             }
@@ -135,7 +135,7 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
         drawTexture(matrixStack, i, j, 0, 0, this.xSize, this.ySize)
     }
 
-    override fun drawBackground(matrixStack: MatrixStack, partialTicks: Float, mouseX: Int, mouseY: Int) {
+    override fun renderBg(matrixStack: MatrixStack, partialTicks: Float, mouseX: Int, mouseY: Int) {
         val i = (this.width - this.xSize) / 2
         val j = (this.height - this.ySize) / 2
         GlStateManager._color4f(1.0f, 1.0f, 1.0f, 1.0f)
@@ -152,7 +152,7 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
             drawTexture(matrixStack, i-21, j+3, 176, 57, 24, 26)
             val info: NetworkPlayerInfo? = Minecraft.getInstance().connection!!.getPlayerInfo(ownerUUID)
             if(info != null) {
-                mc.textureManager.bind(info.locationSkin)
+                mc.textureManager.bind(info.skinLocation)
             } else {
                 val skinLocation = DefaultPlayerSkin.getDefaultSkin(ownerUUID)
                 mc.textureManager.bind(skinLocation)
@@ -187,22 +187,22 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
                 drawTexture(matrixStack, x+width - 4, y+5, 201, 8, 18, 17)
             }
 
-            zOffset = 100
-            itemRenderer.zLevel = 100.0f
-            RenderHelper.enableGuiDepthLighting()
+            blitOffset = 100
+            itemRenderer.blitOffset = 100.0f
+            RenderHelper.setupFor3DItems()
             GlStateManager._color4f(1f, 1f, 1f, 1f)
             val itemstack = ItemStack(BoatModuleRegistry[tabModule.id].correspondingItem)
             val itemX = width/2 - 10 + x + 1
             val itemY = height/2 - 8 + y
             matrixStack.pushPose()
-            itemRenderer.renderItemIntoGUI(itemstack, itemX, itemY)
+            itemRenderer.renderGuiItem(itemstack, itemX, itemY)
             matrixStack.popPose()
-            itemRenderer.zLevel = 0.0f
-            zOffset = 0
+            itemRenderer.blitOffset = 0.0f
+            blitOffset = 0
         }
     }
 
-    override fun getContainer(): T {
+    override fun getMenu(): T {
         return baseContainer
     }
 }

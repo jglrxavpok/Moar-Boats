@@ -33,19 +33,19 @@ open class GuiToolButton(var text: ITextComponent, var toolIconIndex: Int, val p
             mc.textureManager.bind(WidgetsTextureLocation)
             AbstractGui.drawTexture(matrixStack, x, y, minU, minV, 20, 20, WidgetsTextureSize, WidgetsTextureSize)
 
-            val textY = y + height / 2f - mc.font.FONT_HEIGHT / 2f
-            mc.font.drawWithShadow(matrixStack, text, x + width + 4f, textY, 0xFFF0F0F0.toInt())
+            val textY = y + height / 2f - mc.font.lineHeight / 2f
+            mc.font.drawShadow(matrixStack, text, x + width + 4f, textY, 0xFFF0F0F0.toInt())
         }
     }
 
     private fun renderButtonBackground(matrixStack: MatrixStack, mc: Minecraft, mouseX: Int, mouseY: Int) {
         mc.textureManager.bind(Widget.WIDGETS_LOCATION)
         GlStateManager._color4f(1.0f, 1.0f, 1.0f, 1.0f)
-        this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height
+        this.isHovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height
         val stateOffset = this.getYImage(this.isHovered)
-        GlStateManager.enableBlend()
-        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.field_22545, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.field_22528, GlStateManager.SourceFactor.ONE.field_22545, GlStateManager.DestFactor.ZERO.field_22528)
-        GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA.field_22545, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.field_22528)
+        GlStateManager._enableBlend()
+        GlStateManager._blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value, GlStateManager.SourceFactor.ONE.value, GlStateManager.DestFactor.ZERO.value)
+        GlStateManager._blendFunc(GlStateManager.SourceFactor.SRC_ALPHA.value, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value)
         drawTexture(matrixStack, this.x, this.y, 0, 46 + stateOffset * 20, this.width / 2, this.height)
         drawTexture(matrixStack, this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + stateOffset * 20, this.width / 2, this.height)
     }

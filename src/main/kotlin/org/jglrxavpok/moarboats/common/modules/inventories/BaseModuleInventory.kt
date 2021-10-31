@@ -25,7 +25,7 @@ abstract class BaseModuleInventory(slotCount: Int, inventoryName: String, boat: 
 
     override fun decrStackSize(index: Int, count: Int) = ItemStackHelper.getAndSplit(list, index, count)
 
-    override fun clear() {
+    override fun clearContent() {
         list.clear()
     }
 

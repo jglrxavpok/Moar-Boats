@@ -25,7 +25,7 @@ object IcebreakerModuleRenderer : BoatModuleRenderer() {
         matrixStack.pushPose()
         matrixStack.scale(-1f, -1f, 1f)
 
-        model.render(matrixStack, buffers.getBuffer(RenderType.getEntityTranslucent(texture)), packedLightIn, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f)
+        model.render(matrixStack, buffers.getBuffer(RenderType.entityTranslucent(texture)), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f)
         matrixStack.popPose()
     }
 }

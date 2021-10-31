@@ -42,6 +42,6 @@ object SeatModule : BoatModule() {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.entityDropItem(SeatItem, 1)
+            boat.correspondingEntity.spawnAtLocation(SeatItem, 1)
     }
 }

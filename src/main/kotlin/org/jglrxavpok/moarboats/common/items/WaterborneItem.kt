@@ -41,12 +41,12 @@ abstract class WaterborneItem(id: String) : MoarBoatsItem(id) {
                     return ActionResult(ActionResultType.FAIL, itemstack)
                 }
 
-                val blockpos1 = blockpos.up()
+                val blockpos1 = blockpos.above()
 
-                if (correspondingBlock.isValidPosition(correspondingBlock.defaultBlockState(), levelIn, blockpos1) && levelIn.isAirBlock(blockpos1)) {
+                if (correspondingBlock.isValidPosition(correspondingBlock.defaultBlockState(), levelIn, blockpos1) && levelIn.isEmptyBlock(blockpos1)) {
                     // special case for handling block placement with water lilies
                     val blocksnapshot = net.minecraftforge.common.util.BlockSnapshot.create(levelIn.registryKey, levelIn, blockpos1)
-                    levelIn.setBlockState(blockpos1, correspondingBlock.defaultBlockState())
+                    levelIn.setBlock(blockpos1, correspondingBlock.defaultBlockState())
                     if (net.minecraftforge.event.ForgeEventFactory.onBlockPlace(playerIn, blocksnapshot, net.minecraft.util.Direction.UP)) {
                         blocksnapshot.restore(true, false)
                         return ActionResult(ActionResultType.FAIL, itemstack)
@@ -55,7 +55,7 @@ abstract class WaterborneItem(id: String) : MoarBoatsItem(id) {
                     val facing = playerIn.adjustedHorizontalFacing.opposite
                     var iblockstate1: BlockState = correspondingBlock.getStateForPlacement(BlockItemUseContext(ItemUseContext(playerIn, handIn, raytraceresult)))
                             ?: return ActionResult(ActionResultType.FAIL, itemstack)
-                    levelIn.setBlockState(blockpos1, iblockstate1, 11)
+                    levelIn.setBlock(blockpos1, iblockstate1, 11)
 
                     iblockstate1.block.onBlockPlacedBy(levelIn, blockpos1, iblockstate1, playerIn, itemstack)
 
@@ -68,7 +68,7 @@ abstract class WaterborneItem(id: String) : MoarBoatsItem(id) {
                     }
 
                     playerIn.addStat(Stats.ITEM_USED[this])
-                    levelIn.playSound(playerIn, blockpos, SoundEvents.BLOCK_LILY_PAD_PLACE, SoundCategory.BLOCKS, 1.0f, 1.0f)
+                    levelIn.playSound(playerIn, blockpos, SoundEvents.LILY_PAD_PLACE, SoundCategory.BLOCKS, 1.0f, 1.0f)
                     return ActionResult(ActionResultType.SUCCESS, itemstack)
                 }
             }

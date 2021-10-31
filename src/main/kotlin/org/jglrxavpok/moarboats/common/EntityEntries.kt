@@ -13,20 +13,20 @@ import org.jglrxavpok.moarboats.common.entities.utilityboats.*
 object EntityEntries {
 
     private var ID = 0
-    val ModularBoat = EntityType.Builder.create({ type: EntityType<ModularBoatEntity>, world -> ModularBoatEntity(world) }, EntityClassification.MISC)
+    val ModularBoat = EntityType.Builder.of({ type: EntityType<ModularBoatEntity>, world -> ModularBoatEntity(world) }, EntityClassification.MISC)
             .setTrackingRange(64)
-            .immuneToFire()
-            .size(1.375f, 0.5625f)
+            .fireImmune()
+            .sized(1.375f, 0.5625f)
             .setShouldReceiveVelocityUpdates(true)
             .setUpdateInterval(3)
             .setCustomClientFactory { t, u -> ModularBoatEntity(u) }
             .build("modular_boat")
             .setRegistryName(ResourceLocation(MoarBoats.ModID, "modular_boat")) as EntityType<ModularBoatEntity>
 
-    val AnimalBoat = EntityType.Builder.create({ type: EntityType<AnimalBoatEntity>, world -> AnimalBoatEntity(world) }, EntityClassification.MISC)
+    val AnimalBoat = EntityType.Builder.of({ type: EntityType<AnimalBoatEntity>, world -> AnimalBoatEntity(world) }, EntityClassification.MISC)
             .setTrackingRange(64)
-            .immuneToFire()
-            .size(1.375f *1.5f, 0.5625f)
+            .fireImmune()
+            .sized(1.375f *1.5f, 0.5625f)
             .setShouldReceiveVelocityUpdates(true)
             .setUpdateInterval(3)
             .setCustomClientFactory { t, u -> AnimalBoatEntity(u) }
@@ -60,10 +60,10 @@ object EntityEntries {
     val list = listOf(ModularBoat, AnimalBoat, FurnaceBoat, SmokerBoat, BlastFurnaceBoat,
             CraftingTableBoat, GrindstoneBoat, LoomBoat, CartographyTableBoat, StonecutterBoat, ChestBoat, EnderChestBoat, ShulkerBoat, JukeboxBoat)
 
-    private inline fun <reified T: UtilityBoatEntity<*,*>> utilityBoatEntry(id: String, crossinline constructor: (World) -> T) = EntityType.Builder.create({ type: EntityType<T>, world -> constructor(world) }, EntityClassification.MISC)
+    private inline fun <reified T: UtilityBoatEntity<*,*>> utilityBoatEntry(id: String, crossinline constructor: (World) -> T) = EntityType.Builder.of({ type: EntityType<T>, world -> constructor(world) }, EntityClassification.MISC)
             .setTrackingRange(64)
-            .immuneToFire()
-            .size(1.375f, 0.5625f)
+            .fireImmune()
+            .sized(1.375f, 0.5625f)
             .setShouldReceiveVelocityUpdates(true)
             .setUpdateInterval(3)
             .setCustomClientFactory { t, u -> constructor(u) }

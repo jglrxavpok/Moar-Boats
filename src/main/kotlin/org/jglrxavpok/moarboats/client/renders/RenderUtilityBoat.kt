@@ -18,7 +18,7 @@ import org.jglrxavpok.moarboats.common.entities.UtilityBoatEntity
 
 class RenderUtilityBoat<T: UtilityBoatEntity<*,*>>(renderManager: EntityRendererManager, val blockstateProvider: (T) ->BlockState): RenderAbstractBoat<T>(renderManager) {
 
-    override fun getEntityTexture(entity: T): ResourceLocation {
+    override fun getTextureLocation(entity: T): ResourceLocation {
         return entity.getBoatType().getTexture()
     }
 
@@ -28,10 +28,10 @@ class RenderUtilityBoat<T: UtilityBoatEntity<*,*>>(renderManager: EntityRenderer
 
     private fun renderBlockInBoat(boat: T, matrixStackIn: MatrixStack, bufferIn: IRenderTypeBuffer, packedLightIn: Int) {
         matrixStackIn.pushPose()
-        matrixStackIn.mulPose(Vector3f.POSITIVE_Y.getDegreesQuaternion(90f))
+        matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(90f))
         matrixStackIn.scale(0.75f, 0.75f, 0.75f)
         matrixStackIn.translate(-0.5, -4f/16.0, 1.0/16.0/0.75)
-        BoatModuleRenderer.renderBlockState(matrixStackIn, bufferIn, packedLightIn, renderManager, blockstateProvider(boat), boat.brightness)
+        BoatModuleRenderer.renderBlockState(matrixStackIn, bufferIn, packedLightIn, entityRenderDispatcher, blockstateProvider(boat), boat.brightness)
         matrixStackIn.popPose()
     }
 

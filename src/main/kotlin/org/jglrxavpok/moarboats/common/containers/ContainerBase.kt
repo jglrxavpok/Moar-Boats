@@ -34,23 +34,23 @@ abstract class ContainerBase<T: Container>(val containerRef: ContainerType<T>, v
         }
     }
 
-    override fun canInteractWith(playerIn: PlayerEntity): Boolean {
+    override fun stillValid(playerIn: PlayerEntity): Boolean {
         return true
     }
 
     override fun transferStackInSlot(playerIn: PlayerEntity, index: Int): ItemStack {
         var itemstack = ItemStack.EMPTY
-        val slot = this.inventorySlots[index]
+        val slot = this.items[index]
 
-        if (slot != null && slot.hasStack) {
+        if (slot != null && !slot.isEmpty) {
             val itemstack1 = slot.stack
             itemstack = itemstack1.copy()
 
             if (index in 0..27) {
-                if (!this.mergeItemStack(itemstack1, 27, 36, false)) {
+                if (!this.moveItemStackTo(itemstack1, 27, 36, false)) {
                     return ItemStack.EMPTY
                 }
-            } else if (index in 27..35 && !this.mergeItemStack(itemstack1, 0, 26, false)) {
+            } else if (index in 27..35 && !this.moveItemStackTo(itemstack1, 0, 26, false)) {
                 return ItemStack.EMPTY
             }
 

@@ -10,6 +10,6 @@ class Checkbox(text: ITextComponent, defaultState: Boolean): GuiBinaryPropertyBu
         set(value) { inFirstState = !value }
 
     override fun getWidth(): Int {
-        return 20+Minecraft.getInstance().font.width(text.unformattedComponentText)+4
+        return 20+Minecraft.getInstance().font.width(text.contents)+4
     }
 }

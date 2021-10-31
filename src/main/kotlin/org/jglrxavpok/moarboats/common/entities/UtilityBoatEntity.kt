@@ -54,7 +54,7 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
     }
 
     override val entityID: Int
-        get() = entityId
+        get() = id
     override val modules: List<BoatModule>
         get() = emptyList()
     override val moduleRNG: Random
@@ -75,12 +75,12 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
         OarEngineModule.controlBoat(this)
 
         if(!blockedRotation) {
-            this.rotationYaw += this.deltaRotation
+            this.yRot += this.deltaRotation
         }
         if(!blockedMotion) {
-            this.setMotion(velocityX + (MathHelper.sin(-this.rotationYaw * 0.017453292f) * acceleration).toDouble(), velocityY, (velocityZ + MathHelper.cos(this.rotationYaw * 0.017453292f) * acceleration).toDouble())
+            this.setDeltaMovement(velocityX + (MathHelper.sin(-this.yRot * 0.017453292f) * acceleration).toDouble(), velocityY, (velocityZ + MathHelper.cos(this.yRot * 0.017453292f) * acceleration).toDouble())
         } else {
-            this.setMotion(0.0, motion.y, 0.0)
+            this.setDeltaMovement(0.0, deltaMovement.y, 0.0)
         }
     }
 
@@ -165,14 +165,14 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
                 val stack = tileEntity.getItem(i)
                 if(stack.isEmpty)
                     continue
-                entityDropItem(stack.copy())
+                spawnAtLocation(stack.copy())
             }
         }
     }
 
     protected fun dropBaseBoat(killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative) {
-            entityDropItem(ItemStack(getBaseBoatItem()))
+            spawnAtLocation(ItemStack(getBaseBoatItem()))
         }
     }
 
@@ -223,10 +223,10 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
             var f = 0.75f * 0.35f
             val f1 = ((if ( ! this.isAlive) 0.009999999776482582 else this.mountedYOffset) + passenger.yOffset).toFloat()
 
-            val vec3d = Vector3d(f.toDouble(), 0.0, 0.0).rotateYaw(-(this.rotationYaw) * 0.017453292f - Math.PI.toFloat() / 2f)
+            val vec3d = Vector3d(f.toDouble(), 0.0, 0.0).yRot(-(this.yRot) * 0.017453292f - Math.PI.toFloat() / 2f)
             passenger.setPosition(this.x + vec3d.x, this.y + f1.toDouble(), this.z + vec3d.z)
-            passenger.rotationYaw += this.deltaRotation
-            passenger.rotationYawHead = passenger.rotationYawHead + this.deltaRotation
+            passenger.yRot += this.deltaRotation
+            passenger.yRotHead = passenger.yRotHead + this.deltaRotation
             this.applyYawToEntity(passenger)
         }
     }

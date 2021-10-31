@@ -46,10 +46,10 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
 
         matrixStackIn.pushPose()
         matrixStackIn.scale(-1.0f, -1.0f, 1.0f)
-        val usualBuffer = bufferIn.getBuffer(this.model.getLayer(getEntityTexture(entity)))
-        this.model.render(matrixStackIn, usualBuffer, packedLightIn, OverlayTexture.DEFAULT_UV, color[0], color[1], color[2], 1f)
-        val noWaterBuffer = bufferIn.getBuffer(RenderType.getWaterMask())
-        this.model.noWater.render(matrixStackIn, noWaterBuffer, packedLightIn, OverlayTexture.DEFAULT_UV)
+        val usualBuffer = bufferIn.getBuffer(this.model.renderType(getTextureLocation(entity)))
+        this.model.render(matrixStackIn, usualBuffer, packedLightIn, OverlayTexture.NO_OVERLAY, color[0], color[1], color[2], 1f)
+        val noWaterBuffer = bufferIn.getBuffer(RenderType.waterMask())
+        this.model.noWater.render(matrixStackIn, noWaterBuffer, packedLightIn, OverlayTexture.NO_OVERLAY)
         matrixStackIn.popPose()
 
         renderLink(RenderInfo(matrixStackIn, bufferIn, packedLightIn), entity, 0.0, 0.0, 0.0, entityYaw, partialTicks)
@@ -60,9 +60,9 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
 
     private fun renderLink(renderInfo: RenderInfo, boatEntity: T, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float) {
         val matrixStack = renderInfo.matrixStack
-        renderManager.textureManager.bind(RopeAnchorTextureLocation)
+        entityRenderDispatcher.textureManager.bind(RopeAnchorTextureLocation)
         // front
-        val ropeBuffer = renderInfo.buffers.getBuffer(RenderType.getEntityTranslucent(RopeAnchorTextureLocation))
+        val ropeBuffer = renderInfo.buffers.getBuffer(RenderType.entityTranslucent(RopeAnchorTextureLocation))
         if(boatEntity.hasLink(BasicBoatEntity.FrontLink)) {
             boatEntity.getLinkedTo(BasicBoatEntity.FrontLink)?.let {
                 matrixStack.pushPose()
@@ -79,7 +79,7 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
                 matrixStack.pushPose()
                 matrixStack.translate(-17.0, -4.0, 0.0)
                 renderActualLink(renderInfo, boatEntity, it, BasicBoatEntity.BackLink, entityYaw)
-                renderManager.textureManager.bind(RopeAnchorTextureLocation)
+                entityRenderDispatcher.textureManager.bind(RopeAnchorTextureLocation)
                 ropeAnchorModel.render(matrixStack, ropeBuffer, renderInfo.combinedLight, 0, 1f, 1f, 1f, 1f)
                 matrixStack.popPose()
             }
@@ -90,7 +90,7 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
         val matrixStack = renderInfo.matrixStack
         val anchorThis = thisBoat.calculateAnchorPosition(sideFromThisBoat)
         val anchorOther = (targetEntity as? BasicBoatEntity)?.calculateAnchorPosition(1-sideFromThisBoat)
-                ?: targetEntity.positionVec
+                ?: targetEntity.position()
         val translateX = anchorOther.x - anchorThis.x
         val translateY = anchorOther.y - anchorThis.y
         val translateZ = anchorOther.z - anchorThis.z
@@ -98,7 +98,7 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
         matrixStack.pushPose()
         matrixStack.mulPose(Quaternion(0f, -(180.0f - entityYaw - 90f), 0.0f, true))
 
-        val bufferbuilder = renderInfo.buffers.getBuffer(RenderType.getLines())
+        val bufferbuilder = renderInfo.buffers.getBuffer(RenderType.lines())
         val l = 32
 
         for (i1 in 0..l) {
@@ -118,7 +118,7 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
     }
 
     private fun setRotation(matrixStack: MatrixStack, entity: T, entityYaw: Float, partialTicks: Float) {
-        matrixStack.mulPose(Quaternion(Vector3f.POSITIVE_Y, 180.0f - entityYaw - 90f, true))
+        matrixStack.mulPose(Quaternion(Vector3f.YP, 180.0f - entityYaw - 90f, true))
         val timeSinceHit = entity.timeSinceHit - partialTicks
         var damage = entity.damageTaken - partialTicks
 
@@ -127,7 +127,7 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
         }
 
         if (timeSinceHit > 0.0f) {
-            matrixStack.mulPose(Quaternion(Vector3f.POSITIVE_X, MathHelper.sin(timeSinceHit) * timeSinceHit * damage / 10.0f * entity.forwardDirection, true))
+            matrixStack.mulPose(Quaternion(Vector3f.XP, MathHelper.sin(timeSinceHit) * timeSinceHit * damage / 10.0f * entity.forwardDirection, true))
         }
     }
 }

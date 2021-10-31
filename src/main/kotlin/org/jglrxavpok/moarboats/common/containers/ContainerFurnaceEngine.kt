@@ -25,19 +25,19 @@ class ContainerFurnaceEngine(containerID: Int, playerInventory: PlayerInventory,
         this.addSlot(SlotEngineFuel(engineInventory, 0, 8, 8))
 
         addPlayerSlots(isLarge = true)
-        this.trackIntArray(engineInventory.additionalData)
+        this.addDataSlots(engineInventory.additionalData)
     }
 
-    override fun detectAndSendChanges() {
-        super.detectAndSendChanges()
+    override fun broadcastChanges() {
+        super.broadcastChanges()
 
         for(listener in getListeners(this)) {
             if (this.fuelTotalTime != this.engineInventory.getField(0)) {
-                listener.sendWindowProperty(this, 0, this.engineInventory.getField(0))
+                listener.setContainerData(this, 0, this.engineInventory.getField(0))
             }
 
             if (this.fuelTime != this.engineInventory.getField(1)) {
-                listener.sendWindowProperty(this, 1, this.engineInventory.getField(1))
+                listener.setContainerData(this, 1, this.engineInventory.getField(1))
             }
         }
 
@@ -52,25 +52,25 @@ class ContainerFurnaceEngine(containerID: Int, playerInventory: PlayerInventory,
 
     override fun transferStackInSlot(playerIn: PlayerEntity, index: Int): ItemStack {
         var itemstack = ItemStack.EMPTY
-        val slot = this.inventorySlots[index]
+        val slot = this.items[index]
 
-        if (slot != null && slot.hasStack) {
+        if (slot != null && !slot.isEmpty) {
             val itemstack1 = slot.stack
             itemstack = itemstack1.copy()
 
             if (index != 0) {
                 if (FurnaceTileEntity.isFuel(itemstack1)) {
-                    if (!this.mergeItemStack(itemstack1, 0, 1, false)) {
+                    if (!this.moveItemStackTo(itemstack1, 0, 1, false)) {
                         return ItemStack.EMPTY
                     }
                 } else if (index in 1..28) {
-                    if (!this.mergeItemStack(itemstack1, 28, 37, false)) {
+                    if (!this.moveItemStackTo(itemstack1, 28, 37, false)) {
                         return ItemStack.EMPTY
                     }
-                } else if (index in 28..36 && !this.mergeItemStack(itemstack1, 1, 27, false)) {
+                } else if (index in 28..36 && !this.moveItemStackTo(itemstack1, 1, 27, false)) {
                     return ItemStack.EMPTY
                 }
-            } else if (!this.mergeItemStack(itemstack1, 1, 37, false)) {
+            } else if (!this.moveItemStackTo(itemstack1, 1, 37, false)) {
                 return ItemStack.EMPTY
             }
 

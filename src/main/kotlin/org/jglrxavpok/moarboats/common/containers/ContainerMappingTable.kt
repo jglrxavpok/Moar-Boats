@@ -19,41 +19,41 @@ class ContainerMappingTable(containerID: Int, val te: TileEntityMappingTable, va
 
     override fun putStackInSlot(slotID: Int, stack: ItemStack?) {
         super.putStackInSlot(slotID, stack)
-        detectAndSendChanges()
+        broadcastChanges()
     }
 
     override fun onCraftMatrixChanged(inventoryIn: IInventory?) {
         super.onCraftMatrixChanged(inventoryIn)
-        detectAndSendChanges()
+        broadcastChanges()
     }
 
     override fun slotClick(slotId: Int, dragType: Int, clickTypeIn: ClickType?, player: PlayerEntity?): ItemStack {
         val r = super.slotClick(slotId, dragType, clickTypeIn, player)
-        detectAndSendChanges()
+        broadcastChanges()
         return r
     }
 
     override fun transferStackInSlot(playerIn: PlayerEntity, index: Int): ItemStack {
         var itemstack = ItemStack.EMPTY
-        val slot = this.inventorySlots[index]
+        val slot = this.items[index]
 
-        if (slot != null && slot.hasStack) {
+        if (slot != null && !slot.isEmpty) {
             val itemstack1 = slot.stack
             itemstack = itemstack1.copy()
 
             if (index != 0) {
                 if (itemstack1.item == MapItemWithPath || itemstack1.item == ItemGoldenTicket) {
-                    if (!this.mergeItemStack(itemstack1, 0, 1, false)) {
+                    if (!this.moveItemStackTo(itemstack1, 0, 1, false)) {
                         return ItemStack.EMPTY
                     }
                 } else if (index in 1..28) {
-                    if (!this.mergeItemStack(itemstack1, 28, 37, false)) {
+                    if (!this.moveItemStackTo(itemstack1, 28, 37, false)) {
                         return ItemStack.EMPTY
                     }
-                } else if (index in 28..36 && !this.mergeItemStack(itemstack1, 1, 27, false)) {
+                } else if (index in 28..36 && !this.moveItemStackTo(itemstack1, 1, 27, false)) {
                     return ItemStack.EMPTY
                 }
-            } else if (!this.mergeItemStack(itemstack1, 1, 37, false)) {
+            } else if (!this.moveItemStackTo(itemstack1, 1, 37, false)) {
                 return ItemStack.EMPTY
             }
 

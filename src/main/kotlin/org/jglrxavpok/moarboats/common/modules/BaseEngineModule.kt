@@ -90,8 +90,8 @@ abstract class BaseEngineModule: BoatModule() {
             val posX = from.positionX
             val posY = from.positionY
             val posZ = from.positionZ
-            val rotationYaw = from.yaw
-            val angle = (rotationYaw + 90f).toRadians()
+            val yRot = from.yaw
+            val angle = (yRot + 90f).toRadians()
             val distAlongLength = 0.0625f * 17f * -1f
 
             val pos = BlockPos.Mutable(posX, posY-0.5, posZ)

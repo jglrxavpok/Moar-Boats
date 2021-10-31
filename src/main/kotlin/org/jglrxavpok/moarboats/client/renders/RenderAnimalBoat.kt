@@ -22,7 +22,7 @@ class RenderAnimalBoat(EntityRendererManager: EntityRendererManager): RenderAbst
         val TextureLocation = ResourceLocation(MoarBoats.ModID, "textures/entity/animal_boat.png")
     }
 
-    override fun getEntityTexture(entity: AnimalBoatEntity) = TextureLocation
+    override fun getTextureLocation(entity: AnimalBoatEntity) = TextureLocation
 
     override fun getBoatColor(boat: AnimalBoatEntity) = RenderAbstractBoat.WhiteColor
 

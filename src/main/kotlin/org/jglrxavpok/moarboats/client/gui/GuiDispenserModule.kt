@@ -87,13 +87,13 @@ class GuiDispenserModule(containerID: Int, playerInv: PlayerInventory, module: B
     override fun drawModuleForeground(mouseX: Int, mouseY: Int) {
         val maxX = 78f
         val startY = 26f
-        val topWidth = font.width(topRowText.formatted().string)
+        val topWidth = font.width(topRowText/*.formatted()*/.string)
         font.draw(matrixStack, topRowText, maxX - topWidth, startY, 0xF0F0F0)
 
-        val middleWidth = font.width(middleRowText.formatted().string)
+        val middleWidth = font.width(middleRowText/*.formatted()*/.string)
         font.draw(matrixStack, middleRowText, maxX - middleWidth, startY + 20, 0xF0F0F0)
 
-        val bottomWidth = font.width(bottomRowText.formatted().string)
+        val bottomWidth = font.width(bottomRowText/*.formatted()*/.string)
         font.draw(matrixStack, bottomRowText, maxX - bottomWidth, startY + 40, 0xF0F0F0)
 
         font.drawCenteredString(matrixStack, periodText, 88, 90, 0xF0F0F0)

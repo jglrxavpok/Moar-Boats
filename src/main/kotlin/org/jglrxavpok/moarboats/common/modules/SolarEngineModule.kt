@@ -76,7 +76,7 @@ object SolarEngineModule : BaseEngineModule() {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.entityDropItem(Blocks.DAYLIGHT_DETECTOR.asItem(), 1)
+            boat.correspondingEntity.spawnAtLocation(Blocks.DAYLIGHT_DETECTOR.asItem(), 1)
     }
 
 }

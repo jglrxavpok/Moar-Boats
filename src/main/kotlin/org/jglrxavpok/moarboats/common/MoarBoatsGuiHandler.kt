@@ -26,7 +26,7 @@ object MoarBoatsGuiHandler {
         }
 
         override fun createMenu(containerID: Int, playerInventory: PlayerInventory, player: PlayerEntity): Container? {
-            val level = player.world
+            val level = player.level
             val boat = level.getEntity(boatID) as? ModularBoatEntity ?: return null
             // y below 0 means that the menu should display the most interesting module first (generally engine > storage > navigation > misc.)
             val module = if(moduleIndex < 0) boat.findFirstModuleToShowOnGui() else boat.modules[moduleIndex]
@@ -43,8 +43,8 @@ object MoarBoatsGuiHandler {
         }
 
         override fun createMenu(containerID: Int, playerInventory: PlayerInventory, playerIn: PlayerEntity): Container? {
-            return blockPos.setPos(x,y, z).run {
-                val te = playerIn.world.getBlockEntity(this) as? TE
+            return blockPos.set(x,y, z).run {
+                val te = playerIn.level.getBlockEntity(this) as? TE
                 if(te != null) {
                     containerGenerator(containerID, te, playerInventory, playerIn)
                 } else {

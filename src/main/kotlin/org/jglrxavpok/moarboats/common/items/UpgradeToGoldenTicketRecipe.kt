@@ -25,13 +25,13 @@ object UpgradeToGoldenTicketRecipe: ICraftingRecipe {
         return MBRecipeSerializers.UpgradeToGoldenTicket
     }
 
-    override fun canFit(width: Int, height: Int): Boolean {
+    override fun canCraftInDimensions(width: Int, height: Int): Boolean {
         return width*height >= 2
     }
 
-    override fun getRecipeOutput() = ItemStack.EMPTY
+    override fun getResultItem() = ItemStack.EMPTY
 
-    override fun getCraftingResult(inv: CraftingInventory): ItemStack {
+    override fun assemble(inv: CraftingInventory): ItemStack {
         var emptyTickets = 0
         var fullMaps = 0
         var fullMap: ItemStack? = null

@@ -35,7 +35,7 @@ class GuiTankModule(containerID: Int, playerInventory: PlayerInventory, module: 
         val localY = mouseY - guiTop
         if(localX in 60..(60+55) && localY in 6..(6+75)) {
             val fluidName = TranslationTextComponent(tankModule.getFluidInside(boat)?.attributes?.getTranslationKey(tankModule.getContents(boat)!!) ?: "nothing")
-            renderTooltip(matrixStack, TranslationTextComponent(MoarBoats.ModID+".tank_level", tankModule.getFluidAmount(boat), tankModule.getCapacity(boat), fluidName).formatted(), localX, localY)
+            renderTooltip(matrixStack, TranslationTextComponent(MoarBoats.ModID+".tank_level", tankModule.getFluidAmount(boat), tankModule.getCapacity(boat), fluidName)/*.formatted()*/, localX, localY)
         }
     }
 
@@ -45,7 +45,7 @@ class GuiTankModule(containerID: Int, playerInventory: PlayerInventory, module: 
         GlStateManager._disableCull()
         val fluid = tankModule.getFluidInside(boat)
         if(fluid != null && fluid !is EmptyFluid) {
-            renderFluidInGui(guiLeft+56, guiTop+80, fluid, tankModule.getFluidAmount(boat), tankModule.getCapacity(boat), horizontalTilesCount = 4, world = boat.world, position = boat.correspondingEntity.blockPos)
+            renderFluidInGui(guiLeft+56, guiTop+80, fluid, tankModule.getFluidAmount(boat), tankModule.getCapacity(boat), horizontalTilesCount = 4, world = boat.world, position = boat.correspondingEntity.blockPosition())
         }
     }
 

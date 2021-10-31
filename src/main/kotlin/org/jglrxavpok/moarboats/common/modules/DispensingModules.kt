@@ -132,7 +132,7 @@ abstract class DispensingModule: BoatModule() {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.entityDropItem(BoatModuleRegistry.findEntry(this)!!.correspondingItem, 1)
+            boat.correspondingEntity.spawnAtLocation(BoatModuleRegistry.findEntry(this)!!.correspondingItem, 1)
     }
 }
 
@@ -142,7 +142,7 @@ object DropperModule: DispensingModule() {
     private val dropBehavior = DefaultDispenseItemBehavior()
 
     override fun dispenseItem(row: Int, boat: IControllable) {
-        val pos = boat.correspondingEntity.positionVec
+        val pos = boat.correspondingEntity.position()
         val blockPos = BlockPos.Mutable(pos.x, pos.y+row + .75f, pos.z)
         val inventoryRowStart = (-row)*5 +5
         firstValidStack(inventoryRowStart, boat)?.let { (index, stack) ->
@@ -156,7 +156,7 @@ object DispenserModule: DispensingModule() {
     override val id = ResourceLocation(MoarBoats.ModID, "dispenser")
 
     override fun dispenseItem(row: Int, boat: IControllable) {
-        val pos = boat.correspondingEntity.positionVec
+        val pos = boat.correspondingEntity.position()
         val blockPos = BlockPos.Mutable(pos.x, pos.y+row + .75f, pos.z)
         val inventoryRowStart = (-row)*5 +5
         firstValidStack(inventoryRowStart, boat)?.let { (index, stack) ->
@@ -185,10 +185,10 @@ object DispenserModule: DispensingModule() {
         val facing = boat.reorientate(facingProperty[boat]).opposite
         val blockPos = pos.relative(facing)
         val block = item.block
-        val newState = block.defaultState // TODO: handle multiple types?
-        if(world.isAirBlock(blockPos) || Fluids.isUsualLiquidBlock(world, blockPos)) {
+        val newState = block.defaultBlockState() // TODO: handle multiple types?
+        if(world.isEmptyBlock(blockPos) || Fluids.isUsualLiquidBlock(world, blockPos)) {
             if(block.isValidPosition(newState, world, blockPos)) {
-                val succeeded = world.setBlockState(blockPos, newState, 11)
+                val succeeded = world.setBlock(blockPos, newState, 11)
                 if (succeeded) {
                     try {
                         val state = world.getBlockState(blockPos)

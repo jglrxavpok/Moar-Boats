@@ -21,20 +21,20 @@ class TileEntityMappingTable: TileEntity(MoarBoats.TileEntityMappingTableType) {
     val inventory = Inventory(1)
     val invWrapper = InvWrapper(inventory)
 
-    override fun write(compound: CompoundNBT): CompoundNBT {
+    override fun save(compound: CompoundNBT): CompoundNBT {
         val invList = NonNullList.withSize(inventory.containerSize, ItemStack.EMPTY)
         for(i in 0 until inventory.containerSize) {
             invList[i] = inventory.getItem(i) ?: ItemStack.EMPTY
         }
         ItemStackHelper.saveAllItems(compound, invList)
-        return super.write(compound)
+        return super.save(compound)
     }
 
     override fun deserializeNBT(state: BlockState, compound: CompoundNBT) {
         super.deserializeNBT(state, compound)
         val invList = NonNullList.withSize(inventory.containerSize, ItemStack.EMPTY)
         ItemStackHelper.loadAllItems(compound, invList)
-        inventory.clear()
+        inventory.clearContent()
         for(i in 0 until inventory.containerSize) {
             inventory.setItem(i, invList.get(i))
         }

@@ -37,17 +37,17 @@ class GuiHelmModule(containerID: Int, playerInventory: PlayerInventory, engine: 
     private val editButtonText = TranslationTextComponent("gui.helm.path_editor")
     private val saveButtonText = TranslationTextComponent("moarboats.gui.helm.save_on_map")
     private val mapEditButton = Button(0, 0, 150, 20, editButtonText) {
-        val mapData = getMapData(baseContainer.getSlot(0).stack)
+        val mapData = getMapData(baseContainer.getSlot(0).item)
         if(mapData != null && mapData != EmptyMapData) {
             boat.modules.firstOrNull() { it.moduleSpot == BoatModule.Spot.Engine }?.let {
                 MoarBoats.network.sendToServer(CChangeEngineMode(boat.entityID, it.id, true))
             }
-            mc.displayGuiScreen(HelmModule.createPathEditorGui(playerInventory.player, boat, mapData))
+            mc.setScreen(HelmModule.createPathEditorGui(playerInventory.player, boat, mapData))
         }
     }
     private val saveButton = Button(0, 0, 150, 20, saveButtonText) {
-        val mapData = getMapData(baseContainer.getSlot(0).stack)
-        if(mapData != null && mapData != EmptyMapData && baseContainer.getSlot(0).stack.item == Items.FILLED_MAP) {
+        val mapData = getMapData(baseContainer.getSlot(0).item)
+        if(mapData != null && mapData != EmptyMapData && baseContainer.getSlot(0).item.item == Items.FILLED_MAP) {
             MoarBoats.network.sendToServer(CSaveItineraryToMap(boat.entityID, HelmModule.id))
         }
     }
@@ -111,7 +111,7 @@ class GuiHelmModule(containerID: Int, playerInventory: PlayerInventory, engine: 
 
             RenderSystem.pushMatrix()
             RenderSystem.multMatrix(matrixStack.last().pose())
-            mc.itemRenderer.renderItemIntoGUI(mapStack, 0, 0)
+            mc.itemRenderer.renderGuiItem(mapStack, 0, 0)
             RenderSystem.popMatrix()
 
             RenderSystem.depthFunc(GL11.GL_GREATER)

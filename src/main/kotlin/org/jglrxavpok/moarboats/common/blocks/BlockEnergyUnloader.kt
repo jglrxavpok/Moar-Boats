@@ -29,10 +29,10 @@ object BlockEnergyUnloader: MoarBoatsBlock() {
 
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "boat_energy_discharger")
-        defaultState = stateContainer.baseState.with(Facing, Direction.UP)
+        this.registerDefaultState(this.defaultBlockState().setValue(Facing, Direction.UP))
     }
 
-    override fun fillStateContainer(builder: StateContainer.Builder<Block, BlockState>) {
+    override fun createBlockStateDefinition(builder: StateContainer.Builder<Block, BlockState>) {
         builder.add(Facing)
     }
 
@@ -43,7 +43,7 @@ object BlockEnergyUnloader: MoarBoatsBlock() {
     }
 
     override fun getStateForPlacement(context: BlockItemUseContext): BlockState? {
-        return this.defaultState.with(Facing, context.nearestLookingDirection)
+        return this.defaultBlockState().setValue(Facing, context.nearestLookingDirection)
     }
 
     override fun onUse(state: BlockState, worldIn: World, pos: BlockPos, playerIn: PlayerEntity, hand: Hand?, hit: BlockRayTraceResult): ActionResultType {

@@ -17,10 +17,10 @@ class GuiEnergy(type: ContainerType<EnergyContainer>, containerID: Int, val te: 
     private val energyBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/energy.png")
     private val defaultBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/default_background.png")
 
-    override fun drawBackground(matrixStack: MatrixStack, partialTicks: Float, mouseX: Int, mouseY: Int) {
-        minecraft.textureManager.bind(defaultBackground)
+    override fun renderBg(matrixStack: MatrixStack, partialTicks: Float, mouseX: Int, mouseY: Int) {
+        minecraft!!.textureManager.bind(defaultBackground)
         drawTexture(matrixStack, guiLeft, guiTop, 0, 0, xSize, ySize)
-        minecraft.textureManager.bind(energyBackground)
+        minecraft!!.textureManager.bind(energyBackground)
         drawTexture(matrixStack, guiLeft, guiTop, 0, 0, xSize, ySize)
 
         GlStateManager._disableCull()
@@ -28,8 +28,8 @@ class GuiEnergy(type: ContainerType<EnergyContainer>, containerID: Int, val te: 
         drawTexture(matrixStack, guiLeft+60, guiTop+80, 201, 74, 55, -energyHeight)
     }
 
-    override fun drawForeground(matrixStack: MatrixStack, mouseX: Int, mouseY: Int) {
-        super.drawForeground(matrixStack, mouseX, mouseY)
+    override fun renderLabels(matrixStack: MatrixStack, mouseX: Int, mouseY: Int) {
+        super.renderLabels(matrixStack, mouseX, mouseY)
         val localX = mouseX - guiLeft
         val localY = mouseY - guiTop
         if(localX in 60..(60+55) && localY in 6..(6+75)) {

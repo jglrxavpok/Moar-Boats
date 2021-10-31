@@ -11,8 +11,8 @@ import org.jglrxavpok.moarboats.common.OnlyUsableOnBoats
 
 object ChunkLoaderItem : MoarBoatsItem("chunk_loader") {
 
-    override fun addInformation(stack: ItemStack?, player: World?, tooltip: MutableList<ITextComponent>, advanced: ITooltipFlag?) {
-        super.addInformation(stack, player, tooltip, advanced)
+    override fun appendHoverText(stack: ItemStack?, player: World?, tooltip: MutableList<ITextComponent>, advanced: ITooltipFlag?) {
+        super.appendHoverText(stack, player, tooltip, advanced)
         tooltip.add(OnlyUsableOnBoats)
     }
 

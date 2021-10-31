@@ -44,7 +44,7 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
     private var buttonId = 0
     private val addWaypointButton = Button(0, 0, 150, 20, addWaypointText) {
         waypointToEditAfterCreation = list.children().size
-        if(container.getSlot(0).stack.item == ItemGoldenTicket) {
+        if(menu.getSlot(0).item.item == ItemGoldenTicket) {
             MoarBoats.network.sendToServer(CAddWaypointToGoldenTicketFromMappingTable(te.blockPos, null, null, te))
         } else {
             MoarBoats.network.sendToServer(CAddWaypointToItemPathFromMappingTable(te.blockPos, null, null, te))
@@ -52,7 +52,7 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
     }
     private val insertWaypointButton = Button(0, 0, 150, 20, insertWaypointText) {
         waypointToEditAfterCreation = selectedIndex+1
-        if(container.getSlot(0).stack.item == ItemGoldenTicket) {
+        if(menu.getSlot(0).item.item == ItemGoldenTicket) {
             MoarBoats.network.sendToServer(CAddWaypointToGoldenTicketFromMappingTable(te.blockPos, null, selectedIndex, te))
         } else {
             MoarBoats.network.sendToServer(CAddWaypointToItemPathFromMappingTable(te.blockPos, null, selectedIndex, te))
@@ -62,7 +62,7 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
         edit(selectedIndex)
     }
     private val removeWaypointButton = Button(0, 0, 150, 20, removeWaypointText) {
-        if(container.getSlot(0).stack.item == ItemGoldenTicket) {
+        if(menu.getSlot(0).item.item == ItemGoldenTicket) {
             MoarBoats.network.sendToServer(CRemoveWaypointFromGoldenTicketFromMappingTable(selectedIndex, te))
         } else {
             MoarBoats.network.sendToServer(CRemoveWaypointFromMapWithPathFromMappingTable(selectedIndex, te))
@@ -81,7 +81,7 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
         private set
 
     override fun init() {
-        this.ySize = 114 + 6 * 18
+        this.height = 114 + 6 * 18
         super.init()
         val totalWidth = xSize*.90f
         val xStart = (xSize-totalWidth)/2f+guiLeft
@@ -93,8 +93,8 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
         // TODO:
         // add button to use GuiPathEditor
 
-        this.container.removeListener(this)
-        this.container.addListener(this)
+        this.menu.removeSlotListener(this)
+        this.menu.addSlotListener(this)
 
         val buttonWidth = totalWidth/controls.size
         for ((index, control) in controls.withIndex()) {
@@ -143,7 +143,7 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
         return super.mouseScrolled(x, y, p_mouseScrolled_1_)
     }
 
-    override fun drawBackground(matrixStack: MatrixStack, partialTicks: Float, mouseX: Int, mouseY: Int) {
+    override fun renderBg(matrixStack: MatrixStack, partialTicks: Float, mouseX: Int, mouseY: Int) {
         mc.textureManager.bind(Background)
         drawTexture(matrixStack, guiLeft, guiTop, 0, 0, this.xSize, this.ySize)
 
@@ -157,16 +157,16 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
             list.render(matrixStack, mouseX, mouseY, partialTicks)
         }
 
-        drawMouseoverTooltip(matrixStack, mouseX, mouseY)
+        renderTooltip(matrixStack, mouseX, mouseY)
     }
 
     fun select(index: Int) {
         selectedIndex = index
     }
 
-    override fun sendWindowProperty(containerIn: Container, varToUpdate: Int, newValue: Int) {}
+    override fun setContainerData(containerIn: Container, varToUpdate: Int, newValue: Int) {}
 
-    override fun sendSlotContents(p_71111_1_: Container, slotInd: Int, stack: ItemStack) {
+    override fun slotChanged(p_71111_1_: Container, slotInd: Int, stack: ItemStack) {
         if(slotInd == 0)
             resetList(stack)
     }
@@ -189,8 +189,8 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
         }
     }
 
-    override fun sendAllContents(containerToSend: Container, itemsList: NonNullList<ItemStack>) {
-        this.sendSlotContents(containerToSend, 0, containerToSend.getSlot(0).item)
+    override fun refreshContainer(containerToSend: Container, itemsList: NonNullList<ItemStack>) {
+        this.slotChanged(containerToSend, 0, containerToSend.getSlot(0).item)
     }
 
     fun confirmWaypointCreation(data: ListNBT) {
@@ -208,13 +208,13 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
     }
 
     fun confirmSwap() {
-        resetList(container.inventory[0])
+        resetList(menu.items[0])
     }
 
     fun edit(index: Int) {
         val player = playerInv.player
         selectedIndex = index
-        mc.displayGuiScreen(GuiWaypointEditor(player, te, selectedIndex, this))
+        mc.setScreen(GuiWaypointEditor(player, te, selectedIndex, this))
     }
 
     fun swap(index1: Int, index2: Int) {
