@@ -17,28 +17,28 @@ class ContainerMappingTable(containerID: Int, val te: TileEntityMappingTable, va
         addPlayerSlots(true)
     }
 
-    override fun putStackInSlot(slotID: Int, stack: ItemStack?) {
-        super.putStackInSlot(slotID, stack)
+    override fun setItem(slotID: Int, stack: ItemStack?) {
+        super.setItem(slotID, stack)
         broadcastChanges()
     }
 
-    override fun onCraftMatrixChanged(inventoryIn: IInventory?) {
-        super.onCraftMatrixChanged(inventoryIn)
+    override fun slotsChanged(inventoryIn: IInventory?) {
+        super.slotsChanged(inventoryIn)
         broadcastChanges()
     }
 
-    override fun slotClick(slotId: Int, dragType: Int, clickTypeIn: ClickType?, player: PlayerEntity?): ItemStack {
-        val r = super.slotClick(slotId, dragType, clickTypeIn, player)
+    override fun clicked(slotId: Int, dragType: Int, clickTypeIn: ClickType?, player: PlayerEntity?): ItemStack {
+        val r = super.clicked(slotId, dragType, clickTypeIn, player)
         broadcastChanges()
         return r
     }
 
-    override fun transferStackInSlot(playerIn: PlayerEntity, index: Int): ItemStack {
+    override fun quickMoveStack(playerIn: PlayerEntity, index: Int): ItemStack {
         var itemstack = ItemStack.EMPTY
-        val slot = this.items[index]
+        val slot = this.slots[index]
 
-        if (slot != null && !slot.isEmpty) {
-            val itemstack1 = slot.stack
+        if (slot != null && slot.hasItem()) {
+            val itemstack1 = slot.item
             itemstack = itemstack1.copy()
 
             if (index != 0) {
@@ -58,9 +58,9 @@ class ContainerMappingTable(containerID: Int, val te: TileEntityMappingTable, va
             }
 
             if (itemstack1.isEmpty) {
-                slot.putStack(ItemStack.EMPTY)
+                slot.set(ItemStack.EMPTY)
             } else {
-                slot.onSlotChanged()
+                slot.setChanged()
             }
 
             if (itemstack1.count == itemstack.count) {
@@ -74,11 +74,11 @@ class ContainerMappingTable(containerID: Int, val te: TileEntityMappingTable, va
     }
 
     private inner class SlotMappingTable(inventory: IInventory, index: Int, x: Int, y: Int): Slot(inventory, index, x, y) {
-        override fun isItemValid(stack: ItemStack): Boolean {
+        override fun mayPlace(stack: ItemStack): Boolean {
             return stack.item == MapItemWithPath || stack.item == ItemGoldenTicket
         }
 
-        override fun getSlotStackLimit(): Int {
+        override fun getMaxStackSize(): Int {
             return 1
         }
     }

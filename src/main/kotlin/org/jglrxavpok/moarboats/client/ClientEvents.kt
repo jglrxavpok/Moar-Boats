@@ -368,7 +368,7 @@ object ClientEvents {
         }
         if(mc.options.keyInventory.key.value == keyEvent.key) {
             val player = mc.player!!
-            if(player.ridingEntity is BasicBoatEntity) {
+            if(player.rootVehicle is BasicBoatEntity) {
                 MoarBoats.network.send(PacketDistributor.SERVER.noArg(), CShowBoatMenu()) // send the request to the server so that a container can be opened on the server-side if necessary
             }
         }

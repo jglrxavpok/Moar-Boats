@@ -46,16 +46,16 @@ class ContainerFurnaceEngine(containerID: Int, playerInventory: PlayerInventory,
     }
 
     @OnlyIn(Dist.CLIENT)
-    override fun updateProgressBar(id: Int, data: Int) {
+    override fun setData(id: Int, data: Int) {
         this.engineInventory.setField(id, data)
     }
 
-    override fun transferStackInSlot(playerIn: PlayerEntity, index: Int): ItemStack {
+    override fun quickMoveStack(playerIn: PlayerEntity, index: Int): ItemStack {
         var itemstack = ItemStack.EMPTY
-        val slot = this.items[index]
+        val slot = this.slots[index]
 
-        if (slot != null && !slot.isEmpty) {
-            val itemstack1 = slot.stack
+        if (slot != null && slot.hasItem()) {
+            val itemstack1 = slot.item
             itemstack = itemstack1.copy()
 
             if (index != 0) {
@@ -75,9 +75,9 @@ class ContainerFurnaceEngine(containerID: Int, playerInventory: PlayerInventory,
             }
 
             if (itemstack1.isEmpty) {
-                slot.putStack(ItemStack.EMPTY)
+                slot.set(ItemStack.EMPTY)
             } else {
-                slot.onSlotChanged()
+                slot.setChanged()
             }
 
             if (itemstack1.count == itemstack.count) {
@@ -93,12 +93,12 @@ class ContainerFurnaceEngine(containerID: Int, playerInventory: PlayerInventory,
 
     class SlotEngineFuel(inventoryIn: IInventory, slotIndex: Int, xPosition: Int, yPosition: Int) : Slot(inventoryIn, slotIndex, xPosition, yPosition) {
 
-        override fun isItemValid(stack: ItemStack): Boolean {
+        override fun mayPlace(stack: ItemStack): Boolean {
             return FurnaceEngineModule.isItemFuel(stack) || isBucket(stack)
         }
 
-        override fun getItemStackLimit(stack: ItemStack): Int {
-            return if (isBucket(stack)) 1 else super.getItemStackLimit(stack)
+        override fun getMaxStackSize(stack: ItemStack): Int {
+            return if (isBucket(stack)) 1 else super.getMaxStackSize(stack)
         }
 
         fun isBucket(stack: ItemStack): Boolean {

@@ -34,8 +34,8 @@ object RudderModule: BoatModule(), BlockReason {
             }
             return
         }
-        val forward = controllingEntity.moveForward
-        val strafe = controllingEntity.moveStrafing
+        val forward = controllingEntity.zza
+        val strafe = controllingEntity.xxa
         if(forward <= 0.001f) {
             if(BlockingProperty[from])
                 from.blockMovement(this)

@@ -9,9 +9,9 @@ class EnergyContainer(containerType: ContainerType<EnergyContainer>, containerID
 
     private var energy = -1
     private var energyHolder = object: IntReferenceHolder() {
-        override fun isDirty(): Boolean {
+/*        override fun checkAndClearUpdateFlag(): Boolean {
             return energy != te.energy
-        }
+        }*/
 
         override fun get(): Int {
             return energy
@@ -24,11 +24,11 @@ class EnergyContainer(containerType: ContainerType<EnergyContainer>, containerID
 
     init {
         te.addContainerListener(this)
-        this.trackInt(energyHolder)
+        this.addDataSlot(energyHolder)
     }
 
-    override fun onContainerClosed(playerIn: PlayerEntity?) {
-        super.onContainerClosed(playerIn)
+    override fun removed(playerIn: PlayerEntity?) {
+        super.removed(playerIn)
         te.removeContainerListener(this)
     }
 }

@@ -33,7 +33,7 @@ object BlockWaterborneComparator: RedstoneDiodeBlock(Properties.of(Material.DECO
         this.registerDefaultState(this.defaultBlockState().setValue(HorizontalBlock.FACING, Direction.NORTH).setValue(POWERED, false))
     }
 
-    override fun ticksRandomly(state: BlockState) = true
+    override fun isRandomlyTicking(state: BlockState) = true
 
     override fun canConnectRedstone(state: BlockState?, world: IBlockReader?, pos: BlockPos?, side: Direction?): Boolean {
         return state != null && side != null && side != Direction.DOWN && side != Direction.UP && (side == state.getValue(HorizontalBlock.FACING) || side == state.get(HorizontalBlock.FACING).opposite)
@@ -43,8 +43,8 @@ object BlockWaterborneComparator: RedstoneDiodeBlock(Properties.of(Material.DECO
         return VoxelShapes.empty()
     }
 
-    override fun isValidPosition(state: BlockState, worldIn: IWorldReader, pos: BlockPos): Boolean {
-        return worldIn.getFluidState(pos.below()).isTagged(FluidTags.WATER)
+    override fun canSurvive(state: BlockState, worldIn: IWorldReader, pos: BlockPos): Boolean {
+        return worldIn.getFluidState(pos.below()).`is`(FluidTags.WATER)
     }
 
     override fun getDelay(state: BlockState?): Int {
@@ -54,8 +54,8 @@ object BlockWaterborneComparator: RedstoneDiodeBlock(Properties.of(Material.DECO
     override fun getWeakPower(state: BlockState, blockAccess: IBlockReader, pos: BlockPos, side: Direction): Int {
         if(blockAccess is World && side == state.getValue(HorizontalBlock.FACING)) {
             val world = blockAccess
-            val aabb = AxisAlignedBB(pos.offset(state.getValue(HorizontalBlock.FACING)))
-            val entities = world.getEntitiesWithinAABB(BasicBoatEntity::class.java, aabb) { e -> e != null && e.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).isPresent }
+            val aabb = AxisAlignedBB(pos.relative(state.getValue(HorizontalBlock.FACING)))
+            val entities = world.getEntitiesOfClass(BasicBoatEntity::class.java, aabb) { e -> e != null && e.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).isPresent }
             val first = entities.firstOrNull()
             return first?.let {
                 it.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).map { capa -> calcRedstoneFromInventory(capa) }.orElse(0)
@@ -67,10 +67,10 @@ object BlockWaterborneComparator: RedstoneDiodeBlock(Properties.of(Material.DECO
     override fun scheduledTick(state: BlockState, worldIn: ServerWorld, pos: BlockPos, random: Random) {
         val produceSignal = shouldBePowered(worldIn, pos, state)
         when {
-            produceSignal && !state.getValue(POWERED) -> worldIn.setBlock(pos, state.setValue(POWERED, true).setValue(HorizontalBlock.FACING, state.getValue(HorizontalBlock.FACING)))
-            !produceSignal && state.getValue(POWERED) -> worldIn.setBlock(pos, state.setValue(POWERED, false).setValue(HorizontalBlock.FACING, state.getValue(HorizontalBlock.FACING)))
+            produceSignal && !state.getValue(POWERED) -> worldIn.setBlockAndUpdate(pos, state.setValue(POWERED, true).setValue(HorizontalBlock.FACING, state.getValue(HorizontalBlock.FACING)))
+            !produceSignal && state.getValue(POWERED) -> worldIn.setBlockAndUpdate(pos, state.setValue(POWERED, false).setValue(HorizontalBlock.FACING, state.getValue(HorizontalBlock.FACING)))
         }
-        worldIn.pendingBlockTicks.scheduleTick(pos, this, 2)
+        worldIn.blockTicks.scheduleTick(pos, this, 2)
         notifyNeighbors(worldIn, pos, state)
     }
 
@@ -82,7 +82,7 @@ object BlockWaterborneComparator: RedstoneDiodeBlock(Properties.of(Material.DECO
             var f = 0.0f
 
             for (slotIndex in 0 until inv.slots) {
-                val itemstack = inv.getItem(slotIndex)
+                val itemstack = inv.getStackInSlot(slotIndex)
 
                 if (!itemstack.isEmpty) {
                     f += itemstack.count.toFloat() / Math.min(inv.getSlotLimit(slotIndex), itemstack.maxStackSize).toFloat()
@@ -107,8 +107,8 @@ object BlockWaterborneComparator: RedstoneDiodeBlock(Properties.of(Material.DECO
     /**
      * Called by BlockItems after a block is set in the world, to allow post-place logic
      */
-    override fun onBlockPlacedBy(worldIn: World, pos: BlockPos, state: BlockState, placer: LivingEntity?, stack: ItemStack) {
-        super.onBlockPlacedBy(worldIn, pos, state, placer, stack)
+    override fun setPlacedBy(worldIn: World, pos: BlockPos, state: BlockState, placer: LivingEntity?, stack: ItemStack) {
+        super.setPlacedBy(worldIn, pos, state, placer, stack)
       //  worldIn.pendingBlockTicks.scheduleTick(pos, this, 2)
         this.notifyNeighbors(worldIn, pos, state)
     }

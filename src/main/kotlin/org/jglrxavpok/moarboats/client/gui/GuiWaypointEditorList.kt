@@ -103,7 +103,7 @@ class GuiWaypointEditorList(val mc: Minecraft, val parent: GuiWaypointEditor, wi
     }
 
     override fun renderBackground(matrixStack: MatrixStack) {
-        drawTexture(matrixStack, left, top, right, bottom, 0, 0)
+        blit(matrixStack, left, top, right, bottom, 0, 0)
     }
 
     override fun render(matrixStack: MatrixStack, insideLeft: Int, insideTop: Int, partialTicks: Float) {

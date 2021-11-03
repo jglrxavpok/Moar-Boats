@@ -27,7 +27,7 @@ class TileEntityEnergyLoader: TileEntityEnergy(MoarBoats.TileEntityEnergyLoaderT
         pullEnergyFromNeighbors(MoarBoatsConfig.energyLoader.pullAmount.get(), facings)
 
         val aabb = create3x3AxisAlignedBB(blockPos.relative(blockFacing))
-        val entities = level!!.getEntitiesWithinAABB(Entity::class.java, aabb) { e -> e != null && e.getCapability(CapabilityEnergy.ENERGY, null).isPresent }
+        val entities = level!!.getEntitiesOfClass(Entity::class.java, aabb) { e -> e != null && e.getCapability(CapabilityEnergy.ENERGY, null).isPresent }
 
         val totalEnergyToSend = minOf(MoarBoatsConfig.energyLoader.sendAmount.get(), energyStored)
         val entityCount = entities.size

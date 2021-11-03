@@ -30,7 +30,7 @@ import org.jglrxavpok.moarboats.common.items.ShulkerBoatItem
 class ChestBoatEntity(world: World): UtilityBoatEntity<ChestTileEntity, UtilityChestContainer>(EntityEntries.ChestBoat, world) {
 
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
-        this.setPosition(x, y, z)
+        this.setPos(x, y, z)
         this.deltaMovement = Vector3d.ZERO
         this.xOld = x
         this.yOld = y
@@ -72,7 +72,7 @@ class ShulkerBoatEntity(world: World): UtilityBoatEntity<ShulkerBoxTileEntity, U
 
     constructor(color: DyeColor?, level: World, x: Double, y: Double, z: Double): this(level) {
         this.dyeColor = color
-        this.setPosition(x, y, z)
+        this.setPos(x, y, z)
         this.deltaMovement = Vector3d.ZERO
         this.xOld = x
         this.yOld = y
@@ -110,14 +110,14 @@ class ShulkerBoatEntity(world: World): UtilityBoatEntity<ShulkerBoxTileEntity, U
             }
 
             if (tileEntity.hasCustomName()) {
-                stack.displayName = tileEntity.customName
+                stack.hoverName = tileEntity.customName
             }
             spawnAtLocation(stack)
         }
     }
 
-    override fun readAdditional(compound: CompoundNBT) {
-        super.readAdditional(compound)
+    override fun readAdditionalSaveData(compound: CompoundNBT) {
+        super.readAdditionalSaveData(compound)
         dyeColor = if("Color" in compound) {
             DyeColor.byName(compound.getString("Color"), null)
         } else {
@@ -125,8 +125,8 @@ class ShulkerBoatEntity(world: World): UtilityBoatEntity<ShulkerBoxTileEntity, U
         }
     }
 
-    override fun writeAdditional(compound: CompoundNBT) {
-        super.writeAdditional(compound)
+    override fun addAdditionalSaveData(compound: CompoundNBT) {
+        super.addAdditionalSaveData(compound)
         if(dyeColor != null) {
             compound.putString("Color", dyeColor?.getName())
         }
@@ -136,7 +136,7 @@ class ShulkerBoatEntity(world: World): UtilityBoatEntity<ShulkerBoxTileEntity, U
 class EnderChestBoatEntity(world: World): UtilityBoatEntity<TileEntity, ChestContainer>(EntityEntries.EnderChestBoat, world) {
 
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
-        this.setPosition(x, y, z)
+        this.setPos(x, y, z)
         this.deltaMovement = Vector3d.ZERO
         this.xOld = x
         this.yOld = y

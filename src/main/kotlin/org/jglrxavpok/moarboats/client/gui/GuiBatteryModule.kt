@@ -34,6 +34,6 @@ class GuiBatteryModule(containerID: Int, playerInventory: PlayerInventory, modul
         mc.textureManager.bind(moduleBackground)
         GlStateManager._disableCull()
         val energyHeight = (75 * (energyModule.getCurrentEnergy(boat)/energyModule.getMaxStorableEnergy(boat).toFloat())).toInt()
-        drawTexture(matrixStack, guiLeft+60, guiTop+80, 201, 74, 55, -energyHeight)
+        blit(matrixStack, guiLeft+60, guiTop+80, 201, 74, 55, -energyHeight)
     }
 }

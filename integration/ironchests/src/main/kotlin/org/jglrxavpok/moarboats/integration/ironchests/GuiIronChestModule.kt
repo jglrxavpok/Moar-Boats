@@ -56,6 +56,6 @@ class GuiIronChestModule(containerID: Int, playerInventory: PlayerInventory, mod
         val x = (width - xSize) / 2
         val y = (height - ySize) / 2
 
-        AbstractGui.drawTexture(matrixStack, x, y, 0f, 0f, xSize, ySize, textureXSize, textureYSize)
+        AbstractGui.blit(matrixStack, x, y, 0f, 0f, xSize, ySize, textureXSize, textureYSize)
     }
 }

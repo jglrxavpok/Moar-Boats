@@ -139,9 +139,9 @@ object ItemGoldenTicket: ItemPath("golden_ticket") {
         return stack.getTagElement("${MoarBoats.ModID}.path")?.getUUID("path_uuid")
     }
 
-    override fun getDisplayName(stack: ItemStack): ITextComponent {
+    override fun getName(stack: ItemStack): ITextComponent {
         if(!isEmpty(stack)) {
-            return super.getDisplayName(stack)
+            return super.getName(stack)
         }
         return EmptyName
     }

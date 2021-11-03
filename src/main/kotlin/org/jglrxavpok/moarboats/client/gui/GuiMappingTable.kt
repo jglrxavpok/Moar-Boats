@@ -145,10 +145,10 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
 
     override fun renderBg(matrixStack: MatrixStack, partialTicks: Float, mouseX: Int, mouseY: Int) {
         mc.textureManager.bind(Background)
-        drawTexture(matrixStack, guiLeft, guiTop, 0, 0, this.xSize, this.ySize)
+        blit(matrixStack, guiLeft, guiTop, 0, 0, this.xSize, this.ySize)
 
         mc.textureManager.bind(EmptyBackground)
-        drawTexture(matrixStack, guiLeft, guiTop, 0, 0, this.xSize, ySize)
+        blit(matrixStack, guiLeft, guiTop, 0, 0, this.xSize, ySize)
     }
 
     override fun render(matrixStack: MatrixStack, mouseX: Int, mouseY: Int, partialTicks: Float) {

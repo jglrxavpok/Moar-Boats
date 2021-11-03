@@ -36,7 +36,7 @@ class TileEntityFluidLoader: TileEntityListenable(MoarBoats.TileEntityFluidLoade
             return
 
         val aabb = create3x3AxisAlignedBB(blockPos.relative(blockFacing))
-        val entities = level!!.getEntitiesWithinAABB(Entity::class.java, aabb) { e -> e != null && e.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null).isPresent }
+        val entities = level!!.getEntitiesOfClass(Entity::class.java, aabb) { e -> e != null && e.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null).isPresent }
 
         val totalFluidToSend = minOf(MoarBoatsConfig.fluidLoader.sendAmount.get(), amount)
         val entityCount = entities.size

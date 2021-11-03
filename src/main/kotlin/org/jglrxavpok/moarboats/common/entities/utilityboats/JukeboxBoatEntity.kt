@@ -37,7 +37,7 @@ class JukeboxBoatEntity(world: World): UtilityBoatEntity<JukeboxTileEntity, Empt
     private val jukeboxPos = BlockPos.Mutable()
 
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
-        this.setPosition(x, y, z)
+        this.setPos(x, y, z)
         this.deltaMovement = Vector3d.ZERO
         this.xOld = x
         this.yOld = y
@@ -53,8 +53,8 @@ class JukeboxBoatEntity(world: World): UtilityBoatEntity<JukeboxTileEntity, Empt
         super.tick()
     }
 
-    override fun processInitialInteract(player: PlayerEntity, hand: Hand): ActionResultType {
-        if (super.processInitialInteract(player, hand) == ActionResultType.SUCCESS)
+    override fun interact(player: PlayerEntity, hand: Hand): ActionResultType {
+        if (super.interact(player, hand) == ActionResultType.SUCCESS)
             return ActionResultType.SUCCESS
         if (world.isClientSide)
             return ActionResultType.SUCCESS
@@ -88,26 +88,26 @@ class JukeboxBoatEntity(world: World): UtilityBoatEntity<JukeboxTileEntity, Empt
 
     private fun insertRecord(stack: ItemStack) {
         record = stack
-        MoarBoats.network.send(PacketDistributor.NEAR.with { PacketDistributor.TargetPoint(positionX, positionY, positionZ, 64.0, world.registryKey) }, SPlayRecordFromBoat(entityID, stack.item as? MusicDiscItem))
+        MoarBoats.network.send(PacketDistributor.NEAR.with { PacketDistributor.TargetPoint(positionX, positionY, positionZ, 64.0, world.dimension()) }, SPlayRecordFromBoat(entityID, stack.item as? MusicDiscItem))
     }
 
     private fun ejectRecord() {
-        MoarBoats.network.send(PacketDistributor.NEAR.with { PacketDistributor.TargetPoint(positionX, positionY, positionZ, 64.0, world.registryKey) }, SPlayRecordFromBoat(entityID, null))
+        MoarBoats.network.send(PacketDistributor.NEAR.with { PacketDistributor.TargetPoint(positionX, positionY, positionZ, 64.0, world.dimension()) }, SPlayRecordFromBoat(entityID, null))
 
         spawnAtLocation(record!!.copy())
         record = ItemStack.EMPTY
     }
 
-    override fun writeAdditional(compound: CompoundNBT) {
-        super.writeAdditional(compound)
+    override fun addAdditionalSaveData(compound: CompoundNBT) {
+        super.addAdditionalSaveData(compound)
         compound.putBoolean("hasRecord", hasRecord)
         if(hasRecord) {
             compound.put("record", record!!.save(CompoundNBT()))
         }
     }
 
-    override fun readAdditional(compound: CompoundNBT) {
-        super.readAdditional(compound)
+    override fun readAdditionalSaveData(compound: CompoundNBT) {
+        super.readAdditionalSaveData(compound)
         val hasRecord = compound.getBoolean("hasRecord")
         record = if(hasRecord) {
             ItemStack.of(compound.getCompound("record"))

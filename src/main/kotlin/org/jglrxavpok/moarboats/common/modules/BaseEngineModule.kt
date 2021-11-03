@@ -83,7 +83,7 @@ abstract class BaseEngineModule: BoatModule() {
             updateFuelState(from, state, inv)
         }
         val world = from.worldRef
-        lockedByRedstoneProperty[from] = world.isBlockPowered(BlockPos(from.positionX, from.positionY+0.5, from.positionZ))
+        lockedByRedstoneProperty[from] = world.hasNeighborSignal(BlockPos(from.positionX, from.positionY+0.5, from.positionZ))
         from.saveState()
         if(hasFuel(from) && !isStationary(from)) {
             val count = ((Math.random() * 5) + 3).toInt()

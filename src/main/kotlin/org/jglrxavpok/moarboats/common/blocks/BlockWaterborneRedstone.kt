@@ -33,8 +33,8 @@ object BlockWaterborneConductor: RedstoneDiodeBlock(Properties.of(Material.DECOR
         return VoxelShapes.empty()
     }
 
-    override fun isValidPosition(state: BlockState, levelIn: IWorldReader, pos: BlockPos): Boolean {
-        return levelIn.getFluidState(pos.below()).isTagged(FluidTags.WATER)
+    override fun canSurvive(state: BlockState, levelIn: IWorldReader, pos: BlockPos): Boolean {
+        return levelIn.getFluidState(pos.below()).`is`(FluidTags.WATER)
     }
 
     override fun getDelay(state: BlockState?): Int {
@@ -51,7 +51,7 @@ object BlockWaterborneConductor: RedstoneDiodeBlock(Properties.of(Material.DECOR
 
     override fun getActiveSignal(levelIn: IBlockReader, pos: BlockPos, state: BlockState): Int {
         val behindSide = state.getValue(HorizontalBlock.FACING)
-        val posBehind = pos.offset(behindSide)
+        val posBehind = pos.relative(behindSide)
         val behind = levelIn.getBlockState(posBehind)
         return behind.getWeakPower(levelIn, posBehind, behindSide)
     }
@@ -68,8 +68,8 @@ object BlockWaterborneConductor: RedstoneDiodeBlock(Properties.of(Material.DECOR
     /**
      * Called by BlockItems after a block is set in the level, to allow post-place logic
      */
-    override fun onBlockPlacedBy(levelIn: World, pos: BlockPos, state: BlockState, placer: LivingEntity?, stack: ItemStack) {
-        super.onBlockPlacedBy(levelIn, pos, state, placer, stack)
+    override fun setPlacedBy(levelIn: World, pos: BlockPos, state: BlockState, placer: LivingEntity?, stack: ItemStack) {
+        super.setPlacedBy(levelIn, pos, state, placer, stack)
     }
 
     override fun getDrops(state: BlockState, builder: LootContext.Builder): MutableList<ItemStack> {

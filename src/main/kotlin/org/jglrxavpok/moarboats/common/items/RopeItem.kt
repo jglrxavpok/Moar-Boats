@@ -50,9 +50,9 @@ object RopeItem : MoarBoatsItem("rope") {
         return State.READY
     }
 
-    override fun onItemRightClick(levelIn: World, playerIn: PlayerEntity, handIn: Hand): ActionResult<ItemStack> {
+    override fun use(levelIn: World, playerIn: PlayerEntity, handIn: Hand): ActionResult<ItemStack> {
         resetLinked(playerIn.getItemInHand(handIn))
-        return super.onItemRightClick(levelIn, playerIn, handIn)
+        return super.use(levelIn, playerIn, handIn)
     }
 
     fun onLinkUsed(itemstack: ItemStack, playerIn: PlayerEntity, handIn: Hand, levelIn: World, boatEntity: BasicBoatEntity) {
@@ -61,8 +61,8 @@ object RopeItem : MoarBoatsItem("rope") {
                 val other = getLinked(levelIn, itemstack) ?: return
                 val hit = boatEntity
                 when {
-                    other == hit -> playerIn.sendStatusMessage(TranslationTextComponent("item.rope.notToSelf"), true)
-                    hit.hasLink(BasicBoatEntity.BackLink) -> playerIn.sendStatusMessage(TranslationTextComponent("item.rope.backOccupied"), true)
+                    other == hit -> playerIn.displayClientMessage(TranslationTextComponent("item.rope.notToSelf"), true)
+                    hit.hasLink(BasicBoatEntity.BackLink) -> playerIn.displayClientMessage(TranslationTextComponent("item.rope.backOccupied"), true)
                     else -> {
                         // first boat gets its back attached to the second boat's front
                         hit.linkTo(other, BasicBoatEntity.BackLink)
@@ -75,7 +75,7 @@ object RopeItem : MoarBoatsItem("rope") {
             }
             else -> {
                 if(boatEntity.hasLink(BasicBoatEntity.Companion.FrontLink)) {
-                    playerIn.sendStatusMessage(TranslationTextComponent("item.rope.frontOccupied"), true)
+                    playerIn.displayClientMessage(TranslationTextComponent("item.rope.frontOccupied"), true)
                     resetLinked(itemstack)
                 } else {
                     setLinked(levelIn, itemstack, boatEntity)
@@ -84,7 +84,7 @@ object RopeItem : MoarBoatsItem("rope") {
         }
     }
 
-    override fun onItemUse(context: ItemUseContext): ActionResultType {
+    override fun useOn(context: ItemUseContext): ActionResultType {
         val levelIn: World = context.level
         val pos: BlockPos = context.clickedPos
         val block = levelIn.getBlockState(pos).block

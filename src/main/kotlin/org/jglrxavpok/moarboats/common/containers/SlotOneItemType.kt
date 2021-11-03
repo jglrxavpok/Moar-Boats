@@ -10,7 +10,7 @@ abstract class SlotOneItemType(inventory: IInventory, index: Int, x: Int, y: Int
 
     abstract val validItem: Item
 
-    override fun isItemValid(stack: ItemStack): Boolean {
+    override fun mayPlace(stack: ItemStack): Boolean {
         return stack.item == validItem
     }
 }

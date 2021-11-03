@@ -32,7 +32,7 @@ class TileEntityFluidUnloader: TileEntityListenable(MoarBoats.TileEntityFluidUnl
         updateListeners()
 
         val aabb = create3x3AxisAlignedBB(blockPos.relative(blockFacing))
-        val entities = level!!.getEntitiesWithinAABB(Entity::class.java, aabb) { e -> e != null && e.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null).isPresent }
+        val entities = level!!.getEntitiesOfClass(Entity::class.java, aabb) { e -> e != null && e.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null).isPresent }
 
         val totalFluidToExtract = minOf(MoarBoatsConfig.fluidUnloader.pullAmount.get(), getCapacity()-amount)
         val entityCount = entities.size

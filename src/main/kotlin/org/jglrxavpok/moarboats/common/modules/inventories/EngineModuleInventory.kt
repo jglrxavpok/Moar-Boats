@@ -14,7 +14,7 @@ class EngineModuleInventory(boat: IControllable, module: BoatModule): BaseModule
         else -> null
     }
 
-    override fun isItemValidForSlot(index: Int, stack: ItemStack): Boolean {
+    override fun canPlaceItem(index: Int, stack: ItemStack): Boolean {
         if(index == 0) {
             val itemstack = list[0]
             return FurnaceTileEntity.isFuel(stack) || FurnaceFuelSlot.isBucket(stack) && itemstack.item !== Items.BUCKET

@@ -38,7 +38,7 @@ object SolarEngineModule : BaseEngineModule() {
     override fun remainingTimeInPercent(from: IControllable): Float {
         val levelIn = from.worldRef
         val pos = from.correspondingEntity.blockPosition()
-        var diff = levelIn.getLightLevel(LightType.SKY, pos) - levelIn.skyDarken
+        var diff = levelIn.getBrightness(LightType.SKY, pos) - levelIn.skyDarken
         var angle = levelIn.getSunAngle(1.0f)
 
         if (invertedProperty[from]) {

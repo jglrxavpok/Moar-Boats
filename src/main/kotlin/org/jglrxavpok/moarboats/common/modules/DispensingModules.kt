@@ -187,14 +187,14 @@ object DispenserModule: DispensingModule() {
         val block = item.block
         val newState = block.defaultBlockState() // TODO: handle multiple types?
         if(world.isEmptyBlock(blockPos) || Fluids.isUsualLiquidBlock(world, blockPos)) {
-            if(block.isValidPosition(newState, world, blockPos)) {
+            if(block.canSurvive(newState, world, blockPos)) {
                 val succeeded = world.setBlock(blockPos, newState, 11)
                 if (succeeded) {
                     try {
                         val state = world.getBlockState(blockPos)
                         if (state.block === block) {
                             setTileEntityNBT(world, blockPos, stack)
-                            block.onBlockPlacedBy(world, blockPos, state, null, stack)
+                            block.setPlacedBy(world, blockPos, state, null, stack)
                         }
                     } catch (npe: NullPointerException) {
                         // some blocks do not like at all being placed by a machine apparently (eg chests)

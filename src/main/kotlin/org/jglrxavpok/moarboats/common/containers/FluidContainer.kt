@@ -19,8 +19,8 @@ class FluidContainer(containerType: ContainerType<*>, containerID: Int, val te: 
         te.addContainerListener(this)
     }
 
-    override fun onContainerClosed(playerIn: PlayerEntity?) {
-        super.onContainerClosed(playerIn)
+    override fun removed(playerIn: PlayerEntity?) {
+        super.removed(playerIn)
         te.removeContainerListener(this)
     }
 

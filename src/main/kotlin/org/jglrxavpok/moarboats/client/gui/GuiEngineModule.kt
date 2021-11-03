@@ -88,7 +88,7 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
 
     override fun renderTooltip(matrixStack: MatrixStack, mouseX: Int, mouseY: Int) {
         when {
-            lockInPlaceButton.isMouseOver(mouseX.toDouble(), mouseY.toDouble()) -> renderTextHoverEffect(matrixStack, lockText.style, mouseX, mouseY)
+            lockInPlaceButton.isMouseOver(mouseX.toDouble(), mouseY.toDouble()) -> renderComponentHoverEffect(matrixStack, lockText.style, mouseX, mouseY)
             else -> super.renderTooltip(matrixStack, mouseX, mouseY)
         }
     }
@@ -212,8 +212,8 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
         GlStateManager._pushMatrix()
         GlStateManager._scalef(scale, scale, scale)
         GlStateManager._translated((x/scale).toDouble(), (y/scale).toDouble(), 0.0)
-        drawTexture(matrixStack, 0, 0, 0, barIndex*10+5, (filledWidth).toInt(), 5)
-        drawTexture(matrixStack, filledWidth.toInt(), 0, filledWidth.toInt(), barIndex*10, (barWidth-filledWidth+1).toInt(), 5)
+        blit(matrixStack, 0, 0, 0, barIndex*10+5, (filledWidth).toInt(), 5)
+        blit(matrixStack, filledWidth.toInt(), 0, filledWidth.toInt(), barIndex*10, (barWidth-filledWidth+1).toInt(), 5)
         GlStateManager._popMatrix()
     }
 

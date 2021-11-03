@@ -31,7 +31,7 @@ class ForcedChunks(val world: World) {
     fun force(position: ChunkCompactPosition) {
         val chunk = chunks.getOrPut(position) { ForcedChunk(position) }
         chunk.resetTimestamp()
-        val dimensiontype = world.registryKey
+        val dimensiontype = world.dimension()
         val serverworld = world.server!!.getLevel(dimensiontype) ?: error("Server world is null?? Dimension is $dimensiontype")
         serverworld.setChunkForced(ChunkPos.getX(position), ChunkPos.getZ(position), true)
     }
@@ -93,7 +93,7 @@ class ForcedChunks(val world: World) {
     }
 
     private fun unforce(positions: Iterable<ChunkCompactPosition>) {
-        val dimensiontype = world.registryKey
+        val dimensiontype = world.dimension()
         val serverworld = world.server!!.getLevel(dimensiontype) ?: error("Server world is null?? Dimension is $dimensiontype")
 
         positions.forEach {

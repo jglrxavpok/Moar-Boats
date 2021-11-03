@@ -26,9 +26,10 @@ abstract class WaterborneItem(id: String) : MoarBoatsItem(id) {
     /**
      * Called when the equipped item is right clicked.
      */
-    override fun onItemRightClick(levelIn: World, playerIn: PlayerEntity, handIn: Hand): ActionResult<ItemStack> {
+    override fun use(levelIn: World, playerIn: PlayerEntity, handIn: Hand): ActionResult<ItemStack> {
         val itemstack = playerIn.getItemInHand(handIn)
-        val rawResult = rayTrace(levelIn, playerIn, RayTraceContext.FluidMode.ANY)
+
+        val rawResult = getPlayerPOVHitResult(levelIn, playerIn, RayTraceContext.FluidMode.ANY)
 
         if (rawResult == null) {
             return ActionResult(ActionResultType.PASS, itemstack)
@@ -37,27 +38,26 @@ abstract class WaterborneItem(id: String) : MoarBoatsItem(id) {
                 val raytraceresult = rawResult as BlockRayTraceResult
                 val blockpos = raytraceresult.blockPos
 
-                if (!levelIn.isBlockModifiable(playerIn, blockpos) || !playerIn.canPlayerEdit(blockpos.offset(raytraceresult.face), raytraceresult.face, itemstack)) {
+                if (!levelIn.isBlockModifiable(playerIn, blockpos) || !playerIn.canPlayerEdit(blockpos.relative(raytraceresult.direction), raytraceresult.direction, itemstack)) {
                     return ActionResult(ActionResultType.FAIL, itemstack)
                 }
 
                 val blockpos1 = blockpos.above()
 
-                if (correspondingBlock.isValidPosition(correspondingBlock.defaultBlockState(), levelIn, blockpos1) && levelIn.isEmptyBlock(blockpos1)) {
+                if (correspondingBlock.defaultBlockState().canSurvive(levelIn, blockpos1) && levelIn.isEmptyBlock(blockpos1)) {
                     // special case for handling block placement with water lilies
-                    val blocksnapshot = net.minecraftforge.common.util.BlockSnapshot.create(levelIn.registryKey, levelIn, blockpos1)
-                    levelIn.setBlock(blockpos1, correspondingBlock.defaultBlockState())
+                    val blocksnapshot = net.minecraftforge.common.util.BlockSnapshot.create(levelIn.dimension(), levelIn, blockpos1)
+                    levelIn.setBlockAndUpdate(blockpos1, correspondingBlock.defaultBlockState())
                     if (net.minecraftforge.event.ForgeEventFactory.onBlockPlace(playerIn, blocksnapshot, net.minecraft.util.Direction.UP)) {
                         blocksnapshot.restore(true, false)
                         return ActionResult(ActionResultType.FAIL, itemstack)
                     }
 
-                    val facing = playerIn.adjustedHorizontalFacing.opposite
                     var iblockstate1: BlockState = correspondingBlock.getStateForPlacement(BlockItemUseContext(ItemUseContext(playerIn, handIn, raytraceresult)))
                             ?: return ActionResult(ActionResultType.FAIL, itemstack)
                     levelIn.setBlock(blockpos1, iblockstate1, 11)
 
-                    iblockstate1.block.onBlockPlacedBy(levelIn, blockpos1, iblockstate1, playerIn, itemstack)
+                    iblockstate1.block.setPlacedBy(levelIn, blockpos1, iblockstate1, playerIn, itemstack)
 
                     if (playerIn is ServerPlayerEntity) {
                         CriteriaTriggers.PLACED_BLOCK.trigger(playerIn, blockpos1, itemstack)
@@ -67,7 +67,7 @@ abstract class WaterborneItem(id: String) : MoarBoatsItem(id) {
                         itemstack.shrink(1)
                     }
 
-                    playerIn.addStat(Stats.ITEM_USED[this])
+                    playerIn.awardStat(Stats.ITEM_USED[this])
                     levelIn.playSound(playerIn, blockpos, SoundEvents.LILY_PAD_PLACE, SoundCategory.BLOCKS, 1.0f, 1.0f)
                     return ActionResult(ActionResultType.SUCCESS, itemstack)
                 }

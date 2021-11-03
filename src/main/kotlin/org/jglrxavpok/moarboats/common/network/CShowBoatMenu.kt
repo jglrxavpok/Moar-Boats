@@ -12,8 +12,8 @@ class CShowBoatMenu: MoarBoatsPacket {
 
         override fun onMessage(message: CShowBoatMenu, ctx: NetworkEvent.Context): MoarBoatsPacket? {
             val player = ctx.sender!!
-            if(player.ridingEntity is BasicBoatEntity) {
-                val boat = player.ridingEntity as BasicBoatEntity
+            if(player.rootVehicle is BasicBoatEntity) {
+                val boat = player.rootVehicle as BasicBoatEntity
                 boat.openGuiIfPossible(player)
             }
             return null

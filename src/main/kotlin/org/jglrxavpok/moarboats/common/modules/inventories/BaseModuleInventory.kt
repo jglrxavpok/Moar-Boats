@@ -23,33 +23,33 @@ abstract class BaseModuleInventory(slotCount: Int, inventoryName: String, boat: 
         return list[index]
     }
 
-    override fun decrStackSize(index: Int, count: Int) = ItemStackHelper.getAndSplit(list, index, count)
+    override fun removeItem(index: Int, count: Int) = ItemStackHelper.removeItem(list, index, count)
 
     override fun clearContent() {
         list.clear()
     }
 
-    override fun getSizeInventory() = list.size
+    override fun getContainerSize() = list.size
 
     override fun isEmpty(): Boolean {
         return list.all { it.isEmpty }
     }
 
-    override fun isItemValidForSlot(index: Int, stack: ItemStack): Boolean {
+    override fun canPlaceItem(index: Int, stack: ItemStack): Boolean {
         return true
     }
 
-    override fun getInventoryStackLimit() = 64
+    override fun getMaxStackSize() = 64
 
-    override fun isUsableByPlayer(player: PlayerEntity): Boolean {
+    override fun stillValid(player: PlayerEntity): Boolean {
         return true
     }
 
-    override fun openInventory(player: PlayerEntity?) {
-
+    override fun startOpen(player: PlayerEntity?) {
+        
     }
 
-    override fun closeInventory(player: PlayerEntity?) {
+    override fun stopOpen(player: PlayerEntity?) {
 
     }
 
@@ -57,8 +57,8 @@ abstract class BaseModuleInventory(slotCount: Int, inventoryName: String, boat: 
         list[index] = stack
     }
 
-    override fun removeStackFromSlot(index: Int): ItemStack {
-        return ItemStackHelper.getAndRemove(list, index)
+    override fun removeItemNoUpdate(index: Int): ItemStack {
+        return ItemStackHelper.takeItem(list, index)
     }
 
 }

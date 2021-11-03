@@ -33,11 +33,11 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(EntityEntries.AnimalBoat, 
     override val moduleRNG: Random = Random()
 
     init {
-        this.preventEntitySpawning = true
+        this.blocksBuilding = true
     }
 
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
-        this.setPosition(x, y, z)
+        this.setPos(x, y, z)
         this.deltaMovement = Vector3d.ZERO
         this.xOld = x
         this.yOld = y
@@ -60,10 +60,10 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(EntityEntries.AnimalBoat, 
 
     override fun tick() {
         super.tick()
-        val list = this.world.getEntitiesInAABBexcluding(this, this.boundingBox.expand(0.20000000298023224, 0.009999999776482582, 0.20000000298023224), EntityPredicates.pushableBy(this))
+        val list = this.world.getEntities(this, this.boundingBox.expandTowards(0.20000000298023224, 0.009999999776482582, 0.20000000298023224), EntityPredicates.pushableBy(this))
 
         for (entity in list) {
-            if (!entity.isPassenger(this)) {
+            if (!entity.hasPassenger(this)) {
                 if (this.passengers.isEmpty() && !entity.isPassenger && entity.width < this.width && entity is LivingEntity && entity !is WaterMobEntity && entity !is PlayerEntity) {
                     entity.startRiding(this)
                 }
@@ -123,12 +123,12 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(EntityEntries.AnimalBoat, 
     }
 
     override fun updatePassenger(passenger: Entity) {
-        if (this.isPassenger(passenger)) {
-            val f1 = ((if ( ! this.isAlive) 0.009999999776482582 else this.mountedYOffset) + passenger.yOffset).toFloat()
+        if (this.hasPassenger(passenger)) {
+            val f1 = ((if ( ! this.isAlive) 0.009999999776482582 else this.myRidingOffset) + passenger.passengersRidingOffset).toFloat()
 
             passenger.setPosition(this.x, this.y + f1.toDouble(), this.z)
             passenger.yRot += this.deltaRotation
-            passenger.yRotHead = passenger.yRotHead + this.deltaRotation
+            passenger.yHeadRot = passenger.yHeadRot + this.deltaRotation
             this.applyYawToEntity(passenger)
         }
     }

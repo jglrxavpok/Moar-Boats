@@ -58,13 +58,13 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
     override val modules: List<BoatModule>
         get() = emptyList()
     override val moduleRNG: Random
-        get() = rand
+        get() = this.random
 
     private val backingTileEntity: TE?
 
     init {
         backingTileEntity = initBackingTileEntity()
-        this.preventEntitySpawning = true
+        this.blocksBuilding = true
     }
 
     abstract fun initBackingTileEntity(): TE?
@@ -103,7 +103,7 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
     override fun tick() {
         super.tick()
         if(backingTileEntity != null) {
-            backingTileEntity.setLocation(world, InvalidPosition)
+            backingTileEntity.setLevelAndPosition(world, InvalidPosition)
             if(backingTileEntity is ITickableTileEntity) {
                 try {
                     backingTileEntity.tick()
@@ -114,8 +114,8 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
         }
     }
 
-    override fun processInitialInteract(player: PlayerEntity, hand: Hand): ActionResultType {
-        if (super.processInitialInteract(player, hand) == ActionResultType.SUCCESS)
+    override fun interact(player: PlayerEntity, hand: Hand): ActionResultType {
+        if (super.interact(player, hand) == ActionResultType.SUCCESS)
             return ActionResultType.SUCCESS
         if (world.isClientSide)
             return ActionResultType.SUCCESS
@@ -137,16 +137,16 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
         return this.passengers.isEmpty() && passenger is LivingEntity
     }
 
-    override fun writeAdditional(compound: CompoundNBT) {
-        super.writeAdditional(compound)
+    override fun addAdditionalSaveData(compound: CompoundNBT) {
+        super.addAdditionalSaveData(compound)
         compound.putString("boatType", boatType.getFullName())
         if(backingTileEntity != null) {
             compound.put("backingTileEntity", backingTileEntity.save(CompoundNBT()))
         }
     }
 
-    override fun readAdditional(compound: CompoundNBT) {
-        super.readAdditional(compound)
+    override fun readAdditionalSaveData(compound: CompoundNBT) {
+        super.readAdditionalSaveData(compound)
         boatType = BoatType.getTypeFromString(compound.getString("boatType"))
         backingTileEntity?.deserializeNBT(compound.getCompound("backingTileEntity"))
     }
@@ -219,14 +219,14 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
     }
 
     override fun updatePassenger(passenger: Entity) {
-        if (this.isPassenger(passenger)) {
+        if (this.hasPassenger(passenger)) {
             var f = 0.75f * 0.35f
-            val f1 = ((if ( ! this.isAlive) 0.009999999776482582 else this.mountedYOffset) + passenger.yOffset).toFloat()
+            val f1 = ((if ( ! this.isAlive) 0.009999999776482582 else this.myRidingOffset) + passenger.passengersRidingOffset).toFloat()
 
             val vec3d = Vector3d(f.toDouble(), 0.0, 0.0).yRot(-(this.yRot) * 0.017453292f - Math.PI.toFloat() / 2f)
-            passenger.setPosition(this.x + vec3d.x, this.y + f1.toDouble(), this.z + vec3d.z)
+            passenger.setPos(this.x + vec3d.x, this.y + f1.toDouble(), this.z + vec3d.z)
             passenger.yRot += this.deltaRotation
-            passenger.yRotHead = passenger.yRotHead + this.deltaRotation
+            passenger.yHeadRot = passenger.yHeadRot + this.deltaRotation
             this.applyYawToEntity(passenger)
         }
     }

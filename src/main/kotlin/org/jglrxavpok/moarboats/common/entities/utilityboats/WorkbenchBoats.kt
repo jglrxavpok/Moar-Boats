@@ -20,7 +20,7 @@ import org.jglrxavpok.moarboats.common.items.*
 class CraftingTableBoatEntity(world: World): UtilityBoatEntity<TileEntity, UtilityWorkbenchContainer>(EntityEntries.CraftingTableBoat, world) {
 
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
-        this.setPosition(x, y, z)
+        this.setPos(x, y, z)
         this.deltaMovement = Vector3d.ZERO
         this.xOld = x
         this.yOld = y
@@ -59,7 +59,7 @@ class CraftingTableBoatEntity(world: World): UtilityBoatEntity<TileEntity, Utili
 class GrindstoneBoatEntity(world: World): UtilityBoatEntity<TileEntity, UtilityGrindstoneContainer>(EntityEntries.GrindstoneBoat, world) {
 
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
-        this.setPosition(x, y, z)
+        this.setPos(x, y, z)
         this.deltaMovement = Vector3d.ZERO
         this.xOld = x
         this.yOld = y
@@ -99,7 +99,7 @@ class GrindstoneBoatEntity(world: World): UtilityBoatEntity<TileEntity, UtilityG
 class LoomBoatEntity(world: World): UtilityBoatEntity<TileEntity, UtilityLoomContainer>(EntityEntries.LoomBoat, world) {
 
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
-        this.setPosition(x, y, z)
+        this.setPos(x, y, z)
         this.deltaMovement = Vector3d.ZERO
         this.xOld = x
         this.yOld = y
@@ -137,7 +137,7 @@ class LoomBoatEntity(world: World): UtilityBoatEntity<TileEntity, UtilityLoomCon
 class CartographyTableBoatEntity(world: World): UtilityBoatEntity<TileEntity, UtilityCartographyTableContainer>(EntityEntries.CartographyTableBoat, world) {
 
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
-        this.setPosition(x, y, z)
+        this.setPos(x, y, z)
         this.deltaMovement = Vector3d.ZERO
         this.xOld = x
         this.yOld = y
@@ -175,7 +175,7 @@ class CartographyTableBoatEntity(world: World): UtilityBoatEntity<TileEntity, Ut
 class StonecutterBoatEntity(world: World): UtilityBoatEntity<TileEntity, UtilityStonecutterContainer>(EntityEntries.StonecutterBoat, world) {
 
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
-        this.setPosition(x, y, z)
+        this.setPos(x, y, z)
         this.deltaMovement = Vector3d.ZERO
         this.xOld = x
         this.yOld = y

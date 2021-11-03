@@ -29,7 +29,7 @@ val BurnTimeField = ObfuscationReflectionHelper.findField(AbstractFurnaceTileEnt
 class FurnaceBoatEntity(world: World): AbstractFurnaceBoatEntity<FurnaceTileEntity, UtilityFurnaceContainer>(EntityEntries.FurnaceBoat, world) {
 
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
-        this.setPosition(x, y, z)
+        this.setPos(x, y, z)
         this.deltaMovement = Vector3d.ZERO
         this.xOld = x
         this.yOld = y
@@ -63,7 +63,7 @@ class FurnaceBoatEntity(world: World): AbstractFurnaceBoatEntity<FurnaceTileEnti
 
 class BlastFurnaceBoatEntity(world: World): AbstractFurnaceBoatEntity<BlastFurnaceTileEntity, UtilityBlastFurnaceContainer>(EntityEntries.BlastFurnaceBoat, world) {
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
-        this.setPosition(x, y, z)
+        this.setPos(x, y, z)
         this.deltaMovement = Vector3d.ZERO
         this.xOld = x
         this.yOld = y
@@ -97,7 +97,7 @@ class BlastFurnaceBoatEntity(world: World): AbstractFurnaceBoatEntity<BlastFurna
 
 class SmokerBoatEntity(world: World): AbstractFurnaceBoatEntity<SmokerTileEntity, UtilitySmokerContainer>(EntityEntries.SmokerBoat, world) {
     constructor(level: World, x: Double, y: Double, z: Double): this(level) {
-        this.setPosition(x, y, z)
+        this.setPos(x, y, z)
         this.deltaMovement = Vector3d.ZERO
         this.xOld = x
         this.yOld = y

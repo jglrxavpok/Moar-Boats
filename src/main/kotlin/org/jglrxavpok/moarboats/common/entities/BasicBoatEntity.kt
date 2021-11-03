@@ -151,7 +151,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
     private var isSpeedImposed = false
 
     init {
-        this.preventEntitySpawning = true
+        this.blocksBuilding = true
     }
 
     enum class Status {
@@ -159,7 +159,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
     }
 
     constructor(type: EntityType<out BasicBoatEntity>, world: World, x: Double, y: Double, z: Double): this(type, world) {
-        this.setPosition(x, y, z)
+        this.setPos(x, y, z)
         this.deltaMovement = Vector3d.ZERO
         this.xOld = x
         this.yOld = y
@@ -422,7 +422,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
         if (hasLink(FrontLink)) { // is trailing boat, need to come closer to heading boat if needed
             val heading = getLinkedTo(FrontLink)
             if(heading != null) {
-                val f = getDistance(heading)
+                val f = distanceTo(heading)
                 if (f > 3.0f) {
                     canControlItself = false
 
@@ -457,7 +457,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
         this.move(MoverType.SELF, this.deltaMovement)
 
         this.doBlockCollisions()
-        val list = this.world.getEntitiesInAABBexcluding(this, this.boundingBox.expand(0.20000000298023224, -0.009999999776482582, 0.20000000298023224), EntityPredicates.pushableBy(this))
+        val list = this.world.getEntities(this, this.boundingBox.expandTowards(0.20000000298023224, -0.009999999776482582, 0.20000000298023224), EntityPredicates.pushableBy(this))
 
         if (list.isNotEmpty()) {
             for (entity in list) {
@@ -616,7 +616,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
 
         if (this.previousStatus == Status.IN_AIR && this.status != Status.IN_AIR && this.status != Status.ON_LAND) {
             this.waterLevel = this.boundingBox.minY + this.height.toDouble()
-            this.setPosition(this.x, (this.getWaterLevelAbove() - this.height).toDouble() + 0.101, this.z)
+            this.setPos(this.x, (this.getWaterLevelAbove() - this.height).toDouble() + 0.101, this.z)
             this.setDeltaMovement(deltaMovement.x, 0.0, deltaMovement.z)
             this.lastYd = 0.0
             this.status = Status.IN_LIQUID
@@ -643,7 +643,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
                 motionY += d2 * 0.06153846016296973// * (1f/0.014f)
                 motionY *= 0.75
             }
-            this.setDeltaMovement(deltaMovement.x * momentum, deltaMovementY, deltaMovement.z * momentum)
+            this.setDeltaMovement(deltaMovement.x * momentum, motionY, deltaMovement.z * momentum)
             this.deltaRotation *= this.momentum
         }
     }
@@ -655,7 +655,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
         entityToUpdate.setRenderYawOffset(this.yRot)
         val f = MathHelper.wrapDegrees(entityToUpdate.yRot - this.yRot)
         val f1 = MathHelper.clamp(f, -105.0f, 105.0f)
-        entityToUpdate.prevRotationYaw += f1 - f
+        entityToUpdate.yRotO += f1 - f
         entityToUpdate.yRot += f1 - f
         entityToUpdate.yRot = entityToUpdate.yRot
     }
@@ -693,7 +693,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
         knotLocations = listOf(*currentKnotLocations)
     }
 
-    override fun writeAdditional(compound: CompoundNBT) {
+    override fun addAdditionalSaveData(compound: CompoundNBT) {
         compound.putInt("linkFrontType", linkEntityTypes[FrontLink])
         compound.putInt("linkBackType", linkEntityTypes[BackLink])
         if(links[FrontLink].isPresent)
@@ -717,7 +717,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
         compound.putInt("dataFormatVersion", CurrentDataFormatVersion)
     }
 
-    override fun readAdditional(compound: CompoundNBT) {
+    override fun readAdditionalSaveData(compound: CompoundNBT) {
         val version = compound.getInt("dataFormatVersion")
         if(version < CurrentDataFormatVersion) {
             updateContentsToNextVersion(compound, version)
@@ -804,7 +804,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
         this.entityData.define(LINK_TYPES[BackLink], NoLink)
     }
 
-    override fun processInitialInteract(player: PlayerEntity, hand: Hand): ActionResultType {
+    override fun interact(player: PlayerEntity, hand: Hand): ActionResultType {
         if(world.isClientSide)
             return ActionResultType.SUCCESS
         val itemstack = player.getItemInHand(hand)
@@ -838,7 +838,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
         return LeashKnotEntity.getOrCreateKnot(world, location.get())
     }
 
-    override fun createSpawnPacket(): IPacket<*> {
+    override fun getAddEntityPacket(): IPacket<*> {
         return NetworkHooks.getEntitySpawningPacket(this)
     }
 
@@ -866,14 +866,14 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
     }
 
     override fun readSpawnData(additionalData: PacketBuffer) {
-        val data = additionalData.readCompoundTag()
-        readAdditional(data!!)
+        val data = additionalData.readNbt()
+        readAdditionalSaveData(data!!)
     }
 
     override fun writeSpawnData(buffer: PacketBuffer) {
         val nbtData = CompoundNBT()
-        writeAdditional(nbtData)
-        buffer.writeCompoundTag(nbtData)
+        addAdditionalSaveData(nbtData)
+        buffer.writeNbt(nbtData)
     }
 
     override fun inLiquid(): Boolean = when(status) {
@@ -884,14 +884,14 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
     // === Start of code for passengers ===
 
     override fun updatePassenger(passenger: Entity) {
-        if (this.isPassenger(passenger)) {
+        if (this.hasPassenger(passenger)) {
             var f = -0.75f * 0.5f
-            val f1 = ((if ( ! this.isAlive) 0.009999999776482582 else this.mountedYOffset) + passenger.yOffset).toFloat()
+            val f1 = ((if ( ! this.isAlive) 0.009999999776482582 else this.myRidingOffset) + passenger.passengersRidingOffset).toFloat()
 
             val vec3d = Vector3d(f.toDouble(), 0.0, 0.0).yRot(-(this.yRot) * 0.017453292f - Math.PI.toFloat() / 2f)
-            passenger.setPosition(this.x + vec3d.x, this.y + f1.toDouble(), this.z + vec3d.z)
+            passenger.setPos(this.x + vec3d.x, this.y + f1.toDouble(), this.z + vec3d.z)
             passenger.yRot += this.deltaRotation
-            passenger.yRotHead = passenger.yRotHead + this.deltaRotation
+            passenger.yHeadRot = passenger.yHeadRot + this.deltaRotation
             this.applyYawToEntity(passenger)
         }
     }

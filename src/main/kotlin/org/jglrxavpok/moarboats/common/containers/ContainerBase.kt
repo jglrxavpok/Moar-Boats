@@ -38,12 +38,12 @@ abstract class ContainerBase<T: Container>(val containerRef: ContainerType<T>, v
         return true
     }
 
-    override fun transferStackInSlot(playerIn: PlayerEntity, index: Int): ItemStack {
+    override fun quickMoveStack(playerIn: PlayerEntity, index: Int): ItemStack {
         var itemstack = ItemStack.EMPTY
-        val slot = this.items[index]
+        val slot = this.slots[index]
 
-        if (slot != null && !slot.isEmpty) {
-            val itemstack1 = slot.stack
+        if (slot != null && slot.hasItem()) {
+            val itemstack1 = slot.item
             itemstack = itemstack1.copy()
 
             if (index in 0..27) {
@@ -55,9 +55,9 @@ abstract class ContainerBase<T: Container>(val containerRef: ContainerType<T>, v
             }
 
             if (itemstack1.isEmpty) {
-                slot.putStack(ItemStack.EMPTY)
+                slot.set(ItemStack.EMPTY)
             } else {
-                slot.onSlotChanged()
+                slot.setChanged()
             }
 
             if (itemstack1.count == itemstack.count) {

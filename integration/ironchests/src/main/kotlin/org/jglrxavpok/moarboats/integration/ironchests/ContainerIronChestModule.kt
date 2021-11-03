@@ -44,20 +44,20 @@ class ContainerIronChestModule(containerID: Int, playerInventory: PlayerInventor
     }
 
     @OnlyIn(Dist.CLIENT)
-    override fun updateProgressBar(id: Int, data: Int) {
+    override fun setData(id: Int, data: Int) {
         this.chestInventory.setField(id, data)
     }
 
-    override fun transferStackInSlot(playerIn: PlayerEntity, index: Int): ItemStack {
+    override fun quickMoveStack(playerIn: PlayerEntity, index: Int): ItemStack {
         var itemstack = ItemStack.EMPTY
-        val slot = this.items[index]
+        val slot = this.slots[index]
 
-        if (slot != null && !slot.isEmpty) {
-            val itemstack1 = slot.stack
+        if (slot != null && slot.hasItem()) {
+            val itemstack1 = slot.item
             itemstack = itemstack1.copy()
 
             if (index < 3 * 9) {
-                if (!this.moveItemStackTo(itemstack1, 3 * 9, this.items.size, true)) {
+                if (!this.moveItemStackTo(itemstack1, 3 * 9, this.slots.size, true)) {
                     return ItemStack.EMPTY
                 }
             } else if (!this.moveItemStackTo(itemstack1, 0, 3 * 9, false)) {
@@ -65,9 +65,9 @@ class ContainerIronChestModule(containerID: Int, playerInventory: PlayerInventor
             }
 
             if (itemstack1.isEmpty) {
-                slot.putStack(ItemStack.EMPTY)
+                slot.set(ItemStack.EMPTY)
             } else {
-                slot.onSlotChanged()
+                slot.setChanged()
             }
         }
 

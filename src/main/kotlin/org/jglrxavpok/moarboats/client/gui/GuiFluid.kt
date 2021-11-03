@@ -31,9 +31,9 @@ class GuiFluid(type: ContainerType<*>, containerID: Int, val te: TileEntityListe
 
     override fun renderBg(matrixStack: MatrixStack, partialTicks: Float, mouseX: Int, mouseY: Int) {
         mc.textureManager.bind(defaultBackground)
-        drawTexture(matrixStack, guiLeft, guiTop, 0, 0, xSize, ySize)
+        blit(matrixStack, guiLeft, guiTop, 0, 0, xSize, ySize)
         mc.textureManager.bind(fluidBackground)
-        drawTexture(matrixStack, guiLeft, guiTop, 0, 0, xSize, ySize)
+        blit(matrixStack, guiLeft, guiTop, 0, 0, xSize, ySize)
 
         if(fluid != null && fluid !is EmptyFluid) {
             GuiTankModule.renderFluidInGui(guiLeft + 56, guiTop + 80, fluid!!, fluidAmount, fluidCapacity, horizontalTilesCount = 4, world = te.level!!, position = te.blockPos)

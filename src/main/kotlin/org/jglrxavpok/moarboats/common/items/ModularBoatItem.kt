@@ -78,7 +78,7 @@ class ModularBoatItem(val dyeColor: DyeColor): BaseBoatItem() {
                 color,
                 ModularBoatEntity.OwningMode.PlayerOwned,
                 playerIn.gameProfile.id).apply {
-                    readAdditional(itemstack.getOrCreateTagElement("boat_data"))
+                    readAdditionalSaveData(itemstack.getOrCreateTagElement("boat_data"))
                 }
     }
 
@@ -163,7 +163,7 @@ class GrindstoneBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "grindst
         return GrindstoneBoatEntity(levelIn, raytraceresult.location.x, if (inUsualFluid) raytraceresult.location.y - 0.12 else raytraceresult.location.y, raytraceresult.location.z).apply { boatType = this@GrindstoneBoatItem.boatType }
     }
 
-    override fun getDisplayName(stack: ItemStack): ITextComponent {
+    override fun getName(stack: ItemStack): ITextComponent {
         return TranslationTextComponent("item.moarboats.utility_boat.name", TranslationTextComponent("item.${boatType.getBaseBoatOriginModID()}.${boatType.getShortName()}_boat"), TranslationTextComponent("block.minecraft.grindstone"))
     }
 }
@@ -238,12 +238,12 @@ class ShulkerBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "shulker") 
         return TranslationTextComponent("container.shulkerBox")
     }
 
-    override fun getDisplayName(stack: ItemStack): ITextComponent {
+    override fun getName(stack: ItemStack): ITextComponent {
         val color = DyeColor.byName(stack.getOrCreateTagElement("AdditionalData").getString("Color"), null)
         if(color != null) {
             return TranslationTextComponent("item.moarboats.colored_utility_boat.name", TranslationTextComponent("item.${boatType.getBaseBoatOriginModID()}.${boatType.getShortName()}_boat"), getContainerDisplayName(), TranslationTextComponent("color.minecraft.${color.translationKey}"))
         }
-        return super.getDisplayName(stack)
+        return super.getName(stack)
     }
 }
 
@@ -289,17 +289,17 @@ abstract class UtilityBoatItem(val boatType: BoatType, val containerType: String
 
     open fun getContainerDisplayName(): ITextComponent = TranslationTextComponent("container.$containerType")
 
-    override fun getDisplayName(stack: ItemStack): ITextComponent {
+    override fun getName(stack: ItemStack): ITextComponent {
         return TranslationTextComponent("item.moarboats.utility_boat.name", TranslationTextComponent("item.${boatType.getBaseBoatOriginModID()}.${boatType.getShortName()}_boat"), getContainerDisplayName())
     }
 }
 
 abstract class BaseBoatItem(propertiesModifier: Item.Properties.() -> Unit = {}): Item(Item.Properties().tab(MoarBoats.MainCreativeTab).stacksTo(1).also(propertiesModifier)) {
 
-    override fun onItemRightClick(levelIn: World, playerIn: PlayerEntity, handIn: Hand): ActionResult<ItemStack> {
+    override fun use(levelIn: World, playerIn: PlayerEntity, handIn: Hand): ActionResult<ItemStack> {
         val itemstack = playerIn.getItemInHand(handIn)
-        val f1 = playerIn.prevRotationPitch + (playerIn.xRot - playerIn.prevRotationPitch) * 1.0f
-        val f2 = playerIn.prevRotationYaw + (playerIn.yRot - playerIn.prevRotationYaw) * 1.0f
+        val f1 = playerIn.xRotO + (playerIn.xRot - playerIn.xRotO) * 1.0f
+        val f2 = playerIn.yRotO + (playerIn.yRot - playerIn.yRotO) * 1.0f
         val d0 = playerIn.xOld + (playerIn.x - playerIn.xOld) * 1.0
         val d1 = playerIn.yOld + (playerIn.y - playerIn.yOld) * 1.0 + playerIn.getEyeHeight().toDouble()
         val d2 = playerIn.zOld + (playerIn.z - playerIn.zOld) * 1.0
@@ -317,12 +317,12 @@ abstract class BaseBoatItem(propertiesModifier: Item.Properties.() -> Unit = {})
             return ActionResult(ActionResultType.PASS, itemstack)
         } else {
             val vec3d2 = playerIn.getLook(1.0f)
-            val list = levelIn.getEntitiesWithinAABBExcludingEntity(playerIn, playerIn.boundingBox.expand(vec3d2.x * 5.0, vec3d2.y * 5.0, vec3d2.z * 5.0).grow(1.0))
+            val list = levelIn.getEntities(playerIn, playerIn.boundingBox.expandTowards(vec3d2.x * 5.0, vec3d2.y * 5.0, vec3d2.z * 5.0).inflate(1.0))
 
             val flag = list.indices
                     .map { list[it] }
                     .filter { it.canBeCollidedWith() }
-                    .map { it.boundingBox.grow(it.collisionBorderSize.toDouble()) }
+                    .map { it.boundingBox.inflate(it.collisionBorderSize.toDouble()) }
                     .any { it.contains(vec3d) }
 
             if (flag) {
@@ -334,7 +334,7 @@ abstract class BaseBoatItem(propertiesModifier: Item.Properties.() -> Unit = {})
                 val entityboat = createBoat(levelIn, raytraceresult, inUsualFluid, itemstack, playerIn)
                 entityboat.yRot = playerIn.yRot
 
-                return if (levelIn.getBlockCollisions(entityboat, entityboat.boundingBox.grow(-0.1)).count() != 0L) {
+                return if (levelIn.getBlockCollisions(entityboat, entityboat.boundingBox.inflate(-0.1)).count() != 0L) {
                     ActionResult(ActionResultType.FAIL, itemstack)
                 } else {
                     if (!levelIn.isClientSide) {
@@ -345,7 +345,7 @@ abstract class BaseBoatItem(propertiesModifier: Item.Properties.() -> Unit = {})
                         itemstack.shrink(1)
                     }
 
-                    playerIn.addStat(Stats.ITEM_USED[this])
+                    playerIn.awardStat(Stats.ITEM_USED[this])
                     ActionResult(ActionResultType.SUCCESS, itemstack)
                 }
             }

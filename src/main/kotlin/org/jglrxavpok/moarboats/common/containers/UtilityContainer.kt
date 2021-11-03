@@ -23,84 +23,84 @@ class UtilityContainer<T: Container>(type: ContainerType<T>, id: Int, val baseCo
         return true
     }
 
-    override fun canDragIntoSlot(slotIn: Slot): Boolean {
-        return baseContainer.canDragIntoSlot(slotIn)
+    override fun canDragTo(slotIn: Slot): Boolean {
+        return baseContainer.canDragTo(slotIn)
     }
 
-    override fun canMergeSlot(stack: ItemStack, slotIn: Slot): Boolean {
-        return baseContainer.canMergeSlot(stack, slotIn)
+    override fun canTakeItemForPickAll(stack: ItemStack, slotIn: Slot): Boolean {
+        return baseContainer.canTakeItemForPickAll(stack, slotIn)
     }
 
     override fun setAll(p_190896_1_: MutableList<ItemStack>) {
         baseContainer.setAll(p_190896_1_)
     }
 
-    override fun transferStackInSlot(playerIn: PlayerEntity, index: Int): ItemStack {
-        return baseContainer.transferStackInSlot(playerIn, index)
+    override fun quickMoveStack(playerIn: PlayerEntity, index: Int): ItemStack {
+        return baseContainer.quickMoveStack(playerIn, index)
     }
 
-    override fun addListener(listener: IContainerListener) {
-        baseContainer.addListener(listener)
+    override fun addSlotListener(listener: IContainerListener) {
+        baseContainer.addSlotListener(listener)
     }
 
-    override fun setCanCraft(player: PlayerEntity, canCraft: Boolean) {
-        baseContainer.setCanCraft(player, canCraft)
+    override fun setSynched(player: PlayerEntity, canCraft: Boolean) {
+        baseContainer.setSynched(player, canCraft)
     }
 
-    override fun enchantItem(playerIn: PlayerEntity, id: Int): Boolean {
-        return baseContainer.enchantItem(playerIn, id)
+    override fun clickMenuButton(playerIn: PlayerEntity, id: Int): Boolean {
+        return baseContainer.clickMenuButton(playerIn, id)
     }
 
-    override fun removeListener(listener: IContainerListener) {
-        baseContainer.removeListener(listener)
+    override fun removeSlotListener(listener: IContainerListener) {
+        baseContainer.removeSlotListener(listener)
     }
 
-    override fun updateProgressBar(id: Int, data: Int) {
-        baseContainer.updateProgressBar(id, data)
+    override fun setData(id: Int, data: Int) {
+        baseContainer.setData(id, data)
     }
 
-    override fun onContainerClosed(playerIn: PlayerEntity) {
-        baseContainer.onContainerClosed(playerIn)
+    override fun removed(playerIn: PlayerEntity) {
+        baseContainer.removed(playerIn)
     }
 
-    override fun putStackInSlot(slotID: Int, stack: ItemStack) {
-        baseContainer.putStackInSlot(slotID, stack)
+    override fun setItem(slotID: Int, stack: ItemStack) {
+        baseContainer.setItem(slotID, stack)
     }
 
-    override fun slotClick(slotId: Int, dragType: Int, clickTypeIn: ClickType, player: PlayerEntity): ItemStack {
-        return baseContainer.slotClick(slotId, dragType, clickTypeIn, player)
+    override fun clicked(slotId: Int, dragType: Int, clickTypeIn: ClickType, player: PlayerEntity): ItemStack {
+        return baseContainer.clicked(slotId, dragType, clickTypeIn, player)
     }
 
     override fun getSlot(slotId: Int): Slot {
         return baseContainer.getSlot(slotId)
     }
 
-    override fun getInventory(): NonNullList<ItemStack> {
-        return baseContainer.getInventory()
+    override fun getItems(): NonNullList<ItemStack> {
+        return baseContainer.items
     }
 
-    override fun resetDrag() {
+    override fun resetQuickCraft() {
         resetDragMethod(baseContainer)
     }
 
-    override fun getNextTransactionID(invPlayer: PlayerInventory): Short {
-        return baseContainer.getNextTransactionID(invPlayer)
+    override fun backup(invPlayer: PlayerInventory): Short {
+        return baseContainer.backup(invPlayer)
     }
 
     override fun clearContainer(playerIn: PlayerEntity, worldIn: World, inventoryIn: IInventory) {
         clearContainerMethod(baseContainer, playerIn, worldIn, inventoryIn)
     }
 
-    override fun getCanCraft(player: PlayerEntity): Boolean {
-        return baseContainer.getCanCraft(player)
+    override fun isSynched(player: PlayerEntity): Boolean {
+        return baseContainer.isSynched(player)
     }
 
     override fun broadcastChanges() {
         baseContainer.broadcastChanges()
     }
 
-    override fun onCraftMatrixChanged(inventoryIn: IInventory) {
-        baseContainer.onCraftMatrixChanged(inventoryIn)
+    override fun slotsChanged(inventoryIn: IInventory) {
+        baseContainer.slotsChanged(inventoryIn)
     }
 
     override fun moveItemStackTo(stack: ItemStack, startIndex: Int, endIndex: Int, reverseDirection: Boolean): Boolean {

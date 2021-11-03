@@ -9,11 +9,11 @@ import org.jglrxavpok.moarboats.common.items.MapItemWithPath
 
 class SlotMap(inventory: IInventory, index: Int, x: Int, y: Int): Slot(inventory, index, x, y) {
 
-    override fun isItemValid(stack: ItemStack): Boolean {
+    override fun mayPlace(stack: ItemStack): Boolean {
         return stack.item == Items.FILLED_MAP || stack.item == ItemGoldenTicket || stack.item == MapItemWithPath
     }
 
-    override fun getItemStackLimit(stack: ItemStack): Int {
+    override fun getMaxStackSize(stack: ItemStack): Int {
         return 1
     }
 }

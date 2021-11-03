@@ -28,7 +28,7 @@ class ContainerDispenserModule(containerID: Int, playerInv: PlayerInventory, mod
         this.addDataSlots(placerInventory.additionalData)
     }
 
-    override fun transferStackInSlot(playerIn: PlayerEntity, index: Int): ItemStack {
+    override fun quickMoveStack(playerIn: PlayerEntity, index: Int): ItemStack {
         return ItemStack.EMPTY // for lack of a better shift click mechanism
     }
 }

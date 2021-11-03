@@ -63,7 +63,7 @@ object AnchorModule: BoatModule(), BlockReason {
             anchorYProperty[from] = nextY
             val pos = BlockPos.Mutable(anchorX, nextY, anchorZ)
             val world = from.worldRef
-            if(world.getBlockState(pos).isValidPosition(world, pos)) {
+            if(world.getBlockState(pos).canSurvive(world, pos)) {
                 // stop descent
                 anchorDirectionProperty[from] = 0
                 activeProperty[from] = true
@@ -116,8 +116,8 @@ object AnchorModule: BoatModule(), BlockReason {
             anchorXProperty[boat] = boat.positionX
             anchorYProperty[boat] = boat.positionY
             anchorZProperty[boat] = boat.positionZ
-            player.sendStatusMessage(spawnPointSet, true)
-            player.setSpawnPoint(boat.worldRef.registryKey, BlockPos(boat.correspondingEntity.position()), boat.yaw, true, true)
+            player.displayClientMessage(spawnPointSet, true)
+            player.setSpawnPoint(boat.worldRef.dimension(), BlockPos(boat.correspondingEntity.position()), boat.yaw, true, true)
         }
     }
 

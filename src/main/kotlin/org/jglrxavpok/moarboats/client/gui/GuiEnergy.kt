@@ -19,13 +19,13 @@ class GuiEnergy(type: ContainerType<EnergyContainer>, containerID: Int, val te: 
 
     override fun renderBg(matrixStack: MatrixStack, partialTicks: Float, mouseX: Int, mouseY: Int) {
         minecraft!!.textureManager.bind(defaultBackground)
-        drawTexture(matrixStack, guiLeft, guiTop, 0, 0, xSize, ySize)
+        blit(matrixStack, guiLeft, guiTop, 0, 0, xSize, ySize)
         minecraft!!.textureManager.bind(energyBackground)
-        drawTexture(matrixStack, guiLeft, guiTop, 0, 0, xSize, ySize)
+        blit(matrixStack, guiLeft, guiTop, 0, 0, xSize, ySize)
 
         GlStateManager._disableCull()
         val energyHeight = (75 * (te.energy/te.maxEnergyStored.toFloat())).toInt()
-        drawTexture(matrixStack, guiLeft+60, guiTop+80, 201, 74, 55, -energyHeight)
+        blit(matrixStack, guiLeft+60, guiTop+80, 201, 74, 55, -energyHeight)
     }
 
     override fun renderLabels(matrixStack: MatrixStack, mouseX: Int, mouseY: Int) {

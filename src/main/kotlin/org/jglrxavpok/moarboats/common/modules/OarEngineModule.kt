@@ -26,8 +26,8 @@ object OarEngineModule: BaseEngineModule(), BlockReason {
 
     override fun controlBoat(from: IControllable) {
         val controllingEntity = from.correspondingEntity.controllingPassenger as? PlayerEntity ?: return
-        val forward = controllingEntity.moveForward
-        val strafe = controllingEntity.moveStrafing
+        val forward = controllingEntity.zza
+        val strafe = controllingEntity.xxa
 
         val forwardMultiplier = 0.75f
         val strafeMultiplier = 0.75f

@@ -132,7 +132,7 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
             mc.textureManager.bind(BACKGROUND_TEXTURE)
         val i = (this.width - this.xSize) / 2
         val j = (this.height - this.ySize) / 2
-        drawTexture(matrixStack, i, j, 0, 0, this.xSize, this.ySize)
+        blit(matrixStack, i, j, 0, 0, this.xSize, this.ySize)
     }
 
     override fun renderBg(matrixStack: MatrixStack, partialTicks: Float, mouseX: Int, mouseY: Int) {
@@ -149,7 +149,7 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
         val ownerUUID = boat.getOwnerIdOrNull()
         if(ownerUUID != null) {
             mc.textureManager.bind(BACKGROUND_TEXTURE)
-            drawTexture(matrixStack, i-21, j+3, 176, 57, 24, 26)
+            blit(matrixStack, i-21, j+3, 176, 57, 24, 26)
             val info: NetworkPlayerInfo? = Minecraft.getInstance().connection!!.getPlayerInfo(ownerUUID)
             if(info != null) {
                 mc.textureManager.bind(info.skinLocation)
@@ -166,7 +166,7 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
 
         GlStateManager._color4f(1.0f, 1.0f, 1.0f, 1.0f)
         mc.textureManager.bind(moduleBackground)
-        drawTexture(matrixStack, i, j, 0, 0, this.xSize, ySize)
+        blit(matrixStack, i, j, 0, 0, this.xSize, ySize)
 
         drawModuleBackground(mouseX, mouseY)
     }
@@ -181,10 +181,10 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
         fun renderContents() {
             val selected = tabModule == module
             mc.textureManager.bind(BACKGROUND_TEXTURE)
-            drawTexture(matrixStack, x, y, 176, if(selected) 3 else 30, 26, 26)
+            blit(matrixStack, x, y, 176, if(selected) 3 else 30, 26, 26)
 
             if(selected) {
-                drawTexture(matrixStack, x+width - 4, y+5, 201, 8, 18, 17)
+                blit(matrixStack, x+width - 4, y+5, 201, 8, 18, 17)
             }
 
             blitOffset = 100
