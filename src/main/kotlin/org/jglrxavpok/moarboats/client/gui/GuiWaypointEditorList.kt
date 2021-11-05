@@ -107,10 +107,10 @@ class GuiWaypointEditorList(val mc: Minecraft, val parent: GuiWaypointEditor, wi
     }
 
     override fun render(matrixStack: MatrixStack, insideLeft: Int, insideTop: Int, partialTicks: Float) {
-        val scaleX = mc.window.width/mc.window.scaledWidth.toDouble()
-        val scaleY = mc.window.height/mc.window.scaledHeight.toDouble()
+        val scaleX = mc.window.width/mc.window.screenWidth.toDouble()
+        val scaleY = mc.window.height/mc.window.screenHeight.toDouble()
         GL11.glEnable(GL11.GL_SCISSOR_TEST)
-        GL11.glScissor((left * scaleX).toInt(), ((mc.window.scaledHeight - top - height) * scaleY).toInt(), (width * scaleX).toInt(), (height * scaleY).toInt())
+        GL11.glScissor((left * scaleX).toInt(), ((mc.window.screenHeight - top - height) * scaleY).toInt(), (width * scaleX).toInt(), (height * scaleY).toInt())
         super.render(matrixStack, insideLeft, insideTop, partialTicks)
         GL11.glDisable(GL11.GL_SCISSOR_TEST)
     }
@@ -131,7 +131,7 @@ class GuiWaypointEditorList(val mc: Minecraft, val parent: GuiWaypointEditor, wi
         return width
     }
 
-    override fun getScrollbarPositionX(): Int {
+    override fun getScrollbarPosition(): Int {
         return right
     }
 

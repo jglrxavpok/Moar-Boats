@@ -11,6 +11,13 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     }
 }
+
+allprojects {
+    tasks.withType(Copy).all {
+        duplicatesStrategy 'exclude'
+    }
+}
+
 apply plugin: 'net.minecraftforge.gradle'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: "kotlin"

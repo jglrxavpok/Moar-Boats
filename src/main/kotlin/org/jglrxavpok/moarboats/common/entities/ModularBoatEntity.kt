@@ -212,7 +212,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
                 if(!player.isCreative) {
                     heldItem.shrink(1)
                     if (heldItem.isEmpty) {
-                        player.inventory.deleteStack(heldItem)
+                        player.inventory.removeItem(heldItem)
                     }
                 }
                 addModule(moduleID, fromItem = heldItem)
@@ -228,12 +228,12 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
     }
 
     override fun openGuiIfPossible(player: PlayerEntity): ActionResultType {
-        return openGui(player, player.activeHand)
+        return openGui(player, player.usedItemHand)
     }
 
     private fun openGui(player: PlayerEntity, hand: Hand): ActionResultType {
         val validOwner = isValidOwner(player)
-        val canOpenGui = validOwner && !modules.any { it.onInteract(this, player, hand, player.isSneaking) }
+        val canOpenGui = validOwner && !modules.any { it.onInteract(this, player, hand, player.isCrouching) }
         if(canOpenGui) {
             if(modules.isNotEmpty() && !world.isClientSide) {
                 NetworkHooks.openGui(player as ServerPlayerEntity, MoarBoatsGuiHandler.ModulesGuiInteraction(entityID, -1, findFirstModuleToShowOnGui().id.toString())) {
@@ -249,7 +249,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
     private fun isValidOwner(player: PlayerEntity): Boolean {
         return owningMode == OwningMode.AllowAll
                 || ownerUUID == player.gameProfile.id
-                || player.hasPermissionLevel(2)
+                || player.hasPermissions(2)
     }
 
     private fun canFitModule(module: ResourceLocation): Boolean {
@@ -397,7 +397,7 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
             return
         val module = BoatModuleRegistry[location].module
         if(module === SeatModule) {
-            removePassengers()
+            ejectPassengers()
         }
         dropItemsForModule(module, killedByPlayerInCreative = false)
         moduleLocations.remove(location)
@@ -422,16 +422,16 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
 
     private fun dropItemsForModule(module: BoatModule, killedByPlayerInCreative: Boolean) {
         if(module.usesInventory)
-            InventoryHelper.dropInventoryItems(world, this, getInventory(module))
+            InventoryHelper.dropContents(world, this, getInventory(module))
         module.dropItemsOnDeath(this, killedByPlayerInCreative)
     }
 
     override fun isValidLiquidBlock(pos: BlockPos) = Fluids.isUsualLiquidBlock(world, pos)
 
-    override fun attackEntityFrom(source: DamageSource, amount: Float) = when(source) {
+    override fun hurt(source: DamageSource, amount: Float) = when(source) {
         DamageSource.LAVA, DamageSource.IN_FIRE, DamageSource.ON_FIRE -> false
         is IndirectEntityDamageSource -> false // avoid to kill yourself with your own arrows; also you are an *iron* boat, act like it
-        else -> super.attackEntityFrom(source, amount)
+        else -> super.hurt(source, amount)
     }
 
     private fun defaultFacing() = Direction.fromYRot(180f - yaw.toDouble())
@@ -450,16 +450,16 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
      * Takes into account the rotation of the boat
      */
     override fun reorientate(overrideFacing: Direction): Direction {
-        val angle = overrideFacing.horizontalAngle // default angle is 0 (SOUTH)
-        return Direction.fromAngle(180f-(yaw.toDouble() + angle.toDouble()))
+        val angle = overrideFacing.toYRot() // default angle is 0 (SOUTH)
+        return Direction.fromYRot(180f-(yaw.toDouble() + angle.toDouble()))
     }
 
     override fun getPickedResult(target: RayTraceResult): ItemStack {
         val stack = ItemStack(ModularBoatItem[color], 1)
-        stack.displayName = TranslationTextComponent("moarboats.item.modular_boat.copy", stack.displayName)
+        stack.hoverName = TranslationTextComponent("moarboats.item.modular_boat.copy", stack.displayName)
         val boatData = stack.getOrCreateTagElement("boat_data")
         addAdditionalSaveData(boatData)
-        stack.setTagInfo("boat_data", boatData)
+        stack.addTagElement("boat_data", boatData)
         return stack
     }
 
@@ -523,11 +523,11 @@ class ModularBoatEntity(world: World): BasicBoatEntity(EntityEntries.ModularBoat
     override fun canPlaceItem(index: Int, stack: ItemStack): Boolean {
         return indexToInventory(index)?.let { inv ->
             val i = globalIndexToLocalIndex(index)
-            inv.isItemValidForSlot(i, stack)
+            inv.canPlaceItem(i, stack)
         } ?: false
     }
 
-    override fun getInventoryStackLimit() = 64
+    override fun getMaxStackSize() = 64
 
     override fun stillValid(player: PlayerEntity?): Boolean {
         return false

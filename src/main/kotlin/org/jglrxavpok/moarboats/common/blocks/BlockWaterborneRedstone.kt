@@ -41,28 +41,28 @@ object BlockWaterborneConductor: RedstoneDiodeBlock(Properties.of(Material.DECOR
         return 0
     }
 
-    override fun getWeakPower(blockState: BlockState, blockAccess: IBlockReader?, pos: BlockPos?, side: Direction): Int {
+    override fun getDirectSignal(blockState: BlockState, blockAccess: IBlockReader?, pos: BlockPos?, side: Direction): Int {
         return if (!blockState.getValue(POWERED)) {
             0
         } else {
-            if (canConnectRedstone(blockState, blockAccess, pos, side)) getActiveSignal(blockAccess!!, pos!!, blockState) else 0
+            if (canConnectRedstone(blockState, blockAccess, pos, side)) getOutputSignal(blockAccess!!, pos!!, blockState) else 0
         }
     }
 
-    override fun getActiveSignal(levelIn: IBlockReader, pos: BlockPos, state: BlockState): Int {
+    override fun getOutputSignal(levelIn: IBlockReader, pos: BlockPos, state: BlockState): Int {
         val behindSide = state.getValue(HorizontalBlock.FACING)
         val posBehind = pos.relative(behindSide)
         val behind = levelIn.getBlockState(posBehind)
-        return behind.getWeakPower(levelIn, posBehind, behindSide)
+        return behind.getSignal(levelIn, posBehind, behindSide)
     }
 
     override fun createBlockStateDefinition(builder: StateContainer.Builder<Block, BlockState>) {
         builder.add(HorizontalBlock.FACING, POWERED)
     }
 
-    override fun onReplaced(state: BlockState, levelIn: World, pos: BlockPos, newState: BlockState, isMoving: Boolean) {
-        super.onReplaced(state, levelIn, pos, newState, isMoving)
-        this.notifyNeighbors(levelIn, pos, state)
+    override fun onRemove(state: BlockState, levelIn: World, pos: BlockPos, newState: BlockState, isMoving: Boolean) {
+        super.onRemove(state, levelIn, pos, newState, isMoving)
+        this.checkTickOnNeighbor(levelIn, pos, state)
     }
 
     /**
@@ -76,6 +76,6 @@ object BlockWaterborneConductor: RedstoneDiodeBlock(Properties.of(Material.DECOR
         return mutableListOf(ItemStack(WaterborneConductorItem, 1))
     }
 
-    override fun getItem(worldIn: IBlockReader, pos: BlockPos, state: BlockState) = ItemStack(WaterborneConductorItem, 1)
+    override fun getCloneItemStack(worldIn: IBlockReader, pos: BlockPos, state: BlockState) = ItemStack(WaterborneConductorItem, 1)
 
 }

@@ -20,11 +20,11 @@ public class JavaHelpers {
 
     @OnlyIn(Dist.CLIENT)
     public static void registerGuis() {
-        ScreenManager.registerFactory(ContainerTypes.CraftingBoat, CraftingScreen::new);
-        ScreenManager.registerFactory(ContainerTypes.GrindstoneBoat, GrindstoneScreen::new);
-        ScreenManager.registerFactory(ContainerTypes.StonecutterBoat, StonecutterScreen::new);
-        ScreenManager.registerFactory(ContainerTypes.ChestBoat, ChestScreen::new);
-        ScreenManager.registerFactory(ContainerTypes.ShulkerBoat, ShulkerBoxScreen::new);
+        ScreenManager.register(ContainerTypes.CraftingBoat, CraftingScreen::new);
+        ScreenManager.register(ContainerTypes.GrindstoneBoat, GrindstoneScreen::new);
+        ScreenManager.register(ContainerTypes.StonecutterBoat, StonecutterScreen::new);
+        ScreenManager.register(ContainerTypes.ChestBoat, ChestScreen::new);
+        ScreenManager.register(ContainerTypes.ShulkerBoat, ShulkerBoxScreen::new);
     }
 
 }

@@ -36,7 +36,7 @@ object BlockWaterborneComparator: RedstoneDiodeBlock(Properties.of(Material.DECO
     override fun isRandomlyTicking(state: BlockState) = true
 
     override fun canConnectRedstone(state: BlockState?, world: IBlockReader?, pos: BlockPos?, side: Direction?): Boolean {
-        return state != null && side != null && side != Direction.DOWN && side != Direction.UP && (side == state.getValue(HorizontalBlock.FACING) || side == state.get(HorizontalBlock.FACING).opposite)
+        return state != null && side != null && side != Direction.DOWN && side != Direction.UP && (side == state.getValue(HorizontalBlock.FACING) || side == state.getValue(HorizontalBlock.FACING).opposite)
     }
 
     override fun getCollisionShape(state: BlockState, worldIn: IBlockReader, pos: BlockPos, context: ISelectionContext): VoxelShape {
@@ -51,7 +51,7 @@ object BlockWaterborneComparator: RedstoneDiodeBlock(Properties.of(Material.DECO
         return 0
     }
 
-    override fun getWeakPower(state: BlockState, blockAccess: IBlockReader, pos: BlockPos, side: Direction): Int {
+    override fun getDirectSignal(state: BlockState, blockAccess: IBlockReader, pos: BlockPos, side: Direction): Int {
         if(blockAccess is World && side == state.getValue(HorizontalBlock.FACING)) {
             val world = blockAccess
             val aabb = AxisAlignedBB(pos.relative(state.getValue(HorizontalBlock.FACING)))
@@ -64,14 +64,14 @@ object BlockWaterborneComparator: RedstoneDiodeBlock(Properties.of(Material.DECO
         return 0
     }
 
-    override fun scheduledTick(state: BlockState, worldIn: ServerWorld, pos: BlockPos, random: Random) {
-        val produceSignal = shouldBePowered(worldIn, pos, state)
+    override fun tick(state: BlockState, worldIn: ServerWorld, pos: BlockPos, random: Random) {
+        val produceSignal = shouldTurnOn(worldIn, pos, state)
         when {
             produceSignal && !state.getValue(POWERED) -> worldIn.setBlockAndUpdate(pos, state.setValue(POWERED, true).setValue(HorizontalBlock.FACING, state.getValue(HorizontalBlock.FACING)))
             !produceSignal && state.getValue(POWERED) -> worldIn.setBlockAndUpdate(pos, state.setValue(POWERED, false).setValue(HorizontalBlock.FACING, state.getValue(HorizontalBlock.FACING)))
         }
         worldIn.blockTicks.scheduleTick(pos, this, 2)
-        notifyNeighbors(worldIn, pos, state)
+        checkTickOnNeighbor(worldIn, pos, state)
     }
 
     private fun calcRedstoneFromInventory(inv: IItemHandler?): Int {
@@ -99,9 +99,9 @@ object BlockWaterborneComparator: RedstoneDiodeBlock(Properties.of(Material.DECO
         builder.add(HorizontalBlock.FACING, POWERED)
     }
 
-    override fun onReplaced(state: BlockState, worldIn: World, pos: BlockPos, newState: BlockState, isMoving: Boolean) {
-        super.onReplaced(state, worldIn, pos, newState, isMoving)
-        this.notifyNeighbors(worldIn, pos, state)
+    override fun onRemove(state: BlockState, worldIn: World, pos: BlockPos, newState: BlockState, isMoving: Boolean) {
+        super.onRemove(state, worldIn, pos, newState, isMoving)
+        this.checkTickOnNeighbor(worldIn, pos, state)
     }
 
     /**
@@ -109,19 +109,19 @@ object BlockWaterborneComparator: RedstoneDiodeBlock(Properties.of(Material.DECO
      */
     override fun setPlacedBy(worldIn: World, pos: BlockPos, state: BlockState, placer: LivingEntity?, stack: ItemStack) {
         super.setPlacedBy(worldIn, pos, state, placer, stack)
-      //  worldIn.pendingBlockTicks.scheduleTick(pos, this, 2)
-        this.notifyNeighbors(worldIn, pos, state)
+        worldIn.blockTicks.scheduleTick(pos, this, 2)
+        this.checkTickOnNeighbor(worldIn, pos, state)
     }
 
-    override fun shouldBePowered(worldIn: World, pos: BlockPos, state: BlockState): Boolean {
-        return getWeakPower(state, worldIn, pos, state.getValue(HorizontalBlock.FACING)) > 0
+    override fun shouldTurnOn(worldIn: World, pos: BlockPos, state: BlockState): Boolean {
+        return getDirectSignal(state, worldIn, pos, state.getValue(HorizontalBlock.FACING)) > 0
     }
 
     override fun getDrops(state: BlockState, builder: LootContext.Builder): MutableList<ItemStack> {
         return mutableListOf(ItemStack(WaterborneComparatorItem))
     }
 
-    override fun getItem(worldIn: IBlockReader, pos: BlockPos, state: BlockState) = ItemStack(WaterborneComparatorItem, 1)
+    override fun getCloneItemStack(worldIn: IBlockReader, pos: BlockPos, state: BlockState) = ItemStack(WaterborneComparatorItem, 1)
 
     override fun getWeakChanges(state: BlockState?, world: IWorldReader?, pos: BlockPos?): Boolean {
         return true

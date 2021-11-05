@@ -36,28 +36,28 @@ object BlockMappingTable: MoarBoatsBlock({ sound(SoundType.STONE).strength(2.5f,
      * Called serverside after this block is replaced with another in Chunk, but before the Tile Entity is updated
      */
     //BlockState state, level levelIn, BlockPos pos, BlockState newState, boolean isMoving)
-    override fun onReplaced(state: BlockState, levelIn: World, pos: BlockPos, newState: BlockState, isMoving: Boolean) {
+    override fun onRemove(state: BlockState, levelIn: World, pos: BlockPos, newState: BlockState, isMoving: Boolean) {
         val tileentity = levelIn.getBlockEntity(pos)
 
         if (tileentity is TileEntityMappingTable) {
             InventoryHelper.dropContents(levelIn, pos, tileentity.inventory)
-            levelIn.updateComparatorOutputLevel(pos, this)
+            levelIn.updateNeighbourForOutputSignal(pos, this)
         }
 
-        super.onReplaced(state, levelIn, pos, newState, isMoving)
+        super.onRemove(state, levelIn, pos, newState, isMoving)
     }
 
-    override fun hasComparatorInputOverride(state: BlockState): Boolean {
+    override fun hasAnalogOutputSignal(state: BlockState): Boolean {
         return true
     }
 
-    override fun getComparatorInputOverride(blockState: BlockState, levelIn: World, pos: BlockPos): Int {
+    override fun getAnalogOutputSignal(blockState: BlockState, levelIn: World, pos: BlockPos): Int {
         return (levelIn.getBlockEntity(pos) as? TileEntityMappingTable)?.let {
-            Container.calcRedstoneFromInventory(it.inventory)
+            Container.getRedstoneSignalFromContainer(it.inventory)
         } ?: 0
     }
 
-    override fun onUse(state: BlockState, levelIn: World, pos: BlockPos, playerIn: PlayerEntity, hand: Hand?, hit: BlockRayTraceResult): ActionResultType {
+    override fun use(state: BlockState, levelIn: World, pos: BlockPos, playerIn: PlayerEntity, hand: Hand?, hit: BlockRayTraceResult): ActionResultType {
         if(levelIn.isClientSide) {
             return ActionResultType.SUCCESS
         }

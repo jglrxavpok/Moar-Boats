@@ -3,7 +3,7 @@ package org.jglrxavpok.moarboats.common.data
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.world.storage.WorldSavedData
 
-class MapImageStripe(val id: String): WorldSavedData(id) {
+class MapImageStripe(val stripeID: String): WorldSavedData(stripeID) {
 
     var index: Int = 0
     var textureStripe: IntArray = intArrayOf()

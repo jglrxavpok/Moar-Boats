@@ -1,19 +1,17 @@
 package org.jglrxavpok.moarboats.common.entities
 
+import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
 import net.minecraft.block.LilyPadBlock
-import net.minecraft.block.BlockState
 import net.minecraft.crash.CrashReport
 import net.minecraft.crash.CrashReportCategory
 import net.minecraft.crash.ReportedException
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.MoverType
-import net.minecraft.entity.Pose
 import net.minecraft.entity.item.ItemEntity
 import net.minecraft.entity.item.LeashKnotEntity
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.ServerPlayerEntity
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundNBT
@@ -21,16 +19,15 @@ import net.minecraft.network.IPacket
 import net.minecraft.network.PacketBuffer
 import net.minecraft.network.datasync.DataSerializers
 import net.minecraft.network.datasync.EntityDataManager
-import net.minecraft.network.play.server.SSpawnObjectPacket
 import net.minecraft.particles.BlockParticleData
 import net.minecraft.particles.ParticleTypes
 import net.minecraft.util.*
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
-import net.minecraft.util.math.vector.Vector3d
 import net.minecraft.util.math.shapes.IBooleanFunction
 import net.minecraft.util.math.shapes.VoxelShapes
+import net.minecraft.util.math.vector.Vector3d
 import net.minecraft.world.GameRules
 import net.minecraft.world.World
 import net.minecraftforge.api.distmarker.Dist
@@ -95,7 +92,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
     protected var blockedMotion = false
     override var blockedReason: BlockReason = NoBlockReason
     override val worldRef: World
-        get() = this.world
+        get() = this.level
     override val positionX: Double
         get() = x
     override val positionY: Double
@@ -173,21 +170,21 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
     /**
      * Returns true if this entity should push and be pushed by other entities when colliding.
      */
-    override fun canBePushed(): Boolean {
+    override fun isPushable(): Boolean {
         return true
     }
 
     /**
      * Returns the Y offset from the entity's position for any entity riding this one.
      */
-    override fun getMountedYOffset(): Double {
+    override fun getPassengersRidingOffset(): Double {
         return -0.1
     }
 
     /**
      * Called when the entity is attacked.
      */
-    override fun attackEntityFrom(source: DamageSource, amount: Float): Boolean {
+    override fun hurt(source: DamageSource, amount: Float): Boolean {
         if (this.isInvulnerableTo(source)) {
             return false
         } else if (!this.world.isClientSide && this.isAlive) {
@@ -197,7 +194,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
                 forwardDirection = -forwardDirection
                 timeSinceHit = 10
                 damageTaken += amount * 10.0f
-                this.markVelocityChanged()
+                this.markHurt()
                 val flag = source.entity is PlayerEntity && (source.entity as PlayerEntity).isCreative
 
                 if (flag || this.damageTaken > 40.0f) {
@@ -272,7 +269,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
                             if (j2 <= 0 || k2 != k && k2 != l - 1) {
                                 blockPos.set(l1, k2, i2)
                                 val iblockstate = this.world.getBlockState(blockPos)
-                                if (iblockstate.block !is LilyPadBlock && VoxelShapes.compare(iblockstate.getCollisionShape(this.world, blockPos).withOffset(l1.toDouble(), k2.toDouble(), i2.toDouble()), voxelshape, IBooleanFunction.AND)) {
+                                if (iblockstate.block !is LilyPadBlock && VoxelShapes.joinIsNotEmpty(iblockstate.getCollisionShape(this.world, blockPos).move(l1.toDouble(), k2.toDouble(), i2.toDouble()), voxelshape, IBooleanFunction.AND)) {
                                     f += iblockstate.getSlipperiness(world, blockPos, this)
                                     ++k1
                                 }
@@ -355,13 +352,13 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
         return (l + 1).toFloat()
     }
 
-    override fun applyEntityCollision(entityIn: Entity) {
+    override fun push(entityIn: Entity) {
         if (entityIn is BasicBoatEntity) {
             if (entityIn.boundingBox.minY < this.boundingBox.maxY) {
-                super.applyEntityCollision(entityIn)
+                super.push(entityIn)
             }
         } else if (entityIn.boundingBox.minY <= this.boundingBox.minY) {
-            super.applyEntityCollision(entityIn)
+            super.push(entityIn)
         }
     }
 
@@ -369,7 +366,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
      * Setups the entity to do the hurt animation. Only used by packets in multiplayer.
      */
     @OnlyIn(Dist.CLIENT)
-    override fun performHurtAnimation() {
+    override fun animateHurt() {
         forwardDirection = -this.forwardDirection
         timeSinceHit = 10
         damageTaken *= 11.0f
@@ -386,8 +383,8 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
      * Gets the horizontal facing direction of this Entity, adjusted to take specially-treated entity types into
      * account.
      */
-    override fun getAdjustedHorizontalFacing(): Direction {
-        return this.horizontalFacing.rotateY()
+    override fun getMotionDirection(): Direction {
+        return this.direction.clockWise
     }
 
     /**
@@ -456,13 +453,13 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
 
         this.move(MoverType.SELF, this.deltaMovement)
 
-        this.doBlockCollisions()
+        this.checkInsideBlocks()
         val list = this.world.getEntities(this, this.boundingBox.expandTowards(0.20000000298023224, -0.009999999776482582, 0.20000000298023224), EntityPredicates.pushableBy(this))
 
         if (list.isNotEmpty()) {
             for (entity in list) {
                 if(entity !in passengers)
-                    this.applyEntityCollision(entity)
+                    this.push(entity)
             }
         }
     }
@@ -473,7 +470,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
         val max = BlockPos.Mutable(axisalignedbb.maxX + 0.2, axisalignedbb.maxY - 0.001, axisalignedbb.maxZ + 0.2)
         val tmp = BlockPos.Mutable()
 
-        if (this.world.isAreaLoaded(min, max)) {
+        if (this.world.hasChunksAt(min, max)) {
             for (i in min.x..max.x) {
                 for (j in min.y..max.y) {
                     for (k in min.z..max.z) {
@@ -495,8 +492,8 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
                             }
                         } catch (throwable: Throwable) {
                             val crashreport = CrashReport.forThrowable(throwable, "Colliding entity with block")
-                            val crashreportcategory = crashreport.makeCategory("Block being collided with")
-                            CrashReportCategory.formatLocation(crashreportcategory, tmp, iblockstate)
+                            val crashreportcategory = crashreport.addCategory("Block being collided with")
+                            CrashReportCategory.populateBlockDetails(crashreportcategory, tmp, iblockstate)
                             throw ReportedException(crashreport)
                         }
 
@@ -585,7 +582,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
         for (x in minX until maxX) {
             for (y in maxY until aboveMaxYPos) {
                 for (z in minZ until maxZ) {
-                    currentBlockPos.setPos(x, y, z)
+                    currentBlockPos.set(x, y, z)
                     val block = this.world.getBlockState(currentBlockPos)
 
                     if (isValidLiquidBlock(currentBlockPos)) {
@@ -610,20 +607,20 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
      * Update the boat's speed, based on momentum.
      */
     private fun updateMotion() {
-        var verticalAcceleration = if (this.hasNoGravity()) 0.0 else -0.03999999910593033
+        var verticalAcceleration = if (this.isNoGravity) 0.0 else -0.03999999910593033
         var d2 = 0.0
         this.momentum = 0.05f
 
         if (this.previousStatus == Status.IN_AIR && this.status != Status.IN_AIR && this.status != Status.ON_LAND) {
-            this.waterLevel = this.boundingBox.minY + this.height.toDouble()
-            this.setPos(this.x, (this.getWaterLevelAbove() - this.height).toDouble() + 0.101, this.z)
+            this.waterLevel = this.boundingBox.minY + this.bbHeight.toDouble()
+            this.setPos(this.x, (this.getWaterLevelAbove() - this.bbHeight).toDouble() + 0.101, this.z)
             this.setDeltaMovement(deltaMovement.x, 0.0, deltaMovement.z)
             this.lastYd = 0.0
             this.status = Status.IN_LIQUID
         } else {
             when(this.status) {
                 Status.IN_LIQUID -> {
-                    d2 = (this.waterLevel - this.boundingBox.minY) / this.height.toDouble()
+                    d2 = (this.waterLevel - this.boundingBox.minY) / this.bbHeight.toDouble()
                     this.momentum = 0.9f
                 }
                 Status.UNDER_FLOWING_LIQUID -> {
@@ -652,7 +649,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
      * Applies this boat's yaw to the given entity. Used to update the orientation of its passenger.
      */
     protected fun applyYawToEntity(entityToUpdate: Entity) {
-        entityToUpdate.setRenderYawOffset(this.yRot)
+        entityToUpdate.setYBodyRot(this.yRot)
         val f = MathHelper.wrapDegrees(entityToUpdate.yRot - this.yRot)
         val f1 = MathHelper.clamp(f, -105.0f, 105.0f)
         entityToUpdate.yRotO += f1 - f
@@ -660,7 +657,12 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
         entityToUpdate.yRot = entityToUpdate.yRot
     }
 
-    override fun updateFallState(y: Double, onGroundIn: Boolean, state: BlockState, pos: BlockPos) {
+    @OnlyIn(Dist.CLIENT)
+    override fun onPassengerTurned(p_184190_1_: Entity) {
+        this.applyYawToEntity(p_184190_1_)
+    }
+
+    override fun checkFallDamage(y: Double, onGroundIn: Boolean, state: BlockState, pos: BlockPos) {
         this.lastYd = this.deltaMovement.y
 
         // boats will not break when falling
@@ -684,7 +686,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
             } else if(other is LeashKnotEntity) {
                 currentLinks[linkType] = Optional.empty()
                 currentLinkTypes[linkType] = KnotLink
-                currentKnotLocations[linkType] = Optional.of(other.hangingPosition)
+                currentKnotLocations[linkType] = Optional.of(other.pos)
             }
             entityData.set(LINKS_RUNTIME[linkType], other.id)
         }
@@ -883,7 +885,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
 
     // === Start of code for passengers ===
 
-    override fun updatePassenger(passenger: Entity) {
+    override fun positionRider(passenger: Entity) {
         if (this.hasPassenger(passenger)) {
             var f = -0.75f * 0.5f
             val f1 = ((if ( ! this.isAlive) 0.009999999776482582 else this.myRidingOffset) + passenger.passengersRidingOffset).toFloat()
@@ -896,7 +898,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
         }
     }
 
-    override fun canFitPassenger(passenger: Entity): Boolean {
+    override fun canAddPassenger(passenger: Entity): Boolean {
         return this.passengers.isEmpty() && passenger is PlayerEntity
     }
 

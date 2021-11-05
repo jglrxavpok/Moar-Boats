@@ -59,7 +59,7 @@ object FishingModuleRenderer : BoatModuleRenderer() {
         if(ready && hasRod && boat.inLiquid() && !boat.isEntityInLava()) {
             matrixStack.pushPose()
             matrixStack.scale(-1f, 1f, 1f)
-            mc.itemRenderer.renderStatic(rodStack, ItemCameraTransforms.TransformType.FIXED, false, matrixStack, buffers, packedLightIn, OverlayTexture.NO_OVERLAY, rodModel)
+            mc.itemRenderer.render(rodStack, ItemCameraTransforms.TransformType.FIXED, false, matrixStack, buffers, packedLightIn, OverlayTexture.NO_OVERLAY, rodModel)
             matrixStack.popPose()
 
             if(!playingAnimation)
@@ -123,10 +123,10 @@ object FishingModuleRenderer : BoatModuleRenderer() {
         matrixStack.mulPose(Vector3f.XP.rotationDegrees(-entityRendererManager.camera.xRot))
         matrixStack.mulPose(Vector3f.YP.rotationDegrees(180.0f))
 
-        bufferbuilder.pos(matrixStack, -0.5, -0.5, 0.0).color(1f, 1f, 1f, 1f).uv(0f, 1f).overlayCoords(OverlayTexture.NO_OVERLAY).light(packedLightIn).normal(matrixStack.last().normal(), 0.0f, 1.0f, 0.0f).endVertex()
-        bufferbuilder.pos(matrixStack, 0.5, -0.5, 0.0).color(1f, 1f, 1f, 1f).uv(1f, 1f).overlayCoords(OverlayTexture.NO_OVERLAY).light(packedLightIn).normal(matrixStack.last().normal(), 0.0f, 1.0f, 0.0f).endVertex()
-        bufferbuilder.pos(matrixStack, 0.5, 0.5, 0.0).color(1f, 1f, 1f, 1f).uv(1f, 0f).overlayCoords(OverlayTexture.NO_OVERLAY).light(packedLightIn).normal(matrixStack.last().normal(), 0.0f, 1.0f, 0.0f).endVertex()
-        bufferbuilder.pos(matrixStack, -0.5, 0.5, 0.0).color(1f, 1f, 1f, 1f).uv(0f, 0f).overlayCoords(OverlayTexture.NO_OVERLAY).light(packedLightIn).normal(matrixStack.last().normal(), 0.0f, 1.0f, 0.0f).endVertex()
+        bufferbuilder.pos(matrixStack, -0.5, -0.5, 0.0).color(1f, 1f, 1f, 1f).uv(0f, 1f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn).normal(matrixStack.last().normal(), 0.0f, 1.0f, 0.0f).endVertex()
+        bufferbuilder.pos(matrixStack, 0.5, -0.5, 0.0).color(1f, 1f, 1f, 1f).uv(1f, 1f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn).normal(matrixStack.last().normal(), 0.0f, 1.0f, 0.0f).endVertex()
+        bufferbuilder.pos(matrixStack, 0.5, 0.5, 0.0).color(1f, 1f, 1f, 1f).uv(1f, 0f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn).normal(matrixStack.last().normal(), 0.0f, 1.0f, 0.0f).endVertex()
+        bufferbuilder.pos(matrixStack, -0.5, 0.5, 0.0).color(1f, 1f, 1f, 1f).uv(0f, 0f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn).normal(matrixStack.last().normal(), 0.0f, 1.0f, 0.0f).endVertex()
 
         matrixStack.popPose()
 

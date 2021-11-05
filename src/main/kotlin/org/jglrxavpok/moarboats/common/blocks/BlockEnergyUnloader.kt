@@ -46,18 +46,18 @@ object BlockEnergyUnloader: MoarBoatsBlock() {
         return this.defaultBlockState().setValue(Facing, context.nearestLookingDirection)
     }
 
-    override fun onUse(state: BlockState, worldIn: World, pos: BlockPos, playerIn: PlayerEntity, hand: Hand?, hit: BlockRayTraceResult): ActionResultType {
+    override fun use(state: BlockState, worldIn: World, pos: BlockPos, playerIn: PlayerEntity, hand: Hand?, hit: BlockRayTraceResult): ActionResultType {
         if(worldIn.isClientSide)
             return ActionResultType.SUCCESS
         NetworkHooks.openGui(playerIn as ServerPlayerEntity, MoarBoatsGuiHandler.EnergyDischargerGuiInteraction(pos.x, pos.y, pos.z), pos)
         return ActionResultType.SUCCESS
     }
 
-    override fun hasComparatorInputOverride(state: BlockState): Boolean {
+    override fun hasAnalogOutputSignal(state: BlockState): Boolean {
         return true
     }
 
-    override fun getComparatorInputOverride(blockState: BlockState, worldIn: World, pos: BlockPos): Int {
+    override fun getAnalogOutputSignal(blockState: BlockState, worldIn: World, pos: BlockPos): Int {
         return (worldIn.getBlockEntity(pos) as? TileEntityEnergyUnloader)?.getRedstonePower() ?: 0
     }
 

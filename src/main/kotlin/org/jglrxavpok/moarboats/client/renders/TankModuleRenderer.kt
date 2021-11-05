@@ -36,7 +36,7 @@ object TankModuleRenderer : BoatModuleRenderer() {
             val scale = 1f/16f
             matrixStack.scale(scale, scale, scale)
             val sprite = Minecraft.getInstance().getTextureAtlas(AtlasTexture.LOCATION_BLOCKS).apply(fluid.attributes.stillTexture)
-            val buffer = buffers.getBuffer(Atlases.entityTranslucentCull())
+            val buffer = buffers.getBuffer(Atlases.chestSheet())
             val minU = sprite.u0
             val maxU = sprite.u1
             val minV = sprite.v0
@@ -47,40 +47,40 @@ object TankModuleRenderer : BoatModuleRenderer() {
             val red = color shr 16 and 0xFF
             val green = color shr 8 and 0xFF
             val blue = color and 0xFF
-            val light = LightTexture.pack(maxOf(luminosity, boat.worldRef.getLight(boat.blockPosition())), maxOf(luminosity, boat.worldRef.skylightSubtracted))
-            buffer.pos(matrixStack,1.0, 1.01, 1.0).color(red, green, blue, 255).uv(minU, minV).overlayCoords(OverlayTexture.NO_OVERLAY).light(light).normal(matrixStack, 0f, 1f, 0f).endVertex()
-            buffer.pos(matrixStack,15.0, 1.01, 1.0).color(red, green, blue, 255).uv(maxU, minV).overlayCoords(OverlayTexture.NO_OVERLAY).light(light).normal(matrixStack, 0f, 1f, 0f).endVertex()
-            buffer.pos(matrixStack,15.0, 1.01, 15.0).color(red, green, blue, 255).uv(maxU, maxV).overlayCoords(OverlayTexture.NO_OVERLAY).light(light).normal(matrixStack, 0f, 1f, 0f).endVertex()
-            buffer.pos(matrixStack,1.0, 1.01, 15.0).color(red, green, blue, 255).uv(minU, maxV).overlayCoords(OverlayTexture.NO_OVERLAY).light(light).normal(matrixStack, 0f, 1f, 0f).endVertex()
+            val light = LightTexture.pack(maxOf(luminosity, boat.worldRef.getMaxLocalRawBrightness(boat.blockPosition())), maxOf(luminosity, boat.worldRef.skyDarken))
+            buffer.pos(matrixStack,1.0, 1.01, 1.0).color(red, green, blue, 255).uv(minU, minV).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(matrixStack, 0f, 1f, 0f).endVertex()
+            buffer.pos(matrixStack,15.0, 1.01, 1.0).color(red, green, blue, 255).uv(maxU, minV).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(matrixStack, 0f, 1f, 0f).endVertex()
+            buffer.pos(matrixStack,15.0, 1.01, 15.0).color(red, green, blue, 255).uv(maxU, maxV).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(matrixStack, 0f, 1f, 0f).endVertex()
+            buffer.pos(matrixStack,1.0, 1.01, 15.0).color(red, green, blue, 255).uv(minU, maxV).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(matrixStack, 0f, 1f, 0f).endVertex()
 
             val fillAmount = module.getFluidAmount(boat) / module.getCapacity(boat).toFloat()
             val height = 15.0* fillAmount
-            buffer.pos(matrixStack,1.0, height, 1.0).color(red, green, blue, 255).uv(minU, minV).overlayCoords(OverlayTexture.NO_OVERLAY).light(light).normal(matrixStack, 0f, -1f, 0f).endVertex()
-            buffer.pos(matrixStack,15.0, height, 1.0).color(red, green, blue, 255).uv(maxU, minV).overlayCoords(OverlayTexture.NO_OVERLAY).light(light).normal(matrixStack, 0f, -1f, 0f).endVertex()
-            buffer.pos(matrixStack,15.0, height, 15.0).color(red, green, blue, 255).uv(maxU, maxV).overlayCoords(OverlayTexture.NO_OVERLAY).light(light).normal(matrixStack, 0f, -1f, 0f).endVertex()
-            buffer.pos(matrixStack,1.0, height, 15.0).color(red, green, blue, 255).uv(minU, maxV).overlayCoords(OverlayTexture.NO_OVERLAY).light(light).normal(matrixStack, 0f, -1f, 0f).endVertex()
+            buffer.pos(matrixStack,1.0, height, 1.0).color(red, green, blue, 255).uv(minU, minV).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(matrixStack, 0f, -1f, 0f).endVertex()
+            buffer.pos(matrixStack,15.0, height, 1.0).color(red, green, blue, 255).uv(maxU, minV).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(matrixStack, 0f, -1f, 0f).endVertex()
+            buffer.pos(matrixStack,15.0, height, 15.0).color(red, green, blue, 255).uv(maxU, maxV).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(matrixStack, 0f, -1f, 0f).endVertex()
+            buffer.pos(matrixStack,1.0, height, 15.0).color(red, green, blue, 255).uv(minU, maxV).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(matrixStack, 0f, -1f, 0f).endVertex()
 
             val bottomV = maxV * fillAmount + (1.0f-fillAmount)*minV
             val topV = minV
-            buffer.pos(matrixStack,1.0, height, 1.0).color(red, green, blue, 255).uv(minU, topV).overlayCoords(OverlayTexture.NO_OVERLAY).light(light).normal(matrixStack, 0f, 0f, 1f).endVertex()
-            buffer.pos(matrixStack,15.0, height, 1.0).color(red, green, blue, 255).uv(maxU, topV).overlayCoords(OverlayTexture.NO_OVERLAY).light(light).normal(matrixStack, 0f, 0f, 1f).endVertex()
-            buffer.pos(matrixStack,15.0, 1.01, 1.0).color(red, green, blue, 255).uv(maxU, bottomV).overlayCoords(OverlayTexture.NO_OVERLAY).light(light).normal(matrixStack, 0f, 0f, 1f).endVertex()
-            buffer.pos(matrixStack,1.0, 1.01, 1.0).color(red, green, blue, 255).uv(minU, bottomV).overlayCoords(OverlayTexture.NO_OVERLAY).light(light).normal(matrixStack, 0f, 0f, 1f).endVertex()
+            buffer.pos(matrixStack,1.0, height, 1.0).color(red, green, blue, 255).uv(minU, topV).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(matrixStack, 0f, 0f, 1f).endVertex()
+            buffer.pos(matrixStack,15.0, height, 1.0).color(red, green, blue, 255).uv(maxU, topV).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(matrixStack, 0f, 0f, 1f).endVertex()
+            buffer.pos(matrixStack,15.0, 1.01, 1.0).color(red, green, blue, 255).uv(maxU, bottomV).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(matrixStack, 0f, 0f, 1f).endVertex()
+            buffer.pos(matrixStack,1.0, 1.01, 1.0).color(red, green, blue, 255).uv(minU, bottomV).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(matrixStack, 0f, 0f, 1f).endVertex()
 
-            buffer.pos(matrixStack,1.0, 1.01, 15.0).color(red, green, blue, 255).uv(minU, bottomV).overlayCoords(OverlayTexture.NO_OVERLAY).light(light).normal(matrixStack, 0f, 0f, -1f).endVertex()
-            buffer.pos(matrixStack,15.0, 1.01, 15.0).color(red, green, blue, 255).uv(maxU, bottomV).overlayCoords(OverlayTexture.NO_OVERLAY).light(light).normal(matrixStack, 0f, 0f, -1f).endVertex()
-            buffer.pos(matrixStack,15.0, height, 15.0).color(red, green, blue, 255).uv(maxU, topV).overlayCoords(OverlayTexture.NO_OVERLAY).light(light).normal(matrixStack, 0f, 0f, -1f).endVertex()
-            buffer.pos(matrixStack,1.0, height, 15.0).color(red, green, blue, 255).uv(minU, topV).overlayCoords(OverlayTexture.NO_OVERLAY).light(light).normal(matrixStack, 0f, 0f, -1f).endVertex()
+            buffer.pos(matrixStack,1.0, 1.01, 15.0).color(red, green, blue, 255).uv(minU, bottomV).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(matrixStack, 0f, 0f, -1f).endVertex()
+            buffer.pos(matrixStack,15.0, 1.01, 15.0).color(red, green, blue, 255).uv(maxU, bottomV).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(matrixStack, 0f, 0f, -1f).endVertex()
+            buffer.pos(matrixStack,15.0, height, 15.0).color(red, green, blue, 255).uv(maxU, topV).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(matrixStack, 0f, 0f, -1f).endVertex()
+            buffer.pos(matrixStack,1.0, height, 15.0).color(red, green, blue, 255).uv(minU, topV).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(matrixStack, 0f, 0f, -1f).endVertex()
 
-            buffer.pos(matrixStack,1.0, 1.01, 1.0).color(red, green, blue, 255).uv(minU, bottomV).overlayCoords(OverlayTexture.NO_OVERLAY).light(light).normal(matrixStack, 1f, 0f, 0f).endVertex()
-            buffer.pos(matrixStack,1.0, 1.01, 15.0).color(red, green, blue, 255).uv(maxU, bottomV).overlayCoords(OverlayTexture.NO_OVERLAY).light(light).normal(matrixStack, 1f, 0f, 0f).endVertex()
-            buffer.pos(matrixStack,1.0, height, 15.0).color(red, green, blue, 255).uv(maxU, topV).overlayCoords(OverlayTexture.NO_OVERLAY).light(light).normal(matrixStack, 1f, 0f, 0f).endVertex()
-            buffer.pos(matrixStack,1.0, height, 1.0).color(red, green, blue, 255).uv(minU, topV).overlayCoords(OverlayTexture.NO_OVERLAY).light(light).normal(matrixStack, 1f, 0f, 0f).endVertex()
+            buffer.pos(matrixStack,1.0, 1.01, 1.0).color(red, green, blue, 255).uv(minU, bottomV).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(matrixStack, 1f, 0f, 0f).endVertex()
+            buffer.pos(matrixStack,1.0, 1.01, 15.0).color(red, green, blue, 255).uv(maxU, bottomV).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(matrixStack, 1f, 0f, 0f).endVertex()
+            buffer.pos(matrixStack,1.0, height, 15.0).color(red, green, blue, 255).uv(maxU, topV).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(matrixStack, 1f, 0f, 0f).endVertex()
+            buffer.pos(matrixStack,1.0, height, 1.0).color(red, green, blue, 255).uv(minU, topV).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(matrixStack, 1f, 0f, 0f).endVertex()
 
-            buffer.pos(matrixStack,15.0, 1.01, 1.0).color(red, green, blue, 255).uv(minU, bottomV).overlayCoords(OverlayTexture.NO_OVERLAY).light(light).normal(matrixStack, -1f, 0f, 0f).endVertex()
-            buffer.pos(matrixStack,15.0, 1.01, 15.0).color(red, green, blue, 255).uv(maxU, bottomV).overlayCoords(OverlayTexture.NO_OVERLAY).light(light).normal(matrixStack, -1f, 0f, 0f).endVertex()
-            buffer.pos(matrixStack,15.0, height, 15.0).color(red, green, blue, 255).uv(maxU, topV).overlayCoords(OverlayTexture.NO_OVERLAY).light(light).normal(matrixStack, -1f, 0f, 0f).endVertex()
-            buffer.pos(matrixStack,15.0, height, 1.0).color(red, green, blue, 255).uv(minU, topV).overlayCoords(OverlayTexture.NO_OVERLAY).light(light).normal(matrixStack, -1f, 0f, 0f).endVertex()
+            buffer.pos(matrixStack,15.0, 1.01, 1.0).color(red, green, blue, 255).uv(minU, bottomV).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(matrixStack, -1f, 0f, 0f).endVertex()
+            buffer.pos(matrixStack,15.0, 1.01, 15.0).color(red, green, blue, 255).uv(maxU, bottomV).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(matrixStack, -1f, 0f, 0f).endVertex()
+            buffer.pos(matrixStack,15.0, height, 15.0).color(red, green, blue, 255).uv(maxU, topV).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(matrixStack, -1f, 0f, 0f).endVertex()
+            buffer.pos(matrixStack,15.0, height, 1.0).color(red, green, blue, 255).uv(minU, topV).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(matrixStack, -1f, 0f, 0f).endVertex()
         }
         matrixStack.popPose()
     }

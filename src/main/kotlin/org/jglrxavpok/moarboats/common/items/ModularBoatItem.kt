@@ -241,7 +241,7 @@ class ShulkerBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "shulker") 
     override fun getName(stack: ItemStack): ITextComponent {
         val color = DyeColor.byName(stack.getOrCreateTagElement("AdditionalData").getString("Color"), null)
         if(color != null) {
-            return TranslationTextComponent("item.moarboats.colored_utility_boat.name", TranslationTextComponent("item.${boatType.getBaseBoatOriginModID()}.${boatType.getShortName()}_boat"), getContainerDisplayName(), TranslationTextComponent("color.minecraft.${color.translationKey}"))
+            return TranslationTextComponent("item.moarboats.colored_utility_boat.name", TranslationTextComponent("item.${boatType.getBaseBoatOriginModID()}.${boatType.getShortName()}_boat"), getContainerDisplayName(), TranslationTextComponent("color.minecraft.${color.getName()}"))
         }
         return super.getName(stack)
     }
@@ -311,18 +311,18 @@ abstract class BaseBoatItem(propertiesModifier: Item.Properties.() -> Unit = {})
         val f7 = f4 * f5
         val f8 = f3 * f5
         val vec3d1 = vec3d.add(f7.toDouble() * 5.0, f6.toDouble() * 5.0, f8.toDouble() * 5.0)
-        val raytraceresult = levelIn.rayTraceBlocks(RayTraceContext(vec3d, vec3d1, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.ANY, playerIn))
+        val raytraceresult = levelIn.clip(RayTraceContext(vec3d, vec3d1, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.ANY, playerIn))
 
         if (raytraceresult == null) {
             return ActionResult(ActionResultType.PASS, itemstack)
         } else {
-            val vec3d2 = playerIn.getLook(1.0f)
+            val vec3d2 = playerIn.getViewVector(1.0f)
             val list = levelIn.getEntities(playerIn, playerIn.boundingBox.expandTowards(vec3d2.x * 5.0, vec3d2.y * 5.0, vec3d2.z * 5.0).inflate(1.0))
 
             val flag = list.indices
                     .map { list[it] }
                     .filter { it.canBeCollidedWith() }
-                    .map { it.boundingBox.inflate(it.collisionBorderSize.toDouble()) }
+                    .map { it.boundingBox.inflate(it.pickRadius.toDouble()) }
                     .any { it.contains(vec3d) }
 
             if (flag) {
@@ -330,7 +330,7 @@ abstract class BaseBoatItem(propertiesModifier: Item.Properties.() -> Unit = {})
             } else if (raytraceresult.type != RayTraceResult.Type.BLOCK) {
                 return ActionResult(ActionResultType.PASS, itemstack)
             } else {
-                val inUsualFluid = Fluids.isUsualLiquidBlock(levelIn, raytraceresult.pos)
+                val inUsualFluid = Fluids.isUsualLiquidBlock(levelIn, raytraceresult.blockPos)
                 val entityboat = createBoat(levelIn, raytraceresult, inUsualFluid, itemstack, playerIn)
                 entityboat.yRot = playerIn.yRot
 

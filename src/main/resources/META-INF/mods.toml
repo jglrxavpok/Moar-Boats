@@ -26,6 +26,6 @@ Adds more uses to boats!
 [[dependencies.moarboats]]
     modId="minecraft"
     mandatory=true
-    versionRange="1.16.3"
+    versionRange="1.16.5"
     ordering="NONE"
     side="BOTH"

@@ -43,7 +43,7 @@ object IceBreakerModule: BoatModule() {
             val blockAtCenter = level.getBlockState(blockPos)
             if(blockAtCenter.block is IceBlock) {
                 var progress = getBreakProgress(from, blockPos)
-                progress += (blockAtCenter.getBlockHardness(level, blockPos) / 20f)
+                progress += (blockAtCenter.getDestroySpeed(level, blockPos) / 20f)
                 if(progress < 1.0f) {
                     setBreakProgress(from, blockPos, progress)
                     val blockIndex = getBlockIndex(from, blockPos)

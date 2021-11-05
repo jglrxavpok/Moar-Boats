@@ -29,7 +29,7 @@ object SeatModuleRenderer : BoatModuleRenderer() {
         matrixStack.scale(1f, -1f, 1f)
         matrixStack.translate(0.0, 2f/16.0, 7.0/16.0)
         val renderType = RenderType.entityTranslucent(BOAT_TEXTURES[boat.entityID % BOAT_TEXTURES.size])
-        model.render(matrixStack, buffers.getBuffer(renderType), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f)
+        model.renderToBuffer(matrixStack, buffers.getBuffer(renderType), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f)
         matrixStack.popPose()
     }
 }

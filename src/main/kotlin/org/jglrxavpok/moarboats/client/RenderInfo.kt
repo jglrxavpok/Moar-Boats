@@ -13,7 +13,7 @@ fun IVertexBuilder.addVertex(matrixStack: MatrixStack, x: Float, y: Float, z: Fl
             .color(redModifier, greenModifier, blueModifier, alphaModifier)
             .uv(u, v)
             .overlayCoords(overlayUV)
-            .light(combinedLight)
+            .uv2(combinedLight)
             .normal(matrixStack.last().normal(), normalX, normalY, normalZ)
             .endVertex()
 }

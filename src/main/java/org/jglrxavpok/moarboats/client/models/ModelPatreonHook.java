@@ -23,37 +23,37 @@ public class ModelPatreonHook extends EntityModel<Entity> {
     public ModelRenderer hookEnd;
 
     public ModelPatreonHook() {
-        this.textureWidth = 64;
-        this.textureHeight = 64;
+        this.texWidth = 64;
+        this.texHeight = 64;
         this.handleLeft = new ModelRenderer(this, 0, 24);
-        this.handleLeft.setRotationPoint(0.0F, 0.0F, 0.0F);
-        this.handleLeft.addCuboid(-6.5F, 1.0F, -7.5F, 13, 9, 1, 0.0F);
+        this.handleLeft.setPos(0.0F, 0.0F, 0.0F);
+        this.handleLeft.addBox(-6.5F, 1.0F, -7.5F, 13, 9, 1, 0.0F);
         this.setRotateAngle(handleLeft, 0.0F, 1.5707963267948966F, 0.0F);
         this.hookEnd = new ModelRenderer(this, 51, 0);
-        this.hookEnd.setRotationPoint(0.0F, 0.0F, 0.0F);
-        this.hookEnd.addCuboid(-4.5F, -13.0F, -1.5F, 3, 4, 3, 0.0F);
+        this.hookEnd.setPos(0.0F, 0.0F, 0.0F);
+        this.hookEnd.addBox(-4.5F, -13.0F, -1.5F, 3, 4, 3, 0.0F);
         this.hookPart3 = new ModelRenderer(this, 0, 34);
-        this.hookPart3.setRotationPoint(0.0F, 0.0F, 0.0F);
-        this.hookPart3.addCuboid(-3.0F, -16.0F, -1.5F, 6, 3, 3, 0.0F);
+        this.hookPart3.setPos(0.0F, 0.0F, 0.0F);
+        this.hookPart3.addBox(-3.0F, -16.0F, -1.5F, 6, 3, 3, 0.0F);
         this.base = new ModelRenderer(this, 0, 0);
-        this.base.setRotationPoint(0.0F, 0.0F, 0.0F);
-        this.base.addCuboid(-6.5F, 0.0F, -6.5F, 13, 1, 13, 0.0F);
+        this.base.setPos(0.0F, 0.0F, 0.0F);
+        this.base.addBox(-6.5F, 0.0F, -6.5F, 13, 1, 13, 0.0F);
         this.handleLeft_1 = new ModelRenderer(this, 28, 24);
-        this.handleLeft_1.setRotationPoint(0.0F, 0.0F, 0.0F);
-        this.handleLeft_1.addCuboid(-6.5F, 1.0F, 6.5F, 13, 9, 1, 0.0F);
+        this.handleLeft_1.setPos(0.0F, 0.0F, 0.0F);
+        this.handleLeft_1.addBox(-6.5F, 1.0F, 6.5F, 13, 9, 1, 0.0F);
         this.setRotateAngle(handleLeft_1, 0.0F, 1.5707963267948966F, 0.0F);
         this.hookBase = new ModelRenderer(this, 0, 0);
-        this.hookBase.setRotationPoint(0.0F, 0.0F, 0.0F);
-        this.hookBase.addCuboid(-1.5F, -6.0F, -1.5F, 3, 6, 3, 0.0F);
+        this.hookBase.setPos(0.0F, 0.0F, 0.0F);
+        this.hookBase.addBox(-1.5F, -6.0F, -1.5F, 3, 6, 3, 0.0F);
         this.handleBack = new ModelRenderer(this, 28, 14);
-        this.handleBack.setRotationPoint(0.0F, 0.0F, 0.0F);
-        this.handleBack.addCuboid(-6.5F, 1.0F, 6.5F, 13, 9, 1, 0.0F);
+        this.handleBack.setPos(0.0F, 0.0F, 0.0F);
+        this.handleBack.addBox(-6.5F, 1.0F, 6.5F, 13, 9, 1, 0.0F);
         this.handleFront = new ModelRenderer(this, 0, 14);
-        this.handleFront.setRotationPoint(0.0F, 0.0F, 0.0F);
-        this.handleFront.addCuboid(-6.5F, 1.0F, -7.5F, 13, 9, 1, 0.0F);
+        this.handleFront.setPos(0.0F, 0.0F, 0.0F);
+        this.handleFront.addBox(-6.5F, 1.0F, -7.5F, 13, 9, 1, 0.0F);
         this.hookPart2 = new ModelRenderer(this, 39, 0);
-        this.hookPart2.setRotationPoint(0.0F, 0.0F, 0.0F);
-        this.hookPart2.addCuboid(1.5F, -13.0F, -1.5F, 3, 7, 3, 0.0F);
+        this.hookPart2.setPos(0.0F, 0.0F, 0.0F);
+        this.hookPart2.addBox(1.5F, -13.0F, -1.5F, 3, 7, 3, 0.0F);
         this.base.addChild(this.handleLeft);
         this.hookPart3.addChild(this.hookEnd);
         this.hookPart2.addChild(this.hookPart3);
@@ -65,7 +65,7 @@ public class ModelPatreonHook extends EntityModel<Entity> {
     }
 
     @Override
-    public void render(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
+    public void renderToBuffer(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
         this.base.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
     }
 
@@ -73,13 +73,13 @@ public class ModelPatreonHook extends EntityModel<Entity> {
      * This is a helper function from Tabula to set the rotation of model parts
      */
     public void setRotateAngle(ModelRenderer ModelRenderer, float x, float y, float z) {
-        ModelRenderer.rotateAngleX = x;
-        ModelRenderer.rotateAngleY = y;
-        ModelRenderer.rotateAngleZ = z;
+        ModelRenderer.xRot = x;
+        ModelRenderer.yRot = y;
+        ModelRenderer.zRot = z;
     }
 
     @Override
-    public void setAngles(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void setupAnim(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 
     }
 }

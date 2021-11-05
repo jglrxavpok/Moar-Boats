@@ -323,7 +323,7 @@ object ClientEvents {
         matrixStack.scale(hookScale, -hookScale, hookScale)
         matrixStack.translate(-1f / 16.0, 0.0, -1f / 16.0)
         matrixStack.translate(0.0, -1.25, 0.0)
-        hookModel.render(renderInfo.matrixStack, renderInfo.buffers.getBuffer(RenderType.entityTranslucent(hookTextureLocation)), renderInfo.combinedLight, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f)
+        hookModel.renderToBuffer(renderInfo.matrixStack, renderInfo.buffers.getBuffer(RenderType.entityTranslucent(hookTextureLocation)), renderInfo.combinedLight, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f)
         matrixStack.popPose()
         RenderSystem.disableBlend()
     }

@@ -54,7 +54,7 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(EntityEntries.AnimalBoat, 
         return null
     }
 
-    override fun getMountedYOffset(): Double {
+    override fun getPassengersRidingOffset(): Double {
         return 0.0
     }
 
@@ -64,14 +64,14 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(EntityEntries.AnimalBoat, 
 
         for (entity in list) {
             if (!entity.hasPassenger(this)) {
-                if (this.passengers.isEmpty() && !entity.isPassenger && entity.width < this.width && entity is LivingEntity && entity !is WaterMobEntity && entity !is PlayerEntity) {
+                if (this.passengers.isEmpty() && !entity.isPassenger && entity.bbWidth < this.bbWidth && entity is LivingEntity && entity !is WaterMobEntity && entity !is PlayerEntity) {
                     entity.startRiding(this)
                 }
             }
         }
     }
 
-    override fun canBePushed(): Boolean {
+    override fun isPushable(): Boolean {
         return false
     }
 
@@ -94,10 +94,10 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(EntityEntries.AnimalBoat, 
 
     override fun isValidLiquidBlock(pos: BlockPos) = Fluids.isUsualLiquidBlock(world, pos)
 
-    override fun attackEntityFrom(source: DamageSource, amount: Float) = when(source) {
+    override fun hurt(source: DamageSource, amount: Float) = when(source) {
         DamageSource.LAVA, DamageSource.IN_FIRE, DamageSource.ON_FIRE -> false
         is IndirectEntityDamageSource -> false // avoid to kill yourself with your own arrows; also you are an *iron* boat, act like it
-        else -> super.attackEntityFrom(source, amount)
+        else -> super.hurt(source, amount)
     }
 
     override fun canStartRiding(player: PlayerEntity, heldItem: ItemStack, hand: Hand): Boolean {
@@ -122,18 +122,18 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(EntityEntries.AnimalBoat, 
         return overrideFacing
     }
 
-    override fun updatePassenger(passenger: Entity) {
+    override fun positionRider(passenger: Entity) {
         if (this.hasPassenger(passenger)) {
             val f1 = ((if ( ! this.isAlive) 0.009999999776482582 else this.myRidingOffset) + passenger.passengersRidingOffset).toFloat()
 
-            passenger.setPosition(this.x, this.y + f1.toDouble(), this.z)
+            passenger.setPos(this.x, this.y + f1.toDouble(), this.z)
             passenger.yRot += this.deltaRotation
             passenger.yHeadRot = passenger.yHeadRot + this.deltaRotation
             this.applyYawToEntity(passenger)
         }
     }
 
-    override fun canFitPassenger(passenger: Entity): Boolean {
+    override fun canAddPassenger(passenger: Entity): Boolean {
         return this.passengers.isEmpty() && passenger !is PlayerEntity
     }
 

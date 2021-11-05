@@ -17,6 +17,7 @@ import net.minecraft.util.SoundCategory
 import net.minecraft.util.math.BlockRayTraceResult
 import net.minecraft.util.math.RayTraceContext
 import net.minecraft.util.math.RayTraceResult
+import net.minecraft.util.math.shapes.ISelectionContext
 import net.minecraft.world.World
 
 abstract class WaterborneItem(id: String) : MoarBoatsItem(id) {
@@ -38,7 +39,9 @@ abstract class WaterborneItem(id: String) : MoarBoatsItem(id) {
                 val raytraceresult = rawResult as BlockRayTraceResult
                 val blockpos = raytraceresult.blockPos
 
-                if (!levelIn.isBlockModifiable(playerIn, blockpos) || !playerIn.canPlayerEdit(blockpos.relative(raytraceresult.direction), raytraceresult.direction, itemstack)) {
+                val selectionContext = ISelectionContext.of(playerIn);
+                val state = levelIn.getBlockState(blockpos)
+                if (!levelIn.isUnobstructed(state, blockpos, selectionContext)/* || !playerIn.canPlayerEdit(blockpos.relative(raytraceresult.direction), raytraceresult.direction, itemstack)*/) {
                     return ActionResult(ActionResultType.FAIL, itemstack)
                 }
 

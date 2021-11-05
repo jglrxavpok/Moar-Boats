@@ -133,7 +133,7 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
         return ActionResultType.FAIL
     }
 
-    override fun canFitPassenger(passenger: Entity): Boolean {
+    override fun canAddPassenger(passenger: Entity): Boolean {
         return this.passengers.isEmpty() && passenger is LivingEntity
     }
 
@@ -218,7 +218,7 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
         return if(passengers.isEmpty()) null else passengers[0]
     }
 
-    override fun updatePassenger(passenger: Entity) {
+    override fun positionRider(passenger: Entity) {
         if (this.hasPassenger(passenger)) {
             var f = 0.75f * 0.35f
             val f1 = ((if ( ! this.isAlive) 0.009999999776482582 else this.myRidingOffset) + passenger.passengersRidingOffset).toFloat()

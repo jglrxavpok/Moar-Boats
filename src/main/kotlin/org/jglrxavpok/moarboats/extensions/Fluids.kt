@@ -13,7 +13,7 @@ object Fluids {
         }
     }
 
-    fun getLiquidLocalLevel(level: World, pos: BlockPos) = level.getFluidState(pos).ownHeight
+    fun getLiquidLocalLevel(level: World, pos: BlockPos) = level.getFluidState(pos).amount
 
     fun getBlockLiquidHeight(level: World, pos: BlockPos): Float {
         val state = level.getFluidState(pos)

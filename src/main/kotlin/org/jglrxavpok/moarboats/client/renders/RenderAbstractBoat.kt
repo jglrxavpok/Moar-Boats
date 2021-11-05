@@ -42,12 +42,12 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
 
         val color = getBoatColor(entity)
 
-        this.model.setAngles(entity, partialTicks, 0.0f, -0.1f, 0.0f, 0.0f)
+        this.model.setupAnim(entity, partialTicks, 0.0f, -0.1f, 0.0f, 0.0f)
 
         matrixStackIn.pushPose()
         matrixStackIn.scale(-1.0f, -1.0f, 1.0f)
         val usualBuffer = bufferIn.getBuffer(this.model.renderType(getTextureLocation(entity)))
-        this.model.render(matrixStackIn, usualBuffer, packedLightIn, OverlayTexture.NO_OVERLAY, color[0], color[1], color[2], 1f)
+        this.model.renderToBuffer(matrixStackIn, usualBuffer, packedLightIn, OverlayTexture.NO_OVERLAY, color[0], color[1], color[2], 1f)
         val noWaterBuffer = bufferIn.getBuffer(RenderType.waterMask())
         this.model.noWater.render(matrixStackIn, noWaterBuffer, packedLightIn, OverlayTexture.NO_OVERLAY)
         matrixStackIn.popPose()
@@ -68,7 +68,7 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
                 matrixStack.pushPose()
                 matrixStack.translate(17.0, -4.0, 0.0)
                 renderActualLink(renderInfo, boatEntity, it, BasicBoatEntity.FrontLink, entityYaw)
-                ropeAnchorModel.render(matrixStack, ropeBuffer, renderInfo.combinedLight, 0, 1f, 1f, 1f, 1f)
+                ropeAnchorModel.renderToBuffer(matrixStack, ropeBuffer, renderInfo.combinedLight, 0, 1f, 1f, 1f, 1f)
                 matrixStack.popPose()
             }
         }
@@ -80,7 +80,7 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
                 matrixStack.translate(-17.0, -4.0, 0.0)
                 renderActualLink(renderInfo, boatEntity, it, BasicBoatEntity.BackLink, entityYaw)
                 entityRenderDispatcher.textureManager.bind(RopeAnchorTextureLocation)
-                ropeAnchorModel.render(matrixStack, ropeBuffer, renderInfo.combinedLight, 0, 1f, 1f, 1f, 1f)
+                ropeAnchorModel.renderToBuffer(matrixStack, ropeBuffer, renderInfo.combinedLight, 0, 1f, 1f, 1f, 1f)
                 matrixStack.popPose()
             }
         }

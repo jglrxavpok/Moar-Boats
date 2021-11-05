@@ -38,21 +38,21 @@ object BlockFluidLoader: MoarBoatsBlock() {
     }
 
     override fun getStateForPlacement(context: BlockItemUseContext): BlockState? {
-        return this.defaultBlockState().setValue(Facing, Direction.getFacingDirections(context.player)[0])
+        return this.defaultBlockState().setValue(Facing, Direction.orderedByNearest(context.player)[0])
     }
 
-    override fun onUse(state: BlockState, worldIn: World, pos: BlockPos, player: PlayerEntity, handIn: Hand, hit: BlockRayTraceResult): ActionResultType {
+    override fun use(state: BlockState, worldIn: World, pos: BlockPos, player: PlayerEntity, handIn: Hand, hit: BlockRayTraceResult): ActionResultType {
         if(worldIn.isClientSide)
             return ActionResultType.SUCCESS
         NetworkHooks.openGui(player as ServerPlayerEntity, MoarBoatsGuiHandler.FluidLoaderGuiInteraction(pos.x, pos.y, pos.z), pos)
         return ActionResultType.SUCCESS
     }
 
-    override fun hasComparatorInputOverride(state: BlockState): Boolean {
+    override fun hasAnalogOutputSignal(state: BlockState): Boolean {
         return true
     }
 
-    override fun getComparatorInputOverride(blockState: BlockState, worldIn: World, pos: BlockPos): Int {
+    override fun getAnalogOutputSignal(blockState: BlockState, worldIn: World, pos: BlockPos): Int {
         return (worldIn.getBlockEntity(pos) as? TileEntityFluidLoader)?.getRedstonePower() ?: 0
     }
 

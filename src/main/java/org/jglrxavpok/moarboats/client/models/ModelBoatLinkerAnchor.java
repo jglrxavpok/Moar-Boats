@@ -18,29 +18,29 @@ public class ModelBoatLinkerAnchor extends EntityModel<Entity> {
     public ModelRenderer left;
 
     public ModelBoatLinkerAnchor() {
-        this.textureWidth = 64;
-        this.textureHeight = 32;
+        this.texWidth = 64;
+        this.texHeight = 32;
         this.left = new ModelRenderer(this, 24, 0);
-        this.left.setRotationPoint(-2.0F, 0.0F, -1.0F);
-        this.left.addCuboid(0.0F, 0.0F, 0.0F, 1, 1, 2, 0.0F);
+        this.left.setPos(-2.0F, 0.0F, -1.0F);
+        this.left.addBox(0.0F, 0.0F, 0.0F, 1, 1, 2, 0.0F);
         this.right = new ModelRenderer(this, 18, 0);
-        this.right.setRotationPoint(1.0F, 0.0F, -1.0F);
-        this.right.addCuboid(0.0F, 0.0F, 0.0F, 1, 1, 2, 0.0F);
+        this.right.setPos(1.0F, 0.0F, -1.0F);
+        this.right.addBox(0.0F, 0.0F, 0.0F, 1, 1, 2, 0.0F);
         this.front = new ModelRenderer(this, 10, 0);
-        this.front.setRotationPoint(-2.0F, 0.0F, 1.0F);
-        this.front.addCuboid(0.0F, 0.0F, 0.0F, 4, 1, 1, 0.0F);
+        this.front.setPos(-2.0F, 0.0F, 1.0F);
+        this.front.addBox(0.0F, 0.0F, 0.0F, 4, 1, 1, 0.0F);
         this.back = new ModelRenderer(this, 0, 0);
-        this.back.setRotationPoint(-2.0F, 0.0F, -2.0F);
-        this.back.addCuboid(0.0F, 0.0F, 0.0F, 4, 1, 1, 0.0F);
+        this.back.setPos(-2.0F, 0.0F, -2.0F);
+        this.back.addBox(0.0F, 0.0F, 0.0F, 4, 1, 1, 0.0F);
     }
 
     @Override
-    public void setAngles(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void setupAnim(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 
     }
 
     @Override
-    public void render(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
+    public void renderToBuffer(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
         this.left.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
         this.right.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
         this.front.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);

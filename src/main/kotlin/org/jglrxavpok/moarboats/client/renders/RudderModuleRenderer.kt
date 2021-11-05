@@ -27,7 +27,7 @@ object RudderModuleRenderer : BoatModuleRenderer() {
         matrixStack.translate(0.0, 0.0, -0.5*0.0625f)
         val angle = RudderModule.RudderAngleMultiplier[boat]*90f
         rudderModel.rudderBlade.yRot = angle
-        rudderModel.render(matrixStack, buffers.getBuffer(RenderType.entityTranslucent(BOAT_TEXTURES[boat.entityID % BOAT_TEXTURES.size])), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f)
+        rudderModel.renderToBuffer(matrixStack, buffers.getBuffer(RenderType.entityTranslucent(BOAT_TEXTURES[boat.entityID % BOAT_TEXTURES.size])), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f)
         matrixStack.popPose()
     }
 }

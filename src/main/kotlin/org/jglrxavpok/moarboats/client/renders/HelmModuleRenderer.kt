@@ -58,7 +58,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
 
         val frameAngle = module.rotationAngleProperty[boat].toRadians()
         rotate(frameAngle, model.frameCenter, model.left, model.radiusLeft, model.right, model.radiusRight, model.top, model.radiusTop, model.bottom, model.radiusBottom)
-        model.render(matrixStack, buffers.getBuffer(moduleRenderType), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f)
+        model.renderToBuffer(matrixStack, buffers.getBuffer(moduleRenderType), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f)
         rotate(-frameAngle, model.frameCenter, model.left, model.radiusLeft, model.right, model.radiusRight, model.top, model.radiusTop, model.bottom, model.radiusBottom)
 
         val inventory = boat.getInventory(module)
@@ -84,10 +84,10 @@ object HelmModuleRenderer : BoatModuleRenderer() {
 
             val backgroundBuffer = buffers.getBuffer(mapBackgroundRenderType)
 
-            backgroundBuffer.vertex(matrixStack.last().pose(), x, y+mapSize, 0.0f).color(1f, 1f, 1f, 1f).uv(0.0f, 1.0f).overlayCoords(OverlayTexture.NO_OVERLAY).light(packedLightIn).normal(matrixStack.last().normal(), 0f, 0f, 1f).endVertex()
-            backgroundBuffer.vertex(matrixStack.last().pose(), x+mapSize, y+mapSize, 0.0f).color(1f, 1f, 1f, 1f).uv(1.0f, 1.0f).overlayCoords(OverlayTexture.NO_OVERLAY).light(packedLightIn).normal(matrixStack.last().normal(), 0f, 0f, 1f).endVertex()
-            backgroundBuffer.vertex(matrixStack.last().pose(), x+mapSize, y, 0.0f).color(1f, 1f, 1f, 1f).uv(1.0f, 0.0f).overlayCoords(OverlayTexture.NO_OVERLAY).light(packedLightIn).normal(matrixStack.last().normal(), 0f, 0f, 1f).endVertex()
-            backgroundBuffer.vertex(matrixStack.last().pose(), x, y, 0.0f).color(1f, 1f, 1f, 1f).uv(0.0f, 0.0f).overlayCoords(OverlayTexture.NO_OVERLAY).light(packedLightIn).normal(matrixStack.last().normal(), 0f, 0f, 1f).endVertex()
+            backgroundBuffer.vertex(matrixStack.last().pose(), x, y+mapSize, 0.0f).color(1f, 1f, 1f, 1f).uv(0.0f, 1.0f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn).normal(matrixStack.last().normal(), 0f, 0f, 1f).endVertex()
+            backgroundBuffer.vertex(matrixStack.last().pose(), x+mapSize, y+mapSize, 0.0f).color(1f, 1f, 1f, 1f).uv(1.0f, 1.0f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn).normal(matrixStack.last().normal(), 0f, 0f, 1f).endVertex()
+            backgroundBuffer.vertex(matrixStack.last().pose(), x+mapSize, y, 0.0f).color(1f, 1f, 1f, 1f).uv(1.0f, 0.0f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn).normal(matrixStack.last().normal(), 0f, 0f, 1f).endVertex()
+            backgroundBuffer.vertex(matrixStack.last().pose(), x, y, 0.0f).color(1f, 1f, 1f, 1f).uv(0.0f, 0.0f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn).normal(matrixStack.last().normal(), 0f, 0f, 1f).endVertex()
 
             matrixStack.translate(0.0, 0.0, 1.0)
 

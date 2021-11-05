@@ -106,7 +106,7 @@ class ShulkerBoatEntity(world: World): UtilityBoatEntity<ShulkerBoxTileEntity, U
             val stack = ShulkerBoxBlock.getColoredItemStack(dyeColor)
             val nbt = tileEntity.saveToTag(CompoundNBT())
             if (!nbt.isEmpty) {
-                stack.setTagInfo("BlockEntityTag", nbt)
+                stack.addTagElement("BlockEntityTag", nbt)
             }
 
             if (tileEntity.hasCustomName()) {
