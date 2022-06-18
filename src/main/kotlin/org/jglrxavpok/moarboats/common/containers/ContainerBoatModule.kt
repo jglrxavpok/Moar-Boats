@@ -1,9 +1,9 @@
 package org.jglrxavpok.moarboats.common.containers
 
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.container.Container
-import net.minecraft.inventory.container.ContainerType
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.inventory.AbstractContainerMenu
+import net.minecraft.world.inventory.MenuType
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 
-open class ContainerBoatModule<T: Container>(containerRef: ContainerType<T>, containerID: Int, playerInventory: PlayerInventory, val engine: BoatModule, val boat: IControllable): ContainerBase<T>(containerRef, containerID, playerInventory)
+open class ContainerBoatModule<T: AbstractContainerMenu>(containerRef: MenuType<T>, containerID: Int, playerInventory: Inventory, val engine: BoatModule, val boat: IControllable): ContainerBase<T>(containerRef, containerID, playerInventory)

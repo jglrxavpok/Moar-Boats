@@ -1,18 +1,18 @@
 package org.jglrxavpok.moarboats.common.network
 
 import net.minecraft.client.Minecraft
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.CompoundTag
 import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.fml.network.NetworkEvent
+import net.minecraftforge.network.NetworkEvent
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 
 class SModuleData(): MoarBoatsPacket {
 
-    var data = CompoundNBT()
+    var data = CompoundTag()
 
     var boatID: Int = 0
 
-    constructor(boatID: Int, data: CompoundNBT): this() {
+    constructor(boatID: Int, data: CompoundTag): this() {
         this.boatID = boatID
         this.data = data
     }

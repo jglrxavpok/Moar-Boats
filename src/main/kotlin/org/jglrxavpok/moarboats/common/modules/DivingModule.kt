@@ -1,11 +1,11 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.entity.LivingEntity
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.potion.EffectInstance
-import net.minecraft.potion.Effects
-import net.minecraft.util.Hand
-import net.minecraft.util.ResourceLocation
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.effect.MobEffectInstance
+import net.minecraft.world.effect.MobEffects
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.entity.player.Player
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
@@ -23,7 +23,7 @@ object DivingModule: BoatModule() {
 
     val maxDistSq = 20.0*20.0
 
-    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean) = false
+    override fun onInteract(from: IControllable, player: Player, hand: InteractionHand, sneaking: Boolean) = false
 
     override fun controlBoat(from: IControllable) { }
 
@@ -35,15 +35,15 @@ object DivingModule: BoatModule() {
             inWater && correctDistance
         }.map { it as LivingEntity }
         entities.forEach {
-            it.addEffect(EffectInstance(Effects.WATER_BREATHING, 2, 1, true, true))
+            it.addEffect(MobEffectInstance(MobEffects.WATER_BREATHING, 2, 1, true, true))
         }
     }
 
     override fun onAddition(to: IControllable) { }
 
-    override fun createContainer(containerID: Int, player: PlayerEntity, boat: IControllable): ContainerBoatModule<*>? = EmptyModuleContainer(containerID, player.inventory, this, boat)
+    override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? = EmptyModuleContainer(containerID, player.inventory, this, boat)
 
-    override fun createGui(containerID: Int, player: PlayerEntity, boat: IControllable) = GuiNoConfigModule(containerID, player.inventory, this, boat)
+    override fun createGui(containerID: Int, player: Player, boat: IControllable) = GuiNoConfigModule(containerID, player.inventory, this, boat)
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)

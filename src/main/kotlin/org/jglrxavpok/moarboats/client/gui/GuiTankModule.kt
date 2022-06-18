@@ -1,17 +1,17 @@
 package org.jglrxavpok.moarboats.client.gui
 
-import net.minecraft.client.Minecraft
 import com.mojang.blaze3d.platform.GlStateManager
+import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.Tessellator
-import net.minecraft.client.renderer.texture.AtlasTexture
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.fluid.EmptyFluid
-import net.minecraft.fluid.Fluid
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.text.TranslationTextComponent
-import net.minecraft.world.World
+import net.minecraft.core.BlockPos
+import net.minecraft.network.chat.Component
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.inventory.InventoryMenu
+import net.minecraft.world.level.Level
+import net.minecraft.world.level.material.EmptyFluid
+import net.minecraft.world.level.material.Fluid
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
@@ -19,7 +19,7 @@ import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
 import org.jglrxavpok.moarboats.common.modules.IFluidBoatModule
 import org.lwjgl.opengl.GL11
 
-class GuiTankModule(containerID: Int, playerInventory: PlayerInventory, module: BoatModule, boat: IControllable): GuiModuleBase<EmptyModuleContainer>(module, boat, playerInventory, EmptyModuleContainer(containerID, playerInventory, module, boat)) {
+class GuiTankModule(containerID: Int, playerInventory: Inventory, module: BoatModule, boat: IControllable): GuiModuleBase<EmptyModuleContainer>(module, boat, playerInventory, EmptyModuleContainer(containerID, playerInventory, module, boat)) {
 
     val tankModule = module as IFluidBoatModule
 
@@ -34,14 +34,14 @@ class GuiTankModule(containerID: Int, playerInventory: PlayerInventory, module: 
         val localX = mouseX - guiLeft
         val localY = mouseY - guiTop
         if(localX in 60..(60+55) && localY in 6..(6+75)) {
-            val fluidName = TranslationTextComponent(tankModule.getFluidInside(boat)?.attributes?.getTranslationKey(tankModule.getContents(boat)!!) ?: "nothing")
-            renderTooltip(matrixStack, TranslationTextComponent(MoarBoats.ModID+".tank_level", tankModule.getFluidAmount(boat), tankModule.getCapacity(boat), fluidName)/*.formatted()*/, localX, localY)
+            val fluidName = Component.translatable(tankModule.getFluidInside(boat)?.attributes?.getTranslationKey(tankModule.getContents(boat)!!) ?: "nothing")
+            renderTooltip(matrixStack, Component.translatable(MoarBoats.ModID+".tank_level", tankModule.getFluidAmount(boat), tankModule.getCapacity(boat), fluidName)/*.formatted()*/, localX, localY)
         }
     }
 
     override fun drawModuleBackground(mouseX: Int, mouseY: Int) {
         super.drawModuleBackground(mouseX, mouseY)
-        mc.textureManager.bind(moduleBackground)
+        mc.textureManager.bindForSetup(moduleBackground)
         GlStateManager._disableCull()
         val fluid = tankModule.getFluidInside(boat)
         if(fluid != null && fluid !is EmptyFluid) {
@@ -53,11 +53,11 @@ class GuiTankModule(containerID: Int, playerInventory: PlayerInventory, module: 
         /**
          * world and position used to determine color (eg water)
          */
-        fun renderFluidInGui(leftX: Int, bottomY: Int, fluid: Fluid, fluidAmount: Int, fluidCapacity: Int, horizontalTilesCount: Int, world: World, position: BlockPos) {
+        fun renderFluidInGui(leftX: Int, bottomY: Int, fluid: Fluid, fluidAmount: Int, fluidCapacity: Int, horizontalTilesCount: Int, world: Level, position: BlockPos) {
             val energyHeight = (73 * (fluidAmount/fluidCapacity.toFloat())).toInt()
             val mc = Minecraft.getInstance()
-            mc.textureManager.bind(AtlasTexture.LOCATION_BLOCKS)
-            val sprite = mc.getTextureAtlas(AtlasTexture.LOCATION_BLOCKS).apply(fluid.attributes.stillTexture)
+            mc.textureManager.bindForSetup(InventoryMenu.BLOCK_ATLAS)
+            val sprite = mc.getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(fluid.attributes.stillTexture)
             val tessellator = Tessellator.getInstance()
             val buffer = tessellator.builder
             buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR)

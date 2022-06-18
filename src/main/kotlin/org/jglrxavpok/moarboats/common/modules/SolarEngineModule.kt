@@ -1,14 +1,15 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.block.Blocks
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.inventory.IInventory
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.Hand
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.MathHelper
-import net.minecraft.world.LightType
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.util.Mth
+import net.minecraft.world.Container
+import net.minecraft.world.inventory.AbstractContainerMenu
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.LightLayer
+import net.minecraft.world.level.block.Blocks
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
 import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
@@ -19,7 +20,7 @@ object SolarEngineModule : BaseEngineModule() {
 
     val invertedProperty = BooleanBoatProperty("inverted")
 
-    override fun createContainer(containerID: Int, player: PlayerEntity, boat: IControllable): ContainerBoatModule<*>? {
+    override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? {
         return EmptyModuleContainer(containerID, player.inventory, this, boat, isLarge = true)
     }
 
@@ -38,7 +39,7 @@ object SolarEngineModule : BaseEngineModule() {
     override fun remainingTimeInPercent(from: IControllable): Float {
         val levelIn = from.worldRef
         val pos = from.correspondingEntity.blockPosition()
-        var diff = levelIn.getBrightness(LightType.SKY, pos) - levelIn.skyDarken
+        var diff = levelIn.getBrightness(LightLayer.SKY, pos) - levelIn.skyDarken
         var angle = levelIn.getSunAngle(1.0f)
 
         if (invertedProperty[from]) {
@@ -48,13 +49,13 @@ object SolarEngineModule : BaseEngineModule() {
         if (diff > 0 && !invertedProperty[from]) {
             val f1 = if (angle < Math.PI.toFloat()) 0.0f else Math.PI.toFloat() * 2f
             angle += (f1 - angle) * 0.2f
-            diff = (diff.toFloat() * MathHelper.cos(angle)).roundToInt()
+            diff = (diff.toFloat() * Mth.cos(angle)).roundToInt()
         }
 
-        return MathHelper.clamp(diff, 0, 15) / 15f
+        return Mth.clamp(diff, 0, 15) / 15f
     }
 
-    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean): Boolean {
+    override fun onInteract(from: IControllable, player: Player, hand: InteractionHand, sneaking: Boolean): Boolean {
         if(sneaking && player.getItemInHand(hand).isEmpty) {
             invertedProperty[from] = !invertedProperty[from]
             return true
@@ -66,7 +67,7 @@ object SolarEngineModule : BaseEngineModule() {
         return remainingTimeInPercent(from) >= 1f/15f - 10e-14f
     }
 
-    override fun updateFuelState(boat: IControllable, state: CompoundNBT, inv: IInventory) {
+    override fun updateFuelState(boat: IControllable, state: CompoundTag, inv: Container) {
         // NOP
     }
 

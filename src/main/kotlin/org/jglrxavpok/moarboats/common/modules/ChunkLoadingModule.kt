@@ -1,11 +1,11 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.particles.ParticleTypes
-import net.minecraft.util.Hand
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.ChunkPos
+import net.minecraft.core.particles.ParticleTypes
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.ChunkPos
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
@@ -30,7 +30,7 @@ object ChunkLoadingModule: BoatModule() {
             Pair(1, -1)
     )
 
-    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean) = false
+    override fun onInteract(from: IControllable, player: Player, hand: InteractionHand, sneaking: Boolean) = false
 
     override fun controlBoat(from: IControllable) { }
 
@@ -61,7 +61,7 @@ object ChunkLoadingModule: BoatModule() {
     }
 
     private fun forceChunks(boat: IControllable) {
-        val centerPos = ChunkPos(boat.correspondingEntity.xChunk, boat.correspondingEntity.zChunk)
+        val centerPos = ChunkPos(boat.correspondingEntity.chunkPosition().x, boat.correspondingEntity.chunkPosition().z)
         for(i in -2..2) {
             for(j in -2..2) {
                 boat.forceChunkLoad(centerPos.x+i, centerPos.z+j)
@@ -80,9 +80,9 @@ object ChunkLoadingModule: BoatModule() {
 
     override fun onAddition(to: IControllable) { }
 
-    override fun createContainer(containerID: Int, player: PlayerEntity, boat: IControllable): ContainerBoatModule<*>? = EmptyModuleContainer(containerID, player.inventory, this, boat)
+    override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? = EmptyModuleContainer(containerID, player.inventory, this, boat)
 
-    override fun createGui(containerID: Int, player: PlayerEntity, boat: IControllable) = GuiNoConfigModule(containerID, player.inventory, this, boat)
+    override fun createGui(containerID: Int, player: Player, boat: IControllable) = GuiNoConfigModule(containerID, player.inventory, this, boat)
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)

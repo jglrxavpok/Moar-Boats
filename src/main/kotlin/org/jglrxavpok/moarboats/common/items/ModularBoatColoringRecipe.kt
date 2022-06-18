@@ -1,27 +1,25 @@
 package org.jglrxavpok.moarboats.common.items
 
-import net.minecraft.inventory.CraftingInventory
-import net.minecraft.inventory.IInventory
-import net.minecraft.item.DyeColor
-import net.minecraft.item.ItemStack
-import net.minecraft.item.crafting.ICraftingRecipe
-import net.minecraft.item.crafting.IRecipe
-import net.minecraft.item.crafting.IRecipeSerializer
-import net.minecraft.item.crafting.IRecipeType
-import net.minecraft.util.ResourceLocation
-import net.minecraft.world.World
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.inventory.CraftingContainer
+import net.minecraft.world.item.DyeColor
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.crafting.CraftingRecipe
+import net.minecraft.world.item.crafting.RecipeSerializer
+import net.minecraft.world.item.crafting.RecipeType
+import net.minecraft.world.level.Level
 import org.jglrxavpok.moarboats.MoarBoats
 
-object ModularBoatColoringRecipe: ICraftingRecipe {
-    override fun getType(): IRecipeType<*> {
-        return IRecipeType.CRAFTING
+object ModularBoatColoringRecipe: CraftingRecipe {
+    override fun getType(): RecipeType<*> {
+        return RecipeType.CRAFTING
     }
 
     override fun getId(): ResourceLocation {
         return ResourceLocation(MoarBoats.ModID, "modular_boat_coloring")
     }
 
-    override fun getSerializer(): IRecipeSerializer<*> {
+    override fun getSerializer(): RecipeSerializer<*> {
         return MBRecipeSerializers.BoatColoring
     }
 
@@ -31,7 +29,7 @@ object ModularBoatColoringRecipe: ICraftingRecipe {
 
     override fun getResultItem() = ItemStack.EMPTY
 
-    override fun assemble(inv: CraftingInventory): ItemStack {
+    override fun assemble(inv: CraftingContainer): ItemStack {
         var globalColor: DyeColor? = null
         var boatCount = 0
         var dyeCount = 0
@@ -61,7 +59,7 @@ object ModularBoatColoringRecipe: ICraftingRecipe {
         return ItemStack.EMPTY
     }
 
-    override fun matches(inv: CraftingInventory, worldIn: World?): Boolean {
+    override fun matches(inv: CraftingContainer, worldIn: Level?): Boolean {
         var globalColor: DyeColor? = null
         var boatCount = 0
         var dyeCount = 0

@@ -1,14 +1,9 @@
 package org.jglrxavpok.moarboats.common.modules.inventories
 
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.inventory.ItemStackHelper
-import net.minecraft.item.ItemStack
-import net.minecraft.util.IIntArray
-import net.minecraft.util.IntArray
-import net.minecraft.util.NonNullList
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
-import net.minecraft.util.text.TranslationTextComponent
+import net.minecraft.core.NonNullList
+import net.minecraft.world.ContainerHelper
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleInventory
 import org.jglrxavpok.moarboats.api.IControllable
@@ -23,7 +18,7 @@ abstract class BaseModuleInventory(slotCount: Int, inventoryName: String, boat: 
         return list[index]
     }
 
-    override fun removeItem(index: Int, count: Int) = ItemStackHelper.removeItem(list, index, count)
+    override fun removeItem(index: Int, count: Int) = ContainerHelper.removeItem(list, index, count)
 
     override fun clearContent() {
         list.clear()
@@ -41,15 +36,15 @@ abstract class BaseModuleInventory(slotCount: Int, inventoryName: String, boat: 
 
     override fun getMaxStackSize() = 64
 
-    override fun stillValid(player: PlayerEntity): Boolean {
+    override fun stillValid(player: Player): Boolean {
         return true
     }
 
-    override fun startOpen(player: PlayerEntity?) {
+    override fun startOpen(player: Player?) {
         
     }
 
-    override fun stopOpen(player: PlayerEntity?) {
+    override fun stopOpen(player: Player?) {
 
     }
 
@@ -58,7 +53,7 @@ abstract class BaseModuleInventory(slotCount: Int, inventoryName: String, boat: 
     }
 
     override fun removeItemNoUpdate(index: Int): ItemStack {
-        return ItemStackHelper.takeItem(list, index)
+        return ContainerHelper.takeItem(list, index)
     }
 
 }

@@ -1,13 +1,14 @@
 package org.jglrxavpok.moarboats.client.renders
 
-import com.mojang.blaze3d.matrix.MatrixStack
-import net.minecraft.block.Blocks
-import net.minecraft.client.renderer.IRenderTypeBuffer
+import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.math.Quaternion
+import com.mojang.math.Vector3f
+import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderType
-import net.minecraft.client.renderer.entity.EntityRendererManager
-import net.minecraft.util.math.MathHelper
-import net.minecraft.util.math.vector.Quaternion
-import net.minecraft.util.math.vector.Vector3f
+import net.minecraft.client.renderer.entity.EntityRendererProvider
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context
+import net.minecraft.util.Mth
+import net.minecraft.world.level.block.Blocks
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.client.pos
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
@@ -20,7 +21,7 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
         registryName = AnchorModule.id
     }
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererManager) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererProvider.Context) {
         matrixStack.pushPose()
         matrixStack.mulPose(Vector3f.YP.rotationDegrees(90f))
         val anchor = module as AnchorModule
@@ -52,7 +53,7 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
         val anchorScale = 0.75f
         matrixStack.pushPose()
         matrixStack.scale(anchorScale, anchorScale, anchorScale)
-        renderBlockState(matrixStack, buffers, packedLightIn, entityRendererManager, Blocks.ANVIL.defaultBlockState(), boat.brightness)
+        renderBlockState(matrixStack, buffers, packedLightIn, entityRendererManager, Blocks.ANVIL.defaultBlockState(), boat.lightLevelDependentMagicValue)
         matrixStack.popPose()
         matrixStack.translate(+0.5, +0.5, -0.5)
 
@@ -60,13 +61,13 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
         val dx = (anchorX-boat.x)
         val dy = (anchorY-boat.y)
         val dz = (anchorZ-boat.z)
-        val localAnchorX = -MathHelper.sin(radangle) * dz + MathHelper.cos(radangle) * dx
-        val localAnchorZ = MathHelper.cos(radangle) * dz + MathHelper.sin(radangle) * dx
+        val localAnchorX = -Mth.sin(radangle) * dz + Mth.cos(radangle) * dx
+        val localAnchorZ = Mth.cos(radangle) * dz + Mth.sin(radangle) * dx
         renderChain(matrixStack, buffers, localAnchorX, dy, localAnchorZ)
         matrixStack.popPose()
     }
 
-    private fun renderChain(matrixStack: MatrixStack, buffers: IRenderTypeBuffer, anchorX: Double, anchorY: Double, anchorZ: Double) {
+    private fun renderChain(matrixStack: PoseStack, buffers: MultiBufferSource, anchorX: Double, anchorY: Double, anchorZ: Double) {
 
         val yOffset = -0.06 // small fix to make the rope actually connect both to the rod and to the hook
 

@@ -1,24 +1,30 @@
 package org.jglrxavpok.moarboats.server
 
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.nbt.ListNBT
-import net.minecraft.world.storage.WorldSavedData
-import net.minecraftforge.common.util.Constants
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.ListTag
+import net.minecraft.nbt.Tag
+import net.minecraft.world.level.saveddata.SavedData
 
-class ForcedChunkList(val list: ListNBT): WorldSavedData("moarboats_forced_chunks") {
+class ForcedChunkList: SavedData("moarboats_forced_chunks") {
+
+    val list = ListTag()
+
+    constructor(list: ListTag) {
+        this.list.addAll(list);
+    }
+
+    constructor(nbt: CompoundTag) {
+        list.clear()
+        list.addAll(nbt.getList("list", Tag.TAG_COMPOUND.toInt()))
+    }
 
     override fun getId(): String {
         return "moarboats_forced_chunks"
     }
 
-    override fun save(compound: CompoundNBT): CompoundNBT {
+    override fun save(compound: CompoundTag): CompoundTag {
         compound.put("list", list)
         return compound
-    }
-
-    override fun load(nbt: CompoundNBT) {
-        list.clear()
-        list.addAll(nbt.getList("list", Constants.NBT.TAG_COMPOUND))
     }
 
     override fun isDirty(): Boolean {

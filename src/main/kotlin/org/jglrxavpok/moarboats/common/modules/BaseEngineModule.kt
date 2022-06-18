@@ -1,17 +1,18 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.block.HopperBlock
-import net.minecraft.block.material.Material
-import net.minecraft.client.gui.screen.Screen
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.inventory.IInventory
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.particles.BlockParticleData
-import net.minecraft.particles.ParticleTypes
-import net.minecraft.tileentity.HopperTileEntity
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.MathHelper
+import net.minecraft.client.gui.screens.Screen
+import net.minecraft.core.BlockPos
+import net.minecraft.core.particles.BlockParticleOption
+import net.minecraft.core.particles.ParticleTypes
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.util.Mth
+import net.minecraft.world.Container
+import net.minecraft.world.inventory.AbstractContainerMenu
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.HopperBlock
+import net.minecraft.world.level.block.entity.HopperBlockEntity
+import net.minecraft.world.level.material.Material
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.jglrxavpok.moarboats.api.BoatModule
@@ -31,7 +32,7 @@ abstract class BaseEngineModule: BoatModule() {
 
     abstract fun hasFuel(from: IControllable): Boolean
     abstract fun getFuelTime(fuelItem: ItemStack): Int
-    protected abstract fun updateFuelState(boat: IControllable, state: CompoundNBT, inv: IInventory)
+    protected abstract fun updateFuelState(boat: IControllable, state: CompoundTag, inv: Container)
     abstract fun remainingTimeInTicks(from: IControllable): Float
     abstract fun remainingTimeInPercent(from: IControllable): Float
     abstract fun estimatedTotalTicks(boat: IControllable): Float
@@ -53,7 +54,7 @@ abstract class BaseEngineModule: BoatModule() {
                     val hopperPos = from.correspondingEntity.blockPosition().above()
                     val blockState = from.worldRef.getBlockState(hopperPos)
                     if(blockState.block is HopperBlock) {
-                        val te = from.worldRef.getBlockEntity(hopperPos) as HopperTileEntity
+                        val te = from.worldRef.getBlockEntity(hopperPos) as HopperBlockEntity
                         val storageInventory = from.getInventory(storage)
                         if( ! storageInventory.canAddAnyFrom(te)) {
                             return // bypass lock
@@ -66,7 +67,7 @@ abstract class BaseEngineModule: BoatModule() {
     }
 
     @OnlyIn(Dist.CLIENT)
-    override fun createGui(containerID: Int, player: PlayerEntity, boat: IControllable): Screen {
+    override fun createGui(containerID: Int, player: Player, boat: IControllable): Screen {
         return GuiEngineModule(player.inventory, this, boat, createContainer(containerID, player, boat)!!)
     }
 
@@ -94,19 +95,19 @@ abstract class BaseEngineModule: BoatModule() {
             val angle = (yRot + 90f).toRadians()
             val distAlongLength = 0.0625f * 17f * -1f
 
-            val pos = BlockPos.Mutable(posX, posY-0.5, posZ)
+            val pos = BlockPos.MutableBlockPos(posX, posY - 0.5, posZ)
             val blockState = from.worldRef.getBlockState(pos)
 
             repeat(count) {
                 // between -8s and 8s, s being the scaling factor
                 val distAlongWidth = 0.0625f * 8f * (Math.random() * 2.0 - 1.0)
-                val anchorX = posX + MathHelper.cos(angle) * distAlongLength + MathHelper.sin(angle) * distAlongWidth
+                val anchorX = posX + Mth.cos(angle) * distAlongLength + Mth.sin(angle) * distAlongWidth
                 val anchorY = posY + 0.0625f * 4f
-                val anchorZ = posZ + MathHelper.sin(angle) * distAlongLength - MathHelper.cos(angle) * distAlongWidth
+                val anchorZ = posZ + Mth.sin(angle) * distAlongLength - Mth.cos(angle) * distAlongWidth
                 val particle = when {
                     blockState.material == Material.WATER -> ParticleTypes.DRIPPING_WATER
                     blockState.material == Material.LAVA -> ParticleTypes.DRIPPING_LAVA
-                    else -> BlockParticleData(ParticleTypes.BLOCK, blockState)
+                    else -> BlockParticleOption(ParticleTypes.BLOCK, blockState)
                 }
                 from.worldRef.addParticle(particle, anchorX, anchorY, anchorZ, -from.velocityX, 1.0, -from.velocityZ)
             }

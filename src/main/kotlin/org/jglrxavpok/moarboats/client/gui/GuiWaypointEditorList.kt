@@ -1,19 +1,19 @@
 package org.jglrxavpok.moarboats.client.gui
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
+import net.minecraft.Util
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.widget.list.ExtendedList
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.Util
+import net.minecraft.client.gui.components.ObjectSelectionList
+import net.minecraft.resources.ResourceLocation
 import org.jglrxavpok.moarboats.client.drawModalRectWithCustomSizedTexture
 import org.jglrxavpok.moarboats.integration.IWaypointProvider
 import org.jglrxavpok.moarboats.integration.WaypointInfo
 import org.jglrxavpok.moarboats.integration.WaypointProviders
 import org.lwjgl.opengl.GL11
 
-class WaypointInfoEntry(val parent: GuiWaypointEditor, val slot: WaypointInfo, val slotTops: MutableMap<WaypointInfoEntry, Int>, val waypoints: List<WaypointInfoEntry>, val slotHeight: Int): ExtendedList.AbstractListEntry<WaypointInfoEntry>() {
+class WaypointInfoEntry(val parent: GuiWaypointEditor, val slot: WaypointInfo, val slotTops: MutableMap<WaypointInfoEntry, Int>, val waypoints: List<WaypointInfoEntry>, val slotHeight: Int): ObjectSelectionList.Entry<WaypointInfoEntry>() {
 
     companion object {
         val ArrowsTexture = ResourceLocation("minecraft", "textures/gui/resource_packs.png")
@@ -22,7 +22,7 @@ class WaypointInfoEntry(val parent: GuiWaypointEditor, val slot: WaypointInfo, v
     private var lastClickTime: Long = -1L
     private val mc = Minecraft.getInstance()
 
-    override fun render(matrixStack: MatrixStack, index: Int, y: Int, x: Int, entryWidth: Int, entryHeight: Int, mouseX: Int, mouseY: Int, p_194999_5_: Boolean, partialTicks: Float) {
+    override fun render(matrixStack: PoseStack, index: Int, y: Int, x: Int, entryWidth: Int, entryHeight: Int, mouseX: Int, mouseY: Int, p_194999_5_: Boolean, partialTicks: Float) {
         if(index >= waypoints.size)
             return
         val slotTop = y
@@ -32,7 +32,7 @@ class WaypointInfoEntry(val parent: GuiWaypointEditor, val slot: WaypointInfo, v
         // TODO: merge with rendering code of GuiWaypointList
         matrixStack.pushPose()
         GlStateManager._color4f(1f, 1f, 1f, 1f)
-        mc.textureManager.bind(ArrowsTexture)
+        mc.textureManager.bindForSetup(ArrowsTexture)
         val hovered = if(mouseX >= left && mouseX < left + 16 && mouseY >= slotTop && mouseY < slotTop + slotHeight) 1 else 0
 
         val arrowScale = 0.75
@@ -83,7 +83,7 @@ class WaypointInfoEntry(val parent: GuiWaypointEditor, val slot: WaypointInfo, v
 }
 
 class GuiWaypointEditorList(val mc: Minecraft, val parent: GuiWaypointEditor, width: Int, height: Int, top: Int, left: Int, val entryHeight: Int):
-        ExtendedList<WaypointInfoEntry>(mc, width, height, top, top + height, entryHeight) {
+        ObjectSelectionList<WaypointInfoEntry>(mc, width, height, top, top + height, entryHeight) {
 
     private var waypoints = mutableListOf<WaypointInfoEntry>()
     val slotTops = hashMapOf<WaypointInfoEntry, Int>()
@@ -102,11 +102,11 @@ class GuiWaypointEditorList(val mc: Minecraft, val parent: GuiWaypointEditor, wi
         }
     }
 
-    override fun renderBackground(matrixStack: MatrixStack) {
+    override fun renderBackground(matrixStack: PoseStack) {
         blit(matrixStack, left, top, right, bottom, 0, 0)
     }
 
-    override fun render(matrixStack: MatrixStack, insideLeft: Int, insideTop: Int, partialTicks: Float) {
+    override fun render(matrixStack: PoseStack, insideLeft: Int, insideTop: Int, partialTicks: Float) {
         val scaleX = mc.window.width/mc.window.guiScaledHeight.toDouble()
         val scaleY = mc.window.height/mc.window.guiScaledHeight.toDouble()
         GL11.glEnable(GL11.GL_SCISSOR_TEST)

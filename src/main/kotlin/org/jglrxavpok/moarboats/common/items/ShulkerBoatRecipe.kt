@@ -1,26 +1,24 @@
 package org.jglrxavpok.moarboats.common.items
 
-import net.minecraft.block.ShulkerBoxBlock
-import net.minecraft.inventory.CraftingInventory
-import net.minecraft.inventory.IInventory
-import net.minecraft.item.BlockItem
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
-import net.minecraft.item.Items
-import net.minecraft.item.crafting.*
-import net.minecraft.tileentity.ShulkerBoxTileEntity
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.datafix.fixes.ShulkerBoxItemColor
-import net.minecraft.world.World
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.inventory.CraftingContainer
+import net.minecraft.world.item.BlockItem
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.crafting.CraftingRecipe
+import net.minecraft.world.item.crafting.RecipeSerializer
+import net.minecraft.world.item.crafting.RecipeType
+import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.ShulkerBoxBlock
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.data.BoatType
 
-object ShulkerBoatRecipe: ICraftingRecipe {
-    override fun getType(): IRecipeType<*> {
-        return IRecipeType.CRAFTING
+object ShulkerBoatRecipe: CraftingRecipe {
+    override fun getType(): RecipeType<*> {
+        return RecipeType.CRAFTING
     }
 
-    override fun getSerializer(): IRecipeSerializer<*> {
+    override fun getSerializer(): RecipeSerializer<*> {
         return MBRecipeSerializers.ShulkerBoat
     }
 
@@ -38,7 +36,7 @@ object ShulkerBoatRecipe: ICraftingRecipe {
         return BoatType.values().firstOrNull { it.provideBoatItem() == item }
     }
 
-    override fun assemble(inv: CraftingInventory): ItemStack {
+    override fun assemble(inv: CraftingContainer): ItemStack {
         var boatType: BoatType? = null
         var shulkerBox: ItemStack? = null
         for(i in 0 until inv.containerSize) {
@@ -70,7 +68,7 @@ object ShulkerBoatRecipe: ICraftingRecipe {
         return ItemStack.EMPTY
     }
 
-    override fun matches(inv: CraftingInventory, worldIn: World?): Boolean {
+    override fun matches(inv: CraftingContainer, worldIn: Level?): Boolean {
         return assemble(inv) != ItemStack.EMPTY
     }
 }

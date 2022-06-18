@@ -1,10 +1,9 @@
 package org.jglrxavpok.moarboats.common.network
 
 import net.minecraft.client.Minecraft
-import net.minecraft.item.Item
-import net.minecraft.item.MusicDiscItem
+import net.minecraft.world.item.RecordItem
 import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.fml.network.NetworkEvent
+import net.minecraftforge.network.NetworkEvent
 import org.jglrxavpok.moarboats.client.ClientEvents
 
 class SPlayRecordFromBoat(): MoarBoatsPacket {
@@ -12,9 +11,9 @@ class SPlayRecordFromBoat(): MoarBoatsPacket {
     var entityID: Int = -1
 
     @MoarBoatsPacket.Nullable
-    var item: MusicDiscItem? = null
+    var item: RecordItem? = null
 
-    constructor(entityID: Int, item: MusicDiscItem?): this() {
+    constructor(entityID: Int, item: RecordItem?): this() {
         this.entityID = entityID
         this.item = item
     }

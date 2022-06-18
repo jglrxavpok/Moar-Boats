@@ -1,9 +1,9 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.client.gui.screen.Screen
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.util.Hand
-import net.minecraft.util.ResourceLocation
+import net.minecraft.client.gui.screens.Screen
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.InteractionHand
+import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.fluids.FluidStack
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import net.minecraftforge.fluids.capability.IFluidHandler
@@ -26,7 +26,7 @@ object FluidTankModule: BoatModule(), IFluidBoatModule {
     override val fluidNameProperty = StringBoatProperty("fluid_name")
     override val fluidAmountProperty = IntBoatProperty("fluid_amount")
 
-    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean): Boolean {
+    override fun onInteract(from: IControllable, player: Player, hand: InteractionHand, sneaking: Boolean): Boolean {
         val heldItem = player.getItemInHand(hand)
         val lazyCapa = heldItem.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null)
         if(lazyCapa.isPresent) {
@@ -57,11 +57,11 @@ object FluidTankModule: BoatModule(), IFluidBoatModule {
         fluidAmountProperty[to] = 0
     }
 
-    override fun createContainer(containerID: Int, player: PlayerEntity, boat: IControllable): ContainerBoatModule<*>? {
+    override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? {
         return EmptyModuleContainer(containerID, player.inventory, this, boat)
     }
 
-    override fun createGui(containerID: Int, player: PlayerEntity, boat: IControllable): Screen {
+    override fun createGui(containerID: Int, player: Player, boat: IControllable): Screen {
         return GuiTankModule(containerID, player.inventory, this, boat)
     }
 

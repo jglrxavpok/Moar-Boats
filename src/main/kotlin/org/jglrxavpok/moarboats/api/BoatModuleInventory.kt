@@ -1,22 +1,21 @@
 package org.jglrxavpok.moarboats.api
 
-import net.minecraft.inventory.IInventory
-import net.minecraft.inventory.Inventory
-import net.minecraft.item.ItemStack
-import net.minecraft.util.IIntArray
-import net.minecraft.util.IntArray
-import net.minecraft.util.NonNullList
-import net.minecraftforge.fml.network.PacketDistributor
+import net.minecraft.core.NonNullList
+import net.minecraft.world.inventory.ContainerData
+import net.minecraft.world.Container
+import net.minecraft.world.SimpleContainer
+import net.minecraft.world.item.ItemStack
+import net.minecraftforge.network.PacketDistributor
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.network.SSyncInventory
 
 abstract class BoatModuleInventory(val inventoryName: String, val slotCount: Int, val boat: IControllable, val module: BoatModule, val list: NonNullList<ItemStack>):
-        Inventory(slotCount) {
+        SimpleContainer(slotCount) {
 
     protected abstract fun id2key(id: Int): String?
     abstract fun getFieldCount(): Int
 
-    private inner class AdditionalDataArray: IIntArray {
+    private inner class AdditionalDataArray: ContainerData {
         override fun getCount(): Int {
             return getFieldCount()
         }
@@ -30,7 +29,7 @@ abstract class BoatModuleInventory(val inventoryName: String, val slotCount: Int
         }
     }
 
-    var additionalData: IIntArray = AdditionalDataArray()
+    var additionalData: ContainerData = AdditionalDataArray()
 
     fun getField(id: Int): Int {
         val key = id2key(id)
@@ -100,7 +99,7 @@ abstract class BoatModuleInventory(val inventoryName: String, val slotCount: Int
      *
      * WARNING: This only checks if a SINGLE item can fit, not a whole stack
      */
-    fun canAddAnyFrom(inv: IInventory): Boolean {
+    fun canAddAnyFrom(inv: Container): Boolean {
         for(i in 0 until inv.containerSize) {
             val itemstack = inv.getItem(i)
             if(itemstack.isEmpty)

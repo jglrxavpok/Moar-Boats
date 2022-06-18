@@ -1,12 +1,11 @@
 package org.jglrxavpok.moarboats.client.renders
 
-import com.mojang.blaze3d.matrix.MatrixStack
-import net.minecraft.block.BlockState
-import net.minecraft.block.Blocks
-import net.minecraft.client.renderer.IRenderTypeBuffer
-import net.minecraft.client.renderer.entity.EntityRendererManager
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.vector.Vector3f
+import com.mojang.blaze3d.vertex.PoseStack
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.resources.ResourceLocation
+import com.mojang.math.Vector3f
+import net.minecraft.client.renderer.entity.EntityRendererProvider
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 
@@ -18,7 +17,7 @@ open class BlockBoatModuleRenderer(id: ResourceLocation, private val spot: BoatM
         this.registryName = id
     }
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRenderer: EntityRendererManager) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRenderer: EntityRendererProvider.Context) {
         val block = blockStateProvider(boat, module)
         matrixStack.pushPose()
 
@@ -36,7 +35,7 @@ open class BlockBoatModuleRenderer(id: ResourceLocation, private val spot: BoatM
 
         matrixStack.scale(0.75f, 0.75f, 0.75f)
         matrixStack.translate(-0.5, -4f/16.0, 1.0/16.0/0.75)
-        renderBlockState(matrixStack, buffers, packedLightIn, entityRenderer, block, boat.brightness)
+        renderBlockState(matrixStack, buffers, packedLightIn, entityRenderer, block, boat.lightLevelDependentMagicValue)
         matrixStack.popPose()
     }
 }

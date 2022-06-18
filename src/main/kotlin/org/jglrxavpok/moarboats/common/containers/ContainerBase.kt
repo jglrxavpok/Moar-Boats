@@ -1,25 +1,25 @@
 package org.jglrxavpok.moarboats.common.containers
 
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.container.Container
-import net.minecraft.inventory.container.ContainerType
-import net.minecraft.inventory.container.IContainerListener
-import net.minecraft.inventory.container.Slot
-import net.minecraft.item.ItemStack
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.inventory.AbstractContainerMenu
+import net.minecraft.world.inventory.ContainerListener
+import net.minecraft.world.inventory.MenuType
+import net.minecraft.world.inventory.Slot
+import net.minecraft.world.item.ItemStack
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper
 import java.lang.reflect.Field
 
 private lateinit var listenersField: Field
 
-fun getListeners(container: Container): List<IContainerListener> {
+fun getListeners(container: AbstractContainerMenu): List<ContainerListener> {
     if(!::listenersField.isInitialized) {
-        listenersField = ObfuscationReflectionHelper.findField(Container::class.java, "field_75149_d")
+        listenersField = ObfuscationReflectionHelper.findField(AbstractContainerMenu::class.java, "field_75149_d")
     }
-    return listenersField[container] as List<IContainerListener>
+    return listenersField[container] as List<ContainerListener>
 }
 
-abstract class ContainerBase<T: Container>(val containerRef: ContainerType<T>, val containerID: Int, val playerInventory: PlayerInventory): Container(containerRef, containerID) {
+abstract class ContainerBase<T: AbstractContainerMenu>(val containerRef: MenuType<T>, val containerID: Int, val playerInventory: Inventory): AbstractContainerMenu(containerRef, containerID) {
 
     protected fun addPlayerSlots(isLarge: Boolean, xStart: Int = 8) {
         val yOffset = if(isLarge) 3 * 18 +2 else 0
@@ -34,11 +34,11 @@ abstract class ContainerBase<T: Container>(val containerRef: ContainerType<T>, v
         }
     }
 
-    override fun stillValid(playerIn: PlayerEntity): Boolean {
+    override fun stillValid(playerIn: Player): Boolean {
         return true
     }
 
-    override fun quickMoveStack(playerIn: PlayerEntity, index: Int): ItemStack {
+    override fun quickMoveStack(playerIn: Player, index: Int): ItemStack {
         var itemstack = ItemStack.EMPTY
         val slot = this.slots[index]
 

@@ -1,11 +1,11 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.block.Blocks
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.util.Hand
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.MathHelper
-import net.minecraft.util.math.vector.Vector3d
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.util.Mth
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.phys.Vec3
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
@@ -23,7 +23,7 @@ object SonarModule: BoatModule() {
     override val moduleSpot = Spot.Navigation
     override val isMenuInteresting = false
 
-    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean): Boolean {
+    override fun onInteract(from: IControllable, player: Player, hand: InteractionHand, sneaking: Boolean): Boolean {
         return false
     }
 
@@ -36,10 +36,10 @@ object SonarModule: BoatModule() {
         val yawRad = (from.yaw).toRadians()
         val speed = Math.sqrt(from.velocityX*from.velocityX+from.velocityZ*from.velocityZ)
         if(speed > 0.01) {
-            val force = Vector3d(-localGradient.x.toDouble(), 0.0, -localGradient.y.toDouble())
-            val cos = MathHelper.cos(yawRad).toDouble()
-            val sin = MathHelper.sin(yawRad).toDouble()
-            val r = Vector3d(cos, 0.0, sin)
+            val force = Vec3(-localGradient.x.toDouble(), 0.0, -localGradient.y.toDouble())
+            val cos = Mth.cos(yawRad).toDouble()
+            val sin = Mth.sin(yawRad).toDouble()
+            val r = Vec3(cos, 0.0, sin)
             val moment = r.cross(force)
             val angularRotation = (moment.y) / speed
             val rotationMultiplier = angularRotation.toFloat().toDegrees() / 500f
@@ -77,11 +77,11 @@ object SonarModule: BoatModule() {
     override fun onAddition(to: IControllable) {
     }
 
-    override fun createContainer(containerID: Int, player: PlayerEntity, boat: IControllable): ContainerBoatModule<*>? {
+    override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? {
         return EmptyModuleContainer(containerID, player.inventory, this, boat)
     }
 
-    override fun createGui(containerID: Int, player: PlayerEntity, boat: IControllable) = GuiNoConfigModule(containerID, player.inventory, this, boat)
+    override fun createGui(containerID: Int, player: Player, boat: IControllable) = GuiNoConfigModule(containerID, player.inventory, this, boat)
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)

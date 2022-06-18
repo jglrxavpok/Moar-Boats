@@ -1,25 +1,25 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.client.gui.screen.Screen
-import net.minecraft.enchantment.EnchantmentHelper
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.FishingRodItem
-import net.minecraft.item.Items
-import net.minecraft.util.SoundEvents
-import net.minecraft.item.ItemStack
-import net.minecraft.loot.LootContext
+import net.minecraft.client.gui.screens.Screen
 import net.minecraft.loot.LootParameterSet
-import net.minecraft.loot.LootTables
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.nbt.ListNBT
-import net.minecraft.util.Hand
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.SoundCategory
-import net.minecraft.world.server.ServerWorld
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.ListTag
+import net.minecraft.nbt.Tag
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.sounds.SoundEvents
+import net.minecraft.sounds.SoundSource
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.FishingRodItem
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
+import net.minecraft.world.item.enchantment.EnchantmentHelper
+import net.minecraft.world.level.storage.loot.LootContext
+import net.minecraft.world.level.storage.loot.LootTables
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
-import net.minecraftforge.common.util.Constants
-import net.minecraftforge.fml.network.PacketDistributor
+import net.minecraftforge.network.PacketDistributor
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
@@ -43,19 +43,19 @@ object FishingModule : BoatModule() {
     // State properties
     val readyProperty = BooleanBoatProperty("ready")
     val animationTickProperty = IntBoatProperty("animationTick")
-    val lastLootProperty = NBTListBoatProperty("lastLoot", Constants.NBT.TAG_COMPOUND)
+    val lastLootProperty = NBTListBoatProperty("lastLoot", Tag.TAG_COMPOUND.toInt())
     val playingAnimationProperty = BooleanBoatProperty("playingAnimation")
 
     @OnlyIn(Dist.CLIENT)
-    override fun createGui(containerID: Int, player: PlayerEntity, boat: IControllable): Screen {
+    override fun createGui(containerID: Int, player: Player, boat: IControllable): Screen {
         return GuiFishingModule(containerID, player.inventory, this, boat)
     }
 
-    override fun createContainer(containerID: Int, player: PlayerEntity, boat: IControllable): ContainerBoatModule<*>? {
+    override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? {
         return ContainerFishingModule(containerID, player.inventory, this, boat)
     }
 
-    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean): Boolean {
+    override fun onInteract(from: IControllable, player: Player, hand: InteractionHand, sneaking: Boolean): Boolean {
         return false
     }
 
@@ -82,13 +82,13 @@ object FishingModule : BoatModule() {
 
                 val luck = EnchantmentHelper.getFishingLuckBonus(rodStack)
                 // catch fish
-                val builder = LootContext.Builder(from.worldRef as ServerWorld)
+                val builder = LootContext.Builder(from.worldRef as ServerLevel)
                 builder.withLuck(luck.toFloat())
                 val params = LootParameterSet.Builder().build()
                 val result = from.worldRef.server!!.lootTables.get(LootTables.FISHING).getRandomItems(builder.create(params))
-                val lootList = ListNBT()
+                val lootList = ListTag()
                 result.forEach {
-                    val info = CompoundNBT()
+                    val info = CompoundTag()
                     info.putString("name", it.item.registryName.toString())
                     info.putInt("damage", it.damageValue)
                     lootList.add(info)
@@ -121,7 +121,7 @@ object FishingModule : BoatModule() {
             if (animationTick >= MaxAnimationTicks) {
                 animationTickProperty[from] = 0
                 playingAnimationProperty[from] = false
-                lastLootProperty[from] = ListNBT() // empty the loot list
+                lastLootProperty[from] = ListTag() // empty the loot list
             }
         } else {
             animationTickProperty[from] = 0
@@ -157,7 +157,7 @@ object FishingModule : BoatModule() {
 
     private fun breakRod(from: IControllable) {
         from.getInventory().setItem(0, ItemStack.EMPTY)
-        MoarBoats.network.send(PacketDistributor.ALL.noArg(), SPlaySound(from.positionX, from.positionY, from.positionZ, SoundEvents.SHIELD_BREAK, SoundCategory.PLAYERS, 0.8f, 0.8f + Math.random().toFloat() * 0.4f))
+        MoarBoats.network.send(PacketDistributor.ALL.noArg(), SPlaySound(from.positionX, from.positionY, from.positionZ, SoundEvents.SHIELD_BREAK, SoundSource.PLAYERS, 0.8f, 0.8f + Math.random().toFloat() * 0.4f))
     }
 
     override fun onAddition(to: IControllable) {

@@ -1,32 +1,28 @@
 package org.jglrxavpok.moarboats
 
-import net.minecraft.block.Block
-import net.minecraft.block.material.Material
-import net.minecraft.block.material.MaterialColor
-import net.minecraft.block.material.PushReaction
 import net.minecraft.client.Minecraft
-import net.minecraft.entity.EntityType
-import net.minecraft.inventory.container.Container
-import net.minecraft.inventory.container.ContainerType
-import net.minecraft.item.*
-import net.minecraft.item.crafting.IRecipeSerializer
-import net.minecraft.item.crafting.SpecialRecipeSerializer
-import net.minecraft.network.datasync.DataSerializers
-import net.minecraft.resources.ResourcePackType
+import net.minecraft.core.NonNullList
+import net.minecraft.network.syncher.EntityDataSerializers
+import net.minecraft.resources.ResourceKey
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.tileentity.TileEntityType
-import net.minecraft.util.NonNullList
-import net.minecraft.util.RegistryKey
-import net.minecraft.util.ResourceLocation
-import net.minecraft.world.World
-import net.minecraft.world.storage.DimensionSavedDataManager
+import net.minecraft.server.packs.PackType
+import net.minecraft.world.inventory.AbstractContainerMenu
+import net.minecraft.world.inventory.MenuType
+import net.minecraft.world.item.AirItem
+import net.minecraft.world.item.CreativeModeTab
+import net.minecraft.world.item.DyeColor
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.entity.BlockEntityType
+import net.minecraft.world.level.material.Material
+import net.minecraft.world.level.material.MaterialColor
+import net.minecraft.world.level.material.PushReaction
+import net.minecraft.world.level.storage.DimensionDataStorage
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.data.ExistingFileHelper
-import net.minecraftforge.common.extensions.IForgeContainerType
-import net.minecraftforge.event.RegistryEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import net.minecraftforge.fml.DistExecutor
@@ -36,9 +32,8 @@ import net.minecraftforge.fml.config.ModConfig
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent
-import net.minecraftforge.fml.event.lifecycle.GatherDataEvent
-import net.minecraftforge.fml.event.server.FMLServerStartingEvent
-import net.minecraftforge.fml.network.NetworkRegistry
+import net.minecraftforge.forge.event.lifecycle.GatherDataEvent
+import net.minecraftforge.network.NetworkRegistry
 import net.minecraftforge.registries.ForgeRegistries
 import net.minecraftforge.registries.ForgeRegistry
 import net.minecraftforge.registries.RegistryBuilder
@@ -67,10 +62,11 @@ import org.jglrxavpok.moarboats.integration.MoarBoatsPlugin
 import org.jglrxavpok.moarboats.server.ServerEvents
 import thedarkcolour.kotlinforforge.forge.MOD_CONTEXT
 import java.net.URL
+import java.util.*
 import java.util.concurrent.Callable
 import java.util.function.Supplier
-import net.minecraft.block.Blocks as MCBlocks
-import net.minecraft.item.Items as MCItems
+
+import net.minecraft.world.level.block.Blocks as MCBlocks
 
 @Mod(MoarBoats.ModID)
 object MoarBoats {
@@ -106,7 +102,7 @@ object MoarBoats {
 
     val MachineMaterial = Material(MaterialColor.METAL, false, true, true, true, true, false, PushReaction.BLOCK)
 
-    val MainCreativeTab = object: ItemGroup("moarboats") {
+    val MainCreativeTab = object: CreativeModeTab("moarboats") {
 
         @OnlyIn(Dist.CLIENT)
         override fun makeIcon(): ItemStack {
@@ -114,18 +110,20 @@ object MoarBoats {
         }
 
         override fun fillItemList(items: NonNullList<ItemStack>) {
-            for (block in Blocks.list) {
+            for (blockEntry in Blocks.Registry.entries) {
+                val block = blockEntry.get()
                 if(block.asItem() !is AirItem) {
                     block.fillItemCategory(this, items)
                 }
             }
-            for (item in Items.list) {
+            for (itemEntry in Items.Registry.entries) {
+                val item = itemEntry.get()
                 item.fillItemCategory(this, items)
             }
         }
     }
 
-    val UtilityBoatTab = object: ItemGroup("moarboats_utility") {
+    val UtilityBoatTab = object: CreativeModeTab("moarboats_utility") {
 
         @OnlyIn(Dist.CLIENT)
         override fun makeIcon(): ItemStack {
@@ -141,11 +139,11 @@ object MoarBoats {
 
     lateinit var plugins: List<MoarBoatsPlugin>
 
-    lateinit var TileEntityFluidLoaderType: TileEntityType<TileEntityFluidLoader>
-    lateinit var TileEntityFluidUnloaderType: TileEntityType<TileEntityFluidUnloader>
-    lateinit var TileEntityEnergyLoaderType: TileEntityType<TileEntityEnergyLoader>
-    lateinit var TileEntityEnergyUnloaderType: TileEntityType<TileEntityEnergyUnloader>
-    lateinit var TileEntityMappingTableType: TileEntityType<TileEntityMappingTable>
+    lateinit var TileEntityFluidLoaderType: BlockEntityType<TileEntityFluidLoader>
+    lateinit var TileEntityFluidUnloaderType: BlockEntityType<TileEntityFluidUnloader>
+    lateinit var TileEntityEnergyLoaderType: BlockEntityType<TileEntityEnergyLoader>
+    lateinit var TileEntityEnergyUnloaderType: BlockEntityType<TileEntityEnergyUnloader>
+    lateinit var TileEntityMappingTableType: BlockEntityType<TileEntityMappingTable>
 
     init {
         MOD_CONTEXT.getKEventBus().addListener(ClientEvents::doClientStuff)
@@ -169,7 +167,7 @@ object MoarBoats {
         plugins = LoadIntegrationPlugins()
     }
 
-    fun getLocalMapStorage(dimensionType: RegistryKey<World> = World.OVERWORLD): DimensionSavedDataManager {
+    fun getLocalMapStorage(dimensionType: ResourceKey<Level> = Level.OVERWORLD): DimensionDataStorage {
         try {
             return DistExecutor.safeRunForDist(
                     // client
@@ -185,7 +183,7 @@ object MoarBoats {
 
                     // server
                     {
-                        DistExecutor.SafeSupplier<DimensionSavedDataManager> { ->
+                        DistExecutor.SafeSupplier<DimensionDataStorage> { ->
                             dedicatedServerInstance!!.getLevel(dimensionType)?.dataStorage ?: error("Tried to get save data of an nonexistent dimension type? $dimensionType")
                         }
                     }
@@ -198,8 +196,8 @@ object MoarBoats {
 
     fun setup(event: FMLCommonSetupEvent) {
         plugins.forEach(MoarBoatsPlugin::preInit)
-        DataSerializers.registerSerializer(ResourceLocationsSerializer)
-        DataSerializers.registerSerializer(UniqueIDSerializer)
+        EntityDataSerializers.registerSerializer(ResourceLocationsSerializer)
+        EntityDataSerializers.registerSerializer(UniqueIDSerializer)
         plugins.forEach(MoarBoatsPlugin::init)
     }
 
@@ -261,11 +259,6 @@ object MoarBoats {
         }
 
         @SubscribeEvent
-        fun registerBlocks(e: RegistryEvent.Register<Block>) {
-            e.registry.registerAll(*Blocks.list.toTypedArray())
-        }
-
-        @SubscribeEvent
         fun registerItems(e: RegistryEvent.Register<Item>) {
             e.registry.registerAll(*Items.list.toTypedArray())
             for(block in Blocks.list) {
@@ -284,7 +277,7 @@ object MoarBoats {
             TileEntityMappingTableType = evt.registerTE(evt, ::TileEntityMappingTable, BlockMappingTable)
         }
 
-        private inline fun <reified TE: TileEntity> RegistryEvent.Register<TileEntityType<*>>.registerTE(evt: RegistryEvent.Register<TileEntityType<*>>, noinline constructor: () -> TE, block: Block): TileEntityType<TE> {
+        private inline fun <reified TE: BlockEntity> RegistryEvent.Register<TileEntityType<*>>.registerTE(evt: RegistryEvent.Register<TileEntityType<*>>, noinline constructor: () -> TE, block: Block): TileEntityType<TE> {
             val type = TileEntityType.Builder.of(Supplier<TE> { constructor() }, block).build(null).setRegistryName(block.registryName)
             evt.registry.register(type)
             return type as TileEntityType<TE>
@@ -296,7 +289,7 @@ object MoarBoats {
         }
 
         @SubscribeEvent
-        fun registerRecipes(event: RegistryEvent.Register<IRecipeSerializer<*>>) {
+        fun registerRecipes(event: RegistryEvent.Register<RecipeSerializer<*>>) {
             MBRecipeSerializers.MapWithPath = MBRecipeSerializers.SingletonSerializer(MapWithPathRecipe).apply { setRegistryName(ResourceLocation(ModID, "map_with_path")) }.also(event.registry::register)
             MBRecipeSerializers.BoatColoring = MBRecipeSerializers.SingletonSerializer(ModularBoatColoringRecipe).apply { setRegistryName(ResourceLocation(ModID, "color_modular_boat")) }.also(event.registry::register)
             MBRecipeSerializers.UpgradeToGoldenTicket = MBRecipeSerializers.SingletonSerializer(UpgradeToGoldenTicketRecipe).apply { setRegistryName(ResourceLocation(ModID, "upgrade_to_golden_ticket")) }.also(event.registry::register)
@@ -311,7 +304,7 @@ object MoarBoats {
         }
 
         @SubscribeEvent
-        public fun onContainerRegistry(event: RegistryEvent.Register<ContainerType<*>>) {
+        public fun onContainerRegistry(event: RegistryEvent.Register<MenuType<*>>) {
             ContainerTypes.MappingTable = IForgeContainerType.create { windowId, inv, data ->
                 val player = inv.player
                 val pos = data.readBlockPos()
@@ -319,7 +312,7 @@ object MoarBoats {
                 te?.let {
                     return@create ContainerMappingTable(windowId, it as TileEntityMappingTable, inv)
                 }
-            }.setRegistryName(ModID, "mapping_table") as ContainerType<ContainerMappingTable>
+            }.setRegistryName(ModID, "mapping_table") as MenuType<ContainerMappingTable>
             event.registry.register(ContainerTypes.MappingTable)
 
             ContainerTypes.FluidLoader = IForgeContainerType.create { windowId, inv, data ->
@@ -329,7 +322,7 @@ object MoarBoats {
                 te?.let {
                     return@create FluidContainer(ContainerTypes.FluidLoader, windowId, te, te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY).orElseThrow(::NullPointerException), player)
                 }
-            }.setRegistryName(ModID, "fluid_loader") as ContainerType<FluidContainer>
+            }.setRegistryName(ModID, "fluid_loader") as MenuType<FluidContainer>
             event.registry.register(ContainerTypes.FluidLoader)
 
             ContainerTypes.FluidUnloader = IForgeContainerType.create { windowId, inv, data ->
@@ -339,7 +332,7 @@ object MoarBoats {
                 te?.let {
                     return@create FluidContainer(ContainerTypes.FluidUnloader, windowId, te, te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY).orElseThrow(::NullPointerException), player)
                 }
-            }.setRegistryName(ModID, "fluid_unloader") as ContainerType<FluidContainer>
+            }.setRegistryName(ModID, "fluid_unloader") as MenuType<FluidContainer>
             event.registry.register(ContainerTypes.FluidUnloader)
 
             ContainerTypes.EnergyCharger = IForgeContainerType.create { windowId, inv, data ->
@@ -349,7 +342,7 @@ object MoarBoats {
                 te?.let {
                     return@create EnergyContainer(ContainerTypes.EnergyCharger, windowId, te, player)
                 }
-            }.setRegistryName(ModID, "energy_charger") as ContainerType<EnergyContainer>
+            }.setRegistryName(ModID, "energy_charger") as MenuType<EnergyContainer>
             event.registry.register(ContainerTypes.EnergyCharger)
 
             ContainerTypes.EnergyDischarger = IForgeContainerType.create { windowId, inv, data ->
@@ -359,12 +352,12 @@ object MoarBoats {
                 te?.let {
                     return@create EnergyContainer(ContainerTypes.EnergyDischarger, windowId, te, player)
                 }
-            }.setRegistryName(ModID, "energy_discharger") as ContainerType<EnergyContainer>
+            }.setRegistryName(ModID, "energy_discharger") as MenuType<EnergyContainer>
             event.registry.register(ContainerTypes.EnergyDischarger)
 
             ContainerTypes.Empty = IForgeContainerType.create { windowId, inv, data ->
                 return@create EmptyContainer(windowId, inv)
-            }.setRegistryName(ModID, "none") as ContainerType<EmptyContainer>
+            }.setRegistryName(ModID, "none") as MenuType<EmptyContainer>
             event.registry.register(ContainerTypes.Empty)
 
             ContainerTypes.FurnaceBoat = event.registerUtilityContainer("furnace")
@@ -390,7 +383,7 @@ object MoarBoats {
             ContainerTypes.ShulkerBoat = event.registerUtilityContainer("shulker")
         }
 
-        private fun <C: Container, B: UtilityBoatEntity<*, C>> RegistryEvent.Register<ContainerType<*>>.registerUtilityContainer(id: String): ContainerType<C> {
+        private fun <C: AbstractContainerMenu, B: UtilityBoatEntity<*, C>> RegistryEvent.Register<MenuType<*>>.registerUtilityContainer(id: String): MenuType<C> {
             val type = IForgeContainerType.create { windowId, inv, data ->
                 val player = inv.player
                 val entityID = data.readInt()
@@ -398,7 +391,7 @@ object MoarBoats {
                 te?.let {
                     return@create te.createMenu(windowId, player.inventory, player)
                 }
-            }.setRegistryName(ModID, "${id}_boat") as ContainerType<C>
+            }.setRegistryName(ModID, "${id}_boat") as MenuType<C>
             registry.register(type)
             return type
         }
@@ -407,15 +400,15 @@ object MoarBoats {
         fun gatherData(event: GatherDataEvent) {
             val generator = event.generator
             val delegate = event.existingFileHelper
-            val existingFileHelper = object: ExistingFileHelper(emptyList(), true) {
-                override fun exists(loc: ResourceLocation?, type: ResourcePackType?, pathSuffix: String?, pathPrefix: String?): Boolean {
+            val existingFileHelper = object: ExistingFileHelper(emptyList(), Collections.emptySet(), true, null, null) {
+                override fun exists(loc: ResourceLocation?, type: PackType?, pathSuffix: String?, pathPrefix: String?): Boolean {
                     if(loc?.namespace == ModID)
                         return true
                     return delegate.exists(loc, type, pathSuffix, pathPrefix)
                 }
             }
-            generator.addProvider(JsonModelGenerator(generator, ModID, "minecraft", existingFileHelper))
-            generator.addProvider(UtilityBoatRecipes(generator))
+            generator.addProvider(event.includeClient(), JsonModelGenerator(generator, ModID, "minecraft", existingFileHelper))
+            generator.addProvider(event.includeServer(), UtilityBoatRecipes(generator))
             plugins.forEach { it.registerProviders(event, generator, existingFileHelper) }
             generator.run()
         }

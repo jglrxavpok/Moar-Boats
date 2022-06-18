@@ -1,18 +1,16 @@
 package org.jglrxavpok.moarboats.client.renders
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.math.Quaternion
 import net.minecraft.client.Minecraft
-import com.mojang.blaze3d.platform.GlStateManager
-import net.minecraft.block.Blocks
-import net.minecraft.client.renderer.IRenderTypeBuffer
-import net.minecraft.util.math.vector.Quaternion
-import net.minecraft.client.renderer.entity.EntityRendererManager
-import net.minecraft.client.renderer.texture.AtlasTexture
-import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
+import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.client.renderer.entity.EntityRendererProvider
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context
+import net.minecraft.world.level.block.Blocks
 import org.jglrxavpok.moarboats.api.BoatModule
+import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.SonarModule
 import org.jglrxavpok.moarboats.common.modules.SurroundingsMatrix
-import org.jglrxavpok.moarboats.extensions.toDegrees
 import kotlin.math.atan2
 
 object SonarModuleRenderer : BoatModuleRenderer() {
@@ -23,7 +21,7 @@ object SonarModuleRenderer : BoatModuleRenderer() {
 
     private val testMatrix = SurroundingsMatrix(32)
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererManager) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererProvider.Context) {
         module as SonarModule
         matrixStack.pushPose()
         matrixStack.scale(0.75f, 0.75f, 0.75f)
@@ -34,13 +32,13 @@ object SonarModuleRenderer : BoatModuleRenderer() {
                 matrixStack.translate(xOffset.toDouble(), 4f/16.0, zOffset.toDouble())
                 matrixStack.scale(0.25f, 0.25f, 0.25f)
                 val block = Blocks.NOTE_BLOCK
-                renderBlockState(matrixStack, buffers, packedLightIn, entityRendererManager, block.defaultBlockState(), boat.brightness)
+                renderBlockState(matrixStack, buffers, packedLightIn, entityRendererManager, block.defaultBlockState(), boat.lightLevelDependentMagicValue)
                 matrixStack.popPose()
             }
         }
 
         // render gradient
-        if(Minecraft.getInstance().options.reducedDebugInfo) {
+        if(Minecraft.getInstance().options.reducedDebugInfo().get()) {
             matrixStack.mulPose(Quaternion(-(180.0f - entityYaw - 90f), 0.0f, 0f, true))
             testMatrix.compute(boat.world, boat.positionX, boat.positionY, boat.positionZ).removeNotConnectedToCenter()
             val gradient = testMatrix.computeGradient()

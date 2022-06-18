@@ -1,13 +1,13 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.block.Blocks
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.client.gui.screen.Screen
-import net.minecraft.entity.player.ServerPlayerEntity
-import net.minecraft.util.Hand
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.text.TranslationTextComponent
+import net.minecraft.client.gui.screens.Screen
+import net.minecraft.core.BlockPos
+import net.minecraft.network.chat.Component
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.level.block.Blocks
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
@@ -19,13 +19,15 @@ import org.jglrxavpok.moarboats.common.state.DoubleBoatProperty
 import org.jglrxavpok.moarboats.common.state.IntBoatProperty
 import kotlin.math.sqrt
 
+// TODO: remove
+@Deprecated("To remove")
 object AnchorModule: BoatModule(), BlockReason {
 
     override val id = ResourceLocation(MoarBoats.ModID, "anchor")
     override val usesInventory = false
     override val moduleSpot = Spot.Misc
     override val isMenuInteresting = false
-    val spawnPointSet = TranslationTextComponent("gui.anchor.spawnPointSet")
+    val spawnPointSet = Component.translatable("gui.anchor.spawnPointSet")
 
     val activeProperty = BooleanBoatProperty("active")
     val anchorDirectionProperty = IntBoatProperty("anchorDirection")
@@ -36,7 +38,7 @@ object AnchorModule: BoatModule(), BlockReason {
 
     val anchorDescentSpeed get() = 0.2
 
-    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean): Boolean {
+    override fun onInteract(from: IControllable, player: Player, hand: InteractionHand, sneaking: Boolean): Boolean {
         return false
     }
 
@@ -61,7 +63,7 @@ object AnchorModule: BoatModule(), BlockReason {
         if(direction == -1) { // going down
             val nextY = anchorY + anchorDescentSpeed * direction
             anchorYProperty[from] = nextY
-            val pos = BlockPos.Mutable(anchorX, nextY, anchorZ)
+            val pos = BlockPos.MutableBlockPos(anchorX, nextY, anchorZ)
             val world = from.worldRef
             if(world.getBlockState(pos).canSurvive(world, pos)) {
                 // stop descent
@@ -98,13 +100,13 @@ object AnchorModule: BoatModule(), BlockReason {
         anchorDirectionProperty[to] = 0
     }
 
-    override fun createContainer(containerID: Int, player: PlayerEntity, boat: IControllable): ContainerBoatModule<*>? = EmptyModuleContainer(containerID, player.inventory, this, boat)
+    override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? = EmptyModuleContainer(containerID, player.inventory, this, boat)
 
-    override fun createGui(containerID: Int, player: PlayerEntity, boat: IControllable): Screen {
+    override fun createGui(containerID: Int, player: Player, boat: IControllable): Screen {
         return GuiAnchorModule(containerID, player.inventory, this, boat)
     }
 
-    fun deploy(boat: IControllable, player: ServerPlayerEntity) {
+    fun deploy(boat: IControllable, player: ServerPlayer) {
         val deployed = deployedProperty[boat]
         if(deployed) {
             anchorDirectionProperty[boat] = 1

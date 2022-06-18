@@ -1,16 +1,16 @@
 package org.jglrxavpok.moarboats.integration.ironchests
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.platform.GlStateManager
 import com.progwml6.ironchest.common.block.IronChestsTypes
 import net.minecraft.client.gui.AbstractGui
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.util.text.TranslationTextComponent
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.network.chat.Component.translatable
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiModuleBase
 
-class GuiIronChestModule(containerID: Int, playerInventory: PlayerInventory, module: BoatModule, boat: IControllable, val chestType: IronChestsTypes):
+class GuiIronChestModule(containerID: Int, playerInventory: Inventory, module: BoatModule, boat: IControllable, val chestType: IronChestsTypes):
         GuiModuleBase<ContainerIronChestModule>(module, boat, playerInventory, ContainerIronChestModule(containerID, playerInventory, module, boat, chestType)) {
 
     init {
@@ -19,7 +19,7 @@ class GuiIronChestModule(containerID: Int, playerInventory: PlayerInventory, mod
     }
 
     override val moduleBackground = chestType.guiTexture
-    override val moduleTitle = TranslationTextComponent(
+    override val moduleTitle = Component.translatable(
             when (chestType) {
                 IronChestsTypes.DIRT -> {
                     "block.ironchest.dirt_chest"
@@ -41,7 +41,7 @@ class GuiIronChestModule(containerID: Int, playerInventory: PlayerInventory, mod
         return chestType.ySize
     }
 
-    override fun renderLabels(matrixStack: MatrixStack, mouseX: Int, mouseY: Int) {
+    override fun renderLabels(matrixStack: PoseStack, mouseX: Int, mouseY: Int) {
         super.renderLabels(matrixStack, mouseX, mouseY)
         font.draw(matrixStack, moduleTitle/*.formatted()*/.string, 8.0f, 6.0f, 4210752)
         font.draw(matrixStack, playerInventory.displayName.string, 8.0f, (ySize - 96 + 2).toFloat(), 4210752)
@@ -51,7 +51,7 @@ class GuiIronChestModule(containerID: Int, playerInventory: PlayerInventory, mod
     override fun drawModuleBackground(mouseX: Int, mouseY: Int) {
         GlStateManager._color4f(1.0f, 1.0f, 1.0f, 1.0f)
 
-        mc.textureManager.bind(chestType.guiTexture)
+        mc.textureManager.bindForSetup(chestType.guiTexture)
 
         val x = (width - xSize) / 2
         val y = (height - ySize) / 2

@@ -1,16 +1,15 @@
 package org.jglrxavpok.moarboats.client.renders
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.math.Vector3f
 import net.minecraft.client.Minecraft
-import com.mojang.blaze3d.systems.RenderSystem
-import net.minecraft.client.renderer.IRenderTypeBuffer
-import net.minecraft.util.math.vector.Quaternion
-import net.minecraft.util.math.vector.Vector3f
-import net.minecraft.client.renderer.entity.EntityRendererManager
-import net.minecraft.client.renderer.model.ItemCameraTransforms
+import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.client.renderer.block.model.ItemTransforms
+import net.minecraft.client.renderer.entity.EntityRendererProvider
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context
 import net.minecraft.client.renderer.texture.OverlayTexture
-import net.minecraft.item.Items
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.ChunkLoadingModule
@@ -30,7 +29,7 @@ object ChunkLoadingModuleRenderer : BoatModuleRenderer() {
             Pair(1, -1)
     )
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererManager) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererProvider.Context) {
         module as ChunkLoadingModule
 
         val itemRenderer = Minecraft.getInstance().itemRenderer
@@ -48,7 +47,7 @@ object ChunkLoadingModuleRenderer : BoatModuleRenderer() {
             matrixStack.mulPose(Vector3f.YN.rotationDegrees(entityYaw))
             matrixStack.mulPose(Vector3f.YP.rotationDegrees(-entityRenderer.camera.yRot))
             matrixStack.mulPose(Vector3f.XP.rotationDegrees(-entityRenderer.camera.xRot))
-            itemRenderer.renderStatic(enderPearlStack, ItemCameraTransforms.TransformType.GROUND, packedLightIn, OverlayTexture.NO_OVERLAY, matrixStack, buffers)
+            itemRenderer.renderStatic(enderPearlStack, ItemTransforms.TransformType.GROUND, packedLightIn, OverlayTexture.NO_OVERLAY, matrixStack, buffers)
 
             matrixStack.popPose()
         }

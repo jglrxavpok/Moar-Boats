@@ -1,49 +1,48 @@
 package org.jglrxavpok.moarboats.common.tileentity
 
-import net.minecraft.block.BlockState
-import net.minecraft.inventory.Inventory
-import net.minecraft.inventory.InventoryHelper
-import net.minecraft.inventory.ItemStackHelper
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.Direction
-import net.minecraft.util.NonNullList
-import net.minecraft.util.text.StringTextComponent
-import net.minecraftforge.common.capabilities.Capability
+import net.minecraft.core.BlockPos
+import net.minecraft.core.Direction
+import net.minecraft.core.NonNullList
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.ContainerHelper
+import net.minecraft.world.SimpleContainer
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraftforge.common.extensions.IForgeBlockEntity
 import net.minecraftforge.common.util.LazyOptional
-import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.wrapper.InvWrapper
 import org.jglrxavpok.moarboats.MoarBoats
 
-class TileEntityMappingTable: TileEntity(MoarBoats.TileEntityMappingTableType) {
+class TileEntityMappingTable(blockPos: BlockPos, blockState: BlockState): BlockEntity(MoarBoats.TileEntityMappingTableType, blockPos, blockState),
+    IForgeBlockEntity {
 
-    val inventory = Inventory(1)
+    val inventory = SimpleContainer(1)
     val invWrapper = InvWrapper(inventory)
 
-    override fun save(compound: CompoundNBT): CompoundNBT {
+    override fun saveAdditional(compound: CompoundTag) {
+        super.saveAdditional(compound)
         val invList = NonNullList.withSize(inventory.containerSize, ItemStack.EMPTY)
         for(i in 0 until inventory.containerSize) {
             invList[i] = inventory.getItem(i) ?: ItemStack.EMPTY
         }
-        ItemStackHelper.saveAllItems(compound, invList)
-        return super.save(compound)
+        ContainerHelper.saveAllItems(compound, invList)
     }
 
-    override fun deserializeNBT(state: BlockState, compound: CompoundNBT) {
-        super.deserializeNBT(state, compound)
+    override fun load(compound: CompoundTag) {
+        super.load(compound)
         val invList = NonNullList.withSize(inventory.containerSize, ItemStack.EMPTY)
-        ItemStackHelper.loadAllItems(compound, invList)
+        ContainerHelper.loadAllItems(compound, invList)
         inventory.clearContent()
         for(i in 0 until inventory.containerSize) {
             inventory.setItem(i, invList.get(i))
         }
     }
 
-    override fun <T> getCapability(capability: net.minecraftforge.common.capabilities.Capability<T>, facing: net.minecraft.util.Direction?): LazyOptional<T> {
+    override fun <T> getCapability(capability: net.minecraftforge.common.capabilities.Capability<T>, facing: Direction?): LazyOptional<T> {
         if (capability === net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
             return LazyOptional.of { invWrapper }.cast()
         }
-        return super.getCapability(capability, facing)
+        return super<BlockEntity>.getCapability(capability, facing)
     }
 }

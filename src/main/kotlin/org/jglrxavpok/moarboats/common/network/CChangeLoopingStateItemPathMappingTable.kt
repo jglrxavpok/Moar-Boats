@@ -1,8 +1,8 @@
 package org.jglrxavpok.moarboats.common.network
 
-import net.minecraft.util.math.BlockPos
+import net.minecraft.core.BlockPos
 import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.fml.network.NetworkEvent
+import net.minecraftforge.network.NetworkEvent
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.data.LoopingOptions
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
@@ -32,7 +32,7 @@ class CChangeLoopingStateItemPathMappingTable: CChangeLoopingStateBase {
             with(message) {
                 val player = ctx.sender!!
                 val level = player.level
-                val pos = BlockPos.Mutable(teX, teY, teZ)
+                val pos = BlockPos.MutableBlockPos(teX, teY, teZ)
                 val te = level.getBlockEntity(pos)
                 if(te !is TileEntityMappingTable)
                     return null

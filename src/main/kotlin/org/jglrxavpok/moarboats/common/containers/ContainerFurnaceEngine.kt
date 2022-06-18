@@ -1,21 +1,20 @@
 package org.jglrxavpok.moarboats.common.containers
 
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.item.Items
-import net.minecraft.inventory.*
-import net.minecraft.inventory.container.ContainerType
-import net.minecraft.inventory.container.IContainerListener
-import net.minecraft.inventory.container.Slot
-import net.minecraft.item.ItemStack
-import net.minecraft.tileentity.FurnaceTileEntity
+import net.minecraft.world.Container
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.item.Items
+import net.minecraft.world.inventory.MenuType
+import net.minecraft.world.inventory.Slot
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.entity.FurnaceBlockEntity
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.modules.FurnaceEngineModule
 
-class ContainerFurnaceEngine(containerID: Int, playerInventory: PlayerInventory, engine: BoatModule, boat: IControllable): ContainerBoatModule<ContainerFurnaceEngine>(FurnaceEngineModule.containerType as ContainerType<ContainerFurnaceEngine>, containerID, playerInventory, engine, boat) {
+class ContainerFurnaceEngine(containerID: Int, playerInventory: Inventory, engine: BoatModule, boat: IControllable): ContainerBoatModule<ContainerFurnaceEngine>(FurnaceEngineModule.containerType as MenuType<ContainerFurnaceEngine>, containerID, playerInventory, engine, boat) {
 
     val engineInventory = boat.getInventory(engine)
     private var fuelTime = engineInventory.getField(0)
@@ -33,11 +32,11 @@ class ContainerFurnaceEngine(containerID: Int, playerInventory: PlayerInventory,
 
         for(listener in getListeners(this)) {
             if (this.fuelTotalTime != this.engineInventory.getField(0)) {
-                listener.setContainerData(this, 0, this.engineInventory.getField(0))
+                listener.dataChanged(this, 0, this.engineInventory.getField(0))
             }
 
             if (this.fuelTime != this.engineInventory.getField(1)) {
-                listener.setContainerData(this, 1, this.engineInventory.getField(1))
+                listener.dataChanged(this, 1, this.engineInventory.getField(1))
             }
         }
 
@@ -50,7 +49,7 @@ class ContainerFurnaceEngine(containerID: Int, playerInventory: PlayerInventory,
         this.engineInventory.setField(id, data)
     }
 
-    override fun quickMoveStack(playerIn: PlayerEntity, index: Int): ItemStack {
+    override fun quickMoveStack(playerIn: Player, index: Int): ItemStack {
         var itemstack = ItemStack.EMPTY
         val slot = this.slots[index]
 
@@ -59,7 +58,7 @@ class ContainerFurnaceEngine(containerID: Int, playerInventory: PlayerInventory,
             itemstack = itemstack1.copy()
 
             if (index != 0) {
-                if (FurnaceTileEntity.isFuel(itemstack1)) {
+                if (FurnaceBlockEntity.isFuel(itemstack1)) {
                     if (!this.moveItemStackTo(itemstack1, 0, 1, false)) {
                         return ItemStack.EMPTY
                     }
@@ -91,7 +90,7 @@ class ContainerFurnaceEngine(containerID: Int, playerInventory: PlayerInventory,
     }
 
 
-    class SlotEngineFuel(inventoryIn: IInventory, slotIndex: Int, xPosition: Int, yPosition: Int) : Slot(inventoryIn, slotIndex, xPosition, yPosition) {
+    class SlotEngineFuel(inventoryIn: Container, slotIndex: Int, xPosition: Int, yPosition: Int) : Slot(inventoryIn, slotIndex, xPosition, yPosition) {
 
         override fun mayPlace(stack: ItemStack): Boolean {
             return FurnaceEngineModule.isItemFuel(stack) || isBucket(stack)

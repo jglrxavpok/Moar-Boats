@@ -2,18 +2,18 @@ package org.jglrxavpok.moarboats.integration.ironchests
 
 import com.progwml6.ironchest.common.block.IronChestsTypes
 import com.progwml6.ironchest.common.inventory.DirtChestSlot
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.container.ContainerType
-import net.minecraft.inventory.container.Slot
-import net.minecraft.item.ItemStack
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.inventory.MenuType
+import net.minecraft.world.inventory.Slot
+import net.minecraft.world.item.ItemStack
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
 
-class ContainerIronChestModule(containerID: Int, playerInventory: PlayerInventory, module: BoatModule, boat: IControllable, val chestType: IronChestsTypes): ContainerBoatModule<ContainerIronChestModule>(module.containerType as ContainerType<ContainerIronChestModule>, containerID, playerInventory, module, boat) {
+class ContainerIronChestModule(containerID: Int, playerInventory: Inventory, module: BoatModule, boat: IControllable, val chestType: IronChestsTypes): ContainerBoatModule<ContainerIronChestModule>(module.containerType as MenuType<ContainerIronChestModule>, containerID, playerInventory, module, boat) {
     val chestInventory = boat.getInventory(module)
 
     init {
@@ -48,7 +48,7 @@ class ContainerIronChestModule(containerID: Int, playerInventory: PlayerInventor
         this.chestInventory.setField(id, data)
     }
 
-    override fun quickMoveStack(playerIn: PlayerEntity, index: Int): ItemStack {
+    override fun quickMoveStack(playerIn: Player, index: Int): ItemStack {
         var itemstack = ItemStack.EMPTY
         val slot = this.slots[index]
 
@@ -67,7 +67,7 @@ class ContainerIronChestModule(containerID: Int, playerInventory: PlayerInventor
             if (itemstack1.isEmpty) {
                 slot.set(ItemStack.EMPTY)
             } else {
-                slot.setChanged()
+                slot.broadcastChanges()
             }
         }
 

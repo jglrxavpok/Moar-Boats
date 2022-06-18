@@ -1,23 +1,23 @@
 package org.jglrxavpok.moarboats.client.gui
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
+import net.minecraft.Util
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.widget.list.ExtendedList
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.Util
+import net.minecraft.client.gui.components.ObjectSelectionList
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.resources.ResourceLocation
 import org.jglrxavpok.moarboats.client.drawModalRectWithCustomSizedTexture
 import org.jglrxavpok.moarboats.client.gui.WaypointInfoEntry.Companion.ArrowsTexture
 import org.lwjgl.opengl.GL11.*
 
-class WaypointListEntry(val parent: GuiMappingTable, val slot: CompoundNBT, val slotTops: MutableMap<Int, Int>, val waypoints: List<CompoundNBT>, val slotHeight: Int = 20): ExtendedList.AbstractListEntry<WaypointListEntry>() {
+class WaypointListEntry(val parent: GuiMappingTable, val slot: CompoundTag, val slotTops: MutableMap<Int, Int>, val waypoints: List<CompoundTag>, val slotHeight: Int = 20): ObjectSelectionList.Entry<WaypointListEntry>() {
 
     private var lastClickTime: Long = -1L
     private val mc = Minecraft.getInstance()
 
-    override fun render(matrixStack: MatrixStack, index: Int, y: Int, x: Int, entryWidth: Int, entryHeight: Int, mouseX: Int, mouseY: Int, p_194999_5_: Boolean, partialTicks: Float) {
+    override fun render(matrixStack: PoseStack, index: Int, y: Int, x: Int, entryWidth: Int, entryHeight: Int, mouseX: Int, mouseY: Int, p_194999_5_: Boolean, partialTicks: Float) {
         val slotTop = y
         val left = this.list.left
         val slotHeight = entryHeight
@@ -42,7 +42,7 @@ class WaypointListEntry(val parent: GuiMappingTable, val slot: CompoundNBT, val 
         mc.font.draw(matrixStack, text, 0f, 0f, 0xFFFFFF)
         matrixStack.popPose()
         GlStateManager._color4f(1f, 1f, 1f, 1f)
-        mc.textureManager.bind(ArrowsTexture)
+        mc.textureManager.bindForSetup(ArrowsTexture)
         RenderSystem.enableAlphaTest()
         if(mouseX >= entryRight - 32 && mouseX < entryRight && mouseY >= slotTop && mouseY <= slotTop + slotHeight) {
             val hoveredOffsetBottom = if(mouseY - slotTop >= slotHeight / 2) 1 else 0
@@ -82,7 +82,7 @@ class WaypointListEntry(val parent: GuiMappingTable, val slot: CompoundNBT, val 
 }
 
 class GuiWaypointList(val mc: Minecraft, val parent: GuiMappingTable, width: Int, height: Int, top: Int, left: Int, entryHeight: Int):
-        ExtendedList<WaypointListEntry>(mc, width, height, top, top + height, entryHeight) {
+        ObjectSelectionList<WaypointListEntry>(mc, width, height, top, top + height, entryHeight) {
 
     init {
         this.setLeftPos(left)
@@ -91,11 +91,11 @@ class GuiWaypointList(val mc: Minecraft, val parent: GuiMappingTable, width: Int
     val slotTops = hashMapOf<Int, Int>()
     val ArrowsTexture = ResourceLocation("minecraft", "textures/gui/resource_packs.png")
 
-    override fun renderBackground(matrixStack: MatrixStack) {
+    override fun renderBackground(matrixStack: PoseStack) {
         fillGradient(matrixStack, left, top, right, bottom, 0xFFC0C0C0.toInt(), 0xFFC0C0C0.toInt())
     }
 
-    override fun render(matrixStack: MatrixStack, insideLeft: Int, insideTop: Int, partialTicks: Float) {
+    override fun render(matrixStack: PoseStack, insideLeft: Int, insideTop: Int, partialTicks: Float) {
         // make sure items do not render out of list bounds
         val scaleX = mc.window.width/mc.window.guiScaledWidth.toDouble()
         val scaleY = mc.window.height/mc.window.guiScaledHeight.toDouble()

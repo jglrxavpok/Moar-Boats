@@ -1,17 +1,14 @@
 package org.jglrxavpok.moarboats.common.items
 
-import net.minecraft.client.util.ITooltipFlag
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.world.World
-import org.jglrxavpok.moarboats.MoarBoats
+import net.minecraft.network.chat.Component
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.TooltipFlag
+import net.minecraft.world.level.Level
 import org.jglrxavpok.moarboats.common.OnlyUsableOnBoats
 
 object ChunkLoaderItem : MoarBoatsItem("chunk_loader") {
 
-    override fun appendHoverText(stack: ItemStack?, player: World?, tooltip: MutableList<ITextComponent>, advanced: ITooltipFlag?) {
+    override fun appendHoverText(stack: ItemStack?, player: Level?, tooltip: MutableList<Component>, advanced: TooltipFlag?) {
         super.appendHoverText(stack, player, tooltip, advanced)
         tooltip.add(OnlyUsableOnBoats)
     }

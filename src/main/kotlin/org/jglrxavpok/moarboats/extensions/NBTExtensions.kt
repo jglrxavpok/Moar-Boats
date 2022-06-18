@@ -1,9 +1,9 @@
 package org.jglrxavpok.moarboats.extensions
 
-import net.minecraft.nbt.INBT
-import net.minecraft.nbt.ListNBT
+import net.minecraft.nbt.ListTag
+import net.minecraft.nbt.Tag
 
-fun ListNBT.swap(index1: Int, index2: Int) {
+fun ListTag.swap(index1: Int, index2: Int) {
     if(index1 !in 0 until size)
         throw IndexOutOfBoundsException("index1: $index1, size is $size")
     if(index2 !in 0 until size)
@@ -23,11 +23,11 @@ fun ListNBT.swap(index1: Int, index2: Int) {
     }
 }
 
-fun ListNBT.insert(index: Int, tag: INBT) {
+fun ListTag.insert(index: Int, tag: Tag) {
     /* Explanation:
         Remove all tags until the index provided, re-add the tag before the one to insert, add the tag to insert, add the other tags
      */
-    val tags = mutableListOf<INBT>()
+    val tags = mutableListOf<Tag>()
     repeat(this.size-index) {
         tags += this.removeAt(index)
     }

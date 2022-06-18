@@ -1,25 +1,22 @@
 package org.jglrxavpok.moarboats.common.network
 
-import io.netty.buffer.ByteBuf
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.math.BlockPos
+import net.minecraft.core.BlockPos
+import net.minecraft.nbt.CompoundTag
 import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.fml.common.network.ByteBufUtils
-import net.minecraftforge.fml.network.NetworkEvent
+import net.minecraftforge.network.NetworkEvent
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
-import kotlin.reflect.KClass
 
 class CModifyWaypoint(): MoarBoatsPacket {
 
-    private lateinit var waypointData: CompoundNBT
+    private lateinit var waypointData: CompoundTag
     private var index = 0
     private var teX = 0
     private var teY = 0
     private var teZ = 0
 
-    constructor(te: TileEntityMappingTable, index: Int, waypointData: CompoundNBT): this() {
+    constructor(te: TileEntityMappingTable, index: Int, waypointData: CompoundTag): this() {
         this.teX = te.blockPos.x
         this.teY = te.blockPos.y
         this.teZ = te.blockPos.z
@@ -35,7 +32,7 @@ class CModifyWaypoint(): MoarBoatsPacket {
             with(message) {
                 val player = ctx.sender!!
                 val level = player.level
-                val pos = BlockPos.Mutable(teX, teY, teZ)
+                val pos = BlockPos.MutableBlockPos(teX, teY, teZ)
                 val te = level.getBlockEntity(pos)
                 when(te) {
                     is TileEntityMappingTable -> {

@@ -1,8 +1,8 @@
 package org.jglrxavpok.moarboats.common.network
 
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.ListNBT
-import net.minecraftforge.fml.network.NetworkEvent
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.ListTag
+import net.minecraftforge.network.NetworkEvent
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.items.MapItemWithPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
@@ -30,7 +30,7 @@ class CRemoveWaypointFromMapWithPathFromBoat: CxxRemoveWaypointToItemPath {
             }
         }
 
-        override fun createResponse(message: CRemoveWaypointFromMapWithPathFromBoat, ctx: NetworkEvent.Context, waypointList: ListNBT): SUpdateMapWithPathInBoat? {
+        override fun createResponse(message: CRemoveWaypointFromMapWithPathFromBoat, ctx: NetworkEvent.Context, waypointList: ListTag): SUpdateMapWithPathInBoat? {
             return SUpdateMapWithPathInBoat(waypointList, message.boatID)
         }
 

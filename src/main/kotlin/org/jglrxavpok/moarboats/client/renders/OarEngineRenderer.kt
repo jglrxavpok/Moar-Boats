@@ -1,13 +1,13 @@
 package org.jglrxavpok.moarboats.client.renders
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.platform.GlStateManager
-import net.minecraft.client.renderer.IRenderTypeBuffer
+import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderType
-import net.minecraft.client.renderer.entity.EntityRendererManager
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context
 import net.minecraft.client.renderer.texture.OverlayTexture
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.MathHelper
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.util.Mth
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.client.models.ModelVanillaOars
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
@@ -22,7 +22,7 @@ object OarEngineRenderer : BoatModuleRenderer() {
     private val BOAT_TEXTURES = arrayOf(ResourceLocation("textures/entity/boat/oak.png"), ResourceLocation("textures/entity/boat/spruce.png"), ResourceLocation("textures/entity/boat/birch.png"), ResourceLocation("textures/entity/boat/jungle.png"), ResourceLocation("textures/entity/boat/acacia.png"), ResourceLocation("textures/entity/boat/dark_oak.png"))
     private val paddles = ModelVanillaOars()
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRenderer: EntityRendererManager) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRenderer: EntityRendererProvider.Context) {
         module as OarEngineModule
 
         matrixStack.pushPose()
@@ -34,8 +34,8 @@ object OarEngineRenderer : BoatModuleRenderer() {
         val angle = if(boat.controllingPassenger != null) -boat.distanceTravelled.toFloat()*2f else 0f
 
         // from ModelBoat
-        paddles.paddles10.xRot = MathHelper.clampedLerp((-Math.PI.toFloat() / 3f).toDouble(), (-0.2617994f).toDouble(), ((MathHelper.sin(-angle) + 1.0f) / 2.0f).toDouble()).toFloat() + Math.PI.toFloat()*1/4f
-        paddles.paddles10.yRot = MathHelper.clampedLerp((-Math.PI.toFloat() / 4f).toDouble(), (Math.PI.toFloat() / 4f).toDouble(), ((MathHelper.sin(-angle + 1.0f) + 1.0f) / 2.0f).toDouble()).toFloat()
+        paddles.paddles10.xRot = Mth.clampedLerp((-Math.PI.toFloat() / 3f).toDouble(), (-0.2617994f).toDouble(), ((Mth.sin(-angle) + 1.0f) / 2.0f).toDouble()).toFloat() + Math.PI.toFloat()*1/4f
+        paddles.paddles10.yRot = Mth.clampedLerp((-Math.PI.toFloat() / 4f).toDouble(), (Math.PI.toFloat() / 4f).toDouble(), ((Mth.sin(-angle + 1.0f) + 1.0f) / 2.0f).toDouble()).toFloat()
         paddles.paddles11.xRot = paddles.paddles10.xRot
         paddles.paddles11.yRot = paddles.paddles10.yRot
         paddles.paddles11.zRot = paddles.paddles10.zRot

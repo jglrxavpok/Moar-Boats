@@ -1,8 +1,8 @@
 package org.jglrxavpok.moarboats.common
 
-import net.minecraft.util.text.TranslationTextComponent
+import net.minecraft.network.chat.Component
 import org.jglrxavpok.moarboats.MoarBoats
 
-val OnlyUsableOnBoats = TranslationTextComponent(MoarBoats.ModID+".only_usable_on_boat")
-val LockedByOwner = TranslationTextComponent(MoarBoats.ModID+".locked_by_owner")
-val Restricted = TranslationTextComponent(MoarBoats.ModID+".restricted")
+val OnlyUsableOnBoats = Component.translatable(MoarBoats.ModID+".only_usable_on_boat")
+val LockedByOwner = Component.translatable(MoarBoats.ModID+".locked_by_owner")
+val Restricted = Component.translatable(MoarBoats.ModID+".restricted")

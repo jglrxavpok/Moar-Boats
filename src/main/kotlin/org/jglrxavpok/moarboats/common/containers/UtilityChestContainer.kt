@@ -1,27 +1,27 @@
 package org.jglrxavpok.moarboats.common.containers
 
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.container.ChestContainer
-import net.minecraft.inventory.container.ContainerType
-import net.minecraft.inventory.container.ShulkerBoxContainer
-import net.minecraft.tileentity.ChestTileEntity
-import net.minecraft.tileentity.ShulkerBoxTileEntity
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.inventory.ChestMenu
+import net.minecraft.world.inventory.MenuType
+import net.minecraft.world.inventory.ShulkerBoxMenu
+import net.minecraft.world.level.block.entity.ChestBlockEntity
+import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity
 
-class UtilityChestContainer(windowID: Int, playerInv: PlayerInventory, tileEntity: ChestTileEntity): ChestContainer(ContainerTypes.ChestBoat, windowID, playerInv, tileEntity, 3) {
+class UtilityChestContainer(windowID: Int, playerInv: Inventory, tileEntity: ChestBlockEntity): ChestMenu(ContainerTypes.ChestBoat, windowID, playerInv, tileEntity, 3) {
 
-    override fun stillValid(playerIn: PlayerEntity): Boolean {
+    override fun stillValid(playerIn: Player): Boolean {
         return true
     }
 }
 
-class UtilityShulkerContainer(windowID: Int, playerInv: PlayerInventory, tileEntity: ShulkerBoxTileEntity): ShulkerBoxContainer(windowID, playerInv, tileEntity) {
+class UtilityShulkerContainer(windowID: Int, playerInv: Inventory, tileEntity: ShulkerBoxBlockEntity): ShulkerBoxMenu(windowID, playerInv, tileEntity) {
 
-    override fun stillValid(playerIn: PlayerEntity): Boolean {
+    override fun stillValid(playerIn: Player): Boolean {
         return true
     }
 
-    override fun getType(): ContainerType<*> {
+    override fun getType(): MenuType<*> {
         return ContainerTypes.ShulkerBoat
     }
 }

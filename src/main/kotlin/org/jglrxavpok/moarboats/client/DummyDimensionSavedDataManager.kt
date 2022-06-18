@@ -1,15 +1,14 @@
 package org.jglrxavpok.moarboats.client
 
-import com.mojang.datafixers.DataFixerBuilder
 import net.minecraft.client.Minecraft
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.util.datafix.DataFixesManager
-import net.minecraft.world.storage.DimensionSavedDataManager
+import net.minecraft.world.level.storage.DimensionDataStorage
 import net.minecraft.world.storage.WorldSavedData
 import java.io.File
 import java.util.function.Supplier
 
-object DummyDimensionSavedDataManager: DimensionSavedDataManager(File(".moarboats_fake_save_manager"), DataFixesManager.getDataFixer()) {
+object DummyDimensionSavedDataManager: DimensionDataStorage(File(".moarboats_fake_save_manager"), DataFixerBuilder.getDataFixer()) {
 
     private val savedData = mutableMapOf<String, WorldSavedData>()
 
@@ -24,8 +23,8 @@ object DummyDimensionSavedDataManager: DimensionSavedDataManager(File(".moarboat
         savedData[data.id] = data
     }
 
-    override fun readTagFromDisk(name: String, worldVersion: Int): CompoundNBT {
-        return CompoundNBT()
+    override fun readTagFromDisk(name: String, worldVersion: Int): CompoundTag {
+        return CompoundTag()
     }
 
     override fun save() {

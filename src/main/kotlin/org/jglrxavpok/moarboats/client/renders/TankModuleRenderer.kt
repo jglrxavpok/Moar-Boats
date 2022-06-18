@@ -1,14 +1,14 @@
 package org.jglrxavpok.moarboats.client.renders
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.math.Vector3f
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.Atlases
-import net.minecraft.client.renderer.IRenderTypeBuffer
 import net.minecraft.client.renderer.LightTexture
-import net.minecraft.client.renderer.entity.EntityRendererManager
-import net.minecraft.client.renderer.texture.AtlasTexture
+import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context
 import net.minecraft.client.renderer.texture.OverlayTexture
-import net.minecraft.util.math.vector.Vector3f
+import net.minecraft.world.inventory.InventoryMenu
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.client.normal
 import org.jglrxavpok.moarboats.client.pos
@@ -22,7 +22,7 @@ object TankModuleRenderer : BoatModuleRenderer() {
         registryName = FluidTankModule.id
     }
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererManager) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererProvider.Context) {
         module as FluidTankModule
         matrixStack.pushPose()
         matrixStack.mulPose(Vector3f.YP.rotationDegrees(90f))
@@ -30,12 +30,12 @@ object TankModuleRenderer : BoatModuleRenderer() {
         matrixStack.translate(-0.5, -4f/16.0, 1.0/16.0/0.75)
 
         val block = BlockBoatTank
-        renderBlockState(matrixStack, buffers, packedLightIn, entityRendererManager, block.defaultBlockState(), boat.brightness)
+        renderBlockState(matrixStack, buffers, packedLightIn, entityRendererManager, block.defaultBlockState(), boat.lightLevelDependentMagicValue)
         val fluid = module.getFluidInside(boat)
         if(fluid != null && module.getFluidAmount(boat) > 0) {
             val scale = 1f/16f
             matrixStack.scale(scale, scale, scale)
-            val sprite = Minecraft.getInstance().getTextureAtlas(AtlasTexture.LOCATION_BLOCKS).apply(fluid.attributes.stillTexture)
+            val sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(fluid.attributes.stillTexture)
             val buffer = buffers.getBuffer(Atlases.chestSheet())
             val minU = sprite.u0
             val maxU = sprite.u1

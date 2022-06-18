@@ -1,12 +1,11 @@
 package org.jglrxavpok.moarboats.common.containers
 
-import net.minecraft.item.Items
-import net.minecraft.inventory.IInventory
-import net.minecraft.inventory.container.Slot
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
+import net.minecraft.world.Container
+import net.minecraft.world.inventory.Slot
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
 
-abstract class SlotOneItemType(inventory: IInventory, index: Int, x: Int, y: Int): Slot(inventory, index, x, y) {
+abstract class SlotOneItemType(inventory: Container, index: Int, x: Int, y: Int): Slot(inventory, index, x, y) {
 
     abstract val validItem: Item
 

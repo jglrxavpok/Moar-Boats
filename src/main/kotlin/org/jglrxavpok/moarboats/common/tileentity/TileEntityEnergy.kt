@@ -1,33 +1,34 @@
 package org.jglrxavpok.moarboats.common.tileentity
 
-import net.minecraft.block.BlockState
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.tileentity.TileEntityType
-import net.minecraft.util.Direction
-import net.minecraft.util.math.BlockPos
+import net.minecraft.core.BlockPos
+import net.minecraft.core.Direction
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.level.block.entity.BlockEntityType
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.common.capabilities.Capability
+import net.minecraftforge.common.extensions.IForgeBlockEntity
 import net.minecraftforge.common.util.LazyOptional
 import net.minecraftforge.energy.CapabilityEnergy
 import net.minecraftforge.energy.IEnergyStorage
-import java.lang.NullPointerException
 
 /**
  * From ThunderScience https://github.com/jglrxavpok/ThunderScience/blob/master/src/main/kotlin/org/jglrxavpok/thunderscience/common/tileentity/TileEntityEnergy.kt
  */
-abstract class TileEntityEnergy(tileEntityType: TileEntityType<out TileEntityEnergy>): TileEntityListenable(tileEntityType), IEnergyStorage {
+abstract class TileEntityEnergy(tileEntityType: BlockEntityType<out TileEntityEnergy>, blockPos: BlockPos, blockState: BlockState): TileEntityListenable(tileEntityType, blockPos, blockState), IEnergyStorage,
+    IForgeBlockEntity {
 
     internal var energy: Int = 0
     protected abstract val maxReceivableEnergy: Int
     protected abstract val maxExtractableEnergy: Int
 
-    override fun deserializeNBT(state: BlockState, compound: CompoundNBT) {
-        super.deserializeNBT(state, compound)
+    override fun load(compound: CompoundTag) {
+        super.load(compound)
         energy = compound.getInt("energy")
     }
 
-    override fun save(compound: CompoundNBT): CompoundNBT {
+    override fun saveAdditional(compound: CompoundTag) {
+        super.saveAdditional(compound)
         compound.putInt("energy", energy)
-        return super.save(compound)
     }
 
     override fun getEnergyStored(): Int {

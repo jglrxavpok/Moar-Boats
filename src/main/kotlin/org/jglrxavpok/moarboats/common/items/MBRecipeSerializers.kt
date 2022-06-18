@@ -1,13 +1,12 @@
 package org.jglrxavpok.moarboats.common.items
 
 import com.google.gson.JsonObject
-import net.minecraft.inventory.CraftingInventory
-import net.minecraft.inventory.IInventory
-import net.minecraft.item.crafting.IRecipe
-import net.minecraft.item.crafting.IRecipeSerializer
-import net.minecraft.item.crafting.SpecialRecipeSerializer
-import net.minecraft.network.PacketBuffer
-import net.minecraft.util.ResourceLocation
+import net.minecraft.network.FriendlyByteBuf
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.inventory.CraftingContainer
+import net.minecraft.world.item.crafting.Recipe
+import net.minecraft.world.item.crafting.RecipeSerializer
+import net.minecraft.world.item.crafting.SimpleRecipeSerializer
 
 object MBRecipeSerializers {
 
@@ -15,22 +14,10 @@ object MBRecipeSerializers {
     lateinit var BoatColoring: SingletonSerializer<ModularBoatColoringRecipe>
     lateinit var UpgradeToGoldenTicket: SingletonSerializer<UpgradeToGoldenTicketRecipe>
     lateinit var CopyGoldenTicket: SingletonSerializer<GoldenTicketCopyRecipe>
-    lateinit var ShulkerBoat: SpecialRecipeSerializer<ShulkerBoatRecipe>
+    lateinit var ShulkerBoat: SimpleRecipeSerializer<ShulkerBoatRecipe>
 
-    class SingletonSerializer<T: IRecipe<CraftingInventory>>(val recipe: T): IRecipeSerializer<T> {
-        override fun getRegistryName(): ResourceLocation? {
-            return recipe.id
-        }
-
-        override fun getRegistryType(): Class<IRecipeSerializer<*>> {
-            return this.javaClass
-        }
-
-        override fun setRegistryName(name: ResourceLocation?): IRecipeSerializer<*> {
-            return this
-        }
-
-        override fun toNetwork(buffer: PacketBuffer, recipe: T) {
+    class SingletonSerializer<T: Recipe<CraftingContainer>>(val recipe: T): RecipeSerializer<T> {
+        override fun toNetwork(buffer: FriendlyByteBuf, recipe: T) {
 
         }
 
@@ -38,7 +25,7 @@ object MBRecipeSerializers {
             return recipe
         }
 
-        override fun fromNetwork(recipeId: ResourceLocation, buffer: PacketBuffer): T {
+        override fun fromNetwork(recipeId: ResourceLocation, buffer: FriendlyByteBuf): T {
             return recipe
         }
 

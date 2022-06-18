@@ -1,37 +1,36 @@
 package org.jglrxavpok.moarboats.common.entities.utilityboats
 
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.container.ContainerType
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
-import net.minecraft.item.Items
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.IWorldPosCallable
-import net.minecraft.util.math.vector.Vector3d
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.TranslationTextComponent
-import net.minecraft.world.World
+import net.minecraft.network.chat.Component
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.inventory.ContainerLevelAccess
+import net.minecraft.world.inventory.MenuType
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
+import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.phys.Vec3
 import org.jglrxavpok.moarboats.common.EntityEntries
 import org.jglrxavpok.moarboats.common.containers.*
 import org.jglrxavpok.moarboats.common.entities.UtilityBoatEntity
 import org.jglrxavpok.moarboats.common.items.*
 
-class CraftingTableBoatEntity(world: World): UtilityBoatEntity<TileEntity, UtilityWorkbenchContainer>(EntityEntries.CraftingTableBoat, world) {
+class CraftingTableBoatEntity(world: Level): UtilityBoatEntity<BlockEntity, UtilityWorkbenchContainer>(EntityEntries.CraftingTableBoat, world) {
 
-    constructor(level: World, x: Double, y: Double, z: Double): this(level) {
+    constructor(level: Level, x: Double, y: Double, z: Double): this(level) {
         this.setPos(x, y, z)
-        this.deltaMovement = Vector3d.ZERO
+        this.deltaMovement = Vec3.ZERO
         this.xOld = x
         this.yOld = y
         this.zOld = z
     }
 
-    override fun initBackingTileEntity(): TileEntity? {
+    override fun initBackingTileEntity(): BlockEntity? {
         return null
     }
 
-    override fun getContainerType(): ContainerType<UtilityWorkbenchContainer> {
+    override fun getContainerType(): MenuType<UtilityWorkbenchContainer> {
         return ContainerTypes.CraftingBoat
     }
 
@@ -39,13 +38,13 @@ class CraftingTableBoatEntity(world: World): UtilityBoatEntity<TileEntity, Utili
         return CraftingTableBoatItem[boatType]
     }
 
-    override fun createMenu(windowID: Int, inv: PlayerInventory, player: PlayerEntity): UtilityWorkbenchContainer? {
-        return UtilityWorkbenchContainer(windowID, inv, IWorldPosCallable.create(player.level, player.blockPosition()))
+    override fun createMenu(windowID: Int, inv: Inventory, player: Player): UtilityWorkbenchContainer? {
+        return UtilityWorkbenchContainer(windowID, inv, ContainerLevelAccess.create(player.level, player.blockPosition()))
     }
 
 
-    override fun getDisplayName(): ITextComponent {
-        return TranslationTextComponent("moarboats.container.utility_boat", TranslationTextComponent("container.crafting"))
+    override fun getDisplayName(): Component {
+        return Component.translatable("moarboats.container.utility_boat", Component.translatable("container.crafting"))
     }
 
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
@@ -56,21 +55,21 @@ class CraftingTableBoatEntity(world: World): UtilityBoatEntity<TileEntity, Utili
     }
 }
 
-class GrindstoneBoatEntity(world: World): UtilityBoatEntity<TileEntity, UtilityGrindstoneContainer>(EntityEntries.GrindstoneBoat, world) {
+class GrindstoneBoatEntity(world: Level): UtilityBoatEntity<BlockEntity, UtilityGrindstoneContainer>(EntityEntries.GrindstoneBoat, world) {
 
-    constructor(level: World, x: Double, y: Double, z: Double): this(level) {
+    constructor(level: Level, x: Double, y: Double, z: Double): this(level) {
         this.setPos(x, y, z)
-        this.deltaMovement = Vector3d.ZERO
+        this.deltaMovement = Vec3.ZERO
         this.xOld = x
         this.yOld = y
         this.zOld = z
     }
 
-    override fun initBackingTileEntity(): TileEntity? {
+    override fun initBackingTileEntity(): BlockEntity? {
         return null
     }
 
-    override fun getContainerType(): ContainerType<UtilityGrindstoneContainer> {
+    override fun getContainerType(): MenuType<UtilityGrindstoneContainer> {
         return ContainerTypes.GrindstoneBoat
     }
 
@@ -78,13 +77,13 @@ class GrindstoneBoatEntity(world: World): UtilityBoatEntity<TileEntity, UtilityG
         return GrindstoneBoatItem[boatType]
     }
 
-    override fun createMenu(windowID: Int, inv: PlayerInventory, player: PlayerEntity): UtilityGrindstoneContainer? {
-        return UtilityGrindstoneContainer(windowID, inv, IWorldPosCallable.create(player.level, player.blockPosition()))
+    override fun createMenu(windowID: Int, inv: Inventory, player: Player): UtilityGrindstoneContainer? {
+        return UtilityGrindstoneContainer(windowID, inv, ContainerLevelAccess.create(player.level, player.blockPosition()))
     }
 
 
-    override fun getDisplayName(): ITextComponent {
-        return TranslationTextComponent("moarboats.container.utility_boat", TranslationTextComponent("container.grindstone"))
+    override fun getDisplayName(): Component {
+        return Component.translatable("moarboats.container.utility_boat", Component.translatable("container.grindstone"))
     }
 
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
@@ -96,21 +95,21 @@ class GrindstoneBoatEntity(world: World): UtilityBoatEntity<TileEntity, UtilityG
 
 }
 
-class LoomBoatEntity(world: World): UtilityBoatEntity<TileEntity, UtilityLoomContainer>(EntityEntries.LoomBoat, world) {
+class LoomBoatEntity(world: Level): UtilityBoatEntity<BlockEntity, UtilityLoomContainer>(EntityEntries.LoomBoat, world) {
 
-    constructor(level: World, x: Double, y: Double, z: Double): this(level) {
+    constructor(level: Level, x: Double, y: Double, z: Double): this(level) {
         this.setPos(x, y, z)
-        this.deltaMovement = Vector3d.ZERO
+        this.deltaMovement = Vec3.ZERO
         this.xOld = x
         this.yOld = y
         this.zOld = z
     }
 
-    override fun initBackingTileEntity(): TileEntity? {
+    override fun initBackingTileEntity(): BlockEntity? {
         return null
     }
 
-    override fun getContainerType(): ContainerType<UtilityLoomContainer> {
+    override fun getContainerType(): MenuType<UtilityLoomContainer> {
         return ContainerTypes.LoomBoat
     }
 
@@ -118,12 +117,12 @@ class LoomBoatEntity(world: World): UtilityBoatEntity<TileEntity, UtilityLoomCon
         return LoomBoatItem[boatType]
     }
 
-    override fun createMenu(windowID: Int, inv: PlayerInventory, player: PlayerEntity): UtilityLoomContainer? {
-        return UtilityLoomContainer(windowID, inv, IWorldPosCallable.create(player.level, player.blockPosition()))
+    override fun createMenu(windowID: Int, inv: Inventory, player: Player): UtilityLoomContainer? {
+        return UtilityLoomContainer(windowID, inv, ContainerLevelAccess.create(player.level, player.blockPosition()))
     }
 
-    override fun getDisplayName(): ITextComponent {
-        return TranslationTextComponent("moarboats.container.utility_boat", TranslationTextComponent("container.loom"))
+    override fun getDisplayName(): Component {
+        return Component.translatable("moarboats.container.utility_boat", Component.translatable("container.loom"))
     }
 
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
@@ -134,21 +133,21 @@ class LoomBoatEntity(world: World): UtilityBoatEntity<TileEntity, UtilityLoomCon
     }
 }
 
-class CartographyTableBoatEntity(world: World): UtilityBoatEntity<TileEntity, UtilityCartographyTableContainer>(EntityEntries.CartographyTableBoat, world) {
+class CartographyTableBoatEntity(world: Level): UtilityBoatEntity<BlockEntity, UtilityCartographyTableContainer>(EntityEntries.CartographyTableBoat, world) {
 
-    constructor(level: World, x: Double, y: Double, z: Double): this(level) {
+    constructor(level: Level, x: Double, y: Double, z: Double): this(level) {
         this.setPos(x, y, z)
-        this.deltaMovement = Vector3d.ZERO
+        this.deltaMovement = Vec3.ZERO
         this.xOld = x
         this.yOld = y
         this.zOld = z
     }
 
-    override fun initBackingTileEntity(): TileEntity? {
+    override fun initBackingTileEntity(): BlockEntity? {
         return null
     }
 
-    override fun getContainerType(): ContainerType<UtilityCartographyTableContainer> {
+    override fun getContainerType(): MenuType<UtilityCartographyTableContainer> {
         return ContainerTypes.CartographyTableBoat
     }
 
@@ -156,12 +155,12 @@ class CartographyTableBoatEntity(world: World): UtilityBoatEntity<TileEntity, Ut
         return CartographyTableBoatItem[boatType]
     }
 
-    override fun createMenu(windowID: Int, inv: PlayerInventory, player: PlayerEntity): UtilityCartographyTableContainer? {
-        return UtilityCartographyTableContainer(windowID, inv, IWorldPosCallable.create(player.level, player.blockPosition()))
+    override fun createMenu(windowID: Int, inv: Inventory, player: Player): UtilityCartographyTableContainer? {
+        return UtilityCartographyTableContainer(windowID, inv, ContainerLevelAccess.create(player.level, player.blockPosition()))
     }
 
-    override fun getDisplayName(): ITextComponent {
-        return TranslationTextComponent("moarboats.container.utility_boat", TranslationTextComponent("container.cartography_table"))
+    override fun getDisplayName(): Component {
+        return Component.translatable("moarboats.container.utility_boat", Component.translatable("container.cartography_table"))
     }
 
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
@@ -172,21 +171,21 @@ class CartographyTableBoatEntity(world: World): UtilityBoatEntity<TileEntity, Ut
     }
 }
 
-class StonecutterBoatEntity(world: World): UtilityBoatEntity<TileEntity, UtilityStonecutterContainer>(EntityEntries.StonecutterBoat, world) {
+class StonecutterBoatEntity(world: Level): UtilityBoatEntity<BlockEntity, UtilityStonecutterContainer>(EntityEntries.StonecutterBoat, world) {
 
-    constructor(level: World, x: Double, y: Double, z: Double): this(level) {
+    constructor(level: Level, x: Double, y: Double, z: Double): this(level) {
         this.setPos(x, y, z)
-        this.deltaMovement = Vector3d.ZERO
+        this.deltaMovement = Vec3.ZERO
         this.xOld = x
         this.yOld = y
         this.zOld = z
     }
 
-    override fun initBackingTileEntity(): TileEntity? {
+    override fun initBackingTileEntity(): BlockEntity? {
         return null
     }
 
-    override fun getContainerType(): ContainerType<UtilityStonecutterContainer> {
+    override fun getContainerType(): MenuType<UtilityStonecutterContainer> {
         return ContainerTypes.StonecutterBoat
     }
 
@@ -194,12 +193,12 @@ class StonecutterBoatEntity(world: World): UtilityBoatEntity<TileEntity, Utility
         return StonecutterBoatItem[boatType]
     }
 
-    override fun createMenu(windowID: Int, inv: PlayerInventory, player: PlayerEntity): UtilityStonecutterContainer? {
-        return UtilityStonecutterContainer(windowID, inv, IWorldPosCallable.create(player.level, player.blockPosition()))
+    override fun createMenu(windowID: Int, inv: Inventory, player: Player): UtilityStonecutterContainer? {
+        return UtilityStonecutterContainer(windowID, inv, ContainerLevelAccess.create(player.level, player.blockPosition()))
     }
 
-    override fun getDisplayName(): ITextComponent {
-        return TranslationTextComponent("moarboats.container.utility_boat", TranslationTextComponent("container.stonecutter"))
+    override fun getDisplayName(): Component {
+        return Component.translatable("moarboats.container.utility_boat", Component.translatable("container.stonecutter"))
     }
 
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {

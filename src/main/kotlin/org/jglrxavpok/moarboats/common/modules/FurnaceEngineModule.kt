@@ -1,18 +1,17 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.block.Blocks
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.Items
-import net.minecraft.inventory.IInventory
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.particles.ParticleTypes
-import net.minecraft.tileentity.AbstractFurnaceTileEntity
-import net.minecraft.util.Hand
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.MathHelper
-import net.minecraftforge.event.ForgeEventFactory
+import net.minecraft.core.particles.ParticleTypes
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.util.Mth
+import net.minecraft.world.Container
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
+import net.minecraft.world.item.crafting.RecipeType
+import net.minecraft.world.level.block.Blocks
+import net.minecraftforge.common.ForgeHooks
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
 import org.jglrxavpok.moarboats.common.containers.ContainerFurnaceEngine
@@ -20,7 +19,7 @@ import org.jglrxavpok.moarboats.common.state.IntBoatProperty
 import org.jglrxavpok.moarboats.extensions.toRadians
 
 object FurnaceEngineModule : BaseEngineModule() {
-    override fun createContainer(containerID: Int, player: PlayerEntity, boat: IControllable): ContainerBoatModule<*>? {
+    override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? {
         return ContainerFurnaceEngine(containerID, player.inventory, this, boat)
     }
 
@@ -54,7 +53,7 @@ object FurnaceEngineModule : BaseEngineModule() {
         fuelTotalTimeProperty[to] = 0
     }
 
-    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean): Boolean {
+    override fun onInteract(from: IControllable, player: Player, hand: InteractionHand, sneaking: Boolean): Boolean {
         return false
     }
 
@@ -64,7 +63,7 @@ object FurnaceEngineModule : BaseEngineModule() {
         return fuelTime < fuelTotalTime
     }
 
-    override fun updateFuelState(boat: IControllable, state: CompoundNBT, inv: IInventory) {
+    override fun updateFuelState(boat: IControllable, state: CompoundTag, inv: Container) {
         val fuelTime = fuelTimeProperty[boat]
         val fuelTotalTime = fuelTotalTimeProperty[boat]
         if(fuelTime < fuelTotalTime) {
@@ -88,8 +87,8 @@ object FurnaceEngineModule : BaseEngineModule() {
         }
 
         if(hasFuel(boat) && rng.nextInt(4) == 0) {
-            val cos = MathHelper.cos((boat.yaw + 90f).toRadians())
-            val sin = MathHelper.sin((boat.yaw + 90f).toRadians())
+            val cos = Mth.cos((boat.yaw + 90f).toRadians())
+            val sin = Mth.sin((boat.yaw + 90f).toRadians())
             val dist = 0.5
             boat.worldRef.addParticle(ParticleTypes.LARGE_SMOKE, boat.positionX + dist * cos, boat.positionY + 0.8, boat.positionZ + dist * sin, 0.0, 0.0, 0.0)
         }
@@ -131,9 +130,7 @@ object FurnaceEngineModule : BaseEngineModule() {
         return if (stack.isEmpty) {
             0
         } else {
-            val item = stack.item
-            val ret = stack.burnTime
-            ForgeEventFactory.getItemBurnTime(stack, if (ret == -1) (AbstractFurnaceTileEntity.getFuel()).getOrDefault(item, 0) as Int else ret)
+            ForgeHooks.getBurnTime(stack, RecipeType.SMELTING)
         }
     }
 

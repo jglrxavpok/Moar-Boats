@@ -2,36 +2,47 @@ package org.jglrxavpok.moarboats.client
 
 import com.google.common.collect.ImmutableList
 import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.math.Quaternion
+import com.mojang.math.Vector3f
 import net.minecraft.block.*
 import net.minecraft.client.Minecraft
 import net.minecraft.client.audio.ISound
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity
-import net.minecraft.client.gui.IngameGui
 import net.minecraft.client.gui.ScreenManager
-import net.minecraft.client.gui.screen.inventory.ChestScreen
+import net.minecraft.client.gui.screens.inventory.ChestScreen
+import net.minecraft.client.model.PlayerModel
+import net.minecraft.client.player.AbstractClientPlayer
 import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.RenderTypeLookup
-import net.minecraft.client.renderer.entity.PlayerRenderer
-import net.minecraft.client.renderer.entity.model.PlayerModel
+import net.minecraft.client.renderer.block.model.ItemTransforms
+import net.minecraft.client.renderer.entity.player.PlayerRenderer
 import net.minecraft.client.renderer.model.*
 import net.minecraft.client.renderer.texture.AtlasTexture
 import net.minecraft.client.renderer.texture.MissingTextureSprite
 import net.minecraft.client.renderer.texture.OverlayTexture
+import net.minecraft.client.renderer.texture.TextureAtlas
+import net.minecraft.core.Direction
 import net.minecraft.entity.EntityType
-import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemModelsProperties
-import net.minecraft.item.MusicDiscItem
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.sounds.SoundSource
 import net.minecraft.state.properties.AttachFace
 import net.minecraft.util.*
-import net.minecraft.util.math.MathHelper
-import net.minecraft.util.math.vector.Quaternion
-import net.minecraft.util.math.vector.Vector3f
-import net.minecraft.world.World
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.entity.HumanoidArm
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.inventory.InventoryMenu
+import net.minecraft.world.item.RecordItem
+import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.AbstractFurnaceBlock
+import net.minecraft.world.level.block.GrindstoneBlock
+import net.minecraft.world.level.block.state.properties.AttachFace
+import net.minecraft.world.level.block.state.properties.BlockStateProperties
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.client.event.InputEvent
 import net.minecraftforge.client.event.ModelBakeEvent
 import net.minecraftforge.client.event.RenderHandEvent
+import net.minecraftforge.client.gui.ForgeIngameGui
 import net.minecraftforge.client.model.IModelConfiguration
 import net.minecraftforge.client.model.ItemLayerModel
 import net.minecraftforge.client.model.ModelLoader
@@ -43,13 +54,14 @@ import net.minecraftforge.fml.client.registry.RenderingRegistry
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent
-import net.minecraftforge.fml.network.PacketDistributor
+import net.minecraftforge.network.PacketDistributor
 import org.jglrxavpok.moarboats.JavaHelpers
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.client.gui.*
 import org.jglrxavpok.moarboats.client.models.ModelPatreonHook
 import org.jglrxavpok.moarboats.client.renders.*
+import org.jglrxavpok.moarboats.common.Blocks
 import org.jglrxavpok.moarboats.common.EntityEntries
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.blocks.BlockCargoStopper
@@ -65,12 +77,11 @@ import org.jglrxavpok.moarboats.common.network.CShowBoatMenu
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE, value = [Dist.CLIENT], modid = MoarBoats.ModID)
 object ClientEvents {
 
-    // World -> Boat ID -> ISound
-    private val recordCache = mutableMapOf<World, MutableMap<Int, ISound>>()
+    // Level -> Boat ID -> ISound
+    private val recordCache = mutableMapOf<Level, MutableMap<Int, ISound>>()
     private val stripes = mutableMapOf<String, MapImageStripe>()
 
     val hookTextureLocation = ResourceLocation(MoarBoats.ModID, "textures/hook.png")
-    val fakePlayerModel = PlayerModel<PlayerEntity>(0f, false)
     val armModel = ModelRenderer(64, 64, 32, 48).apply {
         addBox(-1.0f, -2.0f, -2.0f, 4f, 9f, 4f) // arm
         addBox(-1.0f, -2.0f, -2.0f, 4f, 9f, 4f, 0.25f, false) // armwear
@@ -91,14 +102,14 @@ object ClientEvents {
 
                 override fun getModelName() = FishingModuleRenderer.CastFishingRodLocation.toString()
 
-                override fun getCameraTransforms() = ItemCameraTransforms.NO_TRANSFORMS
+                override fun getCameraTransforms() = ItemTransforms.TransformType.NO_TRANSFORMS
 
                 override fun getOwnerModel() = null
 
                 override fun isSideLit() = false
 
                 override fun resolveTexture(name: String): RenderMaterial {
-                    return RenderMaterial(AtlasTexture.LOCATION_BLOCKS, ResourceLocation(name))
+                    return RenderMaterial(InventoryMenu.BLOCK_ATLAS, ResourceLocation(name))
                 }
 
                 override fun getCombinedTransform(): IModelTransform {
@@ -111,7 +122,7 @@ object ClientEvents {
                     return true
                 }
             }
-            val bakedModel = ItemLayerModel(ImmutableList.of(RenderMaterial(AtlasTexture.LOCATION_BLOCKS, ResourceLocation("item/fishing_rod_cast"))))
+            val bakedModel = ItemLayerModel(ImmutableList.of(RenderMaterial(InventoryMenu.BLOCK_ATLAS, ResourceLocation("item/fishing_rod_cast"))))
                     .bake(modelConfiguration, event.modelLoader, ModelLoader.defaultTextureGetter(), ModelRotation.X0_Y0, ItemOverrideList.EMPTY, FishingModuleRenderer.CastFishingRodLocation)
             event.modelRegistry[FishingModuleRenderer.CastFishingRodLocation] = bakedModel
         }
@@ -170,19 +181,22 @@ object ClientEvents {
 
         JavaHelpers.registerGuis()
 
-        val mc = event.minecraftSupplier.get()
+        val mc = Minecraft.getInstance()
         RenderingRegistry.registerEntityRenderingHandler(EntityEntries.ModularBoat, ::RenderModularBoat)
         RenderingRegistry.registerEntityRenderingHandler(EntityEntries.AnimalBoat, ::RenderAnimalBoat)
-        registerUtilityBoat(EntityEntries.FurnaceBoat) { boat -> Blocks.FURNACE.defaultBlockState().setValue(AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }
+        registerUtilityBoat(EntityEntries.FurnaceBoat) { boat -> Blocks.FURNACE.defaultBlockState().setValue(
+            AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }
         registerUtilityBoat(EntityEntries.SmokerBoat) { boat -> Blocks.SMOKER.defaultBlockState().setValue(AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }
         registerUtilityBoat(EntityEntries.BlastFurnaceBoat) { boat -> Blocks.BLAST_FURNACE.defaultBlockState().setValue(AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }
         registerUtilityBoat(EntityEntries.CraftingTableBoat) { boat -> Blocks.CRAFTING_TABLE.defaultBlockState() }
-        registerUtilityBoat(EntityEntries.GrindstoneBoat) { boat -> Blocks.GRINDSTONE.defaultBlockState().setValue(GrindstoneBlock.FACE, AttachFace.FLOOR) }
+        registerUtilityBoat(EntityEntries.GrindstoneBoat) { boat -> Blocks.GRINDSTONE.defaultBlockState().setValue(
+            GrindstoneBlock.FACE, AttachFace.FLOOR) }
         registerUtilityBoat(EntityEntries.LoomBoat) { boat -> Blocks.LOOM.defaultBlockState() }
         registerUtilityBoat(EntityEntries.CartographyTableBoat) { boat -> Blocks.CARTOGRAPHY_TABLE.defaultBlockState() }
         registerUtilityBoat(EntityEntries.StonecutterBoat) { boat -> Blocks.STONECUTTER.defaultBlockState() }
-        registerUtilityBoat(EntityEntries.ChestBoat) { boat -> Blocks.CHEST.defaultBlockState().setValue(HorizontalBlock.FACING, Direction.SOUTH) }
-        registerUtilityBoat(EntityEntries.EnderChestBoat) { boat -> Blocks.ENDER_CHEST.defaultBlockState().setValue(HorizontalBlock.FACING, Direction.EAST) }
+        registerUtilityBoat(EntityEntries.ChestBoat) { boat -> Blocks.CHEST.defaultBlockState().setValue(
+            BlockStateProperties.FACING, Direction.SOUTH) }
+        registerUtilityBoat(EntityEntries.EnderChestBoat) { boat -> Blocks.ENDER_CHEST.defaultBlockState().setValue(BlockStateProperties.FACING, Direction.EAST) }
         registerUtilityBoat(EntityEntries.JukeboxBoat) { boat -> Blocks.JUKEBOX.defaultBlockState() }
         registerUtilityBoat(EntityEntries.ShulkerBoat) { boat -> ShulkerBoxBlock.getBlockByColor(boat.dyeColor).defaultBlockState() }
 
@@ -230,7 +244,7 @@ object ClientEvents {
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     fun onEntityJoinWorld(event: EntityJoinWorldEvent) {
-        if(event.entity is PlayerEntity) {
+        if(event.entity is Player) {
             for(list in recordCache.values) {
                 for(source in list) {
                     Minecraft.getInstance().soundManager.stop(source.value)
@@ -247,38 +261,38 @@ object ClientEvents {
         val mc = Minecraft.getInstance()
         val player = mc.player!!
         if(player.gameProfile.id.toString().toLowerCase() in MoarBoats.PatreonList) {
-            if(event.hand == Hand.MAIN_HAND && player.getItemInHand(event.hand).isEmpty) {
+            if(event.hand == InteractionHand.MAIN_HAND && player.getItemInHand(event.hand).isEmpty) {
                 if(MoarBoatsConfig.misc.hidePatreonHook.get()) {
                     return
                 }
 
                 event.isCanceled = true
 
-                event.matrixStack.pushPose()
-                renderArmFirstPerson(RenderInfo(event.matrixStack, event.buffers, event.light), event.equipProgress, event.swingProgress, player.mainArm)
-                event.matrixStack.popPose()
+                event.poseStack.pushPose()
+                renderArmFirstPerson(RenderInfo(event.poseStack, event.multiBufferSource, event.packedLight), event.equipProgress, event.swingProgress, player.mainArm)
+                event.poseStack.popPose()
             }
         }
     }
 
     // COPY PASTED FROM FirstPersonRenderer
-    private fun renderArmFirstPerson(renderInfo: RenderInfo, equippedProgress: Float, swingProgress: Float, side: HandSide) {
+    private fun renderArmFirstPerson(renderInfo: RenderInfo, equippedProgress: Float, swingProgress: Float, side: HumanoidArm) {
         val matrixStack = renderInfo.matrixStack
         val mc = Minecraft.getInstance()
-        val rightHanded = side != HandSide.LEFT
+        val rightHanded = side != HumanoidArm.LEFT
         val f = if (rightHanded) 1.0f else -1.0f
-        val f1 = MathHelper.sqrt(swingProgress)
-        val f2 = -0.3f * MathHelper.sin(f1 * Math.PI.toFloat())
-        val f3 = 0.4f * MathHelper.sin(f1 * (Math.PI.toFloat() * 2f))
-        val f4 = -0.4f * MathHelper.sin(swingProgress * Math.PI.toFloat())
+        val f1 = Mth.sqrt(swingProgress)
+        val f2 = -0.3f * Mth.sin(f1 * Math.PI.toFloat())
+        val f3 = 0.4f * Mth.sin(f1 * (Math.PI.toFloat() * 2f))
+        val f4 = -0.4f * Mth.sin(swingProgress * Math.PI.toFloat())
         matrixStack.translate((f * (f2 + 0.64000005f)).toDouble(), (f3 + -0.6f + equippedProgress * -0.6f).toDouble(), (f4 + -0.71999997f).toDouble())
         matrixStack.mulPose(Vector3f.YP.rotationDegrees(f * 45.0f))
-        val f5 = MathHelper.sin(swingProgress * swingProgress * Math.PI.toFloat())
-        val f6 = MathHelper.sin(f1 * Math.PI.toFloat())
+        val f5 = Mth.sin(swingProgress * swingProgress * Math.PI.toFloat())
+        val f6 = Mth.sin(f1 * Math.PI.toFloat())
         matrixStack.mulPose(Vector3f.YP.rotationDegrees(f * f6 * 70.0f))
         matrixStack.mulPose(Vector3f.ZP.rotationDegrees(f * f5 * -20.0f))
-        val player: AbstractClientPlayerEntity = mc.player!!
-        mc.getTextureManager().bind(player.skinTextureLocation)
+        val player: Player = mc.player!!
+        mc.getTextureManager().bindForSetup(player.skinTextureLocation)
         matrixStack.translate((f * -1.0f).toDouble(), 3.6f.toDouble(), 3.5)
         matrixStack.mulPose(Vector3f.ZP.rotationDegrees(f * 120.0f))
         matrixStack.mulPose(Vector3f.XP.rotationDegrees(200.0f))
@@ -294,7 +308,7 @@ object ClientEvents {
         RenderSystem.enableCull()
     }
 
-    private fun renderArm(renderInfo: RenderInfo, arm: ModelRenderer, clientPlayer: AbstractClientPlayerEntity, playerModel: PlayerModel<AbstractClientPlayerEntity>) {
+    private fun renderArm(renderInfo: RenderInfo, arm: ModelRenderer, clientPlayer: AbstractClientPlayer, playerModel: PlayerModel<AbstractClientPlayer>) {
         val matrixStack = renderInfo.matrixStack
         val f = 1.0f
         RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1f)
@@ -337,7 +351,7 @@ object ClientEvents {
     /**
      * Plays a given record or stop playback, linked to a boat entity
      */
-    fun playRecord(world: World, entityID: Int, musicDiscItem: MusicDiscItem?) {
+    fun playRecord(world: Level, entityID: Int, musicDiscItem: RecordItem?) {
         val worldCache = recordCache.getOrPut(world, ::mutableMapOf)
         if(entityID in worldCache) {
             val previousSource = worldCache[entityID]!!
@@ -347,7 +361,7 @@ object ClientEvents {
 
         if(musicDiscItem != null) {
             val entity = world.getEntity(entityID) as? UtilityBoatEntity<*,*> ?: return
-            val recordSound = EntitySound(musicDiscItem.sound, SoundCategory.RECORDS, 4f, entity)
+            val recordSound = EntitySound(musicDiscItem.sound, SoundSource.RECORDS, 4f, entity)
             Minecraft.getInstance().soundManager.play(recordSound)
             worldCache[entityID] = recordSound
 
@@ -362,7 +376,7 @@ object ClientEvents {
         if(mc.level == null)
             return // must be playing
         if(mc.screen != null) {
-            if(mc.screen !is IngameGui) { // must not be in a menu
+            if(mc.screen !is ForgeIngameGui) { // must not be in a menu
                 return
             }
         }

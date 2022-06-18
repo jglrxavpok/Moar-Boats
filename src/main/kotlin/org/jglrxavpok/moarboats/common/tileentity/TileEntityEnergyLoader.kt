@@ -1,15 +1,16 @@
 package org.jglrxavpok.moarboats.common.tileentity
 
-import net.minecraft.entity.Entity
-import net.minecraft.tileentity.ITickableTileEntity
-import net.minecraft.util.Direction
+import net.minecraft.core.BlockPos
+import net.minecraft.core.Direction
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.energy.CapabilityEnergy
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.blocks.Facing
 import kotlin.math.ceil
 
-class TileEntityEnergyLoader: TileEntityEnergy(MoarBoats.TileEntityEnergyLoaderType), ITickableTileEntity {
+class TileEntityEnergyLoader(blockPos: BlockPos, blockState: BlockState): TileEntityEnergy(MoarBoats.TileEntityEnergyLoaderType, blockPos, blockState), ITickableTileEntity {
     override val maxReceivableEnergy = maxEnergyStored
     override val maxExtractableEnergy = 0
     private var working: Boolean = false

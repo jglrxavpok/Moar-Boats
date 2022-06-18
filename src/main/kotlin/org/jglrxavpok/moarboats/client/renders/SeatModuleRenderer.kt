@@ -1,14 +1,15 @@
 package org.jglrxavpok.moarboats.client.renders
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.platform.GlStateManager
-import net.minecraft.client.renderer.IRenderTypeBuffer
-import net.minecraft.util.math.vector.Quaternion
+import net.minecraft.client.renderer.MultiBufferSource
+import com.mojang.math.Quaternion
 import net.minecraft.client.renderer.RenderType
-import net.minecraft.util.math.vector.Vector3f
-import net.minecraft.client.renderer.entity.EntityRendererManager
+import com.mojang.math.Vector3f
+import net.minecraft.client.renderer.entity.EntityRendererProvider
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context
 import net.minecraft.client.renderer.texture.OverlayTexture
-import net.minecraft.util.ResourceLocation
+import net.minecraft.resources.ResourceLocation
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.client.models.ModelSeat
@@ -23,7 +24,7 @@ object SeatModuleRenderer : BoatModuleRenderer() {
     val model = ModelSeat()
     private val BOAT_TEXTURES = arrayOf(ResourceLocation("textures/block/oak_planks.png"), ResourceLocation("textures/block/spruce_planks.png"), ResourceLocation("textures/block/birch_planks.png"), ResourceLocation("textures/block/jungle_planks.png"), ResourceLocation("textures/block/acacia_planks.png"), ResourceLocation("textures/block/dark_oak_planks.png"))
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRenderer: EntityRendererManager) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRenderer: EntityRendererProvider.Context) {
         matrixStack.pushPose()
         matrixStack.mulPose(Vector3f.YP.rotationDegrees(90f))
         matrixStack.scale(1f, -1f, 1f)

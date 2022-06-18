@@ -1,18 +1,18 @@
 package org.jglrxavpok.moarboats.common
 
-import net.minecraft.network.PacketBuffer
-import net.minecraft.network.datasync.DataParameter
-import net.minecraft.network.datasync.IDataSerializer
+import net.minecraft.network.FriendlyByteBuf
+import net.minecraft.network.syncher.EntityDataAccessor
+import net.minecraft.network.syncher.EntityDataSerializer
 import java.util.*
 
-object UniqueIDSerializer: IDataSerializer<UUID> {
-    override fun write(buf: PacketBuffer, value: UUID) {
+object UniqueIDSerializer: EntityDataSerializer<UUID> {
+    override fun write(buf: FriendlyByteBuf, value: UUID) {
         buf.writeUUID(value)
     }
 
     override fun copy(value: UUID) = value
 
-    override fun createAccessor(id: Int) = DataParameter(id, this)
+    override fun createAccessor(id: Int) = EntityDataAccessor(id, this)
 
-    override fun read(buf: PacketBuffer) = buf.readUUID()
+    override fun read(buf: FriendlyByteBuf) = buf.readUUID()
 }

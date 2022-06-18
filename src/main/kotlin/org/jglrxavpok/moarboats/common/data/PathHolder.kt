@@ -1,10 +1,10 @@
 package org.jglrxavpok.moarboats.common.data
 
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.nbt.ListNBT
-import net.minecraft.util.math.BlockPos
-import net.minecraftforge.common.util.Constants
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.ListTag
+import net.minecraft.core.BlockPos
+import net.minecraft.nbt.Tag
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
@@ -15,7 +15,7 @@ import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 interface PathHolder {
     fun getLoopingOption(): LoopingOptions
     fun setLoopingState(loopingOptions: LoopingOptions)
-    fun getWaypointNBTList(): ListNBT
+    fun getWaypointNBTList(): ListTag
     fun removeWaypoint(closestIndex: Int)
     fun addWaypoint(pos: BlockPos, boost: Double?)
     fun getHolderLocation(): BlockPos?
@@ -40,8 +40,8 @@ class BoatPathHolder(val boat: IControllable): PathHolder {
         MoarBoats.network.sendToServer(CRemoveWaypoint(closestIndex, boat.entityID))
     }
 
-    override fun getWaypointNBTList(): ListNBT {
-        return boat.getState(HelmModule).getList(HelmModule.waypointsProperty.id, Constants.NBT.TAG_COMPOUND)
+    override fun getWaypointNBTList(): ListTag {
+        return boat.getState(HelmModule).getList(HelmModule.waypointsProperty.id, Tag.TAG_COMPOUND.toInt())
     }
 
     override fun getLoopingOption(): LoopingOptions {
@@ -59,9 +59,9 @@ class BoatPathHolder(val boat: IControllable): PathHolder {
 
 class MapWithPathHolder(stack: ItemStack, mappingTable: TileEntityMappingTable?, boat: IControllable?): ItemPathHolder(stack, mappingTable, boat) {
 
-    override fun nbt(): CompoundNBT {
+    override fun nbt(): CompoundTag {
         if(stack.tag == null) {
-            stack.tag = CompoundNBT()
+            stack.tag = CompoundTag()
         }
         return stack.tag!!
     }
@@ -84,8 +84,8 @@ class MapWithPathHolder(stack: ItemStack, mappingTable: TileEntityMappingTable?,
 }
 
 class GoldenTicketPathHolder(stack: ItemStack, mappingTable: TileEntityMappingTable?, boat: IControllable?): ItemPathHolder(stack, mappingTable, boat) {
-    override fun nbt(): CompoundNBT {
-        return ItemGoldenTicket.getData(stack).save(CompoundNBT())
+    override fun nbt(): CompoundTag {
+        return ItemGoldenTicket.getData(stack).save(CompoundTag())
     }
 
     override fun addWaypoint(pos: BlockPos, boost: Double?) {
@@ -107,7 +107,7 @@ class GoldenTicketPathHolder(stack: ItemStack, mappingTable: TileEntityMappingTa
 
 abstract class ItemPathHolder(val stack: ItemStack, val mappingTable: TileEntityMappingTable?, val boat: IControllable?): PathHolder {
 
-    abstract fun nbt(): CompoundNBT
+    abstract fun nbt(): CompoundTag
 
     override fun getBaseMapID(): String {
         return nbt().getString("${MoarBoats.ModID}.mapID")
@@ -132,8 +132,8 @@ abstract class ItemPathHolder(val stack: ItemStack, val mappingTable: TileEntity
         }
     }
 
-    override fun getWaypointNBTList(): ListNBT {
-        return nbt().getList("${MoarBoats.ModID}.path", Constants.NBT.TAG_COMPOUND)
+    override fun getWaypointNBTList(): ListTag {
+        return nbt().getList("${MoarBoats.ModID}.path", Tag.TAG_COMPOUND.toInt())
     }
 
     override fun getHolderLocation() = null

@@ -1,21 +1,28 @@
 package org.jglrxavpok.moarboats.common.entities
 
-import net.minecraft.block.BlockState
-import net.minecraft.dispenser.IDispenseItemBehavior
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.core.dispenser.DispenseItemBehavior
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.passive.WaterMobEntity
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.tileentity.DispenserTileEntity
-import net.minecraft.tileentity.TileEntity
+import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.util.*
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.MathHelper
-import net.minecraft.util.math.vector.Vector3d
-import net.minecraft.world.World
-import net.minecraft.world.server.ServerWorld
+import net.minecraft.core.BlockPos
+import net.minecraft.core.Direction
+import net.minecraft.util.Mth
+import net.minecraft.util.math.vector.Vec3
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.InteractionResult
+import net.minecraft.world.damagesource.DamageSource
+import net.minecraft.world.damagesource.IndirectEntityDamageSource
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.level.Level
+import net.minecraft.world.phys.Vec3
+import net.minecraft.world.server.ServerLevel
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleInventory
 import org.jglrxavpok.moarboats.common.EntityEntries
@@ -25,7 +32,7 @@ import org.jglrxavpok.moarboats.extensions.Fluids
 import org.jglrxavpok.moarboats.extensions.toRadians
 import java.util.*
 
-class AnimalBoatEntity(world: World): BasicBoatEntity(EntityEntries.AnimalBoat, world) {
+class AnimalBoatEntity(world: Level): BasicBoatEntity(EntityEntries.AnimalBoat, world) {
     override val entityID: Int
         get() = this.id
 
@@ -36,9 +43,9 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(EntityEntries.AnimalBoat, 
         this.blocksBuilding = true
     }
 
-    constructor(level: World, x: Double, y: Double, z: Double): this(level) {
+    constructor(level: Level, x: Double, y: Double, z: Double): this(level) {
         this.setPos(x, y, z)
-        this.deltaMovement = Vector3d.ZERO
+        this.deltaMovement = Vec3.ZERO
         this.xOld = x
         this.yOld = y
         this.zOld = z
@@ -64,7 +71,7 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(EntityEntries.AnimalBoat, 
 
         for (entity in list) {
             if (!entity.hasPassenger(this)) {
-                if (this.passengers.isEmpty() && !entity.isPassenger && entity.bbWidth < this.bbWidth && entity is LivingEntity && entity !is WaterMobEntity && entity !is PlayerEntity) {
+                if (this.passengers.isEmpty() && !entity.isPassenger && entity.bbWidth < this.bbWidth && entity is LivingEntity && entity !is WaterMobEntity && entity !is Player) {
                     entity.startRiding(this)
                 }
             }
@@ -78,12 +85,12 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(EntityEntries.AnimalBoat, 
     // MoarBoats code
     override fun controlBoat() { /* NOP */ }
 
-    override fun calculateAnchorPosition(linkType: Int): Vector3d {
+    override fun calculateAnchorPosition(linkType: Int): Vec3 {
         val distanceFromCenter = (0.0625f * 17f * if(linkType == BasicBoatEntity.FrontLink) 1f else -1f) *1.5f
-        val anchorX = positionX + MathHelper.cos((yaw + 90f).toRadians()) * distanceFromCenter
+        val anchorX = positionX + Mth.cos((yaw + 90f).toRadians()) * distanceFromCenter
         val anchorY = positionY + 0.0625f * 16f
-        val anchorZ = positionZ + MathHelper.sin((yaw + 90f).toRadians()) * distanceFromCenter
-        return Vector3d(anchorX, anchorY, anchorZ)
+        val anchorZ = positionZ + Mth.sin((yaw + 90f).toRadians()) * distanceFromCenter
+        return Vec3(anchorX, anchorY, anchorZ)
     }
 
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
@@ -100,21 +107,21 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(EntityEntries.AnimalBoat, 
         else -> super.hurt(source, amount)
     }
 
-    override fun canStartRiding(player: PlayerEntity, heldItem: ItemStack, hand: Hand): Boolean {
+    override fun canStartRiding(player: Player, heldItem: ItemStack, hand: InteractionHand): Boolean {
         return false
     }
 
     override fun saveState(module: BoatModule, isLocal: Boolean) { /* NOP */ }
 
-    override fun getState(module: BoatModule, isLocal: Boolean): CompoundNBT {
-        return CompoundNBT()
+    override fun getState(module: BoatModule, isLocal: Boolean): CompoundTag {
+        return CompoundTag()
     }
 
     override fun getInventory(module: BoatModule): BoatModuleInventory {
         error("Animal boats cannot have inventories!")
     }
 
-    override fun dispense(behavior: IDispenseItemBehavior, stack: ItemStack, overridePosition: BlockPos?, overrideFacing: Direction?): ItemStack {
+    override fun dispense(behavior: DispenseItemBehavior, stack: ItemStack, overridePosition: BlockPos?, overrideFacing: Direction?): ItemStack {
         return ItemStack.EMPTY
     }
 
@@ -134,7 +141,7 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(EntityEntries.AnimalBoat, 
     }
 
     override fun canAddPassenger(passenger: Entity): Boolean {
-        return this.passengers.isEmpty() && passenger !is PlayerEntity
+        return this.passengers.isEmpty() && passenger !is Player
     }
 
     override fun isSpeedImposed(): Boolean {
@@ -147,7 +154,7 @@ class AnimalBoatEntity(world: World): BasicBoatEntity(EntityEntries.AnimalBoat, 
         return false
     }
 
-    override fun openGuiIfPossible(player: PlayerEntity): ActionResultType {
-        return ActionResultType.FAIL
+    override fun openGuiIfPossible(player: Player): InteractionResult {
+        return InteractionResult.FAIL
     }
 }

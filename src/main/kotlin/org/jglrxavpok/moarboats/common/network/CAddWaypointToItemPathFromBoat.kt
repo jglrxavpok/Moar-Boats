@@ -1,9 +1,9 @@
 package org.jglrxavpok.moarboats.common.network
 
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.ListNBT
-import net.minecraft.util.math.BlockPos
-import net.minecraftforge.fml.network.NetworkEvent
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.ListTag
+import net.minecraft.core.BlockPos
+import net.minecraftforge.network.NetworkEvent
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.items.MapItemWithPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
@@ -31,7 +31,7 @@ class CAddWaypointToItemPathFromBoat: CxxAddWaypointToItemPath {
             }
         }
 
-        override fun createResponse(message: CAddWaypointToItemPathFromBoat, ctx: NetworkEvent.Context, waypointList: ListNBT): SUpdateMapWithPathInBoat? {
+        override fun createResponse(message: CAddWaypointToItemPathFromBoat, ctx: NetworkEvent.Context, waypointList: ListTag): SUpdateMapWithPathInBoat? {
             return SUpdateMapWithPathInBoat(waypointList, message.boatID)
         }
 

@@ -1,14 +1,14 @@
 package org.jglrxavpok.moarboats.common.containers
 
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.inventory.container.ContainerType
-import net.minecraft.util.IntReferenceHolder
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.inventory.MenuType
+import net.minecraft.world.inventory.DataSlot
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergy
 
-class EnergyContainer(containerType: ContainerType<EnergyContainer>, containerID: Int, val te: TileEntityEnergy, val player: PlayerEntity): EmptyContainer(containerID, player.inventory, containerType = containerType) {
+class EnergyContainer(containerType: MenuType<EnergyContainer>, containerID: Int, val te: TileEntityEnergy, val player: Player): EmptyContainer(containerID, player.inventory, containerType = containerType) {
 
     private var energy = -1
-    private var energyHolder = object: IntReferenceHolder() {
+    private var energyHolder = object: DataSlot() {
 /*        override fun checkAndClearUpdateFlag(): Boolean {
             return energy != te.energy
         }*/
@@ -27,7 +27,7 @@ class EnergyContainer(containerType: ContainerType<EnergyContainer>, containerID
         this.addDataSlot(energyHolder)
     }
 
-    override fun removed(playerIn: PlayerEntity?) {
+    override fun removed(playerIn: Player?) {
         super.removed(playerIn)
         te.removeContainerListener(this)
     }

@@ -1,23 +1,26 @@
 package org.jglrxavpok.moarboats.client.renders
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.IRenderTypeBuffer
-import net.minecraft.util.math.vector.Quaternion
+import net.minecraft.client.renderer.MultiBufferSource
+import com.mojang.math.Quaternion
 import net.minecraft.client.renderer.RenderType
-import net.minecraft.util.math.vector.Vector3f
-import net.minecraft.client.renderer.entity.EntityRendererManager
-import net.minecraft.client.renderer.model.ItemCameraTransforms
+import com.mojang.math.Vector3f
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context
+import net.minecraft.client.renderer.block.model.ItemTransforms
 import net.minecraft.client.renderer.model.ModelResourceLocation
 import net.minecraft.client.renderer.texture.OverlayTexture
+import net.minecraft.client.resources.model.ModelResourceLocation
 import net.minecraft.item.FishingRodItem
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
-import net.minecraft.item.Items
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.ResourceLocation
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.registry.Registry
+import net.minecraft.world.item.FishingRodItem
 import net.minecraftforge.client.model.data.EmptyModelData
+import net.minecraftforge.registries.ForgeRegistries
 import net.minecraftforge.registries.GameData
 import net.minecraftforge.registries.RegistryManager
 import org.jglrxavpok.moarboats.MoarBoats
@@ -41,7 +44,7 @@ object FishingModuleRenderer : BoatModuleRenderer() {
 
     private val bobberRenderType = RenderType.entityCutoutNoCull(ResourceLocation("textures/entity/fishing_hook.png"))
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererManager) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererProvider.Context) {
         module as FishingModule
         val mc = Minecraft.getInstance()
         matrixStack.pushPose()
@@ -59,14 +62,14 @@ object FishingModuleRenderer : BoatModuleRenderer() {
         if(ready && hasRod && boat.inLiquid() && !boat.isEntityInLava()) {
             matrixStack.pushPose()
             matrixStack.scale(-1f, 1f, 1f)
-            mc.itemRenderer.render(rodStack, ItemCameraTransforms.TransformType.FIXED, false, matrixStack, buffers, packedLightIn, OverlayTexture.NO_OVERLAY, rodModel)
+            mc.itemRenderer.render(rodStack, ItemTransforms.TransformType.FIXED, false, matrixStack, buffers, packedLightIn, OverlayTexture.NO_OVERLAY, rodModel)
             matrixStack.popPose()
 
             if(!playingAnimation)
                 renderHook(matrixStack, buffers, packedLightIn, entityYaw, entityRendererManager)
         } else {
             val stackToRender = if(hasRod) rodStack else StickStack
-            mc.itemRenderer.renderStatic(stackToRender, ItemCameraTransforms.TransformType.FIXED, packedLightIn, OverlayTexture.NO_OVERLAY, matrixStack, buffers)
+            mc.itemRenderer.renderStatic(stackToRender, ItemTransforms.TransformType.FIXED, packedLightIn, OverlayTexture.NO_OVERLAY, matrixStack, buffers)
         }
         matrixStack.popPose()
 
@@ -91,18 +94,18 @@ object FishingModuleRenderer : BoatModuleRenderer() {
             val lootList = module.lastLootProperty[boat]
             matrixStack.mulPose(Quaternion(0f, boat.tickCount.toFloat()*4f, 0f, true))
             for(lootInfo in lootList) {
-                lootInfo as CompoundNBT
-                val item = RegistryManager.ACTIVE.getRegistry<Item>(Registry.ITEM_REGISTRY.registryName).getValue(ResourceLocation(lootInfo.getString("name")))
-                val stack = ItemStack(item!!, 1)
+                lootInfo as CompoundTag
+                val item = ForgeRegistries.ITEMS.getValue(ResourceLocation(lootInfo.getString("name")))
+                val stack = ItemStack(item!!)
                 stack.damageValue = lootInfo.getInt("damage")
-                mc.itemRenderer.renderStatic(stack, ItemCameraTransforms.TransformType.FIXED, packedLightIn, 0, matrixStack, buffers)
+                mc.itemRenderer.renderStatic(stack, ItemTransforms.TransformType.FIXED, packedLightIn, 0, matrixStack, buffers)
                 matrixStack.mulPose(Quaternion(0f, 360f / lootList.size, 0f, true))
             }
             matrixStack.popPose()
         }
     }
 
-    private fun renderHook(matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, entityYaw: Float, entityRendererManager: EntityRendererManager) {
+    private fun renderHook(matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, entityYaw: Float, entityRendererManager: EntityRendererProvider.Context) {
         val x = -0.40
         val y = -0.50
         val z = 0.0

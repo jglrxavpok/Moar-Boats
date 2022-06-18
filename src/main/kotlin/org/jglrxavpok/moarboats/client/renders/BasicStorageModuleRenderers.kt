@@ -1,8 +1,8 @@
 package org.jglrxavpok.moarboats.client.renders
 
-import net.minecraft.block.Blocks
-import net.minecraft.block.DispenserBlock
-import net.minecraft.block.DropperBlock
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.level.block.DispenserBlock
+import net.minecraft.world.level.block.DropperBlock
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.common.blocks.BlockBoatBattery
 import org.jglrxavpok.moarboats.common.modules.BatteryModule

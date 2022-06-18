@@ -1,16 +1,14 @@
 package org.jglrxavpok.moarboats.api
 
-import net.minecraft.dispenser.IBlockSource
-import net.minecraft.dispenser.IDispenseItemBehavior
-import net.minecraft.entity.Entity
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.Direction
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.MathHelper
-import net.minecraft.util.math.vector.Vector3d
-import net.minecraft.world.World
-import net.minecraft.world.server.ServerWorld
+import net.minecraft.core.BlockPos
+import net.minecraft.core.Direction
+import net.minecraft.core.dispenser.DispenseItemBehavior
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.util.Mth
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.Level
+import net.minecraft.world.phys.Vec3
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.modules.BlockReason
 import org.jglrxavpok.moarboats.common.state.BoatProperty
@@ -21,7 +19,7 @@ interface IControllable {
 
     val entityID: Int
     val modules: List<BoatModule>
-    val worldRef: World
+    val worldRef: Level
     val positionX: Double
     val positionY: Double
     val positionZ: Double
@@ -34,7 +32,7 @@ interface IControllable {
     val blockedReason: BlockReason
     val imposedSpeed: Float
 
-    val world: World get()= worldRef
+    val world: Level get()= worldRef
 
     fun inLiquid(): Boolean
     fun isEntityInLava(): Boolean
@@ -54,11 +52,11 @@ interface IControllable {
     /**
      * If 'isLocal' = true, then state will not be synchronised between client & server nor will it be saved to the disk
      */
-    fun getState(module: BoatModule, isLocal: Boolean = false): CompoundNBT
+    fun getState(module: BoatModule, isLocal: Boolean = false): CompoundTag
 
     fun getInventory(module: BoatModule): BoatModuleInventory
 
-    fun dispense(behavior: IDispenseItemBehavior, stack: ItemStack, overridePosition: BlockPos? = null, overrideFacing: Direction? = null): ItemStack
+    fun dispense(behavior: DispenseItemBehavior, stack: ItemStack, overridePosition: BlockPos? = null, overrideFacing: Direction? = null): ItemStack
 
     /**
      * Takes into account the rotation of the boat
@@ -71,18 +69,18 @@ interface IControllable {
     fun isSpeedImposed(): Boolean
     fun imposeSpeed(speed: Float)
 
-    fun calculateAnchorPosition(linkType: Int): Vector3d {
+    fun calculateAnchorPosition(linkType: Int): Vec3 {
         val distanceFromCenter = 0.0625f * 17f * if(linkType == BasicBoatEntity.FrontLink) 1f else -1f
-        val anchorX = positionX + MathHelper.cos((yaw + 90f).toRadians()) * distanceFromCenter
+        val anchorX = positionX + Mth.cos((yaw + 90f).toRadians()) * distanceFromCenter
         val anchorY = positionY + 0.0625f * 16f
-        val anchorZ = positionZ + MathHelper.sin((yaw + 90f).toRadians()) * distanceFromCenter
-        return Vector3d(anchorX, anchorY, anchorZ)
+        val anchorZ = positionZ + Mth.sin((yaw + 90f).toRadians()) * distanceFromCenter
+        return Vec3(anchorX, anchorY, anchorZ)
     }
 
     /**
      * Applies current yaw rotation to the vector
      */
-    fun localToWorld(localVec: Vector3d): Vector3d {
+    fun localToWorld(localVec: Vec3): Vec3 {
         return localVec.yRot((180f - yaw).toRadians()).add(positionX, positionY, positionZ)
     }
 

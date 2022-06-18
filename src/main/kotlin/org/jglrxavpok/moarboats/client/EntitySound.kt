@@ -1,12 +1,15 @@
 package org.jglrxavpok.moarboats.client
 
-import net.minecraft.client.audio.Sound
-import net.minecraft.client.audio.TickableSound
-import net.minecraft.entity.Entity
-import net.minecraft.util.SoundCategory
-import net.minecraft.util.SoundEvent
+import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance
+import net.minecraft.client.resources.sounds.SoundInstance
+import net.minecraft.sounds.SoundEvent
+import net.minecraft.sounds.SoundSource
+import net.minecraft.world.entity.Entity
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.api.distmarker.OnlyIn
 
-class EntitySound(soundEvent: SoundEvent, category: SoundCategory, volume: Float, val entity: Entity): TickableSound(soundEvent, category) {
+@OnlyIn(Dist.CLIENT)
+class EntitySound(soundEvent: SoundEvent, category: SoundSource, volume: Float, val entity: Entity): AbstractTickableSoundInstance(soundEvent, category, SoundInstance.createUnseededRandom()) {
 
     init {
         this.volume = volume

@@ -1,15 +1,15 @@
 package org.jglrxavpok.moarboats.client.gui
 
 import com.mojang.blaze3d.systems.RenderSystem
-import net.minecraft.client.gui.screen.Screen
-import net.minecraft.client.gui.widget.button.Button
+import net.minecraft.client.gui.components.Button
+import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.item.ItemStack
-import net.minecraft.item.Items
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.text.TranslationTextComponent
+import net.minecraft.network.chat.Component
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
 import net.minecraft.world.storage.MapData
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
@@ -25,7 +25,7 @@ import org.jglrxavpok.moarboats.common.network.CSaveItineraryToMap
 import org.jglrxavpok.moarboats.common.state.EmptyMapData
 import org.lwjgl.opengl.GL11
 
-class GuiHelmModule(containerID: Int, playerInventory: PlayerInventory, engine: BoatModule, boat: IControllable):
+class GuiHelmModule(containerID: Int, playerInventory: Inventory, engine: BoatModule, boat: IControllable):
         GuiModuleBase<ContainerHelmModule>(engine, boat, playerInventory, ContainerHelmModule(containerID, playerInventory, engine, boat), isLarge = true) {
 
     override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/helm.png")
@@ -34,8 +34,8 @@ class GuiHelmModule(containerID: Int, playerInventory: PlayerInventory, engine: 
     private val margins = 7.0
     private val mapSize = 100.0
     private val mapStack = ItemStack(Items.FILLED_MAP)
-    private val editButtonText = TranslationTextComponent("gui.helm.path_editor")
-    private val saveButtonText = TranslationTextComponent("moarboats.gui.helm.save_on_map")
+    private val editButtonText = Component.translatable("gui.helm.path_editor")
+    private val saveButtonText = Component.translatable("moarboats.gui.helm.save_on_map")
     private val mapEditButton = Button(0, 0, 150, 20, editButtonText) {
         val mapData = getMapData(baseContainer.getSlot(0).item)
         if(mapData != null && mapData != EmptyMapData) {
@@ -61,17 +61,17 @@ class GuiHelmModule(containerID: Int, playerInventory: PlayerInventory, engine: 
         mapEditButton.width = (xSize * .75).toInt() /2
         mapEditButton.x = guiLeft + xSize/2 - mapEditButton.width
         mapEditButton.y = guiTop + (mapSize + 7).toInt()
-        addButton(mapEditButton)
+        addWidget(mapEditButton)
 
         saveButton.width = (xSize*.75).toInt() /2
         saveButton.x = guiLeft + xSize/2
         saveButton.y = guiTop + (mapSize + 7).toInt()
-        addButton(saveButton)
+        addWidget(saveButton)
     }
 
     override fun drawModuleBackground(mouseX: Int, mouseY: Int) {
         super.drawModuleBackground(mouseX, mouseY)
-        this.mc.textureManager.bind(RES_MAP_BACKGROUND)
+        this.mc.textureManager.bindForSetup(RES_MAP_BACKGROUND)
         val tessellator = Tessellator.getInstance()
         val bufferbuilder = tessellator.builder
         val x = guiLeft + xSize/2f - mapSize/2
@@ -88,7 +88,7 @@ class GuiHelmModule(containerID: Int, playerInventory: PlayerInventory, engine: 
         getMapData(stack)?.let { mapdata ->
             val item = stack.item
             val (waypoints, loopingOption) = when(item) {
-                net.minecraft.item.Items.FILLED_MAP -> Pair(HelmModule.waypointsProperty[boat], HelmModule.loopingProperty[boat])
+                Items.FILLED_MAP -> Pair(HelmModule.waypointsProperty[boat], HelmModule.loopingProperty[boat])
                 is ItemPath -> Pair(item.getWaypointData(stack, MoarBoats.getLocalMapStorage()), item.getLoopingOptions(stack))
                 else -> return@let
             }

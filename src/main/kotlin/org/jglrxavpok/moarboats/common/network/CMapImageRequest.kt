@@ -1,13 +1,13 @@
 package org.jglrxavpok.moarboats.common.network
 
-import net.minecraft.block.material.MaterialColor
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
-import net.minecraft.world.chunk.ChunkStatus
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.Level
+import net.minecraft.world.level.chunk.ChunkStatus
+import net.minecraft.world.level.material.MaterialColor
 import net.minecraft.world.storage.MapData
 import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.fml.network.NetworkEvent
-import net.minecraftforge.fml.network.PacketDistributor
+import net.minecraftforge.network.NetworkEvent
+import net.minecraftforge.network.PacketDistributor
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.modules.HelmModule.StripeLength
 import kotlin.concurrent.thread
@@ -40,7 +40,7 @@ class CMapImageRequest(): MoarBoatsPacket {
             return null
         }
 
-        private fun takeScreenshotOfMapArea(stripeIndex: Int, mapData: MapData, world: World): IntArray {
+        private fun takeScreenshotOfMapArea(stripeIndex: Int, mapData: MapData, world: Level): IntArray {
             val xCenter = mapData.x
             val zCenter = mapData.z
             val size = (1 shl mapData.scale.toInt())*128
@@ -51,7 +51,7 @@ class CMapImageRequest(): MoarBoatsPacket {
             val maxX = xCenter+size/2-1
             val maxZ = minZ+ StripeLength -1
 
-            val blockPos = BlockPos.Mutable()
+            val blockPos = BlockPos.MutableBlockPos()
             for(z in minZ..maxZ) {
                 for(x in minX..maxX) {
                     val pixelX = x-minX
@@ -67,7 +67,7 @@ class CMapImageRequest(): MoarBoatsPacket {
                     val mapColor = if (j / 4 == 0) {
                         (i + i / 128 and 1) * 8 + 16 shl 24
                     } else {
-                        getMapColor(MaterialColor.MATERIAL_COLORS[j / 4], j and 3)
+                        getMapColor(MaterialColor.byId(j / 4), j and 3)
                     }
                     val chunk = try {
                         world.chunkSource.getChunk(chunkX, chunkZ, ChunkStatus.FULL, false)

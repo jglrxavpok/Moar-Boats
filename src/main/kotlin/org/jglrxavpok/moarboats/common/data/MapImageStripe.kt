@@ -1,6 +1,6 @@
 package org.jglrxavpok.moarboats.common.data
 
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.storage.WorldSavedData
 
 class MapImageStripe(val stripeID: String): WorldSavedData(stripeID) {
@@ -13,13 +13,13 @@ class MapImageStripe(val stripeID: String): WorldSavedData(stripeID) {
         this.textureStripe = textureStripe
     }
 
-    override fun save(compound: CompoundNBT): CompoundNBT {
+    override fun save(compound: CompoundTag): CompoundTag {
         compound.putInt("index", index)
         compound.putIntArray("stripe", textureStripe)
         return compound
     }
 
-    override fun load(nbt: CompoundNBT) {
+    override fun load(nbt: CompoundTag) {
         index = nbt.getInt("index")
         textureStripe = nbt.getIntArray("stripe")
     }

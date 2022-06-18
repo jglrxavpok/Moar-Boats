@@ -1,25 +1,26 @@
 package org.jglrxavpok.moarboats.common.blocks
 
-import net.minecraft.block.*
-import net.minecraft.block.material.Material
-import net.minecraft.block.BlockState
-import net.minecraft.entity.LivingEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.loot.LootContext
-import net.minecraft.state.StateContainer
+import net.minecraft.core.BlockPos
+import net.minecraft.core.Direction
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.tags.FluidTags
-import net.minecraft.util.Direction
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.AxisAlignedBB
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.MathHelper
-import net.minecraft.util.math.shapes.ISelectionContext
-import net.minecraft.util.math.shapes.VoxelShape
-import net.minecraft.util.math.shapes.VoxelShapes
-import net.minecraft.world.IBlockReader
-import net.minecraft.world.IWorldReader
-import net.minecraft.world.World
-import net.minecraft.world.server.ServerWorld
+import net.minecraft.util.Mth
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.BlockGetter
+import net.minecraft.world.level.Level
+import net.minecraft.world.level.LevelReader
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.DiodeBlock
+import net.minecraft.world.level.block.SoundType
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.state.StateDefinition
+import net.minecraft.world.level.block.state.properties.BlockStateProperties
+import net.minecraft.world.level.material.Material
+import net.minecraft.world.level.storage.loot.LootContext
+import net.minecraft.world.phys.AABB
+import net.minecraft.world.phys.shapes.CollisionContext
 import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.IItemHandler
 import org.jglrxavpok.moarboats.MoarBoats
@@ -27,23 +28,23 @@ import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.items.CargoStopperItem
 import java.util.*
 
-object BlockCargoStopper: RedstoneDiodeBlock(Properties.of(Material.DECORATION).noOcclusion().randomTicks().strength(0f).sound(SoundType.WOOD)) {
+object BlockCargoStopper: DiodeBlock(Properties.of(Material.DECORATION).noOcclusion().randomTicks().strength(0f).sound(SoundType.WOOD)) {
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "cargo_stopper")
-        this.registerDefaultState(this.defaultBlockState().setValue(HorizontalBlock.FACING, Direction.NORTH).setValue(POWERED, false))
+        this.registerDefaultState(this.defaultBlockState().setValue(BlockStateProperties.FACING, Direction.NORTH).setValue(POWERED, false))
     }
 
     override fun isRandomlyTicking(state: BlockState) = true
 
-    override fun canConnectRedstone(state: BlockState?, world: IBlockReader?, pos: BlockPos?, side: Direction?): Boolean {
+    override fun canConnectRedstone(state: BlockState?, world: BlockGetter?, pos: BlockPos?, side: Direction?): Boolean {
         return side != null && side != Direction.DOWN && side != Direction.UP
     }
 
-    override fun getCollisionShape(state: BlockState, worldIn: IBlockReader, pos: BlockPos, context: ISelectionContext): VoxelShape {
+    override fun getCollisionShape(state: BlockState, worldIn: BlockGetter, pos: BlockPos, context: CollisionContext): VoxelShape {
         return VoxelShapes.empty()
     }
 
-    override fun canSurvive(state: BlockState, worldIn: IWorldReader, pos: BlockPos): Boolean {
+    override fun canSurvive(state: BlockState, worldIn: LevelReader, pos: BlockPos): Boolean {
         return worldIn.getFluidState(pos.below()).`is`(FluidTags.WATER)
     }
 
@@ -51,10 +52,10 @@ object BlockCargoStopper: RedstoneDiodeBlock(Properties.of(Material.DECORATION).
         return 0
     }
 
-    override fun getDirectSignal(state: BlockState, blockAccess: IBlockReader, pos: BlockPos, side: Direction): Int {
-        if(blockAccess is World) {
+    override fun getDirectSignal(state: BlockState, blockAccess: BlockGetter, pos: BlockPos, side: Direction): Int {
+        if(blockAccess is Level) {
             val world = blockAccess
-            val aabb = AxisAlignedBB(pos.relative(state.getValue(HorizontalBlock.FACING)))
+            val aabb = AABB(pos.relative(state.getValue(BlockStateProperties.FACING)))
             val entities = world.getEntitiesOfClass(BasicBoatEntity::class.java, aabb) { e -> e != null && e.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).isPresent }
             val first = entities.firstOrNull()
             return first?.let {
@@ -64,11 +65,11 @@ object BlockCargoStopper: RedstoneDiodeBlock(Properties.of(Material.DECORATION).
         return 0
     }
 
-    override fun tick(state: BlockState, worldIn: ServerWorld, pos: BlockPos, rand: Random) {
+    override fun tick(state: BlockState, worldIn: ServerLevel, pos: BlockPos, rand: Random) {
         val produceSignal = shouldTurnOn(worldIn, pos, state)
         when {
-            produceSignal && !state.getValue(POWERED) -> worldIn.setBlockAndUpdate(pos, state.setValue(POWERED, true).setValue(HorizontalBlock.FACING, state.getValue(HorizontalBlock.FACING)))
-            !produceSignal && state.getValue(POWERED) -> worldIn.setBlockAndUpdate(pos, state.setValue(POWERED, false).setValue(HorizontalBlock.FACING, state.getValue(HorizontalBlock.FACING)))
+            produceSignal && !state.getValue(POWERED) -> worldIn.setBlockAndUpdate(pos, state.setValue(POWERED, true).setValue(BlockStateProperties.FACING, state.getValue(BlockStateProperties.FACING)))
+            !produceSignal && state.getValue(POWERED) -> worldIn.setBlockAndUpdate(pos, state.setValue(POWERED, false).setValue(BlockStateProperties.FACING, state.getValue(BlockStateProperties.FACING)))
         }
         worldIn.blockTicks.scheduleTick(pos, this, 2)
         checkTickOnNeighbor(worldIn, pos, state)
@@ -91,15 +92,15 @@ object BlockCargoStopper: RedstoneDiodeBlock(Properties.of(Material.DECORATION).
             }
 
             f /= inv.slots.toFloat()
-            return MathHelper.floor(f * 14.0f) + if (i > 0) 1 else 0
+            return Mth.floor(f * 14.0f) + if (i > 0) 1 else 0
         }
     }
 
-    override fun createBlockStateDefinition(builder: StateContainer.Builder<Block, BlockState>) {
-        builder.add(HorizontalBlock.FACING, POWERED)
+    override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block, BlockState>) {
+        builder.add(BlockStateProperties.FACING, POWERED)
     }
 
-    override fun onRemove(state: BlockState, worldIn: World, pos: BlockPos, newState: BlockState, isMoving: Boolean) {
+    override fun onRemove(state: BlockState, worldIn: Level, pos: BlockPos, newState: BlockState, isMoving: Boolean) {
         super.onRemove(state, worldIn, pos, newState, isMoving)
         this.checkTickOnNeighbor(worldIn, pos, state)
     }
@@ -107,23 +108,23 @@ object BlockCargoStopper: RedstoneDiodeBlock(Properties.of(Material.DECORATION).
     /**
      * Called by BlockItems after a block is set in the world, to allow post-place logic
      */
-    override fun setPlacedBy(worldIn: World, pos: BlockPos, state: BlockState, placer: LivingEntity?, stack: ItemStack) {
+    override fun setPlacedBy(worldIn: Level, pos: BlockPos, state: BlockState, placer: LivingEntity?, stack: ItemStack) {
         super.setPlacedBy(worldIn, pos, state, placer, stack)
         //worldIn.pendingBlockTicks.scheduleTick(pos, this, 2)
         this.checkTickOnNeighbor(worldIn, pos, state)
     }
 
-    override fun shouldTurnOn(worldIn: World, pos: BlockPos, state: BlockState): Boolean {
-        return getDirectSignal(state, worldIn, pos, state.getValue(HorizontalBlock.FACING)) > 0
+    override fun shouldTurnOn(worldIn: Level, pos: BlockPos, state: BlockState): Boolean {
+        return getDirectSignal(state, worldIn, pos, state.getValue(BlockStateProperties.FACING)) > 0
     }
 
     override fun getDrops(state: BlockState, builder: LootContext.Builder): MutableList<ItemStack> {
         return mutableListOf(ItemStack(CargoStopperItem, 1))
     }
 
-    override fun getCloneItemStack(worldIn: IBlockReader, pos: BlockPos, state: BlockState) = ItemStack(CargoStopperItem, 1)
+    override fun getCloneItemStack(worldIn: BlockGetter, pos: BlockPos, state: BlockState) = ItemStack(CargoStopperItem, 1)
 
-    override fun getWeakChanges(state: BlockState?, world: IWorldReader?, pos: BlockPos?): Boolean {
+    override fun getWeakChanges(state: BlockState?, world: LevelReader?, pos: BlockPos?): Boolean {
         return true
     }
 

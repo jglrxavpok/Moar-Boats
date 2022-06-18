@@ -1,17 +1,17 @@
 package org.jglrxavpok.moarboats.common.data
 
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.nbt.ListNBT
-import net.minecraft.util.math.ChunkPos
-import net.minecraft.world.World
-import net.minecraftforge.common.util.Constants
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.ListTag
+import net.minecraft.nbt.Tag
+import net.minecraft.world.level.ChunkPos
+import net.minecraft.world.level.Level
 
 private typealias ChunkCompactPosition = Long
 
 /**
  * Responsible for holding a set of forced-loaded chunks. Ensures chunk forced through this object are unforced 10 seconds after
  */
-class ForcedChunks(val world: World) {
+class ForcedChunks(val world: Level) {
 
     /**
      * A forced chunk with its last-updated timestamp
@@ -32,8 +32,8 @@ class ForcedChunks(val world: World) {
         val chunk = chunks.getOrPut(position) { ForcedChunk(position) }
         chunk.resetTimestamp()
         val dimensiontype = world.dimension()
-        val serverworld = world.server!!.getLevel(dimensiontype) ?: error("Server world is null?? Dimension is $dimensiontype")
-        serverworld.setChunkForced(ChunkPos.getX(position), ChunkPos.getZ(position), true)
+        val ServerLevel = world.server!!.getLevel(dimensiontype) ?: error("Server world is null?? Dimension is $dimensiontype")
+        ServerLevel.setChunkForced(ChunkPos.getX(position), ChunkPos.getZ(position), true)
     }
 
     fun forceAfterWorldLoad() {
@@ -67,11 +67,11 @@ class ForcedChunks(val world: World) {
         chunks.clear()
     }
 
-    fun write(tag: CompoundNBT): CompoundNBT {
-        val list = ListNBT()
+    fun write(tag: CompoundTag): CompoundTag {
+        val list = ListTag()
         val now = System.currentTimeMillis()
         chunks.forEach { (position, chunk) ->
-            val chunkInfo = CompoundNBT()
+            val chunkInfo = CompoundTag()
             chunkInfo.putLong("chunkCompactPosition", position)
             chunkInfo.putLong("delta", now-chunk.timestamp)
             list.add(chunkInfo)
@@ -80,11 +80,11 @@ class ForcedChunks(val world: World) {
         return tag
     }
 
-    fun read(tag: CompoundNBT) {
-        val list = tag.getList("list", Constants.NBT.TAG_COMPOUND)
+    fun read(tag: CompoundTag) {
+        val list = tag.getList("list", Tag.TAG_COMPOUND.toInt())
         val now = System.currentTimeMillis()
         list.forEach {
-            it as CompoundNBT
+            it as CompoundTag
             val delta = it.getLong("delta")
             val timestamp = now+delta
             val position = it.getLong("chunkCompactPosition")
@@ -94,12 +94,12 @@ class ForcedChunks(val world: World) {
 
     private fun unforce(positions: Iterable<ChunkCompactPosition>) {
         val dimensiontype = world.dimension()
-        val serverworld = world.server!!.getLevel(dimensiontype) ?: error("Server world is null?? Dimension is $dimensiontype")
+        val ServerLevel = world.server!!.getLevel(dimensiontype) ?: error("Server world is null?? Dimension is $dimensiontype")
 
         positions.forEach {
             val x = ChunkPos.getX(it)
             val z = ChunkPos.getZ(it)
-            serverworld.setChunkForced(x, z, false)
+            ServerLevel.setChunkForced(x, z, false)
         }
     }
 }

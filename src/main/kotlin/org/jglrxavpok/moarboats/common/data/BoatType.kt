@@ -1,14 +1,13 @@
 package org.jglrxavpok.moarboats.common.data
 
 import net.minecraft.client.renderer.entity.BoatRenderer
-import net.minecraft.entity.item.BoatEntity
-import net.minecraft.item.BoatItem
-import net.minecraft.item.Item
-import net.minecraft.item.Items
-import net.minecraft.util.ResourceLocation
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.entity.vehicle.Boat
+import net.minecraft.world.item.BoatItem
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.Items
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper
 import net.minecraftforge.registries.ForgeRegistries
-import net.minecraftforge.registries.GameData
 import org.jglrxavpok.moarboats.MoarBoats
 
 interface BoatType {
@@ -16,7 +15,7 @@ interface BoatType {
     companion object {
         private val boatTypes = mutableListOf<BoatType>()
 
-        val OAK = createFromVanilla(Items.OAK_BOAT, BoatEntity.Type.OAK)
+        val OAK = createFromVanilla(Items.OAK_BOAT, Boat.Type.OAK)
 
         fun values(): List<BoatType> {
             return boatTypes
@@ -29,7 +28,7 @@ interface BoatType {
             val typeField = ObfuscationReflectionHelper.findField(BoatItem::class.java, "field_185057_a")
             for(boatItem in ForgeRegistries.ITEMS.values) {
                 if(boatItem is BoatItem) {
-                    val boatType = createFromVanilla(boatItem, typeField[boatItem] as BoatEntity.Type)
+                    val boatType = createFromVanilla(boatItem, typeField[boatItem] as Boat.Type)
                     registerBoatType(boatType)
                 }
             }
@@ -39,10 +38,12 @@ interface BoatType {
             return values().first { it.getFullName() == name }
         }
 
+        // TODO: server compatible?
+        // TODO: access transformer
         // load from BoatRenderer in case the class is modified for modded wood types
         private val textures: Array<ResourceLocation> by lazy { ObfuscationReflectionHelper.findField(BoatRenderer::class.java, "field_110782_f").get(null) as Array<ResourceLocation> }
 
-        fun createFromVanilla(baseItem: Item, type: BoatEntity.Type): BoatType = object : BoatType {
+        fun createFromVanilla(baseItem: Item, type: Boat.Type): BoatType = object : BoatType {
             override fun getFullName(): String {
                 return "minecraft_${type.getName()}"
             }

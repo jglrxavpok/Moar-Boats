@@ -1,6 +1,6 @@
 package org.jglrxavpok.moarboats.client
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import org.lwjgl.opengl.GL11
@@ -8,7 +8,7 @@ import org.lwjgl.opengl.GL11
 /**
  * Draw a rectangle with the given texture, with customizable texture dimensions
  */
-fun drawModalRectWithCustomSizedTexture(matrixStack: MatrixStack, x: Int, y: Int, startX: Float, startY: Float, width: Int, height: Int, texWidth: Int, texHeight: Int) {
+fun drawModalRectWithCustomSizedTexture(matrixStack: PoseStack, x: Int, y: Int, startX: Float, startY: Float, width: Int, height: Int, texWidth: Int, texHeight: Int) {
     val tess = Tessellator.getInstance()
     val buffer = tess.builder
     val minU = startX / texWidth.toDouble()

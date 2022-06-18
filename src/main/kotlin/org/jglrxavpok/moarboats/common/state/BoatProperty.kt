@@ -1,18 +1,18 @@
 package org.jglrxavpok.moarboats.common.state
 
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.nbt.ListNBT
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
-import net.minecraft.world.storage.MapData
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.ListTag
+import net.minecraft.core.BlockPos
+import net.minecraft.core.BlockPos.MutableBlockPos
+import net.minecraft.world.level.Level
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 
 abstract class BoatProperty<Type>(val module: BoatModule, val id: String) {
 
     abstract val type: Class<out Type>
-    abstract val readProperty: CompoundNBT.(String) -> Type
-    abstract val writeProperty: CompoundNBT.(String, Type) -> Unit
+    abstract val readProperty: CompoundTag.(String) -> Type
+    abstract val writeProperty: CompoundTag.(String, Type) -> Unit
 
     var isLocal = false
         private set
@@ -29,59 +29,59 @@ abstract class BoatProperty<Type>(val module: BoatModule, val id: String) {
 
 class BooleanBoatProperty(module: BoatModule, id: String): BoatProperty<Boolean>(module, id) {
     override val type = java.lang.Boolean.TYPE
-    override val readProperty = CompoundNBT::getBoolean
-    override val writeProperty = CompoundNBT::putBoolean
+    override val readProperty = CompoundTag::getBoolean
+    override val writeProperty = CompoundTag::putBoolean
 }
 
 class DoubleBoatProperty(module: BoatModule, id: String): BoatProperty<Double>(module, id) {
     override val type = java.lang.Double.TYPE
-    override val readProperty = CompoundNBT::getDouble
-    override val writeProperty = CompoundNBT::putDouble
+    override val readProperty = CompoundTag::getDouble
+    override val writeProperty = CompoundTag::putDouble
 }
 
 class FloatBoatProperty(module: BoatModule, id: String): BoatProperty<Float>(module, id) {
     override val type = java.lang.Float.TYPE
-    override val readProperty = CompoundNBT::getFloat
-    override val writeProperty = CompoundNBT::putFloat
+    override val readProperty = CompoundTag::getFloat
+    override val writeProperty = CompoundTag::putFloat
 }
 
 class IntBoatProperty(module: BoatModule, id: String): BoatProperty<Int>(module, id) {
     override val type = java.lang.Integer.TYPE
-    override val readProperty = CompoundNBT::getInt
-    override val writeProperty = CompoundNBT::putInt
+    override val readProperty = CompoundTag::getInt
+    override val writeProperty = CompoundTag::putInt
 }
 
 class StringBoatProperty(module: BoatModule, id: String): BoatProperty<String>(module, id) {
     override val type = String::class.java
-    override val readProperty = { compound: CompoundNBT, id: String -> compound.getString(id) }
-    override val writeProperty = CompoundNBT::putString
+    override val readProperty = { compound: CompoundTag, id: String -> compound.getString(id) }
+    override val writeProperty = CompoundTag::putString
 }
 
-class NBTListBoatProperty(module: BoatModule, id: String, val elementType: Int): BoatProperty<ListNBT>(module, id) {
-    override val type = ListNBT::class.java
+class NBTListBoatProperty(module: BoatModule, id: String, val elementType: Int): BoatProperty<ListTag>(module, id) {
+    override val type = ListTag::class.java
 
-    override val readProperty: CompoundNBT.(String) -> ListNBT = { id -> this.getList(id, elementType) }
-    override val writeProperty: CompoundNBT.(String, ListNBT) -> Unit = { id, list -> this.put(id, list) }
+    override val readProperty: CompoundTag.(String) -> ListTag = { id -> this.getList(id, elementType) }
+    override val writeProperty: CompoundTag.(String, ListTag) -> Unit = { id, list -> this.put(id, list) }
 }
 
 class ArrayBoatProperty<T: Any>(module: BoatModule, id: String, val array: Array<T>): BoatProperty<T>(module, id) {
     override val type = array[0].javaClass
-    override val readProperty: CompoundNBT.(String) -> T = { id -> array[this.getInt(id)] }
-    override val writeProperty: CompoundNBT.(String, T) -> Unit = { id, value -> putInt(id, array.indexOf(value))}
+    override val readProperty: CompoundTag.(String) -> T = { id -> array[this.getInt(id)] }
+    override val writeProperty: CompoundTag.(String, T) -> Unit = { id, value -> putInt(id, array.indexOf(value))}
 }
 
 /**
  * Please release the positions after using them
  */
-class BlockPosProperty(module: BoatModule, id: String): BoatProperty<BlockPos.Mutable>(module, id) {
-    private val pos = BlockPos.Mutable()
+class BlockPosProperty(module: BoatModule, id: String): BoatProperty<MutableBlockPos>(module, id) {
+    private val pos = MutableBlockPos()
 
-    override val type: Class<out BlockPos.Mutable> = BlockPos.Mutable::class.java
-    override val readProperty: CompoundNBT.(String) -> BlockPos.Mutable = { id ->
+    override val type: Class<out MutableBlockPos> = MutableBlockPos::class.java
+    override val readProperty: CompoundTag.(String) -> MutableBlockPos = { id ->
         pos.set(this.getInt(id+"_X"), this.getInt(id+"_Y"), this.getInt(id+"_Z"))
         pos
     }
-    override val writeProperty: CompoundNBT.(String, BlockPos.Mutable) -> Unit = { id, pos ->
+    override val writeProperty: CompoundTag.(String, MutableBlockPos) -> Unit = { id, pos ->
         this.putInt(id+"_X", pos.x)
         this.putInt(id+"_Y", pos.y)
         this.putInt(id+"_Z", pos.z)
@@ -90,14 +90,14 @@ class BlockPosProperty(module: BoatModule, id: String): BoatProperty<BlockPos.Mu
 
 object EmptyMapData : MapData("empty") {
     init {
-        this.dimension = World.OVERWORLD
+        this.dimension = Level.OVERWORLD
     }
 }
 
 class MapDataProperty(module: BoatModule, id: String): BoatProperty<MapData>(module, id) {
     override val type = MapData::class.java
 
-    override val readProperty: CompoundNBT.(String) -> MapData = { id ->
+    override val readProperty: CompoundTag.(String) -> MapData = { id ->
         if(!this.contains("mapData"))
             EmptyMapData
         else {
@@ -107,9 +107,9 @@ class MapDataProperty(module: BoatModule, id: String): BoatProperty<MapData>(mod
         }
     }
 
-    override val writeProperty: CompoundNBT.(String, MapData) -> Unit = { id, mapData ->
+    override val writeProperty: CompoundTag.(String, MapData) -> Unit = { id, mapData ->
         putString("mapName", mapData.id)
-        val mapDataNBT = mapData.save(CompoundNBT())
+        val mapDataNBT = mapData.save(CompoundTag())
         put("mapData", mapDataNBT)
     }
 }

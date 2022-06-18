@@ -1,8 +1,8 @@
 package org.jglrxavpok.moarboats.client.renders
 
-import net.minecraft.block.Blocks
-import net.minecraft.block.DaylightDetectorBlock
-import net.minecraft.block.FurnaceBlock
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.level.block.DaylightDetectorBlock
+import net.minecraft.world.level.block.FurnaceBlock
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.common.modules.CreativeEngineModule
 import org.jglrxavpok.moarboats.common.modules.FurnaceEngineModule

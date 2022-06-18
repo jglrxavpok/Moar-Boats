@@ -1,27 +1,25 @@
 package org.jglrxavpok.moarboats.common.items
 
-import net.minecraft.inventory.CraftingInventory
-import net.minecraft.inventory.IInventory
-import net.minecraft.item.ItemStack
-import net.minecraft.item.crafting.ICraftingRecipe
-import net.minecraft.item.crafting.IRecipe
-import net.minecraft.item.crafting.IRecipeSerializer
-import net.minecraft.item.crafting.IRecipeType
-import net.minecraft.util.ResourceLocation
-import net.minecraft.world.World
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.inventory.CraftingContainer
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.crafting.CraftingRecipe
+import net.minecraft.world.item.crafting.RecipeSerializer
+import net.minecraft.world.item.crafting.RecipeType
+import net.minecraft.world.level.Level
 import org.jglrxavpok.moarboats.MoarBoats
 import java.util.*
 
-object UpgradeToGoldenTicketRecipe: ICraftingRecipe {
-    override fun getType(): IRecipeType<*> {
-        return IRecipeType.CRAFTING
+object UpgradeToGoldenTicketRecipe: CraftingRecipe {
+    override fun getType(): RecipeType<*> {
+        return RecipeType.CRAFTING
     }
 
     override fun getId(): ResourceLocation {
         return ResourceLocation(MoarBoats.ModID, "upgrade_to_golden_itinerary")
     }
 
-    override fun getSerializer(): IRecipeSerializer<*> {
+    override fun getSerializer(): RecipeSerializer<*> {
         return MBRecipeSerializers.UpgradeToGoldenTicket
     }
 
@@ -31,7 +29,7 @@ object UpgradeToGoldenTicketRecipe: ICraftingRecipe {
 
     override fun getResultItem() = ItemStack.EMPTY
 
-    override fun assemble(inv: CraftingInventory): ItemStack {
+    override fun assemble(inv: CraftingContainer): ItemStack {
         var emptyTickets = 0
         var fullMaps = 0
         var fullMap: ItemStack? = null
@@ -58,7 +56,7 @@ object UpgradeToGoldenTicketRecipe: ICraftingRecipe {
         return ItemStack.EMPTY
     }
 
-    override fun matches(inv: CraftingInventory, levelIn: World?): Boolean {
+    override fun matches(inv: CraftingContainer, levelIn: Level?): Boolean {
         var emptyTickets = 0
         var fullMaps = 0
         for(i in 0 until inv.containerSize) {

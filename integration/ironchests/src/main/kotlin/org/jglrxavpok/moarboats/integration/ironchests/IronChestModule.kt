@@ -2,11 +2,11 @@ package org.jglrxavpok.moarboats.integration.ironchests
 
 import com.progwml6.ironchest.IronChests
 import com.progwml6.ironchest.common.block.IronChestsTypes
-import net.minecraft.block.Blocks
-import net.minecraft.client.gui.screen.Screen
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.util.Hand
-import net.minecraft.util.ResourceLocation
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.client.gui.screens.Screen
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.InteractionHand
+import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.registries.ForgeRegistries
 import net.minecraftforge.registries.ForgeRegistry
 import org.jglrxavpok.moarboats.api.BoatModule
@@ -19,7 +19,7 @@ class IronChestModule(val chestType: IronChestsTypes) : BoatModule() {
     override val usesInventory = true
     override val moduleSpot = Spot.Storage
 
-    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean) = false
+    override fun onInteract(from: IControllable, player: Player, hand: InteractionHand, sneaking: Boolean) = false
 
     override fun controlBoat(from: IControllable) {}
 
@@ -27,11 +27,11 @@ class IronChestModule(val chestType: IronChestsTypes) : BoatModule() {
 
     override fun onAddition(to: IControllable) {}
 
-    override fun createContainer(containerID: Int, player: PlayerEntity, boat: IControllable): ContainerBoatModule<*>? {
+    override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? {
         return ContainerIronChestModule(containerID, player.inventory, this, boat, chestType)
     }
 
-    override fun createGui(containerID: Int, player: PlayerEntity, boat: IControllable): Screen {
+    override fun createGui(containerID: Int, player: Player, boat: IControllable): Screen {
         return GuiIronChestModule(containerID, player.inventory, this, boat, chestType)
     }
 

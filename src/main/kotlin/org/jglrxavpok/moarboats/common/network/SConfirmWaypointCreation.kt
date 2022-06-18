@@ -1,20 +1,16 @@
 package org.jglrxavpok.moarboats.common.network
 
-import io.netty.buffer.ByteBuf
 import net.minecraft.client.Minecraft
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.nbt.ListNBT
+import net.minecraft.nbt.ListTag
 import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.common.util.Constants
-import net.minecraftforge.fml.common.network.ByteBufUtils
-import net.minecraftforge.fml.network.NetworkEvent
+import net.minecraftforge.network.NetworkEvent
 import org.jglrxavpok.moarboats.client.gui.GuiMappingTable
 
 class SConfirmWaypointCreation(): MoarBoatsPacket {
 
-    private lateinit var data: ListNBT
+    private lateinit var data: ListTag
 
-    constructor(data: ListNBT): this() {
+    constructor(data: ListTag): this() {
         this.data = data
     }
 

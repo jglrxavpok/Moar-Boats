@@ -1,11 +1,10 @@
 package org.jglrxavpok.moarboats.common.containers
 
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.container.ContainerType
-import net.minecraft.item.Items
-import net.minecraft.inventory.container.IContainerListener
-import net.minecraft.item.ItemStack
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.inventory.MenuType
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.jglrxavpok.moarboats.api.BoatModule
@@ -14,7 +13,7 @@ import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import org.jglrxavpok.moarboats.common.items.MapItemWithPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 
-class ContainerHelmModule(containerID: Int, playerInventory: PlayerInventory, helm: BoatModule, boat: IControllable): ContainerBoatModule<ContainerHelmModule>(HelmModule.containerType as ContainerType<ContainerHelmModule>, containerID, playerInventory, helm, boat) {
+class ContainerHelmModule(containerID: Int, playerInventory: Inventory, helm: BoatModule, boat: IControllable): ContainerBoatModule<ContainerHelmModule>(HelmModule.containerType as MenuType<ContainerHelmModule>, containerID, playerInventory, helm, boat) {
 
     val helmInventory = boat.getInventory(helm)
 
@@ -30,7 +29,7 @@ class ContainerHelmModule(containerID: Int, playerInventory: PlayerInventory, he
         this.helmInventory.setField(id, data)
     }
 
-    override fun quickMoveStack(playerIn: PlayerEntity, index: Int): ItemStack {
+    override fun quickMoveStack(playerIn: Player, index: Int): ItemStack {
         var itemstack = ItemStack.EMPTY
         val slot = this.slots[index]
 

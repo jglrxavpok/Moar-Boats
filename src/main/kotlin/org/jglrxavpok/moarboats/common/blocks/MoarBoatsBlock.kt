@@ -1,13 +1,13 @@
 package org.jglrxavpok.moarboats.common.blocks
 
-import net.minecraft.block.Block
-import net.minecraft.block.material.MaterialColor
-import net.minecraft.item.ItemGroup
+import net.minecraft.world.item.CreativeModeTab
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.material.MaterialColor
 import org.jglrxavpok.moarboats.MoarBoats
 
 abstract class MoarBoatsBlock(properties: Properties): Block(properties) {
 
-    open val itemGroup: ItemGroup = MoarBoats.MainCreativeTab
+    open val itemGroup: CreativeModeTab = MoarBoats.MainCreativeTab
 
     constructor(): this(Properties.of(MoarBoats.MachineMaterial, MaterialColor.METAL).strength(0.5f, 10.5f))
 

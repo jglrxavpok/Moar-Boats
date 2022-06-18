@@ -2,8 +2,8 @@ package org.jglrxavpok.moarboats.common
 
 import net.minecraft.entity.EntityClassification
 import net.minecraft.entity.EntityType
-import net.minecraft.util.ResourceLocation
-import net.minecraft.world.World
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.level.Level
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.entities.AnimalBoatEntity
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
@@ -60,7 +60,7 @@ object EntityEntries {
     val list = listOf(ModularBoat, AnimalBoat, FurnaceBoat, SmokerBoat, BlastFurnaceBoat,
             CraftingTableBoat, GrindstoneBoat, LoomBoat, CartographyTableBoat, StonecutterBoat, ChestBoat, EnderChestBoat, ShulkerBoat, JukeboxBoat)
 
-    private inline fun <reified T: UtilityBoatEntity<*,*>> utilityBoatEntry(id: String, crossinline constructor: (World) -> T) = EntityType.Builder.of({ type: EntityType<T>, world -> constructor(world) }, EntityClassification.MISC)
+    private inline fun <reified T: UtilityBoatEntity<*,*>> utilityBoatEntry(id: String, crossinline constructor: (Level) -> T) = EntityType.Builder.of({ type: EntityType<T>, world -> constructor(world) }, EntityClassification.MISC)
             .setTrackingRange(64)
             .fireImmune()
             .sized(1.375f, 0.5625f)

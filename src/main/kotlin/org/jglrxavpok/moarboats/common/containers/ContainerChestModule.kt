@@ -1,17 +1,17 @@
 package org.jglrxavpok.moarboats.common.containers
 
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.container.ContainerType
-import net.minecraft.inventory.container.Slot
-import net.minecraft.item.ItemStack
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.inventory.MenuType
+import net.minecraft.world.inventory.Slot
+import net.minecraft.world.item.ItemStack
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.modules.ChestModule
 
-class ContainerChestModule(containerID: Int, playerInventory: PlayerInventory, engine: BoatModule, boat: IControllable): ContainerBoatModule<ContainerChestModule>(ChestModule.containerType as ContainerType<ContainerChestModule>, containerID, playerInventory, engine, boat) {
+class ContainerChestModule(containerID: Int, playerInventory: Inventory, engine: BoatModule, boat: IControllable): ContainerBoatModule<ContainerChestModule>(ChestModule.containerType as MenuType<ContainerChestModule>, containerID, playerInventory, engine, boat) {
 
     val chestInventory = boat.getInventory(engine)
 
@@ -32,7 +32,7 @@ class ContainerChestModule(containerID: Int, playerInventory: PlayerInventory, e
         this.chestInventory.setField(id, data)
     }
 
-    override fun quickMoveStack(playerIn: PlayerEntity, index: Int): ItemStack {
+    override fun quickMoveStack(playerIn: Player, index: Int): ItemStack {
         var itemstack = ItemStack.EMPTY
         val slot = this.slots[index]
 

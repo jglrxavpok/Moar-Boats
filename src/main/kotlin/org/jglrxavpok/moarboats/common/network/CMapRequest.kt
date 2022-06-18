@@ -1,10 +1,8 @@
 package org.jglrxavpok.moarboats.common.network
 
-import net.minecraft.item.FilledMapItem
-import net.minecraft.item.MapItem
-import net.minecraft.util.ResourceLocation
+import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.fml.network.NetworkEvent
+import net.minecraftforge.network.NetworkEvent
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.common.modules.HelmModule

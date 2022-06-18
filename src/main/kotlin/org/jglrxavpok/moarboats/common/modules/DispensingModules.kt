@@ -1,20 +1,19 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.block.DispenserBlock
-import net.minecraft.client.gui.screen.Screen
-import net.minecraft.dispenser.DefaultDispenseItemBehavior
-import net.minecraft.dispenser.IDispenseItemBehavior
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.BlockItem
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.Direction
-import net.minecraft.util.Hand
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper
+import net.minecraft.client.gui.screens.Screen
+import net.minecraft.core.BlockPos
+import net.minecraft.core.Direction
+import net.minecraft.core.dispenser.DefaultDispenseItemBehavior
+import net.minecraft.core.dispenser.DispenseItemBehavior
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.BlockItem
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.DispenserBlock
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
@@ -27,12 +26,12 @@ import org.jglrxavpok.moarboats.common.state.ArrayBoatProperty
 import org.jglrxavpok.moarboats.common.state.BlockPosProperty
 import org.jglrxavpok.moarboats.common.state.DoubleBoatProperty
 import org.jglrxavpok.moarboats.extensions.Fluids
-
 import java.util.regex.Pattern
 
-private val DISPENSE_BEHAVIOR_REGISTRY: Map<Item, IDispenseItemBehavior>
+private val DISPENSE_BEHAVIOR_REGISTRY: Map<Item, DispenseItemBehavior>
     get() {
-        return ObfuscationReflectionHelper.findField(DispenserBlock::class.java, "DISPENSE_BEHAVIOR_REGISTRY")[null] as Map<Item, IDispenseItemBehavior>
+        // TODO: access transformer
+        return ObfuscationReflectionHelper.findField(DispenserBlock::class.java, "DISPENSE_BEHAVIOR_REGISTRY")[null] as Map<Item, DispenseItemBehavior>
     }
 
 abstract class DispensingModule: BoatModule() {
@@ -52,16 +51,16 @@ abstract class DispensingModule: BoatModule() {
     val MIDDLE = 0
     val BOTTOM = -1
 
-    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean) = false
+    override fun onInteract(from: IControllable, player: Player, hand: InteractionHand, sneaking: Boolean) = false
 
     override fun controlBoat(from: IControllable) { }
 
     override fun update(from: IControllable) {
         if(!from.inLiquid() || from.worldRef.isClientSide)
             return
-        lastDispensePositionProperty[from].let { pos: BlockPos.Mutable ->
+        lastDispensePositionProperty[from].let { pos: BlockPos.MutableBlockPos ->
             val period = blockPeriodProperty[from]
-            if(pos.distSqr(from.positionX, from.positionY, from.positionZ, false) > period*period) {
+            if(pos.distToCenterSqr(from.positionX, from.positionY, from.positionZ) > period*period) {
                 dispenseItem(BOTTOM, from)
                 dispenseItem(MIDDLE, from)
                 dispenseItem(TOP, from)
@@ -124,9 +123,9 @@ abstract class DispensingModule: BoatModule() {
         blockPeriodProperty[boat] = period
     }
 
-    override fun createContainer(containerID: Int, player: PlayerEntity, boat: IControllable): ContainerBoatModule<*>? = ContainerDispenserModule(containerID, player.inventory, this, boat)
+    override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? = ContainerDispenserModule(containerID, player.inventory, this, boat)
 
-    override fun createGui(containerID: Int, player: PlayerEntity, boat: IControllable): Screen {
+    override fun createGui(containerID: Int, player: Player, boat: IControllable): Screen {
         return GuiDispenserModule(containerID, player.inventory, this, boat)
     }
 
@@ -143,7 +142,7 @@ object DropperModule: DispensingModule() {
 
     override fun dispenseItem(row: Int, boat: IControllable) {
         val pos = boat.correspondingEntity.position()
-        val blockPos = BlockPos.Mutable(pos.x, pos.y+row + .75f, pos.z)
+        val blockPos = BlockPos.MutableBlockPos(pos.x, pos.y + row + .75f, pos.z)
         val inventoryRowStart = (-row)*5 +5
         firstValidStack(inventoryRowStart, boat)?.let { (index, stack) ->
             val resultingStack = boat.dispense(dropBehavior, stack, overridePosition = blockPos, overrideFacing = facingProperty[boat])
@@ -157,7 +156,7 @@ object DispenserModule: DispensingModule() {
 
     override fun dispenseItem(row: Int, boat: IControllable) {
         val pos = boat.correspondingEntity.position()
-        val blockPos = BlockPos.Mutable(pos.x, pos.y+row + .75f, pos.z)
+        val blockPos = BlockPos.MutableBlockPos(pos.x, pos.y + row + .75f, pos.z)
         val inventoryRowStart = (-row)*5 +5
         firstValidStack(inventoryRowStart, boat)?.let { (index, stack) ->
             val item = stack.item
@@ -175,13 +174,13 @@ object DispenserModule: DispensingModule() {
         }
     }
 
-    private fun dispenseWithDefaultBehavior(boat: IControllable, behavior: IDispenseItemBehavior, stack: ItemStack, blockPos: BlockPos, index: Int) {
+    private fun dispenseWithDefaultBehavior(boat: IControllable, behavior: DispenseItemBehavior, stack: ItemStack, blockPos: BlockPos, index: Int) {
         val resultingStack = boat.dispense(behavior, stack, overridePosition = blockPos, overrideFacing = facingProperty[boat])
         boat.getInventory().setItem(index, resultingStack)
         boat.getInventory().syncToClient()
     }
 
-    private fun useBlockItem(item: BlockItem, world: World, stack: ItemStack, pos: BlockPos, boat: IControllable, row: Int) {
+    private fun useBlockItem(item: BlockItem, world: Level, stack: ItemStack, pos: BlockPos, boat: IControllable, row: Int) {
         val facing = boat.reorientate(facingProperty[boat]).opposite
         val blockPos = pos.relative(facing)
         val block = item.block
@@ -206,22 +205,22 @@ object DispenserModule: DispensingModule() {
     }
 
     // adapted from BlockItem.java
-    private fun setTileEntityNBT(worldIn: World, pos: BlockPos, stackIn: ItemStack) {
-        val CompoundNBT = stackIn.getOrCreateTagElement("BlockEntityTag")
+    private fun setTileEntityNBT(worldIn: Level, pos: BlockPos, stackIn: ItemStack) {
+        val CompoundTag = stackIn.getOrCreateTagElement("BlockEntityTag")
 
-        if (CompoundNBT != null) {
+        if (CompoundTag != null) {
             val tileentity = worldIn.getBlockEntity(pos)
 
             if (tileentity != null) {
-                val CompoundNBT1 = tileentity.save(CompoundNBT())
-                val CompoundNBT2 = CompoundNBT1.copy()
-                CompoundNBT1.merge(CompoundNBT)
-                CompoundNBT1.putInt("x", pos.x)
-                CompoundNBT1.putInt("z", pos.z)
-                CompoundNBT1.putInt("y", pos.y)
+                val CompoundTag1 = tileentity.saveWithoutMetadata()
+                val CompoundTag2 = CompoundTag1.copy()
+                CompoundTag1.merge(CompoundTag)
+                CompoundTag1.putInt("x", pos.x)
+                CompoundTag1.putInt("z", pos.z)
+                CompoundTag1.putInt("y", pos.y)
 
-                if (CompoundNBT1 != CompoundNBT2) {
-                    tileentity.deserializeNBT(CompoundNBT1)
+                if (CompoundTag1 != CompoundTag2) {
+                    tileentity.deserializeNBT(CompoundTag1)
                     tileentity.setChanged()
                 }
             }

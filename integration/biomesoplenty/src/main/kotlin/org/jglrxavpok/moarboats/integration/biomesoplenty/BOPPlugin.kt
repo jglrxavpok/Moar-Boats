@@ -2,9 +2,9 @@ package org.jglrxavpok.moarboats.integration.biomesoplenty
 
 import biomesoplenty.common.entity.item.BoatEntityBOP
 import net.minecraft.data.DataGenerator
-import net.minecraft.item.Item
+import net.minecraft.world.item.Item
 import net.minecraft.resources.ResourcePackType
-import net.minecraft.util.ResourceLocation
+import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.client.model.generators.ExistingFileHelper
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent

@@ -1,21 +1,21 @@
 package org.jglrxavpok.moarboats.common.blocks
 
-import net.minecraft.block.Block
-import net.minecraft.block.BlockState
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.ServerPlayerEntity
-import net.minecraft.item.BlockItemUseContext
-import net.minecraft.state.StateContainer
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.ActionResultType
-import net.minecraft.util.Direction
-import net.minecraft.util.Hand
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.BlockRayTraceResult
-import net.minecraft.world.IBlockReader
-import net.minecraft.world.World
-import net.minecraftforge.fml.network.NetworkHooks
+import net.minecraft.core.BlockPos
+import net.minecraft.core.Direction
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.InteractionResult
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.context.BlockPlaceContext
+import net.minecraft.world.level.BlockGetter
+import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.state.StateDefinition
+import net.minecraft.world.phys.BlockHitResult
+import net.minecraftforge.network.NetworkHooks
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityFluidUnloader
@@ -27,32 +27,32 @@ object BlockFluidUnloader: MoarBoatsBlock() {
         this.registerDefaultState(this.defaultBlockState().setValue(Facing, Direction.UP))
     }
 
-    override fun createBlockStateDefinition(builder: StateContainer.Builder<Block, BlockState>) {
+    override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block, BlockState>) {
         builder.add(Facing)
     }
 
     override fun hasTileEntity(state: BlockState) = true
 
-    override fun createTileEntity(state: BlockState?, world: IBlockReader?): TileEntity? {
+    override fun createTileEntity(state: BlockState?, world: BlockGetter?): BlockEntity? {
         return TileEntityFluidUnloader()
     }
 
-    override fun getStateForPlacement(context: BlockItemUseContext): BlockState? {
+    override fun getStateForPlacement(context: BlockPlaceContext): BlockState? {
         return this.defaultBlockState().setValue(Facing, Direction.orderedByNearest(context.player)[0])
     }
 
-    override fun use(state: BlockState, worldIn: World, pos: BlockPos, player: PlayerEntity, handIn: Hand, hit: BlockRayTraceResult): ActionResultType {
+    override fun use(state: BlockState, worldIn: Level, pos: BlockPos, player: Player, handIn: InteractionHand, hit: BlockHitResult): InteractionResult {
         if(worldIn.isClientSide)
-            return ActionResultType.SUCCESS
-        NetworkHooks.openGui(player as ServerPlayerEntity, MoarBoatsGuiHandler.FluidUnloaderGuiInteraction(pos.x, pos.y, pos.z), pos)
-        return ActionResultType.SUCCESS
+            return InteractionResult.SUCCESS
+        NetworkHooks.openGui(player as ServerPlayer, MoarBoatsGuiHandler.FluidUnloaderGuiInteraction(pos.x, pos.y, pos.z), pos)
+        return InteractionResult.SUCCESS
     }
 
     override fun hasAnalogOutputSignal(state: BlockState): Boolean {
         return true
     }
 
-    override fun getAnalogOutputSignal(blockState: BlockState, worldIn: World, pos: BlockPos): Int {
+    override fun getAnalogOutputSignal(blockState: BlockState, worldIn: Level, pos: BlockPos): Int {
         return (worldIn.getBlockEntity(pos) as? TileEntityFluidUnloader)?.getRedstonePower() ?: 0
     }
 

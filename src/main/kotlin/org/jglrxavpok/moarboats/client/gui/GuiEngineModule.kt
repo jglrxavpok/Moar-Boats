@@ -1,20 +1,18 @@
 package org.jglrxavpok.moarboats.client.gui
 
-import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
-import net.minecraft.client.gui.widget.button.Button
-import net.minecraft.client.gui.widget.button.LockIconButton
+import com.mojang.blaze3d.vertex.PoseStack
+import net.minecraft.client.gui.components.Button
+import net.minecraft.client.gui.components.LockIconButton
 import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.item.Items
-import net.minecraft.item.ItemStack
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
-import net.minecraft.util.text.TranslationTextComponent
+import net.minecraft.network.chat.Component
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
 import net.minecraftforge.fml.client.gui.widget.Slider
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
@@ -29,7 +27,7 @@ import org.jglrxavpok.moarboats.common.network.CChangeEngineMode
 import org.jglrxavpok.moarboats.common.network.CChangeEngineSpeed
 import org.lwjgl.opengl.GL11
 
-class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat: IControllable, container: ContainerBoatModule<*>):
+class GuiEngineModule(playerInventory: Inventory, engine: BoatModule, boat: IControllable, container: ContainerBoatModule<*>):
         GuiModuleBase<ContainerBoatModule<*>>(engine, boat, playerInventory, container, isLarge = true) {
 
     companion object {
@@ -39,21 +37,21 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
     override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/${engine.id.path}.png")
     private val engine = module as BaseEngineModule
     val barsTexture = ResourceLocation("minecraft:textures/gui/bars.png")
-    val remainingCurrentItem = TranslationTextComponent("gui.engine.remainingCurrent")
-    val estimatedTimeText = TranslationTextComponent("gui.engine.estimatedTime")
+    val remainingCurrentItem = Component.translatable("gui.engine.remainingCurrent")
+    val estimatedTimeText = Component.translatable("gui.engine.estimatedTime")
     private val lockInPlaceButton = LockIconButton(0, 0) {
         MoarBoats.network.sendToServer(CChangeEngineMode(boat.entityID, module.id, !(engine as BaseEngineModule).stationaryProperty[boat]))
     }
-    private val lockText = TranslationTextComponent("gui.engine.lock")
-    private val lockedByRedstone = TranslationTextComponent("gui.engine.blocked.redstone")
-    private val foreverText = TranslationTextComponent("gui.engine.forever")
-    private val speedSetting = TranslationTextComponent("gui.engine.powerSetting")
-    private val minimumSpeedText = TranslationTextComponent("gui.engine.power.min")
-    private val maximumSpeedText = TranslationTextComponent("gui.engine.power.max")
-    private val normalSpeedText = TranslationTextComponent("gui.engine.power.normal")
-    private val blockedByModuleText = TranslationTextComponent("gui.engine.blocked.module")
-    private val unknownBlockReasonText = { str: String -> TranslationTextComponent("gui.engine.blocked.unknown", str) }
-    private val imposedSpeedText = { str: String -> TranslationTextComponent("moarboats.gui.engine.imposed_boost", str) }
+    private val lockText = Component.translatable("gui.engine.lock")
+    private val lockedByRedstone = Component.translatable("gui.engine.blocked.redstone")
+    private val foreverText = Component.translatable("gui.engine.forever")
+    private val speedSetting = Component.translatable("gui.engine.powerSetting")
+    private val minimumSpeedText = Component.translatable("gui.engine.power.min")
+    private val maximumSpeedText = Component.translatable("gui.engine.power.max")
+    private val normalSpeedText = Component.translatable("gui.engine.power.normal")
+    private val blockedByModuleText = Component.translatable("gui.engine.blocked.module")
+    private val unknownBlockReasonText = { str: String -> Component.translatable("gui.engine.blocked.unknown", str) }
+    private val imposedSpeedText = { str: String -> Component.translatable("moarboats.gui.engine.imposed_boost", str) }
 
     private lateinit var speedSlider: Slider
     private val speedIconTexture = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/engines/speed_setting.png")
@@ -70,13 +68,13 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
         super.init()
         lockInPlaceButton.x = guiLeft + xSize - lockInPlaceButton.width - 5
         lockInPlaceButton.y = guiTop + 5
-        addButton(lockInPlaceButton)
+        addWidget(lockInPlaceButton)
 
         val speedSettingMargins = 30
         val speedSettingHorizontalSize = xSize - speedSettingMargins*2
 
-        speedSlider = Slider(guiLeft + speedSettingMargins, guiTop + 90, speedSettingHorizontalSize, 20, StringTextComponent("${speedSetting/*.formatted()*/.string}: "), StringTextComponent("%"), -50.0, 50.0, 0.0, false, true, Button.IPressable { slider -> }, sliderCallback)
-        addButton(speedSlider)
+        speedSlider = Slider(guiLeft + speedSettingMargins, guiTop + 90, speedSettingHorizontalSize, 20, Component.literal("${speedSetting/*.formatted()*/.string}: "), Component.literal("%"), -50.0, 50.0, 0.0, false, true, Button.OnPress { slider -> }, sliderCallback)
+        addWidget(speedSlider)
         speedSlider.value = (engine.speedProperty[boat].toDouble()) * 100f
     }
 
@@ -86,7 +84,7 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
         lockInPlaceButton.isLocked = engine.stationaryProperty[boat]
     }
 
-    override fun renderTooltip(matrixStack: MatrixStack, mouseX: Int, mouseY: Int) {
+    override fun renderTooltip(matrixStack: PoseStack, mouseX: Int, mouseY: Int) {
         when {
             lockInPlaceButton.isMouseOver(mouseX.toDouble(), mouseY.toDouble()) -> renderComponentHoverEffect(matrixStack, lockText.style, mouseX, mouseY)
             else -> super.renderTooltip(matrixStack, mouseX, mouseY)
@@ -101,7 +99,7 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
         val infoY = 26
         font.drawCenteredString(matrixStack, remainingCurrentItem, 88, infoY, 0xFFFFFFFF.toInt(), shadow = true)
 
-        mc.textureManager.bind(barsTexture)
+        mc.textureManager.bindForSetup(barsTexture)
         val barIndex = 4
         val barSize = xSize*.85f
         val x = xSize/2f - barSize/2f
@@ -145,7 +143,7 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
         }
     }
 
-    private fun renderPrettyReason(y: Int, text: ITextComponent, itemStack: ItemStack) {
+    private fun renderPrettyReason(y: Int, text: Component, itemStack: ItemStack) {
         font.drawCenteredString(matrixStack, text, 88-16, y, 0xFF0000)
         val textWidth = font.width(text.contents)
         val textX = 88-16 - textWidth/2
@@ -192,7 +190,7 @@ class GuiEngineModule(playerInventory: PlayerInventory, engine: BoatModule, boat
                 .uv(minU, maxV)
                 .endVertex()
 
-        mc.textureManager.bind(speedIconTexture)
+        mc.textureManager.bindForSetup(speedIconTexture)
         RenderSystem.disableDepthTest()
         RenderSystem.disableCull()
         RenderSystem.enableAlphaTest()

@@ -1,39 +1,38 @@
 package org.jglrxavpok.moarboats.common.containers
 
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.*
-import net.minecraft.inventory.container.ClickType
-import net.minecraft.inventory.container.Slot
-import net.minecraft.item.ItemStack
+import net.minecraft.world.Container
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.inventory.ClickType
+import net.minecraft.world.inventory.Slot
+import net.minecraft.world.item.ItemStack
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import org.jglrxavpok.moarboats.common.items.MapItemWithPath
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 
-class ContainerMappingTable(containerID: Int, val te: TileEntityMappingTable, val playerInv: PlayerInventory): ContainerBase<ContainerMappingTable>(ContainerTypes.MappingTable, containerID, playerInv) {
+class ContainerMappingTable(containerID: Int, val te: TileEntityMappingTable, val playerInv: Inventory): ContainerBase<ContainerMappingTable>(ContainerTypes.MappingTable, containerID, playerInv) {
 
     init {
         addSlot(SlotMappingTable(te.inventory, 0, 8, 8))
         addPlayerSlots(true)
     }
 
-    override fun setItem(slotID: Int, stack: ItemStack?) {
-        super.setItem(slotID, stack)
+    override fun setItem(slotID: Int, stateID: Int, stack: ItemStack?) {
+        super.setItem(slotID, stateID, stack)
         broadcastChanges()
     }
 
-    override fun slotsChanged(inventoryIn: IInventory?) {
+    override fun slotsChanged(inventoryIn: Container?) {
         super.slotsChanged(inventoryIn)
         broadcastChanges()
     }
 
-    override fun clicked(slotId: Int, dragType: Int, clickTypeIn: ClickType?, player: PlayerEntity?): ItemStack {
-        val r = super.clicked(slotId, dragType, clickTypeIn, player)
+    override fun clicked(slotId: Int, dragType: Int, clickTypeIn: ClickType?, player: Player?) {
+        super.clicked(slotId, dragType, clickTypeIn, player)
         broadcastChanges()
-        return r
     }
 
-    override fun quickMoveStack(playerIn: PlayerEntity, index: Int): ItemStack {
+    override fun quickMoveStack(playerIn: Player, index: Int): ItemStack {
         var itemstack = ItemStack.EMPTY
         val slot = this.slots[index]
 
@@ -73,7 +72,7 @@ class ContainerMappingTable(containerID: Int, val te: TileEntityMappingTable, va
         return itemstack
     }
 
-    private inner class SlotMappingTable(inventory: IInventory, index: Int, x: Int, y: Int): Slot(inventory, index, x, y) {
+    private inner class SlotMappingTable(inventory: Container, index: Int, x: Int, y: Int): Slot(inventory, index, x, y) {
         override fun mayPlace(stack: ItemStack): Boolean {
             return stack.item == MapItemWithPath || stack.item == ItemGoldenTicket
         }

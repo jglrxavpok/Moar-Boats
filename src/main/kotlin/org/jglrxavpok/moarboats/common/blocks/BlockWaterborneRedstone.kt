@@ -1,39 +1,44 @@
 package org.jglrxavpok.moarboats.common.blocks
 
 import net.minecraft.block.*
-import net.minecraft.block.material.Material
-import net.minecraft.entity.LivingEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.loot.LootContext
-import net.minecraft.state.StateContainer
+import net.minecraft.core.BlockPos
+import net.minecraft.core.Direction
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.tags.FluidTags
-import net.minecraft.util.Direction
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.shapes.ISelectionContext
 import net.minecraft.util.math.shapes.VoxelShape
 import net.minecraft.util.math.shapes.VoxelShapes
-import net.minecraft.world.IBlockReader
-import net.minecraft.world.IWorldReader
-import net.minecraft.world.World
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.BlockGetter
+import net.minecraft.world.level.Level
+import net.minecraft.world.level.LevelReader
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.DiodeBlock
+import net.minecraft.world.level.block.SoundType
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.state.StateDefinition
+import net.minecraft.world.level.block.state.properties.BlockStateProperties
+import net.minecraft.world.level.material.Material
+import net.minecraft.world.level.storage.loot.LootContext
+import net.minecraft.world.phys.shapes.CollisionContext
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.items.WaterborneConductorItem
 
-object BlockWaterborneConductor: RedstoneDiodeBlock(Properties.of(Material.DECORATION).noOcclusion().strength(0f).sound(SoundType.WOOD)) {
+class BlockWaterborneConductor: DiodeBlock(Properties.of(Material.DECORATION).noOcclusion().strength(0f).sound(SoundType.WOOD)) {
     init {
         registryName = ResourceLocation(MoarBoats.ModID, "waterborne_redstone")
-        this.registerDefaultState(this.defaultBlockState().setValue(HorizontalBlock.FACING, Direction.NORTH).setValue(POWERED, false))
+        this.registerDefaultState(this.defaultBlockState().setValue(BlockStateProperties.FACING, Direction.NORTH).setValue(POWERED, false))
     }
 
-    override fun canConnectRedstone(state: BlockState?, level: IBlockReader?, pos: BlockPos?, side: Direction?): Boolean {
-        return state != null && side != null && side != Direction.DOWN && side != Direction.UP && (side == state.getValue(HorizontalBlock.FACING) || side == state.getValue(HorizontalBlock.FACING).opposite)
+    override fun canConnectRedstone(state: BlockState?, level: BlockGetter?, pos: BlockPos?, side: Direction?): Boolean {
+        return state != null && side != null && side != Direction.DOWN && side != Direction.UP && (side == state.getValue(BlockStateProperties.FACING) || side == state.getValue(BlockStateProperties.FACING).opposite)
     }
 
-    override fun getCollisionShape(state: BlockState, worldIn: IBlockReader, pos: BlockPos, context: ISelectionContext): VoxelShape {
+    override fun getCollisionShape(state: BlockState, worldIn: BlockGetter, pos: BlockPos, context: CollisionContext): VoxelShape {
         return VoxelShapes.empty()
     }
 
-    override fun canSurvive(state: BlockState, levelIn: IWorldReader, pos: BlockPos): Boolean {
+    override fun canSurvive(state: BlockState, levelIn: LevelReader, pos: BlockPos): Boolean {
         return levelIn.getFluidState(pos.below()).`is`(FluidTags.WATER)
     }
 
@@ -41,7 +46,7 @@ object BlockWaterborneConductor: RedstoneDiodeBlock(Properties.of(Material.DECOR
         return 0
     }
 
-    override fun getDirectSignal(blockState: BlockState, blockAccess: IBlockReader?, pos: BlockPos?, side: Direction): Int {
+    override fun getDirectSignal(blockState: BlockState, blockAccess: BlockGetter?, pos: BlockPos?, side: Direction): Int {
         return if (!blockState.getValue(POWERED)) {
             0
         } else {
@@ -49,18 +54,18 @@ object BlockWaterborneConductor: RedstoneDiodeBlock(Properties.of(Material.DECOR
         }
     }
 
-    override fun getOutputSignal(levelIn: IBlockReader, pos: BlockPos, state: BlockState): Int {
-        val behindSide = state.getValue(HorizontalBlock.FACING)
+    override fun getOutputSignal(levelIn: BlockGetter, pos: BlockPos, state: BlockState): Int {
+        val behindSide = state.getValue(BlockStateProperties.FACING)
         val posBehind = pos.relative(behindSide)
         val behind = levelIn.getBlockState(posBehind)
         return behind.getSignal(levelIn, posBehind, behindSide)
     }
 
-    override fun createBlockStateDefinition(builder: StateContainer.Builder<Block, BlockState>) {
-        builder.add(HorizontalBlock.FACING, POWERED)
+    override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block, BlockState>) {
+        builder.add(BlockStateProperties.FACING, POWERED)
     }
 
-    override fun onRemove(state: BlockState, levelIn: World, pos: BlockPos, newState: BlockState, isMoving: Boolean) {
+    override fun onRemove(state: BlockState, levelIn: Level, pos: BlockPos, newState: BlockState, isMoving: Boolean) {
         super.onRemove(state, levelIn, pos, newState, isMoving)
         this.checkTickOnNeighbor(levelIn, pos, state)
     }
@@ -68,7 +73,7 @@ object BlockWaterborneConductor: RedstoneDiodeBlock(Properties.of(Material.DECOR
     /**
      * Called by BlockItems after a block is set in the level, to allow post-place logic
      */
-    override fun setPlacedBy(levelIn: World, pos: BlockPos, state: BlockState, placer: LivingEntity?, stack: ItemStack) {
+    override fun setPlacedBy(levelIn: Level, pos: BlockPos, state: BlockState, placer: LivingEntity?, stack: ItemStack) {
         super.setPlacedBy(levelIn, pos, state, placer, stack)
     }
 
@@ -76,6 +81,6 @@ object BlockWaterborneConductor: RedstoneDiodeBlock(Properties.of(Material.DECOR
         return mutableListOf(ItemStack(WaterborneConductorItem, 1))
     }
 
-    override fun getCloneItemStack(worldIn: IBlockReader, pos: BlockPos, state: BlockState) = ItemStack(WaterborneConductorItem, 1)
+    override fun getCloneItemStack(worldIn: BlockGetter, pos: BlockPos, state: BlockState) = ItemStack(WaterborneConductorItem, 1)
 
 }

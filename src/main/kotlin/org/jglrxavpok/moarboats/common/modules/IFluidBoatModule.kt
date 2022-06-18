@@ -1,7 +1,7 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.fluid.Fluid
-import net.minecraft.util.ResourceLocation
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.level.material.Fluid
 import net.minecraftforge.fluids.FluidStack
 import net.minecraftforge.fluids.capability.IFluidHandler
 import net.minecraftforge.registries.ForgeRegistries

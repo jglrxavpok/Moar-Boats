@@ -1,34 +1,31 @@
 package org.jglrxavpok.moarboats.client.renders
 
-import com.mojang.blaze3d.matrix.MatrixStack
-import com.mojang.blaze3d.platform.GlStateManager
-import net.minecraft.block.BlockState
+import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.Atlases
-import net.minecraft.client.renderer.IRenderTypeBuffer
-import net.minecraft.client.renderer.entity.EntityRendererManager
-import net.minecraft.client.renderer.texture.AtlasTexture
+import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.client.renderer.entity.EntityRendererProvider
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context
 import net.minecraft.client.renderer.texture.OverlayTexture
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.MathHelper
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.client.model.data.EmptyModelData
 import net.minecraftforge.registries.ForgeRegistryEntry
 import net.minecraftforge.registries.RegistryBuilder
 import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.api.BoatModule
+import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 
 abstract class BoatModuleRenderer: ForgeRegistryEntry<BoatModuleRenderer>() {
 
     companion object {
-        fun renderBlockState(matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, entityRenderer: EntityRendererManager, state: BlockState, brightness: Float) {
-            Minecraft.getInstance().blockRenderer.renderBlock(state, matrixStack, buffers, packedLightIn, OverlayTexture.NO_OVERLAY, EmptyModelData.INSTANCE)
+        fun renderBlockState(matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, entityRenderer: EntityRendererProvider.Context, state: BlockState, brightness: Float) {
+            Minecraft.getInstance().blockRenderer.renderSingleBlock(state, matrixStack, buffers, packedLightIn, OverlayTexture.NO_OVERLAY, EmptyModelData.INSTANCE)
         }
     }
 
-    abstract fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRenderer: EntityRendererManager)
+    abstract fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRenderer: EntityRendererProvider.Context)
 
-    fun renderBlockState(matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, entityRenderer: EntityRendererManager, state: BlockState, brightness: Float) {
+    fun renderBlockState(matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, entityRenderer: EntityRendererProvider.Context, state: BlockState, brightness: Float) {
         BoatModuleRenderer.renderBlockState(matrixStack, buffers, packedLightIn, entityRenderer, state, brightness)
     }
 }

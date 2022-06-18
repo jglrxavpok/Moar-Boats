@@ -1,7 +1,7 @@
 package org.jglrxavpok.moarboats.client.models;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.entity.model.EntityModel;
 import net.minecraft.client.renderer.model.Model;
 import net.minecraft.client.renderer.model.ModelRenderer;
@@ -39,7 +39,7 @@ public class ModelVanillaOars extends EntityModel<Entity> {
     }
 
     @Override
-    public void renderToBuffer(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
+    public void renderToBuffer(PoseStack matrixStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
         this.paddles11.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
         this.paddles20.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
         this.paddles10.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);

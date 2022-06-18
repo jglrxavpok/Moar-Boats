@@ -1,22 +1,22 @@
 package org.jglrxavpok.moarboats.common.entities.utilityboats
 
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.entity.player.ServerPlayerEntity
-import net.minecraft.inventory.container.Container
-import net.minecraft.inventory.container.ContainerType
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
-import net.minecraft.item.Items
-import net.minecraft.item.MusicDiscItem
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.tileentity.JukeboxTileEntity
-import net.minecraft.util.ActionResultType
-import net.minecraft.util.Hand
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.vector.Vector3d
-import net.minecraft.world.World
-import net.minecraftforge.fml.network.PacketDistributor
+import net.minecraft.core.BlockPos
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.InteractionResult
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.inventory.AbstractContainerMenu
+import net.minecraft.world.inventory.MenuType
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
+import net.minecraft.world.item.RecordItem
+import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.entity.JukeboxBlockEntity
+import net.minecraft.world.phys.Vec3
+import net.minecraftforge.network.PacketDistributor
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.EntityEntries
 import org.jglrxavpok.moarboats.common.containers.ContainerTypes
@@ -25,7 +25,7 @@ import org.jglrxavpok.moarboats.common.entities.UtilityBoatEntity
 import org.jglrxavpok.moarboats.common.items.JukeboxBoatItem
 import org.jglrxavpok.moarboats.common.network.SPlayRecordFromBoat
 
-class JukeboxBoatEntity(world: World): UtilityBoatEntity<JukeboxTileEntity, EmptyContainer>(EntityEntries.JukeboxBoat, world) {
+class JukeboxBoatEntity(world: Level): UtilityBoatEntity<JukeboxBlockEntity, EmptyContainer>(EntityEntries.JukeboxBoat, world) {
 
     private var record: ItemStack
         get() = getBackingTileEntity()!!.record
@@ -34,18 +34,18 @@ class JukeboxBoatEntity(world: World): UtilityBoatEntity<JukeboxTileEntity, Empt
         }
 
     private val hasRecord get() = !record.isEmpty
-    private val jukeboxPos = BlockPos.Mutable()
+    private val jukeboxPos = BlockPos.MutableBlockPos()
 
-    constructor(level: World, x: Double, y: Double, z: Double): this(level) {
+    constructor(level: Level, x: Double, y: Double, z: Double): this(level) {
         this.setPos(x, y, z)
-        this.deltaMovement = Vector3d.ZERO
+        this.deltaMovement = Vec3.ZERO
         this.xOld = x
         this.yOld = y
         this.zOld = z
     }
 
-    override fun initBackingTileEntity(): JukeboxTileEntity? {
-        return JukeboxTileEntity()
+    override fun initBackingTileEntity(): JukeboxBlockEntity? {
+        return JukeboxBlockEntity()
     }
 
     override fun tick() {
@@ -53,27 +53,27 @@ class JukeboxBoatEntity(world: World): UtilityBoatEntity<JukeboxTileEntity, Empt
         super.tick()
     }
 
-    override fun interact(player: PlayerEntity, hand: Hand): ActionResultType {
-        if (super.interact(player, hand) == ActionResultType.SUCCESS)
-            return ActionResultType.SUCCESS
+    override fun interact(player: Player, hand: InteractionHand): InteractionResult {
+        if (super.interact(player, hand) == InteractionResult.SUCCESS)
+            return InteractionResult.SUCCESS
         if (world.isClientSide)
-            return ActionResultType.SUCCESS
+            return InteractionResult.SUCCESS
 
-        if(player is ServerPlayerEntity) {
+        if(player is ServerPlayer) {
             val heldItem = player.getItemInHand(hand)
-            if(heldItem.item is MusicDiscItem && !hasRecord) {
+            if(heldItem.item is RecordItem && !hasRecord) {
                 insertRecord(heldItem.copy())
                 if(!player.isCreative) {
                     heldItem.shrink(1)
                 }
-                return ActionResultType.SUCCESS
+                return InteractionResult.SUCCESS
             } else {
                 if(hasRecord) {
                     ejectRecord()
                 }
             }
         }
-        return ActionResultType.FAIL
+        return InteractionResult.FAIL
     }
 
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
@@ -88,7 +88,7 @@ class JukeboxBoatEntity(world: World): UtilityBoatEntity<JukeboxTileEntity, Empt
 
     private fun insertRecord(stack: ItemStack) {
         record = stack
-        MoarBoats.network.send(PacketDistributor.NEAR.with { PacketDistributor.TargetPoint(positionX, positionY, positionZ, 64.0, world.dimension()) }, SPlayRecordFromBoat(entityID, stack.item as? MusicDiscItem))
+        MoarBoats.network.send(PacketDistributor.NEAR.with { PacketDistributor.TargetPoint(positionX, positionY, positionZ, 64.0, world.dimension()) }, SPlayRecordFromBoat(entityID, stack.item as? RecordItem))
     }
 
     private fun ejectRecord() {
@@ -98,15 +98,15 @@ class JukeboxBoatEntity(world: World): UtilityBoatEntity<JukeboxTileEntity, Empt
         record = ItemStack.EMPTY
     }
 
-    override fun addAdditionalSaveData(compound: CompoundNBT) {
+    override fun addAdditionalSaveData(compound: CompoundTag) {
         super.addAdditionalSaveData(compound)
         compound.putBoolean("hasRecord", hasRecord)
         if(hasRecord) {
-            compound.put("record", record!!.save(CompoundNBT()))
+            compound.put("record", record!!.save(CompoundTag()))
         }
     }
 
-    override fun readAdditionalSaveData(compound: CompoundNBT) {
+    override fun readAdditionalSaveData(compound: CompoundTag) {
         super.readAdditionalSaveData(compound)
         val hasRecord = compound.getBoolean("hasRecord")
         record = if(hasRecord) {
@@ -116,7 +116,7 @@ class JukeboxBoatEntity(world: World): UtilityBoatEntity<JukeboxTileEntity, Empt
         }
     }
 
-    override fun getContainerType(): ContainerType<EmptyContainer> {
+    override fun getContainerType(): MenuType<EmptyContainer> {
         return ContainerTypes.Empty
     }
 
@@ -124,7 +124,7 @@ class JukeboxBoatEntity(world: World): UtilityBoatEntity<JukeboxTileEntity, Empt
         return JukeboxBoatItem[boatType]
     }
 
-    override fun createMenu(p_createMenu_1_: Int, p_createMenu_2_: PlayerInventory, p_createMenu_3_: PlayerEntity): Container? {
+    override fun createMenu(p_createMenu_1_: Int, p_createMenu_2_: Inventory, p_createMenu_3_: Player): AbstractContainerMenu? {
         return EmptyContainer(p_createMenu_1_, p_createMenu_2_)
     }
 }

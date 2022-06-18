@@ -8,7 +8,7 @@ import net.minecraftforge.common.data.ExistingFileHelper
 import net.minecraftforge.fml.ModList
 import net.minecraftforge.fml.StartupMessageManager
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
-import net.minecraftforge.fml.event.lifecycle.GatherDataEvent
+import net.minecraftforge.forge.event.lifecycle.GatherDataEvent
 import net.minecraftforge.registries.IForgeRegistry
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModuleEntry

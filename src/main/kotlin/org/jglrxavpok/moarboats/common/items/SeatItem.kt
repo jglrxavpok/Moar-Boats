@@ -1,17 +1,15 @@
 package org.jglrxavpok.moarboats.common.items
 
-import net.minecraft.client.util.ITooltipFlag
-import net.minecraft.item.ItemStack
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.TranslationTextComponent
-import net.minecraft.world.World
+import net.minecraft.network.chat.Component
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.TooltipFlag
+import net.minecraft.world.level.Level
 
 object SeatItem : MoarBoatsItem("seat") {
 
-    val description = TranslationTextComponent("item.seat.description")
+    val description = Component.translatable("item.seat.description")
 
-    override fun appendHoverText(stack: ItemStack, worldIn: World?, tooltip: MutableList<ITextComponent>, flagIn: ITooltipFlag) {
+    override fun appendHoverText(stack: ItemStack, worldIn: Level?, tooltip: MutableList<Component>, flagIn: TooltipFlag) {
         super.appendHoverText(stack, worldIn, tooltip, flagIn)
         tooltip.add(description)
     }

@@ -1,8 +1,8 @@
 package org.jglrxavpok.moarboats.common.network
 
-import net.minecraft.util.math.BlockPos
+import net.minecraft.core.BlockPos
 import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.fml.network.NetworkEvent
+import net.minecraftforge.network.NetworkEvent
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
@@ -32,7 +32,7 @@ class CSwapWaypoints(): MoarBoatsPacket {
             with(message) {
                 val player = ctx.sender!!
                 val level = player.level
-                val pos = BlockPos.Mutable(x, y, z)
+                val pos = BlockPos.MutableBlockPos(x, y, z)
                 val te = level.getBlockEntity(pos)
                 return when(te) {
                     is TileEntityMappingTable -> {

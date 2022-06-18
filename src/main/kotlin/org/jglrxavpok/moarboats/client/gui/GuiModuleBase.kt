@@ -1,18 +1,16 @@
 package org.jglrxavpok.moarboats.client.gui
 
-import com.mojang.blaze3d.matrix.MatrixStack
 import net.minecraft.client.Minecraft
-import net.minecraft.client.audio.SimpleSound
 import com.mojang.blaze3d.platform.GlStateManager
-import net.minecraft.client.gui.screen.inventory.ContainerScreen
-import net.minecraft.client.network.play.NetworkPlayerInfo
-import net.minecraft.client.renderer.RenderHelper
+import com.mojang.blaze3d.vertex.PoseStack
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
+import net.minecraft.client.multiplayer.PlayerInfo
 import net.minecraft.client.resources.DefaultPlayerSkin
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.util.SoundEvents
-import net.minecraft.item.ItemStack
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.text.TranslationTextComponent
+import net.minecraft.network.chat.Component
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.sounds.SoundEvents
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.item.ItemStack
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.network.COpenModuleGui
 import org.jglrxavpok.moarboats.api.BoatModule
@@ -23,12 +21,12 @@ import org.jglrxavpok.moarboats.common.LockedByOwner
 import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
 import org.jglrxavpok.moarboats.common.network.CRemoveModule
 
-abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, val boat: IControllable, val playerInv: PlayerInventory, val baseContainer: T, val isLarge: Boolean = false): ContainerScreen<T>(baseContainer, playerInv,
-        TranslationTextComponent("inventory.${module.id.path}")) {
+abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, val boat: IControllable, val playerInv: Inventory, val baseContainer: T, val isLarge: Boolean = false): AbstractContainerScreen<T>(baseContainer, playerInv,
+        Component.translatable("inventory.${module.id.path}")) {
 
     val mc: Minecraft = Minecraft.getInstance()
     val tabs = mutableListOf<ModuleTab>()
-    open val moduleTitle = TranslationTextComponent("inventory.${module.id.path}")
+    open val moduleTitle = Component.translatable("inventory.${module.id.path}")
 
     private val BACKGROUND_TEXTURE = ResourceLocation(MoarBoats.ModID, "textures/gui/default_background.png")
 
@@ -38,7 +36,7 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
     protected abstract val moduleBackground: ResourceLocation
 
     // used for rendering
-    protected val matrixStack = MatrixStack()
+    protected val matrixStack = PoseStack()
 
     override fun init() {
         this.width = computeSizeX()
@@ -66,7 +64,7 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
     /**
      * Draws the screen and all the components in it.
      */
-    override fun render(matrixStack: MatrixStack, mouseX: Int, mouseY: Int, partialTicks: Float) {
+    override fun render(matrixStack: PoseStack, mouseX: Int, mouseY: Int, partialTicks: Float) {
         this.renderBackground(matrixStack)
         super.render(matrixStack, mouseX, mouseY, partialTicks)
         this.renderTooltip(matrixStack, mouseX, mouseY)
@@ -105,7 +103,7 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
         return false
     }
 
-    override fun renderLabels(matrixStack: MatrixStack, mouseX: Int, mouseY: Int) {
+    override fun renderLabels(matrixStack: PoseStack, mouseX: Int, mouseY: Int) {
         val s = moduleTitle/*.formatted()*/
         if(shouldRenderInventoryName)
             this.font.draw(matrixStack, s, (this.xSize / 2 - this.font.width(s/*.formatted()*/.string) / 2).toFloat(), 6f, 4210752)
@@ -116,7 +114,7 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
         if(mouseX in (guiLeft-24)..guiLeft && mouseY in (guiTop+3)..(guiTop+26)) {
             if(boat.getOwnerNameOrNull() != null) {
                 renderTooltip(matrixStack,
-                        TranslationTextComponent(LockedByOwner.key, boat.getOwnerNameOrNull())/*.formatted()*/,
+                        Component.translatable(LockedByOwner.string, boat.getOwnerNameOrNull())/*.formatted()*/,
                         mouseX-guiLeft,
                         mouseY-guiTop)
             }
@@ -127,15 +125,15 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
     open fun drawModuleBackground(mouseX: Int, mouseY: Int) {}
     open fun drawBackground() {
         if(isLarge)
-            mc.textureManager.bind(BACKGROUND_TEXTURE_LARGE)
+            mc.textureManager.bindForSetup(BACKGROUND_TEXTURE_LARGE)
         else
-            mc.textureManager.bind(BACKGROUND_TEXTURE)
+            mc.textureManager.bindForSetup(BACKGROUND_TEXTURE)
         val i = (this.width - this.xSize) / 2
         val j = (this.height - this.ySize) / 2
         blit(matrixStack, i, j, 0, 0, this.xSize, this.ySize)
     }
 
-    override fun renderBg(matrixStack: MatrixStack, partialTicks: Float, mouseX: Int, mouseY: Int) {
+    override fun renderBg(matrixStack: PoseStack, partialTicks: Float, mouseX: Int, mouseY: Int) {
         val i = (this.width - this.xSize) / 2
         val j = (this.height - this.ySize) / 2
         GlStateManager._color4f(1.0f, 1.0f, 1.0f, 1.0f)
@@ -148,14 +146,14 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
 
         val ownerUUID = boat.getOwnerIdOrNull()
         if(ownerUUID != null) {
-            mc.textureManager.bind(BACKGROUND_TEXTURE)
+            mc.textureManager.bindForSetup(BACKGROUND_TEXTURE)
             blit(matrixStack, i-21, j+3, 176, 57, 24, 26)
-            val info: NetworkPlayerInfo? = Minecraft.getInstance().connection!!.getPlayerInfo(ownerUUID)
+            val info: PlayerInfo? = Minecraft.getInstance().connection!!.getPlayerInfo(ownerUUID)
             if(info != null) {
-                mc.textureManager.bind(info.skinLocation)
+                mc.textureManager.bindForSetup(info.skinLocation)
             } else {
                 val skinLocation = DefaultPlayerSkin.getDefaultSkin(ownerUUID)
-                mc.textureManager.bind(skinLocation)
+                mc.textureManager.bindForSetup(skinLocation)
             }
             matrixStack.pushPose()
             matrixStack.translate(i-21+5.0, j.toFloat()+5f+3.0, 0.0)
@@ -165,7 +163,7 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
         }
 
         GlStateManager._color4f(1.0f, 1.0f, 1.0f, 1.0f)
-        mc.textureManager.bind(moduleBackground)
+        mc.textureManager.bindForSetup(moduleBackground)
         blit(matrixStack, i, j, 0, 0, this.width, ySize)
 
         drawModuleBackground(mouseX, mouseY)
@@ -180,7 +178,7 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
 
         fun renderContents() {
             val selected = tabModule == module
-            mc.textureManager.bind(BACKGROUND_TEXTURE)
+            mc.textureManager.bindForSetup(BACKGROUND_TEXTURE)
             blit(matrixStack, x, y, 176, if(selected) 3 else 30, 26, 26)
 
             if(selected) {

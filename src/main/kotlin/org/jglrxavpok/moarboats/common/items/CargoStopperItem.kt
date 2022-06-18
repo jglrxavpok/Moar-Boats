@@ -1,20 +1,18 @@
 package org.jglrxavpok.moarboats.common.items
 
-import net.minecraft.client.util.ITooltipFlag
-import net.minecraft.item.ItemStack
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.TranslationTextComponent
-import net.minecraft.world.World
+import net.minecraft.network.chat.Component
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.TooltipFlag
+import net.minecraft.world.level.Level
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.blocks.BlockCargoStopper
 
 object CargoStopperItem : WaterborneItem("cargo_stopper") {
 
     override val correspondingBlock = BlockCargoStopper
-    private val descriptionText = TranslationTextComponent(MoarBoats.ModID+".tile.cargo_stopper.description")
+    private val descriptionText = Component.translatable(MoarBoats.ModID+".tile.cargo_stopper.description")
 
-    override fun appendHoverText(stack: ItemStack?, player: World?, tooltip: MutableList<ITextComponent>, advanced: ITooltipFlag?) {
+    override fun appendHoverText(stack: ItemStack?, player: Level?, tooltip: MutableList<Component>, advanced: TooltipFlag?) {
         tooltip.add(descriptionText)
     }
 }

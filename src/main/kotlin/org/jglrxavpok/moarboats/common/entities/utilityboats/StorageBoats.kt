@@ -1,23 +1,21 @@
 package org.jglrxavpok.moarboats.common.entities.utilityboats
 
-import net.minecraft.block.ShulkerBoxBlock
-import net.minecraft.entity.item.ItemEntity
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.container.ChestContainer
-import net.minecraft.inventory.container.ContainerType
-import net.minecraft.item.DyeColor
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
-import net.minecraft.item.Items
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.tileentity.ChestTileEntity
-import net.minecraft.tileentity.ShulkerBoxTileEntity
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.math.vector.Vector3d
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.TranslationTextComponent
-import net.minecraft.world.World
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.network.chat.Component
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.inventory.ChestMenu
+import net.minecraft.world.inventory.MenuType
+import net.minecraft.world.item.DyeColor
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
+import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.ShulkerBoxBlock
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.ChestBlockEntity
+import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity
+import net.minecraft.world.phys.Vec3
 import org.jglrxavpok.moarboats.common.EntityEntries
 import org.jglrxavpok.moarboats.common.containers.ContainerTypes
 import org.jglrxavpok.moarboats.common.containers.UtilityChestContainer
@@ -27,21 +25,21 @@ import org.jglrxavpok.moarboats.common.items.ChestBoatItem
 import org.jglrxavpok.moarboats.common.items.EnderChestBoatItem
 import org.jglrxavpok.moarboats.common.items.ShulkerBoatItem
 
-class ChestBoatEntity(world: World): UtilityBoatEntity<ChestTileEntity, UtilityChestContainer>(EntityEntries.ChestBoat, world) {
+class ChestBoatEntity(world: Level): UtilityBoatEntity<ChestBlockEntity, UtilityChestContainer>(EntityEntries.ChestBoat, world) {
 
-    constructor(level: World, x: Double, y: Double, z: Double): this(level) {
+    constructor(level: Level, x: Double, y: Double, z: Double): this(level) {
         this.setPos(x, y, z)
-        this.deltaMovement = Vector3d.ZERO
+        this.deltaMovement = Vec3.ZERO
         this.xOld = x
         this.yOld = y
         this.zOld = z
     }
 
-    override fun initBackingTileEntity(): ChestTileEntity? {
-        return ChestTileEntity()
+    override fun initBackingTileEntity(): ChestBlockEntity? {
+        return ChestBlockEntity()
     }
 
-    override fun getContainerType(): ContainerType<UtilityChestContainer> {
+    override fun getContainerType(): MenuType<UtilityChestContainer> {
         return ContainerTypes.ChestBoat
     }
 
@@ -49,12 +47,12 @@ class ChestBoatEntity(world: World): UtilityBoatEntity<ChestTileEntity, UtilityC
         return ChestBoatItem[boatType]
     }
 
-    override fun createMenu(windowID: Int, inv: PlayerInventory, player: PlayerEntity): UtilityChestContainer? {
+    override fun createMenu(windowID: Int, inv: Inventory, player: Player): UtilityChestContainer? {
         return UtilityChestContainer(windowID, inv, getBackingTileEntity()!!)
     }
 
-    override fun getDisplayName(): ITextComponent {
-        return TranslationTextComponent("moarboats.container.utility_boat", TranslationTextComponent("container.chest"))
+    override fun getDisplayName(): Component {
+        return Component.translatable("moarboats.container.utility_boat", Component.translatable("container.chest"))
     }
 
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
@@ -66,24 +64,24 @@ class ChestBoatEntity(world: World): UtilityBoatEntity<ChestTileEntity, UtilityC
 
 }
 
-class ShulkerBoatEntity(world: World): UtilityBoatEntity<ShulkerBoxTileEntity, UtilityShulkerContainer>(EntityEntries.ShulkerBoat, world) {
+class ShulkerBoatEntity(world: Level): UtilityBoatEntity<ShulkerBoxBlockEntity, UtilityShulkerContainer>(EntityEntries.ShulkerBoat, world) {
 
     internal var dyeColor: DyeColor? = null
 
-    constructor(color: DyeColor?, level: World, x: Double, y: Double, z: Double): this(level) {
+    constructor(color: DyeColor?, level: Level, x: Double, y: Double, z: Double): this(level) {
         this.dyeColor = color
         this.setPos(x, y, z)
-        this.deltaMovement = Vector3d.ZERO
+        this.deltaMovement = Vec3.ZERO
         this.xOld = x
         this.yOld = y
         this.zOld = z
     }
 
-    override fun initBackingTileEntity(): ShulkerBoxTileEntity? {
-        return ShulkerBoxTileEntity(dyeColor)
+    override fun initBackingTileEntity(): ShulkerBoxBlockEntity? {
+        return ShulkerBoxBlockEntity(dyeColor)
     }
 
-    override fun getContainerType(): ContainerType<UtilityShulkerContainer> {
+    override fun getContainerType(): MenuType<UtilityShulkerContainer> {
         return ContainerTypes.ShulkerBoat
     }
 
@@ -91,12 +89,12 @@ class ShulkerBoatEntity(world: World): UtilityBoatEntity<ShulkerBoxTileEntity, U
         return ShulkerBoatItem[boatType]
     }
 
-    override fun createMenu(windowID: Int, inv: PlayerInventory, player: PlayerEntity): UtilityShulkerContainer? {
+    override fun createMenu(windowID: Int, inv: Inventory, player: Player): UtilityShulkerContainer? {
         return UtilityShulkerContainer(windowID, inv, getBackingTileEntity()!!)
     }
 
-    override fun getDisplayName(): ITextComponent {
-        return TranslationTextComponent("moarboats.container.utility_boat", TranslationTextComponent("container.shulkerBox"))
+    override fun getDisplayName(): Component {
+        return Component.translatable("moarboats.container.utility_boat", Component.translatable("container.shulkerBox"))
     }
 
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
@@ -104,7 +102,7 @@ class ShulkerBoatEntity(world: World): UtilityBoatEntity<ShulkerBoxTileEntity, U
         val tileEntity = getBackingTileEntity()!!
         if(!killedByPlayerInCreative || !tileEntity.isEmpty) {
             val stack = ShulkerBoxBlock.getColoredItemStack(dyeColor)
-            val nbt = tileEntity.saveToTag(CompoundNBT())
+            val nbt = tileEntity.saveWithoutMetadata()
             if (!nbt.isEmpty) {
                 stack.addTagElement("BlockEntityTag", nbt)
             }
@@ -116,7 +114,7 @@ class ShulkerBoatEntity(world: World): UtilityBoatEntity<ShulkerBoxTileEntity, U
         }
     }
 
-    override fun readAdditionalSaveData(compound: CompoundNBT) {
+    override fun readAdditionalSaveData(compound: CompoundTag) {
         super.readAdditionalSaveData(compound)
         dyeColor = if("Color" in compound) {
             DyeColor.byName(compound.getString("Color"), null)
@@ -125,7 +123,7 @@ class ShulkerBoatEntity(world: World): UtilityBoatEntity<ShulkerBoxTileEntity, U
         }
     }
 
-    override fun addAdditionalSaveData(compound: CompoundNBT) {
+    override fun addAdditionalSaveData(compound: CompoundTag) {
         super.addAdditionalSaveData(compound)
         if(dyeColor != null) {
             compound.putString("Color", dyeColor?.getName())
@@ -133,21 +131,21 @@ class ShulkerBoatEntity(world: World): UtilityBoatEntity<ShulkerBoxTileEntity, U
     }
 }
 
-class EnderChestBoatEntity(world: World): UtilityBoatEntity<TileEntity, ChestContainer>(EntityEntries.EnderChestBoat, world) {
+class EnderChestBoatEntity(world: Level): UtilityBoatEntity<BlockEntity, ChestMenu>(EntityEntries.EnderChestBoat, world) {
 
-    constructor(level: World, x: Double, y: Double, z: Double): this(level) {
+    constructor(level: Level, x: Double, y: Double, z: Double): this(level) {
         this.setPos(x, y, z)
-        this.deltaMovement = Vector3d.ZERO
+        this.deltaMovement = Vec3.ZERO
         this.xOld = x
         this.yOld = y
         this.zOld = z
     }
 
-    override fun initBackingTileEntity(): TileEntity? {
+    override fun initBackingTileEntity(): BlockEntity? {
         return null
     }
 
-    override fun getContainerType(): ContainerType<ChestContainer> {
+    override fun getContainerType(): MenuType<ChestMenu> {
         return ContainerTypes.EnderChestBoat
     }
 
@@ -155,12 +153,12 @@ class EnderChestBoatEntity(world: World): UtilityBoatEntity<TileEntity, ChestCon
         return EnderChestBoatItem[boatType]
     }
 
-    override fun createMenu(windowID: Int, inv: PlayerInventory, player: PlayerEntity): ChestContainer? {
-        return ChestContainer.threeRows(windowID, inv, player.enderChestInventory)
+    override fun createMenu(windowID: Int, inv: Inventory, player: Player): ChestMenu? {
+        return ChestMenu.threeRows(windowID, inv, player.enderChestInventory)
     }
 
-    override fun getDisplayName(): ITextComponent {
-        return TranslationTextComponent("moarboats.container.utility_boat", TranslationTextComponent("block.minecraft.ender_chest"))
+    override fun getDisplayName(): Component {
+        return Component.translatable("moarboats.container.utility_boat", Component.translatable("block.minecraft.ender_chest"))
     }
 
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {

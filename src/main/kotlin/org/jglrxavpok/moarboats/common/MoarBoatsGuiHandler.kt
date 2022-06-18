@@ -1,14 +1,12 @@
 package org.jglrxavpok.moarboats.common
 
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.container.Container
-import net.minecraft.inventory.container.INamedContainerProvider
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
-import net.minecraft.util.text.TranslationTextComponent
+import net.minecraft.core.BlockPos
+import net.minecraft.network.chat.Component
+import net.minecraft.world.MenuProvider
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.inventory.AbstractContainerMenu
+import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.containers.ContainerMappingTable
@@ -20,12 +18,12 @@ import org.jglrxavpok.moarboats.common.tileentity.*
 
 object MoarBoatsGuiHandler {
 
-    class ModulesGuiInteraction(val boatID: Int, val moduleIndex: Int, val id: String): INamedContainerProvider {
-        override fun getDisplayName(): ITextComponent {
-            return StringTextComponent(id)
+    class ModulesGuiInteraction(val boatID: Int, val moduleIndex: Int, val id: String): MenuProvider {
+        override fun getDisplayName(): Component {
+            return Component.literal(id)
         }
 
-        override fun createMenu(containerID: Int, playerInventory: PlayerInventory, player: PlayerEntity): Container? {
+        override fun createMenu(containerID: Int, playerInventory: Inventory, player: Player): AbstractContainerMenu? {
             val level = player.level
             val boat = level.getEntity(boatID) as? ModularBoatEntity ?: return null
             // y below 0 means that the menu should display the most interesting module first (generally engine > storage > navigation > misc.)
@@ -35,14 +33,14 @@ object MoarBoatsGuiHandler {
 
     }
 
-    open class TileEntityInteraction<TE: TileEntity>(val identifier: String, val x: Int, val y: Int, val z: Int, val containerGenerator: (Int, TileEntity?, PlayerInventory, PlayerEntity) -> Container? = { _0, _1, _2, _3 -> null }): INamedContainerProvider {
-        private val blockPos = BlockPos.Mutable()
+    open class TileEntityInteraction<TE: BlockEntity>(val identifier: String, val x: Int, val y: Int, val z: Int, val containerGenerator: (Int, BlockEntity?, Inventory, Player) -> AbstractContainerMenu? = { _0, _1, _2, _3 -> null }): MenuProvider {
+        private val blockPos = BlockPos.MutableBlockPos()
 
-        override fun getDisplayName(): ITextComponent {
-            return TranslationTextComponent("${MoarBoats.ModID}.inventory.$identifier.name")
+        override fun getDisplayName(): Component {
+            return Component.translatable("${MoarBoats.ModID}.inventory.$identifier.name")
         }
 
-        override fun createMenu(containerID: Int, playerInventory: PlayerInventory, playerIn: PlayerEntity): Container? {
+        override fun createMenu(containerID: Int, playerInventory: Inventory, playerIn: Player): AbstractContainerMenu? {
             return blockPos.set(x,y, z).run {
                 val te = playerIn.level.getBlockEntity(this) as? TE
                 if(te != null) {

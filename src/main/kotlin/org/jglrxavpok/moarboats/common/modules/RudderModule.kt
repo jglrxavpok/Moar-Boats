@@ -1,9 +1,9 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.client.gui.screen.Screen
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.util.Hand
-import net.minecraft.util.ResourceLocation
+import net.minecraft.client.gui.screens.Screen
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.entity.player.Player
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
@@ -23,11 +23,11 @@ object RudderModule: BoatModule(), BlockReason {
     val RudderAngleMultiplier = FloatBoatProperty("rudderAngleMultiplier")
     val BlockingProperty = BooleanBoatProperty("blocking")
 
-    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean) = false
+    override fun onInteract(from: IControllable, player: Player, hand: InteractionHand, sneaking: Boolean) = false
 
     override fun controlBoat(from: IControllable) {
         RudderAngleMultiplier[from] = 0f
-        val controllingEntity = from.correspondingEntity.controllingPassenger as? PlayerEntity
+        val controllingEntity = from.correspondingEntity.controllingPassenger as? Player
         if(controllingEntity == null) {
             if(BlockingProperty[from]) {
                 from.blockMovement(this)
@@ -54,11 +54,11 @@ object RudderModule: BoatModule(), BlockReason {
         BlockingProperty[to] = true
     }
 
-    override fun createContainer(containerID: Int, player: PlayerEntity, boat: IControllable): ContainerBoatModule<*>? {
+    override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? {
         return EmptyModuleContainer(containerID, player.inventory, this, boat, isLarge = false)
     }
 
-    override fun createGui(containerID: Int, player: PlayerEntity, boat: IControllable): Screen {
+    override fun createGui(containerID: Int, player: Player, boat: IControllable): Screen {
         return GuiRudderModule(containerID, player.inventory, this, boat)
     }
 

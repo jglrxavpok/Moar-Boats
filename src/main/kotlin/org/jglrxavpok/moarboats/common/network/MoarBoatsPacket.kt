@@ -1,21 +1,24 @@
 package org.jglrxavpok.moarboats.common.network
 
-import net.minecraft.inventory.ItemStackHelper
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
-import net.minecraft.item.Items
-import net.minecraft.item.MusicDiscItem
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.nbt.ListNBT
-import net.minecraft.network.PacketBuffer
+import net.minecraft.core.Direction
+import net.minecraft.core.NonNullList
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.ListTag
+import net.minecraft.network.FriendlyByteBuf
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.sounds.SoundEvent
+import net.minecraft.sounds.SoundSource
 import net.minecraft.util.*
+import net.minecraft.world.ContainerHelper
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
+import net.minecraft.world.item.RecordItem
 import net.minecraftforge.registries.ForgeRegistries
-import net.minecraftforge.registries.GameData
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.data.LoopingOptions
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.full.memberProperties
@@ -69,7 +72,7 @@ interface MoarBoatsPacket {
         /**
          * Serializes a single field from a packet to a buffer
          */
-        private fun serialize(packet: MoarBoatsPacket, field: KMutableProperty<*>, buffer: PacketBuffer) {
+        private fun serialize(packet: MoarBoatsPacket, field: KMutableProperty<*>, buffer: FriendlyByteBuf) {
             if(field.javaField!!.annotations.any { it.annotationClass == Nullable::class } || field.returnType.isMarkedNullable) {
                 val present = field.getter.call(packet) != null
                 buffer.writeBoolean(present)
@@ -81,20 +84,20 @@ interface MoarBoatsPacket {
             if(field.javaField!!.annotations.any { it.annotationClass == ItemStackList::class }) {
                 val list = field.getter.call(packet) as List<ItemStack>
                 buffer.writeInt(list.size)
-                val nbt = CompoundNBT()
+                val nbt = CompoundTag()
                 val tmpList = NonNullList.of(ItemStack.EMPTY, *list.toTypedArray())
-                ItemStackHelper.saveAllItems(nbt, tmpList)
+                ContainerHelper.saveAllItems(nbt, tmpList)
                 buffer.writeNbt(nbt)
                 return
             }
             write(field[packet] as Any, buffer)
         }
 
-        private fun <T: Any> write(value: T, buffer: PacketBuffer) {
+        private fun <T: Any> write(value: T, buffer: FriendlyByteBuf) {
             write(value, value.javaClass, buffer)
         }
 
-        private fun <T: Any> write(value: T, type: Class<T>, buffer: PacketBuffer) {
+        private fun <T: Any> write(value: T, type: Class<T>, buffer: FriendlyByteBuf) {
             when(type) {
                 Int::class.java, java.lang.Integer::class.java, Integer.TYPE -> buffer.writeInt(value as Int)
                 Long::class.java, java.lang.Long::class.java, java.lang.Long.TYPE -> buffer.writeLong(value as Long)
@@ -126,16 +129,16 @@ interface MoarBoatsPacket {
                 }
 
                 // MC Types
-                ListNBT::class.java -> {
-                    val container = CompoundNBT()
-                    val list = value as ListNBT
+                ListTag::class.java -> {
+                    val container = CompoundTag()
+                    val list = value as ListTag
                     container.putInt("nbt_type", list.elementType.toInt())
                     container.put("_", list)
                     buffer.writeNbt(container)
                 }
 
-                CompoundNBT::class.java -> {
-                    buffer.writeNbt(value as CompoundNBT)
+                CompoundTag::class.java -> {
+                    buffer.writeNbt(value as CompoundTag)
                 }
 
                 ResourceLocation::class.java -> {
@@ -148,28 +151,28 @@ interface MoarBoatsPacket {
                 }
 
                 SoundEvent::class.java -> {
-                    buffer.writeUtf((value as SoundEvent).registryName.toString())
+                    buffer.writeUtf((value as SoundEvent).location.toString())
                 }
 
-                SoundCategory::class.java -> {
-                    buffer.writeInt((value as SoundCategory).ordinal)
+                SoundSource::class.java -> {
+                    buffer.writeInt((value as SoundSource).ordinal)
                 }
 
                 ItemStack::class.java -> {
                     val stack = value as ItemStack
-                    val nbt = stack.save(CompoundNBT())
+                    val nbt = stack.save(CompoundTag())
                     buffer.writeNbt(nbt)
                 }
 
-                MusicDiscItem::class.java -> {
-                    buffer.writeResourceLocation((value as Item).registryName)
+                RecordItem::class.java -> {
+                    buffer.writeResourceLocation(ForgeRegistries.ITEMS.getKey(value as Item)!!)
                 }
 
                 // Moar Boats special types
                 ItemGoldenTicket.WaypointData::class.java -> {
                     val data = (value as ItemGoldenTicket.WaypointData)
                     buffer.writeUtf(data.uuid)
-                    val nbt = data.save(CompoundNBT())
+                    val nbt = data.save(CompoundTag())
                     buffer.writeNbt(nbt)
                 }
 
@@ -195,7 +198,7 @@ interface MoarBoatsPacket {
         /**
          * Deserializes a single field from a buffer to a packet
          */
-        private fun deserialize(packet: MoarBoatsPacket, field: KMutableProperty<*>, buffer: PacketBuffer) {
+        private fun deserialize(packet: MoarBoatsPacket, field: KMutableProperty<*>, buffer: FriendlyByteBuf) {
             if(field.javaField!!.annotations.any { it.annotationClass == Nullable::class } || field.returnType.isMarkedNullable) {
                 val present = buffer.readBoolean()
                 if( ! present) {
@@ -208,7 +211,7 @@ interface MoarBoatsPacket {
                 val size = buffer.readInt()
                 val tmpList = NonNullList.withSize(size, ItemStack.EMPTY)
                 val nbt = buffer.readNbt()!!
-                ItemStackHelper.loadAllItems(nbt, tmpList)
+                ContainerHelper.loadAllItems(nbt, tmpList)
                 field[packet] = mutableListOf<ItemStack>().apply { addAll(tmpList) }
                 return
             }
@@ -221,7 +224,7 @@ interface MoarBoatsPacket {
         }
 
         @Suppress("IMPLICIT_CAST_TO_ANY")
-        private fun <T: Any> read(type: Class<T>, buffer: PacketBuffer): T {
+        private fun <T: Any> read(type: Class<T>, buffer: FriendlyByteBuf): T {
             return when(type) {
                 Int::class.java, java.lang.Integer::class.java, Integer.TYPE -> buffer.readInt()
                 Long::class.java, java.lang.Long::class.java, java.lang.Long.TYPE -> buffer.readLong()
@@ -245,7 +248,7 @@ interface MoarBoatsPacket {
                     }
                 }
 
-                ListNBT::class.java -> {
+                ListTag::class.java -> {
                     val container = buffer.readNbt()!!
                     val type = container.getInt("nbt_type")
                     container.getList("_", type)
@@ -259,7 +262,7 @@ interface MoarBoatsPacket {
                 }
 
                 // MC Types
-                CompoundNBT::class.java -> {
+                CompoundTag::class.java -> {
                     buffer.readNbt()!!
                 }
 
@@ -275,8 +278,8 @@ interface MoarBoatsPacket {
                     ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation(buffer.readUtf(200)))
                 }
 
-                SoundCategory::class.java -> {
-                    SoundCategory.values()[buffer.readInt() % SoundCategory.values().size]
+                SoundSource::class.java -> {
+                    SoundSource.values()[buffer.readInt() % SoundSource.values().size]
                 }
 
                 ItemStack::class.java -> {
@@ -328,7 +331,7 @@ interface MoarBoatsPacket {
         }
     }
 
-    fun encode(to: PacketBuffer) {
+    fun encode(to: FriendlyByteBuf) {
         try {
             if(this::class !in fieldCache) {
                 enrichCache(this::class)
@@ -343,7 +346,7 @@ interface MoarBoatsPacket {
         }
     }
 
-    fun decode(from: PacketBuffer): MoarBoatsPacket {
+    fun decode(from: FriendlyByteBuf): MoarBoatsPacket {
         try {
             if(this::class !in fieldCache) {
                 enrichCache(this::class)

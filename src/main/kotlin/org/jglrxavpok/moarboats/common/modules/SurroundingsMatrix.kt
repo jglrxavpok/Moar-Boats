@@ -1,8 +1,7 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.fluid.FluidState
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.Level
 import net.minecraftforge.common.extensions.IForgeFluidState
 import org.jglrxavpok.moarboats.common.math.MutableVec2
 
@@ -14,8 +13,8 @@ class SurroundingsMatrix(val size: Int) {
         null
     }
 
-    fun compute(world: World, centerX: Double, centerY: Double, centerZ: Double): SurroundingsMatrix {
-        val pos = BlockPos.Mutable()
+    fun compute(world: Level, centerX: Double, centerY: Double, centerZ: Double): SurroundingsMatrix {
+        val pos = BlockPos.MutableBlockPos()
         for(xOffset in -halfSize until halfSize) {
             for(zOffset in -halfSize until halfSize) {
                 val worldX = centerX + xOffset

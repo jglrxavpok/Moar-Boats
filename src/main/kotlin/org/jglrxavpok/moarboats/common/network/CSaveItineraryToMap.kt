@@ -1,10 +1,10 @@
 package org.jglrxavpok.moarboats.common.network
 
 import net.minecraft.item.FilledMapItem
-import net.minecraft.item.Items
-import net.minecraft.util.ResourceLocation
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.item.Items
 import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.fml.network.NetworkEvent
+import net.minecraftforge.network.NetworkEvent
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.common.containers.ContainerHelmModule
@@ -39,7 +39,7 @@ class CSaveItineraryToMap(): MoarBoatsPacket {
             module as HelmModule
             val list = module.waypointsProperty[boat].copy()
             val inv = boat.getInventory(module)
-            if(inv.getItem(0).item.item == Items.FILLED_MAP) {
+            if(inv.getItem(0).item == Items.FILLED_MAP) {
                 val id = FilledMapItem.getMapId(inv.getItem(0))
                 inv.setItem(0, MapItemWithPath.createStack(list, "map_$id", module.loopingProperty[boat]))
                 player.containerMenu.broadcastChanges()

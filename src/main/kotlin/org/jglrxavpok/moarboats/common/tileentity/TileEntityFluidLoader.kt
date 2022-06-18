@@ -1,13 +1,17 @@
 package org.jglrxavpok.moarboats.common.tileentity
 
-import net.minecraft.block.BlockState
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.core.BlockPos
 import net.minecraft.entity.Entity
 import net.minecraft.fluid.Fluid
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.tileentity.ITickableTileEntity
-import net.minecraft.util.Direction
-import net.minecraft.util.ResourceLocation
+import net.minecraft.core.Direction
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.level.material.Fluid
 import net.minecraftforge.common.capabilities.Capability
+import net.minecraftforge.common.extensions.IForgeBlockEntity
 import net.minecraftforge.common.util.LazyOptional
 import net.minecraftforge.fluids.FluidStack
 import net.minecraftforge.fluids.IFluidTank
@@ -19,7 +23,8 @@ import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.blocks.Facing
 import kotlin.math.ceil
 
-class TileEntityFluidLoader: TileEntityListenable(MoarBoats.TileEntityFluidLoaderType), ITickableTileEntity, IFluidHandler, IFluidTank {
+class TileEntityFluidLoader(blockPos: BlockPos, blockState: BlockState): TileEntityListenable(MoarBoats.TileEntityFluidLoaderType, blockPos, blockState), ITickableTileEntity, IFluidHandler, IFluidTank,
+    IForgeBlockEntity {
 
     val blockFacing: Direction get()= level!!.getBlockState(blockPos).getValue(Facing)
     private var fluid: Fluid? = null
@@ -160,17 +165,17 @@ class TileEntityFluidLoader: TileEntityListenable(MoarBoats.TileEntityFluidLoade
     override fun <T : Any?> getCapability(capability: Capability<T>, facing: Direction?): LazyOptional<T> {
         if(capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY)
             return LazyOptional.of { this }.cast()
-        return super.getCapability(capability, facing)
+        return super<TileEntityListenable>.getCapability(capability, facing)
     }
 
-    override fun save(compound: CompoundNBT): CompoundNBT {
+    override fun saveAdditional(compound: CompoundTag) {
+        super.saveAdditional(compound)
         compound.putInt("fluidAmount", amount)
         compound.putString("fluidName", fluid?.registryName?.toString() ?: "")
-        return super.save(compound)
     }
 
-    override fun deserializeNBT(state: BlockState, compound: CompoundNBT) {
-        super.deserializeNBT(state, compound)
+    override fun load(compound: CompoundTag) {
+        super.load(compound)
         fluid = ForgeRegistries.FLUIDS.getValue(ResourceLocation(compound.getString("fluidName")))
         amount = compound.getInt("fluidAmount")
     }

@@ -1,19 +1,16 @@
 package org.jglrxavpok.moarboats.common.containers
 
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.container.Container
-import net.minecraft.inventory.container.ContainerType
-import org.jglrxavpok.moarboats.api.BoatModule
-import org.jglrxavpok.moarboats.api.IControllable
+import net.minecraft.world.inventory.MenuType
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.entity.player.Player
 
-open class EmptyContainer(containerID: Int, playerInventory: PlayerInventory, val isLarge: Boolean = false, val xStart: Int = 8, val containerType: ContainerType<*> = ContainerTypes.Empty): ContainerBase<EmptyContainer>(containerType as ContainerType<EmptyContainer>, containerID, playerInventory) {
+open class EmptyContainer(containerID: Int, playerInventory: Inventory, val isLarge: Boolean = false, val xStart: Int = 8, val containerType: MenuType<*> = ContainerTypes.Empty): ContainerBase<EmptyContainer>(containerType as MenuType<EmptyContainer>, containerID, playerInventory) {
 
     init {
         addPlayerSlots(isLarge, xStart)
     }
 
-    override fun stillValid(playerIn: PlayerEntity): Boolean {
+    override fun stillValid(playerIn: Player): Boolean {
         return true
     }
 }

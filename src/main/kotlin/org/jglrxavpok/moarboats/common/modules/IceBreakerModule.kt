@@ -1,12 +1,12 @@
 package org.jglrxavpok.moarboats.common.modules
 
-import net.minecraft.block.Blocks
-import net.minecraft.block.IceBlock
-import net.minecraft.client.gui.screen.Screen
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.util.Hand
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.BlockPos
+import net.minecraft.client.gui.screens.Screen
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.InteractionHand
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.level.block.IceBlock
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
@@ -15,8 +15,6 @@ import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
 import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.items.IceBreakerItem
-import org.jglrxavpok.moarboats.extensions.getCenterForAllSides
-import java.util.*
 
 object IceBreakerModule: BoatModule() {
 
@@ -25,7 +23,7 @@ object IceBreakerModule: BoatModule() {
     override val moduleSpot = Spot.Misc
     override val isMenuInteresting = false
 
-    override fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean) = false
+    override fun onInteract(from: IControllable, player: Player, hand: InteractionHand, sneaking: Boolean) = false
     override fun controlBoat(from: IControllable) { }
     override fun onAddition(to: IControllable) { }
 
@@ -36,9 +34,9 @@ object IceBreakerModule: BoatModule() {
                 .move(-from.positionX, -from.positionY - .75f, -from.positionZ)
                 .expandTowards(1.0, 1.0, 1.0)
         val collidedBB = level.getBlockCollisions(from.correspondingEntity, bb)
-        val blockPos = BlockPos.Mutable()
+        val blockPos = BlockPos.MutableBlockPos()
         for(box in collidedBB) {
-            val center = box.bounds().getCenterForAllSides()
+            val center = box.bounds().center
             blockPos.set(center.x, center.y, center.z)
             val blockAtCenter = level.getBlockState(blockPos)
             if(blockAtCenter.block is IceBlock) {
@@ -77,7 +75,7 @@ object IceBreakerModule: BoatModule() {
 
     private fun clearNotUpdatedFor(boat: IControllable, ticks: Int) {
         val state = boat.getState()
-        val pos = BlockPos.Mutable()
+        val pos = BlockPos.MutableBlockPos()
         val keys = state.allKeys.toList() // avoid ConcurrentModifException by copying the list
         for(key in keys) {
             if("Timestamp" in key) {
@@ -112,9 +110,9 @@ object IceBreakerModule: BoatModule() {
         return state.getFloat("breakProgress_X${pos.x}_Y${pos.y}_Z${pos.z}")
     }
 
-    override fun createContainer(containerID: Int, player: PlayerEntity, boat: IControllable): ContainerBoatModule<*>? = EmptyModuleContainer(containerID, player.inventory, this, boat)
+    override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? = EmptyModuleContainer(containerID, player.inventory, this, boat)
 
-    override fun createGui(containerID: Int, player: PlayerEntity, boat: IControllable): Screen {
+    override fun createGui(containerID: Int, player: Player, boat: IControllable): Screen {
         return GuiNoConfigModule(containerID, player.inventory, this, boat)
     }
 

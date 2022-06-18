@@ -1,13 +1,13 @@
 package org.jglrxavpok.moarboats.server
 
-import net.minecraft.entity.player.ServerPlayerEntity
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.nbt.ListNBT
-import net.minecraft.world.server.ServerWorld
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.ListTag
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.server.level.ServerPlayer
 import net.minecraftforge.event.entity.living.LivingEvent
 import net.minecraftforge.event.world.WorldEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.network.PacketDistributor
+import net.minecraftforge.network.PacketDistributor
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.EntityEntries
 import org.jglrxavpok.moarboats.common.data.ForcedChunks
@@ -15,13 +15,12 @@ import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import org.jglrxavpok.moarboats.common.modules.ChunkLoadingModule
 import org.jglrxavpok.moarboats.common.network.SSetGoldenItinerary
-import org.jglrxavpok.moarboats.extensions.getEntities
 
 object ServerEvents {
 
     @SubscribeEvent
     fun onPlayerUpdate(event: LivingEvent.LivingUpdateEvent) {
-        val player = event.entityLiving as? ServerPlayerEntity ?: return
+        val player = event.entityLiving as? ServerPlayer ?: return
         for(i in 0 until player.inventory.containerSize) {
             val itemstack = player.inventory.getItem(i)
 
@@ -38,10 +37,10 @@ object ServerEvents {
 
     @SubscribeEvent
     fun onWorldLoad(event: WorldEvent.Load) {
-        val world = (event.world as? ServerWorld) ?: return
-        val chunks = world.dataStorage.computeIfAbsent({ForcedChunkList(ListNBT())}, "moarboats_forced_chunks")
+        val world = (event.world as? ServerLevel) ?: return
+        val chunks = world.dataStorage.computeIfAbsent({ForcedChunkList(ListTag())}, "moarboats_forced_chunks")
         for(nbt in chunks.list) {
-            nbt as CompoundNBT
+            nbt as CompoundTag
             val chunks = ForcedChunks(world)
             chunks.read(nbt)
             chunks.forceAfterWorldLoad()
@@ -50,11 +49,11 @@ object ServerEvents {
 
     @SubscribeEvent
     fun onWorldSave(event: WorldEvent.Save) {
-        val world = (event.world as? ServerWorld) ?: return
+        val world = (event.world as? ServerLevel) ?: return
         val boats = world.getEntities<ModularBoatEntity>(EntityEntries.ModularBoat) { ChunkLoadingModule in (it as ModularBoatEntity).modules }.map { it as ModularBoatEntity }
-        val nbtList = ListNBT()
+        val nbtList = ListTag()
         boats.forEach {
-            nbtList.add(it.forcedChunks.write(CompoundNBT()))
+            nbtList.add(it.forcedChunks.write(CompoundTag()))
         }
 
         world.dataStorage.set(ForcedChunkList(nbtList))

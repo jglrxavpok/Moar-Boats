@@ -1,13 +1,13 @@
 package org.jglrxavpok.moarboats.common.containers
 
-import net.minecraft.item.Items
-import net.minecraft.inventory.IInventory
-import net.minecraft.inventory.container.Slot
-import net.minecraft.item.ItemStack
+import net.minecraft.world.Container
+import net.minecraft.world.inventory.Slot
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import org.jglrxavpok.moarboats.common.items.MapItemWithPath
 
-class SlotMap(inventory: IInventory, index: Int, x: Int, y: Int): Slot(inventory, index, x, y) {
+class SlotMap(inventory: Container, index: Int, x: Int, y: Int): Slot(inventory, index, x, y) {
 
     override fun mayPlace(stack: ItemStack): Boolean {
         return stack.item == Items.FILLED_MAP || stack.item == ItemGoldenTicket || stack.item == MapItemWithPath
@@ -18,6 +18,6 @@ class SlotMap(inventory: IInventory, index: Int, x: Int, y: Int): Slot(inventory
     }
 }
 
-class SlotFishingRod(inventory: IInventory, index: Int, x: Int, y: Int): SlotOneItemType(inventory, index, x, y) {
+class SlotFishingRod(inventory: Container, index: Int, x: Int, y: Int): SlotOneItemType(inventory, index, x, y) {
     override val validItem = Items.FISHING_ROD
 }

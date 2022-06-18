@@ -1,9 +1,9 @@
 package org.jglrxavpok.moarboats.common.network
 
-import net.minecraft.util.ResourceLocation
+import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.fml.network.NetworkEvent
-import net.minecraftforge.fml.network.NetworkHooks
+import net.minecraftforge.network.NetworkEvent
+import net.minecraftforge.network.NetworkHooks
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 

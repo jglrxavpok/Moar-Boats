@@ -1,12 +1,11 @@
 package org.jglrxavpok.moarboats.client.gui
 
-import net.minecraft.client.gui.widget.button.Button
-import net.minecraft.client.gui.widget.button.ImageButton
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.util.Direction
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.text.StringTextComponent
-import net.minecraft.util.text.TranslationTextComponent
+import net.minecraft.client.gui.components.Button
+import net.minecraft.client.gui.components.ImageButton
+import net.minecraft.core.Direction
+import net.minecraft.network.chat.Component
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.entity.player.Inventory
 import net.minecraftforge.fml.client.gui.widget.Slider
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
@@ -16,17 +15,17 @@ import org.jglrxavpok.moarboats.common.modules.DispensingModule
 import org.jglrxavpok.moarboats.common.network.CChangeDispenserFacing
 import org.jglrxavpok.moarboats.common.network.CChangeDispenserPeriod
 
-class GuiDispenserModule(containerID: Int, playerInv: PlayerInventory, module: BoatModule, boat: IControllable): GuiModuleBase<ContainerDispenserModule>(module, boat, playerInv, ContainerDispenserModule(containerID, playerInv, module, boat), isLarge = true) {
+class GuiDispenserModule(containerID: Int, playerInv: Inventory, module: BoatModule, boat: IControllable): GuiModuleBase<ContainerDispenserModule>(module, boat, playerInv, ContainerDispenserModule(containerID, playerInv, module, boat), isLarge = true) {
     override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/dispenser.png")
 
     private val dispensingModule = module as DispensingModule
-    private val sliderPrefix = TranslationTextComponent("gui.dispenser.period.prefix")
-    private val sliderSuffix = TranslationTextComponent("gui.dispenser.period.suffix")
-    private val topRowText = TranslationTextComponent("gui.dispenser.top_row")
-    private val middleRowText = TranslationTextComponent("gui.dispenser.middle_row")
-    private val bottomRowText = TranslationTextComponent("gui.dispenser.bottom_row")
-    private val periodText = TranslationTextComponent("gui.dispenser.period")
-    private val orientationText = TranslationTextComponent("gui.dispenser.orientation")
+    private val sliderPrefix = Component.translatable("gui.dispenser.period.prefix")
+    private val sliderSuffix = Component.translatable("gui.dispenser.period.suffix")
+    private val topRowText = Component.translatable("gui.dispenser.top_row")
+    private val middleRowText = Component.translatable("gui.dispenser.middle_row")
+    private val bottomRowText = Component.translatable("gui.dispenser.bottom_row")
+    private val periodText = Component.translatable("gui.dispenser.period")
+    private val orientationText = Component.translatable("gui.dispenser.orientation")
     private val facings = arrayOf(Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST, Direction.UP, Direction.DOWN)
     private val facingSelectionTexLocation = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/dispenser_facings.png")
 
@@ -44,16 +43,16 @@ class GuiDispenserModule(containerID: Int, playerInv: PlayerInventory, module: B
     private val facingButtons = arrayOf(frontFacingButton, backFacingButton, leftFacingButton, rightFacingButton, upFacingButton, downFacingButton)
 
     private lateinit var periodSlider: Slider
-    private val sliderCallback = Button.IPressable { slider ->
+    private val sliderCallback = Button.OnPress { slider ->
         MoarBoats.network.sendToServer(CChangeDispenserPeriod(boat.entityID, module.id, periodSlider.value))
     }
 
     override fun init() {
         super.init()
         val sliderWidth = xSize-10
-        periodSlider = Slider(guiLeft+xSize/2-sliderWidth/2, guiTop + 100, sliderWidth, 20, StringTextComponent("${sliderPrefix.string} "), sliderSuffix, 1.0, 100.0, 0.0, true, true, sliderCallback)
+        periodSlider = Slider(guiLeft+xSize/2-sliderWidth/2, guiTop + 100, sliderWidth, 20, Component.literal("${sliderPrefix.string} "), sliderSuffix, 1.0, 100.0, 0.0, true, true, sliderCallback)
         periodSlider.value = dispensingModule.blockPeriodProperty[boat]
-        addButton(periodSlider)
+        addWidget(periodSlider)
 
         val yStart = guiTop + 35
         frontFacingButton.x = guiLeft+16+4
@@ -75,12 +74,12 @@ class GuiDispenserModule(containerID: Int, playerInv: PlayerInventory, module: B
         downFacingButton.y = yStart
         facingButtons.forEach {
 
-            addButton(it)
+            addWidget(it)
         }
     }
 
-    override fun tick() {
-        super.tick()
+    override fun containerTick() {
+        super.containerTick()
         periodSlider.updateSlider()
     }
 

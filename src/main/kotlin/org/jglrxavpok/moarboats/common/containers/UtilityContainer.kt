@@ -1,25 +1,24 @@
 package org.jglrxavpok.moarboats.common.containers
 
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.IInventory
-import net.minecraft.inventory.container.*
-import net.minecraft.item.ItemStack
-import net.minecraft.util.IIntArray
-import net.minecraft.util.IntReferenceHolder
-import net.minecraft.util.NonNullList
-import net.minecraft.world.World
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper
+import net.minecraft.core.NonNullList
+import net.minecraft.world.Container
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.inventory.*
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.Level
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper
 
-class UtilityContainer<T: Container>(type: ContainerType<T>, id: Int, val baseContainer: Container): Container(type, id) {
+class UtilityContainer<T: AbstractContainerMenu>(type: MenuType<T>, id: Int, val baseContainer: AbstractContainerMenu): AbstractContainerMenu(type, id) {
 
     companion object {
-        val resetDragMethod = ObfuscationReflectionHelper.findMethod(Container::class.java, "func_94533_d")
-        val clearContainerMethod = ObfuscationReflectionHelper.findMethod(Container::class.java, "func_193327_a", PlayerEntity::class.java, World::class.java, IInventory::class.java)
-        val moveItemStackToMethod = ObfuscationReflectionHelper.findMethod(Container::class.java, "func_75135_a", ItemStack::class.java, Integer.TYPE, Integer.TYPE, java.lang.Boolean.TYPE)
+        // TODO: Access transformer
+        val resetDragMethod = ObfuscationReflectionHelper.findMethod(AbstractContainerMenu::class.java, "func_94533_d")
+        val clearContainerMethod = ObfuscationReflectionHelper.findMethod(AbstractContainerMenu::class.java, "func_193327_a", Player::class.java, Level::class.java, AbstractContainerMenu::class.java)
+        val moveItemStackToMethod = ObfuscationReflectionHelper.findMethod(AbstractContainerMenu::class.java, "func_75135_a", ItemStack::class.java, Integer.TYPE, Integer.TYPE, java.lang.Boolean.TYPE)
     }
 
-    override fun stillValid(playerIn: PlayerEntity): Boolean {
+    override fun stillValid(playerIn: Player): Boolean {
         return true
     }
 
@@ -31,27 +30,23 @@ class UtilityContainer<T: Container>(type: ContainerType<T>, id: Int, val baseCo
         return baseContainer.canTakeItemForPickAll(stack, slotIn)
     }
 
-    override fun setAll(p_190896_1_: MutableList<ItemStack>) {
-        baseContainer.setAll(p_190896_1_)
+    override fun transferState(menu: AbstractContainerMenu) {
+        baseContainer.transferState(menu)
     }
 
-    override fun quickMoveStack(playerIn: PlayerEntity, index: Int): ItemStack {
+    override fun quickMoveStack(playerIn: Player, index: Int): ItemStack {
         return baseContainer.quickMoveStack(playerIn, index)
     }
 
-    override fun addSlotListener(listener: IContainerListener) {
+    override fun addSlotListener(listener: ContainerListener) {
         baseContainer.addSlotListener(listener)
     }
 
-    override fun setSynched(player: PlayerEntity, canCraft: Boolean) {
-        baseContainer.setSynched(player, canCraft)
-    }
-
-    override fun clickMenuButton(playerIn: PlayerEntity, id: Int): Boolean {
+    override fun clickMenuButton(playerIn: Player, id: Int): Boolean {
         return baseContainer.clickMenuButton(playerIn, id)
     }
 
-    override fun removeSlotListener(listener: IContainerListener) {
+    override fun removeSlotListener(listener: ContainerListener) {
         baseContainer.removeSlotListener(listener)
     }
 
@@ -59,16 +54,16 @@ class UtilityContainer<T: Container>(type: ContainerType<T>, id: Int, val baseCo
         baseContainer.setData(id, data)
     }
 
-    override fun removed(playerIn: PlayerEntity) {
+    override fun removed(playerIn: Player) {
         baseContainer.removed(playerIn)
     }
 
-    override fun setItem(slotID: Int, stack: ItemStack) {
-        baseContainer.setItem(slotID, stack)
+    override fun setItem(slotID: Int, stateID: Int, stack: ItemStack) {
+        baseContainer.setItem(slotID, stateID, stack)
     }
 
-    override fun clicked(slotId: Int, dragType: Int, clickTypeIn: ClickType, player: PlayerEntity): ItemStack {
-        return baseContainer.clicked(slotId, dragType, clickTypeIn, player)
+    override fun clicked(slotId: Int, dragType: Int, clickTypeIn: ClickType, player: Player) {
+        baseContainer.clicked(slotId, dragType, clickTypeIn, player)
     }
 
     override fun getSlot(slotId: Int): Slot {
@@ -83,23 +78,15 @@ class UtilityContainer<T: Container>(type: ContainerType<T>, id: Int, val baseCo
         resetDragMethod(baseContainer)
     }
 
-    override fun backup(invPlayer: PlayerInventory): Short {
-        return baseContainer.backup(invPlayer)
-    }
-
-    override fun clearContainer(playerIn: PlayerEntity, worldIn: World, inventoryIn: IInventory) {
-        clearContainerMethod(baseContainer, playerIn, worldIn, inventoryIn)
-    }
-
-    override fun isSynched(player: PlayerEntity): Boolean {
-        return baseContainer.isSynched(player)
+    override fun clearContainer(playerIn: Player, inventoryIn: Container) {
+        clearContainerMethod(baseContainer, playerIn, inventoryIn)
     }
 
     override fun broadcastChanges() {
         baseContainer.broadcastChanges()
     }
 
-    override fun slotsChanged(inventoryIn: IInventory) {
+    override fun slotsChanged(inventoryIn: Container) {
         baseContainer.slotsChanged(inventoryIn)
     }
 

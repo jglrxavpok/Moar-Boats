@@ -1,22 +1,17 @@
 package org.jglrxavpok.moarboats.api
 
-import net.minecraft.client.entity.player.ClientPlayerEntity
-import net.minecraft.client.gui.ScreenManager
-import net.minecraft.client.gui.screen.Screen
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.inventory.container.ContainerType
-import net.minecraft.inventory.container.INamedContainerProvider
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.Hand
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.text.TranslationTextComponent
+import net.minecraft.client.gui.screens.Screen
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.network.chat.Component
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.MenuProvider
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.common.MinecraftForge
-import net.minecraftforge.common.extensions.IForgeContainerType
-import net.minecraftforge.registries.ForgeRegistryEntry
 import net.minecraftforge.registries.IForgeRegistry
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.gui.GuiModuleBase
@@ -34,17 +29,17 @@ abstract class BoatModule {
             boat?.let {
                 return@create createContainer(windowId, player as ClientPlayerEntity, it)
             } ?: return@create null
-        }.setRegistryName(id) as ContainerType<ContainerBoatModule<*>>
+        }.setRegistryName(id) as MenuType<ContainerBoatModule<*>>
     }
 
     abstract val id: ResourceLocation
     abstract val usesInventory: Boolean
     abstract val moduleSpot: Spot
-    abstract fun onInteract(from: IControllable, player: PlayerEntity, hand: Hand, sneaking: Boolean): Boolean
+    abstract fun onInteract(from: IControllable, player: Player, hand: InteractionHand, sneaking: Boolean): Boolean
     abstract fun controlBoat(from: IControllable)
     abstract fun update(from: IControllable)
     abstract fun onAddition(to: IControllable)
-    abstract fun createContainer(containerID: Int, player: PlayerEntity, boat: IControllable): ContainerBoatModule<*>?
+    abstract fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>?
 
     /**
      * Set to false if you want the menu to be displayed at the bottom of the module tabs (no config modules use this)
@@ -58,19 +53,19 @@ abstract class BoatModule {
     open val hopperPriority = 1
 
     @OnlyIn(Dist.CLIENT)
-    abstract fun createGui(containerID: Int, player: PlayerEntity, boat: IControllable): Screen
+    abstract fun createGui(containerID: Int, player: Player, boat: IControllable): Screen
 
     open fun onInit(to: IControllable, fromItem: ItemStack?) {}
 
     /**
      * Reads additional information from the boat entity NBT data. No need to read/store module state created via the BoatProperty objects
      */
-    open fun readFromNBT(boat: IControllable, compound: CompoundNBT) {}
+    open fun readFromNBT(boat: IControllable, compound: CompoundTag) {}
 
     /**
      * Writes additional information to the boat entity NBT data. No need to read/store module state created via the BoatProperty objects
      */
-    open fun writeToNBT(boat: IControllable, compound: CompoundNBT) = compound
+    open fun writeToNBT(boat: IControllable, compound: CompoundTag) = compound
 
     val rng = Random()
 
@@ -84,12 +79,12 @@ abstract class BoatModule {
         Navigation("navigation"),
         Misc("misc");
 
-        val text = TranslationTextComponent("general.spot.$id")
+        val text = Component.translatable("general.spot.$id")
     }
 
     open fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {}
 
-    fun generateInteractionObject(boat: IControllable): INamedContainerProvider {
+    fun generateInteractionObject(boat: IControllable): MenuProvider {
         return BoatModuleInteractionObject(this, boat)
     }
 

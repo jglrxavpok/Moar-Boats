@@ -1,14 +1,12 @@
 package org.jglrxavpok.moarboats.common.network
 
-import net.minecraft.network.PacketBuffer
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.fml.DistExecutor
-import net.minecraftforge.fml.network.NetworkEvent
-import net.minecraftforge.fml.network.PacketDistributor
-import net.minecraftforge.fml.network.simple.SimpleChannel
+import net.minecraftforge.network.NetworkEvent
+import net.minecraftforge.network.PacketDistributor
+import net.minecraftforge.network.simple.SimpleChannel
 import org.jglrxavpok.moarboats.MoarBoats
 import java.util.function.BiConsumer
-import java.util.function.Supplier
 
 interface MBMessageHandler<REQ: MoarBoatsPacket, REPLY: MoarBoatsPacket?> {
     val packetClass: Class<REQ>

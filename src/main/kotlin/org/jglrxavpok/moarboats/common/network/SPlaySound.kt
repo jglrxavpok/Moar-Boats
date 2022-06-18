@@ -1,10 +1,11 @@
 package org.jglrxavpok.moarboats.common.network
 
 import net.minecraft.client.Minecraft
-import net.minecraft.util.SoundCategory
+import net.minecraft.sounds.SoundEvent
+import net.minecraft.sounds.SoundSource
 import net.minecraft.util.SoundEvent
 import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.fml.network.NetworkEvent
+import net.minecraftforge.network.NetworkEvent
 
 class SPlaySound(): MoarBoatsPacket {
 
@@ -12,11 +13,11 @@ class SPlaySound(): MoarBoatsPacket {
     var y: Double = 0.0
     var z: Double = 0.0
     lateinit var soundEvent: SoundEvent
-    lateinit var soundCategory: SoundCategory
+    lateinit var soundCategory: SoundSource
     var volume: Float = 0f
     var pitch: Float = 0f
 
-    constructor(x: Double, y: Double, z: Double, soundEvent: SoundEvent, soundCategory: SoundCategory, volume: Float, pitch: Float): this() {
+    constructor(x: Double, y: Double, z: Double, soundEvent: SoundEvent, soundCategory: SoundSource, volume: Float, pitch: Float): this() {
         this.x = x
         this.y = y
         this.z = z

@@ -1,15 +1,15 @@
 package org.jglrxavpok.moarboats.common.containers
 
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.container.ContainerType
-import net.minecraft.inventory.container.Slot
-import net.minecraft.item.ItemStack
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.inventory.MenuType
+import net.minecraft.world.inventory.Slot
+import net.minecraft.world.item.ItemStack
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.modules.DispenserModule
 
-class ContainerDispenserModule(containerID: Int, playerInv: PlayerInventory, module: BoatModule, boat: IControllable): ContainerBoatModule<ContainerDispenserModule>(DispenserModule.containerType as ContainerType<ContainerDispenserModule>, containerID, playerInv, module, boat) {
+class ContainerDispenserModule(containerID: Int, playerInv: Inventory, module: BoatModule, boat: IControllable): ContainerBoatModule<ContainerDispenserModule>(DispenserModule.containerType as MenuType<ContainerDispenserModule>, containerID, playerInv, module, boat) {
 
     val placerInventory = boat.getInventory(module)
 
@@ -28,7 +28,7 @@ class ContainerDispenserModule(containerID: Int, playerInv: PlayerInventory, mod
         this.addDataSlots(placerInventory.additionalData)
     }
 
-    override fun quickMoveStack(playerIn: PlayerEntity, index: Int): ItemStack {
+    override fun quickMoveStack(playerIn: Player, index: Int): ItemStack {
         return ItemStack.EMPTY // for lack of a better shift click mechanism
     }
 }

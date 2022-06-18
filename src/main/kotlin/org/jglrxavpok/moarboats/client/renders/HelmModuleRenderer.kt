@@ -1,18 +1,19 @@
 package org.jglrxavpok.moarboats.client.renders
 
-import com.mojang.blaze3d.matrix.MatrixStack
-import com.mojang.blaze3d.vertex.IVertexBuilder
+import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.blaze3d.vertex.VertexConsumer
+import com.mojang.math.Quaternion
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.IRenderTypeBuffer
+import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderType
-import net.minecraft.client.renderer.entity.EntityRendererManager
+import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.model.ModelRenderer
 import net.minecraft.client.renderer.texture.OverlayTexture
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.nbt.ListNBT
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.vector.Quaternion
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.ListTag
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
 import net.minecraft.world.storage.MapData
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
@@ -20,7 +21,6 @@ import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.RenderInfo
 import org.jglrxavpok.moarboats.client.addVertex
 import org.jglrxavpok.moarboats.client.models.ModelHelm
-import org.jglrxavpok.moarboats.client.pos
 import org.jglrxavpok.moarboats.common.data.LoopingOptions
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.items.HelmItem
@@ -50,7 +50,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
     val mapBackgroundRenderType = RenderType.entityCutoutNoCull(RES_MAP_BACKGROUND)
     val moduleRenderType = RenderType.entityCutoutNoCull(texture)
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: MatrixStack, buffers: IRenderTypeBuffer, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererManager) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererProvider.Context) {
         module as HelmModule
         matrixStack.pushPose()
         matrixStack.scale(1f, -1f, 1f)
@@ -92,7 +92,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
             matrixStack.translate(0.0, 0.0, 1.0)
 
             val (waypoints, loopingOption) = when (item) {
-                net.minecraft.item.Items.FILLED_MAP -> Pair(HelmModule.waypointsProperty[boat], HelmModule.loopingProperty[boat])
+                Items.FILLED_MAP -> Pair(HelmModule.waypointsProperty[boat], HelmModule.loopingProperty[boat])
                 is ItemPath -> Pair(item.getWaypointData(stack, MoarBoats.getLocalMapStorage()), item.getLoopingOptions(stack))
                 else -> return@let
             }
@@ -107,7 +107,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         }
     }
 
-    fun renderMap(boat: IControllable, renderInfo: RenderInfo, mapdata: MapData, x: Double, y: Double, mapSize: Double, worldX: Double, worldZ: Double, margins: Double = 7.0, waypointsData: ListNBT, loops: Boolean) {
+    fun renderMap(boat: IControllable, renderInfo: RenderInfo, mapdata: MapData, x: Double, y: Double, mapSize: Double, worldX: Double, worldZ: Double, margins: Double = 7.0, waypointsData: ListTag, loops: Boolean) {
         val mc = Minecraft.getInstance()
         val matrixStack = renderInfo.matrixStack
         matrixStack.pushPose()
@@ -138,9 +138,9 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         var hasPrevious = false
         var previousX = 0.0
         var previousZ = 0.0
-        val first = waypointsData.firstOrNull() as? CompoundNBT
+        val first = waypointsData.firstOrNull() as? CompoundTag
         for((index, waypoint) in waypointsData.withIndex()) {
-            waypoint as CompoundNBT
+            waypoint as CompoundTag
             val x = (waypoint.getInt("x").toDouble()-HelmModule.xCenterProperty[boat])/mapSize*128.0+64f
             val z = (waypoint.getInt("z").toDouble()-HelmModule.zCenterProperty[boat])/mapSize*128.0+64f
             renderSingleWaypoint(renderInfo, renderInfo.buffers.getBuffer(waypointRenderType), x, z-7.0)
@@ -161,7 +161,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         matrixStack.popPose()
     }
 
-    fun renderPath(renderInfo: RenderInfo, buffer: IVertexBuilder, previousX: Double, previousZ: Double, x: Double, z: Double, redModifier: Float = 1.0f, greenModifier: Float = 1.0f, blueModifier: Float = 1.0f) {
+    fun renderPath(renderInfo: RenderInfo, buffer: VertexConsumer, previousX: Double, previousZ: Double, x: Double, z: Double, redModifier: Float = 1.0f, greenModifier: Float = 1.0f, blueModifier: Float = 1.0f) {
         val matrixStack = renderInfo.matrixStack
         val time = (glfwGetTime()*1000).toInt()
         val pathTextureIndex = 3 - ((time/500) % 4)
@@ -182,7 +182,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         matrixStack.popPose()
     }
 
-    fun renderSingleWaypoint(renderInfo: RenderInfo, buffer: IVertexBuilder, x: Double, y: Double, redModifier: Float = 1.0f, greenModifier: Float = 1.0f, blueModifier: Float = 1.0f) {
+    fun renderSingleWaypoint(renderInfo: RenderInfo, buffer: VertexConsumer, x: Double, y: Double, redModifier: Float = 1.0f, greenModifier: Float = 1.0f, blueModifier: Float = 1.0f) {
         val spriteSize = 8.0
         buffer.addVertex(renderInfo.matrixStack, (x-spriteSize/2).toFloat(), (y+spriteSize).toFloat(), 0.0f, redModifier, greenModifier, blueModifier, 1f, 0.0f, 1.0f, OverlayTexture.NO_OVERLAY, renderInfo.combinedLight, 0f, 0f, 1f)
         buffer.addVertex(renderInfo.matrixStack, (x+spriteSize/2).toFloat(), (y+spriteSize).toFloat(), 0.0f, redModifier, greenModifier, blueModifier, 1f, 1.0f, 1.0f, OverlayTexture.NO_OVERLAY, renderInfo.combinedLight, 0f, 0f, 1f)
