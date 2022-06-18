@@ -2,6 +2,7 @@ package org.jglrxavpok.moarboats.common.entities.utilityboats
 
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
+import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.ChestMenu
@@ -11,12 +12,16 @@ import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.level.block.ChestBlock
 import net.minecraft.world.level.block.ShulkerBoxBlock
 import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.entity.ChestBlockEntity
 import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity
 import net.minecraft.world.phys.Vec3
 import org.jglrxavpok.moarboats.common.EntityEntries
+import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.containers.ContainerTypes
 import org.jglrxavpok.moarboats.common.containers.UtilityChestContainer
 import org.jglrxavpok.moarboats.common.containers.UtilityShulkerContainer
@@ -25,9 +30,9 @@ import org.jglrxavpok.moarboats.common.items.ChestBoatItem
 import org.jglrxavpok.moarboats.common.items.EnderChestBoatItem
 import org.jglrxavpok.moarboats.common.items.ShulkerBoatItem
 
-class ChestBoatEntity(world: Level): UtilityBoatEntity<ChestBlockEntity, UtilityChestContainer>(EntityEntries.ChestBoat, world) {
+class ChestBoatEntity(entityType: EntityType<out ChestBoatEntity>, world: Level): UtilityBoatEntity<ChestBlockEntity, UtilityChestContainer>(entityType, world) {
 
-    constructor(level: Level, x: Double, y: Double, z: Double): this(level) {
+    constructor(entityType: EntityType<out ChestBoatEntity>, level: Level, x: Double, y: Double, z: Double): this(entityType, level) {
         this.setPos(x, y, z)
         this.deltaMovement = Vec3.ZERO
         this.xOld = x
@@ -36,15 +41,15 @@ class ChestBoatEntity(world: Level): UtilityBoatEntity<ChestBlockEntity, Utility
     }
 
     override fun initBackingTileEntity(): ChestBlockEntity? {
-        return ChestBlockEntity()
+        return ChestBlockEntity(InvalidPosition, Blocks.CHEST.defaultBlockState())
     }
 
     override fun getContainerType(): MenuType<UtilityChestContainer> {
-        return ContainerTypes.ChestBoat
+        return ContainerTypes.ChestBoat.get()
     }
 
     override fun getBoatItem(): Item {
-        return ChestBoatItem[boatType]
+        return MBItems.ChestBoats[boatType]!!.get()
     }
 
     override fun createMenu(windowID: Int, inv: Inventory, player: Player): UtilityChestContainer? {
@@ -64,11 +69,11 @@ class ChestBoatEntity(world: Level): UtilityBoatEntity<ChestBlockEntity, Utility
 
 }
 
-class ShulkerBoatEntity(world: Level): UtilityBoatEntity<ShulkerBoxBlockEntity, UtilityShulkerContainer>(EntityEntries.ShulkerBoat, world) {
+class ShulkerBoatEntity(entityType: EntityType<out ShulkerBoatEntity>, world: Level): UtilityBoatEntity<ShulkerBoxBlockEntity, UtilityShulkerContainer>(entityType, world) {
 
     internal var dyeColor: DyeColor? = null
 
-    constructor(color: DyeColor?, level: Level, x: Double, y: Double, z: Double): this(level) {
+    constructor(entityType: EntityType<out ShulkerBoatEntity>, color: DyeColor?, level: Level, x: Double, y: Double, z: Double): this(entityType, level) {
         this.dyeColor = color
         this.setPos(x, y, z)
         this.deltaMovement = Vec3.ZERO
@@ -78,15 +83,15 @@ class ShulkerBoatEntity(world: Level): UtilityBoatEntity<ShulkerBoxBlockEntity, 
     }
 
     override fun initBackingTileEntity(): ShulkerBoxBlockEntity? {
-        return ShulkerBoxBlockEntity(dyeColor)
+        return ShulkerBoxBlockEntity(dyeColor, InvalidPosition, Blocks.SHULKER_BOX.defaultBlockState())
     }
 
     override fun getContainerType(): MenuType<UtilityShulkerContainer> {
-        return ContainerTypes.ShulkerBoat
+        return ContainerTypes.ShulkerBoat.get()
     }
 
     override fun getBoatItem(): Item {
-        return ShulkerBoatItem[boatType]
+        return MBItems.ShulkerBoats[boatType]!!.get()
     }
 
     override fun createMenu(windowID: Int, inv: Inventory, player: Player): UtilityShulkerContainer? {
@@ -131,9 +136,9 @@ class ShulkerBoatEntity(world: Level): UtilityBoatEntity<ShulkerBoxBlockEntity, 
     }
 }
 
-class EnderChestBoatEntity(world: Level): UtilityBoatEntity<BlockEntity, ChestMenu>(EntityEntries.EnderChestBoat, world) {
+class EnderChestBoatEntity(entityType: EntityType<out EnderChestBoatEntity>, world: Level): UtilityBoatEntity<BlockEntity, ChestMenu>(entityType, world) {
 
-    constructor(level: Level, x: Double, y: Double, z: Double): this(level) {
+    constructor(entityType: EntityType<out EnderChestBoatEntity>, level: Level, x: Double, y: Double, z: Double): this(entityType, level) {
         this.setPos(x, y, z)
         this.deltaMovement = Vec3.ZERO
         this.xOld = x
@@ -146,11 +151,11 @@ class EnderChestBoatEntity(world: Level): UtilityBoatEntity<BlockEntity, ChestMe
     }
 
     override fun getContainerType(): MenuType<ChestMenu> {
-        return ContainerTypes.EnderChestBoat
+        return ContainerTypes.EnderChestBoat.get()
     }
 
     override fun getBoatItem(): Item {
-        return EnderChestBoatItem[boatType]
+        return MBItems.EnderChestBoats[boatType]!!.get()
     }
 
     override fun createMenu(windowID: Int, inv: Inventory, player: Player): ChestMenu? {

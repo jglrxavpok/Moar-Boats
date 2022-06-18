@@ -12,9 +12,11 @@ import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
+import org.jglrxavpok.moarboats.common.MenuTypes
 import org.jglrxavpok.moarboats.common.modules.FurnaceEngineModule
 
-class ContainerFurnaceEngine(containerID: Int, playerInventory: Inventory, engine: BoatModule, boat: IControllable): ContainerBoatModule<ContainerFurnaceEngine>(FurnaceEngineModule.containerType as MenuType<ContainerFurnaceEngine>, containerID, playerInventory, engine, boat) {
+class ContainerFurnaceEngine(containerID: Int, playerInventory: Inventory, engine: BoatModule, boat: IControllable): ContainerBoatModule<ContainerFurnaceEngine>(
+    ContainerTypes.FurnaceModuleMenu.get()  as MenuType<ContainerFurnaceEngine>, containerID, playerInventory, boat) {
 
     val engineInventory = boat.getInventory(engine)
     private var fuelTime = engineInventory.getField(0)

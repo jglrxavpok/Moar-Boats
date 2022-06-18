@@ -34,7 +34,7 @@ object GoldenTicketCopyRecipe: CraftingRecipe {
         var fullTicket: ItemStack? = null
         for(i in 0 until inv.containerSize) {
             val stack = inv.getItem(i)
-            if(stack.item == ItemGoldenTicket) {
+            if(stack.item is ItemGoldenTicket) {
                 if(ItemGoldenTicket.isEmpty(stack)) {
                     emptyTickets++
                 } else {
@@ -58,7 +58,7 @@ object GoldenTicketCopyRecipe: CraftingRecipe {
         var fullTickets = 0
         for(i in 0 until inv.containerSize) {
             val stack = inv.getItem(i)
-            if(stack.item == ItemGoldenTicket) {
+            if(stack.item is ItemGoldenTicket) {
                 if(ItemGoldenTicket.isEmpty(stack)) {
                     emptyTickets++
                 } else {

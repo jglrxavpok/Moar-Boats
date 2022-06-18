@@ -14,13 +14,14 @@ import net.minecraft.nbt.ListTag
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
-import net.minecraft.world.storage.MapData
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.RenderInfo
 import org.jglrxavpok.moarboats.client.addVertex
 import org.jglrxavpok.moarboats.client.models.ModelHelm
+import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.data.LoopingOptions
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.items.HelmItem
@@ -33,17 +34,13 @@ import kotlin.math.sqrt
 
 object HelmModuleRenderer : BoatModuleRenderer() {
 
-    init {
-        registryName = HelmModule.id
-    }
-
     val model = ModelHelm()
 
     val texture = ResourceLocation(MoarBoats.ModID, "textures/entity/helm.png")
     private val RES_MAP_BACKGROUND = ResourceLocation("textures/map/map_background.png")
     val waypointIndicatorTexture = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/helm/helm_waypoint.png")
     val boatPathTexture = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/helm/boat_path.png")
-    val helmStack = ItemStack(HelmItem)
+    val helmStack = ItemStack(MBItems.HelmItem.get())
 
     val waypointRenderType = RenderType.entityCutoutNoCull(waypointIndicatorTexture)
     val pathRenderType = RenderType.entityCutoutNoCull(boatPathTexture)
@@ -107,15 +104,16 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         }
     }
 
-    fun renderMap(boat: IControllable, renderInfo: RenderInfo, mapdata: MapData, x: Double, y: Double, mapSize: Double, worldX: Double, worldZ: Double, margins: Double = 7.0, waypointsData: ListTag, loops: Boolean) {
+    fun renderMap(boat: IControllable, renderInfo: RenderInfo, mapdata: MapItemSavedData, x: Double, y: Double, mapSize: Double, worldX: Double, worldZ: Double, margins: Double = 7.0, waypointsData: ListTag, loops: Boolean) {
         val mc = Minecraft.getInstance()
         val matrixStack = renderInfo.matrixStack
         matrixStack.pushPose()
         matrixStack.translate(x+margins, y+margins, 0.0)
         matrixStack.scale(0.0078125f, 0.0078125f, 0.0078125f)
         matrixStack.scale((mapSize-margins*2).toFloat(), (mapSize-margins*2).toFloat(), 1.0f)
-        mc.gameRenderer.mapRenderer.update(mapdata)
-        mc.gameRenderer.mapRenderer.render(renderInfo.matrixStack, renderInfo.buffers, mapdata, true, renderInfo.combinedLight)
+        val mapID: Int = TODO()
+        mc.gameRenderer.mapRenderer.update(mapID, mapdata)
+        mc.gameRenderer.mapRenderer.render(renderInfo.matrixStack, renderInfo.buffers, mapID, mapdata, true, renderInfo.combinedLight)
 
         matrixStack.translate(0.0, 0.0, 1.0/0.0078125f) // prevent z-fighting
 

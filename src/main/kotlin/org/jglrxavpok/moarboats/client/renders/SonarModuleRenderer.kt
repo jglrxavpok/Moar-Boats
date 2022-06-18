@@ -15,10 +15,6 @@ import kotlin.math.atan2
 
 object SonarModuleRenderer : BoatModuleRenderer() {
 
-    init {
-        registryName = SonarModule.id
-    }
-
     private val testMatrix = SurroundingsMatrix(32)
 
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererProvider.Context) {
@@ -54,7 +50,7 @@ object SonarModuleRenderer : BoatModuleRenderer() {
                         matrixStack.mulPose(Quaternion(0f, angle.toFloat(), 0f, false))
                         matrixStack.scale(0.1f, 0.1f, gradientVal.length().toFloat() * 0.1f)
                         if(!potentialState.fluidState.isEmpty) {
-                            renderBlockState(matrixStack, buffers, packedLightIn, entityRendererManager, Blocks.EMERALD_BLOCK.defaultBlockState(), boat.brightness)
+                            renderBlockState(matrixStack, buffers, packedLightIn, Blocks.EMERALD_BLOCK.defaultBlockState(), boat.lightLevelDependentMagicValue)
                         }
                         matrixStack.popPose()
                     }

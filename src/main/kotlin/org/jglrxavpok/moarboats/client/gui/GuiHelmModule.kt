@@ -10,7 +10,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
-import net.minecraft.world.storage.MapData
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
@@ -22,7 +22,6 @@ import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 import org.jglrxavpok.moarboats.common.network.CChangeEngineMode
 import org.jglrxavpok.moarboats.common.network.CSaveItineraryToMap
-import org.jglrxavpok.moarboats.common.state.EmptyMapData
 import org.lwjgl.opengl.GL11
 
 class GuiHelmModule(containerID: Int, playerInventory: Inventory, engine: BoatModule, boat: IControllable):
@@ -38,7 +37,7 @@ class GuiHelmModule(containerID: Int, playerInventory: Inventory, engine: BoatMo
     private val saveButtonText = Component.translatable("moarboats.gui.helm.save_on_map")
     private val mapEditButton = Button(0, 0, 150, 20, editButtonText) {
         val mapData = getMapData(baseContainer.getSlot(0).item)
-        if(mapData != null && mapData != EmptyMapData) {
+        if(mapData != null) {
             boat.modules.firstOrNull() { it.moduleSpot == BoatModule.Spot.Engine }?.let {
                 MoarBoats.network.sendToServer(CChangeEngineMode(boat.entityID, it.id, true))
             }
@@ -47,7 +46,7 @@ class GuiHelmModule(containerID: Int, playerInventory: Inventory, engine: BoatMo
     }
     private val saveButton = Button(0, 0, 150, 20, saveButtonText) {
         val mapData = getMapData(baseContainer.getSlot(0).item)
-        if(mapData != null && mapData != EmptyMapData && baseContainer.getSlot(0).item.item == Items.FILLED_MAP) {
+        if(mapData != null && baseContainer.getSlot(0).item.item == Items.FILLED_MAP) {
             MoarBoats.network.sendToServer(CSaveItineraryToMap(boat.entityID, HelmModule.id))
         }
     }
@@ -121,15 +120,15 @@ class GuiHelmModule(containerID: Int, playerInventory: Inventory, engine: BoatMo
         }
     }
 
-    private fun getMapData(stack: ItemStack): MapData? {
+    private fun getMapData(stack: ItemStack): MapItemSavedData? {
         return HelmModule.getMapData(stack, boat)
     }
 
-    override fun tick() {
-        super.tick()
+    override fun containerTick() {
+        super.containerTick()
         val mapData = getMapData(baseContainer.getSlot(0).item)
-        mapEditButton.active = mapData != null && mapData != EmptyMapData
-        saveButton.active = mapData != null && mapData != EmptyMapData && baseContainer.getSlot(0).item.item == Items.FILLED_MAP
+        mapEditButton.active = mapData != null
+        saveButton.active = mapData != null && baseContainer.getSlot(0).item.item == Items.FILLED_MAP
     }
 
 }

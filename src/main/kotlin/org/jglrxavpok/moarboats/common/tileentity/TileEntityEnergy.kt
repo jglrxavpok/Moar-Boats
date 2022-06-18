@@ -3,6 +3,7 @@ package org.jglrxavpok.moarboats.common.tileentity
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.common.capabilities.Capability
@@ -125,7 +126,7 @@ abstract class TileEntityEnergy(tileEntityType: BlockEntityType<out TileEntityEn
         if(capability == CapabilityEnergy.ENERGY && isEnergyFacing(facing)) {
             return LazyOptional.of { this }.cast()
         }
-        return super.getCapability(capability, facing)
+        return super<TileEntityListenable>.getCapability(capability, facing)
     }
 
 }

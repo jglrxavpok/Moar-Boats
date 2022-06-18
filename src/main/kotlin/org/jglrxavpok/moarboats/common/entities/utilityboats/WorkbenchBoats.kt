@@ -1,6 +1,7 @@
 package org.jglrxavpok.moarboats.common.entities.utilityboats
 
 import net.minecraft.network.chat.Component
+import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.ContainerLevelAccess
@@ -12,13 +13,14 @@ import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.phys.Vec3
 import org.jglrxavpok.moarboats.common.EntityEntries
+import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.containers.*
 import org.jglrxavpok.moarboats.common.entities.UtilityBoatEntity
 import org.jglrxavpok.moarboats.common.items.*
 
-class CraftingTableBoatEntity(world: Level): UtilityBoatEntity<BlockEntity, UtilityWorkbenchContainer>(EntityEntries.CraftingTableBoat, world) {
+class CraftingTableBoatEntity(entityType: EntityType<out CraftingTableBoatEntity>, world: Level): UtilityBoatEntity<BlockEntity, UtilityWorkbenchContainer>(entityType, world) {
 
-    constructor(level: Level, x: Double, y: Double, z: Double): this(level) {
+    constructor(entityType: EntityType<out CraftingTableBoatEntity>, level: Level, x: Double, y: Double, z: Double): this(entityType, level) {
         this.setPos(x, y, z)
         this.deltaMovement = Vec3.ZERO
         this.xOld = x
@@ -31,11 +33,11 @@ class CraftingTableBoatEntity(world: Level): UtilityBoatEntity<BlockEntity, Util
     }
 
     override fun getContainerType(): MenuType<UtilityWorkbenchContainer> {
-        return ContainerTypes.CraftingBoat
+        return ContainerTypes.CraftingBoat.get()
     }
 
     override fun getBoatItem(): Item {
-        return CraftingTableBoatItem[boatType]
+        return MBItems.CraftingTableBoats[boatType]!!.get()
     }
 
     override fun createMenu(windowID: Int, inv: Inventory, player: Player): UtilityWorkbenchContainer? {
@@ -55,9 +57,9 @@ class CraftingTableBoatEntity(world: Level): UtilityBoatEntity<BlockEntity, Util
     }
 }
 
-class GrindstoneBoatEntity(world: Level): UtilityBoatEntity<BlockEntity, UtilityGrindstoneContainer>(EntityEntries.GrindstoneBoat, world) {
+class GrindstoneBoatEntity(entityType: EntityType<out GrindstoneBoatEntity>, world: Level): UtilityBoatEntity<BlockEntity, UtilityGrindstoneContainer>(entityType, world) {
 
-    constructor(level: Level, x: Double, y: Double, z: Double): this(level) {
+    constructor(entityType: EntityType<out GrindstoneBoatEntity>, level: Level, x: Double, y: Double, z: Double): this(entityType, level) {
         this.setPos(x, y, z)
         this.deltaMovement = Vec3.ZERO
         this.xOld = x
@@ -70,11 +72,11 @@ class GrindstoneBoatEntity(world: Level): UtilityBoatEntity<BlockEntity, Utility
     }
 
     override fun getContainerType(): MenuType<UtilityGrindstoneContainer> {
-        return ContainerTypes.GrindstoneBoat
+        return ContainerTypes.GrindstoneBoat.get()
     }
 
     override fun getBoatItem(): Item {
-        return GrindstoneBoatItem[boatType]
+        return MBItems.GrindstoneBoats[boatType]!!.get()
     }
 
     override fun createMenu(windowID: Int, inv: Inventory, player: Player): UtilityGrindstoneContainer? {
@@ -95,9 +97,9 @@ class GrindstoneBoatEntity(world: Level): UtilityBoatEntity<BlockEntity, Utility
 
 }
 
-class LoomBoatEntity(world: Level): UtilityBoatEntity<BlockEntity, UtilityLoomContainer>(EntityEntries.LoomBoat, world) {
+class LoomBoatEntity(entityType: EntityType<out LoomBoatEntity>, world: Level): UtilityBoatEntity<BlockEntity, UtilityLoomContainer>(entityType, world) {
 
-    constructor(level: Level, x: Double, y: Double, z: Double): this(level) {
+    constructor(entityType: EntityType<out LoomBoatEntity>, level: Level, x: Double, y: Double, z: Double): this(entityType, level) {
         this.setPos(x, y, z)
         this.deltaMovement = Vec3.ZERO
         this.xOld = x
@@ -110,11 +112,11 @@ class LoomBoatEntity(world: Level): UtilityBoatEntity<BlockEntity, UtilityLoomCo
     }
 
     override fun getContainerType(): MenuType<UtilityLoomContainer> {
-        return ContainerTypes.LoomBoat
+        return ContainerTypes.LoomBoat.get()
     }
 
     override fun getBoatItem(): Item {
-        return LoomBoatItem[boatType]
+        return MBItems.LoomBoats[boatType]!!.get()
     }
 
     override fun createMenu(windowID: Int, inv: Inventory, player: Player): UtilityLoomContainer? {
@@ -133,9 +135,9 @@ class LoomBoatEntity(world: Level): UtilityBoatEntity<BlockEntity, UtilityLoomCo
     }
 }
 
-class CartographyTableBoatEntity(world: Level): UtilityBoatEntity<BlockEntity, UtilityCartographyTableContainer>(EntityEntries.CartographyTableBoat, world) {
+class CartographyTableBoatEntity(entityType: EntityType<out CartographyTableBoatEntity>, world: Level): UtilityBoatEntity<BlockEntity, UtilityCartographyTableContainer>(entityType, world) {
 
-    constructor(level: Level, x: Double, y: Double, z: Double): this(level) {
+    constructor(entityType: EntityType<out CartographyTableBoatEntity>, level: Level, x: Double, y: Double, z: Double): this(entityType, level) {
         this.setPos(x, y, z)
         this.deltaMovement = Vec3.ZERO
         this.xOld = x
@@ -148,11 +150,11 @@ class CartographyTableBoatEntity(world: Level): UtilityBoatEntity<BlockEntity, U
     }
 
     override fun getContainerType(): MenuType<UtilityCartographyTableContainer> {
-        return ContainerTypes.CartographyTableBoat
+        return ContainerTypes.CartographyTableBoat.get()
     }
 
     override fun getBoatItem(): Item {
-        return CartographyTableBoatItem[boatType]
+        return MBItems.CartographyTableBoats[boatType]!!.get()
     }
 
     override fun createMenu(windowID: Int, inv: Inventory, player: Player): UtilityCartographyTableContainer? {
@@ -171,9 +173,9 @@ class CartographyTableBoatEntity(world: Level): UtilityBoatEntity<BlockEntity, U
     }
 }
 
-class StonecutterBoatEntity(world: Level): UtilityBoatEntity<BlockEntity, UtilityStonecutterContainer>(EntityEntries.StonecutterBoat, world) {
+class StonecutterBoatEntity(entityType: EntityType<out StonecutterBoatEntity>, world: Level): UtilityBoatEntity<BlockEntity, UtilityStonecutterContainer>(entityType, world) {
 
-    constructor(level: Level, x: Double, y: Double, z: Double): this(level) {
+    constructor(entityType: EntityType<out StonecutterBoatEntity>, level: Level, x: Double, y: Double, z: Double): this(entityType, level) {
         this.setPos(x, y, z)
         this.deltaMovement = Vec3.ZERO
         this.xOld = x
@@ -186,11 +188,11 @@ class StonecutterBoatEntity(world: Level): UtilityBoatEntity<BlockEntity, Utilit
     }
 
     override fun getContainerType(): MenuType<UtilityStonecutterContainer> {
-        return ContainerTypes.StonecutterBoat
+        return ContainerTypes.StonecutterBoat.get()
     }
 
     override fun getBoatItem(): Item {
-        return StonecutterBoatItem[boatType]
+        return MBItems.StonecutterBoats[boatType]!!.get()
     }
 
     override fun createMenu(windowID: Int, inv: Inventory, player: Player): UtilityStonecutterContainer? {

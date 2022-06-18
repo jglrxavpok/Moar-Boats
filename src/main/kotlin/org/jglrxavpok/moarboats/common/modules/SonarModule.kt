@@ -78,7 +78,7 @@ object SonarModule: BoatModule() {
     }
 
     override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? {
-        return EmptyModuleContainer(containerID, player.inventory, this, boat)
+        return EmptyModuleContainer(containerID, player.inventory, boat)
     }
 
     override fun createGui(containerID: Int, player: Player, boat: IControllable) = GuiNoConfigModule(containerID, player.inventory, this, boat)

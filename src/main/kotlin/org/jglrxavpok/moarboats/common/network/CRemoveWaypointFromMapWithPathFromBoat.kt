@@ -3,6 +3,7 @@ package org.jglrxavpok.moarboats.common.network
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.ListTag
 import net.minecraftforge.network.NetworkEvent
+import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.items.MapItemWithPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
@@ -18,7 +19,7 @@ class CRemoveWaypointFromMapWithPathFromBoat: CxxRemoveWaypointToItemPath {
     }
 
     object Handler: CxxRemoveWaypointToItemPath.Handler<CRemoveWaypointFromMapWithPathFromBoat, SUpdateMapWithPathInBoat>() {
-        override val item = MapItemWithPath
+        override val item = MBItems.MapItemWithPath.get()
         override val packetClass = CRemoveWaypointFromMapWithPathFromBoat::class.java
 
         override fun getStack(message: CRemoveWaypointFromMapWithPathFromBoat, ctx: NetworkEvent.Context): ItemStack? {

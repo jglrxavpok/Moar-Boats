@@ -10,6 +10,7 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiNoConfigModule
+import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
 import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
@@ -80,12 +81,12 @@ object ChunkLoadingModule: BoatModule() {
 
     override fun onAddition(to: IControllable) { }
 
-    override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? = EmptyModuleContainer(containerID, player.inventory, this, boat)
+    override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? = EmptyModuleContainer(containerID, player.inventory, boat)
 
     override fun createGui(containerID: Int, player: Player, boat: IControllable) = GuiNoConfigModule(containerID, player.inventory, this, boat)
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.spawnAtLocation(ChunkLoaderItem, 1)
+            boat.correspondingEntity.spawnAtLocation(MBItems.ChunkLoaderItem.get(), 1)
     }
 }

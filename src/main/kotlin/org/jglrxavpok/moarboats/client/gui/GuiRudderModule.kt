@@ -12,7 +12,7 @@ import org.jglrxavpok.moarboats.common.modules.RudderModule
 import org.jglrxavpok.moarboats.common.network.CChangeRudderBlocking
 
 class GuiRudderModule(containerID: Int, playerInventory: Inventory, anchor: BoatModule, boat: IControllable):
-        GuiModuleBase<EmptyModuleContainer>(anchor, boat, playerInventory, EmptyModuleContainer(containerID, playerInventory, anchor, boat)) {
+        GuiModuleBase<EmptyModuleContainer>(anchor, boat, playerInventory, EmptyModuleContainer(containerID, playerInventory, boat)) {
 
     override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/nothing.png")
 

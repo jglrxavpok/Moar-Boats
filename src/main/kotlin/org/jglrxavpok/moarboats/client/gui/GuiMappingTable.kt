@@ -42,7 +42,7 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
     private var buttonId = 0
     private val addWaypointButton = Button(0, 0, 150, 20, addWaypointText) {
         waypointToEditAfterCreation = list.children().size
-        if(menu.getSlot(0).item.item == ItemGoldenTicket) {
+        if(menu.getSlot(0).item.item is ItemGoldenTicket) {
             MoarBoats.network.sendToServer(CAddWaypointToGoldenTicketFromMappingTable(te.blockPos, null, null, te))
         } else {
             MoarBoats.network.sendToServer(CAddWaypointToItemPathFromMappingTable(te.blockPos, null, null, te))
@@ -50,7 +50,7 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
     }
     private val insertWaypointButton = Button(0, 0, 150, 20, insertWaypointText) {
         waypointToEditAfterCreation = selectedIndex+1
-        if(menu.getSlot(0).item.item == ItemGoldenTicket) {
+        if(menu.getSlot(0).item.item is ItemGoldenTicket) {
             MoarBoats.network.sendToServer(CAddWaypointToGoldenTicketFromMappingTable(te.blockPos, null, selectedIndex, te))
         } else {
             MoarBoats.network.sendToServer(CAddWaypointToItemPathFromMappingTable(te.blockPos, null, selectedIndex, te))
@@ -60,7 +60,7 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
         edit(selectedIndex)
     }
     private val removeWaypointButton = Button(0, 0, 150, 20, removeWaypointText) {
-        if(menu.getSlot(0).item.item == ItemGoldenTicket) {
+        if(menu.getSlot(0).item.item is ItemGoldenTicket) {
             MoarBoats.network.sendToServer(CRemoveWaypointFromGoldenTicketFromMappingTable(selectedIndex, te))
         } else {
             MoarBoats.network.sendToServer(CRemoveWaypointFromMapWithPathFromMappingTable(selectedIndex, te))
@@ -162,7 +162,7 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
         selectedIndex = index
     }
 
-    override fun setContainerData(containerIn: AbstractContainerMenu, varToUpdate: Int, newValue: Int) {}
+    override fun dataChanged(containerIn: AbstractContainerMenu, varToUpdate: Int, newValue: Int) {}
 
     override fun slotChanged(p_71111_1_: AbstractContainerMenu, slotInd: Int, stack: ItemStack) {
         if(slotInd == 0)

@@ -7,9 +7,11 @@ import net.minecraft.world.inventory.Slot
 import net.minecraft.world.item.ItemStack
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
+import org.jglrxavpok.moarboats.common.MenuTypes
 import org.jglrxavpok.moarboats.common.modules.DispenserModule
 
-class ContainerDispenserModule(containerID: Int, playerInv: Inventory, module: BoatModule, boat: IControllable): ContainerBoatModule<ContainerDispenserModule>(DispenserModule.containerType as MenuType<ContainerDispenserModule>, containerID, playerInv, module, boat) {
+class ContainerDispenserModule(containerID: Int, playerInv: Inventory, module: BoatModule, boat: IControllable): ContainerBoatModule<ContainerDispenserModule>(
+    ContainerTypes.DispenserModuleMenu.get()  as MenuType<ContainerDispenserModule>, containerID, playerInv, boat) {
 
     val placerInventory = boat.getInventory(module)
 

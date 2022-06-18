@@ -5,6 +5,7 @@ import net.minecraft.core.Direction
 import net.minecraft.core.dispenser.DispenseItemBehavior
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.util.Mth
+import net.minecraft.util.RandomSource
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
@@ -28,7 +29,7 @@ interface IControllable {
     val velocityZ: Double
     val yaw: Float
     val correspondingEntity: Entity
-    val moduleRNG: Random
+    val moduleRNG: RandomSource
     val blockedReason: BlockReason
     val imposedSpeed: Float
 

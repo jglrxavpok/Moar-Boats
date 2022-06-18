@@ -1,49 +1,43 @@
 package org.jglrxavpok.moarboats.common.entities
 
-import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.core.dispenser.DispenseItemBehavior
-import net.minecraft.entity.Entity
-import net.minecraft.entity.LivingEntity
-import net.minecraft.entity.passive.WaterMobEntity
-import net.minecraft.world.entity.player.Player
-import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.tileentity.DispenserTileEntity
-import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.util.*
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
-import net.minecraft.util.Mth
-import net.minecraft.util.math.vector.Vec3
+import net.minecraft.core.dispenser.DispenseItemBehavior
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.util.*
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.damagesource.IndirectEntityDamageSource
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.EntitySelector
+import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.entity.animal.WaterAnimal
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 import net.minecraft.world.phys.Vec3
-import net.minecraft.world.server.ServerLevel
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleInventory
-import org.jglrxavpok.moarboats.common.EntityEntries
-import org.jglrxavpok.moarboats.common.items.AnimalBoatItem
+import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.state.BoatProperty
 import org.jglrxavpok.moarboats.extensions.Fluids
 import org.jglrxavpok.moarboats.extensions.toRadians
 import java.util.*
 
-class AnimalBoatEntity(world: Level): BasicBoatEntity(EntityEntries.AnimalBoat, world) {
+class AnimalBoatEntity(entityType: EntityType<out AnimalBoatEntity>, world: Level): BasicBoatEntity(entityType, world) {
     override val entityID: Int
         get() = this.id
 
     override val modules: List<BoatModule> = emptyList()
-    override val moduleRNG: Random = Random()
+    override val moduleRNG = RandomSource.create()
 
     init {
         this.blocksBuilding = true
     }
 
-    constructor(level: Level, x: Double, y: Double, z: Double): this(level) {
+    constructor(entityType: EntityType<out AnimalBoatEntity>, level: Level, x: Double, y: Double, z: Double): this(entityType, level) {
         this.setPos(x, y, z)
         this.deltaMovement = Vec3.ZERO
         this.xOld = x
@@ -51,7 +45,7 @@ class AnimalBoatEntity(world: Level): BasicBoatEntity(EntityEntries.AnimalBoat, 
         this.zOld = z
     }
 
-    override fun getBoatItem() = AnimalBoatItem
+    override fun getBoatItem() = MBItems.AnimalBoatItem.get()
 
     override fun getOwnerIdOrNull(): UUID? {
         return null
@@ -67,11 +61,11 @@ class AnimalBoatEntity(world: Level): BasicBoatEntity(EntityEntries.AnimalBoat, 
 
     override fun tick() {
         super.tick()
-        val list = this.world.getEntities(this, this.boundingBox.expandTowards(0.20000000298023224, 0.009999999776482582, 0.20000000298023224), EntityPredicates.pushableBy(this))
+        val list = this.world.getEntities(this, this.boundingBox.expandTowards(0.20000000298023224, 0.009999999776482582, 0.20000000298023224), EntitySelector.pushableBy(this))
 
         for (entity in list) {
             if (!entity.hasPassenger(this)) {
-                if (this.passengers.isEmpty() && !entity.isPassenger && entity.bbWidth < this.bbWidth && entity is LivingEntity && entity !is WaterMobEntity && entity !is Player) {
+                if (this.passengers.isEmpty() && !entity.isPassenger && entity.bbWidth < this.bbWidth && entity is LivingEntity && entity !is WaterAnimal && entity !is Player) {
                     entity.startRiding(this)
                 }
             }
@@ -95,7 +89,7 @@ class AnimalBoatEntity(world: Level): BasicBoatEntity(EntityEntries.AnimalBoat, 
 
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative) {
-            spawnAtLocation(AnimalBoatItem, 1)
+            spawnAtLocation(getBoatItem(), 1)
         }
     }
 

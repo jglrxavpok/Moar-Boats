@@ -6,7 +6,6 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.level.material.EmptyFluid
 import net.minecraft.world.level.material.Fluid
 import net.minecraftforge.fluids.FluidStack
@@ -16,7 +15,7 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.containers.FluidContainer
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityListenable
 
-class GuiFluid(type: MenuType<*>, containerID: Int, val te: TileEntityListenable, val fluidHandler: IFluidHandler, val player: Player): AbstractContainerScreen<FluidContainer>(FluidContainer(type, containerID, te, fluidHandler, player), player.inventory,
+class GuiFluid(isLoading: Boolean, containerID: Int, val te: TileEntityListenable, val fluidHandler: IFluidHandler, val player: Player): AbstractContainerScreen<FluidContainer>(FluidContainer(isLoading, containerID, te, fluidHandler, player), player.inventory,
         Component.translatable("moarboats.inventory.fluid")) {
 
     private val fluidBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/fluid.png")

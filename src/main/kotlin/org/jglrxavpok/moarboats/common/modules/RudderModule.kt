@@ -8,6 +8,7 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiRudderModule
+import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
 import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
 import org.jglrxavpok.moarboats.common.items.RudderItem
@@ -55,7 +56,7 @@ object RudderModule: BoatModule(), BlockReason {
     }
 
     override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? {
-        return EmptyModuleContainer(containerID, player.inventory, this, boat, isLarge = false)
+        return EmptyModuleContainer(containerID, player.inventory, boat, isLarge = false)
     }
 
     override fun createGui(containerID: Int, player: Player, boat: IControllable): Screen {
@@ -64,6 +65,6 @@ object RudderModule: BoatModule(), BlockReason {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.spawnAtLocation(RudderItem, 1)
+            boat.correspondingEntity.spawnAtLocation(MBItems.RudderItem.get(), 1)
     }
 }

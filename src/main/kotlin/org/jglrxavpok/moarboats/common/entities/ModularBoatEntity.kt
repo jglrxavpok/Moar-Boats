@@ -15,19 +15,23 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.util.*
 import net.minecraft.world.Container
+import net.minecraft.world.Containers
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.damagesource.IndirectEntityDamageSource
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.DyeColor
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.DispenserBlockEntity
 import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.levelgen.XoroshiroRandomSource
 import net.minecraft.world.phys.HitResult
 import net.minecraft.world.phys.Vec3
 import net.minecraftforge.common.capabilities.Capability
@@ -35,6 +39,7 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider
 import net.minecraftforge.common.util.LazyOptional
 import net.minecraftforge.energy.CapabilityEnergy
 import net.minecraftforge.energy.IEnergyStorage
+import net.minecraftforge.entity.IEntityAdditionalSpawnData
 import net.minecraftforge.fluids.FluidStack
 import net.minecraftforge.fluids.IFluidTank
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler
@@ -62,7 +67,8 @@ import org.jglrxavpok.moarboats.extensions.saveInventory
 import org.jglrxavpok.moarboats.extensions.setDirty
 import java.util.*
 
-class ModularBoatEntity(world: Level): BasicBoatEntity(EntityEntries.ModularBoat, world), Container, ICapabilityProvider, IEnergyStorage, IFluidHandler, IFluidTank, IEntityAdditionalSpawnData {
+class ModularBoatEntity(entityType: EntityType<out ModularBoatEntity>, world: Level): BasicBoatEntity(entityType, world), Container, ICapabilityProvider, IEnergyStorage, IFluidHandler, IFluidTank,
+    IEntityAdditionalSpawnData {
 
     private companion object {
         val MODULE_LOCATIONS = SynchedEntityData.defineId(ModularBoatEntity::class.java, ResourceLocationsSerializer)
@@ -76,7 +82,7 @@ class ModularBoatEntity(world: Level): BasicBoatEntity(EntityEntries.ModularBoat
     override val entityID: Int
         get() = this.id
 
-    override var moduleRNG = Random()
+    override var moduleRNG = RandomSource.create()
 
     internal var moduleLocations
         get()= entityData[MODULE_LOCATIONS]
@@ -91,7 +97,7 @@ class ModularBoatEntity(world: Level): BasicBoatEntity(EntityEntries.ModularBoat
     /**
      * Embedded TileEntityDispenser not to freak out the game engine when trying to dispense an item
      */
-    private val embeddedDispenserTileEntity = DispenserBlockEntity()
+    private val embeddedDispenserTileEntity = DispenserBlockEntity(blockPosition(), Blocks.DISPENSER.defaultBlockState())
 
     private var moduleDispenseFacing: Direction = defaultFacing()
     private var moduleDispensePosition = BlockPos.MutableBlockPos()
@@ -145,7 +151,7 @@ class ModularBoatEntity(world: Level): BasicBoatEntity(EntityEntries.ModularBoat
         this.blocksBuilding = true
     }
 
-    constructor(world: Level, x: Double, y: Double, z: Double, color: DyeColor, owningMode: OwningMode, ownerUUID: UUID? = null): this(world) {
+    constructor(entityType: EntityType<out ModularBoatEntity>, world: Level, x: Double, y: Double, z: Double, color: DyeColor, owningMode: OwningMode, ownerUUID: UUID? = null): this(entityType, world) {
         this.setPos(x, y, z)
         this.deltaMovement = Vec3.ZERO
         this.xOld = x
@@ -156,7 +162,7 @@ class ModularBoatEntity(world: Level): BasicBoatEntity(EntityEntries.ModularBoat
         this.ownerUUID = ownerUUID
     }
 
-    override fun getBoatItem() = ModularBoatItem[color]
+    override fun getBoatItem() = MBItems.ModularBoats[color]!!.get()
 
     /**
      * Called to update the entity's position/logic.
@@ -302,7 +308,7 @@ class ModularBoatEntity(world: Level): BasicBoatEntity(EntityEntries.ModularBoat
                 this.readFromNBT(this@ModularBoatEntity, moduleNBT)
             }
         }
-        moduleRNG = Random(boatID.leastSignificantBits)
+        moduleRNG = RandomSource.create(boatID.leastSignificantBits)
         fun colorFromString(str: String): DyeColor {
             return DyeColor.values().find { it.name.toLowerCase() == str.toLowerCase() } ?: DyeColor.WHITE
         }
@@ -410,7 +416,7 @@ class ModularBoatEntity(world: Level): BasicBoatEntity(EntityEntries.ModularBoat
 
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative) {
-            spawnAtLocation(ItemStack(ModularBoatItem[color], 1), 0.0f)
+            spawnAtLocation(ItemStack(getBoatItem(), 1), 0.0f)
         }
         modules.forEach {
             dropItemsForModule(it, killedByPlayerInCreative)
@@ -426,7 +432,7 @@ class ModularBoatEntity(world: Level): BasicBoatEntity(EntityEntries.ModularBoat
 
     private fun dropItemsForModule(module: BoatModule, killedByPlayerInCreative: Boolean) {
         if(module.usesInventory)
-            InventoryHelper.dropContents(world, this, getInventory(module))
+            Containers.dropContents(world, this, getInventory(module))
         module.dropItemsOnDeath(this, killedByPlayerInCreative)
     }
 
@@ -459,7 +465,7 @@ class ModularBoatEntity(world: Level): BasicBoatEntity(EntityEntries.ModularBoat
     }
 
     override fun getPickedResult(target: HitResult): ItemStack {
-        val stack = ItemStack(ModularBoatItem[color], 1)
+        val stack = ItemStack(getBoatItem(), 1)
         stack.hoverName = Component.translatable("moarboats.item.modular_boat.copy", stack.displayName)
         val boatData = stack.getOrCreateTagElement("boat_data")
         addAdditionalSaveData(boatData)

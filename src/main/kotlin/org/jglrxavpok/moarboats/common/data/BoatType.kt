@@ -6,6 +6,12 @@ import net.minecraft.world.entity.vehicle.Boat
 import net.minecraft.world.item.BoatItem
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.Items
+import net.minecraftforge.common.ForgeMod
+import net.minecraftforge.common.MinecraftForge
+import net.minecraftforge.fml.ModList
+import net.minecraftforge.fml.ModLoader
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext
+import net.minecraftforge.fml.loading.FMLLoader
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper
 import net.minecraftforge.registries.ForgeRegistries
 import org.jglrxavpok.moarboats.MoarBoats
@@ -13,25 +19,25 @@ import org.jglrxavpok.moarboats.MoarBoats
 interface BoatType {
 
     companion object {
-        private val boatTypes = mutableListOf<BoatType>()
-
-        val OAK = createFromVanilla(Items.OAK_BOAT, Boat.Type.OAK)
+        val OAK = createFromVanilla(Boat.Type.OAK)
 
         fun values(): List<BoatType> {
+            val boatTypes by lazy {
+                populateBoatTypeCache()
+            }
             return boatTypes
         }
 
         /**
-         * Load all registered items and check which are BoatItem and get their type
+         * For each Boat.Type (Minecraft), see if there is a corresponding <type>_boat item (with any modid)
          */
-        internal fun populateBoatTypeCache() {
-            val typeField = ObfuscationReflectionHelper.findField(BoatItem::class.java, "field_185057_a")
-            for(boatItem in ForgeRegistries.ITEMS.values) {
-                if(boatItem is BoatItem) {
-                    val boatType = createFromVanilla(boatItem, typeField[boatItem] as Boat.Type)
-                    registerBoatType(boatType)
-                }
+        internal fun populateBoatTypeCache(): List<BoatType> {
+            val result = mutableListOf<BoatType>()
+            for(minecraftBoatType in Boat.Type.values()) {
+                val boatType = createFromVanilla(minecraftBoatType)
+                registerBoatType(result, boatType)
             }
+            return result
         }
 
         fun getTypeFromString(name: String): BoatType {
@@ -43,7 +49,14 @@ interface BoatType {
         // load from BoatRenderer in case the class is modified for modded wood types
         private val textures: Array<ResourceLocation> by lazy { ObfuscationReflectionHelper.findField(BoatRenderer::class.java, "field_110782_f").get(null) as Array<ResourceLocation> }
 
-        fun createFromVanilla(baseItem: Item, type: Boat.Type): BoatType = object : BoatType {
+        fun createFromVanilla(type: Boat.Type): BoatType = object : BoatType {
+            private val baseItem by lazy {
+                ModList.get().mods.firstNotNullOfOrNull {
+                    val itemID = ResourceLocation(it.modId, "${type.getName()}_boat")
+                    ForgeRegistries.ITEMS.getValue(itemID)
+                }
+            }
+
             override fun getFullName(): String {
                 return "minecraft_${type.getName()}"
             }
@@ -75,13 +88,13 @@ interface BoatType {
                 return super.equals(other)
             }
 
-            override fun provideBoatItem(): Item {
+            override fun provideBoatItem(): Item? {
                 return baseItem
             }
         }
 
-        fun registerBoatType(boatType: BoatType) {
-            boatTypes += boatType
+        fun registerBoatType(target: MutableList<BoatType>, boatType: BoatType) {
+            target += boatType
             MoarBoats.logger.info("Registered boat type $boatType")
         }
 
@@ -106,7 +119,7 @@ interface BoatType {
     fun getTexture(): ResourceLocation
 
     /**
-     * Returns the boat item corresponding to this boat type
+     * Returns the boat item corresponding to this boat type. May return null if none found.
      */
-    fun provideBoatItem(): Item
+    fun provideBoatItem(): Item?
 }

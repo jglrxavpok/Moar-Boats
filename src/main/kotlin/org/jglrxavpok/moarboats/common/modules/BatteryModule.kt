@@ -7,6 +7,7 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiBatteryModule
+import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.blocks.BlockBoatBattery
 import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
@@ -39,12 +40,12 @@ object BatteryModule: BoatModule(), IEnergyBoatModule {
         energyProperty[to] = 0
     }
 
-    override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? = EmptyModuleContainer(containerID, player.inventory, this, boat)
+    override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? = EmptyModuleContainer(containerID, player.inventory, boat)
 
     override fun createGui(containerID: Int, player: Player, boat: IControllable) = GuiBatteryModule(containerID, player.inventory, this, boat)
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.spawnAtLocation(BlockBoatBattery.asItem(), 1)
+            boat.correspondingEntity.spawnAtLocation(MBItems.BoatBattery.get(), 1)
     }
 }

@@ -12,6 +12,7 @@ import net.minecraft.world.item.context.BlockPlaceContext
 import net.minecraft.world.level.BlockGetter
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.EntityBlock
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.state.StateDefinition
 import net.minecraft.world.phys.BlockHitResult
@@ -19,11 +20,11 @@ import net.minecraftforge.network.NetworkHooks
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergyLoader
+import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergyUnloader
 
-object BlockEnergyLoader: MoarBoatsBlock() {
+class BlockEnergyLoader: MoarBoatsBlock(), EntityBlock {
 
     init {
-        registryName = ResourceLocation(MoarBoats.ModID, "boat_energy_charger")
         this.registerDefaultState(this.defaultBlockState().setValue(Facing, Direction.UP))
     }
 
@@ -31,10 +32,8 @@ object BlockEnergyLoader: MoarBoatsBlock() {
         builder.add(Facing)
     }
 
-    override fun hasTileEntity(state: BlockState) = true
-
-    override fun createTileEntity(state: BlockState?, level: BlockGetter?): BlockEntity? {
-        return TileEntityEnergyLoader()
+    override fun newBlockEntity(p_153215_: BlockPos, p_153216_: BlockState): BlockEntity? {
+        return TileEntityEnergyLoader(p_153215_, p_153216_)
     }
 
     override fun getStateForPlacement(context: BlockPlaceContext): BlockState? {

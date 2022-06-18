@@ -9,9 +9,10 @@ import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
+import org.jglrxavpok.moarboats.common.MenuTypes
 import org.jglrxavpok.moarboats.common.modules.ChestModule
 
-class ContainerChestModule(containerID: Int, playerInventory: Inventory, engine: BoatModule, boat: IControllable): ContainerBoatModule<ContainerChestModule>(ChestModule.containerType as MenuType<ContainerChestModule>, containerID, playerInventory, engine, boat) {
+class ContainerChestModule(containerID: Int, playerInventory: Inventory, engine: BoatModule, boat: IControllable): ContainerBoatModule<ContainerChestModule>(ContainerTypes.ChestModuleMenu.get() as MenuType<ContainerChestModule>, containerID, playerInventory, boat) {
 
     val chestInventory = boat.getInventory(engine)
 

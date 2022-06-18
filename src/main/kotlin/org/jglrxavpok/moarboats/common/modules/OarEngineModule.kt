@@ -8,13 +8,14 @@ import net.minecraft.world.Container
 import net.minecraft.world.inventory.AbstractContainerMenu
 import net.minecraft.world.item.ItemStack
 import org.jglrxavpok.moarboats.api.IControllable
+import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
 import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
 import org.jglrxavpok.moarboats.common.items.OarsItem
 
 object OarEngineModule: BaseEngineModule(), BlockReason {
     override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? {
-        return EmptyModuleContainer(containerID, player.inventory, this, boat, isLarge = true)
+        return EmptyModuleContainer(containerID, player.inventory, boat, isLarge = true)
     }
 
     override val id = ResourceLocation("moarboats:oar_engine")
@@ -89,6 +90,6 @@ object OarEngineModule: BaseEngineModule(), BlockReason {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.spawnAtLocation(OarsItem, 1)
+            boat.correspondingEntity.spawnAtLocation(MBItems.OarsItem.get(), 1)
     }
 }

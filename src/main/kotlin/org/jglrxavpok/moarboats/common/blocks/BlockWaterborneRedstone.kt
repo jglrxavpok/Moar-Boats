@@ -1,12 +1,8 @@
 package org.jglrxavpok.moarboats.common.blocks
 
-import net.minecraft.block.*
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.tags.FluidTags
-import net.minecraft.util.math.shapes.VoxelShape
-import net.minecraft.util.math.shapes.VoxelShapes
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.BlockGetter
@@ -21,12 +17,12 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties
 import net.minecraft.world.level.material.Material
 import net.minecraft.world.level.storage.loot.LootContext
 import net.minecraft.world.phys.shapes.CollisionContext
-import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.common.items.WaterborneConductorItem
+import net.minecraft.world.phys.shapes.Shapes
+import net.minecraft.world.phys.shapes.VoxelShape
+import org.jglrxavpok.moarboats.common.MBItems
 
 class BlockWaterborneConductor: DiodeBlock(Properties.of(Material.DECORATION).noOcclusion().strength(0f).sound(SoundType.WOOD)) {
     init {
-        registryName = ResourceLocation(MoarBoats.ModID, "waterborne_redstone")
         this.registerDefaultState(this.defaultBlockState().setValue(BlockStateProperties.FACING, Direction.NORTH).setValue(POWERED, false))
     }
 
@@ -35,7 +31,7 @@ class BlockWaterborneConductor: DiodeBlock(Properties.of(Material.DECORATION).no
     }
 
     override fun getCollisionShape(state: BlockState, worldIn: BlockGetter, pos: BlockPos, context: CollisionContext): VoxelShape {
-        return VoxelShapes.empty()
+        return Shapes.empty()
     }
 
     override fun canSurvive(state: BlockState, levelIn: LevelReader, pos: BlockPos): Boolean {
@@ -78,9 +74,9 @@ class BlockWaterborneConductor: DiodeBlock(Properties.of(Material.DECORATION).no
     }
 
     override fun getDrops(state: BlockState, builder: LootContext.Builder): MutableList<ItemStack> {
-        return mutableListOf(ItemStack(WaterborneConductorItem, 1))
+        return mutableListOf(ItemStack(MBItems.WaterborneConductorItem.get(), 1))
     }
 
-    override fun getCloneItemStack(worldIn: BlockGetter, pos: BlockPos, state: BlockState) = ItemStack(WaterborneConductorItem, 1)
+    override fun getCloneItemStack(worldIn: BlockGetter, pos: BlockPos, state: BlockState) = ItemStack(MBItems.WaterborneConductorItem.get(), 1)
 
 }

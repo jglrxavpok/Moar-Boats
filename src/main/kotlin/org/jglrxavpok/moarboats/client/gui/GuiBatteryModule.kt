@@ -10,7 +10,7 @@ import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
 import org.jglrxavpok.moarboats.common.modules.IEnergyBoatModule
 
-class GuiBatteryModule(containerID: Int, playerInventory: Inventory, module: BoatModule, boat: IControllable): GuiModuleBase<EmptyModuleContainer>(module, boat, playerInventory, EmptyModuleContainer(containerID, playerInventory, module, boat)) {
+class GuiBatteryModule(containerID: Int, playerInventory: Inventory, module: BoatModule, boat: IControllable): GuiModuleBase<EmptyModuleContainer>(module, boat, playerInventory, EmptyModuleContainer(containerID, playerInventory, boat)) {
 
     val energyModule = module as IEnergyBoatModule
 

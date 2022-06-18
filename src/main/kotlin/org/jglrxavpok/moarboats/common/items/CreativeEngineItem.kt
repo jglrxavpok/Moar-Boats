@@ -1,4 +1,4 @@
 package org.jglrxavpok.moarboats.common.items
 
-object CreativeEngineItem: MoarBoatsItem("creative_engine") {
+class CreativeEngineItem: MoarBoatsItem("creative_engine") {
 }

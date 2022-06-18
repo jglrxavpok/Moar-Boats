@@ -11,6 +11,7 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiTankModule
+import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.blocks.BlockBoatTank
 import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
@@ -58,7 +59,7 @@ object FluidTankModule: BoatModule(), IFluidBoatModule {
     }
 
     override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? {
-        return EmptyModuleContainer(containerID, player.inventory, this, boat)
+        return EmptyModuleContainer(containerID, player.inventory, boat)
     }
 
     override fun createGui(containerID: Int, player: Player, boat: IControllable): Screen {
@@ -79,7 +80,7 @@ object FluidTankModule: BoatModule(), IFluidBoatModule {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.spawnAtLocation(BlockBoatTank.asItem(), 1)
+            boat.correspondingEntity.spawnAtLocation(MBItems.BoatTank.get(), 1)
     }
 
 }

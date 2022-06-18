@@ -1,16 +1,11 @@
 package org.jglrxavpok.moarboats.common.tileentity
 
-import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.core.BlockPos
-import net.minecraft.entity.Entity
-import net.minecraft.fluid.Fluid
-import net.minecraft.fluid.Fluids
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.tileentity.ITickableTileEntity
 import net.minecraft.core.Direction
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.tileentity.ITickableTileEntity
 import net.minecraft.world.entity.Entity
-import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.material.Fluid
 import net.minecraftforge.common.capabilities.Capability
@@ -174,7 +169,7 @@ class TileEntityFluidUnloader(blockPos: BlockPos, blockState: BlockState): TileE
     override fun saveAdditional(compound: CompoundTag) {
         super.saveAdditional(compound)
         compound.putInt("fluidAmount", amount)
-        compound.putString("fluidName", fluid?.registryName.toString() ?: "")
+        compound.putString("fluidName", fluid?.let { ForgeRegistries.FLUIDS.getKey(it)?.toString() } ?: "")
     }
 
     override fun load(compound: CompoundTag) {

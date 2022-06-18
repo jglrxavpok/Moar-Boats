@@ -11,6 +11,7 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiNoConfigModule
+import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
 import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
@@ -110,7 +111,7 @@ object IceBreakerModule: BoatModule() {
         return state.getFloat("breakProgress_X${pos.x}_Y${pos.y}_Z${pos.z}")
     }
 
-    override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? = EmptyModuleContainer(containerID, player.inventory, this, boat)
+    override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? = EmptyModuleContainer(containerID, player.inventory, boat)
 
     override fun createGui(containerID: Int, player: Player, boat: IControllable): Screen {
         return GuiNoConfigModule(containerID, player.inventory, this, boat)
@@ -118,6 +119,6 @@ object IceBreakerModule: BoatModule() {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.spawnAtLocation(IceBreakerItem, 1)
+            boat.correspondingEntity.spawnAtLocation(MBItems.IceBreakerItem.get(), 1)
     }
 }

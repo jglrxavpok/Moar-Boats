@@ -9,7 +9,7 @@ import net.minecraft.core.particles.BlockParticleOption
 import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.FriendlyByteBuf
-import net.minecraft.network.IPacket
+import net.minecraft.network.protocol.Packet
 import net.minecraft.network.syncher.EntityDataSerializers
 import net.minecraft.network.syncher.SynchedEntityData
 import net.minecraft.util.*
@@ -18,6 +18,7 @@ import net.minecraft.world.InteractionResult
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.damagesource.IndirectEntityDamageSource
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.EntitySelector
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.MoverType
 import net.minecraft.world.entity.decoration.LeashFenceKnotEntity
@@ -32,8 +33,11 @@ import net.minecraft.world.level.block.WaterlilyBlock
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
+import net.minecraft.world.phys.shapes.BooleanOp
+import net.minecraft.world.phys.shapes.Shapes
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraftforge.entity.IEntityAdditionalSpawnData
 import net.minecraftforge.network.NetworkHooks
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.IControllable
@@ -48,7 +52,8 @@ import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.sqrt
 
-abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Level): Entity(type, world), IControllable, IEntityAdditionalSpawnData {
+abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Level): Entity(type, world), IControllable,
+    IEntityAdditionalSpawnData {
 
     companion object {
         val TIME_SINCE_HIT = SynchedEntityData.defineId(BasicBoatEntity::class.java, EntityDataSerializers.INT)
@@ -257,7 +262,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
         val l = Mth.ceil(axisalignedbb1.maxY) + 1
         val i1 = Mth.floor(axisalignedbb1.minZ) - 1
         val j1 = Mth.ceil(axisalignedbb1.maxZ) + 1
-        val voxelshape = VoxelShapes.create(axisalignedbb1)
+        val voxelshape = Shapes.create(axisalignedbb1)
         var f = 0.0f
         var k1 = 0
 
@@ -270,7 +275,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
                             if (j2 <= 0 || k2 != k && k2 != l - 1) {
                                 blockPos.set(l1, k2, i2)
                                 val iblockstate = this.world.getBlockState(blockPos)
-                                if (iblockstate.block !is WaterlilyBlock && VoxelShapes.joinIsNotEmpty(iblockstate.getCollisionShape(this.world, blockPos).move(l1.toDouble(), k2.toDouble(), i2.toDouble()), voxelshape, IBooleanFunction.AND)) {
+                                if (iblockstate.block !is WaterlilyBlock && Shapes.joinIsNotEmpty(iblockstate.getCollisionShape(this.world, blockPos).move(l1.toDouble(), k2.toDouble(), i2.toDouble()), voxelshape, BooleanOp.AND)) {
                                     f += iblockstate.getFriction(world, blockPos, this)
                                     ++k1
                                 }
@@ -455,7 +460,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
         this.move(MoverType.SELF, this.deltaMovement)
 
         this.checkInsideBlocks()
-        val list = this.world.getEntities(this, this.boundingBox.expandTowards(0.20000000298023224, -0.009999999776482582, 0.20000000298023224), EntityPredicates.pushableBy(this))
+        val list = this.world.getEntities(this, this.boundingBox.expandTowards(0.20000000298023224, -0.009999999776482582, 0.20000000298023224), EntitySelector.pushableBy(this))
 
         if (list.isNotEmpty()) {
             for (entity in list) {
@@ -808,7 +813,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
     }
 
     override fun isPickable(): Boolean {
-        return !removed
+        return !isRemoved
     }
 
     override fun interact(player: Player, hand: InteractionHand): InteractionResult {
@@ -821,7 +826,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
             }
             return InteractionResult.SUCCESS
         }
-        if(itemstack.item == RopeItem && !world.isClientSide) {
+        if(itemstack.item is RopeItem && !world.isClientSide) {
             RopeItem.onLinkUsed(itemstack, player, hand, world, this)
             return InteractionResult.SUCCESS
         }
@@ -845,7 +850,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
         return LeashFenceKnotEntity.getOrCreateKnot(world, location.get())
     }
 
-    override fun getAddEntityPacket(): IPacket<*> {
+    override fun getAddEntityPacket(): Packet<*> {
         return NetworkHooks.getEntitySpawningPacket(this)
     }
 

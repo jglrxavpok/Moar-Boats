@@ -12,8 +12,8 @@ import net.minecraft.world.inventory.RecipeBookType
 import net.minecraft.world.item.crafting.RecipeType
 
 class UtilityFurnaceContainer: AbstractFurnaceMenu {
-    constructor(p_i50082_1_: Int, p_i50082_2_: Inventory?) : super(ContainerTypes.FurnaceBoat, RecipeType.SMELTING, RecipeBookType.FURNACE, p_i50082_1_, p_i50082_2_) {}
-    constructor(p_i50083_1_: Int, p_i50083_2_: Inventory?, p_i50083_3_: Container?, p_i50083_4_: ContainerData?) : super(ContainerTypes.FurnaceBoat, RecipeType.SMELTING, RecipeBookType.FURNACE, p_i50083_1_, p_i50083_2_, p_i50083_3_, p_i50083_4_) {}
+    constructor(p_i50082_1_: Int, p_i50082_2_: Inventory?) : super(ContainerTypes.FurnaceBoat.get(), RecipeType.SMELTING, RecipeBookType.FURNACE, p_i50082_1_, p_i50082_2_) {}
+    constructor(p_i50083_1_: Int, p_i50083_2_: Inventory?, p_i50083_3_: Container?, p_i50083_4_: ContainerData?) : super(ContainerTypes.FurnaceBoat.get(), RecipeType.SMELTING, RecipeBookType.FURNACE, p_i50083_1_, p_i50083_2_, p_i50083_3_, p_i50083_4_) {}
 
     override fun stillValid(p_75145_1_: Player): Boolean {
         return true
@@ -25,8 +25,8 @@ class UtilityFurnaceContainer: AbstractFurnaceMenu {
 }
 
 class UtilitySmokerContainer: AbstractFurnaceMenu {
-    constructor(p_i50082_1_: Int, p_i50082_2_: Inventory?) : super(ContainerTypes.SmokerBoat, RecipeType.SMOKING, RecipeBookType.SMOKER, p_i50082_1_, p_i50082_2_) {}
-    constructor(p_i50083_1_: Int, p_i50083_2_: Inventory?, p_i50083_3_: Container?, p_i50083_4_: ContainerData?) : super(ContainerTypes.SmokerBoat, RecipeType.SMOKING, RecipeBookType.SMOKER, p_i50083_1_, p_i50083_2_, p_i50083_3_, p_i50083_4_) {}
+    constructor(p_i50082_1_: Int, p_i50082_2_: Inventory?) : super(ContainerTypes.SmokerBoat.get(), RecipeType.SMOKING, RecipeBookType.SMOKER, p_i50082_1_, p_i50082_2_) {}
+    constructor(p_i50083_1_: Int, p_i50083_2_: Inventory?, p_i50083_3_: Container?, p_i50083_4_: ContainerData?) : super(ContainerTypes.SmokerBoat.get(), RecipeType.SMOKING, RecipeBookType.SMOKER, p_i50083_1_, p_i50083_2_, p_i50083_3_, p_i50083_4_) {}
 
     override fun stillValid(p_75145_1_: Player): Boolean {
         return true
@@ -38,8 +38,8 @@ class UtilitySmokerContainer: AbstractFurnaceMenu {
 }
 
 class UtilityBlastFurnaceContainer: AbstractFurnaceMenu {
-    constructor(p_i50082_1_: Int, p_i50082_2_: Inventory?) : super(ContainerTypes.BlastFurnaceBoat, RecipeType.BLASTING, RecipeBookType.BLAST_FURNACE, p_i50082_1_, p_i50082_2_) {}
-    constructor(p_i50083_1_: Int, p_i50083_2_: Inventory?, p_i50083_3_: Container?, p_i50083_4_: ContainerData?) : super(ContainerTypes.BlastFurnaceBoat, RecipeType.BLASTING, RecipeBookType.BLAST_FURNACE, p_i50083_1_, p_i50083_2_, p_i50083_3_, p_i50083_4_) {}
+    constructor(p_i50082_1_: Int, p_i50082_2_: Inventory?) : super(ContainerTypes.BlastFurnaceBoat.get(), RecipeType.BLASTING, RecipeBookType.BLAST_FURNACE, p_i50082_1_, p_i50082_2_) {}
+    constructor(p_i50083_1_: Int, p_i50083_2_: Inventory?, p_i50083_3_: Container?, p_i50083_4_: ContainerData?) : super(ContainerTypes.BlastFurnaceBoat.get(), RecipeType.BLASTING, RecipeBookType.BLAST_FURNACE, p_i50083_1_, p_i50083_2_, p_i50083_3_, p_i50083_4_) {}
 
     override fun stillValid(p_75145_1_: Player): Boolean {
         return true

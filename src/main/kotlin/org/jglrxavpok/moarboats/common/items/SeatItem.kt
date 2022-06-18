@@ -5,7 +5,7 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.TooltipFlag
 import net.minecraft.world.level.Level
 
-object SeatItem : MoarBoatsItem("seat") {
+class SeatItem : MoarBoatsItem("seat") {
 
     val description = Component.translatable("item.seat.description")
 

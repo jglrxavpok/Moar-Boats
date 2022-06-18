@@ -10,11 +10,7 @@ import net.minecraft.world.level.block.state.BlockState
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.OnlyUsableOnBoats
 
-object BlockBoatTank: MoarBoatsBlock({ noOcclusion() }) {
-    init {
-        registryName = ResourceLocation(MoarBoats.ModID, "boat_tank")
-    }
-
+class BlockBoatTank: MoarBoatsBlock({ noOcclusion() }) {
     override fun getLightEmission(state: BlockState, level: BlockGetter, pos: BlockPos): Int {
         return 0
     }

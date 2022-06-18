@@ -11,6 +11,7 @@ import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity
 import net.minecraft.world.level.block.entity.BlastFurnaceBlockEntity
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity
@@ -18,11 +19,13 @@ import net.minecraft.world.level.block.entity.SmokerBlockEntity
 import net.minecraft.world.phys.Vec3
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper
 import org.jglrxavpok.moarboats.common.EntityEntries
+import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.containers.ContainerTypes
 import org.jglrxavpok.moarboats.common.containers.UtilityBlastFurnaceContainer
 import org.jglrxavpok.moarboats.common.containers.UtilityFurnaceContainer
 import org.jglrxavpok.moarboats.common.containers.UtilitySmokerContainer
+import org.jglrxavpok.moarboats.common.entities.AnimalBoatEntity
 import org.jglrxavpok.moarboats.common.entities.UtilityBoatEntity
 import org.jglrxavpok.moarboats.common.items.BlastFurnaceBoatItem
 import org.jglrxavpok.moarboats.common.items.FurnaceBoatItem
@@ -32,9 +35,9 @@ import org.jglrxavpok.moarboats.common.items.SmokerBoatItem
 private val furnaceDataField = ObfuscationReflectionHelper.findField(AbstractFurnaceBlockEntity::class.java, "field_214013_b")
 val BurnTimeField = ObfuscationReflectionHelper.findField(AbstractFurnaceBlockEntity::class.java, "field_214018_j")
 
-class FurnaceBoatEntity(world: Level): AbstractFurnaceBoatEntity<FurnaceBlockEntity, UtilityFurnaceContainer>(EntityEntries.FurnaceBoat, world) {
+class FurnaceBoatEntity(entityType: EntityType<out FurnaceBoatEntity>, world: Level): AbstractFurnaceBoatEntity<FurnaceBlockEntity, UtilityFurnaceContainer>(entityType, world) {
 
-    constructor(level: Level, x: Double, y: Double, z: Double): this(level) {
+    constructor(entityType: EntityType<out FurnaceBoatEntity>, level: Level, x: Double, y: Double, z: Double): this(entityType, level) {
         this.setPos(x, y, z)
         this.deltaMovement = Vec3.ZERO
         this.xOld = x
@@ -43,15 +46,15 @@ class FurnaceBoatEntity(world: Level): AbstractFurnaceBoatEntity<FurnaceBlockEnt
     }
 
     override fun initBackingTileEntity(): FurnaceBlockEntity {
-        return FurnaceBlockEntity()
+        return FurnaceBlockEntity(InvalidPosition, Blocks.FURNACE.defaultBlockState())
     }
 
     override fun getBoatItem(): Item {
-        return FurnaceBoatItem[boatType]
+        return MBItems.FurnaceBoats[boatType]!!.get()
     }
 
     override fun getContainerType(): MenuType<UtilityFurnaceContainer> {
-        return ContainerTypes.FurnaceBoat
+        return ContainerTypes.FurnaceBoat.get()
     }
 
     override fun createMenu(p0: Int, p1: Inventory, p2: Player): AbstractContainerMenu? {
@@ -67,8 +70,8 @@ class FurnaceBoatEntity(world: Level): AbstractFurnaceBoatEntity<FurnaceBlockEnt
     }
 }
 
-class BlastFurnaceBoatEntity(world: Level): AbstractFurnaceBoatEntity<BlastFurnaceBlockEntity, UtilityBlastFurnaceContainer>(EntityEntries.BlastFurnaceBoat, world) {
-    constructor(level: Level, x: Double, y: Double, z: Double): this(level) {
+class BlastFurnaceBoatEntity(entityType: EntityType<out BlastFurnaceBoatEntity>, world: Level): AbstractFurnaceBoatEntity<BlastFurnaceBlockEntity, UtilityBlastFurnaceContainer>(entityType, world) {
+    constructor(entityType: EntityType<out BlastFurnaceBoatEntity>, level: Level, x: Double, y: Double, z: Double): this(entityType, level) {
         this.setPos(x, y, z)
         this.deltaMovement = Vec3.ZERO
         this.xOld = x
@@ -77,15 +80,15 @@ class BlastFurnaceBoatEntity(world: Level): AbstractFurnaceBoatEntity<BlastFurna
     }
 
     override fun initBackingTileEntity(): BlastFurnaceBlockEntity {
-        return BlastFurnaceBlockEntity()
+        return BlastFurnaceBlockEntity(InvalidPosition, Blocks.BLAST_FURNACE.defaultBlockState())
     }
 
     override fun getBoatItem(): Item {
-        return BlastFurnaceBoatItem[boatType]
+        return MBItems.BlastFurnaceBoats[boatType]!!.get()
     }
 
     override fun getContainerType(): MenuType<UtilityBlastFurnaceContainer> {
-        return ContainerTypes.BlastFurnaceBoat
+        return ContainerTypes.BlastFurnaceBoat.get()
     }
 
     override fun createMenu(p0: Int, p1: Inventory, p2: Player): AbstractContainerMenu? {
@@ -101,8 +104,8 @@ class BlastFurnaceBoatEntity(world: Level): AbstractFurnaceBoatEntity<BlastFurna
     }
 }
 
-class SmokerBoatEntity(world: Level): AbstractFurnaceBoatEntity<SmokerBlockEntity, UtilitySmokerContainer>(EntityEntries.SmokerBoat, world) {
-    constructor(level: Level, x: Double, y: Double, z: Double): this(level) {
+class SmokerBoatEntity(entityType: EntityType<out SmokerBoatEntity>, world: Level): AbstractFurnaceBoatEntity<SmokerBlockEntity, UtilitySmokerContainer>(entityType, world) {
+    constructor(entityType: EntityType<out SmokerBoatEntity>, level: Level, x: Double, y: Double, z: Double): this(entityType, level) {
         this.setPos(x, y, z)
         this.deltaMovement = Vec3.ZERO
         this.xOld = x
@@ -111,15 +114,15 @@ class SmokerBoatEntity(world: Level): AbstractFurnaceBoatEntity<SmokerBlockEntit
     }
 
     override fun initBackingTileEntity(): SmokerBlockEntity {
-        return SmokerBlockEntity()
+        return SmokerBlockEntity(InvalidPosition, Blocks.SMOKER.defaultBlockState())
     }
 
     override fun getBoatItem(): Item {
-        return SmokerBoatItem[boatType]
+        return MBItems.SmokerBoats[boatType]!!.get()
     }
 
     override fun getContainerType(): MenuType<UtilitySmokerContainer> {
-        return ContainerTypes.SmokerBoat
+        return ContainerTypes.SmokerBoat.get()
     }
 
     override fun createMenu(p0: Int, p1: Inventory, p2: Player): AbstractContainerMenu? {

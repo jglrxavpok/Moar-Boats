@@ -6,7 +6,7 @@ import net.minecraft.world.item.TooltipFlag
 import net.minecraft.world.level.Level
 import org.jglrxavpok.moarboats.common.OnlyUsableOnBoats
 
-object ChunkLoaderItem : MoarBoatsItem("chunk_loader") {
+class ChunkLoaderItem : MoarBoatsItem("chunk_loader") {
 
     override fun appendHoverText(stack: ItemStack?, player: Level?, tooltip: MutableList<Component>, advanced: TooltipFlag?) {
         super.appendHoverText(stack, player, tooltip, advanced)

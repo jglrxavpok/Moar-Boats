@@ -2,7 +2,6 @@ package org.jglrxavpok.moarboats.common.blocks
 
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.tags.FluidTags
 import net.minecraft.util.Mth
@@ -21,16 +20,16 @@ import net.minecraft.world.level.material.Material
 import net.minecraft.world.level.storage.loot.LootContext
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.shapes.CollisionContext
+import net.minecraft.world.phys.shapes.Shapes
+import net.minecraft.world.phys.shapes.VoxelShape
 import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.IItemHandler
-import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
-import org.jglrxavpok.moarboats.common.items.CargoStopperItem
 import java.util.*
 
-object BlockCargoStopper: DiodeBlock(Properties.of(Material.DECORATION).noOcclusion().randomTicks().strength(0f).sound(SoundType.WOOD)) {
+class BlockCargoStopper: DiodeBlock(Properties.of(Material.DECORATION).noOcclusion().randomTicks().strength(0f).sound(SoundType.WOOD)) {
     init {
-        registryName = ResourceLocation(MoarBoats.ModID, "cargo_stopper")
         this.registerDefaultState(this.defaultBlockState().setValue(BlockStateProperties.FACING, Direction.NORTH).setValue(POWERED, false))
     }
 
@@ -41,7 +40,7 @@ object BlockCargoStopper: DiodeBlock(Properties.of(Material.DECORATION).noOcclus
     }
 
     override fun getCollisionShape(state: BlockState, worldIn: BlockGetter, pos: BlockPos, context: CollisionContext): VoxelShape {
-        return VoxelShapes.empty()
+        return Shapes.empty()
     }
 
     override fun canSurvive(state: BlockState, worldIn: LevelReader, pos: BlockPos): Boolean {
@@ -119,10 +118,10 @@ object BlockCargoStopper: DiodeBlock(Properties.of(Material.DECORATION).noOcclus
     }
 
     override fun getDrops(state: BlockState, builder: LootContext.Builder): MutableList<ItemStack> {
-        return mutableListOf(ItemStack(CargoStopperItem, 1))
+        return mutableListOf(ItemStack(MBItems.CargoStopperItem.get(), 1))
     }
 
-    override fun getCloneItemStack(worldIn: BlockGetter, pos: BlockPos, state: BlockState) = ItemStack(CargoStopperItem, 1)
+    override fun getCloneItemStack(worldIn: BlockGetter, pos: BlockPos, state: BlockState) = ItemStack(MBItems.CargoStopperItem.get(), 1)
 
     override fun getWeakChanges(state: BlockState?, world: LevelReader?, pos: BlockPos?): Boolean {
         return true

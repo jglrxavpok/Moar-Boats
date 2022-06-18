@@ -3,7 +3,6 @@ package org.jglrxavpok.moarboats.common.network
 import net.minecraft.client.Minecraft
 import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundSource
-import net.minecraft.util.SoundEvent
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.network.NetworkEvent
 

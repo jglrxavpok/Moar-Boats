@@ -9,7 +9,12 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.network.SUpdateFluidGui
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityListenable
 
-class FluidContainer(containerType: MenuType<*>, containerID: Int, val te: TileEntityListenable, val fluidCapability: IFluidHandler, val player: Player): EmptyContainer(containerID, player.inventory, containerType = containerType) {
+class FluidContainer(isLoading: Boolean, containerID: Int, val te: TileEntityListenable, val fluidCapability: IFluidHandler, val player: Player): EmptyContainer(containerID, player.inventory,
+    containerType = if(isLoading) {
+        ContainerTypes.FluidLoader.get()
+    } else {
+        ContainerTypes.FluidUnloader.get()
+    }) {
 
     private var fluidAmount = -1
     private var fluidName = ""

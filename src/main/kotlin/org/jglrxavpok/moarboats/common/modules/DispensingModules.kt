@@ -14,6 +14,7 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.DispenserBlock
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper
+import net.minecraftforge.registries.ForgeRegistries
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
@@ -106,7 +107,7 @@ abstract class DispensingModule: BoatModule() {
                         ResourceLocation(name)
                     }
 
-            location == stack.item.registryName
+            location == ForgeRegistries.ITEMS.getKey(stack.item)!!
         }
         return when {
             isInList && MoarBoatsConfig.dispenserModule.configMode.get() == "disallow" -> false

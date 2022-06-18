@@ -9,11 +9,14 @@ import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
+import org.jglrxavpok.moarboats.common.MenuTypes
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
+import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.items.MapItemWithPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 
-class ContainerHelmModule(containerID: Int, playerInventory: Inventory, helm: BoatModule, boat: IControllable): ContainerBoatModule<ContainerHelmModule>(HelmModule.containerType as MenuType<ContainerHelmModule>, containerID, playerInventory, helm, boat) {
+class ContainerHelmModule(containerID: Int, playerInventory: Inventory, helm: BoatModule, boat: IControllable): ContainerBoatModule<ContainerHelmModule>(
+    ContainerTypes.HelmModuleMenu.get()  as MenuType<ContainerHelmModule>, containerID, playerInventory, boat) {
 
     val helmInventory = boat.getInventory(helm)
 
@@ -72,8 +75,7 @@ class ContainerHelmModule(containerID: Int, playerInventory: Inventory, helm: Bo
     private fun isMapItem(itemStack: ItemStack): Boolean {
         return when(itemStack.item) {
             Items.FILLED_MAP -> true
-            MapItemWithPath -> true
-            ItemGoldenTicket -> true
+            is ItemPath -> true
             else -> false
         }
     }

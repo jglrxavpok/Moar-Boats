@@ -5,6 +5,7 @@ import net.minecraft.nbt.ListTag
 import net.minecraft.core.BlockPos
 import net.minecraftforge.network.NetworkEvent
 import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 
@@ -23,7 +24,7 @@ class CRemoveWaypointFromGoldenTicketFromMappingTable: CxxRemoveWaypointToItemPa
     }
 
     object Handler: CxxRemoveWaypointToItemPath.Handler<CRemoveWaypointFromGoldenTicketFromMappingTable, SSetGoldenItinerary>() {
-        override val item = ItemGoldenTicket
+        override val item = MBItems.ItemGoldenTicket.get()
         override val packetClass = CRemoveWaypointFromGoldenTicketFromMappingTable::class.java
 
         override fun getStack(message: CRemoveWaypointFromGoldenTicketFromMappingTable, ctx: NetworkEvent.Context): ItemStack? {

@@ -11,6 +11,7 @@ import net.minecraft.world.item.crafting.RecipeType
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.ShulkerBoxBlock
 import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.data.BoatType
 
 object ShulkerBoatRecipe: CraftingRecipe {
@@ -30,7 +31,7 @@ object ShulkerBoatRecipe: CraftingRecipe {
         return width*height >= 2
     }
 
-    override fun getResultItem() = ItemStack(ShulkerBoatItem[BoatType.OAK])
+    override fun getResultItem() = ItemStack(MBItems.ShulkerBoats[BoatType.OAK]!!.get())
 
     private fun getBoatType(item: Item): BoatType? {
         return BoatType.values().firstOrNull { it.provideBoatItem() == item }
@@ -57,7 +58,7 @@ object ShulkerBoatRecipe: CraftingRecipe {
             }
         }
         if(shulkerBox != null && boatType != null) {
-            val stack = ItemStack(ShulkerBoatItem[boatType])
+            val stack = ItemStack(MBItems.ShulkerBoats[BoatType.OAK]!!.get())
             stack.getOrCreateTagElement("AdditionalData").put("TileEntityData", shulkerBox.getOrCreateTagElement("BlockEntityTag"))
             val color = ShulkerBoxBlock.getColorFromItem(shulkerBox.item)
             if(color != null) {

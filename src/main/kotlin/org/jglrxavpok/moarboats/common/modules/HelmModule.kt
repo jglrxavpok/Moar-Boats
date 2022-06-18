@@ -2,7 +2,6 @@ package org.jglrxavpok.moarboats.common.modules
 
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.core.BlockPos
-import net.minecraft.item.FilledMapItem
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
 import net.minecraft.nbt.Tag
@@ -11,7 +10,9 @@ import net.minecraft.util.Mth
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.storage.MapData
+import net.minecraft.world.item.Items
+import net.minecraft.world.item.MapItem
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.jglrxavpok.moarboats.MoarBoats
@@ -19,10 +20,10 @@ import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiHelmModule
 import org.jglrxavpok.moarboats.client.gui.GuiPathEditor
+import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
 import org.jglrxavpok.moarboats.common.containers.ContainerHelmModule
 import org.jglrxavpok.moarboats.common.data.*
-import org.jglrxavpok.moarboats.common.items.HelmItem
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.items.MapItemWithPath
@@ -46,7 +47,7 @@ object HelmModule: BoatModule(), BlockReason {
     val MaxDistanceToWaypointSquared = MaxDistanceToWaypoint*MaxDistanceToWaypoint
 
     // State names
-    val waypointsProperty = NBTListBoatProperty("waypoints", Tag.TAG_COMPOUND)
+    val waypointsProperty = NBTListBoatProperty("waypoints", Tag.TAG_COMPOUND.toInt())
     val currentWaypointProperty = IntBoatProperty("currentWaypoint")
     val rotationAngleProperty = FloatBoatProperty("rotationAngle")
     val xCenterProperty = IntBoatProperty("xCenter")
@@ -79,9 +80,9 @@ object HelmModule: BoatModule(), BlockReason {
         super.onInit(boat, fromItem)
         if(boat.worldRef.isClientSide) {
             val stack = boat.getInventory().getItem(0)
-            if(!stack.isEmpty && stack.item is FilledMapItem) {
-                val id = stack.damageValue
-                MoarBoats.network.sendToServer(CMapRequest("map_$id", boat.entityID, this.id))
+            if(!stack.isEmpty && stack.item is MapItem) {
+                val id = MapItem.getMapId(stack) ?: error("No map id in stack")
+                MoarBoats.network.sendToServer(CMapRequest(id, boat.entityID, this.id))
             }
         }
     }
@@ -93,7 +94,7 @@ object HelmModule: BoatModule(), BlockReason {
         val item = stack.item
         try {
             val (waypoints, loopingOption) = when (item) {
-                net.minecraft.item.Items.FILLED_MAP -> Pair(HelmModule.waypointsProperty[from], HelmModule.loopingProperty[from])
+                Items.FILLED_MAP -> Pair(HelmModule.waypointsProperty[from], HelmModule.loopingProperty[from])
                 is ItemPath -> Pair(item.getWaypointData(stack, MoarBoats.getLocalMapStorage()), item.getLoopingOptions(stack))
                 else -> return
             }
@@ -148,7 +149,7 @@ object HelmModule: BoatModule(), BlockReason {
         val pair: Pair<ListTag, LoopingOptions>
         try {
             pair = when(item) {
-                net.minecraft.item.Items.FILLED_MAP -> Pair(HelmModule.waypointsProperty[boat], HelmModule.loopingProperty[boat])
+                Items.FILLED_MAP -> Pair(HelmModule.waypointsProperty[boat], HelmModule.loopingProperty[boat])
                 is ItemPath -> Pair(item.getWaypointData(stack, MoarBoats.getLocalMapStorage()), item.getLoopingOptions(stack))
                 else -> return
             }
@@ -164,18 +165,18 @@ object HelmModule: BoatModule(), BlockReason {
             updateWaypoints(boat, waypoints, loopingOption)
         }
 
-        if(stack.isEmpty || item !is FilledMapItem) {
-            receiveMapData(boat, EmptyMapData)
+        if(stack.isEmpty || item !is MapItem) {
+            receiveMapData(boat, null)
             waypointsProperty[boat] = ListTag() // reset waypoints
             return
         }
         val mapdata = mapDataCopyProperty[boat]
-        if (!boat.worldRef.isClientSide) {
+        if (mapdata != null && !boat.worldRef.isClientSide) {
             xCenterProperty[boat] = mapdata.x
             zCenterProperty[boat] = mapdata.z
-        } else if(mapdata == EmptyMapData || boat.correspondingEntity.tickCount % MapUpdatePeriod == 0) {
-            val id = FilledMapItem.getMapId(stack)
-            MoarBoats.network.sendToServer(CMapRequest("map_$id", boat.entityID, this.id))
+        } else if(boat.correspondingEntity.tickCount % MapUpdatePeriod == 0) {
+            val id = MapItem.getMapId(stack) ?: error("No map id in stack")
+            MoarBoats.network.sendToServer(CMapRequest(id, boat.entityID, this.id))
         }
     }
 
@@ -318,10 +319,10 @@ object HelmModule: BoatModule(), BlockReason {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.spawnAtLocation(HelmItem, 1)
+            boat.correspondingEntity.spawnAtLocation(MBItems.HelmItem.get(), 1)
     }
 
-    fun receiveMapData(boat: IControllable, data: MapData) {
+    fun receiveMapData(boat: IControllable, data: MapItemSavedData?) {
         mapDataCopyProperty[boat] = data
     }
 
@@ -331,14 +332,14 @@ object HelmModule: BoatModule(), BlockReason {
     }
 
     @OnlyIn(Dist.CLIENT)
-    fun createPathEditorGui(player: Player, boat: IControllable, mapData: MapData): GuiPathEditor? {
-        if(mapData == EmptyMapData) {
+    fun createPathEditorGui(player: Player, boat: IControllable, mapData: MapItemSavedData?): GuiPathEditor? {
+        if(mapData == null) {
             return null
         }
         val inventory = boat.getInventory(HelmModule)
         val stack = inventory.list[0]
         return when(stack.item) {
-            is FilledMapItem -> {
+            is MapItem -> {
                 GuiPathEditor(player, BoatPathHolder(boat), mapData)
             }
             is MapItemWithPath -> {
@@ -353,16 +354,16 @@ object HelmModule: BoatModule(), BlockReason {
         }
     }
 
-    fun getMapData(stack: ItemStack, boat: IControllable): MapData? {
+    fun getMapData(stack: ItemStack, boat: IControllable): MapItemSavedData? {
         return when (stack.item) {
-            is FilledMapItem -> mapDataCopyProperty[boat]
+            is MapItem -> mapDataCopyProperty[boat]
             is MapItemWithPath -> {
                 val mapID = stack.tag?.getString("${MoarBoats.ModID}.mapID") ?: return null
-                MoarBoats.getLocalMapStorage().get({ MapData(mapID) }, mapID) as? MapData
+                MoarBoats.getLocalMapStorage().get(MapItemSavedData::load, mapID)
             }
             is ItemGoldenTicket -> {
                 val mapID = ItemGoldenTicket.getData(stack).mapID
-                MoarBoats.getLocalMapStorage().get({ MapData(mapID) }, mapID) as? MapData
+                MoarBoats.getLocalMapStorage().get(MapItemSavedData::load, mapID)
             }
             else -> null
         }

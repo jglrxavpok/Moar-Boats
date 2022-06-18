@@ -10,7 +10,7 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
 import net.minecraft.util.text.TextFormatting
 import net.minecraft.world.entity.player.Player
-import net.minecraftforge.fml.client.gui.widget.Slider
+import net.minecraftforge.client.gui.widget.ForgeSlider
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.gui.elements.Checkbox
 import org.jglrxavpok.moarboats.common.items.ItemPath
@@ -43,7 +43,7 @@ class GuiWaypointEditor(val player: Player, val te: TileEntityMappingTable, val 
 
     }
 
-    private val boostSlider = Slider(0, 0, 125, 20, Component.literal("${boostSetting/*.formatted()*/.string}: "), Component.literal("%"), -50.0, 50.0, 0.0, false, true, boostSliderCallback)
+    private val boostSlider = ForgeSlider(0, 0, 125, 20, Component.literal("${boostSetting/*.formatted()*/.string}: "), Component.literal("%"), -50.0, 50.0, 0.0, false, true, boostSliderCallback)
     private val confirmButton = Button(0, 0, 150, 20, confirmText/*.formatted()*/) {
         storeIntoNBT()
         MoarBoats.network.sendToServer(CModifyWaypoint(te, index, waypointData))

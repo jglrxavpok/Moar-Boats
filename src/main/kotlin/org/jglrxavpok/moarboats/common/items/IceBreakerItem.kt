@@ -1,4 +1,4 @@
 package org.jglrxavpok.moarboats.common.items
 
-object IceBreakerItem: MoarBoatsItem("icebreaker") {
+class IceBreakerItem: MoarBoatsItem("icebreaker") {
 }

@@ -4,7 +4,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.chunk.ChunkStatus
 import net.minecraft.world.level.material.MaterialColor
-import net.minecraft.world.storage.MapData
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.network.NetworkEvent
 import net.minecraftforge.network.PacketDistributor
@@ -27,7 +27,7 @@ class CMapImageRequest(): MoarBoatsPacket {
         override fun onMessage(message: CMapImageRequest, ctx: NetworkEvent.Context): MoarBoatsPacket? {
             val player = ctx.sender!!
             val world = player.level
-            val mapData = world.getMapData(message.mapName) as? MapData ?: return null
+            val mapData = world.getMapData(message.mapName) as? MapItemSavedData ?: return null
             val size = (1 shl mapData.scale.toInt())*128
             val stripes = size/ StripeLength
 
@@ -40,7 +40,7 @@ class CMapImageRequest(): MoarBoatsPacket {
             return null
         }
 
-        private fun takeScreenshotOfMapArea(stripeIndex: Int, mapData: MapData, world: Level): IntArray {
+        private fun takeScreenshotOfMapArea(stripeIndex: Int, mapData: MapItemSavedData, world: Level): IntArray {
             val xCenter = mapData.x
             val zCenter = mapData.z
             val size = (1 shl mapData.scale.toInt())*128

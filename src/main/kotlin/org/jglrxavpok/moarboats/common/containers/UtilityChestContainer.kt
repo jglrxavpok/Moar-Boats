@@ -8,7 +8,7 @@ import net.minecraft.world.inventory.ShulkerBoxMenu
 import net.minecraft.world.level.block.entity.ChestBlockEntity
 import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity
 
-class UtilityChestContainer(windowID: Int, playerInv: Inventory, tileEntity: ChestBlockEntity): ChestMenu(ContainerTypes.ChestBoat, windowID, playerInv, tileEntity, 3) {
+class UtilityChestContainer(windowID: Int, playerInv: Inventory, tileEntity: ChestBlockEntity): ChestMenu(ContainerTypes.ChestBoat.get(), windowID, playerInv, tileEntity, 3) {
 
     override fun stillValid(playerIn: Player): Boolean {
         return true
@@ -22,6 +22,6 @@ class UtilityShulkerContainer(windowID: Int, playerInv: Inventory, tileEntity: S
     }
 
     override fun getType(): MenuType<*> {
-        return ContainerTypes.ShulkerBoat
+        return ContainerTypes.ShulkerBoat.get()
     }
 }

@@ -5,6 +5,7 @@ import net.minecraft.nbt.ListTag
 import net.minecraft.core.BlockPos
 import net.minecraftforge.network.NetworkEvent
 import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.items.MapItemWithPath
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 
@@ -24,7 +25,7 @@ class CAddWaypointToItemPathFromMappingTable: CxxAddWaypointToItemPath {
     }
 
     object Handler: CxxAddWaypointToItemPath.Handler<CAddWaypointToItemPathFromMappingTable, SUpdateMapWithPathInMappingTable>() {
-        override val item = MapItemWithPath
+        override val item = MBItems.MapItemWithPath.get()
         override val packetClass = CAddWaypointToItemPathFromMappingTable::class.java
 
         override fun getStack(message: CAddWaypointToItemPathFromMappingTable, ctx: NetworkEvent.Context): ItemStack? {

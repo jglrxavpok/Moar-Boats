@@ -4,6 +4,7 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.ListTag
 import net.minecraft.core.BlockPos
 import net.minecraftforge.network.NetworkEvent
+import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.items.MapItemWithPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
@@ -19,7 +20,7 @@ class CAddWaypointToItemPathFromBoat: CxxAddWaypointToItemPath {
     }
 
     object Handler: CxxAddWaypointToItemPath.Handler<CAddWaypointToItemPathFromBoat, SUpdateMapWithPathInBoat>() {
-        override val item = MapItemWithPath
+        override val item = MBItems.MapItemWithPath.get()
         override val packetClass = CAddWaypointToItemPathFromBoat::class.java
 
         override fun getStack(message: CAddWaypointToItemPathFromBoat, ctx: NetworkEvent.Context): ItemStack? {

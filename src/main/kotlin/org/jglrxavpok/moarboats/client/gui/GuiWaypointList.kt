@@ -7,6 +7,7 @@ import net.minecraft.Util
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.components.ObjectSelectionList
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import org.jglrxavpok.moarboats.client.drawModalRectWithCustomSizedTexture
 import org.jglrxavpok.moarboats.client.gui.WaypointInfoEntry.Companion.ArrowsTexture
@@ -79,6 +80,9 @@ class WaypointListEntry(val parent: GuiMappingTable, val slot: CompoundTag, val 
 
     private fun doubleClick() = Util.getMillis() - this.lastClickTime < 250L
 
+    override fun getNarration(): Component {
+        TODO()
+    }
 }
 
 class GuiWaypointList(val mc: Minecraft, val parent: GuiMappingTable, width: Int, height: Int, top: Int, left: Int, entryHeight: Int):

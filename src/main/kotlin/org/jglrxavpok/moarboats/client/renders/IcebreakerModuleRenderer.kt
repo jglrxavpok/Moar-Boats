@@ -15,10 +15,6 @@ import org.jglrxavpok.moarboats.common.modules.IceBreakerModule
 
 object IcebreakerModuleRenderer : BoatModuleRenderer() {
 
-    init {
-        registryName = IceBreakerModule.id
-    }
-
     val model = ModelIcebreaker()
     val texture = ResourceLocation(MoarBoats.ModID, "textures/entity/icebreaker.png")
 

@@ -7,27 +7,36 @@ import net.minecraft.data.recipes.RecipeProvider
 import net.minecraft.data.recipes.ShapelessRecipeBuilder
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.level.block.Blocks
+import net.minecraftforge.registries.ForgeRegistries
 import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.common.Items
-import org.jglrxavpok.moarboats.common.items.MBRecipeSerializers
-import org.jglrxavpok.moarboats.common.items.UtilityBoatItem
+import org.jglrxavpok.moarboats.common.data.BoatType
+import org.jglrxavpok.moarboats.common.items.*
 import java.util.function.Consumer
 
 class UtilityBoatRecipes(generator: DataGenerator): RecipeProvider(generator) {
 
     override fun buildCraftingRecipes(consumer: Consumer<FinishedRecipe>) {
-        for(item in Items.list) {
-            if(item is UtilityBoatItem) {
-                registerRecipe(consumer, item)
-            }
+        for(type in BoatType.values()) {
+            registerRecipe(consumer, BlastFurnaceBoatItem(type))
+            registerRecipe(consumer, CartographyTableBoatItem(type))
+            registerRecipe(consumer, ChestBoatItem(type))
+            registerRecipe(consumer, CraftingTableBoatItem(type))
+            registerRecipe(consumer, EnderChestBoatItem(type))
+            registerRecipe(consumer, FurnaceBoatItem(type))
+            registerRecipe(consumer, GrindstoneBoatItem(type))
+            registerRecipe(consumer, JukeboxBoatItem(type))
+            registerRecipe(consumer, LoomBoatItem(type))
+            registerRecipe(consumer, ShulkerBoatItem(type))
+            registerRecipe(consumer, SmokerBoatItem(type))
+            registerRecipe(consumer, StonecutterBoatItem(type))
         }
     }
 
     private fun registerRecipe(consumer: Consumer<FinishedRecipe>, item: UtilityBoatItem) {
-        MoarBoats.logger.info("Generating recipe for item ${item.registryName}")
-        if(item.containerType == "shulker") {
+        MoarBoats.logger.info("Generating recipe for item ${ForgeRegistries.ITEMS.getKey(item)}")
+        if(item is ShulkerBoatItem) {
             CustomRecipeBuilder.special(MBRecipeSerializers.ShulkerBoat)
-                    .save(consumer, item.boatType.getOriginModID()+":moarboats_${item.registryName!!.path}")
+                    .save(consumer, item.boatType.getOriginModID()+":moarboats_${ForgeRegistries.ITEMS.getKey(item)!!.path}")
         } else {
             val baseBoat = item.boatType.provideBoatItem()
             ShapelessRecipeBuilder.shapeless(item)
@@ -35,7 +44,7 @@ class UtilityBoatRecipes(generator: DataGenerator): RecipeProvider(generator) {
                     .requires(baseBoat)
                     .requires(UtilityBoatType2Block(item.containerType))
                     .unlockedBy("in_water", EnterBlockTrigger.TriggerInstance.entersBlock(Blocks.WATER))
-                    .save(consumer, ResourceLocation(item.boatType.getOriginModID(), "moarboats_${item.registryName!!.path}"))
+                    .save(consumer, ResourceLocation(item.boatType.getOriginModID(), "moarboats_${ForgeRegistries.ITEMS.getKey(item)!!.path}"))
         }
     }
 }

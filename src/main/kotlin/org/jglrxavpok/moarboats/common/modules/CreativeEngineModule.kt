@@ -13,7 +13,7 @@ import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
 
 object CreativeEngineModule : BaseEngineModule() {
     override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? {
-        return EmptyModuleContainer(containerID, player.inventory, this, boat, isLarge = true)
+        return EmptyModuleContainer(containerID, player.inventory, boat, isLarge = true)
     }
 
     override val id = ResourceLocation("moarboats:creative_engine")

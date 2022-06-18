@@ -13,7 +13,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
-import net.minecraftforge.fml.client.gui.widget.Slider
+import net.minecraftforge.client.gui.widget.ForgeSlider
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
@@ -53,11 +53,11 @@ class GuiEngineModule(playerInventory: Inventory, engine: BoatModule, boat: ICon
     private val unknownBlockReasonText = { str: String -> Component.translatable("gui.engine.blocked.unknown", str) }
     private val imposedSpeedText = { str: String -> Component.translatable("moarboats.gui.engine.imposed_boost", str) }
 
-    private lateinit var speedSlider: Slider
+    private lateinit var speedSlider: ForgeSlider
     private val speedIconTexture = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/engines/speed_setting.png")
 
     private var prevSliderValue = 0.0
-    private val sliderCallback = Slider.ISlider { slider ->
+    private val sliderCallback = ForgeSlider.ISlider { slider ->
         if(speedSlider.value != prevSliderValue) {
             prevSliderValue = speedSlider.value
             MoarBoats.network.sendToServer(CChangeEngineSpeed(boat.entityID, module.id, speedSlider.value.toFloat()/100f))
@@ -73,7 +73,7 @@ class GuiEngineModule(playerInventory: Inventory, engine: BoatModule, boat: ICon
         val speedSettingMargins = 30
         val speedSettingHorizontalSize = xSize - speedSettingMargins*2
 
-        speedSlider = Slider(guiLeft + speedSettingMargins, guiTop + 90, speedSettingHorizontalSize, 20, Component.literal("${speedSetting/*.formatted()*/.string}: "), Component.literal("%"), -50.0, 50.0, 0.0, false, true, Button.OnPress { slider -> }, sliderCallback)
+        speedSlider = ForgeSlider(guiLeft + speedSettingMargins, guiTop + 90, speedSettingHorizontalSize, 20, Component.literal("${speedSetting/*.formatted()*/.string}: "), Component.literal("%"), -50.0, 50.0, 0.0, false, true, Button.OnPress { slider -> }, sliderCallback)
         addWidget(speedSlider)
         speedSlider.value = (engine.speedProperty[boat].toDouble()) * 100f
     }

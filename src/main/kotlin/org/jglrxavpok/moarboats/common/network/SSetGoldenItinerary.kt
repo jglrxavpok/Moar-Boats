@@ -1,7 +1,7 @@
 package org.jglrxavpok.moarboats.common.network
 
 import net.minecraft.client.Minecraft
-import net.minecraft.world.storage.DimensionDataStorage
+import net.minecraft.world.level.storage.DimensionDataStorage
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.network.NetworkEvent
 import org.jglrxavpok.moarboats.MoarBoats
@@ -22,7 +22,7 @@ class SSetGoldenItinerary(): MoarBoatsPacket {
 
         override fun onMessage(message: SSetGoldenItinerary, ctx: NetworkEvent.Context): MoarBoatsPacket? {
             val mapStorage: DimensionDataStorage = MoarBoats.getLocalMapStorage()
-            mapStorage.set(message.data)
+            mapStorage.set(ItemGoldenTicket.WaypointData.makeKey(message.data), message.data)
             message.data.isDirty = true
 
             val mc = Minecraft.getInstance()

@@ -7,10 +7,11 @@ import net.minecraft.world.inventory.ClickType
 import net.minecraft.world.inventory.Slot
 import net.minecraft.world.item.ItemStack
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
+import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.items.MapItemWithPath
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 
-class ContainerMappingTable(containerID: Int, val te: TileEntityMappingTable, val playerInv: Inventory): ContainerBase<ContainerMappingTable>(ContainerTypes.MappingTable, containerID, playerInv) {
+class ContainerMappingTable(containerID: Int, val te: TileEntityMappingTable, val playerInv: Inventory): ContainerBase<ContainerMappingTable>(ContainerTypes.MappingTable.get(), containerID, playerInv) {
 
     init {
         addSlot(SlotMappingTable(te.inventory, 0, 8, 8))
@@ -41,7 +42,7 @@ class ContainerMappingTable(containerID: Int, val te: TileEntityMappingTable, va
             itemstack = itemstack1.copy()
 
             if (index != 0) {
-                if (itemstack1.item == MapItemWithPath || itemstack1.item == ItemGoldenTicket) {
+                if (itemstack1.item is ItemPath) {
                     if (!this.moveItemStackTo(itemstack1, 0, 1, false)) {
                         return ItemStack.EMPTY
                     }
@@ -74,7 +75,7 @@ class ContainerMappingTable(containerID: Int, val te: TileEntityMappingTable, va
 
     private inner class SlotMappingTable(inventory: Container, index: Int, x: Int, y: Int): Slot(inventory, index, x, y) {
         override fun mayPlace(stack: ItemStack): Boolean {
-            return stack.item == MapItemWithPath || stack.item == ItemGoldenTicket
+            return stack.item is ItemPath
         }
 
         override fun getMaxStackSize(): Int {

@@ -9,6 +9,7 @@ import net.minecraft.world.item.crafting.RecipeSerializer
 import net.minecraft.world.item.crafting.RecipeType
 import net.minecraft.world.level.Level
 import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.common.MBItems
 
 object ModularBoatColoringRecipe: CraftingRecipe {
     override fun getType(): RecipeType<*> {
@@ -54,7 +55,7 @@ object ModularBoatColoringRecipe: CraftingRecipe {
             }
         }
         if(boatCount == 1 && dyeCount == 3) {
-            return ItemStack(ModularBoatItem[globalColor!!])
+            return ItemStack(MBItems.ModularBoats[globalColor!!]!!.get())
         }
         return ItemStack.EMPTY
     }

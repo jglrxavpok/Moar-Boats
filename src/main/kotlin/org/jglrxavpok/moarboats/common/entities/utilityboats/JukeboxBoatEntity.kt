@@ -5,6 +5,7 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
+import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.AbstractContainerMenu
@@ -14,18 +15,20 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.item.RecordItem
 import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.entity.JukeboxBlockEntity
 import net.minecraft.world.phys.Vec3
 import net.minecraftforge.network.PacketDistributor
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.EntityEntries
+import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.containers.ContainerTypes
 import org.jglrxavpok.moarboats.common.containers.EmptyContainer
 import org.jglrxavpok.moarboats.common.entities.UtilityBoatEntity
 import org.jglrxavpok.moarboats.common.items.JukeboxBoatItem
 import org.jglrxavpok.moarboats.common.network.SPlayRecordFromBoat
 
-class JukeboxBoatEntity(world: Level): UtilityBoatEntity<JukeboxBlockEntity, EmptyContainer>(EntityEntries.JukeboxBoat, world) {
+class JukeboxBoatEntity(entityType: EntityType<out JukeboxBoatEntity>, world: Level): UtilityBoatEntity<JukeboxBlockEntity, EmptyContainer>(entityType, world) {
 
     private var record: ItemStack
         get() = getBackingTileEntity()!!.record
@@ -36,7 +39,7 @@ class JukeboxBoatEntity(world: Level): UtilityBoatEntity<JukeboxBlockEntity, Emp
     private val hasRecord get() = !record.isEmpty
     private val jukeboxPos = BlockPos.MutableBlockPos()
 
-    constructor(level: Level, x: Double, y: Double, z: Double): this(level) {
+    constructor(entityType: EntityType<out JukeboxBoatEntity>, level: Level, x: Double, y: Double, z: Double): this(entityType, level) {
         this.setPos(x, y, z)
         this.deltaMovement = Vec3.ZERO
         this.xOld = x
@@ -45,7 +48,7 @@ class JukeboxBoatEntity(world: Level): UtilityBoatEntity<JukeboxBlockEntity, Emp
     }
 
     override fun initBackingTileEntity(): JukeboxBlockEntity? {
-        return JukeboxBlockEntity()
+        return JukeboxBlockEntity(InvalidPosition, Blocks.JUKEBOX.defaultBlockState())
     }
 
     override fun tick() {
@@ -117,11 +120,11 @@ class JukeboxBoatEntity(world: Level): UtilityBoatEntity<JukeboxBlockEntity, Emp
     }
 
     override fun getContainerType(): MenuType<EmptyContainer> {
-        return ContainerTypes.Empty
+        return ContainerTypes.Empty.get()
     }
 
     override fun getBoatItem(): Item {
-        return JukeboxBoatItem[boatType]
+        return MBItems.JukeboxBoats[boatType]!!.get()
     }
 
     override fun createMenu(p_createMenu_1_: Int, p_createMenu_2_: Inventory, p_createMenu_3_: Player): AbstractContainerMenu? {

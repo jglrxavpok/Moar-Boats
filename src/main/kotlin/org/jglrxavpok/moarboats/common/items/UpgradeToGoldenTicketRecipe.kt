@@ -8,6 +8,7 @@ import net.minecraft.world.item.crafting.RecipeSerializer
 import net.minecraft.world.item.crafting.RecipeType
 import net.minecraft.world.level.Level
 import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.common.MBItems
 import java.util.*
 
 object UpgradeToGoldenTicketRecipe: CraftingRecipe {
@@ -35,13 +36,13 @@ object UpgradeToGoldenTicketRecipe: CraftingRecipe {
         var fullMap: ItemStack? = null
         for(i in 0 until inv.containerSize) {
             val stack = inv.getItem(i)
-            if(stack.item == ItemGoldenTicket) {
+            if(stack.item is ItemGoldenTicket) {
                 if(ItemGoldenTicket.isEmpty(stack)) {
                     emptyTickets++
                 } else {
                     return ItemStack.EMPTY
                 }
-            } else if(stack.item == MapItemWithPath) {
+            } else if(stack.item is MapItemWithPath) {
                 fullMaps++
                 fullMap = stack
             } else if(!stack.isEmpty) {
@@ -50,7 +51,7 @@ object UpgradeToGoldenTicketRecipe: CraftingRecipe {
         }
         if(fullMaps == 1 && fullMap != null && emptyTickets >= 1) {
             val stack = ItemGoldenTicket.createStack(UUID.randomUUID().toString())
-            ItemGoldenTicket.updateItinerary(stack, MapItemWithPath, fullMap)
+            ItemGoldenTicket.updateItinerary(stack, MBItems.MapItemWithPath.get(), fullMap)
             return stack
         }
         return ItemStack.EMPTY
@@ -61,13 +62,13 @@ object UpgradeToGoldenTicketRecipe: CraftingRecipe {
         var fullMaps = 0
         for(i in 0 until inv.containerSize) {
             val stack = inv.getItem(i)
-            if(stack.item == ItemGoldenTicket) {
+            if(stack.item is ItemGoldenTicket) {
                 if(ItemGoldenTicket.isEmpty(stack)) {
                     emptyTickets++
                 } else {
                     return false
                 }
-            } else if(stack.item == MapItemWithPath) {
+            } else if(stack.item is MapItemWithPath) {
                 fullMaps++
             } else if(!stack.isEmpty) {
                 return false

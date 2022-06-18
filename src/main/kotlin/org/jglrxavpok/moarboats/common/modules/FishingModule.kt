@@ -20,6 +20,7 @@ import net.minecraft.world.level.storage.loot.LootTables
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.network.PacketDistributor
+import net.minecraftforge.registries.ForgeRegistries
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
@@ -89,7 +90,7 @@ object FishingModule : BoatModule() {
                 val lootList = ListTag()
                 result.forEach {
                     val info = CompoundTag()
-                    info.putString("name", it.item.registryName.toString())
+                    info.putString("name", ForgeRegistries.ITEMS.getKey(it.item)!!.toString())
                     info.putInt("damage", it.damageValue)
                     lootList.add(info)
                 }
@@ -173,6 +174,6 @@ object FishingModule : BoatModule() {
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
-            boat.correspondingEntity.spawnAtLocation(Items.FISHING_ROD, 1)
+            boat.correspondingEntity.spawnAtLocation(Items.FISHING_ROD, 1) // TODO: enchantments are lost
     }
 }

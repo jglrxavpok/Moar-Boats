@@ -13,10 +13,6 @@ open class BlockBoatModuleRenderer(id: ResourceLocation, private val spot: BoatM
 
     constructor(id: ResourceLocation, spot: BoatModule.Spot, state: BlockState): this(id, spot, { _, _ -> state })
 
-    init {
-        this.registryName = id
-    }
-
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRenderer: EntityRendererProvider.Context) {
         val block = blockStateProvider(boat, module)
         matrixStack.pushPose()
@@ -35,7 +31,7 @@ open class BlockBoatModuleRenderer(id: ResourceLocation, private val spot: BoatM
 
         matrixStack.scale(0.75f, 0.75f, 0.75f)
         matrixStack.translate(-0.5, -4f/16.0, 1.0/16.0/0.75)
-        renderBlockState(matrixStack, buffers, packedLightIn, entityRenderer, block, boat.lightLevelDependentMagicValue)
+        renderBlockState(matrixStack, buffers, packedLightIn, block, boat.lightLevelDependentMagicValue)
         matrixStack.popPose()
     }
 }

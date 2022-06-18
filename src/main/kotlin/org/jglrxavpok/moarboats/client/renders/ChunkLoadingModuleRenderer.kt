@@ -16,10 +16,6 @@ import org.jglrxavpok.moarboats.common.modules.ChunkLoadingModule
 
 object ChunkLoadingModuleRenderer : BoatModuleRenderer() {
 
-    init {
-        registryName = ChunkLoadingModule.id
-    }
-
     private val enderPearlStack = ItemStack(Items.ENDER_PEARL)
 
     private val corners = arrayOf(

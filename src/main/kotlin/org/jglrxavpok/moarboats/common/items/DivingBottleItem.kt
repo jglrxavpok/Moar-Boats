@@ -1,5 +1,5 @@
 package org.jglrxavpok.moarboats.common.items
 
-object DivingBottleItem : MoarBoatsItem("diving_bottle") {
+class DivingBottleItem : MoarBoatsItem("diving_bottle") {
 
 }

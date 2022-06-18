@@ -11,7 +11,7 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.containers.EnergyContainer
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergy
 
-class GuiEnergy(type: MenuType<EnergyContainer>, containerID: Int, val te: TileEntityEnergy, val player: Player): AbstractContainerScreen<EnergyContainer>(EnergyContainer(type, containerID, te, player), player.inventory, Component.translatable("moarboats.inventory.energy")) {
+class GuiEnergy(isLoading: Boolean, containerID: Int, val te: TileEntityEnergy, val player: Player): AbstractContainerScreen<EnergyContainer>(EnergyContainer(isLoading, containerID, te, player), player.inventory, Component.translatable("moarboats.inventory.energy")) {
 
     private val energyBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/energy.png")
     private val defaultBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/default_background.png")

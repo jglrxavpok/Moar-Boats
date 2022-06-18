@@ -5,11 +5,11 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.TooltipFlag
 import net.minecraft.world.level.Level
 import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.common.blocks.BlockWaterborneComparator
+import org.jglrxavpok.moarboats.common.MBBlocks
 
-object WaterborneComparatorItem : WaterborneItem("waterborne_comparator") {
+class WaterborneComparatorItem : WaterborneItem("waterborne_comparator") {
 
-    override val correspondingBlock = BlockWaterborneComparator
+    override val correspondingBlock = MBBlocks.WaterborneComparator.get()
     private val descriptionText = Component.translatable(MoarBoats.ModID+".tile.waterborne_comparator.description")
 
     override fun appendHoverText(stack: ItemStack?, player: Level?, tooltip: MutableList<Component>, advanced: TooltipFlag?) {

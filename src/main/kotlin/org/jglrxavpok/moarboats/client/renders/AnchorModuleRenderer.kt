@@ -17,10 +17,6 @@ import org.jglrxavpok.moarboats.extensions.toRadians
 
 object AnchorModuleRenderer : BoatModuleRenderer() {
 
-    init {
-        registryName = AnchorModule.id
-    }
-
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererProvider.Context) {
         matrixStack.pushPose()
         matrixStack.mulPose(Vector3f.YP.rotationDegrees(90f))
@@ -53,7 +49,7 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
         val anchorScale = 0.75f
         matrixStack.pushPose()
         matrixStack.scale(anchorScale, anchorScale, anchorScale)
-        renderBlockState(matrixStack, buffers, packedLightIn, entityRendererManager, Blocks.ANVIL.defaultBlockState(), boat.lightLevelDependentMagicValue)
+        renderBlockState(matrixStack, buffers, packedLightIn, Blocks.ANVIL.defaultBlockState(), boat.lightLevelDependentMagicValue)
         matrixStack.popPose()
         matrixStack.translate(+0.5, +0.5, -0.5)
 

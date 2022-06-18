@@ -2,16 +2,15 @@ package org.jglrxavpok.moarboats.client.models;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.entity.Entity;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.world.entity.Entity;
 
 /**
  * ModelHelm - jglrxavpok
  * Created using Tabula 7.0.0
  */
 public class ModelHelm extends EntityModel<Entity> {
-    public ModelRenderer helmBase;
+ /*   public ModelRenderer helmBase;
     public ModelRenderer bottom;
     public ModelRenderer top;
     public ModelRenderer left;
@@ -20,10 +19,10 @@ public class ModelHelm extends EntityModel<Entity> {
     public ModelRenderer radiusRight;
     public ModelRenderer radiusLeft;
     public ModelRenderer radiusTop;
-    public ModelRenderer radiusBottom;
+    public ModelRenderer radiusBottom;*/
 
     public ModelHelm() {
-        this.texWidth = 128;
+    /*    this.texWidth = 128;
         this.texHeight = 64;
         this.bottom = new ModelRenderer(this, 12, 0);
         this.bottom.setPos(10.299999999999999F, -7.299999999999999F, 0.0F);
@@ -63,12 +62,12 @@ public class ModelHelm extends EntityModel<Entity> {
         this.frameCenter = new ModelRenderer(this, 12, 0);
         this.frameCenter.setPos(10.299999999999999F, -7.299999999999999F, 0.0F);
         this.frameCenter.addBox(-0.5F, -1.5F, -1.5F, 1, 3, 3, 0.0F);
-        this.setRotateAngle(frameCenter, 6.283185307179586F, 0.0F, -0.4363323129985824F);
+        this.setRotateAngle(frameCenter, 6.283185307179586F, 0.0F, -0.4363323129985824F);*/
     }
 
     @Override
     public void renderToBuffer(PoseStack matrixStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
-        this.bottom.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
+      /*  this.bottom.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
         this.radiusRight.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
         this.radiusBottom.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
         this.left.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
@@ -77,17 +76,17 @@ public class ModelHelm extends EntityModel<Entity> {
         this.radiusLeft.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
         this.helmBase.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
         this.radiusTop.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
-        this.frameCenter.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
+        this.frameCenter.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);*/
     }
 
     /**
      * This is a helper function from Tabula to set the rotation of model parts
      */
-    public void setRotateAngle(ModelRenderer ModelRenderer, float x, float y, float z) {
+/*    public void setRotateAngle(ModelRenderer ModelRenderer, float x, float y, float z) {
         ModelRenderer.xRot = x;
         ModelRenderer.yRot = y;
         ModelRenderer.zRot = z;
-    }
+    }*/
 
     @Override
     public void setupAnim(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {

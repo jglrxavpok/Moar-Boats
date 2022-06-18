@@ -1,36 +1,38 @@
 package org.jglrxavpok.moarboats.api
 
 import net.minecraft.client.gui.screens.Screen
+import net.minecraft.client.player.AbstractClientPlayer
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.MenuProvider
 import net.minecraft.world.entity.player.Player
+import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
+import net.minecraft.world.level.block.Blocks
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.common.MinecraftForge
-import net.minecraftforge.registries.IForgeRegistry
+import net.minecraftforge.common.extensions.IForgeMenuType
+import net.minecraftforge.registries.*
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.gui.GuiModuleBase
+import org.jglrxavpok.moarboats.common.MBBlocks
+import org.jglrxavpok.moarboats.common.MBItems
+import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
+import org.jglrxavpok.moarboats.common.modules.*
+import org.jglrxavpok.moarboats.common.modules.inventories.ChestModuleInventory
+import org.jglrxavpok.moarboats.common.modules.inventories.EngineModuleInventory
+import org.jglrxavpok.moarboats.common.modules.inventories.SimpleModuleInventory
 import java.util.*
+import java.util.function.Supplier
 
 abstract class BoatModule {
-
-    val containerType by lazy {
-        IForgeContainerType.create { windowId, inv, data ->
-            val player = inv.player
-            val boatID = data.readInt()
-            val boat = player.level.getEntity(boatID) as ModularBoatEntity
-            boat?.let {
-                return@create createContainer(windowId, player as ClientPlayerEntity, it)
-            } ?: return@create null
-        }.setRegistryName(id) as MenuType<ContainerBoatModule<*>>
-    }
 
     abstract val id: ResourceLocation
     abstract val usesInventory: Boolean
@@ -94,19 +96,23 @@ abstract class BoatModule {
             return@IScreenFactory this.createGui(container.containerID, playerInv.player, container.boat) as GuiModuleBase<ContainerBoatModule<*>>
         }
     }
-
 }
 
-class BoatModuleEntry(val correspondingItem: Item, val module: BoatModule, val inventoryFactory: ((IControllable, BoatModule) -> BoatModuleInventory)?, val restriction: () -> Boolean): ForgeRegistryEntry<BoatModuleEntry>()
+class BoatModuleEntry(val correspondingItem: Item, val module: BoatModule, val inventoryFactory: ((IControllable, BoatModule) -> BoatModuleInventory)?, val restriction: () -> Boolean)
 
 object BoatModuleRegistry {
 
-    lateinit var forgeRegistry: IForgeRegistry<BoatModuleEntry>
+    val Registry = DeferredRegister.create<BoatModuleEntry>(
+        ResourceLocation(MoarBoats.ModID, "modules"),
+        MoarBoats.ModID
+    ).makeRegistry {
+        RegistryBuilder()
+    }
 
-    operator fun get(location: ResourceLocation) = forgeRegistry.getValue(location) ?: error("No module with ID $location")
+    operator fun get(location: ResourceLocation) = Registry.get().getValue(location) ?: error("No module with ID $location")
 
     fun findModule(heldItem: ItemStack): ResourceLocation? {
-        for((key, entry) in forgeRegistry.entries) {
+        for((key, entry) in Registry.get().entries) {
             if(entry.correspondingItem == heldItem.item)
                 return key.location()
         }
@@ -114,22 +120,22 @@ object BoatModuleRegistry {
     }
 
     fun findEntry(module: BoatModule): BoatModuleEntry? {
-        return forgeRegistry.values.find {it.module == module}
+        return Registry.get().values.find { it.module == module}
     }
 
 }
 
-fun IForgeRegistry<BoatModuleEntry>.registerModule(module: BoatModule, correspondingItem: Item, inventoryFactory: ((IControllable, BoatModule) -> BoatModuleInventory)? = null, restriction: (() -> Boolean)? = null) {
-    registerModule(module.id, correspondingItem, module, inventoryFactory, restriction)
+fun DeferredRegister<BoatModuleEntry>.registerModule(name: String, correspondingItem: Supplier<out Item>, module: BoatModule, inventoryFactory: ((IControllable, BoatModule) -> BoatModuleInventory)? = null, restriction: (() -> Boolean)? = null): RegistryObject<BoatModuleEntry> {
+    val r = register(name) { BoatModuleEntry(correspondingItem.get(), module, inventoryFactory, restriction ?: {true}) }
+    if(module.id.path != name) {
+        error("Mismatched module 'id' field vs. 'name' given at registration")
+    }
+    MoarBoats.logger.info("Registered module with ID $name")
+    if(module.usesInventory && inventoryFactory == null)
+        error("Module $module uses an inventory but no inventory factory was provided!")
+    return r
 }
 
-fun IForgeRegistry<BoatModuleEntry>.registerModule(name: ResourceLocation, correspondingItem: Item, module: BoatModule, inventoryFactory: ((IControllable, BoatModule) -> BoatModuleInventory)? = null, restriction: (() -> Boolean)? = null) {
-    val entry = BoatModuleEntry(correspondingItem, module, inventoryFactory, restriction ?: {true})
-    entry.registryName = module.id
-    if(!MinecraftForge.EVENT_BUS.post(ModuleRegistryEvent(entry))) {
-        this.register(entry)
-        MoarBoats.logger.info("Registered module with ID $name")
-        if(module.usesInventory && inventoryFactory == null)
-            error("Module $module uses an inventory but no inventory factory was provided!")
-    }
+fun DeferredRegister<BoatModuleEntry>.registerModule(module: BoatModule, correspondingItem: Supplier<out Item>, inventoryFactory: ((IControllable, BoatModule) -> BoatModuleInventory)? = null, restriction: (() -> Boolean)? = null): RegistryObject<BoatModuleEntry> {
+    return registerModule(module.id.path, correspondingItem, module, inventoryFactory, restriction)
 }

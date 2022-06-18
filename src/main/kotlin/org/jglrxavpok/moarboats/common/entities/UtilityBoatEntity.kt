@@ -7,6 +7,7 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.util.Mth
+import net.minecraft.util.RandomSource
 import net.minecraft.world.Container
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
@@ -51,7 +52,7 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
         get() = id
     override val modules: List<BoatModule>
         get() = emptyList()
-    override val moduleRNG: Random
+    override val moduleRNG: RandomSource
         get() = this.random
 
     private val backingTileEntity: TE?
@@ -118,7 +119,7 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
     }
 
     override fun openGuiIfPossible(player: Player): InteractionResult {
-        if(player is ServerPlayer && getContainerType() != ContainerTypes.Empty) {
+        if(player is ServerPlayer && getContainerType() != ContainerTypes.Empty.get()) {
             NetworkHooks.openGui(player, this) {
                 it.writeInt(entityID)
             }
@@ -166,11 +167,11 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
 
     protected fun dropBaseBoat(killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative) {
-            spawnAtLocation(ItemStack(getBaseBoatItem()))
+            getBaseBoatItem()?.let { item -> spawnAtLocation(ItemStack(item)) }
         }
     }
 
-    fun getBaseBoatItem(): Item {
+    fun getBaseBoatItem(): Item? {
         return boatType.provideBoatItem()
     }
 

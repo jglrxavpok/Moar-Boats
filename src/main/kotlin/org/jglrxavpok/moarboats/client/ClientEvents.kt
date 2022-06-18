@@ -61,7 +61,7 @@ import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.client.gui.*
 import org.jglrxavpok.moarboats.client.models.ModelPatreonHook
 import org.jglrxavpok.moarboats.client.renders.*
-import org.jglrxavpok.moarboats.common.Blocks
+import org.jglrxavpok.moarboats.common.MBBlocks
 import org.jglrxavpok.moarboats.common.EntityEntries
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.blocks.BlockCargoStopper
@@ -73,6 +73,8 @@ import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.entities.UtilityBoatEntity
 import org.jglrxavpok.moarboats.common.items.RopeItem
 import org.jglrxavpok.moarboats.common.network.CShowBoatMenu
+
+import net.minecraft.client.resources.model.Material
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE, value = [Dist.CLIENT], modid = MoarBoats.ModID)
 object ClientEvents {
@@ -122,7 +124,7 @@ object ClientEvents {
                     return true
                 }
             }
-            val bakedModel = ItemLayerModel(ImmutableList.of(RenderMaterial(InventoryMenu.BLOCK_ATLAS, ResourceLocation("item/fishing_rod_cast"))))
+            val bakedModel = ItemLayerModel(ImmutableList.of(Material(InventoryMenu.BLOCK_ATLAS, ResourceLocation("item/fishing_rod_cast"))))
                     .bake(modelConfiguration, event.modelLoader, ModelLoader.defaultTextureGetter(), ModelRotation.X0_Y0, ItemOverrideList.EMPTY, FishingModuleRenderer.CastFishingRodLocation)
             event.modelRegistry[FishingModuleRenderer.CastFishingRodLocation] = bakedModel
         }
@@ -135,7 +137,7 @@ object ClientEvents {
 
         MinecraftForge.EVENT_BUS.register(this)
 
-        for(moduleEntry in BoatModuleRegistry.forgeRegistry.values) {
+        for(moduleEntry in BoatModuleRegistry.Registry.values) {
             MoarBoats.logger.debug("Confirming association of module ${moduleEntry.module.id} to container ${moduleEntry.module.containerType.registryName}")
             ScreenManager.register(
                     moduleEntry.module.containerType,
@@ -343,7 +345,7 @@ object ClientEvents {
     }
 
     fun saveMapStripe(data: MapImageStripe) {
-        stripes[data.id] = data
+        stripes[data.stripeID] = data
     }
 
     fun getMapStripe(id: String) = stripes[id]

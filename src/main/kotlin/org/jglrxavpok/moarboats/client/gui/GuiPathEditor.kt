@@ -16,8 +16,8 @@ import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.storage.MapData
-import net.minecraftforge.fml.client.gui.widget.Slider
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData
+import net.minecraftforge.client.gui.widget.ForgeSlider
 import org.jglrxavpok.moarboats.client.ClientEvents
 import org.jglrxavpok.moarboats.client.RenderInfo
 import org.jglrxavpok.moarboats.client.drawModalRectWithCustomSizedTexture
@@ -31,7 +31,7 @@ import org.jglrxavpok.moarboats.common.data.PathHolder
 import org.jglrxavpok.moarboats.common.modules.HelmModule.StripeLength
 import org.lwjgl.opengl.GL11.*
 
-class GuiPathEditor(val player: Player, val pathHolder: PathHolder, val mapData: MapData): Screen(Component.translatable("moarboats.gui.path_editor")) {
+class GuiPathEditor(val player: Player, val pathHolder: PathHolder, val mapData: MapItemSavedData): Screen(Component.translatable("moarboats.gui.path_editor")) {
 
     companion object {
         val maxZoom = 50f
@@ -94,7 +94,7 @@ class GuiPathEditor(val player: Player, val pathHolder: PathHolder, val mapData:
     private val linesButton = GuiBinaryPropertyButton(Pair(propertyLinesText/*.formatted()*/, propertyPathfindingText/*.formatted()*/), Pair(5, 6), Button.OnPress {
         // TODO
     })
-    private lateinit var boostSlider: Slider
+    private lateinit var boostSlider: ForgeSlider
     private val sliderCallback = Button.OnPress { slider ->
 
     }
@@ -161,7 +161,7 @@ class GuiPathEditor(val player: Player, val pathHolder: PathHolder, val mapData:
 
         loopingButton.propertyIndex = pathHolder.getLoopingOption().ordinal
 
-        boostSlider = Slider(menuX, yOffset+20, 125, 20, Component.literal("${boostSetting/*.formatted()*/}: "), Component.literal("%"), -50.0, 50.0, 0.0, false, true, sliderCallback)
+        boostSlider = ForgeSlider(menuX, yOffset+20, 125, 20, Component.literal("${boostSetting/*.formatted()*/}: "), Component.literal("%"), -50.0, 50.0, 0.0, false, true, sliderCallback)
         addWidget(boostSlider)
     }
 

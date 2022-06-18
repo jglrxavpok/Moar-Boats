@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.RenderType
 import com.mojang.math.Vector3f
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context
 import net.minecraft.client.renderer.block.model.ItemTransforms
+import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.model.ModelResourceLocation
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.client.resources.model.ModelResourceLocation
@@ -32,10 +33,6 @@ import org.lwjgl.glfw.GLFW
 import java.util.*
 
 object FishingModuleRenderer : BoatModuleRenderer() {
-
-    init {
-        registryName = FishingModule.id
-    }
 
     val CastFishingRodLocation = ModelResourceLocation(MoarBoats.ModID, "item/vanilla/fishing_rod_cast")
     private val StickStack = ItemStack(Items.STICK)

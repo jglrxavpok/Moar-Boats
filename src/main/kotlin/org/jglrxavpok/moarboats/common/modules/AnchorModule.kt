@@ -100,7 +100,7 @@ object AnchorModule: BoatModule(), BlockReason {
         anchorDirectionProperty[to] = 0
     }
 
-    override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? = EmptyModuleContainer(containerID, player.inventory, this, boat)
+    override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? = EmptyModuleContainer(containerID, player.inventory, boat)
 
     override fun createGui(containerID: Int, player: Player, boat: IControllable): Screen {
         return GuiAnchorModule(containerID, player.inventory, this, boat)

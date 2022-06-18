@@ -23,7 +23,7 @@ class RenderUtilityBoat<T: UtilityBoatEntity<*,*>>(renderManager: EntityRenderer
         matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(90f))
         matrixStackIn.scale(0.75f, 0.75f, 0.75f)
         matrixStackIn.translate(-0.5, -4f/16.0, 1.0/16.0/0.75)
-        BoatModuleRenderer.renderBlockState(matrixStackIn, bufferIn, packedLightIn, entityRenderDispatcher, blockstateProvider(boat), boat.lightLevelDependentMagicValue)
+        BoatModuleRenderer.renderBlockState(matrixStackIn, bufferIn, packedLightIn, blockstateProvider(boat), boat.lightLevelDependentMagicValue)
         matrixStackIn.popPose()
     }
 

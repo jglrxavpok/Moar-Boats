@@ -11,19 +11,18 @@ import net.minecraft.world.item.context.BlockPlaceContext
 import net.minecraft.world.level.BlockGetter
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.EntityBlock
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraftforge.network.NetworkHooks
-import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityFluidUnloader
 
-object BlockFluidUnloader: MoarBoatsBlock() {
+class BlockFluidUnloader: MoarBoatsBlock(), EntityBlock {
 
     init {
-        registryName = ResourceLocation(MoarBoats.ModID, "boat_fluid_unloader")
         this.registerDefaultState(this.defaultBlockState().setValue(Facing, Direction.UP))
     }
 
@@ -31,10 +30,8 @@ object BlockFluidUnloader: MoarBoatsBlock() {
         builder.add(Facing)
     }
 
-    override fun hasTileEntity(state: BlockState) = true
-
-    override fun createTileEntity(state: BlockState?, world: BlockGetter?): BlockEntity? {
-        return TileEntityFluidUnloader()
+    override fun newBlockEntity(p_153215_: BlockPos, p_153216_: BlockState): BlockEntity? {
+        return TileEntityFluidUnloader(p_153215_, p_153216_)
     }
 
     override fun getStateForPlacement(context: BlockPlaceContext): BlockState? {

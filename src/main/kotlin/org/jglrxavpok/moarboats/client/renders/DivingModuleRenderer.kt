@@ -16,10 +16,6 @@ import org.jglrxavpok.moarboats.common.modules.DivingModule
 
 object DivingModuleRenderer: BoatModuleRenderer() {
 
-    init {
-        registryName = DivingModule.id
-    }
-
     val bottleModel = ModelDivingBottle()
     val textureLocation = ResourceLocation(MoarBoats.ModID, "textures/entity/diving_bottle.png")
 

@@ -43,7 +43,7 @@ interface IFluidBoatModule {
         if(fluid != resource.fluid && getFluidAmount(boat) > 0) {
             return 0
         }
-        fluidNameProperty[boat] = resource.fluid.registryName.toString()
+        fluidNameProperty[boat] = ForgeRegistries.FLUIDS.getKey(resource.fluid)!!.toString()
         val filled = minOf(resource.amount, getCapacity(boat)-getFluidAmount(boat))
         if(!simulate) {
             fluidAmountProperty[boat] += filled
@@ -57,7 +57,7 @@ interface IFluidBoatModule {
         if(!canBeDrained(boat, resource))
             return null
         val fluid = getFluidInside(boat) ?: return null // nothing to drain
-        if(resource.fluid.registryName == fluid.registryName) {
+        if(resource.fluid == fluid) {
             return drain(boat, resource.amount, action)
         }
         return null

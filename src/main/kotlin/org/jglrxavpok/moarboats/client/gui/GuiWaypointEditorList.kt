@@ -6,6 +6,7 @@ import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.Util
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.components.ObjectSelectionList
+import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import org.jglrxavpok.moarboats.client.drawModalRectWithCustomSizedTexture
 import org.jglrxavpok.moarboats.integration.IWaypointProvider
@@ -61,6 +62,10 @@ class WaypointInfoEntry(val parent: GuiWaypointEditor, val slot: WaypointInfo, v
         GlStateManager._color4f(1f, 1f, 1f, 1f)
         slotTops[this] = slotTop
         matrixStack.popPose()
+    }
+
+    override fun getNarration(): Component {
+        TODO()
     }
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {

@@ -1,34 +1,26 @@
 package org.jglrxavpok.moarboats.common.blocks
 
 import net.minecraft.core.BlockPos
-import net.minecraft.inventory.InventoryHelper
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.util.math.BlockHitResult
+import net.minecraft.world.Containers
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.AbstractContainerMenu
-import net.minecraft.world.level.BlockGetter
 import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.EntityBlock
 import net.minecraft.world.level.block.SoundType
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.phys.BlockHitResult
 import net.minecraftforge.network.NetworkHooks
-import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 
-object BlockMappingTable: MoarBoatsBlock({ sound(SoundType.STONE).strength(2.5f, 20f)}) {
+class BlockMappingTable: MoarBoatsBlock({ sound(SoundType.STONE).strength(2.5f, 20f)}), EntityBlock {
 
-    init {
-        registryName = ResourceLocation(MoarBoats.ModID, "mapping_table")
-    }
-
-    override fun hasTileEntity(state: BlockState) = true
-
-    override fun createTileEntity(state: BlockState?, level: BlockGetter?): BlockEntity? {
-        return TileEntityMappingTable()
+    override fun newBlockEntity(p_153215_: BlockPos, p_153216_: BlockState): BlockEntity? {
+        return TileEntityMappingTable(p_153215_, p_153216_)
     }
 
     /**
@@ -38,7 +30,7 @@ object BlockMappingTable: MoarBoatsBlock({ sound(SoundType.STONE).strength(2.5f,
         val tileentity = levelIn.getBlockEntity(pos)
 
         if (tileentity is TileEntityMappingTable) {
-            InventoryHelper.dropContents(levelIn, pos, tileentity.inventory)
+            Containers.dropContents(levelIn, pos, tileentity.inventory)
             levelIn.updateNeighbourForOutputSignal(pos, this)
         }
 

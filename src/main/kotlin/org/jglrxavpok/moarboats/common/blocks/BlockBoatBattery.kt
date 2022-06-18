@@ -8,12 +8,8 @@ import net.minecraft.world.level.BlockGetter
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.OnlyUsableOnBoats
 
-object BlockBoatBattery: MoarBoatsBlock() {
+class BlockBoatBattery: MoarBoatsBlock() {
 
-    init {
-        registryName = ResourceLocation(MoarBoats.ModID, "boat_battery")
-    }
-    
     override fun appendHoverText(stack: ItemStack, worldIn: BlockGetter?, tooltip: MutableList<Component>, advanced: TooltipFlag) {
         super.appendHoverText(stack, worldIn, tooltip, advanced)
         tooltip.add(OnlyUsableOnBoats)

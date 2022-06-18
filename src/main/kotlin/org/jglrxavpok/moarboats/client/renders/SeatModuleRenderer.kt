@@ -17,10 +17,6 @@ import org.jglrxavpok.moarboats.common.modules.SeatModule
 
 object SeatModuleRenderer : BoatModuleRenderer() {
 
-    init {
-        registryName = SeatModule.id
-    }
-
     val model = ModelSeat()
     private val BOAT_TEXTURES = arrayOf(ResourceLocation("textures/block/oak_planks.png"), ResourceLocation("textures/block/spruce_planks.png"), ResourceLocation("textures/block/birch_planks.png"), ResourceLocation("textures/block/jungle_planks.png"), ResourceLocation("textures/block/acacia_planks.png"), ResourceLocation("textures/block/dark_oak_planks.png"))
 

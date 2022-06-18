@@ -5,9 +5,17 @@ import net.minecraft.nbt.ListTag
 import net.minecraft.nbt.Tag
 import net.minecraft.world.level.saveddata.SavedData
 
-class ForcedChunkList: SavedData("moarboats_forced_chunks") {
+class ForcedChunkList: SavedData {
+
+    companion object {
+        fun getId(): String {
+            return "moarboats:forced_chunks"
+        }
+    }
 
     val list = ListTag()
+
+    constructor() {}
 
     constructor(list: ListTag) {
         this.list.addAll(list);
@@ -16,10 +24,6 @@ class ForcedChunkList: SavedData("moarboats_forced_chunks") {
     constructor(nbt: CompoundTag) {
         list.clear()
         list.addAll(nbt.getList("list", Tag.TAG_COMPOUND.toInt()))
-    }
-
-    override fun getId(): String {
-        return "moarboats_forced_chunks"
     }
 
     override fun save(compound: CompoundTag): CompoundTag {

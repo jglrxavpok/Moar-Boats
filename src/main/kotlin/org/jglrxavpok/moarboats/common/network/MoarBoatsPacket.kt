@@ -295,7 +295,7 @@ interface MoarBoatsPacket {
                 ItemGoldenTicket.WaypointData::class.java -> {
                     val uuid = buffer.readUtf(100)
                     val nbt = buffer.readNbt()!!
-                    ItemGoldenTicket.WaypointData(uuid).apply { load(nbt) }
+                    ItemGoldenTicket.loadWaypointData(nbt)
                 }
 
                 LoopingOptions::class.java -> {

@@ -5,7 +5,12 @@ import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.inventory.DataSlot
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergy
 
-class EnergyContainer(containerType: MenuType<EnergyContainer>, containerID: Int, val te: TileEntityEnergy, val player: Player): EmptyContainer(containerID, player.inventory, containerType = containerType) {
+class EnergyContainer(isLoading: Boolean, containerID: Int, val te: TileEntityEnergy, val player: Player): EmptyContainer(containerID, player.inventory,
+    containerType = if(isLoading) {
+        ContainerTypes.EnergyCharger.get()
+    } else {
+        ContainerTypes.EnergyDischarger.get()
+    }) {
 
     private var energy = -1
     private var energyHolder = object: DataSlot() {

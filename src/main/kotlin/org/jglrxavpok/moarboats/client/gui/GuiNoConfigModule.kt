@@ -9,7 +9,7 @@ import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
 
 class GuiNoConfigModule(containerID: Int, playerInventory: Inventory, module: BoatModule, boat: IControllable):
-        GuiModuleBase<EmptyModuleContainer>(module, boat, playerInventory, EmptyModuleContainer(containerID, playerInventory, module, boat)) {
+        GuiModuleBase<EmptyModuleContainer>(module, boat, playerInventory, EmptyModuleContainer(containerID, playerInventory, boat)) {
 
     val enjoyTheTrip = Component.translatable("gui.seat.enjoy")
     val nothingToDo = Component.translatable("gui.seat.nothingToDo")

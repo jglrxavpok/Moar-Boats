@@ -2,7 +2,6 @@ package org.jglrxavpok.moarboats.common.blocks
 
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
@@ -11,19 +10,18 @@ import net.minecraft.world.item.context.BlockPlaceContext
 import net.minecraft.world.level.BlockGetter
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.EntityBlock
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraftforge.network.NetworkHooks
-import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityFluidLoader
 
-object BlockFluidLoader: MoarBoatsBlock() {
+class BlockFluidLoader: MoarBoatsBlock(), EntityBlock {
 
     init {
-        registryName = ResourceLocation(MoarBoats.ModID, "boat_fluid_loader")
         this.registerDefaultState(this.defaultBlockState().setValue(Facing, Direction.UP))
     }
 
@@ -31,10 +29,8 @@ object BlockFluidLoader: MoarBoatsBlock() {
         builder.add(Facing)
     }
 
-    override fun hasTileEntity(state: BlockState) = true
-
-    override fun createTileEntity(state: BlockState?, world: BlockGetter?): BlockEntity? {
-        return TileEntityFluidLoader()
+    override fun newBlockEntity(p_153215_: BlockPos, p_153216_: BlockState): BlockEntity? {
+        return TileEntityFluidLoader(p_153215_, p_153216_)
     }
 
     override fun getStateForPlacement(context: BlockPlaceContext): BlockState? {

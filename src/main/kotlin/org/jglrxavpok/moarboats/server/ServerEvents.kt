@@ -24,7 +24,7 @@ object ServerEvents {
         for(i in 0 until player.inventory.containerSize) {
             val itemstack = player.inventory.getItem(i)
 
-            if(!itemstack.isEmpty && itemstack.item == ItemGoldenTicket) {
+            if(!itemstack.isEmpty && itemstack.item is ItemGoldenTicket) {
                 if(!ItemGoldenTicket.isEmpty(itemstack)) {
                     if(player.tickCount % 5 == 0) { // send every 5 ticks
                         val data = ItemGoldenTicket.getData(itemstack)
@@ -38,7 +38,7 @@ object ServerEvents {
     @SubscribeEvent
     fun onWorldLoad(event: WorldEvent.Load) {
         val world = (event.world as? ServerLevel) ?: return
-        val chunks = world.dataStorage.computeIfAbsent({ForcedChunkList(ListTag())}, "moarboats_forced_chunks")
+        val chunks = world.dataStorage.computeIfAbsent(::ForcedChunkList, ::ForcedChunkList, ForcedChunkList.getId())
         for(nbt in chunks.list) {
             nbt as CompoundTag
             val chunks = ForcedChunks(world)
@@ -50,13 +50,13 @@ object ServerEvents {
     @SubscribeEvent
     fun onWorldSave(event: WorldEvent.Save) {
         val world = (event.world as? ServerLevel) ?: return
-        val boats = world.getEntities<ModularBoatEntity>(EntityEntries.ModularBoat) { ChunkLoadingModule in (it as ModularBoatEntity).modules }.map { it as ModularBoatEntity }
+        val boats = world.getEntities<ModularBoatEntity>(EntityEntries.ModularBoat.get()) { ChunkLoadingModule in (it as ModularBoatEntity).modules }.map { it as ModularBoatEntity }
         val nbtList = ListTag()
         boats.forEach {
             nbtList.add(it.forcedChunks.write(CompoundTag()))
         }
 
-        world.dataStorage.set(ForcedChunkList(nbtList))
+        world.dataStorage.set(ForcedChunkList.getId(), ForcedChunkList(nbtList))
         world.dataStorage.save()
     }
 }

@@ -1,9 +1,11 @@
 package org.jglrxavpok.moarboats.common
 
-import net.minecraft.entity.EntityClassification
-import net.minecraft.entity.EntityType
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.EntityType.EntityFactory
+import net.minecraft.world.entity.MobCategory
 import net.minecraft.world.level.Level
+import net.minecraftforge.registries.DeferredRegister
+import net.minecraftforge.registries.ForgeRegistries
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.entities.AnimalBoatEntity
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
@@ -12,26 +14,29 @@ import org.jglrxavpok.moarboats.common.entities.utilityboats.*
 
 object EntityEntries {
 
-    private var ID = 0
-    val ModularBoat = EntityType.Builder.of({ type: EntityType<ModularBoatEntity>, world -> ModularBoatEntity(world) }, EntityClassification.MISC)
+    val Registry = DeferredRegister.create(ForgeRegistries.ENTITIES, MoarBoats.ModID)
+
+    val ModularBoat = Registry.register("modular_boat") {
+        val factory: EntityFactory<ModularBoatEntity> = EntityFactory<ModularBoatEntity>(::ModularBoatEntity)
+        EntityType.Builder.of(factory, MobCategory.MISC)
             .setTrackingRange(64)
             .fireImmune()
             .sized(1.375f, 0.5625f)
             .setShouldReceiveVelocityUpdates(true)
             .setUpdateInterval(3)
-            .setCustomClientFactory { t, u -> ModularBoatEntity(u) }
             .build("modular_boat")
-            .setRegistryName(ResourceLocation(MoarBoats.ModID, "modular_boat")) as EntityType<ModularBoatEntity>
+    }
 
-    val AnimalBoat = EntityType.Builder.of({ type: EntityType<AnimalBoatEntity>, world -> AnimalBoatEntity(world) }, EntityClassification.MISC)
+    val AnimalBoat = Registry.register("animal_boat") {
+        val factory: EntityFactory<AnimalBoatEntity> = EntityFactory<AnimalBoatEntity>(::AnimalBoatEntity)
+        EntityType.Builder.of(factory, MobCategory.MISC)
             .setTrackingRange(64)
             .fireImmune()
             .sized(1.375f *1.5f, 0.5625f)
             .setShouldReceiveVelocityUpdates(true)
             .setUpdateInterval(3)
-            .setCustomClientFactory { t, u -> AnimalBoatEntity(u) }
             .build("animal_boat")
-            .setRegistryName(ResourceLocation(MoarBoats.ModID, "animal_boat")) as EntityType<AnimalBoatEntity>
+    }
 
     val FurnaceBoat = utilityBoatEntry("furnace", ::FurnaceBoatEntity)
 
@@ -57,16 +62,14 @@ object EntityEntries {
 
     val JukeboxBoat = utilityBoatEntry("jukebox", ::JukeboxBoatEntity)
 
-    val list = listOf(ModularBoat, AnimalBoat, FurnaceBoat, SmokerBoat, BlastFurnaceBoat,
-            CraftingTableBoat, GrindstoneBoat, LoomBoat, CartographyTableBoat, StonecutterBoat, ChestBoat, EnderChestBoat, ShulkerBoat, JukeboxBoat)
-
-    private inline fun <reified T: UtilityBoatEntity<*,*>> utilityBoatEntry(id: String, crossinline constructor: (Level) -> T) = EntityType.Builder.of({ type: EntityType<T>, world -> constructor(world) }, EntityClassification.MISC)
+    private fun <T: UtilityBoatEntity<*,*>> utilityBoatEntry(id: String, constructor: (EntityType<T>, Level) -> T) = Registry.register(id) {
+        val factory = EntityFactory<T>(constructor)
+        EntityType.Builder.of(factory, MobCategory.MISC)
             .setTrackingRange(64)
             .fireImmune()
             .sized(1.375f, 0.5625f)
             .setShouldReceiveVelocityUpdates(true)
             .setUpdateInterval(3)
-            .setCustomClientFactory { t, u -> constructor(u) }
-            .build("${id}_boat")
-            .setRegistryName(ResourceLocation(MoarBoats.ModID, "${id}_boat")) as EntityType<T>
+            .build(id)
+    }
 }

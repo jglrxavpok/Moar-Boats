@@ -1,4 +1,4 @@
 package org.jglrxavpok.moarboats.common.items
 
-object HelmItem: MoarBoatsItem("helm") {
+class HelmItem: MoarBoatsItem("helm") {
 }

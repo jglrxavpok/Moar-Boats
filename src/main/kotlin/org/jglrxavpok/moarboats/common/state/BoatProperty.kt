@@ -1,10 +1,10 @@
 package org.jglrxavpok.moarboats.common.state
 
+import net.minecraft.core.BlockPos.MutableBlockPos
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
-import net.minecraft.core.BlockPos
-import net.minecraft.core.BlockPos.MutableBlockPos
 import net.minecraft.world.level.Level
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 
@@ -88,29 +88,22 @@ class BlockPosProperty(module: BoatModule, id: String): BoatProperty<MutableBloc
     }
 }
 
-object EmptyMapData : MapData("empty") {
-    init {
-        this.dimension = Level.OVERWORLD
-    }
-}
+class MapDataProperty(module: BoatModule, id: String): BoatProperty<MapItemSavedData?>(module, id) {
+    override val type = MapItemSavedData::class.java
 
-class MapDataProperty(module: BoatModule, id: String): BoatProperty<MapData>(module, id) {
-    override val type = MapData::class.java
-
-    override val readProperty: CompoundTag.(String) -> MapData = { id ->
+    override val readProperty: CompoundTag.(String) -> MapItemSavedData? = { id ->
         if(!this.contains("mapData"))
-            EmptyMapData
+            null
         else {
-            val name = this.getString("mapName")
             val data = this.getCompound("mapData")
-            MapData(name).apply { load(data) }
+            MapItemSavedData.load(data)
         }
     }
 
-    override val writeProperty: CompoundTag.(String, MapData) -> Unit = { id, mapData ->
-        putString("mapName", mapData.id)
-        val mapDataNBT = mapData.save(CompoundTag())
-        put("mapData", mapDataNBT)
+    override val writeProperty: CompoundTag.(String, MapItemSavedData?) -> Unit = { id, mapData ->
+        if(mapData != null) {
+            put("mapData", mapData.save(CompoundTag()))
+        }
     }
 }
 

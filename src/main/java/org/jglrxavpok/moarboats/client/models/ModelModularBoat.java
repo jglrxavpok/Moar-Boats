@@ -2,29 +2,25 @@ package org.jglrxavpok.moarboats.client.models;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.client.renderer.model.Model;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.entity.Entity;
+import net.minecraft.client.model.EntityModel;
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity;
-import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity;
 
 /**
  * ModelBoat - Either Mojang or a mod author
  * Created using Tabula 7.0.0
  */
 public class ModelModularBoat extends EntityModel<BasicBoatEntity> {
-    public ModelRenderer boatSides3;
+   /* public ModelRenderer boatSides3;
     public ModelRenderer boatSides2;
     public ModelRenderer boatSides1;
     public ModelRenderer noWater;
     public ModelRenderer boatSides5;
     public ModelRenderer boatSides4;
     public ModelRenderer frontAnchor;
-    public ModelRenderer backAnchor;
+    public ModelRenderer backAnchor;*/
 
     public ModelModularBoat() {
-        this.texWidth = 128;
+    /*    this.texWidth = 128;
         this.texHeight = 64;
         this.frontAnchor = new ModelRenderer(this, 40, 19);
         this.frontAnchor.setPos(17.0F, -5.6F, 0.0F);
@@ -54,18 +50,18 @@ public class ModelModularBoat extends EntityModel<BasicBoatEntity> {
         this.boatSides1 = new ModelRenderer(this, 0, 0);
         this.boatSides1.setPos(0.0F, 3.0F, 1.0F);
         this.boatSides1.addBox(-14.0F, -9.0F, -3.0F, 28, 16, 3, 0.0F);
-        this.setRotateAngle(boatSides1, 1.5707963705062866F, 0.0F, 0.0F);
+        this.setRotateAngle(boatSides1, 1.5707963705062866F, 0.0F, 0.0F);*/
     }
 
     @Override
     public void renderToBuffer(PoseStack matrixStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
-        this.frontAnchor.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+    /*    this.frontAnchor.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
         this.backAnchor.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
         this.boatSides5.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
         this.boatSides2.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
         this.boatSides4.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
         this.boatSides3.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
-        this.boatSides1.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+        this.boatSides1.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);*/
     }
 
     @Override
@@ -76,9 +72,9 @@ public class ModelModularBoat extends EntityModel<BasicBoatEntity> {
     /**
      * This is a helper function from Tabula to set the rotation of model parts
      */
-    public void setRotateAngle(ModelRenderer ModelRenderer, float x, float y, float z) {
+/*    public void setRotateAngle(ModelRenderer ModelRenderer, float x, float y, float z) {
         ModelRenderer.xRot = x;
         ModelRenderer.yRot = y;
         ModelRenderer.zRot = z;
-    }
+    }*/
 }

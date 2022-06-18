@@ -2,8 +2,7 @@ package org.jglrxavpok.moarboats.client.models;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.world.entity.Entity;
 
 /**
@@ -11,7 +10,7 @@ import net.minecraft.world.entity.Entity;
  * Created using Tabula 7.0.0
  */
 public class ModelPatreonHook extends EntityModel<Entity> {
-    public ModelRenderer base;
+/*    public ModelRenderer base;
     public ModelRenderer handleFront;
     public ModelRenderer handleBack;
     public ModelRenderer handleLeft;
@@ -19,10 +18,10 @@ public class ModelPatreonHook extends EntityModel<Entity> {
     public ModelRenderer hookBase;
     public ModelRenderer hookPart2;
     public ModelRenderer hookPart3;
-    public ModelRenderer hookEnd;
+    public ModelRenderer hookEnd;*/
 
     public ModelPatreonHook() {
-        this.texWidth = 64;
+/*        this.texWidth = 64;
         this.texHeight = 64;
         this.handleLeft = new ModelRenderer(this, 0, 24);
         this.handleLeft.setPos(0.0F, 0.0F, 0.0F);
@@ -60,23 +59,23 @@ public class ModelPatreonHook extends EntityModel<Entity> {
         this.base.addChild(this.hookBase);
         this.base.addChild(this.handleBack);
         this.base.addChild(this.handleFront);
-        this.hookBase.addChild(this.hookPart2);
+        this.hookBase.addChild(this.hookPart2);*/
     }
 
     @Override
     public void renderToBuffer(PoseStack matrixStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
-        this.base.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
+       // this.base.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn);
     }
 
     /**
      * This is a helper function from Tabula to set the rotation of model parts
      */
-    public void setRotateAngle(ModelRenderer ModelRenderer, float x, float y, float z) {
+/*    public void setRotateAngle(ModelRenderer ModelRenderer, float x, float y, float z) {
         ModelRenderer.xRot = x;
         ModelRenderer.yRot = y;
         ModelRenderer.zRot = z;
     }
-
+*/
     @Override
     public void setupAnim(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 

@@ -5,6 +5,7 @@ import net.minecraft.nbt.ListTag
 import net.minecraft.core.BlockPos
 import net.minecraftforge.network.NetworkEvent
 import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.items.MapItemWithPath
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 
@@ -23,7 +24,7 @@ class CRemoveWaypointFromMapWithPathFromMappingTable: CxxRemoveWaypointToItemPat
     }
 
     object Handler: CxxRemoveWaypointToItemPath.Handler<CRemoveWaypointFromMapWithPathFromMappingTable, SUpdateMapWithPathInMappingTable>() {
-        override val item = MapItemWithPath
+        override val item = MBItems.MapItemWithPath.get()
         override val packetClass = CRemoveWaypointFromMapWithPathFromMappingTable::class.java
 
         override fun getStack(message: CRemoveWaypointFromMapWithPathFromMappingTable, ctx: NetworkEvent.Context): ItemStack? {

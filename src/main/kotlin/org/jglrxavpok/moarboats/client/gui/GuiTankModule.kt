@@ -19,7 +19,7 @@ import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
 import org.jglrxavpok.moarboats.common.modules.IFluidBoatModule
 import org.lwjgl.opengl.GL11
 
-class GuiTankModule(containerID: Int, playerInventory: Inventory, module: BoatModule, boat: IControllable): GuiModuleBase<EmptyModuleContainer>(module, boat, playerInventory, EmptyModuleContainer(containerID, playerInventory, module, boat)) {
+class GuiTankModule(containerID: Int, playerInventory: Inventory, module: BoatModule, boat: IControllable): GuiModuleBase<EmptyModuleContainer>(module, boat, playerInventory, EmptyModuleContainer(containerID, playerInventory, boat)) {
 
     val tankModule = module as IFluidBoatModule
 
