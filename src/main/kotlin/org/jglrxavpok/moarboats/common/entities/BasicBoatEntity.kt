@@ -806,6 +806,10 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Wor
         this.entityData.define(LINK_TYPES[BackLink], NoLink)
     }
 
+    override fun isPickable(): Boolean {
+        return !removed
+    }
+
     override fun interact(player: PlayerEntity, hand: Hand): ActionResultType {
         if(world.isClientSide)
             return ActionResultType.SUCCESS

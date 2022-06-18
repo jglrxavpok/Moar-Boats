@@ -97,10 +97,10 @@ class GuiWaypointList(val mc: Minecraft, val parent: GuiMappingTable, width: Int
 
     override fun render(matrixStack: MatrixStack, insideLeft: Int, insideTop: Int, partialTicks: Float) {
         // make sure items do not render out of list bounds
-        val scaleX = mc.window.width/mc.window.screenWidth.toDouble()
-        val scaleY = mc.window.height/mc.window.screenHeight.toDouble()
+        val scaleX = mc.window.width/mc.window.guiScaledWidth.toDouble()
+        val scaleY = mc.window.height/mc.window.guiScaledHeight.toDouble()
         glEnable(GL_SCISSOR_TEST)
-        glScissor((left*scaleX).toInt(), ((mc.window.screenHeight-top-height)*scaleY).toInt(), (width*scaleX).toInt(), (height*scaleY).toInt())
+        glScissor((left*scaleX).toInt(), ((mc.window.guiScaledHeight-top-height)*scaleY).toInt(), (width*scaleX).toInt(), (height*scaleY).toInt())
 
         super.render(matrixStack, insideLeft, insideTop, partialTicks)
         RenderSystem.disableAlphaTest()

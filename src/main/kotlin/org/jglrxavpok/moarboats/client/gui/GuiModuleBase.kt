@@ -49,7 +49,7 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
         val guiY = getGuiTop()
         var yOffset = 10
         for(module in boat.sortModulesByInterestingness()) {
-            val tab = ModuleTab(module, guiX + xSize - 3, guiY + 3 + yOffset)
+            val tab = ModuleTab(module, guiX + width - 3, guiY + 3 + yOffset)
             tabs += tab
             yOffset += tab.height + 3
         }
@@ -166,7 +166,7 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
 
         GlStateManager._color4f(1.0f, 1.0f, 1.0f, 1.0f)
         mc.textureManager.bind(moduleBackground)
-        blit(matrixStack, i, j, 0, 0, this.xSize, ySize)
+        blit(matrixStack, i, j, 0, 0, this.width, ySize)
 
         drawModuleBackground(mouseX, mouseY)
     }
