@@ -20,13 +20,9 @@ interface PathHolder {
     fun addWaypoint(pos: BlockPos, boost: Double?)
     fun getHolderLocation(): BlockPos?
     fun sendWorldImageRequest(mapID: String)
-    fun getBaseMapID(): String
 }
 
 class BoatPathHolder(val boat: IControllable): PathHolder {
-    override fun getBaseMapID(): String {
-        return HelmModule.mapDataCopyProperty[boat].id
-    }
 
     override fun sendWorldImageRequest(mapID: String) {
         MoarBoats.network.sendToServer(CMapImageRequest(mapID))
@@ -108,10 +104,6 @@ class GoldenTicketPathHolder(stack: ItemStack, mappingTable: TileEntityMappingTa
 abstract class ItemPathHolder(val stack: ItemStack, val mappingTable: TileEntityMappingTable?, val boat: IControllable?): PathHolder {
 
     abstract fun nbt(): CompoundTag
-
-    override fun getBaseMapID(): String {
-        return nbt().getString("${MoarBoats.ModID}.mapID")
-    }
 
     override fun getLoopingOption(): LoopingOptions {
         var loopingOption = LoopingOptions.NoLoop

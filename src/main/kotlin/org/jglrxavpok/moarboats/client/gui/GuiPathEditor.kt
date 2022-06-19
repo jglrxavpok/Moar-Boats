@@ -32,14 +32,12 @@ import org.jglrxavpok.moarboats.common.data.PathHolder
 import org.jglrxavpok.moarboats.common.modules.HelmModule.StripeLength
 import org.lwjgl.opengl.GL11.*
 
-class GuiPathEditor(val player: Player, val pathHolder: PathHolder, val mapData: MapItemSavedData): Screen(Component.translatable("moarboats.gui.path_editor")) {
+class GuiPathEditor(val player: Player, val pathHolder: PathHolder, val mapID: String, val mapData: MapItemSavedData): Screen(Component.translatable("moarboats.gui.path_editor")) {
 
     companion object {
         val maxZoom = 50f
         val minZoom = 1f
     }
-
-    val mapID = pathHolder.getBaseMapID()
 
     private var currentZoom = 1f
     private val mapScale = (1 shl mapData.scale.toInt())
@@ -51,7 +49,7 @@ class GuiPathEditor(val player: Player, val pathHolder: PathHolder, val mapData:
     private val stripesReceived = BooleanArray(stripes)
     private val mapHeight = IntArray(size*size)
 
-    private val titleText = Component.translatable("gui.path_editor.title", mapData.id)
+    private val titleText = Component.translatable("gui.path_editor.title", mapID)
     private val refreshButtonText = Component.translatable("gui.path_editor.refresh")
     private val toolsText = Component.translatable("gui.path_editor.tools")
     private val pathPropsText = Component.translatable("gui.path_editor.path_properties")

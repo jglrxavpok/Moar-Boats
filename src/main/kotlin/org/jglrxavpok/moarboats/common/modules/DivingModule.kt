@@ -12,11 +12,9 @@ import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiNoConfigModule
 import org.jglrxavpok.moarboats.common.MBItems
-import org.jglrxavpok.moarboats.common.MenuTypes
 import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
 import org.jglrxavpok.moarboats.common.containers.ContainerTypes
 import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
-import org.jglrxavpok.moarboats.common.items.DivingBottleItem
 import org.jglrxavpok.moarboats.extensions.getEntities
 
 object DivingModule: BoatModule() {
@@ -45,10 +43,7 @@ object DivingModule: BoatModule() {
 
     override fun onAddition(to: IControllable) { }
 
-    override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? = EmptyModuleContainer(containerID, player.inventory, boat)
-    override fun getMenuType() = ContainerTypes.EmptyModuleMenu.get()
-
-    override fun createGui(containerID: Int, player: Player, boat: IControllable) = GuiNoConfigModule(containerID, player.inventory, this, boat)
+    override fun createGui(containerID: Int, player: Player, boat: IControllable) = GuiNoConfigModule(menuType as MenuType<EmptyModuleContainer>, containerID, player.inventory, this, boat)
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)

@@ -6,16 +6,19 @@ import net.minecraft.core.Direction
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.inventory.MenuType
 import net.minecraftforge.client.gui.widget.ForgeSlider
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.containers.ContainerDispenserModule
+import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
 import org.jglrxavpok.moarboats.common.modules.DispensingModule
 import org.jglrxavpok.moarboats.common.network.CChangeDispenserFacing
 import org.jglrxavpok.moarboats.common.network.CChangeDispenserPeriod
 
-class GuiDispenserModule(containerID: Int, playerInv: Inventory, module: BoatModule, boat: IControllable): GuiModuleBase<ContainerDispenserModule>(module, boat, playerInv, ContainerDispenserModule(containerID, playerInv, module, boat), isLarge = true) {
+class GuiDispenserModule(menuType: MenuType<ContainerDispenserModule>, containerID: Int, playerInv: Inventory, module: BoatModule, boat: IControllable):
+    GuiModuleBase<ContainerDispenserModule>(module, boat, playerInv, ContainerDispenserModule(menuType, containerID, playerInv, module, boat), isLarge = true) {
     override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/dispenser.png")
 
     private val dispensingModule = module as DispensingModule

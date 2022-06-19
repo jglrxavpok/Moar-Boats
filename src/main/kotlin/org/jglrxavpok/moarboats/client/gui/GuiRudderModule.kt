@@ -4,6 +4,7 @@ import net.minecraft.client.gui.components.Button
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.inventory.MenuType
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
@@ -11,8 +12,8 @@ import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
 import org.jglrxavpok.moarboats.common.modules.RudderModule
 import org.jglrxavpok.moarboats.common.network.CChangeRudderBlocking
 
-class GuiRudderModule(containerID: Int, playerInventory: Inventory, anchor: BoatModule, boat: IControllable):
-        GuiModuleBase<EmptyModuleContainer>(anchor, boat, playerInventory, EmptyModuleContainer(containerID, playerInventory, boat)) {
+class GuiRudderModule(menuType: MenuType<EmptyModuleContainer>, containerID: Int, playerInventory: Inventory, anchor: BoatModule, boat: IControllable):
+        GuiModuleBase<EmptyModuleContainer>(anchor, boat, playerInventory, EmptyModuleContainer(menuType, containerID, playerInventory, boat)) {
 
     override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/nothing.png")
 

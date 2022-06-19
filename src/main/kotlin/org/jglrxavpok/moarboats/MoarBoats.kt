@@ -30,8 +30,12 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent
 import net.minecraftforge.forge.event.lifecycle.GatherDataEvent
 import net.minecraftforge.network.NetworkRegistry
+import net.minecraftforge.registries.NewRegistryEvent
+import net.minecraftforge.registries.RegistryBuilder
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import org.jglrxavpok.moarboats.api.BoatModuleEntry
+import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.client.ClientEvents
 import org.jglrxavpok.moarboats.client.DummyDimensionSavedDataManager
 import org.jglrxavpok.moarboats.common.*
@@ -57,7 +61,6 @@ object MoarBoats {
     val logger: Logger = LogManager.getLogger()
     val NetworkingProtocolVersion = "v1.1"
 
-    val registryID = ResourceLocation(ModID, "modules")
     val network = NetworkRegistry.ChannelBuilder
             .named(ResourceLocation(ModID, "network"))
             .networkProtocolVersion {NetworkingProtocolVersion}
@@ -120,7 +123,6 @@ object MoarBoats {
     init {
         MOD_CONTEXT.getKEventBus().addListener(ClientEvents::doClientStuff)
         MOD_CONTEXT.getKEventBus().addListener(this::setup)
-        MOD_CONTEXT.getKEventBus().addListener(this::initDedicatedServer)
         MOD_CONTEXT.getKEventBus().addListener(this::postLoad)
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, MoarBoatsConfig.spec)
 
@@ -135,7 +137,6 @@ object MoarBoats {
         MBItems.Registry.register(bus)
         EntityEntries.Registry.register(bus)
         BlockEntities.Registry.register(bus)
-        Modules.Registry.register(bus)
         ContainerTypes.Registry.register(bus)
         MBRecipeSerializers.Registry.register(bus)
 
@@ -191,12 +192,16 @@ object MoarBoats {
         BoatType.populateBoatTypeCache()
     }
 
-    fun initDedicatedServer(event: ServerStartingEvent) {
-        dedicatedServerInstance = event.server
-    }
-
     @Mod.EventBusSubscriber(modid = ModID, bus = Mod.EventBusSubscriber.Bus.MOD)
     object RegistryEvents {
+
+        @SubscribeEvent
+        fun onNewRegistry(event: NewRegistryEvent) {
+            BoatModuleRegistry.Registry = event.create(RegistryBuilder<BoatModuleEntry>()
+                .allowModification()
+                .setName(Modules.RegistryKey.location())
+            )
+        }
 
         @SubscribeEvent
         fun gatherData(event: GatherDataEvent) {

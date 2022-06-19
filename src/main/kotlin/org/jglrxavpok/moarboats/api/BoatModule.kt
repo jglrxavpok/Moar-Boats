@@ -5,6 +5,7 @@ import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.player.AbstractClientPlayer
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
+import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.MenuProvider
@@ -24,7 +25,9 @@ import org.jglrxavpok.moarboats.client.gui.GuiModuleBase
 import org.jglrxavpok.moarboats.common.MBBlocks
 import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
+import org.jglrxavpok.moarboats.common.Modules
 import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
+import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.*
 import org.jglrxavpok.moarboats.common.modules.inventories.ChestModuleInventory
@@ -35,6 +38,13 @@ import java.util.function.Supplier
 
 abstract class BoatModule {
 
+    val menuType: MenuType<ContainerBoatModule<*>> = IForgeMenuType.create { windowId, inv, data ->
+        val player = inv.player
+        val boatID = data.readInt()
+        val boat = player.level.getEntity(boatID) as ModularBoatEntity
+        createContainer(windowId, player, boat)
+    }
+
     abstract val id: ResourceLocation
     abstract val usesInventory: Boolean
     abstract val moduleSpot: Spot
@@ -42,8 +52,7 @@ abstract class BoatModule {
     abstract fun controlBoat(from: IControllable)
     abstract fun update(from: IControllable)
     abstract fun onAddition(to: IControllable)
-    abstract fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>?
-    abstract fun getMenuType(): MenuType<out ContainerBoatModule<*>>
+    open fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? = EmptyModuleContainer(menuType as MenuType<EmptyModuleContainer>, containerID, player.inventory, boat)
 
     /**
      * Set to false if you want the menu to be displayed at the bottom of the module tabs (no config modules use this)
@@ -104,12 +113,7 @@ class BoatModuleEntry(val correspondingItem: Item, val module: BoatModule, val i
 
 object BoatModuleRegistry {
 
-    val Registry = DeferredRegister.create<BoatModuleEntry>(
-        ResourceLocation(MoarBoats.ModID, "modules"),
-        MoarBoats.ModID
-    ).makeRegistry {
-        RegistryBuilder()
-    }
+    lateinit var Registry: Supplier<IForgeRegistry<BoatModuleEntry>>
 
     operator fun get(location: ResourceLocation) = Registry.get().getValue(location) ?: error("No module with ID $location")
 
@@ -127,17 +131,13 @@ object BoatModuleRegistry {
 
 }
 
-fun DeferredRegister<BoatModuleEntry>.registerModule(name: String, correspondingItem: Supplier<out Item>, module: BoatModule, inventoryFactory: ((IControllable, BoatModule) -> BoatModuleInventory)? = null, restriction: (() -> Boolean)? = null): RegistryObject<BoatModuleEntry> {
-    val r = register(name) { BoatModuleEntry(correspondingItem.get(), module, inventoryFactory, restriction ?: {true}) }
-    if(module.id.path != name) {
-        error("Mismatched module 'id' field vs. 'name' given at registration")
-    }
-    MoarBoats.logger.info("Registered module with ID $name")
+fun RegisterEvent.RegisterHelper<BoatModuleEntry>.registerModule(correspondingItem: Supplier<out Item>, module: BoatModule, inventoryFactory: ((IControllable, BoatModule) -> BoatModuleInventory)? = null, restriction: (() -> Boolean)? = null) {
+    register(module.id, BoatModuleEntry(correspondingItem.get(), module, inventoryFactory, restriction ?: {true}))
+    MoarBoats.logger.info("Registered module with ID ${module.id}")
     if(module.usesInventory && inventoryFactory == null)
         error("Module $module uses an inventory but no inventory factory was provided!")
-    return r
 }
 
-fun DeferredRegister<BoatModuleEntry>.registerModule(module: BoatModule, correspondingItem: Supplier<out Item>, inventoryFactory: ((IControllable, BoatModule) -> BoatModuleInventory)? = null, restriction: (() -> Boolean)? = null): RegistryObject<BoatModuleEntry> {
-    return registerModule(module.id.path, correspondingItem, module, inventoryFactory, restriction)
+fun RegisterEvent.RegisterHelper<BoatModuleEntry>.registerModule(module: BoatModule, correspondingItem: Supplier<out Item>, inventoryFactory: ((IControllable, BoatModule) -> BoatModuleInventory)? = null, restriction: (() -> Boolean)? = null) {
+    registerModule(correspondingItem, module, inventoryFactory, restriction)
 }

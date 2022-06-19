@@ -5,6 +5,7 @@ import net.minecraft.nbt.ListTag
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraftforge.event.entity.living.LivingEvent
+import net.minecraftforge.event.server.ServerStartingEvent
 import net.minecraftforge.event.world.WorldEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.network.PacketDistributor
@@ -58,5 +59,10 @@ object ServerEvents {
 
         world.dataStorage.set(ForcedChunkList.getId(), ForcedChunkList(nbtList))
         world.dataStorage.save()
+    }
+
+    @SubscribeEvent
+    fun initDedicatedServer(event: ServerStartingEvent) {
+        MoarBoats.dedicatedServerInstance = event.server
     }
 }

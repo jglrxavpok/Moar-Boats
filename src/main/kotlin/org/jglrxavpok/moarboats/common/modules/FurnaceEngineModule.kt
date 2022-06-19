@@ -7,6 +7,7 @@ import net.minecraft.util.Mth
 import net.minecraft.world.Container
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Player
+import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.item.crafting.RecipeType
@@ -21,10 +22,9 @@ import org.jglrxavpok.moarboats.extensions.toRadians
 
 object FurnaceEngineModule : BaseEngineModule() {
     override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? {
-        return ContainerFurnaceEngine(containerID, player.inventory, this, boat)
+        return ContainerFurnaceEngine(menuType as MenuType<ContainerFurnaceEngine>, containerID, player.inventory, this, boat)
     }
 
-    override fun getMenuType() = ContainerTypes.FurnaceModuleMenu.get()
 
     override val id = ResourceLocation("moarboats:furnace_engine")
     override val usesInventory = true

@@ -9,28 +9,34 @@ import org.jglrxavpok.moarboats.common.tileentity.*
 
 object BlockEntities {
 
+    @JvmField
     val Registry = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITIES, MoarBoats.ModID)
 
+    @JvmField
     val FluidLoader = Registry.register("fluid_loader") {
         BlockEntityType.Builder.of(::TileEntityFluidLoader, MBBlocks.FluidLoader.get())
             .build(null /* no data fixer */)
     }
 
+    @JvmField
     val FluidUnloader = Registry.register("fluid_unloader") {
         BlockEntityType.Builder.of(::TileEntityFluidLoader, MBBlocks.FluidUnloader.get())
             .build(null /* no data fixer */)
     }
 
+    @JvmField
     val EnergyLoader = Registry.register("energy_loader") {
         BlockEntityType.Builder.of(::TileEntityEnergyLoader, MBBlocks.EnergyLoader.get())
             .build(null /* no data fixer */)
     }
 
+    @JvmField
     val EnergyUnloader = Registry.register("energy_unloader") {
         BlockEntityType.Builder.of(::TileEntityEnergyUnloader, MBBlocks.EnergyUnloader.get())
             .build(null /* no data fixer */)
     }
 
+    @JvmField
     val MappingTable = Registry.register("mapping_table") {
         BlockEntityType.Builder.of(::TileEntityMappingTable, MBBlocks.MappingTable.get())
             .build(null /* no data fixer */)

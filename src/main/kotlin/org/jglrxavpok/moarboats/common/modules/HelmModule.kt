@@ -9,6 +9,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.Mth
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Player
+import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.item.MapItem
@@ -24,6 +25,7 @@ import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
 import org.jglrxavpok.moarboats.common.containers.ContainerHelmModule
 import org.jglrxavpok.moarboats.common.containers.ContainerTypes
+import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
 import org.jglrxavpok.moarboats.common.data.*
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import org.jglrxavpok.moarboats.common.items.ItemPath
@@ -286,13 +288,12 @@ object HelmModule: BoatModule(), BlockReason {
     }
 
     override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? {
-        return ContainerHelmModule(containerID, player.inventory, this, boat)
+        return ContainerHelmModule(menuType as MenuType<ContainerHelmModule>, containerID, player.inventory, this, boat)
     }
 
-    override fun getMenuType() = ContainerTypes.HelmModuleMenu.get()
 
     override fun createGui(containerID: Int, player: Player, boat: IControllable): Screen {
-        return GuiHelmModule(containerID, player.inventory, this, boat)
+        return GuiHelmModule(menuType as MenuType<ContainerHelmModule>, containerID, player.inventory, this, boat)
     }
 
     fun addWaypoint(boat: IControllable, blockX: Int, blockZ: Int, boost: Double?) {
@@ -343,15 +344,16 @@ object HelmModule: BoatModule(), BlockReason {
         val stack = inventory.list[0]
         return when(stack.item) {
             is MapItem -> {
-                GuiPathEditor(player, BoatPathHolder(boat), mapData)
+                val mapKey = MapItem.makeKey(MapItem.getMapId(stack)!!)
+                GuiPathEditor(player, BoatPathHolder(boat), mapKey, mapData)
             }
             is MapItemWithPath -> {
                 val id = stack.tag!!.getString("${MoarBoats.ModID}.mapID")
-                GuiPathEditor(player, MapWithPathHolder(stack, null, boat), mapData)
+                GuiPathEditor(player, MapWithPathHolder(stack, null, boat), id, mapData)
             }
             is ItemGoldenTicket -> {
                 val id = ItemGoldenTicket.getData(stack).mapID
-                GuiPathEditor(player, GoldenTicketPathHolder(stack, null, boat), mapData)
+                GuiPathEditor(player, GoldenTicketPathHolder(stack, null, boat), id, mapData)
             }
             else -> null
         }

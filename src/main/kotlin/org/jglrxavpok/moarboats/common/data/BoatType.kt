@@ -6,6 +6,8 @@ import net.minecraft.world.entity.vehicle.Boat
 import net.minecraft.world.item.BoatItem
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.Items
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.common.ForgeMod
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.ModList
@@ -15,15 +17,18 @@ import net.minecraftforge.fml.loading.FMLLoader
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper
 import net.minecraftforge.registries.ForgeRegistries
 import org.jglrxavpok.moarboats.MoarBoats
+import kotlin.math.min
 
 interface BoatType {
 
     companion object {
         val OAK = createFromVanilla(Boat.Type.OAK)
 
+        private val boatTypes = mutableListOf<BoatType>()
+
         fun values(): List<BoatType> {
-            val boatTypes by lazy {
-                populateBoatTypeCache()
+            if(boatTypes.isEmpty()) {
+                boatTypes += populateBoatTypeCache()
             }
             return boatTypes
         }
@@ -33,7 +38,10 @@ interface BoatType {
          */
         internal fun populateBoatTypeCache(): List<BoatType> {
             val result = mutableListOf<BoatType>()
+            result += OAK
             for(minecraftBoatType in Boat.Type.values()) {
+                if(minecraftBoatType == Boat.Type.OAK)
+                    continue
                 val boatType = createFromVanilla(minecraftBoatType)
                 registerBoatType(result, boatType)
             }
@@ -43,11 +51,6 @@ interface BoatType {
         fun getTypeFromString(name: String): BoatType {
             return values().first { it.getFullName() == name }
         }
-
-        // TODO: server compatible?
-        // TODO: access transformer
-        // load from BoatRenderer in case the class is modified for modded wood types
-        private val textures: Array<ResourceLocation> by lazy { ObfuscationReflectionHelper.findField(BoatRenderer::class.java, "field_110782_f").get(null) as Array<ResourceLocation> }
 
         fun createFromVanilla(type: Boat.Type): BoatType = object : BoatType {
             private val baseItem by lazy {
@@ -66,7 +69,7 @@ interface BoatType {
             }
 
             override fun getTexture(): ResourceLocation {
-                return textures[type.ordinal]
+                return ResourceLocation("minecraft", "textures/entity/boat/${type.getName()}.png")
             }
 
             override fun getOriginModID(): String {

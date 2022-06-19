@@ -27,6 +27,7 @@ import net.minecraft.world.item.RecordItem
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.AbstractFurnaceBlock
 import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.level.block.ChestBlock
 import net.minecraft.world.level.block.GrindstoneBlock
 import net.minecraft.world.level.block.ShulkerBoxBlock
 import net.minecraft.world.level.block.state.BlockState
@@ -34,6 +35,7 @@ import net.minecraft.world.level.block.state.properties.AttachFace
 import net.minecraft.world.level.block.state.properties.BlockStateProperties
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraftforge.client.event.EntityRenderersEvent
 import net.minecraftforge.client.event.EntityRenderersEvent.RegisterRenderers
 import net.minecraftforge.client.event.InputEvent
 import net.minecraftforge.client.event.ModelBakeEvent
@@ -87,6 +89,32 @@ object ClientEvents {
 
     @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, value = [Dist.CLIENT], modid = MoarBoats.ModID)
     object ModBusHandler {
+        @SubscribeEvent
+        fun registerRenderers(event: EntityRenderersEvent.RegisterRenderers) {
+            event.registerEntityRenderer(EntityEntries.ModularBoat.get(), ::RenderModularBoat)
+            event.registerEntityRenderer(EntityEntries.AnimalBoat.get(), ::RenderAnimalBoat)
+
+            registerUtilityBoat(event, EntityEntries.FurnaceBoat.get()) { boat -> Blocks.FURNACE.defaultBlockState().setValue(
+                AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }
+            registerUtilityBoat(event, EntityEntries.SmokerBoat.get()) { boat -> Blocks.SMOKER.defaultBlockState().setValue(AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }
+            registerUtilityBoat(event, EntityEntries.BlastFurnaceBoat.get()) { boat -> Blocks.BLAST_FURNACE.defaultBlockState().setValue(AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }
+            registerUtilityBoat(event, EntityEntries.CraftingTableBoat.get()) { boat -> Blocks.CRAFTING_TABLE.defaultBlockState() }
+            registerUtilityBoat(event, EntityEntries.GrindstoneBoat.get()) { boat -> Blocks.GRINDSTONE.defaultBlockState().setValue(
+                GrindstoneBlock.FACE, AttachFace.FLOOR) }
+            registerUtilityBoat(event, EntityEntries.LoomBoat.get()) { boat -> Blocks.LOOM.defaultBlockState() }
+            registerUtilityBoat(event, EntityEntries.CartographyTableBoat.get()) { boat -> Blocks.CARTOGRAPHY_TABLE.defaultBlockState() }
+            registerUtilityBoat(event, EntityEntries.StonecutterBoat.get()) { boat -> Blocks.STONECUTTER.defaultBlockState() }
+            registerUtilityBoat(event, EntityEntries.ChestBoat.get()) { boat -> Blocks.CHEST.defaultBlockState().setValue(
+                ChestBlock.FACING, Direction.SOUTH) }
+            registerUtilityBoat(event, EntityEntries.EnderChestBoat.get()) { boat -> Blocks.ENDER_CHEST.defaultBlockState().setValue(ChestBlock.FACING, Direction.EAST) }
+            registerUtilityBoat(event, EntityEntries.JukeboxBoat.get()) { boat -> Blocks.JUKEBOX.defaultBlockState() }
+            registerUtilityBoat(event, EntityEntries.ShulkerBoat.get()) { boat -> ShulkerBoxBlock.getBlockByColor(boat.dyeColor).defaultBlockState() }
+        }
+
+        private fun <T: UtilityBoatEntity<*,*>> registerUtilityBoat(event: RegisterRenderers, entityType: EntityType<T>, blockstateProvider: (T) -> BlockState) {
+            event.registerEntityRenderer(entityType) { RenderUtilityBoat(it, blockstateProvider) }
+        }
+
         @OnlyIn(Dist.CLIENT)
         @SubscribeEvent
         fun registerModels(event: ModelBakeEvent) {
@@ -131,9 +159,9 @@ object ClientEvents {
         MinecraftForge.EVENT_BUS.register(this)
 
         for(moduleEntry in BoatModuleRegistry.Registry.get().values) {
-            MoarBoats.logger.debug("Confirming association of module ${moduleEntry.module.id} to container ${ForgeRegistries.CONTAINERS.getKey(moduleEntry.module.getMenuType())}")
+            MoarBoats.logger.debug("Confirming association of module ${moduleEntry.module.id} to container ${ForgeRegistries.CONTAINERS.getKey(moduleEntry.module.menuType)}")
             MenuScreens.register(
-                    moduleEntry.module.getMenuType(),
+                    moduleEntry.module.menuType,
                     moduleEntry.module.guiFactory())
         }
 
@@ -196,32 +224,6 @@ object ClientEvents {
         ItemBlockRenderTypes.setRenderLayer(MBBlocks.CargoStopper.get(), RenderType.cutoutMipped())
         ItemBlockRenderTypes.setRenderLayer(MBBlocks.WaterborneConductor.get(), RenderType.cutoutMipped())
         ItemBlockRenderTypes.setRenderLayer(MBBlocks.WaterborneComparator.get(), RenderType.cutoutMipped())
-    }
-
-    @SubscribeEvent
-    fun registerRenderers(event: RegisterRenderers) {
-        event.registerEntityRenderer(EntityEntries.ModularBoat.get(), ::RenderModularBoat)
-        event.registerEntityRenderer(EntityEntries.AnimalBoat.get(), ::RenderAnimalBoat)
-
-        registerUtilityBoat(event, EntityEntries.FurnaceBoat.get()) { boat -> Blocks.FURNACE.defaultBlockState().setValue(
-            AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }
-        registerUtilityBoat(event, EntityEntries.SmokerBoat.get()) { boat -> Blocks.SMOKER.defaultBlockState().setValue(AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }
-        registerUtilityBoat(event, EntityEntries.BlastFurnaceBoat.get()) { boat -> Blocks.BLAST_FURNACE.defaultBlockState().setValue(AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }
-        registerUtilityBoat(event, EntityEntries.CraftingTableBoat.get()) { boat -> Blocks.CRAFTING_TABLE.defaultBlockState() }
-        registerUtilityBoat(event, EntityEntries.GrindstoneBoat.get()) { boat -> Blocks.GRINDSTONE.defaultBlockState().setValue(
-            GrindstoneBlock.FACE, AttachFace.FLOOR) }
-        registerUtilityBoat(event, EntityEntries.LoomBoat.get()) { boat -> Blocks.LOOM.defaultBlockState() }
-        registerUtilityBoat(event, EntityEntries.CartographyTableBoat.get()) { boat -> Blocks.CARTOGRAPHY_TABLE.defaultBlockState() }
-        registerUtilityBoat(event, EntityEntries.StonecutterBoat.get()) { boat -> Blocks.STONECUTTER.defaultBlockState() }
-        registerUtilityBoat(event, EntityEntries.ChestBoat.get()) { boat -> Blocks.CHEST.defaultBlockState().setValue(
-            BlockStateProperties.FACING, Direction.SOUTH) }
-        registerUtilityBoat(event, EntityEntries.EnderChestBoat.get()) { boat -> Blocks.ENDER_CHEST.defaultBlockState().setValue(BlockStateProperties.FACING, Direction.EAST) }
-        registerUtilityBoat(event, EntityEntries.JukeboxBoat.get()) { boat -> Blocks.JUKEBOX.defaultBlockState() }
-        registerUtilityBoat(event, EntityEntries.ShulkerBoat.get()) { boat -> ShulkerBoxBlock.getBlockByColor(boat.dyeColor).defaultBlockState() }
-    }
-
-    private fun <T: UtilityBoatEntity<*,*>> registerUtilityBoat(event: RegisterRenderers, entityType: EntityType<T>, blockstateProvider: (T) -> BlockState) {
-        event.registerEntityRenderer(entityType) { RenderUtilityBoat(it, blockstateProvider) }
     }
 
     fun postInit(evt: FMLLoadCompleteEvent) {

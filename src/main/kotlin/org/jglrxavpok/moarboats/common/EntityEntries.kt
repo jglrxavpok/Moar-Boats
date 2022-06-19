@@ -14,8 +14,10 @@ import org.jglrxavpok.moarboats.common.entities.utilityboats.*
 
 object EntityEntries {
 
+    @JvmField
     val Registry = DeferredRegister.create(ForgeRegistries.ENTITIES, MoarBoats.ModID)
 
+    @JvmField
     val ModularBoat = Registry.register("modular_boat") {
         val factory: EntityFactory<ModularBoatEntity> = EntityFactory<ModularBoatEntity>(::ModularBoatEntity)
         EntityType.Builder.of(factory, MobCategory.MISC)
@@ -27,6 +29,7 @@ object EntityEntries {
             .build("modular_boat")
     }
 
+    @JvmField
     val AnimalBoat = Registry.register("animal_boat") {
         val factory: EntityFactory<AnimalBoatEntity> = EntityFactory<AnimalBoatEntity>(::AnimalBoatEntity)
         EntityType.Builder.of(factory, MobCategory.MISC)
@@ -38,28 +41,40 @@ object EntityEntries {
             .build("animal_boat")
     }
 
+    @JvmField
     val FurnaceBoat = utilityBoatEntry("furnace", ::FurnaceBoatEntity)
 
+    @JvmField
     val SmokerBoat = utilityBoatEntry("smoker", ::SmokerBoatEntity)
 
+    @JvmField
     val BlastFurnaceBoat = utilityBoatEntry("blast_furnace", ::BlastFurnaceBoatEntity)
 
+    @JvmField
     val CraftingTableBoat = utilityBoatEntry("crafting_table", ::CraftingTableBoatEntity)
 
+    @JvmField
     val GrindstoneBoat = utilityBoatEntry("grindstone", ::GrindstoneBoatEntity)
 
+    @JvmField
     val StonecutterBoat = utilityBoatEntry("stonecutter", ::StonecutterBoatEntity)
 
+    @JvmField
     val LoomBoat = utilityBoatEntry("loom", ::LoomBoatEntity)
 
+    @JvmField
     val CartographyTableBoat = utilityBoatEntry("cartography_table", ::CartographyTableBoatEntity)
 
+    @JvmField
     val ChestBoat = utilityBoatEntry("chest", ::ChestBoatEntity)
 
+    @JvmField
     val EnderChestBoat = utilityBoatEntry("ender_chest", ::EnderChestBoatEntity)
 
+    @JvmField
     val ShulkerBoat = utilityBoatEntry("shulker", ::ShulkerBoatEntity)
 
+    @JvmField
     val JukeboxBoat = utilityBoatEntry("jukebox", ::JukeboxBoatEntity)
 
     private fun <T: UtilityBoatEntity<*,*>> utilityBoatEntry(id: String, constructor: (EntityType<T>, Level) -> T) = Registry.register(id) {

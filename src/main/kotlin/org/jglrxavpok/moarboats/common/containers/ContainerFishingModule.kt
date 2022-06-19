@@ -1,19 +1,17 @@
 package org.jglrxavpok.moarboats.common.containers
 
-import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.MenuType
-import net.minecraft.world.item.Items
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
-import org.jglrxavpok.moarboats.common.MenuTypes
-import org.jglrxavpok.moarboats.common.modules.FishingModule
 
-class ContainerFishingModule(containerID: Int, playerInventory: Inventory, fishingModule: BoatModule, boat: IControllable): ContainerBoatModule<ContainerFishingModule>(
-    ContainerTypes.FishingModuleMenu.get()  as MenuType<ContainerFishingModule>, containerID, playerInventory, boat) {
+class ContainerFishingModule(menuType: MenuType<ContainerFishingModule>, containerID: Int, playerInventory: Inventory, fishingModule: BoatModule, boat: IControllable): ContainerBoatModule<ContainerFishingModule>(
+    menuType, containerID, playerInventory, boat) {
 
     val fishingModuleInv = boat.getInventory(fishingModule)
 

@@ -13,24 +13,30 @@ import org.jglrxavpok.moarboats.MoarBoats
 
 object MBRecipeSerializers {
 
+    @JvmField
     val Registry = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, MoarBoats.ModID)
 
+    @JvmField
     val MapWithPath = Registry.register("map_with_path") {
         SimpleRecipeSerializer { loc -> MapWithPathRecipe }
     }
 
+    @JvmField
     val BoatColoring = Registry.register("modular_boat_coloring") {
         SimpleRecipeSerializer { loc -> ModularBoatColoringRecipe }
     }
 
+    @JvmField
     val UpgradeToGoldenTicket = Registry.register("update_to_golden_ticket") {
         SimpleRecipeSerializer { loc -> UpgradeToGoldenTicketRecipe }
     }
 
+    @JvmField
     val CopyGoldenTicket = Registry.register("copy_golden_ticket") {
         SimpleRecipeSerializer { loc -> GoldenTicketCopyRecipe }
     }
 
+    @JvmField
     val ShulkerBoat = Registry.register("shulker_boat") {
         SimpleRecipeSerializer { loc -> ShulkerBoatRecipe }
     }

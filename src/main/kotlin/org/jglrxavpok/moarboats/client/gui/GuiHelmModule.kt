@@ -9,6 +9,7 @@ import com.mojang.blaze3d.vertex.VertexFormat
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData
@@ -18,6 +19,7 @@ import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.RenderInfo
 import org.jglrxavpok.moarboats.client.renders.HelmModuleRenderer
 import org.jglrxavpok.moarboats.common.containers.ContainerHelmModule
+import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
 import org.jglrxavpok.moarboats.common.data.LoopingOptions
 import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
@@ -25,8 +27,8 @@ import org.jglrxavpok.moarboats.common.network.CChangeEngineMode
 import org.jglrxavpok.moarboats.common.network.CSaveItineraryToMap
 import org.lwjgl.opengl.GL11
 
-class GuiHelmModule(containerID: Int, playerInventory: Inventory, engine: BoatModule, boat: IControllable):
-        GuiModuleBase<ContainerHelmModule>(engine, boat, playerInventory, ContainerHelmModule(containerID, playerInventory, engine, boat), isLarge = true) {
+class GuiHelmModule(menuType: MenuType<ContainerHelmModule>, containerID: Int, playerInventory: Inventory, engine: BoatModule, boat: IControllable):
+        GuiModuleBase<ContainerHelmModule>(engine, boat, playerInventory, ContainerHelmModule(menuType, containerID, playerInventory, engine, boat), isLarge = true) {
 
     override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/helm.png")
 

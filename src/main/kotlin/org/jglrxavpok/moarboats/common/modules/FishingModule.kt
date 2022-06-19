@@ -10,6 +10,7 @@ import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Player
+import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.item.FishingRodItem
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
@@ -29,6 +30,7 @@ import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
 import org.jglrxavpok.moarboats.common.containers.ContainerFishingModule
 import org.jglrxavpok.moarboats.common.containers.ContainerTypes
+import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
 import org.jglrxavpok.moarboats.common.network.SPlaySound
 import org.jglrxavpok.moarboats.common.state.BooleanBoatProperty
 import org.jglrxavpok.moarboats.common.state.IntBoatProperty
@@ -50,14 +52,13 @@ object FishingModule : BoatModule() {
 
     @OnlyIn(Dist.CLIENT)
     override fun createGui(containerID: Int, player: Player, boat: IControllable): Screen {
-        return GuiFishingModule(containerID, player.inventory, this, boat)
+        return GuiFishingModule(menuType as MenuType<ContainerFishingModule>, containerID, player.inventory, this, boat)
     }
 
     override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? {
-        return ContainerFishingModule(containerID, player.inventory, this, boat)
+        return ContainerFishingModule(menuType as MenuType<ContainerFishingModule>, containerID, player.inventory, this, boat)
     }
 
-    override fun getMenuType() = ContainerTypes.FishingModuleMenu.get()
 
     override fun onInteract(from: IControllable, player: Player, hand: InteractionHand, sneaking: Boolean): Boolean {
         return false

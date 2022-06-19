@@ -1,7 +1,7 @@
 package org.jglrxavpok.moarboats.common.containers
 
-import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.inventory.Slot
 import net.minecraft.world.item.ItemStack
@@ -9,10 +9,10 @@ import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
-import org.jglrxavpok.moarboats.common.MenuTypes
 import org.jglrxavpok.moarboats.common.modules.ChestModule
 
-class ContainerChestModule(containerID: Int, playerInventory: Inventory, engine: BoatModule, boat: IControllable): ContainerBoatModule<ContainerChestModule>(ContainerTypes.ChestModuleMenu.get() as MenuType<ContainerChestModule>, containerID, playerInventory, boat) {
+class ContainerChestModule(menuType: MenuType<ContainerChestModule>, containerID: Int, playerInventory: Inventory, engine: BoatModule, boat: IControllable): ContainerBoatModule<ContainerChestModule>(
+    menuType, containerID, playerInventory, boat) {
 
     val chestInventory = boat.getInventory(engine)
 

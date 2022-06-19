@@ -45,7 +45,7 @@ class AnimalBoatEntity(entityType: EntityType<out AnimalBoatEntity>, world: Leve
         this.zOld = z
     }
 
-    override fun getBoatItem() = MBItems.AnimalBoatItem.get()
+    override fun getBoatItem() = MBItems.AnimalBoat.get()
 
     override fun getOwnerIdOrNull(): UUID? {
         return null

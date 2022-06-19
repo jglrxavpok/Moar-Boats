@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Player
+import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.level.block.Blocks
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
@@ -101,11 +102,8 @@ object AnchorModule: BoatModule(), BlockReason {
         anchorDirectionProperty[to] = 0
     }
 
-    override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? = EmptyModuleContainer(containerID, player.inventory, boat)
-    override fun getMenuType() = ContainerTypes.EmptyModuleMenu.get()
-
     override fun createGui(containerID: Int, player: Player, boat: IControllable): Screen {
-        return GuiAnchorModule(containerID, player.inventory, this, boat)
+        return GuiAnchorModule(menuType as MenuType<EmptyModuleContainer>, containerID, player.inventory, this, boat)
     }
 
     fun deploy(boat: IControllable, player: ServerPlayer) {

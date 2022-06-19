@@ -5,6 +5,7 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.InteractionHand
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.core.BlockPos
+import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.IceBlock
 import org.jglrxavpok.moarboats.MoarBoats
@@ -112,11 +113,8 @@ object IceBreakerModule: BoatModule() {
         return state.getFloat("breakProgress_X${pos.x}_Y${pos.y}_Z${pos.z}")
     }
 
-    override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? = EmptyModuleContainer(containerID, player.inventory, boat)
-    override fun getMenuType() = ContainerTypes.EmptyModuleMenu.get()
-
     override fun createGui(containerID: Int, player: Player, boat: IControllable): Screen {
-        return GuiNoConfigModule(containerID, player.inventory, this, boat)
+        return GuiNoConfigModule(menuType as MenuType<EmptyModuleContainer>, containerID, player.inventory, this, boat)
     }
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {

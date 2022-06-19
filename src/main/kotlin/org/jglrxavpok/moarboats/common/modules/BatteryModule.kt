@@ -3,6 +3,7 @@ package org.jglrxavpok.moarboats.common.modules
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.InteractionHand
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.inventory.MenuType
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
@@ -41,10 +42,7 @@ object BatteryModule: BoatModule(), IEnergyBoatModule {
         energyProperty[to] = 0
     }
 
-    override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? = EmptyModuleContainer(containerID, player.inventory, boat)
-    override fun getMenuType() = ContainerTypes.EmptyModuleMenu.get()
-
-    override fun createGui(containerID: Int, player: Player, boat: IControllable) = GuiBatteryModule(containerID, player.inventory, this, boat)
+    override fun createGui(containerID: Int, player: Player, boat: IControllable) = GuiBatteryModule(menuType as MenuType<EmptyModuleContainer>, containerID, player.inventory, this, boat)
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)

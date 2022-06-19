@@ -4,6 +4,7 @@ import net.minecraft.client.gui.screens.Screen
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.InteractionHand
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.inventory.MenuType
 import net.minecraftforge.fluids.FluidStack
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import net.minecraftforge.fluids.capability.IFluidHandler
@@ -59,14 +60,8 @@ object FluidTankModule: BoatModule(), IFluidBoatModule {
         fluidAmountProperty[to] = 0
     }
 
-    override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? {
-        return EmptyModuleContainer(containerID, player.inventory, boat)
-    }
-
-    override fun getMenuType() = ContainerTypes.EmptyModuleMenu.get()
-
     override fun createGui(containerID: Int, player: Player, boat: IControllable): Screen {
-        return GuiTankModule(containerID, player.inventory, this, boat)
+        return GuiTankModule(menuType as MenuType<EmptyModuleContainer>, containerID, player.inventory, this, boat)
     }
 
     override fun getCapacity(boat: IControllable): Int {

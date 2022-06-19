@@ -10,6 +10,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.inventory.InventoryMenu
+import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.material.EmptyFluid
 import net.minecraft.world.level.material.Fluid
@@ -19,7 +20,8 @@ import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
 import org.jglrxavpok.moarboats.common.modules.IFluidBoatModule
 
-class GuiTankModule(containerID: Int, playerInventory: Inventory, module: BoatModule, boat: IControllable): GuiModuleBase<EmptyModuleContainer>(module, boat, playerInventory, EmptyModuleContainer(containerID, playerInventory, boat)) {
+class GuiTankModule(menuType: MenuType<EmptyModuleContainer>, containerID: Int, playerInventory: Inventory, module: BoatModule, boat: IControllable):
+    GuiModuleBase<EmptyModuleContainer>(module, boat, playerInventory, EmptyModuleContainer(menuType, containerID, playerInventory, boat)) {
 
     val tankModule = module as IFluidBoatModule
 

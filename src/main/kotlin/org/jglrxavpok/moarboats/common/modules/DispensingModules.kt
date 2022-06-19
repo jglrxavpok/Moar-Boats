@@ -8,6 +8,7 @@ import net.minecraft.core.dispenser.DispenseItemBehavior
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Player
+import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.item.BlockItem
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
@@ -24,6 +25,7 @@ import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
 import org.jglrxavpok.moarboats.common.containers.ContainerDispenserModule
 import org.jglrxavpok.moarboats.common.containers.ContainerTypes
+import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
 import org.jglrxavpok.moarboats.common.state.ArrayBoatProperty
 import org.jglrxavpok.moarboats.common.state.BlockPosProperty
 import org.jglrxavpok.moarboats.common.state.DoubleBoatProperty
@@ -83,7 +85,7 @@ abstract class DispensingModule: BoatModule() {
                 .mapIndexed { index, itemStack -> Pair(startIndex+index, itemStack) }
                 .firstOrNull { val item = it.second.item
                     item is BlockItem
-                            || DISPENSE_BEHAVIOR_REGISTRY[item] !is DefaultDispenseItemBehavior
+                            || DispenserBlock.DISPENSER_REGISTRY[item] !is DefaultDispenseItemBehavior
                 }
     }
 
@@ -125,12 +127,11 @@ abstract class DispensingModule: BoatModule() {
         blockPeriodProperty[boat] = period
     }
 
-    override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? = ContainerDispenserModule(containerID, player.inventory, this, boat)
+    override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? = ContainerDispenserModule(menuType as MenuType<ContainerDispenserModule>, containerID, player.inventory, this, boat)
 
-    override fun getMenuType() = ContainerTypes.DispenserModuleMenu.get()
 
     override fun createGui(containerID: Int, player: Player, boat: IControllable): Screen {
-        return GuiDispenserModule(containerID, player.inventory, this, boat)
+        return GuiDispenserModule(menuType as MenuType<ContainerDispenserModule>, containerID, player.inventory, this, boat)
     }
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
@@ -165,7 +166,7 @@ object DispenserModule: DispensingModule() {
         firstValidStack(inventoryRowStart, boat)?.let { (index, stack) ->
             val item = stack.item
             val world = boat.worldRef
-            val behavior = DISPENSE_BEHAVIOR_REGISTRY[item]!!
+            val behavior = DispenserBlock.DISPENSER_REGISTRY[item]!!
             if(behavior.javaClass === DefaultDispenseItemBehavior::class.java) {
                 if(item is BlockItem) {
                     useBlockItem(item, world, stack, blockPos, boat, row)

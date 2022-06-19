@@ -18,38 +18,17 @@ import org.jglrxavpok.moarboats.common.tileentity.TileEntityListenable
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 
 object ContainerTypes {
+    @JvmField
     val Registry = DeferredRegister.create(ForgeRegistries.CONTAINERS, MoarBoats.ModID)
 
-    private fun makeMenu(module: BoatModule): MenuType<*> {
-        return IForgeMenuType.create { windowId, inv, data ->
-            val player = inv.player
-            val boatID = data.readInt()
-            val boat = player.level.getEntity(boatID) as ModularBoatEntity
-            module.createContainer(windowId, player, boat)
-        }
-    }
-
-    val ChestModuleMenu = Registry.register("chest_module") { makeMenu(ChestModule) as MenuType<ContainerChestModule> }
-    val DispenserModuleMenu = Registry.register("dispenser_module") { makeMenu(DispenserModule) as MenuType<ContainerDispenserModule> }
-    val FishingModuleMenu = Registry.register("dispenser_module") { makeMenu(FishingModule) as MenuType<ContainerFishingModule> }
-    val FurnaceModuleMenu = Registry.register("dispenser_module") { makeMenu(FurnaceEngineModule) as MenuType<ContainerFurnaceEngine> }
-    val HelmModuleMenu = Registry.register("dispenser_module") { makeMenu(HelmModule) as MenuType<ContainerHelmModule> }
-
-    val EmptyModuleMenu = Registry.register("empty_menu_module") {
-        IForgeMenuType.create { windowId, inv, data ->
-            val player = inv.player
-            val boatID = data.readInt()
-            val boat = player.level.getEntity(boatID) as ModularBoatEntity
-            EmptyModuleContainer(windowId, inv, boat)
-        }
-    }
-
+    @JvmField
     val Empty = Registry.register("empty") {
         IForgeMenuType.create { windowId, inv, data ->
             return@create EmptyContainer(windowId, inv)
         } as MenuType<EmptyContainer>
     }
 
+    @JvmField
     val MappingTable = Registry.register("mapping_table") {
         IForgeMenuType.create { windowId, inv, data ->
             val player = inv.player
@@ -61,6 +40,7 @@ object ContainerTypes {
         } as MenuType<ContainerMappingTable>
     }
 
+    @JvmField
     val FluidLoader = Registry.register("fluid_loader") {
         IForgeMenuType.create { windowId, inv, data ->
             val player = inv.player
@@ -73,6 +53,7 @@ object ContainerTypes {
         } as MenuType<FluidContainer>
     }
 
+    @JvmField
     val FluidUnloader = Registry.register("fluid_unloader") {
         IForgeMenuType.create { windowId, inv, data ->
             val player = inv.player
@@ -85,6 +66,7 @@ object ContainerTypes {
         } as MenuType<FluidContainer>
     }
 
+    @JvmField
     val EnergyCharger = Registry.register("energy_loader") {
         IForgeMenuType.create { windowId, inv, data ->
             val player = inv.player
@@ -96,6 +78,7 @@ object ContainerTypes {
         } as MenuType<EnergyContainer>
     }
 
+    @JvmField
     val EnergyDischarger = Registry.register("energy_unloader") {
         IForgeMenuType.create { windowId, inv, data ->
             val player = inv.player
@@ -118,25 +101,36 @@ object ContainerTypes {
         } as MenuType<C>
     }
 
+    @JvmField
     val FurnaceBoat: RegistryObject<MenuType<UtilityFurnaceContainer>> = registerUtilityContainer("furnace")
 
+    @JvmField
     val SmokerBoat: RegistryObject<MenuType<UtilitySmokerContainer>> = registerUtilityContainer("smoker")
 
+    @JvmField
     val BlastFurnaceBoat: RegistryObject<MenuType<UtilityBlastFurnaceContainer>> = registerUtilityContainer("blast_furnace")
 
+    @JvmField
     val CraftingBoat: RegistryObject<MenuType<UtilityWorkbenchContainer>> = registerUtilityContainer("workbench")
 
+    @JvmField
     val GrindstoneBoat: RegistryObject<MenuType<UtilityGrindstoneContainer>> = registerUtilityContainer("grindstone")
 
+    @JvmField
     val LoomBoat: RegistryObject<MenuType<UtilityLoomContainer>> = registerUtilityContainer("loom")
 
+    @JvmField
     val CartographyTableBoat: RegistryObject<MenuType<UtilityCartographyTableContainer>> = registerUtilityContainer("cartography_table")
 
+    @JvmField
     val StonecutterBoat: RegistryObject<MenuType<UtilityStonecutterContainer>> = registerUtilityContainer("stonecutter")
 
+    @JvmField
     val ChestBoat: RegistryObject<MenuType<UtilityChestContainer>> = registerUtilityContainer("chest")
 
+    @JvmField
     val EnderChestBoat: RegistryObject<MenuType<ChestMenu>> = registerUtilityContainer("ender_chest")
 
+    @JvmField
     val ShulkerBoat: RegistryObject<MenuType<UtilityShulkerContainer>> = registerUtilityContainer("shulker")
 }

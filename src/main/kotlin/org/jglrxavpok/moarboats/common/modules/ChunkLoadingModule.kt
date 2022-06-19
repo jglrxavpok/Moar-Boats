@@ -4,6 +4,7 @@ import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Player
+import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.ChunkPos
 import org.jglrxavpok.moarboats.MoarBoats
@@ -82,10 +83,7 @@ object ChunkLoadingModule: BoatModule() {
 
     override fun onAddition(to: IControllable) { }
 
-    override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? = EmptyModuleContainer(containerID, player.inventory, boat)
-    override fun getMenuType() = ContainerTypes.EmptyModuleMenu.get()
-
-    override fun createGui(containerID: Int, player: Player, boat: IControllable) = GuiNoConfigModule(containerID, player.inventory, this, boat)
+    override fun createGui(containerID: Int, player: Player, boat: IControllable) = GuiNoConfigModule(menuType as MenuType<EmptyModuleContainer>, containerID, player.inventory, this, boat)
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)

@@ -4,6 +4,7 @@ import net.minecraft.client.gui.screens.Screen
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Player
+import net.minecraft.world.inventory.MenuType
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.jglrxavpok.moarboats.MoarBoats
@@ -25,14 +26,8 @@ object SeatModule : BoatModule() {
 
     @OnlyIn(Dist.CLIENT)
     override fun createGui(containerID: Int, player: Player, boat: IControllable): Screen {
-        return GuiNoConfigModule(containerID, player.inventory, this, boat)
+        return GuiNoConfigModule(menuType as MenuType<EmptyModuleContainer>, containerID, player.inventory, this, boat)
     }
-
-    override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? {
-        return EmptyModuleContainer(containerID, player.inventory, boat)
-    }
-
-    override fun getMenuType() = ContainerTypes.EmptyModuleMenu.get()
 
     override fun onInteract(from: IControllable, player: Player, hand: InteractionHand, sneaking: Boolean): Boolean {
         return false

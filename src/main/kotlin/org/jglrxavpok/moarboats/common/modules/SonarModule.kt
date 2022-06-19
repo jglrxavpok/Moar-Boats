@@ -4,6 +4,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.Mth
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Player
+import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.phys.Vec3
 import org.jglrxavpok.moarboats.MoarBoats
@@ -78,13 +79,7 @@ object SonarModule: BoatModule() {
     override fun onAddition(to: IControllable) {
     }
 
-    override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? {
-        return EmptyModuleContainer(containerID, player.inventory, boat)
-    }
-
-    override fun getMenuType() = ContainerTypes.EmptyModuleMenu.get()
-
-    override fun createGui(containerID: Int, player: Player, boat: IControllable) = GuiNoConfigModule(containerID, player.inventory, this, boat)
+    override fun createGui(containerID: Int, player: Player, boat: IControllable) = GuiNoConfigModule(menuType as MenuType<EmptyModuleContainer>, containerID, player.inventory, this, boat)
 
     override fun dropItemsOnDeath(boat: IControllable, killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative)
