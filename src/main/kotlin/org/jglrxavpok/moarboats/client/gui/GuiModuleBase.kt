@@ -189,7 +189,7 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
 
             blitOffset = 100
             itemRenderer.blitOffset = 100.0f
-            RenderHelper.setupFor3DItems()
+            //RenderHelper.setupFor3DItems()
             RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
             val itemstack = ItemStack(BoatModuleRegistry[tabModule.id].correspondingItem)
             val itemX = width/2 - 10 + x + 1

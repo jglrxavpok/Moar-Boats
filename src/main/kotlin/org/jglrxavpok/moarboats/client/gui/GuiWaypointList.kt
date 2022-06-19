@@ -44,7 +44,7 @@ class WaypointListEntry(val parent: GuiMappingTable, val slot: CompoundTag, val 
         matrixStack.popPose()
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
         mc.textureManager.bindForSetup(ArrowsTexture)
-        RenderSystem.enableAlphaTest()
+        //RenderSystem.enableAlphaTest()
         if(mouseX >= entryRight - 32 && mouseX < entryRight && mouseY >= slotTop && mouseY <= slotTop + slotHeight) {
             val hoveredOffsetBottom = if(mouseY - slotTop >= slotHeight / 2) 1 else 0
             val hoveredOffsetTop = 1 - hoveredOffsetBottom
@@ -107,7 +107,7 @@ class GuiWaypointList(val mc: Minecraft, val parent: GuiMappingTable, width: Int
         glScissor((left*scaleX).toInt(), ((mc.window.guiScaledHeight-top-height)*scaleY).toInt(), (width*scaleX).toInt(), (height*scaleY).toInt())
 
         super.render(matrixStack, insideLeft, insideTop, partialTicks)
-        RenderSystem.disableAlphaTest()
+        //RenderSystem.disableAlphaTest()
         glDisable(GL_SCISSOR_TEST)
     }
 

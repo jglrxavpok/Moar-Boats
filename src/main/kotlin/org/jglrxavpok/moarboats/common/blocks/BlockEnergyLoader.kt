@@ -22,7 +22,7 @@ import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergyLoader
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergyUnloader
 
-class BlockEnergyLoader: MoarBoatsBlock(), EntityBlock {
+class BlockEnergyLoader: MoarBoatsBlockEntity() {
 
     init {
         this.registerDefaultState(this.defaultBlockState().setValue(Facing, Direction.UP))

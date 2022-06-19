@@ -146,7 +146,7 @@ class GuiEngineModule(playerInventory: Inventory, engine: BoatModule, boat: ICon
         val textX = 88-16 - textWidth/2
         blitOffset = 100
         itemRenderer.blitOffset = 100.0f
-        RenderSystem.setupFor3DItems()
+        //RenderSystem.setupFor3DItems()
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
         val itemX = textX+textWidth + 1
         val itemY = font.lineHeight - 8 + y
@@ -192,11 +192,11 @@ class GuiEngineModule(playerInventory: Inventory, engine: BoatModule, boat: ICon
         mc.textureManager.bindForSetup(speedIconTexture)
         RenderSystem.disableDepthTest()
         RenderSystem.disableCull()
-        RenderSystem.enableAlphaTest()
+        //RenderSystem.enableAlphaTest()
         RenderSystem.enableBlend()
         tessellator.end()
         RenderSystem.disableBlend()
-        RenderSystem.disableAlphaTest()
+        //RenderSystem.disableAlphaTest()
         RenderSystem.enableCull()
         RenderSystem.enableDepthTest()
     }

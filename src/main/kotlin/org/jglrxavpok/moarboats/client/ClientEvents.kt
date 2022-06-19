@@ -171,8 +171,6 @@ object ClientEvents {
             ContainerScreen(container, playerInv, title)
         }
 
-        MoarBoats.plugins.forEach { it.onClientSetup(event) }
-
         JavaHelpers.registerGuis()
 
         BoatModuleRenderingRegistry.register(FurnaceEngineRenderer)
@@ -193,9 +191,6 @@ object ClientEvents {
         BoatModuleRenderingRegistry.register(TankModuleRenderer)
         BoatModuleRenderingRegistry.register(ChunkLoadingModuleRenderer)
         BoatModuleRenderingRegistry.register(OarEngineRenderer)
-        MoarBoats.plugins.forEach {
-            it.registerModuleRenderers(BoatModuleRenderingRegistry)
-        }
 
         ItemBlockRenderTypes.setRenderLayer(MBBlocks.CargoStopper.get(), RenderType.cutoutMipped())
         ItemBlockRenderTypes.setRenderLayer(MBBlocks.WaterborneConductor.get(), RenderType.cutoutMipped())

@@ -17,7 +17,7 @@ import net.minecraftforge.network.NetworkHooks
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 
-class BlockMappingTable: MoarBoatsBlock({ sound(SoundType.STONE).strength(2.5f, 20f)}), EntityBlock {
+class BlockMappingTable: MoarBoatsBlockEntity({ sound(SoundType.STONE).strength(2.5f, 20f)}) {
 
     override fun newBlockEntity(p_153215_: BlockPos, p_153216_: BlockState): BlockEntity? {
         return TileEntityMappingTable(p_153215_, p_153216_)

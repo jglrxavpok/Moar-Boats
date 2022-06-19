@@ -13,14 +13,17 @@ import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.EntityBlock
 import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityTicker
+import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraftforge.network.NetworkHooks
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
+import org.jglrxavpok.moarboats.common.tileentity.ITickableTileEntity
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityFluidUnloader
 
-class BlockFluidUnloader: MoarBoatsBlock(), EntityBlock {
+class BlockFluidUnloader: MoarBoatsBlockEntity() {
 
     init {
         this.registerDefaultState(this.defaultBlockState().setValue(Facing, Direction.UP))

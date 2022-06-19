@@ -9,6 +9,7 @@ import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.renderer.texture.DynamicTexture
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.Tesselator
+import com.mojang.blaze3d.vertex.VertexFormat
 import net.minecraft.client.resources.sounds.SimpleSoundInstance
 import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
@@ -66,7 +67,6 @@ class GuiPathEditor(val player: Player, val pathHolder: PathHolder, val mapData:
     private val moveMapText = Component.translatable("gui.path_editor.controls.move")
     private val boostSetting = Component.translatable("gui.path_editor.controls.boost")
 
-    private var buttonId = 0
     private val refreshMapButton = Button(0, 0, 150, 20, refreshButtonText/*.formatted()*/) {
         sentImageRequest = false
         mapHeight.fill(-1)
@@ -297,7 +297,7 @@ class GuiPathEditor(val player: Player, val pathHolder: PathHolder, val mapData:
         font.drawShadow(matrixStack, toolsText/*.formatted()*/, menuX.toFloat(), menuY.toFloat(), 0xFFF0F0F0.toInt())
 
         getMinecraft().textureManager.bindForSetup(GuiToolButton.WidgetsTextureLocation)
-        RenderSystem.enableAlphaTest()
+        //RenderSystem.enableAlphaTest()
         RenderSystem.enableBlend()
         drawModalRectWithCustomSizedTexture(matrixStack, menuX, horizontalBarY, 0f, 100f, 120, 20, 120, 120)
         font.drawShadow(matrixStack, pathPropsText/*.formatted()*/, menuX.toFloat(), toolButtonListEndY.toFloat(), 0xFFF0F0F0.toInt())
@@ -317,7 +317,7 @@ class GuiPathEditor(val player: Player, val pathHolder: PathHolder, val mapData:
         }
 
 
-        RenderSystem.disableAlphaTest()
+        //RenderSystem.disableAlphaTest()
         RenderSystem.disableBlend()
     }
 
@@ -335,7 +335,7 @@ class GuiPathEditor(val player: Player, val pathHolder: PathHolder, val mapData:
         matrixStack.popPose()
 
         getMinecraft().textureManager.bindForSetup(GuiToolButton.WidgetsTextureLocation)
-        RenderSystem.enableAlphaTest()
+        //RenderSystem.enableAlphaTest()
         RenderSystem.enableBlend()
         drawModalRectWithCustomSizedTexture(matrixStack, (borderX-120).toInt(), (y+5f).toInt(), 0f, 100f, 120, 20, 120, 120)
     }
@@ -385,7 +385,7 @@ class GuiPathEditor(val player: Player, val pathHolder: PathHolder, val mapData:
         mc.textureManager.bindForSetup(areaResLocation)
         GlStateManager._enableBlend()
         GlStateManager._blendFuncSeparate(GlStateManager.SourceFactor.ONE.value, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value, GlStateManager.SourceFactor.ZERO.value, GlStateManager.DestFactor.ONE.value)
-        GlStateManager._disableAlphaTest()
+        //GlStateManager._disableAlphaTest()
 
         glEnable(GL_STENCIL_TEST)
         glStencilMask(0xFF)
@@ -398,13 +398,13 @@ class GuiPathEditor(val player: Player, val pathHolder: PathHolder, val mapData:
         val maxU = ((scrollX+viewportSize/2)/size).coerceAtMost(1.0f)
         val minV = ((scrollZ-viewportSize/2)/size).coerceAtLeast(0.0f)
         val maxV = ((scrollZ+viewportSize/2)/size).coerceAtMost(1.0f)
-        bufferbuilder.begin(7, DefaultVertexFormat.POSITION_TEX)
+        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX)
         bufferbuilder.pos(matrixStack, 0.0, 128.0, -0.009999999776482582).uv(minU, maxV).endVertex()
         bufferbuilder.pos(matrixStack, 128.0, 128.0, -0.009999999776482582).uv(maxU, maxV).endVertex()
         bufferbuilder.pos(matrixStack, 128.0, 0.0, -0.009999999776482582).uv(maxU, minV).endVertex()
         bufferbuilder.pos(matrixStack, 0.0, 0.0, -0.009999999776482582).uv(minU, minV).endVertex()
         tessellator.end()
-        GlStateManager._enableAlphaTest()
+        //GlStateManager._enableAlphaTest()
 
         glStencilFunc(GL_EQUAL, 1, 0xFF) // needs to have 1 in stencil buffer to be rendered
 

@@ -1,13 +1,11 @@
 package org.jglrxavpok.moarboats.common.blocks
 
-import net.minecraft.block.*
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.tags.FluidTags
 import net.minecraft.util.Mth
-import net.minecraft.util.math.shapes.CollisionContext
-import net.minecraft.world.phys.shapes.Shapes
+import net.minecraft.util.RandomSource
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.BlockGetter
@@ -23,12 +21,12 @@ import net.minecraft.world.level.material.Material
 import net.minecraft.world.level.storage.loot.LootContext
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.shapes.CollisionContext
+import net.minecraft.world.phys.shapes.Shapes
 import net.minecraft.world.phys.shapes.VoxelShape
 import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.IItemHandler
 import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
-import java.util.*
 
 class BlockWaterborneComparator: DiodeBlock(Properties.of(Material.DECORATION).noOcclusion().randomTicks().strength(0f).sound(SoundType.WOOD)) {
     init {
@@ -66,13 +64,13 @@ class BlockWaterborneComparator: DiodeBlock(Properties.of(Material.DECORATION).n
         return 0
     }
 
-    override fun tick(state: BlockState, worldIn: ServerLevel, pos: BlockPos, random: Random) {
+    override fun tick(state: BlockState, worldIn: ServerLevel, pos: BlockPos, random: RandomSource) {
         val produceSignal = shouldTurnOn(worldIn, pos, state)
         when {
             produceSignal && !state.getValue(POWERED) -> worldIn.setBlockAndUpdate(pos, state.setValue(POWERED, true).setValue(BlockStateProperties.FACING, state.getValue(BlockStateProperties.FACING)))
             !produceSignal && state.getValue(POWERED) -> worldIn.setBlockAndUpdate(pos, state.setValue(POWERED, false).setValue(BlockStateProperties.FACING, state.getValue(BlockStateProperties.FACING)))
         }
-        worldIn.blockTicks.scheduleTick(pos, this, 2)
+        worldIn.scheduleTick(pos, this, 2)
         checkTickOnNeighbor(worldIn, pos, state)
     }
 
@@ -111,7 +109,7 @@ class BlockWaterborneComparator: DiodeBlock(Properties.of(Material.DECORATION).n
      */
     override fun setPlacedBy(worldIn: Level, pos: BlockPos, state: BlockState, placer: LivingEntity?, stack: ItemStack) {
         super.setPlacedBy(worldIn, pos, state, placer, stack)
-        worldIn.blockTicks.scheduleTick(pos, this, 2)
+        worldIn.scheduleTick(pos, this, 2)
         this.checkTickOnNeighbor(worldIn, pos, state)
     }
 
@@ -125,7 +123,7 @@ class BlockWaterborneComparator: DiodeBlock(Properties.of(Material.DECORATION).n
 
     override fun getCloneItemStack(worldIn: BlockGetter, pos: BlockPos, state: BlockState) = ItemStack(MBItems.WaterborneComparatorItem.get(), 1)
 
-    override fun getWeakChanges(state: BlockState?, world: BlockGetter?, pos: BlockPos?): Boolean {
+    override fun getWeakChanges(state: BlockState, world: LevelReader?, pos: BlockPos?): Boolean {
         return true
     }
 

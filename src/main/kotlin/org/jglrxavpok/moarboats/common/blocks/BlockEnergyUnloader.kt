@@ -22,7 +22,7 @@ import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergyUnloader
 
 val Facing: DirectionProperty = DirectionProperty.create("facing") {true}
 
-class BlockEnergyUnloader: MoarBoatsBlock(), EntityBlock {
+class BlockEnergyUnloader: MoarBoatsBlockEntity() {
 
     init {
         this.registerDefaultState(this.defaultBlockState().setValue(Facing, Direction.UP))

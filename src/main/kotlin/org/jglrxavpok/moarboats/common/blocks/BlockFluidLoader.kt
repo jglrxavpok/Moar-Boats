@@ -19,7 +19,7 @@ import net.minecraftforge.network.NetworkHooks
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityFluidLoader
 
-class BlockFluidLoader: MoarBoatsBlock(), EntityBlock {
+class BlockFluidLoader: MoarBoatsBlockEntity() {
 
     init {
         this.registerDefaultState(this.defaultBlockState().setValue(Facing, Direction.UP))

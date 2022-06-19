@@ -7,7 +7,6 @@ import org.jglrxavpok.moarboats.common.network.*
 object MoarBoatsPacketList {
 
     fun registerAll() {
-        val pluginHandlers = MoarBoats.plugins.flatMap { it.handlers() }
         registerMessages(
                 COpenModuleGui.Handler,
                 CMapRequest.Handler,
@@ -50,7 +49,6 @@ object MoarBoatsPacketList {
                 SUtilityTileEntityUpdate.Handler,
                 SPlayRecordFromBoat.Handler,
                 CShowBoatMenu.Handler,
-                *pluginHandlers.toTypedArray()
                 )
     }
 

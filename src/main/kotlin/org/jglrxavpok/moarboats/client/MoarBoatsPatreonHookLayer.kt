@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.client
 
+/* TODO - 1.19 redo
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Vector3f
 import net.minecraft.client.model.PlayerModel
@@ -55,3 +56,4 @@ class MoarBoatsPatreonHookLayer(val playerRenderer: PlayerRenderer): LayerRender
     }
 
 }
+*/

@@ -33,6 +33,7 @@ import org.jglrxavpok.moarboats.common.data.BoatType
 import org.jglrxavpok.moarboats.common.modules.OarEngineModule
 import org.jglrxavpok.moarboats.common.network.SUtilityTileEntityUpdate
 import org.jglrxavpok.moarboats.common.state.BoatProperty
+import org.jglrxavpok.moarboats.common.tileentity.ITickableTileEntity
 import org.jglrxavpok.moarboats.extensions.Fluids
 import java.util.*
 
@@ -99,6 +100,7 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
         super.tick()
         if(backingTileEntity != null) {
             backingTileEntity.level = world
+            // TODO 1.19 - ITickableTileEntity is now a MoarBoats construct
             if(backingTileEntity is ITickableTileEntity) {
                 try {
                     backingTileEntity.tick()

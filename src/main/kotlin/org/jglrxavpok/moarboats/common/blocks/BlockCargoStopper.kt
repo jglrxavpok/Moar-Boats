@@ -5,6 +5,7 @@ import net.minecraft.core.Direction
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.tags.FluidTags
 import net.minecraft.util.Mth
+import net.minecraft.util.RandomSource
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.BlockGetter
@@ -22,6 +23,7 @@ import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.shapes.CollisionContext
 import net.minecraft.world.phys.shapes.Shapes
 import net.minecraft.world.phys.shapes.VoxelShape
+import net.minecraft.world.ticks.ScheduledTick
 import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.IItemHandler
 import org.jglrxavpok.moarboats.common.MBItems
@@ -64,13 +66,13 @@ class BlockCargoStopper: DiodeBlock(Properties.of(Material.DECORATION).noOcclusi
         return 0
     }
 
-    override fun tick(state: BlockState, worldIn: ServerLevel, pos: BlockPos, rand: Random) {
+    override fun tick(state: BlockState, worldIn: ServerLevel, pos: BlockPos, rand: RandomSource) {
         val produceSignal = shouldTurnOn(worldIn, pos, state)
         when {
             produceSignal && !state.getValue(POWERED) -> worldIn.setBlockAndUpdate(pos, state.setValue(POWERED, true).setValue(BlockStateProperties.FACING, state.getValue(BlockStateProperties.FACING)))
             !produceSignal && state.getValue(POWERED) -> worldIn.setBlockAndUpdate(pos, state.setValue(POWERED, false).setValue(BlockStateProperties.FACING, state.getValue(BlockStateProperties.FACING)))
         }
-        worldIn.blockTicks.scheduleTick(pos, this, 2)
+        worldIn.scheduleTick(pos, this, 2)
         checkTickOnNeighbor(worldIn, pos, state)
     }
 
@@ -123,7 +125,7 @@ class BlockCargoStopper: DiodeBlock(Properties.of(Material.DECORATION).noOcclusi
 
     override fun getCloneItemStack(worldIn: BlockGetter, pos: BlockPos, state: BlockState) = ItemStack(MBItems.CargoStopperItem.get(), 1)
 
-    override fun getWeakChanges(state: BlockState?, world: LevelReader?, pos: BlockPos?): Boolean {
+    override fun getWeakChanges(state: BlockState, world: LevelReader?, pos: BlockPos?): Boolean {
         return true
     }
 

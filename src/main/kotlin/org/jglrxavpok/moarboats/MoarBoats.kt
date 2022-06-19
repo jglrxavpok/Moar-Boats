@@ -7,14 +7,11 @@ import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.packs.PackType
-import net.minecraft.world.inventory.AbstractContainerMenu
-import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.item.AirItem
 import net.minecraft.world.item.CreativeModeTab
 import net.minecraft.world.item.DyeColor
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
-import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.material.Material
 import net.minecraft.world.level.material.MaterialColor
 import net.minecraft.world.level.material.PushReaction
@@ -25,7 +22,6 @@ import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.data.ExistingFileHelper
 import net.minecraftforge.event.server.ServerStartingEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import net.minecraftforge.fml.DistExecutor
 import net.minecraftforge.fml.ModLoadingContext
 import net.minecraftforge.fml.common.Mod
@@ -34,41 +30,22 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent
 import net.minecraftforge.forge.event.lifecycle.GatherDataEvent
 import net.minecraftforge.network.NetworkRegistry
-import net.minecraftforge.registries.DeferredRegister
-import net.minecraftforge.registries.ForgeRegistries
-import net.minecraftforge.registries.ForgeRegistry
-import net.minecraftforge.registries.NewRegistryEvent
-import net.minecraftforge.registries.RegistryBuilder
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
-import org.jglrxavpok.moarboats.api.BoatModuleEntry
-import org.jglrxavpok.moarboats.api.BoatModuleRegistry
-import org.jglrxavpok.moarboats.api.registerModule
 import org.jglrxavpok.moarboats.client.ClientEvents
 import org.jglrxavpok.moarboats.client.DummyDimensionSavedDataManager
 import org.jglrxavpok.moarboats.common.*
-import org.jglrxavpok.moarboats.common.blocks.*
-import org.jglrxavpok.moarboats.common.containers.*
+import org.jglrxavpok.moarboats.common.containers.ContainerTypes
 import org.jglrxavpok.moarboats.common.data.BoatType
-import org.jglrxavpok.moarboats.common.entities.UtilityBoatEntity
-import org.jglrxavpok.moarboats.common.items.*
-import org.jglrxavpok.moarboats.common.modules.*
-import org.jglrxavpok.moarboats.common.modules.inventories.ChestModuleInventory
-import org.jglrxavpok.moarboats.common.modules.inventories.EngineModuleInventory
-import org.jglrxavpok.moarboats.common.modules.inventories.SimpleModuleInventory
-import org.jglrxavpok.moarboats.common.tileentity.*
+import org.jglrxavpok.moarboats.common.items.MBRecipeSerializers
 import org.jglrxavpok.moarboats.datagen.JsonModelGenerator
 import org.jglrxavpok.moarboats.datagen.UtilityBoatRecipes
-import org.jglrxavpok.moarboats.integration.LoadIntegrationPlugins
-import org.jglrxavpok.moarboats.integration.MoarBoatsPlugin
 import org.jglrxavpok.moarboats.server.ServerEvents
 import thedarkcolour.kotlinforforge.forge.MOD_CONTEXT
 import java.net.URL
 import java.util.*
 import java.util.concurrent.Callable
 import java.util.function.Supplier
-
-import net.minecraft.world.level.block.Blocks as MCBlocks
 
 @Mod(MoarBoats.ModID)
 object MoarBoats {
@@ -140,8 +117,6 @@ object MoarBoats {
         }
     }
 
-    lateinit var plugins: List<MoarBoatsPlugin>
-
     init {
         MOD_CONTEXT.getKEventBus().addListener(ClientEvents::doClientStuff)
         MOD_CONTEXT.getKEventBus().addListener(this::setup)
@@ -172,7 +147,6 @@ object MoarBoats {
             Supplier {
             }
         })
-        plugins = LoadIntegrationPlugins()
     }
 
     fun getLocalMapStorage(dimensionType: ResourceKey<Level> = Level.OVERWORLD): DimensionDataStorage {
@@ -203,15 +177,12 @@ object MoarBoats {
     }
 
     fun setup(event: FMLCommonSetupEvent) {
-        plugins.forEach(MoarBoatsPlugin::preInit)
         EntityDataSerializers.registerSerializer(ResourceLocationsSerializer)
         EntityDataSerializers.registerSerializer(UniqueIDSerializer)
-        plugins.forEach(MoarBoatsPlugin::init)
     }
 
     fun postLoad(event: FMLLoadCompleteEvent) {
         MoarBoatsPacketList.registerAll()
-        plugins.forEach(MoarBoatsPlugin::postInit)
 
         DistExecutor.callWhenOn(Dist.CLIENT) {
             Callable<Unit> {ClientEvents.postInit(event)}
@@ -240,7 +211,6 @@ object MoarBoats {
             }
             generator.addProvider(event.includeClient(), JsonModelGenerator(generator, ModID, "minecraft", existingFileHelper))
             generator.addProvider(event.includeServer(), UtilityBoatRecipes(generator))
-            plugins.forEach { it.registerProviders(event, generator, existingFileHelper) }
             generator.run()
         }
     }

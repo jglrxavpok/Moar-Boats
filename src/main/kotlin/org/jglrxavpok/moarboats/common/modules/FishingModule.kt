@@ -1,7 +1,6 @@
 package org.jglrxavpok.moarboats.common.modules
 
 import net.minecraft.client.gui.screens.Screen
-import net.minecraft.loot.LootParameterSet
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
 import net.minecraft.nbt.Tag
@@ -15,8 +14,9 @@ import net.minecraft.world.item.FishingRodItem
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.item.enchantment.EnchantmentHelper
+import net.minecraft.world.level.storage.loot.BuiltInLootTables
 import net.minecraft.world.level.storage.loot.LootContext
-import net.minecraft.world.level.storage.loot.LootTables
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.network.PacketDistributor
@@ -88,8 +88,8 @@ object FishingModule : BoatModule() {
                 // catch fish
                 val builder = LootContext.Builder(from.worldRef as ServerLevel)
                 builder.withLuck(luck.toFloat())
-                val params = LootParameterSet.Builder().build()
-                val result = from.worldRef.server!!.lootTables.get(LootTables.FISHING).getRandomItems(builder.create(params))
+                val params = LootContextParamSet.Builder().build()
+                val result = from.worldRef.server!!.lootTables.get(BuiltInLootTables.FISHING).getRandomItems(builder.create(params))
                 val lootList = ListTag()
                 result.forEach {
                     val info = CompoundTag()

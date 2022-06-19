@@ -29,7 +29,7 @@ class WaypointInfoEntry(val parent: GuiWaypointEditor, val slot: WaypointInfo, v
         val slotTop = y
         val left = x
         val slotHeight = entryHeight
-        GlStateManager._disableLighting()
+        //GlStateManager._disableLighting()
         // TODO: merge with rendering code of GuiWaypointList
         matrixStack.pushPose()
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
@@ -40,7 +40,7 @@ class WaypointInfoEntry(val parent: GuiWaypointEditor, val slot: WaypointInfo, v
         matrixStack.pushPose()
         matrixStack.translate(left.toDouble(), slotTop - 4.0, 0.0)
         matrixStack.scale(arrowScale.toFloat(), arrowScale.toFloat(), arrowScale.toFloat())
-        RenderSystem.enableAlphaTest()
+        //RenderSystem.enableAlphaTest()
         RenderSystem.enableBlend()
         drawModalRectWithCustomSizedTexture(matrixStack, 0, 0, 32f, hovered*32f, 32, 32, 256, 256)
         matrixStack.popPose()
