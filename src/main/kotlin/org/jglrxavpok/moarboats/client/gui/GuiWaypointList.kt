@@ -24,7 +24,7 @@ class WaypointListEntry(val parent: GuiMappingTable, val slot: CompoundTag, val 
         val slotHeight = entryHeight
         val entryRight = left + entryWidth
 
-        GlStateManager._color4f(1f, 1f, 1f, 1f)
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
         if(index >= waypoints.size)
             return
         val slot = waypoints[index]
@@ -42,7 +42,7 @@ class WaypointListEntry(val parent: GuiMappingTable, val slot: CompoundTag, val 
                 else ""
         mc.font.draw(matrixStack, text, 0f, 0f, 0xFFFFFF)
         matrixStack.popPose()
-        GlStateManager._color4f(1f, 1f, 1f, 1f)
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
         mc.textureManager.bindForSetup(ArrowsTexture)
         RenderSystem.enableAlphaTest()
         if(mouseX >= entryRight - 32 && mouseX < entryRight && mouseY >= slotTop && mouseY <= slotTop + slotHeight) {

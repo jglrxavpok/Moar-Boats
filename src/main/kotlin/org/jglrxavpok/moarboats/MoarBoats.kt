@@ -142,12 +142,6 @@ object MoarBoats {
 
     lateinit var plugins: List<MoarBoatsPlugin>
 
-    lateinit var TileEntityFluidLoaderType: BlockEntityType<TileEntityFluidLoader>
-    lateinit var TileEntityFluidUnloaderType: BlockEntityType<TileEntityFluidUnloader>
-    lateinit var TileEntityEnergyLoaderType: BlockEntityType<TileEntityEnergyLoader>
-    lateinit var TileEntityEnergyUnloaderType: BlockEntityType<TileEntityEnergyUnloader>
-    lateinit var TileEntityMappingTableType: BlockEntityType<TileEntityMappingTable>
-
     init {
         MOD_CONTEXT.getKEventBus().addListener(ClientEvents::doClientStuff)
         MOD_CONTEXT.getKEventBus().addListener(this::setup)
@@ -161,10 +155,14 @@ object MoarBoats {
 
         BoatType.populateBoatTypeCache() // we are doing this so early that it is possible we cannot handle boats from other mods
 
-        MBBlocks.Registry.register(MOD_CONTEXT.getKEventBus())
-        MBItems.Registry.register(MOD_CONTEXT.getKEventBus())
-        EntityEntries.Registry.register(MOD_CONTEXT.getKEventBus())
-        Modules.Registry.register(MOD_CONTEXT.getKEventBus())
+        val bus = MOD_CONTEXT.getKEventBus()
+        MBBlocks.Registry.register(bus)
+        MBItems.Registry.register(bus)
+        EntityEntries.Registry.register(bus)
+        BlockEntities.Registry.register(bus)
+        Modules.Registry.register(bus)
+        ContainerTypes.Registry.register(bus)
+        MBRecipeSerializers.Registry.register(bus)
 
         DistExecutor.runForDist({
             Supplier {
@@ -228,40 +226,6 @@ object MoarBoats {
 
     @Mod.EventBusSubscriber(modid = ModID, bus = Mod.EventBusSubscriber.Bus.MOD)
     object RegistryEvents {
-        @SubscribeEvent
-        fun createRegistry(e: NewRegistryEvent) {
-            plugins.forEach { it.populateBoatTypes() }
-        }
-
-        @SubscribeEvent
-        fun registerTileEntities(evt: RegistryEvent.Register<TileEntityType<*>>) {
-            TileEntityEnergyUnloaderType = evt.registerTE(evt, ::TileEntityEnergyUnloader, BlockEnergyUnloader)
-            TileEntityEnergyLoaderType = evt.registerTE(evt, ::TileEntityEnergyLoader, BlockEnergyLoader)
-            TileEntityFluidUnloaderType = evt.registerTE(evt, ::TileEntityFluidUnloader, BlockFluidUnloader)
-            TileEntityFluidLoaderType = evt.registerTE(evt, ::TileEntityFluidLoader, BlockFluidLoader)
-            TileEntityMappingTableType = evt.registerTE(evt, ::TileEntityMappingTable, BlockMappingTable)
-        }
-
-        private inline fun <reified TE: BlockEntity> RegistryEvent.Register<TileEntityType<*>>.registerTE(evt: RegistryEvent.Register<TileEntityType<*>>, noinline constructor: () -> TE, block: Block): TileEntityType<TE> {
-            val type = TileEntityType.Builder.of(Supplier<TE> { constructor() }, block).build(null).setRegistryName(block.registryName)
-            evt.registry.register(type)
-            return type as TileEntityType<TE>
-        }
-
-        @SubscribeEvent
-        fun registerRecipes(event: RegistryEvent.Register<RecipeSerializer<*>>) {
-            MBRecipeSerializers.MapWithPath = MBRecipeSerializers.SingletonSerializer(MapWithPathRecipe).apply { setRegistryName(ResourceLocation(ModID, "map_with_path")) }.also(event.registry::register)
-            MBRecipeSerializers.BoatColoring = MBRecipeSerializers.SingletonSerializer(ModularBoatColoringRecipe).apply { setRegistryName(ResourceLocation(ModID, "color_modular_boat")) }.also(event.registry::register)
-            MBRecipeSerializers.UpgradeToGoldenTicket = MBRecipeSerializers.SingletonSerializer(UpgradeToGoldenTicketRecipe).apply { setRegistryName(ResourceLocation(ModID, "upgrade_to_golden_ticket")) }.also(event.registry::register)
-            MBRecipeSerializers.CopyGoldenTicket = MBRecipeSerializers.SingletonSerializer(GoldenTicketCopyRecipe).apply { setRegistryName(ResourceLocation(ModID, "copy_golden_ticket")) }.also(event.registry::register)
-            MBRecipeSerializers.ShulkerBoat = SpecialRecipeSerializer { _ -> ShulkerBoatRecipe }.apply { setRegistryName(ModID, "shulker_boat") }.also(event.registry::register)
-
-            event.registry.register(MBRecipeSerializers.MapWithPath)
-            event.registry.register(MBRecipeSerializers.BoatColoring)
-            event.registry.register(MBRecipeSerializers.UpgradeToGoldenTicket)
-            event.registry.register(MBRecipeSerializers.CopyGoldenTicket)
-            event.registry.register(MBRecipeSerializers.ShulkerBoat)
-        }
 
         @SubscribeEvent
         fun gatherData(event: GatherDataEvent) {

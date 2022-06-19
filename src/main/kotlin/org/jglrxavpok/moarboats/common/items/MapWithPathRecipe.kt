@@ -24,7 +24,7 @@ object MapWithPathRecipe: CraftingRecipe {
     }
 
     override fun getSerializer(): RecipeSerializer<*> {
-        return MBRecipeSerializers.MapWithPath
+        return MBRecipeSerializers.MapWithPath.get()
     }
 
     override fun canCraftInDimensions(width: Int, height: Int): Boolean {

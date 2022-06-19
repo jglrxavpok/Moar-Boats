@@ -3,8 +3,8 @@ package org.jglrxavpok.moarboats.client.gui
 import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.screens.Screen
-import net.minecraft.client.renderer.Tessellator
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats
+import com.mojang.blaze3d.vertex.DefaultVertexFormat
+import com.mojang.blaze3d.vertex.Tesselator
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.player.Inventory
@@ -71,11 +71,11 @@ class GuiHelmModule(containerID: Int, playerInventory: Inventory, engine: BoatMo
     override fun drawModuleBackground(mouseX: Int, mouseY: Int) {
         super.drawModuleBackground(mouseX, mouseY)
         this.mc.textureManager.bindForSetup(RES_MAP_BACKGROUND)
-        val tessellator = Tessellator.getInstance()
+        val tessellator = Tesselator.getInstance()
         val bufferbuilder = tessellator.builder
         val x = guiLeft + xSize/2f - mapSize/2
         val y = guiTop.toDouble() + 5.0
-        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_COLOR_TEX_LIGHTMAP)
+        bufferbuilder.begin(7, DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP)
         bufferbuilder.vertex(x, y+mapSize, 0.0).color(1f, 1f, 1f, 1f).uv(0.0f, 1.0f).uv2(15728880).endVertex()
         bufferbuilder.vertex(x+mapSize, y+mapSize, 0.0).color(1f, 1f, 1f, 1f).uv(1.0f, 1.0f).uv2(15728880).endVertex()
         bufferbuilder.vertex(x+mapSize, y, 0.0).color(1f, 1f, 1f, 1f).uv(1.0f, 0.0f).uv2(15728880).endVertex()
@@ -108,10 +108,12 @@ class GuiHelmModule(containerID: Int, playerInventory: Inventory, engine: BoatMo
             matrixStack.translate(guiLeft.toDouble()+8.0, guiTop.toDouble()+8.0, 0.0)
             Screen.fill(matrixStack, 0, 0, 16, 16, 0x30ff0000)
 
-            RenderSystem.pushMatrix()
-            RenderSystem.multMatrix(matrixStack.last().pose())
+            val poseStack = RenderSystem.getModelViewStack()
+            poseStack.pushPose()
+            poseStack.mulPoseMatrix(matrixStack.last().pose())
+            RenderSystem.applyModelViewMatrix()
             mc.itemRenderer.renderGuiItem(mapStack, 0, 0)
-            RenderSystem.popMatrix()
+            poseStack.popPose()
 
             RenderSystem.depthFunc(GL11.GL_GREATER)
             Screen.fill(matrixStack, 0, 0, 16, 16, 0x30ffffff)

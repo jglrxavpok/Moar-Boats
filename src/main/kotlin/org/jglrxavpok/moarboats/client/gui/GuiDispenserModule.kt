@@ -43,14 +43,15 @@ class GuiDispenserModule(containerID: Int, playerInv: Inventory, module: BoatMod
     private val facingButtons = arrayOf(frontFacingButton, backFacingButton, leftFacingButton, rightFacingButton, upFacingButton, downFacingButton)
 
     private lateinit var periodSlider: ForgeSlider
-    private val sliderCallback = Button.OnPress { slider ->
-        MoarBoats.network.sendToServer(CChangeDispenserPeriod(boat.entityID, module.id, periodSlider.value))
-    }
 
     override fun init() {
         super.init()
         val sliderWidth = xSize-10
-        periodSlider = ForgeSlider(guiLeft+xSize/2-sliderWidth/2, guiTop + 100, sliderWidth, 20, Component.literal("${sliderPrefix.string} "), sliderSuffix, 1.0, 100.0, 0.0, true, true, sliderCallback)
+        periodSlider = object: ForgeSlider(guiLeft+xSize/2-sliderWidth/2, guiTop + 100, sliderWidth, 20, Component.literal("${sliderPrefix.string} "), sliderSuffix, 1.0, 100.0, 0.0, 0.5, 0, true) {
+            override fun applyValue() {
+                MoarBoats.network.sendToServer(CChangeDispenserPeriod(boat.entityID, module.id, periodSlider.value))
+            }
+        }
         periodSlider.value = dispensingModule.blockPeriodProperty[boat]
         addWidget(periodSlider)
 
@@ -80,7 +81,6 @@ class GuiDispenserModule(containerID: Int, playerInv: Inventory, module: BoatMod
 
     override fun containerTick() {
         super.containerTick()
-        periodSlider.updateSlider()
     }
 
     override fun drawModuleForeground(mouseX: Int, mouseY: Int) {

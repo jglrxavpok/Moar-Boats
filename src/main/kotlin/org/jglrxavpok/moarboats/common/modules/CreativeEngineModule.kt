@@ -9,12 +9,15 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.Container
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
+import org.jglrxavpok.moarboats.common.containers.ContainerTypes
 import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
 
 object CreativeEngineModule : BaseEngineModule() {
     override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? {
         return EmptyModuleContainer(containerID, player.inventory, boat, isLarge = true)
     }
+
+    override fun getMenuType() = ContainerTypes.EmptyModuleMenu.get()
 
     override val id = ResourceLocation("moarboats:creative_engine")
 

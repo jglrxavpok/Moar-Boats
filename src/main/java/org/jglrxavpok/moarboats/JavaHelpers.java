@@ -1,7 +1,7 @@
 package org.jglrxavpok.moarboats;
 
 import net.minecraft.client.gui.IHasContainer;
-import net.minecraft.client.gui.ScreenManager;
+import net.minecraft.client.gui.MenuScreens;
 import net.minecraft.client.gui.screen.GrindstoneScreen;
 import net.minecraft.client.gui.screen.inventory.ChestScreen;
 import net.minecraft.client.gui.screen.inventory.CraftingScreen;
@@ -20,11 +20,11 @@ public class JavaHelpers {
 
     @OnlyIn(Dist.CLIENT)
     public static void registerGuis() {
-        ScreenManager.register(ContainerTypes.CraftingBoat, CraftingScreen::new);
-        ScreenManager.register(ContainerTypes.GrindstoneBoat, GrindstoneScreen::new);
-        ScreenManager.register(ContainerTypes.StonecutterBoat, StonecutterScreen::new);
-        ScreenManager.register(ContainerTypes.ChestBoat, ChestScreen::new);
-        ScreenManager.register(ContainerTypes.ShulkerBoat, ShulkerBoxScreen::new);
+        MenuScreens.register(ContainerTypes.CraftingBoat, CraftingScreen::new);
+        MenuScreens.register(ContainerTypes.GrindstoneBoat, GrindstoneScreen::new);
+        MenuScreens.register(ContainerTypes.StonecutterBoat, StonecutterScreen::new);
+        MenuScreens.register(ContainerTypes.ChestBoat, ChestScreen::new);
+        MenuScreens.register(ContainerTypes.ShulkerBoat, ShulkerBoxScreen::new);
     }
 
 }

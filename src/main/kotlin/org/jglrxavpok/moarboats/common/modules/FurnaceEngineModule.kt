@@ -15,6 +15,7 @@ import net.minecraftforge.common.ForgeHooks
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
 import org.jglrxavpok.moarboats.common.containers.ContainerFurnaceEngine
+import org.jglrxavpok.moarboats.common.containers.ContainerTypes
 import org.jglrxavpok.moarboats.common.state.IntBoatProperty
 import org.jglrxavpok.moarboats.extensions.toRadians
 
@@ -22,6 +23,8 @@ object FurnaceEngineModule : BaseEngineModule() {
     override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? {
         return ContainerFurnaceEngine(containerID, player.inventory, this, boat)
     }
+
+    override fun getMenuType() = ContainerTypes.FurnaceModuleMenu.get()
 
     override val id = ResourceLocation("moarboats:furnace_engine")
     override val usesInventory = true

@@ -29,11 +29,11 @@ object ContainerTypes {
         }
     }
 
-    val ChestModuleMenu = Registry.register("chest_module") { makeMenu(ChestModule) }
-    val DispenserModuleMenu = Registry.register("dispenser_module") { makeMenu(DispenserModule) }
-    val FishingModuleMenu = Registry.register("dispenser_module") { makeMenu(FishingModule) }
-    val FurnaceModuleMenu = Registry.register("dispenser_module") { makeMenu(FurnaceEngineModule) }
-    val HelmModuleMenu = Registry.register("dispenser_module") { makeMenu(HelmModule) }
+    val ChestModuleMenu = Registry.register("chest_module") { makeMenu(ChestModule) as MenuType<ContainerChestModule> }
+    val DispenserModuleMenu = Registry.register("dispenser_module") { makeMenu(DispenserModule) as MenuType<ContainerDispenserModule> }
+    val FishingModuleMenu = Registry.register("dispenser_module") { makeMenu(FishingModule) as MenuType<ContainerFishingModule> }
+    val FurnaceModuleMenu = Registry.register("dispenser_module") { makeMenu(FurnaceEngineModule) as MenuType<ContainerFurnaceEngine> }
+    val HelmModuleMenu = Registry.register("dispenser_module") { makeMenu(HelmModule) as MenuType<ContainerHelmModule> }
 
     val EmptyModuleMenu = Registry.register("empty_menu_module") {
         IForgeMenuType.create { windowId, inv, data ->

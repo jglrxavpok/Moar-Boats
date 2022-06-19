@@ -43,7 +43,9 @@ object ChunkLoadingModuleRenderer : BoatModuleRenderer() {
             matrixStack.mulPose(Vector3f.YN.rotationDegrees(entityYaw))
             matrixStack.mulPose(Vector3f.YP.rotationDegrees(-entityRenderer.camera.yRot))
             matrixStack.mulPose(Vector3f.XP.rotationDegrees(-entityRenderer.camera.xRot))
-            itemRenderer.renderStatic(enderPearlStack, ItemTransforms.TransformType.GROUND, packedLightIn, OverlayTexture.NO_OVERLAY, matrixStack, buffers)
+
+            val unknownValue = 0
+            itemRenderer.renderStatic(enderPearlStack, ItemTransforms.TransformType.GROUND, packedLightIn, OverlayTexture.NO_OVERLAY, matrixStack, buffers, unknownValue)
 
             matrixStack.popPose()
         }

@@ -5,6 +5,7 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.MenuType
 import net.minecraftforge.fluids.capability.IFluidHandler
 import net.minecraftforge.network.PacketDistributor
+import net.minecraftforge.registries.ForgeRegistries
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.network.SUpdateFluidGui
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityListenable
@@ -37,7 +38,7 @@ class FluidContainer(isLoading: Boolean, containerID: Int, val te: TileEntityLis
         val teFluidAmount: Int
         val teFluidCapacity: Int
         if(!fluidCapability.getFluidInTank(0).isEmpty) {
-            teFluidName = fluidCapability.getFluidInTank(0).fluid?.registryName.toString() ?: ""
+            teFluidName = ForgeRegistries.FLUIDS.getKey(fluidCapability.getFluidInTank(0).fluid)?.toString() ?: ""
             teFluidAmount = fluidCapability.getFluidInTank(0).amount ?: 0
             teFluidCapacity = fluidCapability.getTankCapacity(0)
         } else {

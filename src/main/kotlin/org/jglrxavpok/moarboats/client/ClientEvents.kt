@@ -1,72 +1,65 @@
 package org.jglrxavpok.moarboats.client
 
 import com.google.common.collect.ImmutableList
-import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.math.Quaternion
-import com.mojang.math.Vector3f
-import net.minecraft.block.*
 import net.minecraft.client.Minecraft
-import net.minecraft.client.audio.ISound
-import net.minecraft.client.gui.ScreenManager
-import net.minecraft.client.gui.screens.inventory.ChestScreen
-import net.minecraft.client.model.PlayerModel
-import net.minecraft.client.player.AbstractClientPlayer
+import net.minecraft.client.gui.screens.MenuScreens
+import net.minecraft.client.gui.screens.inventory.ContainerScreen
+import net.minecraft.client.renderer.ItemBlockRenderTypes
 import net.minecraft.client.renderer.RenderType
-import net.minecraft.client.renderer.RenderTypeLookup
+import net.minecraft.client.renderer.block.model.ItemOverrides
 import net.minecraft.client.renderer.block.model.ItemTransforms
-import net.minecraft.client.renderer.entity.player.PlayerRenderer
-import net.minecraft.client.renderer.model.*
-import net.minecraft.client.renderer.texture.AtlasTexture
-import net.minecraft.client.renderer.texture.MissingTextureSprite
-import net.minecraft.client.renderer.texture.OverlayTexture
-import net.minecraft.client.renderer.texture.TextureAtlas
+import net.minecraft.client.renderer.item.ItemProperties
+import net.minecraft.client.renderer.texture.*
+import net.minecraft.client.resources.model.BlockModelRotation
+import net.minecraft.client.resources.model.Material
+import net.minecraft.client.resources.model.ModelState
+import net.minecraft.client.resources.sounds.SoundInstance
 import net.minecraft.core.Direction
-import net.minecraft.entity.EntityType
-import net.minecraft.item.ItemModelsProperties
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.sounds.SoundSource
-import net.minecraft.state.properties.AttachFace
 import net.minecraft.util.*
 import net.minecraft.world.InteractionHand
+import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.HumanoidArm
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.InventoryMenu
 import net.minecraft.world.item.RecordItem
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.AbstractFurnaceBlock
+import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.GrindstoneBlock
+import net.minecraft.world.level.block.ShulkerBoxBlock
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.properties.AttachFace
 import net.minecraft.world.level.block.state.properties.BlockStateProperties
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraftforge.client.event.EntityRenderersEvent.RegisterRenderers
 import net.minecraftforge.client.event.InputEvent
 import net.minecraftforge.client.event.ModelBakeEvent
 import net.minecraftforge.client.event.RenderHandEvent
-import net.minecraftforge.client.gui.ForgeIngameGui
+import net.minecraftforge.client.model.ForgeModelBakery
 import net.minecraftforge.client.model.IModelConfiguration
 import net.minecraftforge.client.model.ItemLayerModel
-import net.minecraftforge.client.model.ModelLoader
 import net.minecraftforge.client.model.geometry.IModelGeometryPart
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.event.entity.EntityJoinWorldEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.client.registry.RenderingRegistry
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent
 import net.minecraftforge.network.PacketDistributor
+import net.minecraftforge.registries.ForgeRegistries
 import org.jglrxavpok.moarboats.JavaHelpers
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.client.gui.*
 import org.jglrxavpok.moarboats.client.models.ModelPatreonHook
 import org.jglrxavpok.moarboats.client.renders.*
-import org.jglrxavpok.moarboats.common.MBBlocks
 import org.jglrxavpok.moarboats.common.EntityEntries
+import org.jglrxavpok.moarboats.common.MBBlocks
+import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
-import org.jglrxavpok.moarboats.common.blocks.BlockCargoStopper
-import org.jglrxavpok.moarboats.common.blocks.BlockWaterborneComparator
-import org.jglrxavpok.moarboats.common.blocks.BlockWaterborneConductor
 import org.jglrxavpok.moarboats.common.containers.ContainerTypes
 import org.jglrxavpok.moarboats.common.data.MapImageStripe
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
@@ -74,21 +67,20 @@ import org.jglrxavpok.moarboats.common.entities.UtilityBoatEntity
 import org.jglrxavpok.moarboats.common.items.RopeItem
 import org.jglrxavpok.moarboats.common.network.CShowBoatMenu
 
-import net.minecraft.client.resources.model.Material
-
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE, value = [Dist.CLIENT], modid = MoarBoats.ModID)
 object ClientEvents {
 
     // Level -> Boat ID -> ISound
-    private val recordCache = mutableMapOf<Level, MutableMap<Int, ISound>>()
+    private val recordCache = mutableMapOf<Level, MutableMap<Int, SoundInstance>>()
     private val stripes = mutableMapOf<String, MapImageStripe>()
 
+    /* TODO: redo model
     val hookTextureLocation = ResourceLocation(MoarBoats.ModID, "textures/hook.png")
     val armModel = ModelRenderer(64, 64, 32, 48).apply {
         addBox(-1.0f, -2.0f, -2.0f, 4f, 9f, 4f) // arm
         addBox(-1.0f, -2.0f, -2.0f, 4f, 9f, 4f, 0.25f, false) // armwear
         this.setPos(-5.0F, 2.0F + 0f, 0.0F)
-    }
+    }*/
 
     val hookModel = ModelPatreonHook()
 
@@ -100,22 +92,22 @@ object ClientEvents {
             val modelConfiguration = object: IModelConfiguration {
                 override fun isShadedInGui() = true
 
-                override fun isTexturePresent(name: String) = MissingTextureSprite.getLocation() != resolveTexture(name).texture()
+                override fun isTexturePresent(name: String) = MissingTextureAtlasSprite.getLocation() != resolveTexture(name).texture()
 
                 override fun getModelName() = FishingModuleRenderer.CastFishingRodLocation.toString()
 
-                override fun getCameraTransforms() = ItemTransforms.TransformType.NO_TRANSFORMS
+                override fun getCameraTransforms() = ItemTransforms.NO_TRANSFORMS
 
                 override fun getOwnerModel() = null
 
                 override fun isSideLit() = false
 
-                override fun resolveTexture(name: String): RenderMaterial {
-                    return RenderMaterial(InventoryMenu.BLOCK_ATLAS, ResourceLocation(name))
+                override fun resolveTexture(name: String): Material {
+                    return Material(InventoryMenu.BLOCK_ATLAS, ResourceLocation(name))
                 }
 
-                override fun getCombinedTransform(): IModelTransform {
-                    return ModelRotation.X0_Y0
+                override fun getCombinedTransform(): ModelState {
+                    return BlockModelRotation.X0_Y0
                 }
 
                 override fun useSmoothLighting() = true
@@ -125,82 +117,63 @@ object ClientEvents {
                 }
             }
             val bakedModel = ItemLayerModel(ImmutableList.of(Material(InventoryMenu.BLOCK_ATLAS, ResourceLocation("item/fishing_rod_cast"))))
-                    .bake(modelConfiguration, event.modelLoader, ModelLoader.defaultTextureGetter(), ModelRotation.X0_Y0, ItemOverrideList.EMPTY, FishingModuleRenderer.CastFishingRodLocation)
+                    .bake(modelConfiguration, event.modelLoader, ForgeModelBakery.defaultTextureGetter(), BlockModelRotation.X0_Y0, ItemOverrides.EMPTY, FishingModuleRenderer.CastFishingRodLocation)
             event.modelRegistry[FishingModuleRenderer.CastFishingRodLocation] = bakedModel
         }
     }
 
     fun doClientStuff(event: FMLClientSetupEvent) {
-        ItemModelsProperties.register(RopeItem, ResourceLocation("first_knot")) { stack, _, _ ->
+        ItemProperties.register(MBItems.RopeItem.get(), ResourceLocation("first_knot")) { stack, _, _, _ ->
             if(RopeItem.getState(stack) == RopeItem.State.WAITING_NEXT) 1f else 0f
         }
 
         MinecraftForge.EVENT_BUS.register(this)
 
-        for(moduleEntry in BoatModuleRegistry.Registry.values) {
-            MoarBoats.logger.debug("Confirming association of module ${moduleEntry.module.id} to container ${moduleEntry.module.containerType.registryName}")
-            ScreenManager.register(
-                    moduleEntry.module.containerType,
+        for(moduleEntry in BoatModuleRegistry.Registry.get().values) {
+            MoarBoats.logger.debug("Confirming association of module ${moduleEntry.module.id} to container ${ForgeRegistries.CONTAINERS.getKey(moduleEntry.module.getMenuType())}")
+            MenuScreens.register(
+                    moduleEntry.module.getMenuType(),
                     moduleEntry.module.guiFactory())
         }
 
-        ScreenManager.register(ContainerTypes.MappingTable) { container, playerInv, title ->
+        MenuScreens.register(ContainerTypes.MappingTable.get()) { container, playerInv, title ->
             GuiMappingTable(container.containerID, container.te, playerInv)
         }
 
-        ScreenManager.register(ContainerTypes.FluidLoader) { container, playerInv, title ->
-            GuiFluid(ContainerTypes.FluidLoader, container.containerID, container.te, container.fluidCapability, playerInv.player)
+        MenuScreens.register(ContainerTypes.FluidLoader.get()) { container, playerInv, title ->
+            GuiFluid(true, container.containerID, container.te, container.fluidCapability, playerInv.player)
         }
-        ScreenManager.register(ContainerTypes.FluidUnloader) { container, playerInv, title ->
-            GuiFluid(ContainerTypes.FluidUnloader, container.containerID, container.te, container.fluidCapability, playerInv.player)
-        }
-
-        ScreenManager.register(ContainerTypes.EnergyCharger) { container, playerInv, title ->
-            GuiEnergy(ContainerTypes.EnergyCharger, container.containerID, container.te, playerInv.player)
+        MenuScreens.register(ContainerTypes.FluidUnloader.get()) { container, playerInv, title ->
+            GuiFluid(false, container.containerID, container.te, container.fluidCapability, playerInv.player)
         }
 
-        ScreenManager.register(ContainerTypes.EnergyDischarger) { container, playerInv, title ->
-            GuiEnergy(ContainerTypes.EnergyDischarger, container.containerID, container.te, playerInv.player)
+        MenuScreens.register(ContainerTypes.EnergyCharger.get()) { container, playerInv, title ->
+            GuiEnergy(true, container.containerID, container.te, playerInv.player)
         }
 
-        ScreenManager.register(ContainerTypes.FurnaceBoat) { container, playerInv, title ->
+        MenuScreens.register(ContainerTypes.EnergyDischarger.get()) { container, playerInv, title ->
+            GuiEnergy(false, container.containerID, container.te, playerInv.player)
+        }
+
+        MenuScreens.register(ContainerTypes.FurnaceBoat.get()) { container, playerInv, title ->
             UtilityFurnaceScreen(container, playerInv, title)
         }
 
-        ScreenManager.register(ContainerTypes.SmokerBoat) { container, playerInv, title ->
+        MenuScreens.register(ContainerTypes.SmokerBoat.get()) { container, playerInv, title ->
             UtilitySmokerScreen(container, playerInv, title)
         }
 
-        ScreenManager.register(ContainerTypes.BlastFurnaceBoat) { container, playerInv, title ->
+        MenuScreens.register(ContainerTypes.BlastFurnaceBoat.get()) { container, playerInv, title ->
             UtilityBlastFurnaceScreen(container, playerInv, title)
         }
 
-        ScreenManager.register(ContainerTypes.EnderChestBoat) { container, playerInv, title ->
-            ChestScreen(container, playerInv, title)
+        MenuScreens.register(ContainerTypes.EnderChestBoat.get()) { container, playerInv, title ->
+            ContainerScreen(container, playerInv, title)
         }
 
         MoarBoats.plugins.forEach { it.onClientSetup(event) }
 
         JavaHelpers.registerGuis()
-
-        val mc = Minecraft.getInstance()
-        RenderingRegistry.registerEntityRenderingHandler(EntityEntries.ModularBoat, ::RenderModularBoat)
-        RenderingRegistry.registerEntityRenderingHandler(EntityEntries.AnimalBoat, ::RenderAnimalBoat)
-        registerUtilityBoat(EntityEntries.FurnaceBoat) { boat -> Blocks.FURNACE.defaultBlockState().setValue(
-            AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }
-        registerUtilityBoat(EntityEntries.SmokerBoat) { boat -> Blocks.SMOKER.defaultBlockState().setValue(AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }
-        registerUtilityBoat(EntityEntries.BlastFurnaceBoat) { boat -> Blocks.BLAST_FURNACE.defaultBlockState().setValue(AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }
-        registerUtilityBoat(EntityEntries.CraftingTableBoat) { boat -> Blocks.CRAFTING_TABLE.defaultBlockState() }
-        registerUtilityBoat(EntityEntries.GrindstoneBoat) { boat -> Blocks.GRINDSTONE.defaultBlockState().setValue(
-            GrindstoneBlock.FACE, AttachFace.FLOOR) }
-        registerUtilityBoat(EntityEntries.LoomBoat) { boat -> Blocks.LOOM.defaultBlockState() }
-        registerUtilityBoat(EntityEntries.CartographyTableBoat) { boat -> Blocks.CARTOGRAPHY_TABLE.defaultBlockState() }
-        registerUtilityBoat(EntityEntries.StonecutterBoat) { boat -> Blocks.STONECUTTER.defaultBlockState() }
-        registerUtilityBoat(EntityEntries.ChestBoat) { boat -> Blocks.CHEST.defaultBlockState().setValue(
-            BlockStateProperties.FACING, Direction.SOUTH) }
-        registerUtilityBoat(EntityEntries.EnderChestBoat) { boat -> Blocks.ENDER_CHEST.defaultBlockState().setValue(BlockStateProperties.FACING, Direction.EAST) }
-        registerUtilityBoat(EntityEntries.JukeboxBoat) { boat -> Blocks.JUKEBOX.defaultBlockState() }
-        registerUtilityBoat(EntityEntries.ShulkerBoat) { boat -> ShulkerBoxBlock.getBlockByColor(boat.dyeColor).defaultBlockState() }
 
         BoatModuleRenderingRegistry.register(FurnaceEngineRenderer)
         BoatModuleRenderingRegistry.register(ChestModuleRenderer)
@@ -224,23 +197,45 @@ object ClientEvents {
             it.registerModuleRenderers(BoatModuleRenderingRegistry)
         }
 
-        RenderTypeLookup.setRenderLayer(BlockCargoStopper, RenderType.cutoutMipped())
-        RenderTypeLookup.setRenderLayer(BlockWaterborneConductor, RenderType.cutoutMipped())
-        RenderTypeLookup.setRenderLayer(BlockWaterborneComparator, RenderType.cutoutMipped())
+        ItemBlockRenderTypes.setRenderLayer(MBBlocks.CargoStopper.get(), RenderType.cutoutMipped())
+        ItemBlockRenderTypes.setRenderLayer(MBBlocks.WaterborneConductor.get(), RenderType.cutoutMipped())
+        ItemBlockRenderTypes.setRenderLayer(MBBlocks.WaterborneComparator.get(), RenderType.cutoutMipped())
     }
 
-    private fun <T: UtilityBoatEntity<*,*>> registerUtilityBoat(entityType: EntityType<T>, blockstateProvider: (T) -> BlockState) {
-        RenderingRegistry.registerEntityRenderingHandler(entityType) { RenderUtilityBoat(it, blockstateProvider) }
+    @SubscribeEvent
+    fun registerRenderers(event: RegisterRenderers) {
+        event.registerEntityRenderer(EntityEntries.ModularBoat.get(), ::RenderModularBoat)
+        event.registerEntityRenderer(EntityEntries.AnimalBoat.get(), ::RenderAnimalBoat)
+
+        registerUtilityBoat(event, EntityEntries.FurnaceBoat.get()) { boat -> Blocks.FURNACE.defaultBlockState().setValue(
+            AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }
+        registerUtilityBoat(event, EntityEntries.SmokerBoat.get()) { boat -> Blocks.SMOKER.defaultBlockState().setValue(AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }
+        registerUtilityBoat(event, EntityEntries.BlastFurnaceBoat.get()) { boat -> Blocks.BLAST_FURNACE.defaultBlockState().setValue(AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }
+        registerUtilityBoat(event, EntityEntries.CraftingTableBoat.get()) { boat -> Blocks.CRAFTING_TABLE.defaultBlockState() }
+        registerUtilityBoat(event, EntityEntries.GrindstoneBoat.get()) { boat -> Blocks.GRINDSTONE.defaultBlockState().setValue(
+            GrindstoneBlock.FACE, AttachFace.FLOOR) }
+        registerUtilityBoat(event, EntityEntries.LoomBoat.get()) { boat -> Blocks.LOOM.defaultBlockState() }
+        registerUtilityBoat(event, EntityEntries.CartographyTableBoat.get()) { boat -> Blocks.CARTOGRAPHY_TABLE.defaultBlockState() }
+        registerUtilityBoat(event, EntityEntries.StonecutterBoat.get()) { boat -> Blocks.STONECUTTER.defaultBlockState() }
+        registerUtilityBoat(event, EntityEntries.ChestBoat.get()) { boat -> Blocks.CHEST.defaultBlockState().setValue(
+            BlockStateProperties.FACING, Direction.SOUTH) }
+        registerUtilityBoat(event, EntityEntries.EnderChestBoat.get()) { boat -> Blocks.ENDER_CHEST.defaultBlockState().setValue(BlockStateProperties.FACING, Direction.EAST) }
+        registerUtilityBoat(event, EntityEntries.JukeboxBoat.get()) { boat -> Blocks.JUKEBOX.defaultBlockState() }
+        registerUtilityBoat(event, EntityEntries.ShulkerBoat.get()) { boat -> ShulkerBoxBlock.getBlockByColor(boat.dyeColor).defaultBlockState() }
+    }
+
+    private fun <T: UtilityBoatEntity<*,*>> registerUtilityBoat(event: RegisterRenderers, entityType: EntityType<T>, blockstateProvider: (T) -> BlockState) {
+        event.registerEntityRenderer(entityType) { RenderUtilityBoat(it, blockstateProvider) }
     }
 
     fun postInit(evt: FMLLoadCompleteEvent) {
         val mc = Minecraft.getInstance()
-        mc.entityRenderDispatcher.skinMap["default"]!!.apply {
+/* TODO: redo models        mc.entityRenderDispatcher.skinMap["default"]!!.apply {
             this.addLayer(MoarBoatsPatreonHookLayer(this))
         }
         mc.entityRenderDispatcher.skinMap["slim"]!!.apply {
             this.addLayer(MoarBoatsPatreonHookLayer(this))
-        }
+        }*/
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -279,6 +274,7 @@ object ClientEvents {
 
     // COPY PASTED FROM FirstPersonRenderer
     private fun renderArmFirstPerson(renderInfo: RenderInfo, equippedProgress: Float, swingProgress: Float, side: HumanoidArm) {
+        /* TODO 1.19 - redo
         val matrixStack = renderInfo.matrixStack
         val mc = Minecraft.getInstance()
         val rightHanded = side != HumanoidArm.LEFT
@@ -308,12 +304,14 @@ object ClientEvents {
         renderArm(renderInfo, arm, player, model)
 
         RenderSystem.enableCull()
+         */
     }
 
+    /* TODO 1.19 - redo
     private fun renderArm(renderInfo: RenderInfo, arm: ModelRenderer, clientPlayer: AbstractClientPlayer, playerModel: PlayerModel<AbstractClientPlayer>) {
         val matrixStack = renderInfo.matrixStack
         val f = 1.0f
-        RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1f)
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1f)
         val f1 = 0.0625f
         RenderSystem.enableBlend()
         playerModel.attackTime = 0.0f
@@ -343,6 +341,7 @@ object ClientEvents {
         matrixStack.popPose()
         RenderSystem.disableBlend()
     }
+     */
 
     fun saveMapStripe(data: MapImageStripe) {
         stripes[data.stripeID] = data
@@ -378,9 +377,7 @@ object ClientEvents {
         if(mc.level == null)
             return // must be playing
         if(mc.screen != null) {
-            if(mc.screen !is ForgeIngameGui) { // must not be in a menu
-                return
-            }
+            return
         }
         if(mc.options.keyInventory.key.value == keyEvent.key) {
             val player = mc.player!!

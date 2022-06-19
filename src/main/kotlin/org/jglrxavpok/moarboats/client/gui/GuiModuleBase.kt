@@ -2,10 +2,12 @@ package org.jglrxavpok.moarboats.client.gui
 
 import net.minecraft.client.Minecraft
 import com.mojang.blaze3d.platform.GlStateManager
+import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.client.multiplayer.PlayerInfo
 import net.minecraft.client.resources.DefaultPlayerSkin
+import net.minecraft.client.resources.sounds.SimpleSoundInstance
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.sounds.SoundEvents
@@ -81,7 +83,7 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
         val hoveredTabIndex = tabs.indexOfFirst { it.isMouseOn(mouseX - 26+4, mouseY) }
         if(hoveredTabIndex != -1) {
             if(tabs[hoveredTabIndex].tabModule == module) {
-                mc.soundManager.play(SimpleSound.forUI(SoundEvents.UI_BUTTON_CLICK, 0.5f))
+                mc.soundManager.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 0.5f))
                 MoarBoats.network.sendToServer(CRemoveModule(boat.entityID, module.id))
                 playerInv.player.closeContainer()
                 return true
@@ -95,7 +97,7 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
         if(hoveredTabIndex != -1) {
             val tab = tabs[hoveredTabIndex]
             if(tab.tabModule != module) {
-                mc.soundManager.play(SimpleSound.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0f))
+                mc.soundManager.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0f))
                 MoarBoats.network.sendToServer(COpenModuleGui(boat.entityID, tab.tabModule.id))
                 return true
             }
@@ -136,13 +138,13 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
     override fun renderBg(matrixStack: PoseStack, partialTicks: Float, mouseX: Int, mouseY: Int) {
         val i = (this.width - this.xSize) / 2
         val j = (this.height - this.ySize) / 2
-        GlStateManager._color4f(1.0f, 1.0f, 1.0f, 1.0f)
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
         drawBackground()
 
         for(moduleTab in tabs) {
             moduleTab.renderContents()
         }
-        GlStateManager._color4f(1.0f, 1.0f, 1.0f, 1.0f)
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
 
         val ownerUUID = boat.getOwnerIdOrNull()
         if(ownerUUID != null) {
@@ -162,7 +164,7 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
             matrixStack.popPose()
         }
 
-        GlStateManager._color4f(1.0f, 1.0f, 1.0f, 1.0f)
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
         mc.textureManager.bindForSetup(moduleBackground)
         blit(matrixStack, i, j, 0, 0, this.width, ySize)
 
@@ -188,7 +190,7 @@ abstract class GuiModuleBase<T: ContainerBoatModule<*>>(val module: BoatModule, 
             blitOffset = 100
             itemRenderer.blitOffset = 100.0f
             RenderHelper.setupFor3DItems()
-            GlStateManager._color4f(1f, 1f, 1f, 1f)
+            RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
             val itemstack = ItemStack(BoatModuleRegistry[tabModule.id].correspondingItem)
             val itemX = width/2 - 10 + x + 1
             val itemY = height/2 - 8 + y

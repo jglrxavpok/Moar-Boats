@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.api
 
+import net.minecraft.client.gui.screens.MenuScreens
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.player.AbstractClientPlayer
 import net.minecraft.nbt.CompoundTag
@@ -42,6 +43,7 @@ abstract class BoatModule {
     abstract fun update(from: IControllable)
     abstract fun onAddition(to: IControllable)
     abstract fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>?
+    abstract fun getMenuType(): MenuType<out ContainerBoatModule<*>>
 
     /**
      * Set to false if you want the menu to be displayed at the bottom of the module tabs (no config modules use this)
@@ -91,9 +93,9 @@ abstract class BoatModule {
     }
 
     @OnlyIn(Dist.CLIENT)
-    fun guiFactory(): ScreenManager.IScreenFactory<ContainerBoatModule<*>, GuiModuleBase<ContainerBoatModule<*>>> {
-        return ScreenManager.IScreenFactory { container, playerInv, title ->
-            return@IScreenFactory this.createGui(container.containerID, playerInv.player, container.boat) as GuiModuleBase<ContainerBoatModule<*>>
+    fun guiFactory(): MenuScreens.ScreenConstructor<ContainerBoatModule<*>, GuiModuleBase<ContainerBoatModule<*>>> {
+        return MenuScreens.ScreenConstructor { container, playerInv, title ->
+            return@ScreenConstructor this.createGui(container.containerID, playerInv.player, container.boat) as GuiModuleBase<ContainerBoatModule<*>>
         }
     }
 }

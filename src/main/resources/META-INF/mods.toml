@@ -19,13 +19,13 @@ Adds more uses to boats!
 [[dependencies.moarboats]]
     modId="forge" #mandatory
     mandatory=true #mandatory
-    versionRange="[34,)" #mandatory
+    versionRange="[41,)" #mandatory
     ordering="NONE"
     side="BOTH"
 
 [[dependencies.moarboats]]
     modId="minecraft"
     mandatory=true
-    versionRange="1.16.5"
+    versionRange="1.19"
     ordering="NONE"
     side="BOTH"

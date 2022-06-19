@@ -28,7 +28,7 @@ object SonarModuleRenderer : BoatModuleRenderer() {
                 matrixStack.translate(xOffset.toDouble(), 4f/16.0, zOffset.toDouble())
                 matrixStack.scale(0.25f, 0.25f, 0.25f)
                 val block = Blocks.NOTE_BLOCK
-                renderBlockState(matrixStack, buffers, packedLightIn, entityRendererManager, block.defaultBlockState(), boat.lightLevelDependentMagicValue)
+                renderBlockState(matrixStack, buffers, packedLightIn, block.defaultBlockState(), boat.lightLevelDependentMagicValue)
                 matrixStack.popPose()
             }
         }

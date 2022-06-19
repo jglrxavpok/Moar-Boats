@@ -15,7 +15,7 @@ object GoldenTicketCopyRecipe: CraftingRecipe {
     }
 
     override fun getSerializer(): RecipeSerializer<*> {
-        return MBRecipeSerializers.CopyGoldenTicket
+        return MBRecipeSerializers.CopyGoldenTicket.get()
     }
 
     override fun getId(): ResourceLocation {

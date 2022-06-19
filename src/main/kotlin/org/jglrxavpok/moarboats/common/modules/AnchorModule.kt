@@ -13,6 +13,7 @@ import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiAnchorModule
 import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
+import org.jglrxavpok.moarboats.common.containers.ContainerTypes
 import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
 import org.jglrxavpok.moarboats.common.state.BooleanBoatProperty
 import org.jglrxavpok.moarboats.common.state.DoubleBoatProperty
@@ -101,6 +102,7 @@ object AnchorModule: BoatModule(), BlockReason {
     }
 
     override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? = EmptyModuleContainer(containerID, player.inventory, boat)
+    override fun getMenuType() = ContainerTypes.EmptyModuleMenu.get()
 
     override fun createGui(containerID: Int, player: Player, boat: IControllable): Screen {
         return GuiAnchorModule(containerID, player.inventory, this, boat)

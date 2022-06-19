@@ -28,6 +28,7 @@ import org.jglrxavpok.moarboats.client.gui.GuiFishingModule
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
 import org.jglrxavpok.moarboats.common.containers.ContainerFishingModule
+import org.jglrxavpok.moarboats.common.containers.ContainerTypes
 import org.jglrxavpok.moarboats.common.network.SPlaySound
 import org.jglrxavpok.moarboats.common.state.BooleanBoatProperty
 import org.jglrxavpok.moarboats.common.state.IntBoatProperty
@@ -55,6 +56,8 @@ object FishingModule : BoatModule() {
     override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? {
         return ContainerFishingModule(containerID, player.inventory, this, boat)
     }
+
+    override fun getMenuType() = ContainerTypes.FishingModuleMenu.get()
 
     override fun onInteract(from: IControllable, player: Player, hand: InteractionHand, sneaking: Boolean): Boolean {
         return false

@@ -187,10 +187,6 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
         }
     }
 
-    override fun refreshContainer(containerToSend: AbstractContainerMenu, itemsList: NonNullList<ItemStack>) {
-        this.slotChanged(containerToSend, 0, containerToSend.getSlot(0).item)
-    }
-
     fun confirmWaypointCreation(data: ListTag) {
         synchronized(list) {
             list.children().clear()

@@ -17,11 +17,12 @@ import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import net.minecraftforge.fluids.capability.IFluidHandler
 import net.minecraftforge.registries.ForgeRegistries
 import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.common.BlockEntities
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.blocks.Facing
 import kotlin.math.ceil
 
-class TileEntityFluidLoader(blockPos: BlockPos, blockState: BlockState): TileEntityListenable(MoarBoats.TileEntityFluidLoaderType, blockPos, blockState), ITickableTileEntity, IFluidHandler, IFluidTank,
+class TileEntityFluidLoader(blockPos: BlockPos, blockState: BlockState): TileEntityListenable(BlockEntities.FluidLoader.get(), blockPos, blockState), ITickableTileEntity, IFluidHandler, IFluidTank,
     IForgeBlockEntity {
 
     val blockFacing: Direction get()= level!!.getBlockState(blockPos).getValue(Facing)

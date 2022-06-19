@@ -1,11 +1,14 @@
 package org.jglrxavpok.moarboats.datagen
 
+import net.minecraft.advancements.CriterionTriggerInstance
 import net.minecraft.advancements.critereon.EnterBlockTrigger
 import net.minecraft.data.*
 import net.minecraft.data.recipes.FinishedRecipe
+import net.minecraft.data.recipes.RecipeBuilder
 import net.minecraft.data.recipes.RecipeProvider
 import net.minecraft.data.recipes.ShapelessRecipeBuilder
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.item.Item
 import net.minecraft.world.level.block.Blocks
 import net.minecraftforge.registries.ForgeRegistries
 import org.jglrxavpok.moarboats.MoarBoats
@@ -35,7 +38,7 @@ class UtilityBoatRecipes(generator: DataGenerator): RecipeProvider(generator) {
     private fun registerRecipe(consumer: Consumer<FinishedRecipe>, item: UtilityBoatItem) {
         MoarBoats.logger.info("Generating recipe for item ${ForgeRegistries.ITEMS.getKey(item)}")
         if(item is ShulkerBoatItem) {
-            CustomRecipeBuilder.special(MBRecipeSerializers.ShulkerBoat)
+            CustomRecipeBuilder(MBRecipeSerializers.ShulkerBoat.get(), item)
                     .save(consumer, item.boatType.getOriginModID()+":moarboats_${ForgeRegistries.ITEMS.getKey(item)!!.path}")
         } else {
             val baseBoat = item.boatType.provideBoatItem()

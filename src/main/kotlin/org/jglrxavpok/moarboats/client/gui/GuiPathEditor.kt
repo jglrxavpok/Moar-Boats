@@ -4,12 +4,12 @@ import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.Minecraft
-import net.minecraft.client.audio.SimpleSound
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.screens.Screen
-import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.texture.DynamicTexture
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats
+import com.mojang.blaze3d.vertex.DefaultVertexFormat
+import com.mojang.blaze3d.vertex.Tesselator
+import net.minecraft.client.resources.sounds.SimpleSoundInstance
 import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
@@ -95,9 +95,6 @@ class GuiPathEditor(val player: Player, val pathHolder: PathHolder, val mapData:
         // TODO
     })
     private lateinit var boostSlider: ForgeSlider
-    private val sliderCallback = Button.OnPress { slider ->
-
-    }
 
     private val propertyButtons = listOf(loopingButton/*, linesButton*/) // TODO: Pathfinding?
 
@@ -161,7 +158,11 @@ class GuiPathEditor(val player: Player, val pathHolder: PathHolder, val mapData:
 
         loopingButton.propertyIndex = pathHolder.getLoopingOption().ordinal
 
-        boostSlider = ForgeSlider(menuX, yOffset+20, 125, 20, Component.literal("${boostSetting/*.formatted()*/}: "), Component.literal("%"), -50.0, 50.0, 0.0, false, true, sliderCallback)
+        boostSlider = object: ForgeSlider(menuX, yOffset+20, 125, 20, Component.literal("${boostSetting/*.formatted()*/}: "), Component.literal("%"), -50.0, 50.0, 0.0, 1.0, 0, true) {
+            override fun applyValue() {
+                // no-op
+            }
+        }
         addWidget(boostSlider)
     }
 
@@ -270,7 +271,7 @@ class GuiPathEditor(val player: Player, val pathHolder: PathHolder, val mapData:
         }
         if(closestIndex >= 0) {
             pathHolder.removeWaypoint(closestIndex)
-            getMinecraft().soundManager.play(SimpleSound.forUI(SoundEvents.UI_BUTTON_CLICK, 0.5f))
+            getMinecraft().soundManager.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 0.5f))
         }
     }
 
@@ -278,7 +279,7 @@ class GuiPathEditor(val player: Player, val pathHolder: PathHolder, val mapData:
         val pos = pixelsToWorldCoords(x, y)
         val boost = if(boostSlider.valueInt != 0) boostSlider.value/100.0 else null
         pathHolder.addWaypoint(pos, boost)
-        getMinecraft().soundManager.play(SimpleSound.forUI(SoundEvents.UI_BUTTON_CLICK, 2.5f))
+        getMinecraft().soundManager.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 2.5f))
     }
 
     override fun render(matrixStack: PoseStack, mouseX: Int, mouseY: Int, partialTicks: Float) {
@@ -324,7 +325,7 @@ class GuiPathEditor(val player: Player, val pathHolder: PathHolder, val mapData:
         val borderX = width/2-mapScreenSize/2 - 5f
         val y = menuY.toFloat()
 
-        GlStateManager._color4f(1f, 1f, 1f, 1f)
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
         val scale = 0.5f
         matrixStack.pushPose()
         matrixStack.scale(scale, scale, 1f)
@@ -340,13 +341,12 @@ class GuiPathEditor(val player: Player, val pathHolder: PathHolder, val mapData:
     }
 
     private fun drawRightAligned(matrixStack: PoseStack, textComponent: Component, x: Float, textY: Float, color: Int, shadow: Boolean = false) {
-        val text = textComponent.contents
-        val width = font.width(text)
+        val width = font.width(textComponent)
         val textX = x-width
         if(shadow) {
-            font.drawShadow(matrixStack, text, textX, textY, color)
+            font.drawShadow(matrixStack, textComponent, textX, textY, color)
         } else {
-            font.draw(matrixStack, text, textX, textY, color)
+            font.draw(matrixStack, textComponent, textX, textY, color)
         }
     }
 
@@ -380,7 +380,7 @@ class GuiPathEditor(val player: Player, val pathHolder: PathHolder, val mapData:
         matrixStack.scale(0.0078125f, 0.0078125f, 0.0078125f)
         matrixStack.scale((mapSize-margins*2).toFloat(), (mapSize-margins*2).toFloat(), 0.0001f)
 
-        val tessellator = Tessellator.getInstance()
+        val tessellator = Tesselator.getInstance()
         val bufferbuilder = tessellator.builder
         mc.textureManager.bindForSetup(areaResLocation)
         GlStateManager._enableBlend()
@@ -398,7 +398,7 @@ class GuiPathEditor(val player: Player, val pathHolder: PathHolder, val mapData:
         val maxU = ((scrollX+viewportSize/2)/size).coerceAtMost(1.0f)
         val minV = ((scrollZ-viewportSize/2)/size).coerceAtLeast(0.0f)
         val maxV = ((scrollZ+viewportSize/2)/size).coerceAtMost(1.0f)
-        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX)
+        bufferbuilder.begin(7, DefaultVertexFormat.POSITION_TEX)
         bufferbuilder.pos(matrixStack, 0.0, 128.0, -0.009999999776482582).uv(minU, maxV).endVertex()
         bufferbuilder.pos(matrixStack, 128.0, 128.0, -0.009999999776482582).uv(maxU, maxV).endVertex()
         bufferbuilder.pos(matrixStack, 128.0, 0.0, -0.009999999776482582).uv(maxU, minV).endVertex()
@@ -493,10 +493,12 @@ class GuiPathEditor(val player: Player, val pathHolder: PathHolder, val mapData:
             val boatRenderX = boatPixelX/mapScreenSize*128.0
             val boatRenderZ = boatPixelZ/mapScreenSize*128.0
 
-            RenderSystem.pushMatrix()
-            RenderSystem.multMatrix(matrixStack.last().pose())
+            val poseStack = RenderSystem.getModelViewStack()
+            poseStack.pushPose()
+            poseStack.mulPoseMatrix(matrixStack.last().pose())
+            RenderSystem.applyModelViewMatrix()
             mc.itemRenderer.renderGuiItem(HelmModuleRenderer.helmStack, (boatRenderX/iconScale).toInt(), (boatRenderZ/iconScale).toInt())
-            RenderSystem.popMatrix()
+            poseStack.popPose()
 
             matrixStack.popPose()
         }
@@ -509,7 +511,6 @@ class GuiPathEditor(val player: Player, val pathHolder: PathHolder, val mapData:
 
     override fun tick() {
         super.tick()
-        boostSlider.updateSlider()
         if(!sentImageRequest) {
             pathHolder.sendWorldImageRequest(mapID)
             sentImageRequest = true

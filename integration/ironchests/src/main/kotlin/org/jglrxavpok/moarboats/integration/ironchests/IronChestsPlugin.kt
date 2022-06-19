@@ -1,7 +1,7 @@
 package org.jglrxavpok.moarboats.integration.ironchests
 
 import com.progwml6.ironchest.common.block.IronChestsTypes
-import net.minecraft.client.gui.ScreenManager
+import net.minecraft.client.gui.MenuScreens
 import net.minecraft.world.inventory.MenuType
 import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.fml.common.Mod

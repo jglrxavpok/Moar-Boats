@@ -7,7 +7,6 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.entity.EntityRendererProvider
-import net.minecraft.client.renderer.model.ModelRenderer
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
@@ -54,9 +53,12 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         matrixStack.translate(0.2, -0f/16.0, 0.0)
 
         val frameAngle = module.rotationAngleProperty[boat].toRadians()
+        // TODO: redo model
+        /*
         rotate(frameAngle, model.frameCenter, model.left, model.radiusLeft, model.right, model.radiusRight, model.top, model.radiusTop, model.bottom, model.radiusBottom)
         model.renderToBuffer(matrixStack, buffers.getBuffer(moduleRenderType), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f)
         rotate(-frameAngle, model.frameCenter, model.left, model.radiusLeft, model.right, model.radiusRight, model.top, model.radiusTop, model.bottom, model.radiusBottom)
+*/
 
         val inventory = boat.getInventory(module)
         val stack = inventory.getItem(0)
@@ -98,11 +100,11 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         matrixStack.popPose()
     }
 
-    private fun rotate(angle: Float, vararg modelParts: ModelRenderer) {
+/*    private fun rotate(angle: Float, vararg modelParts: ModelRenderer) {
         modelParts.forEach {
             it.xRot -= angle
         }
-    }
+    }*/
 
     fun renderMap(boat: IControllable, renderInfo: RenderInfo, mapdata: MapItemSavedData, x: Double, y: Double, mapSize: Double, worldX: Double, worldZ: Double, margins: Double = 7.0, waypointsData: ListTag, loops: Boolean) {
         val mc = Minecraft.getInstance()
@@ -111,7 +113,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         matrixStack.translate(x+margins, y+margins, 0.0)
         matrixStack.scale(0.0078125f, 0.0078125f, 0.0078125f)
         matrixStack.scale((mapSize-margins*2).toFloat(), (mapSize-margins*2).toFloat(), 1.0f)
-        val mapID: Int = TODO()
+        val mapID: Int = TODO("MapID in HelmModuleRenderer")
         mc.gameRenderer.mapRenderer.update(mapID, mapdata)
         mc.gameRenderer.mapRenderer.render(renderInfo.matrixStack, renderInfo.buffers, mapID, mapdata, true, renderInfo.combinedLight)
 

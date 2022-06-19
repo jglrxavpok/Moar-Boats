@@ -1,6 +1,7 @@
 package org.jglrxavpok.moarboats.client.gui.elements
 
 import com.mojang.blaze3d.platform.GlStateManager
+import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.components.AbstractWidget
@@ -39,7 +40,7 @@ open class GuiToolButton(var text: Component, var toolIconIndex: Int, val pressa
 
     private fun renderButtonBackground(matrixStack: PoseStack, mc: Minecraft, mouseX: Int, mouseY: Int) {
         mc.textureManager.bindForSetup(AbstractWidget.WIDGETS_LOCATION)
-        GlStateManager._color4f(1.0f, 1.0f, 1.0f, 1.0f)
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
         this.isHovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height
         val stateOffset = this.getYImage(this.isHovered)
         GlStateManager._enableBlend()

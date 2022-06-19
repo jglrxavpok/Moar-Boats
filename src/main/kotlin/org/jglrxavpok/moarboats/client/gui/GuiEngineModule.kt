@@ -1,13 +1,11 @@
 package org.jglrxavpok.moarboats.client.gui
 
-import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.PoseStack
-import net.minecraft.client.gui.components.Button
+import com.mojang.blaze3d.vertex.Tesselator
+import com.mojang.blaze3d.vertex.VertexFormat
 import net.minecraft.client.gui.components.LockIconButton
-import net.minecraft.client.renderer.RenderHelper
-import net.minecraft.client.renderer.Tessellator
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.player.Inventory
@@ -25,7 +23,6 @@ import org.jglrxavpok.moarboats.common.modules.BlockedByRedstone
 import org.jglrxavpok.moarboats.common.modules.NoBlockReason
 import org.jglrxavpok.moarboats.common.network.CChangeEngineMode
 import org.jglrxavpok.moarboats.common.network.CChangeEngineSpeed
-import org.lwjgl.opengl.GL11
 
 class GuiEngineModule(playerInventory: Inventory, engine: BoatModule, boat: IControllable, container: ContainerBoatModule<*>):
         GuiModuleBase<ContainerBoatModule<*>>(engine, boat, playerInventory, container, isLarge = true) {
@@ -57,12 +54,6 @@ class GuiEngineModule(playerInventory: Inventory, engine: BoatModule, boat: ICon
     private val speedIconTexture = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/engines/speed_setting.png")
 
     private var prevSliderValue = 0.0
-    private val sliderCallback = ForgeSlider.ISlider { slider ->
-        if(speedSlider.value != prevSliderValue) {
-            prevSliderValue = speedSlider.value
-            MoarBoats.network.sendToServer(CChangeEngineSpeed(boat.entityID, module.id, speedSlider.value.toFloat()/100f))
-        }
-    }
 
     override fun init() {
         super.init()
@@ -73,14 +64,20 @@ class GuiEngineModule(playerInventory: Inventory, engine: BoatModule, boat: ICon
         val speedSettingMargins = 30
         val speedSettingHorizontalSize = xSize - speedSettingMargins*2
 
-        speedSlider = ForgeSlider(guiLeft + speedSettingMargins, guiTop + 90, speedSettingHorizontalSize, 20, Component.literal("${speedSetting/*.formatted()*/.string}: "), Component.literal("%"), -50.0, 50.0, 0.0, false, true, Button.OnPress { slider -> }, sliderCallback)
+        speedSlider = object: ForgeSlider(guiLeft + speedSettingMargins, guiTop + 90, speedSettingHorizontalSize, 20, Component.literal("${speedSetting/*.formatted()*/.string}: "), Component.literal("%"), -50.0, 50.0, 0.0, 1.0, 0, true) {
+            override fun applyValue() {
+                if(speedSlider.value != prevSliderValue) {
+                    prevSliderValue = speedSlider.value
+                    MoarBoats.network.sendToServer(CChangeEngineSpeed(boat.entityID, module.id, speedSlider.value.toFloat()/100f))
+                }
+            }
+        }
         addWidget(speedSlider)
         speedSlider.value = (engine.speedProperty[boat].toDouble()) * 100f
     }
 
-    override fun tick() {
-        super.tick()
-        speedSlider.updateSlider()
+    override fun containerTick() {
+        super.containerTick()
         lockInPlaceButton.isLocked = engine.stationaryProperty[boat]
     }
 
@@ -145,29 +142,31 @@ class GuiEngineModule(playerInventory: Inventory, engine: BoatModule, boat: ICon
 
     private fun renderPrettyReason(y: Int, text: Component, itemStack: ItemStack) {
         font.drawCenteredString(matrixStack, text, 88-16, y, 0xFF0000)
-        val textWidth = font.width(text.contents)
+        val textWidth = font.width(text)
         val textX = 88-16 - textWidth/2
         blitOffset = 100
         itemRenderer.blitOffset = 100.0f
-        RenderHelper.setupFor3DItems()
-        RenderSystem.color4f(1f, 1f, 1f, 1f)
+        RenderSystem.setupFor3DItems()
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
         val itemX = textX+textWidth + 1
         val itemY = font.lineHeight - 8 + y
-        RenderSystem.pushMatrix()
-        RenderSystem.multMatrix(matrixStack.last().pose())
+        val poseStack = RenderSystem.getModelViewStack()
+        poseStack.pushPose()
+        poseStack.mulPoseMatrix(matrixStack.last().pose())
+        RenderSystem.applyModelViewMatrix()
         itemRenderer.renderGuiItem(itemStack, itemX, itemY)
-        RenderSystem.popMatrix()
+        poseStack.popPose()
         itemRenderer.blitOffset = 0.0f
         blitOffset = 0
     }
 
     private fun renderSpeedIcon(ordinal: Int, x: Int, y: Int) {
-        RenderSystem.color4f(1f, 1f, 1f, 1f)
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
         val width = 20
         val height = 20
-        val tessellator = Tessellator.getInstance()
+        val tessellator = Tesselator.getInstance()
         val bufferbuilder = tessellator.builder
-        bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX)
+        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX)
         val margins = 0
         val minU = 10.0f/32.0f
         val maxU = 1.0f
@@ -203,16 +202,17 @@ class GuiEngineModule(playerInventory: Inventory, engine: BoatModule, boat: ICon
     }
 
     private fun drawBar(x: Float, y: Float, barIndex: Int, barSize: Float, fill: Float) {
+        val poseStack by lazy { PoseStack() }
         val barWidth = 182f
         val filledWidth = fill * barWidth
 
         val scale = barSize/barWidth
-        GlStateManager._pushMatrix()
-        GlStateManager._scalef(scale, scale, scale)
-        GlStateManager._translated((x/scale).toDouble(), (y/scale).toDouble(), 0.0)
+        poseStack.pushPose()
+        poseStack.scale(scale, scale, scale)
+        poseStack.translate((x/scale).toDouble(), (y/scale).toDouble(), 0.0)
         blit(matrixStack, 0, 0, 0, barIndex*10+5, (filledWidth).toInt(), 5)
         blit(matrixStack, filledWidth.toInt(), 0, filledWidth.toInt(), barIndex*10, (barWidth-filledWidth+1).toInt(), 5)
-        GlStateManager._popMatrix()
+        poseStack.popPose()
     }
 
 }

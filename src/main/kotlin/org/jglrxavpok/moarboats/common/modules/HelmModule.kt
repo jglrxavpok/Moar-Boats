@@ -23,6 +23,7 @@ import org.jglrxavpok.moarboats.client.gui.GuiPathEditor
 import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
 import org.jglrxavpok.moarboats.common.containers.ContainerHelmModule
+import org.jglrxavpok.moarboats.common.containers.ContainerTypes
 import org.jglrxavpok.moarboats.common.data.*
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import org.jglrxavpok.moarboats.common.items.ItemPath
@@ -287,6 +288,8 @@ object HelmModule: BoatModule(), BlockReason {
     override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? {
         return ContainerHelmModule(containerID, player.inventory, this, boat)
     }
+
+    override fun getMenuType() = ContainerTypes.HelmModuleMenu.get()
 
     override fun createGui(containerID: Int, player: Player, boat: IControllable): Screen {
         return GuiHelmModule(containerID, player.inventory, this, boat)

@@ -13,8 +13,9 @@ import net.minecraftforge.common.extensions.IForgeBlockEntity
 import net.minecraftforge.common.util.LazyOptional
 import net.minecraftforge.items.wrapper.InvWrapper
 import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.common.BlockEntities
 
-class TileEntityMappingTable(blockPos: BlockPos, blockState: BlockState): BlockEntity(MoarBoats.TileEntityMappingTableType, blockPos, blockState),
+class TileEntityMappingTable(blockPos: BlockPos, blockState: BlockState): BlockEntity(BlockEntities.MappingTable.get(), blockPos, blockState),
     IForgeBlockEntity {
 
     val inventory = SimpleContainer(1)

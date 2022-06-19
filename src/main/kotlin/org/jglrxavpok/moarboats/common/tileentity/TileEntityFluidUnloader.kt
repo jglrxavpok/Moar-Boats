@@ -17,10 +17,11 @@ import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import net.minecraftforge.fluids.capability.IFluidHandler
 import net.minecraftforge.registries.ForgeRegistries
 import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.common.BlockEntities
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.blocks.Facing
 
-class TileEntityFluidUnloader(blockPos: BlockPos, blockState: BlockState): TileEntityListenable(MoarBoats.TileEntityFluidUnloaderType, blockPos, blockState), ITickableTileEntity, IFluidHandler, IFluidTank,
+class TileEntityFluidUnloader(blockPos: BlockPos, blockState: BlockState): TileEntityListenable(BlockEntities.FluidUnloader.get(), blockPos, blockState), ITickableTileEntity, IFluidHandler, IFluidTank,
     IForgeBlockEntity {
     val blockFacing: Direction get()= level!!.getBlockState(blockPos).getValue(Facing)
     private var fluid: Fluid? = null

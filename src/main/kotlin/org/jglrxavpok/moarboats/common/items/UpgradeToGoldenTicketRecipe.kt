@@ -21,7 +21,7 @@ object UpgradeToGoldenTicketRecipe: CraftingRecipe {
     }
 
     override fun getSerializer(): RecipeSerializer<*> {
-        return MBRecipeSerializers.UpgradeToGoldenTicket
+        return MBRecipeSerializers.UpgradeToGoldenTicket.get()
     }
 
     override fun canCraftInDimensions(width: Int, height: Int): Boolean {

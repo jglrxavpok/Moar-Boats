@@ -1,43 +1,32 @@
 package org.jglrxavpok.moarboats.client.renders
 
 import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.math.Quaternion
+import com.mojang.math.Vector3f
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.MultiBufferSource
-import com.mojang.math.Quaternion
 import net.minecraft.client.renderer.RenderType
-import com.mojang.math.Vector3f
-import net.minecraft.client.renderer.entity.EntityRendererProvider.Context
 import net.minecraft.client.renderer.block.model.ItemTransforms
 import net.minecraft.client.renderer.entity.EntityRendererProvider
-import net.minecraft.client.renderer.model.ModelResourceLocation
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.client.resources.model.ModelResourceLocation
-import net.minecraft.item.FishingRodItem
-import net.minecraft.world.item.Item
-import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.Items
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.util.registry.Registry
 import net.minecraft.world.item.FishingRodItem
-import net.minecraftforge.client.model.data.EmptyModelData
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
 import net.minecraftforge.registries.ForgeRegistries
-import net.minecraftforge.registries.GameData
-import net.minecraftforge.registries.RegistryManager
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.client.pos
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.FishingModule
-import org.lwjgl.glfw.GLFW
-import java.util.*
 
 object FishingModuleRenderer : BoatModuleRenderer() {
 
     val CastFishingRodLocation = ModelResourceLocation(MoarBoats.ModID, "item/vanilla/fishing_rod_cast")
     private val StickStack = ItemStack(Items.STICK)
     val rodModel by lazy { Minecraft.getInstance().modelManager.getModel(CastFishingRodLocation) }
-    val rodModelQuads by lazy { Minecraft.getInstance().modelManager.getModel(CastFishingRodLocation).getQuads(null, null, Random(), EmptyModelData.INSTANCE) }
 
     private val bobberRenderType = RenderType.entityCutoutNoCull(ResourceLocation("textures/entity/fishing_hook.png"))
 
@@ -66,7 +55,7 @@ object FishingModuleRenderer : BoatModuleRenderer() {
                 renderHook(matrixStack, buffers, packedLightIn, entityYaw, entityRendererManager)
         } else {
             val stackToRender = if(hasRod) rodStack else StickStack
-            mc.itemRenderer.renderStatic(stackToRender, ItemTransforms.TransformType.FIXED, packedLightIn, OverlayTexture.NO_OVERLAY, matrixStack, buffers)
+            mc.itemRenderer.renderStatic(stackToRender, ItemTransforms.TransformType.FIXED, packedLightIn, OverlayTexture.NO_OVERLAY, matrixStack, buffers, 0)
         }
         matrixStack.popPose()
 
@@ -95,7 +84,7 @@ object FishingModuleRenderer : BoatModuleRenderer() {
                 val item = ForgeRegistries.ITEMS.getValue(ResourceLocation(lootInfo.getString("name")))
                 val stack = ItemStack(item!!)
                 stack.damageValue = lootInfo.getInt("damage")
-                mc.itemRenderer.renderStatic(stack, ItemTransforms.TransformType.FIXED, packedLightIn, 0, matrixStack, buffers)
+                mc.itemRenderer.renderStatic(stack, ItemTransforms.TransformType.FIXED, packedLightIn, 0, matrixStack, buffers, 0)
                 matrixStack.mulPose(Quaternion(0f, 360f / lootList.size, 0f, true))
             }
             matrixStack.popPose()
@@ -118,9 +107,7 @@ object FishingModuleRenderer : BoatModuleRenderer() {
         matrixStack.pushPose()
         matrixStack.translate(x, y, z)
         matrixStack.scale(0.5f, 0.5f, 0.5f)
-        matrixStack.mulPose(Vector3f.YN.rotationDegrees(entityYaw + 90f))
-        matrixStack.mulPose(Vector3f.YP.rotationDegrees(entityRendererManager.camera.yRot))
-        matrixStack.mulPose(Vector3f.XP.rotationDegrees(-entityRendererManager.camera.xRot))
+        matrixStack.mulPose(entityRendererManager.entityRenderDispatcher.cameraOrientation())
         matrixStack.mulPose(Vector3f.YP.rotationDegrees(180.0f))
 
         bufferbuilder.pos(matrixStack, -0.5, -0.5, 0.0).color(1f, 1f, 1f, 1f).uv(0f, 1f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn).normal(matrixStack.last().normal(), 0.0f, 1.0f, 0.0f).endVertex()

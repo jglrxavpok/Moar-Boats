@@ -49,7 +49,7 @@ class GuiIronChestModule(containerID: Int, playerInventory: Inventory, module: B
 
 
     override fun drawModuleBackground(mouseX: Int, mouseY: Int) {
-        GlStateManager._color4f(1.0f, 1.0f, 1.0f, 1.0f)
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
 
         mc.textureManager.bindForSetup(chestType.guiTexture)
 

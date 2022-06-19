@@ -15,6 +15,7 @@ import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.blocks.BlockBoatTank
 import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
+import org.jglrxavpok.moarboats.common.containers.ContainerTypes
 import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
 import org.jglrxavpok.moarboats.common.state.IntBoatProperty
 import org.jglrxavpok.moarboats.common.state.StringBoatProperty
@@ -61,6 +62,8 @@ object FluidTankModule: BoatModule(), IFluidBoatModule {
     override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? {
         return EmptyModuleContainer(containerID, player.inventory, boat)
     }
+
+    override fun getMenuType() = ContainerTypes.EmptyModuleMenu.get()
 
     override fun createGui(containerID: Int, player: Player, boat: IControllable): Screen {
         return GuiTankModule(containerID, player.inventory, this, boat)

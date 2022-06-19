@@ -13,6 +13,7 @@ import org.jglrxavpok.moarboats.client.gui.GuiNoConfigModule
 import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
+import org.jglrxavpok.moarboats.common.containers.ContainerTypes
 import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
 import org.jglrxavpok.moarboats.common.items.ChunkLoaderItem
 import org.jglrxavpok.moarboats.extensions.toRadians
@@ -82,6 +83,7 @@ object ChunkLoadingModule: BoatModule() {
     override fun onAddition(to: IControllable) { }
 
     override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? = EmptyModuleContainer(containerID, player.inventory, boat)
+    override fun getMenuType() = ContainerTypes.EmptyModuleMenu.get()
 
     override fun createGui(containerID: Int, player: Player, boat: IControllable) = GuiNoConfigModule(containerID, player.inventory, this, boat)
 

@@ -13,6 +13,7 @@ import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiChestModule
 import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
 import org.jglrxavpok.moarboats.common.containers.ContainerChestModule
+import org.jglrxavpok.moarboats.common.containers.ContainerTypes
 
 object ChestModule: BoatModule() {
     override val id = ResourceLocation(MoarBoats.ModID, "chest")
@@ -29,6 +30,8 @@ object ChestModule: BoatModule() {
     override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? {
         return ContainerChestModule(containerID, player.inventory, this, boat)
     }
+
+    override fun getMenuType() = ContainerTypes.ChestModuleMenu.get()
 
     override fun onInteract(from: IControllable, player: Player, hand: InteractionHand, sneaking: Boolean): Boolean {
         return false

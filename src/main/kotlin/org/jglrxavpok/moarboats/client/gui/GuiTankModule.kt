@@ -1,9 +1,10 @@
 package org.jglrxavpok.moarboats.client.gui
 
 import com.mojang.blaze3d.platform.GlStateManager
+import com.mojang.blaze3d.vertex.DefaultVertexFormat
+import com.mojang.blaze3d.vertex.Tesselator
+import com.mojang.blaze3d.vertex.VertexFormat
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.Tessellator
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
@@ -17,7 +18,6 @@ import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
 import org.jglrxavpok.moarboats.common.modules.IFluidBoatModule
-import org.lwjgl.opengl.GL11
 
 class GuiTankModule(containerID: Int, playerInventory: Inventory, module: BoatModule, boat: IControllable): GuiModuleBase<EmptyModuleContainer>(module, boat, playerInventory, EmptyModuleContainer(containerID, playerInventory, boat)) {
 
@@ -58,9 +58,9 @@ class GuiTankModule(containerID: Int, playerInventory: Inventory, module: BoatMo
             val mc = Minecraft.getInstance()
             mc.textureManager.bindForSetup(InventoryMenu.BLOCK_ATLAS)
             val sprite = mc.getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(fluid.attributes.stillTexture)
-            val tessellator = Tessellator.getInstance()
+            val tessellator = Tesselator.getInstance()
             val buffer = tessellator.builder
-            buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR)
+            buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR)
 
             val color = fluid.attributes.getColor(world, position)
             val red = color shr 16 and 0xFF

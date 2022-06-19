@@ -20,7 +20,7 @@ object ShulkerBoatRecipe: CraftingRecipe {
     }
 
     override fun getSerializer(): RecipeSerializer<*> {
-        return MBRecipeSerializers.ShulkerBoat
+        return MBRecipeSerializers.ShulkerBoat.get()
     }
 
     override fun getId(): ResourceLocation {

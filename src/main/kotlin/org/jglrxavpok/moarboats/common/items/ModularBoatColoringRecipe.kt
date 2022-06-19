@@ -21,7 +21,7 @@ object ModularBoatColoringRecipe: CraftingRecipe {
     }
 
     override fun getSerializer(): RecipeSerializer<*> {
-        return MBRecipeSerializers.BoatColoring
+        return MBRecipeSerializers.BoatColoring.get()
     }
 
     override fun canCraftInDimensions(width: Int, height: Int): Boolean {
