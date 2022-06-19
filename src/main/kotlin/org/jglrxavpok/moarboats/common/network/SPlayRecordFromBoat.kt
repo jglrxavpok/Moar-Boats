@@ -6,7 +6,7 @@ import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.network.NetworkEvent
 import org.jglrxavpok.moarboats.client.ClientEvents
 
-class SPlayRecordFromBoat(): MoarBoatsPacket {
+class SPlayRecordFromBoat(): ServerMoarBoatsPacket {
 
     var entityID: Int = -1
 

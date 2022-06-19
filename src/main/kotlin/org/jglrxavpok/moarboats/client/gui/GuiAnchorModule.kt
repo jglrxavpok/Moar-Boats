@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.client.gui
 
+import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.gui.components.Button
 import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.player.Inventory
@@ -31,7 +32,7 @@ class GuiAnchorModule(menuType: MenuType<EmptyModuleContainer>, containerID: Int
         super.init()
         deployButton.x = guiLeft+width/2-70
         deployButton.y = guiTop+20
-        addWidget(deployButton)
+        addRenderableWidget(deployButton)
     }
 
     override fun containerTick() {
@@ -46,8 +47,8 @@ class GuiAnchorModule(menuType: MenuType<EmptyModuleContainer>, containerID: Int
         }
     }
 
-    override fun drawModuleForeground(mouseX: Int, mouseY: Int) {
-        super.drawModuleForeground(mouseX, mouseY)
+    override fun drawModuleForeground(poseStack: PoseStack, mouseX: Int, mouseY: Int) {
+        super.drawModuleForeground(poseStack, mouseX, mouseY)
         font.drawWordWrap(descText, 0+20, 0+50, width-40, 0xF0F0F0)
     }
 

@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.client.gui
 
+import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.components.ImageButton
 import net.minecraft.core.Direction
@@ -56,7 +57,7 @@ class GuiDispenserModule(menuType: MenuType<ContainerDispenserModule>, container
             }
         }
         periodSlider.value = dispensingModule.blockPeriodProperty[boat]
-        addWidget(periodSlider)
+        addRenderableWidget(periodSlider)
 
         val yStart = guiTop + 35
         frontFacingButton.x = guiLeft+16+4
@@ -78,7 +79,7 @@ class GuiDispenserModule(menuType: MenuType<ContainerDispenserModule>, container
         downFacingButton.y = yStart
         facingButtons.forEach {
 
-            addWidget(it)
+            addRenderableWidget(it)
         }
     }
 
@@ -86,21 +87,21 @@ class GuiDispenserModule(menuType: MenuType<ContainerDispenserModule>, container
         super.containerTick()
     }
 
-    override fun drawModuleForeground(mouseX: Int, mouseY: Int) {
+    override fun drawModuleForeground(poseStack: PoseStack, mouseX: Int, mouseY: Int) {
         val maxX = 78f
         val startY = 26f
         val topWidth = font.width(topRowText/*.formatted()*/.string)
-        font.draw(matrixStack, topRowText, maxX - topWidth, startY, 0xF0F0F0)
+        font.draw(poseStack, topRowText, maxX - topWidth, startY, 0xF0F0F0)
 
         val middleWidth = font.width(middleRowText/*.formatted()*/.string)
-        font.draw(matrixStack, middleRowText, maxX - middleWidth, startY + 20, 0xF0F0F0)
+        font.draw(poseStack, middleRowText, maxX - middleWidth, startY + 20, 0xF0F0F0)
 
         val bottomWidth = font.width(bottomRowText/*.formatted()*/.string)
-        font.draw(matrixStack, bottomRowText, maxX - bottomWidth, startY + 40, 0xF0F0F0)
+        font.draw(poseStack, bottomRowText, maxX - bottomWidth, startY + 40, 0xF0F0F0)
 
-        font.drawCenteredString(matrixStack, periodText, 88, 90, 0xF0F0F0)
+        font.drawCenteredString(poseStack, periodText, 88, 90, 0xF0F0F0)
 
-        font.drawCenteredString(matrixStack, orientationText, 32, 25, 0xF0F0F0)
+        font.drawCenteredString(poseStack, orientationText, 32, 25, 0xF0F0F0)
     }
 
 }

@@ -1,9 +1,11 @@
 package org.jglrxavpok.moarboats.client.renders
 
+import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
 import com.mojang.math.Quaternion
 import net.minecraft.client.Minecraft
+import net.minecraft.client.renderer.GameRenderer
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher
@@ -110,11 +112,13 @@ object HelmModuleRenderer : BoatModuleRenderer() {
     fun renderMap(boat: IControllable, renderInfo: RenderInfo, mapdata: MapItemSavedData, x: Double, y: Double, mapSize: Double, worldX: Double, worldZ: Double, margins: Double = 7.0, waypointsData: ListTag, loops: Boolean) {
         val mc = Minecraft.getInstance()
         val matrixStack = renderInfo.matrixStack
+
+        RenderSystem.setShader { GameRenderer.getPositionTexLightmapColorShader() }
         matrixStack.pushPose()
         matrixStack.translate(x+margins, y+margins, 0.0)
         matrixStack.scale(0.0078125f, 0.0078125f, 0.0078125f)
         matrixStack.scale((mapSize-margins*2).toFloat(), (mapSize-margins*2).toFloat(), 1.0f)
-        val mapID: Int = TODO("MapID in HelmModuleRenderer")
+        val mapID: Int = 0 // TODO("MapID in HelmModuleRenderer")
         mc.gameRenderer.mapRenderer.update(mapID, mapdata)
         mc.gameRenderer.mapRenderer.render(renderInfo.matrixStack, renderInfo.buffers, mapID, mapdata, true, renderInfo.combinedLight)
 

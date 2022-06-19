@@ -1,23 +1,11 @@
 package org.jglrxavpok.moarboats.common.data
 
-import net.minecraft.client.renderer.entity.BoatRenderer
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.vehicle.Boat
-import net.minecraft.world.item.BoatItem
 import net.minecraft.world.item.Item
-import net.minecraft.world.item.Items
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
-import net.minecraftforge.common.ForgeMod
-import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.ModList
-import net.minecraftforge.fml.ModLoader
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext
-import net.minecraftforge.fml.loading.FMLLoader
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper
 import net.minecraftforge.registries.ForgeRegistries
 import org.jglrxavpok.moarboats.MoarBoats
-import kotlin.math.min
 
 interface BoatType {
 

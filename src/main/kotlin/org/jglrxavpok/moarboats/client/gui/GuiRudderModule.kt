@@ -28,7 +28,7 @@ class GuiRudderModule(menuType: MenuType<EmptyModuleContainer>, containerID: Int
         super.init()
         blockButton.x = guiLeft + xSize / 2 - 70
         blockButton.y = guiTop + 30
-        addWidget(blockButton)
+        addRenderableWidget(blockButton)
     }
 
     override fun containerTick() {
@@ -36,9 +36,5 @@ class GuiRudderModule(menuType: MenuType<EmptyModuleContainer>, containerID: Int
         val deployText = if(rudder.BlockingProperty[boat]) blockingText else notBlockingText
         blockButton.active = true
         blockButton.message = deployText/*.formatted()*/
-    }
-
-    override fun drawModuleForeground(mouseX: Int, mouseY: Int) {
-        super.drawModuleForeground(mouseX, mouseY)
     }
 }

@@ -6,7 +6,7 @@ import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.network.NetworkEvent
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 
-class SModuleLocations(): MoarBoatsPacket {
+class SModuleLocations(): ServerMoarBoatsPacket {
 
     var modules = emptyList<ResourceLocation>()
 

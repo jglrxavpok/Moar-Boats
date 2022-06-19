@@ -1,7 +1,9 @@
 package org.jglrxavpok.moarboats.client.gui
 
 import com.mojang.blaze3d.platform.GlStateManager
+import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
+import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.Tesselator
 import com.mojang.blaze3d.vertex.VertexFormat
 import net.minecraft.client.Minecraft
@@ -31,19 +33,19 @@ class GuiTankModule(menuType: MenuType<EmptyModuleContainer>, containerID: Int, 
 
     override val moduleBackground: ResourceLocation = ResourceLocation(MoarBoats.ModID, "textures/gui/fluid.png")
 
-    override fun drawModuleForeground(mouseX: Int, mouseY: Int) {
-        super.drawModuleForeground(mouseX, mouseY)
+    override fun drawModuleForeground(poseStack: PoseStack, mouseX: Int, mouseY: Int) {
+        super.drawModuleForeground(poseStack, mouseX, mouseY)
         val localX = mouseX - guiLeft
         val localY = mouseY - guiTop
         if(localX in 60..(60+55) && localY in 6..(6+75)) {
             val fluidName = Component.translatable(tankModule.getFluidInside(boat)?.attributes?.getTranslationKey(tankModule.getContents(boat)!!) ?: "nothing")
-            renderTooltip(matrixStack, Component.translatable(MoarBoats.ModID+".tank_level", tankModule.getFluidAmount(boat), tankModule.getCapacity(boat), fluidName)/*.formatted()*/, localX, localY)
+            renderTooltip(poseStack, Component.translatable(MoarBoats.ModID+".tank_level", tankModule.getFluidAmount(boat), tankModule.getCapacity(boat), fluidName)/*.formatted()*/, localX, localY)
         }
     }
 
-    override fun drawModuleBackground(mouseX: Int, mouseY: Int) {
-        super.drawModuleBackground(mouseX, mouseY)
-        mc.textureManager.bindForSetup(moduleBackground)
+    override fun drawModuleBackground(poseStack: PoseStack, mouseX: Int, mouseY: Int) {
+        super.drawModuleBackground(poseStack, mouseX, mouseY)
+        RenderSystem.setShaderTexture(0, moduleBackground)
         GlStateManager._disableCull()
         val fluid = tankModule.getFluidInside(boat)
         if(fluid != null && fluid !is EmptyFluid) {
@@ -58,7 +60,7 @@ class GuiTankModule(menuType: MenuType<EmptyModuleContainer>, containerID: Int, 
         fun renderFluidInGui(leftX: Int, bottomY: Int, fluid: Fluid, fluidAmount: Int, fluidCapacity: Int, horizontalTilesCount: Int, world: Level, position: BlockPos) {
             val energyHeight = (73 * (fluidAmount/fluidCapacity.toFloat())).toInt()
             val mc = Minecraft.getInstance()
-            mc.textureManager.bindForSetup(InventoryMenu.BLOCK_ATLAS)
+            RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS)
             val sprite = mc.getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(fluid.attributes.stillTexture)
             val tessellator = Tesselator.getInstance()
             val buffer = tessellator.builder

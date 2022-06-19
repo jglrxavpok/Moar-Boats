@@ -45,16 +45,30 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
 
         matrixStackIn.pushPose()
         matrixStackIn.scale(-1.0f, -1.0f, 1.0f)
-        val usualBuffer = bufferIn.getBuffer(this.model.renderType(getTextureLocation(entity)))
-        this.model.renderToBuffer(matrixStackIn, usualBuffer, packedLightIn, OverlayTexture.NO_OVERLAY, color[0], color[1], color[2], 1f)
-        val noWaterBuffer = bufferIn.getBuffer(RenderType.waterMask())
-        // TODO: redo model this.model.noWater.render(matrixStackIn, noWaterBuffer, packedLightIn, OverlayTexture.NO_OVERLAY)
+
+        renderBoat(entity, matrixStackIn, bufferIn, packedLightIn, color[0], color[1], color[2], 1.0f)
         matrixStackIn.popPose()
 
         renderLink(RenderInfo(matrixStackIn, bufferIn, packedLightIn), entity, 0.0, 0.0, 0.0, entityYaw, partialTicks)
         postModelRender(entity, entityYaw, partialTicks, matrixStackIn, bufferIn, packedLightIn)
         matrixStackIn.popPose()
         super.render(entity, entityYaw, partialTicks, matrixStackIn, bufferIn, packedLightIn)
+    }
+
+    open fun renderBoat(
+        entity: T,
+        matrixStackIn: PoseStack,
+        bufferIn: MultiBufferSource,
+        packedLightIn: Int,
+        red: Float,
+        green: Float,
+        blue: Float,
+        alpha: Float
+    ) {
+        val usualBuffer = bufferIn.getBuffer(this.model.renderType(getTextureLocation(entity)))
+        this.model.renderToBuffer(matrixStackIn, usualBuffer, packedLightIn, OverlayTexture.NO_OVERLAY, red, green, blue, alpha)
+        val noWaterBuffer = bufferIn.getBuffer(RenderType.waterMask())
+        // TODO: redo model this.model.noWater.render(matrixStackIn, noWaterBuffer, packedLightIn, OverlayTexture.NO_OVERLAY)
     }
 
     private fun renderLink(renderInfo: RenderInfo, boatEntity: T, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float) {

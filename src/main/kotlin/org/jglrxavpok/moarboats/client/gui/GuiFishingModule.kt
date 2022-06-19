@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.client.gui
 
+import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.player.Inventory
@@ -19,10 +20,10 @@ class GuiFishingModule(menuType: MenuType<ContainerFishingModule>, containerID: 
 
     override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/fishing.png")
 
-    override fun drawModuleForeground(mouseX: Int, mouseY: Int) {
-        super.drawModuleForeground(mouseX, mouseY)
+    override fun drawModuleForeground(poseStack: PoseStack, mouseX: Int, mouseY: Int) {
+        super.drawModuleForeground(poseStack, mouseX, mouseY)
         if(!fishingModule.readyProperty[boat]) {
-            font.drawCenteredString(matrixStack, missingStorage, width/2, 20, 0xFF4040)
+            font.drawCenteredString(poseStack, missingStorage, width/2, 20, 0xFF4040)
         }
     }
 }

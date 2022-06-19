@@ -6,7 +6,7 @@ import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.network.NetworkEvent
 import org.jglrxavpok.moarboats.common.entities.UtilityBoatEntity
 
-class SUtilityTileEntityUpdate(): MoarBoatsPacket {
+class SUtilityTileEntityUpdate(): ServerMoarBoatsPacket {
 
     var data = CompoundTag()
     var boatID: Int = 0

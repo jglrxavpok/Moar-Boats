@@ -5,7 +5,7 @@ import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.network.NetworkEvent
 import org.jglrxavpok.moarboats.client.gui.GuiMappingTable
 
-class SConfirmWaypointSwap: MoarBoatsPacket {
+class SConfirmWaypointSwap: ServerMoarBoatsPacket {
 
     object Handler: MBMessageHandler<SConfirmWaypointSwap, MoarBoatsPacket?> {
         override val packetClass = SConfirmWaypointSwap::class.java

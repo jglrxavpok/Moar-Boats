@@ -5,7 +5,7 @@ import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.network.NetworkEvent
 import org.jglrxavpok.moarboats.client.gui.GuiFluid
 
-class SUpdateFluidGui(): MoarBoatsPacket {
+class SUpdateFluidGui(): ServerMoarBoatsPacket {
 
     var fluidAmount = 0
     var fluidCapacity = 0

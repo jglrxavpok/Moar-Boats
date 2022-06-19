@@ -10,7 +10,7 @@ import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 
-class SMapAnswer(): MoarBoatsPacket {
+class SMapAnswer(): ServerMoarBoatsPacket {
 
     var mapID: Int = -1
     var mapData = CompoundTag()

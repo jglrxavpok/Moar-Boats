@@ -79,7 +79,9 @@ object AnchorModuleRenderer : BoatModuleRenderer() {
         for (index in 0..segmentCount) {
             val step = index.toFloat() / segmentCount.toFloat()
             bufferbuilder.pos(matrixStack, dx * step.toDouble(), dy * (step * step + step).toDouble() * 0.5 + 0.25, dz * step.toDouble())
-                    .color(0, 0, 0, 255).endVertex()
+                .color(0, 0, 0, 255)
+                .normal(matrixStack.last().normal(), 0.0f, 0.0f, 0.0f)
+                .endVertex()
         }
     }
 }

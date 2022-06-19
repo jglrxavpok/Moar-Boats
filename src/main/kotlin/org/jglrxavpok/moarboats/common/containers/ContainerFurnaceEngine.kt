@@ -31,7 +31,7 @@ class ContainerFurnaceEngine(menuType: MenuType<ContainerFurnaceEngine>, contain
     override fun broadcastChanges() {
         super.broadcastChanges()
 
-        for(listener in getListeners(this)) {
+        for(listener in this.containerListeners) {
             if (this.fuelTotalTime != this.engineInventory.getField(0)) {
                 listener.dataChanged(this, 0, this.engineInventory.getField(0))
             }

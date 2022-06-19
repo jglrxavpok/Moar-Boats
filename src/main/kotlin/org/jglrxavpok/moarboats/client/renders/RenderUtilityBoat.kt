@@ -1,14 +1,60 @@
 package org.jglrxavpok.moarboats.client.renders
 
 import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.blaze3d.vertex.VertexConsumer
 import com.mojang.math.Vector3f
+import net.minecraft.client.model.BoatModel
+import net.minecraft.client.model.geom.ModelLayerLocation
 import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.entity.EntityRendererProvider
+import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.level.block.state.BlockState
+import org.jglrxavpok.moarboats.common.data.BoatType
 import org.jglrxavpok.moarboats.common.entities.UtilityBoatEntity
 
 class RenderUtilityBoat<T: UtilityBoatEntity<*,*>>(renderManager: EntityRendererProvider.Context, val blockstateProvider: (T) ->BlockState): RenderAbstractBoat<T>(renderManager) {
+
+    val models = mutableMapOf<BoatType, BoatModel>()
+
+    init {
+        for(type in BoatType.values()) {
+            models[type] = BoatModel(renderManager.bakeLayer(
+                ModelLayerLocation(
+                    ResourceLocation(type.getBaseBoatOriginModID(), "boat/${type.getShortName()}"), "main"
+                )), false /* no chest */)
+        }
+    }
+
+    override fun renderBoat(
+        entity: T,
+        matrixStackIn: PoseStack,
+        bufferIn: MultiBufferSource,
+        packedLightIn: Int,
+        red: Float,
+        green: Float,
+        blue: Float,
+        alpha: Float
+    ) {
+        val boatmodel: BoatModel = models[entity.boatType] ?: return
+        // TODO 1.19 - boatmodel.setupAnim(entity, p_113931_, 0.0f, -0.1f, 0.0f, 0.0f)
+        val vertexconsumer: VertexConsumer = bufferIn.getBuffer(boatmodel.renderType(getTextureLocation(entity)))
+        boatmodel.renderToBuffer(
+            matrixStackIn,
+            vertexconsumer,
+            packedLightIn,
+            OverlayTexture.NO_OVERLAY,
+            1.0f,
+            1.0f,
+            1.0f,
+            1.0f
+        )
+        if (!entity.isUnderWater()) {
+            val vertexconsumer1: VertexConsumer = bufferIn.getBuffer(RenderType.waterMask())
+            boatmodel.waterPatch().render(matrixStackIn, vertexconsumer1, packedLightIn, OverlayTexture.NO_OVERLAY)
+        }
+    }
 
     override fun getTextureLocation(entity: T): ResourceLocation {
         return entity.getBoatType().getTexture()

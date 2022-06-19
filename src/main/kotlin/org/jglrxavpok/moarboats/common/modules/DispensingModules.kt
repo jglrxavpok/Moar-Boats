@@ -14,7 +14,6 @@ import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.DispenserBlock
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper
 import net.minecraftforge.registries.ForgeRegistries
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
@@ -31,12 +30,6 @@ import org.jglrxavpok.moarboats.common.state.BlockPosProperty
 import org.jglrxavpok.moarboats.common.state.DoubleBoatProperty
 import org.jglrxavpok.moarboats.extensions.Fluids
 import java.util.regex.Pattern
-
-private val DISPENSE_BEHAVIOR_REGISTRY: Map<Item, DispenseItemBehavior>
-    get() {
-        // TODO: access transformer
-        return ObfuscationReflectionHelper.findField(DispenserBlock::class.java, "DISPENSE_BEHAVIOR_REGISTRY")[null] as Map<Item, DispenseItemBehavior>
-    }
 
 abstract class DispensingModule: BoatModule() {
     override val usesInventory = true

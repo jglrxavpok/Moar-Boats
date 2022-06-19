@@ -8,7 +8,7 @@ import net.minecraftforge.network.NetworkEvent
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 
-class SSyncInventory(): MoarBoatsPacket {
+class SSyncInventory(): ServerMoarBoatsPacket {
 
     var boatID: Int = 0
     var moduleLocation: ResourceLocation = ResourceLocation("moarboats:none")

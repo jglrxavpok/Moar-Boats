@@ -6,7 +6,7 @@ import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.network.NetworkEvent
 import org.jglrxavpok.moarboats.client.gui.GuiMappingTable
 
-class SConfirmWaypointCreation(): MoarBoatsPacket {
+class SConfirmWaypointCreation(): ServerMoarBoatsPacket {
 
     private lateinit var data: ListTag
 

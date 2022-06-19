@@ -8,7 +8,7 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.gui.GuiMappingTable
 import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 
-class SSetGoldenItinerary(): MoarBoatsPacket {
+class SSetGoldenItinerary(): ServerMoarBoatsPacket {
 
     lateinit var data: ItemGoldenTicket.WaypointData
 

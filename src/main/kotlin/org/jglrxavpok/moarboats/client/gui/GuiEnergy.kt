@@ -1,6 +1,7 @@
 package org.jglrxavpok.moarboats.client.gui
 
 import com.mojang.blaze3d.platform.GlStateManager
+import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.network.chat.Component
@@ -17,9 +18,9 @@ class GuiEnergy(isLoading: Boolean, containerID: Int, val te: TileEntityEnergy, 
     private val defaultBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/default_background.png")
 
     override fun renderBg(matrixStack: PoseStack, partialTicks: Float, mouseX: Int, mouseY: Int) {
-        minecraft!!.textureManager.bindForSetup(defaultBackground)
+        RenderSystem.setShaderTexture(0, defaultBackground)
         blit(matrixStack, guiLeft, guiTop, 0, 0, xSize, ySize)
-        minecraft!!.textureManager.bindForSetup(energyBackground)
+        RenderSystem.setShaderTexture(0, energyBackground)
         blit(matrixStack, guiLeft, guiTop, 0, 0, xSize, ySize)
 
         GlStateManager._disableCull()

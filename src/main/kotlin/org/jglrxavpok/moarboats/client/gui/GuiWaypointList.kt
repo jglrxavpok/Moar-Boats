@@ -43,7 +43,7 @@ class WaypointListEntry(val parent: GuiMappingTable, val slot: CompoundTag, val 
         mc.font.draw(matrixStack, text, 0f, 0f, 0xFFFFFF)
         matrixStack.popPose()
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
-        mc.textureManager.bindForSetup(ArrowsTexture)
+        RenderSystem.setShaderTexture(0, ArrowsTexture)
         //RenderSystem.enableAlphaTest()
         if(mouseX >= entryRight - 32 && mouseX < entryRight && mouseY >= slotTop && mouseY <= slotTop + slotHeight) {
             val hoveredOffsetBottom = if(mouseY - slotTop >= slotHeight / 2) 1 else 0

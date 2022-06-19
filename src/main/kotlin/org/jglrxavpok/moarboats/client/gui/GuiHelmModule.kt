@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.screens.Screen
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
+import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.Tesselator
 import com.mojang.blaze3d.vertex.VertexFormat
 import net.minecraft.network.chat.Component
@@ -63,17 +64,17 @@ class GuiHelmModule(menuType: MenuType<ContainerHelmModule>, containerID: Int, p
         mapEditButton.width = (xSize * .75).toInt() /2
         mapEditButton.x = guiLeft + xSize/2 - mapEditButton.width
         mapEditButton.y = guiTop + (mapSize + 7).toInt()
-        addWidget(mapEditButton)
+        addRenderableWidget(mapEditButton)
 
         saveButton.width = (xSize*.75).toInt() /2
         saveButton.x = guiLeft + xSize/2
         saveButton.y = guiTop + (mapSize + 7).toInt()
-        addWidget(saveButton)
+        addRenderableWidget(saveButton)
     }
 
-    override fun drawModuleBackground(mouseX: Int, mouseY: Int) {
-        super.drawModuleBackground(mouseX, mouseY)
-        this.mc.textureManager.bindForSetup(RES_MAP_BACKGROUND)
+    override fun drawModuleBackground(poseStack: PoseStack, mouseX: Int, mouseY: Int) {
+        super.drawModuleBackground(poseStack, mouseX, mouseY)
+        RenderSystem.setShaderTexture(0, RES_MAP_BACKGROUND)
         val tessellator = Tesselator.getInstance()
         val bufferbuilder = tessellator.builder
         val x = guiLeft + xSize/2f - mapSize/2
@@ -94,7 +95,7 @@ class GuiHelmModule(menuType: MenuType<ContainerHelmModule>, containerID: Int, p
                 is ItemPath -> Pair(item.getWaypointData(stack, MoarBoats.getLocalMapStorage()), item.getLoopingOptions(stack))
                 else -> return@let
             }
-            val renderInfo = RenderInfo(matrixStack, buffers)
+            val renderInfo = RenderInfo(poseStack, buffers)
             HelmModuleRenderer.renderMap(boat, renderInfo, mapdata, x, y, mapSize, boat.positionX, boat.positionZ, margins, waypoints, loopingOption == LoopingOptions.Loops)
 
             if(mouseX >= x+margins && mouseX <= x+mapSize-margins && mouseY >= y+margins && mouseY <= y+mapSize-margins) {
@@ -107,21 +108,21 @@ class GuiHelmModule(menuType: MenuType<ContainerHelmModule>, containerID: Int, p
         buffers.endBatch() // render to screen
 
         if(!hasMap) {
-            matrixStack.pushPose()
-            matrixStack.translate(guiLeft.toDouble()+8.0, guiTop.toDouble()+8.0, 0.0)
-            Screen.fill(matrixStack, 0, 0, 16, 16, 0x30ff0000)
-
-            val poseStack = RenderSystem.getModelViewStack()
             poseStack.pushPose()
-            poseStack.mulPoseMatrix(matrixStack.last().pose())
+            poseStack.translate(guiLeft.toDouble()+8.0, guiTop.toDouble()+8.0, 0.0)
+            Screen.fill(poseStack, 0, 0, 16, 16, 0x30ff0000)
+
+            val modelViewStack = RenderSystem.getModelViewStack()
+            modelViewStack.pushPose()
+            modelViewStack.mulPoseMatrix(modelViewStack.last().pose())
             RenderSystem.applyModelViewMatrix()
             mc.itemRenderer.renderGuiItem(mapStack, 0, 0)
-            poseStack.popPose()
+            modelViewStack.popPose()
 
             RenderSystem.depthFunc(GL11.GL_GREATER)
-            Screen.fill(matrixStack, 0, 0, 16, 16, 0x30ffffff)
+            Screen.fill(poseStack, 0, 0, 16, 16, 0x30ffffff)
             RenderSystem.depthFunc(GL11.GL_LEQUAL)
-            matrixStack.popPose()
+            poseStack.popPose()
         }
     }
 

@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.client.gui
 
+import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.components.Button
@@ -100,12 +101,12 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
             control.width = buttonWidth.toInt()
             control.y = listTop+listHeight+3
             control.x = (xOffset+xStart).toInt()
-            addWidget(control)
+            addRenderableWidget(control)
         }
 
         loopingButton.x = 8 + guiLeft + 30
         loopingButton.y = guiTop + 6
-        addWidget(loopingButton)
+        addRenderableWidget(loopingButton)
     }
 
     override fun containerTick() {
@@ -142,10 +143,10 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
     }
 
     override fun renderBg(matrixStack: PoseStack, partialTicks: Float, mouseX: Int, mouseY: Int) {
-        mc.textureManager.bindForSetup(Background)
+        RenderSystem.setShaderTexture(0, Background)
         blit(matrixStack, guiLeft, guiTop, 0, 0, this.xSize, this.height)
 
-        mc.textureManager.bindForSetup(EmptyBackground)
+        RenderSystem.setShaderTexture(0, EmptyBackground)
         blit(matrixStack, guiLeft, guiTop, 0, 0, this.xSize, height)
     }
 

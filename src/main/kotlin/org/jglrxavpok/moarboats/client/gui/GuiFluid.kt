@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.client.gui
 
+import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
@@ -27,9 +28,9 @@ class GuiFluid(isLoading: Boolean, containerID: Int, val te: TileEntityListenabl
     private val mc = Minecraft.getInstance()
 
     override fun renderBg(matrixStack: PoseStack, partialTicks: Float, mouseX: Int, mouseY: Int) {
-        mc.textureManager.bindForSetup(defaultBackground)
+        RenderSystem.setShaderTexture(0, defaultBackground)
         blit(matrixStack, guiLeft, guiTop, 0, 0, xSize, ySize)
-        mc.textureManager.bindForSetup(fluidBackground)
+        RenderSystem.setShaderTexture(0, fluidBackground)
         blit(matrixStack, guiLeft, guiTop, 0, 0, xSize, ySize)
 
         if(fluid != null && fluid !is EmptyFluid) {

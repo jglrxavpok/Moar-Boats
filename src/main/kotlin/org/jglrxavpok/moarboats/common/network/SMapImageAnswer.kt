@@ -5,7 +5,7 @@ import net.minecraftforge.network.NetworkEvent
 import org.jglrxavpok.moarboats.client.ClientEvents
 import org.jglrxavpok.moarboats.common.data.MapImageStripe
 
-class SMapImageAnswer(): MoarBoatsPacket {
+class SMapImageAnswer(): ServerMoarBoatsPacket {
 
     var mapName = ""
     var stripeIndex = 0

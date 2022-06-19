@@ -19,6 +19,7 @@ import net.minecraft.world.item.Items
 import net.minecraftforge.registries.ForgeRegistries
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
+import org.jglrxavpok.moarboats.client.normal
 import org.jglrxavpok.moarboats.client.pos
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.FishingModule
@@ -130,8 +131,17 @@ object FishingModuleRenderer : BoatModuleRenderer() {
         for (index in 1 until segmentCount) {
             val step = index.toFloat() / segmentCount.toFloat()
             val stepMinus1 = (index-1).toFloat() / segmentCount.toFloat()
-            lineBuffer.pos(matrixStack, x + dx * stepMinus1.toDouble(), y + dy * (stepMinus1 * stepMinus1 + stepMinus1).toDouble() * 0.5 + 0.25, z + dz * stepMinus1.toDouble()).color(0, 0, 0, 255).endVertex()
-            lineBuffer.pos(matrixStack, x + dx * step.toDouble(), y + dy * (step * step + step).toDouble() * 0.5 + 0.25, z + dz * step.toDouble()).color(0, 0, 0, 255).endVertex()
+            lineBuffer
+                .pos(matrixStack, x + dx * stepMinus1.toDouble(), y + dy * (stepMinus1 * stepMinus1 + stepMinus1).toDouble() * 0.5 + 0.25, z + dz * stepMinus1.toDouble())
+                .color(0, 0, 0, 255)
+                .normal(matrixStack, 0.0f, 0.0f, 0.0f)
+                .endVertex()
+
+            lineBuffer
+                .pos(matrixStack, x + dx * step.toDouble(), y + dy * (step * step + step).toDouble() * 0.5 + 0.25, z + dz * step.toDouble())
+                .color(0, 0, 0, 255)
+                .normal(matrixStack, 0.0f, 0.0f, 0.0f)
+                .endVertex()
         }
     }
 }

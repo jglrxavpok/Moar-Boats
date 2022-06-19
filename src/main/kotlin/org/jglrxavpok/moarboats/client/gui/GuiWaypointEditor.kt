@@ -73,7 +73,7 @@ class GuiWaypointEditor(val player: Player, val te: TileEntityMappingTable, val 
             it.value = ""
         }
 
-        addWidget(boostSlider)
+        addRenderableWidget(boostSlider)
 
         nameInput.value = waypointData.getString("name")
         xInput.value = waypointData.getInt("x").toString()
@@ -112,7 +112,7 @@ class GuiWaypointEditor(val player: Player, val te: TileEntityMappingTable, val 
         boostSlider.value = waypointData.getDouble("boost") * 100
 
         allButtons.forEach {
-            addWidget(it)
+            addRenderableWidget(it)
         }
 
         val listWidth = .20 * width
@@ -125,7 +125,7 @@ class GuiWaypointEditor(val player: Player, val te: TileEntityMappingTable, val 
         refreshButton.y = listTop + listHeight
         refreshButton.width = listWidth.toInt()
 
-        addWidget(waypointList)
+        addRenderableWidget(waypointList)
 
         refreshList()
     }

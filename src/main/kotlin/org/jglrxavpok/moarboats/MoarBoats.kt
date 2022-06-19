@@ -1,6 +1,5 @@
 package org.jglrxavpok.moarboats
 
-import net.minecraft.client.Minecraft
 import net.minecraft.core.NonNullList
 import net.minecraft.network.syncher.EntityDataSerializers
 import net.minecraft.resources.ResourceKey
@@ -20,9 +19,9 @@ import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.data.ExistingFileHelper
-import net.minecraftforge.event.server.ServerStartingEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.DistExecutor
+import net.minecraftforge.fml.DistExecutor.SafeSupplier
 import net.minecraftforge.fml.ModLoadingContext
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.config.ModConfig
@@ -37,7 +36,7 @@ import org.apache.logging.log4j.Logger
 import org.jglrxavpok.moarboats.api.BoatModuleEntry
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.client.ClientEvents
-import org.jglrxavpok.moarboats.client.DummyDimensionSavedDataManager
+import org.jglrxavpok.moarboats.client.ClientProxy
 import org.jglrxavpok.moarboats.common.*
 import org.jglrxavpok.moarboats.common.containers.ContainerTypes
 import org.jglrxavpok.moarboats.common.data.BoatType
@@ -45,11 +44,11 @@ import org.jglrxavpok.moarboats.common.items.MBRecipeSerializers
 import org.jglrxavpok.moarboats.datagen.JsonModelGenerator
 import org.jglrxavpok.moarboats.datagen.UtilityBoatRecipes
 import org.jglrxavpok.moarboats.server.ServerEvents
+import org.jglrxavpok.moarboats.server.ServerProxy
 import thedarkcolour.kotlinforforge.forge.MOD_CONTEXT
 import java.net.URL
 import java.util.*
 import java.util.concurrent.Callable
-import java.util.function.Supplier
 
 @Mod(MoarBoats.ModID)
 object MoarBoats {
@@ -92,12 +91,6 @@ object MoarBoats {
         }
 
         override fun fillItemList(items: NonNullList<ItemStack>) {
-            for (blockEntry in MBBlocks.Registry.entries) {
-                val block = blockEntry.get()
-                if(block.asItem() !is AirItem) {
-                    block.fillItemCategory(this, items)
-                }
-            }
             for (itemEntry in MBItems.Registry.entries) {
                 val item = itemEntry.get()
                 item.fillItemCategory(this, items)
@@ -120,7 +113,21 @@ object MoarBoats {
         }
     }
 
+    val proxy: Proxy
+
     init {
+        proxy = DistExecutor.safeRunForDist(
+            // client
+            {
+                SafeSupplier(::ClientProxy)
+            },
+
+            // server
+            {
+                SafeSupplier(::ServerProxy)
+            }
+        )
+
         MOD_CONTEXT.getKEventBus().addListener(ClientEvents::doClientStuff)
         MOD_CONTEXT.getKEventBus().addListener(this::setup)
         MOD_CONTEXT.getKEventBus().addListener(this::postLoad)
@@ -139,38 +146,11 @@ object MoarBoats {
         BlockEntities.Registry.register(bus)
         ContainerTypes.Registry.register(bus)
         MBRecipeSerializers.Registry.register(bus)
-
-        DistExecutor.runForDist({
-            Supplier {
-
-            }
-        }, {
-            Supplier {
-            }
-        })
     }
 
     fun getLocalMapStorage(dimensionType: ResourceKey<Level> = Level.OVERWORLD): DimensionDataStorage {
         try {
-            return DistExecutor.safeRunForDist(
-                    // client
-                    {
-                        DistExecutor.SafeSupplier { ->
-                            when {
-                                Minecraft.getInstance().singleplayerServer != null /* LAN */ -> Minecraft.getInstance().singleplayerServer!!.getLevel(dimensionType)?.dataStorage
-                                        ?: error("Tried to get save data of an nonexistent dimension type? $dimensionType")
-                                else -> DummyDimensionSavedDataManager
-                            }
-                        }
-                    },
-
-                    // server
-                    {
-                        DistExecutor.SafeSupplier<DimensionDataStorage> { ->
-                            dedicatedServerInstance!!.getLevel(dimensionType)?.dataStorage ?: error("Tried to get save data of an nonexistent dimension type? $dimensionType")
-                        }
-                    }
-            )
+            return proxy.get(dimensionType)
         } catch(e: Throwable) {
             MoarBoats.logger.error("Something broke in MoarBoats#getLocalMapStorage(), something in the code might be very wrong! Please report.", e)
             throw e

@@ -3,20 +3,10 @@ package org.jglrxavpok.moarboats.common.containers
 import net.minecraft.core.NonNullList
 import net.minecraft.world.Container
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.inventory.*
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.level.Level
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper
 
 class UtilityContainer<T: AbstractContainerMenu>(type: MenuType<T>, id: Int, val baseContainer: AbstractContainerMenu): AbstractContainerMenu(type, id) {
-
-    companion object {
-        // TODO: Access transformer
-        val resetDragMethod = ObfuscationReflectionHelper.findMethod(AbstractContainerMenu::class.java, "func_94533_d")
-        val clearContainerMethod = ObfuscationReflectionHelper.findMethod(AbstractContainerMenu::class.java, "func_193327_a", Player::class.java, Level::class.java, AbstractContainerMenu::class.java)
-        val moveItemStackToMethod = ObfuscationReflectionHelper.findMethod(AbstractContainerMenu::class.java, "func_75135_a", ItemStack::class.java, Integer.TYPE, Integer.TYPE, java.lang.Boolean.TYPE)
-    }
 
     override fun stillValid(playerIn: Player): Boolean {
         return true
@@ -75,11 +65,11 @@ class UtilityContainer<T: AbstractContainerMenu>(type: MenuType<T>, id: Int, val
     }
 
     override fun resetQuickCraft() {
-        resetDragMethod(baseContainer)
+        baseContainer.resetQuickCraft()
     }
 
     override fun clearContainer(playerIn: Player, inventoryIn: Container) {
-        clearContainerMethod(baseContainer, playerIn, inventoryIn)
+        baseContainer.clearContainer(playerIn, inventoryIn)
     }
 
     override fun broadcastChanges() {
@@ -91,6 +81,6 @@ class UtilityContainer<T: AbstractContainerMenu>(type: MenuType<T>, id: Int, val
     }
 
     override fun moveItemStackTo(stack: ItemStack, startIndex: Int, endIndex: Int, reverseDirection: Boolean): Boolean {
-        return moveItemStackToMethod(baseContainer, stack, startIndex, endIndex, reverseDirection) as Boolean
+        return baseContainer.moveItemStackTo(stack, startIndex, endIndex, reverseDirection) as Boolean
     }
 }

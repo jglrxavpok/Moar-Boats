@@ -17,23 +17,13 @@ import net.minecraft.world.level.block.entity.BlastFurnaceBlockEntity
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity
 import net.minecraft.world.level.block.entity.SmokerBlockEntity
 import net.minecraft.world.phys.Vec3
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper
-import org.jglrxavpok.moarboats.common.EntityEntries
 import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.containers.ContainerTypes
 import org.jglrxavpok.moarboats.common.containers.UtilityBlastFurnaceContainer
 import org.jglrxavpok.moarboats.common.containers.UtilityFurnaceContainer
 import org.jglrxavpok.moarboats.common.containers.UtilitySmokerContainer
-import org.jglrxavpok.moarboats.common.entities.AnimalBoatEntity
 import org.jglrxavpok.moarboats.common.entities.UtilityBoatEntity
-import org.jglrxavpok.moarboats.common.items.BlastFurnaceBoatItem
-import org.jglrxavpok.moarboats.common.items.FurnaceBoatItem
-import org.jglrxavpok.moarboats.common.items.SmokerBoatItem
-
-// TODO: Access transformer
-private val furnaceDataField = ObfuscationReflectionHelper.findField(AbstractFurnaceBlockEntity::class.java, "field_214013_b")
-val BurnTimeField = ObfuscationReflectionHelper.findField(AbstractFurnaceBlockEntity::class.java, "field_214018_j")
 
 class FurnaceBoatEntity(entityType: EntityType<out FurnaceBoatEntity>, world: Level): AbstractFurnaceBoatEntity<FurnaceBlockEntity, UtilityFurnaceContainer>(entityType, world) {
 
@@ -58,7 +48,7 @@ class FurnaceBoatEntity(entityType: EntityType<out FurnaceBoatEntity>, world: Le
     }
 
     override fun createMenu(p0: Int, p1: Inventory, p2: Player): AbstractContainerMenu? {
-        val furnaceData = furnaceDataField[getBackingTileEntity()] as ContainerData
+        val furnaceData = getBackingTileEntity()!!.dataAccess
         return UtilityFurnaceContainer(p0, p1, getBackingTileEntity(), furnaceData)
     }
 
@@ -92,7 +82,7 @@ class BlastFurnaceBoatEntity(entityType: EntityType<out BlastFurnaceBoatEntity>,
     }
 
     override fun createMenu(p0: Int, p1: Inventory, p2: Player): AbstractContainerMenu? {
-        val furnaceData = furnaceDataField[getBackingTileEntity()] as ContainerData
+        val furnaceData = getBackingTileEntity()!!.dataAccess
         return UtilityBlastFurnaceContainer(p0, p1, getBackingTileEntity(), furnaceData)
     }
 
@@ -126,7 +116,7 @@ class SmokerBoatEntity(entityType: EntityType<out SmokerBoatEntity>, world: Leve
     }
 
     override fun createMenu(p0: Int, p1: Inventory, p2: Player): AbstractContainerMenu? {
-        val furnaceData = furnaceDataField[getBackingTileEntity()] as ContainerData
+        val furnaceData = getBackingTileEntity()!!.dataAccess
         return UtilitySmokerContainer(p0, p1, getBackingTileEntity(), furnaceData)
     }
 
@@ -152,6 +142,6 @@ abstract class AbstractFurnaceBoatEntity<T: AbstractFurnaceBlockEntity, C: Abstr
         }
     }
 
-    fun isFurnaceLit() = BurnTimeField.getInt(getBackingTileEntity()) > 0
+    fun isFurnaceLit() = getBackingTileEntity()!!.isLit
 
 }

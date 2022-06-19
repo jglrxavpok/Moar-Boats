@@ -4,7 +4,7 @@ import net.minecraft.nbt.ListTag
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.network.NetworkEvent
 
-abstract class SxxUpdateMapWithPath: MoarBoatsPacket {
+abstract class SxxUpdateMapWithPath: ServerMoarBoatsPacket {
 
     constructor()
 

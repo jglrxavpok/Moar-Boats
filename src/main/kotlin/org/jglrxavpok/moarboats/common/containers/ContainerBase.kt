@@ -3,21 +3,9 @@ package org.jglrxavpok.moarboats.common.containers
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.AbstractContainerMenu
-import net.minecraft.world.inventory.ContainerListener
 import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.inventory.Slot
 import net.minecraft.world.item.ItemStack
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper
-import java.lang.reflect.Field
-
-private lateinit var listenersField: Field
-
-fun getListeners(container: AbstractContainerMenu): List<ContainerListener> {
-    if(!::listenersField.isInitialized) {
-        listenersField = ObfuscationReflectionHelper.findField(AbstractContainerMenu::class.java, "field_75149_d")
-    }
-    return listenersField[container] as List<ContainerListener>
-}
 
 abstract class ContainerBase<T: AbstractContainerMenu>(val containerRef: MenuType<T>, val containerID: Int, val playerInventory: Inventory): AbstractContainerMenu(containerRef, containerID) {
 

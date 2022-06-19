@@ -30,7 +30,7 @@ open class GuiToolButton(var text: Component, var toolIconIndex: Int, val pressa
             val toolY = toolIconIndex / ToolIconCountPerLine
             val minU = toolX.toFloat() * 20f
             val minV = toolY.toFloat() * 20f
-            mc.textureManager.bindForSetup(WidgetsTextureLocation)
+            RenderSystem.setShaderTexture(0, WidgetsTextureLocation)
             Screen.blit(matrixStack, x, y, minU, minV, 20, 20, WidgetsTextureSize, WidgetsTextureSize)
 
             val textY = y + height / 2f - mc.font.lineHeight / 2f
@@ -39,7 +39,7 @@ open class GuiToolButton(var text: Component, var toolIconIndex: Int, val pressa
     }
 
     private fun renderButtonBackground(matrixStack: PoseStack, mc: Minecraft, mouseX: Int, mouseY: Int) {
-        mc.textureManager.bindForSetup(AbstractWidget.WIDGETS_LOCATION)
+        RenderSystem.setShaderTexture(0, AbstractWidget.WIDGETS_LOCATION)
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
         this.isHovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height
         val stateOffset = this.getYImage(this.isHovered)

@@ -6,7 +6,7 @@ import net.minecraft.sounds.SoundSource
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.network.NetworkEvent
 
-class SPlaySound(): MoarBoatsPacket {
+class SPlaySound(): ServerMoarBoatsPacket {
 
     var x: Double = 0.0
     var y: Double = 0.0

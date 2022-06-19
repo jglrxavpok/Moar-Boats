@@ -51,7 +51,7 @@ class GuiIronChestModule(containerID: Int, playerInventory: Inventory, module: B
     override fun drawModuleBackground(mouseX: Int, mouseY: Int) {
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
 
-        mc.textureManager.bindForSetup(chestType.guiTexture)
+        RenderSystem.setShaderTexture(0, chestType.guiTexture)
 
         val x = (width - xSize) / 2
         val y = (height - ySize) / 2

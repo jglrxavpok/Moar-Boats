@@ -33,7 +33,7 @@ class WaypointInfoEntry(val parent: GuiWaypointEditor, val slot: WaypointInfo, v
         // TODO: merge with rendering code of GuiWaypointList
         matrixStack.pushPose()
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
-        mc.textureManager.bindForSetup(ArrowsTexture)
+        RenderSystem.setShaderTexture(0, ArrowsTexture)
         val hovered = if(mouseX >= left && mouseX < left + 16 && mouseY >= slotTop && mouseY < slotTop + slotHeight) 1 else 0
 
         val arrowScale = 0.75
