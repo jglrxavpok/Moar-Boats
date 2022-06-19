@@ -19,7 +19,7 @@ class RenderModularBoat(renderManager: EntityRendererProvider.Context): RenderAb
 
     override fun postModelRender(entity: ModularBoatEntity, entityYaw: Float, partialTicks: Float, matrixStackIn: PoseStack, bufferIn: MultiBufferSource, packedLightIn: Int) {
         entity.modules.forEach {
-            BoatModuleRenderingRegistry.getValue(it.id)?.renderModule(entity, it, matrixStackIn, bufferIn, packedLightIn, partialTicks, entityYaw, entityRenderDispatcher)
+            BoatModuleRenderingRegistry.get(it)?.renderModule(entity, it, matrixStackIn, bufferIn, packedLightIn, partialTicks, entityYaw, entityRenderDispatcher)
         }
     }
 }

@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Quaternion
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher
 import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context
 import net.minecraft.world.level.block.Blocks
@@ -17,7 +18,7 @@ object SonarModuleRenderer : BoatModuleRenderer() {
 
     private val testMatrix = SurroundingsMatrix(32)
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererProvider.Context) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRenderDispatcher) {
         module as SonarModule
         matrixStack.pushPose()
         matrixStack.scale(0.75f, 0.75f, 0.75f)
@@ -49,7 +50,7 @@ object SonarModuleRenderer : BoatModuleRenderer() {
                         val angle = atan2(gradientVal.y, gradientVal.x)
                         matrixStack.mulPose(Quaternion(0f, angle.toFloat(), 0f, false))
                         matrixStack.scale(0.1f, 0.1f, gradientVal.length().toFloat() * 0.1f)
-                        if(!potentialState.fluidState.isEmpty) {
+                        if(potentialState != null) {
                             renderBlockState(matrixStack, buffers, packedLightIn, Blocks.EMERALD_BLOCK.defaultBlockState(), boat.lightLevelDependentMagicValue)
                         }
                         matrixStack.popPose()

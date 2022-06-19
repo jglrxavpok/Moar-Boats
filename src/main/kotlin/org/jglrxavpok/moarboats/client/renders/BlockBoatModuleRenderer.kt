@@ -5,6 +5,7 @@ import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.resources.ResourceLocation
 import com.mojang.math.Vector3f
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher
 import net.minecraft.client.renderer.entity.EntityRendererProvider
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
@@ -13,7 +14,7 @@ open class BlockBoatModuleRenderer(id: ResourceLocation, private val spot: BoatM
 
     constructor(id: ResourceLocation, spot: BoatModule.Spot, state: BlockState): this(id, spot, { _, _ -> state })
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRenderer: EntityRendererProvider.Context) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRenderer: EntityRenderDispatcher) {
         val block = blockStateProvider(boat, module)
         matrixStack.pushPose()
 

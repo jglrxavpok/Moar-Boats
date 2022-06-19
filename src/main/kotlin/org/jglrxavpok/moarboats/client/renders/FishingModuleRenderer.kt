@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.block.model.ItemTransforms
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher
 import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.client.resources.model.ModelResourceLocation
@@ -30,7 +31,7 @@ object FishingModuleRenderer : BoatModuleRenderer() {
 
     private val bobberRenderType = RenderType.entityCutoutNoCull(ResourceLocation("textures/entity/fishing_hook.png"))
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererProvider.Context) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRenderDispatcher) {
         module as FishingModule
         val mc = Minecraft.getInstance()
         matrixStack.pushPose()
@@ -91,7 +92,7 @@ object FishingModuleRenderer : BoatModuleRenderer() {
         }
     }
 
-    private fun renderHook(matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, entityYaw: Float, entityRendererManager: EntityRendererProvider.Context) {
+    private fun renderHook(matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, entityYaw: Float, entityRendererManager: EntityRenderDispatcher) {
         val x = -0.40
         val y = -0.50
         val z = 0.0
@@ -107,7 +108,7 @@ object FishingModuleRenderer : BoatModuleRenderer() {
         matrixStack.pushPose()
         matrixStack.translate(x, y, z)
         matrixStack.scale(0.5f, 0.5f, 0.5f)
-        matrixStack.mulPose(entityRendererManager.entityRenderDispatcher.cameraOrientation())
+        matrixStack.mulPose(entityRendererManager.cameraOrientation())
         matrixStack.mulPose(Vector3f.YP.rotationDegrees(180.0f))
 
         bufferbuilder.pos(matrixStack, -0.5, -0.5, 0.0).color(1f, 1f, 1f, 1f).uv(0f, 1f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn).normal(matrixStack.last().normal(), 0.0f, 1.0f, 0.0f).endVertex()

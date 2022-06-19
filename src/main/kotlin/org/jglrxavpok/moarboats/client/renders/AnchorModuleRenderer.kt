@@ -5,6 +5,7 @@ import com.mojang.math.Quaternion
 import com.mojang.math.Vector3f
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderType
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher
 import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context
 import net.minecraft.util.Mth
@@ -17,7 +18,7 @@ import org.jglrxavpok.moarboats.extensions.toRadians
 
 object AnchorModuleRenderer : BoatModuleRenderer() {
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererProvider.Context) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRenderDispatcher) {
         matrixStack.pushPose()
         matrixStack.mulPose(Vector3f.YP.rotationDegrees(90f))
         val anchor = module as AnchorModule

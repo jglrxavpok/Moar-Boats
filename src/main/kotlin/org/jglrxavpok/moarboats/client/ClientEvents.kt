@@ -65,6 +65,7 @@ import org.jglrxavpok.moarboats.common.data.MapImageStripe
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.entities.UtilityBoatEntity
 import org.jglrxavpok.moarboats.common.items.RopeItem
+import org.jglrxavpok.moarboats.common.modules.*
 import org.jglrxavpok.moarboats.common.network.CShowBoatMenu
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE, value = [Dist.CLIENT], modid = MoarBoats.ModID)
@@ -173,24 +174,24 @@ object ClientEvents {
 
         JavaHelpers.registerGuis()
 
-        BoatModuleRenderingRegistry.register(FurnaceEngineRenderer)
-        BoatModuleRenderingRegistry.register(ChestModuleRenderer)
-        BoatModuleRenderingRegistry.register(HelmModuleRenderer)
-        BoatModuleRenderingRegistry.register(SonarModuleRenderer)
-        BoatModuleRenderingRegistry.register(FishingModuleRenderer)
-        BoatModuleRenderingRegistry.register(SeatModuleRenderer)
-        BoatModuleRenderingRegistry.register(AnchorModuleRenderer)
-        BoatModuleRenderingRegistry.register(SolarEngineRenderer)
-        BoatModuleRenderingRegistry.register(CreativeEngineRenderer)
-        BoatModuleRenderingRegistry.register(IcebreakerModuleRenderer)
-        BoatModuleRenderingRegistry.register(DispenserModuleRenderer)
-        BoatModuleRenderingRegistry.register(DivingModuleRenderer)
-        BoatModuleRenderingRegistry.register(RudderModuleRenderer)
-        BoatModuleRenderingRegistry.register(DropperModuleRenderer)
-        BoatModuleRenderingRegistry.register(BatteryModuleRenderer)
-        BoatModuleRenderingRegistry.register(TankModuleRenderer)
-        BoatModuleRenderingRegistry.register(ChunkLoadingModuleRenderer)
-        BoatModuleRenderingRegistry.register(OarEngineRenderer)
+        BoatModuleRenderingRegistry.put(FurnaceEngineModule, FurnaceEngineRenderer)
+        BoatModuleRenderingRegistry.put(ChestModule, ChestModuleRenderer)
+        BoatModuleRenderingRegistry.put(HelmModule, HelmModuleRenderer)
+        BoatModuleRenderingRegistry.put(SonarModule, SonarModuleRenderer)
+        BoatModuleRenderingRegistry.put(FishingModule, FishingModuleRenderer)
+        BoatModuleRenderingRegistry.put(SeatModule, SeatModuleRenderer)
+        BoatModuleRenderingRegistry.put(AnchorModule, AnchorModuleRenderer)
+        BoatModuleRenderingRegistry.put(SolarEngineModule, SolarEngineRenderer)
+        BoatModuleRenderingRegistry.put(CreativeEngineModule, CreativeEngineRenderer)
+        BoatModuleRenderingRegistry.put(IceBreakerModule, IcebreakerModuleRenderer)
+        BoatModuleRenderingRegistry.put(DispenserModule, DispenserModuleRenderer)
+        BoatModuleRenderingRegistry.put(DivingModule, DivingModuleRenderer)
+        BoatModuleRenderingRegistry.put(RudderModule, RudderModuleRenderer)
+        BoatModuleRenderingRegistry.put(DropperModule, DropperModuleRenderer)
+        BoatModuleRenderingRegistry.put(BatteryModule, BatteryModuleRenderer)
+        BoatModuleRenderingRegistry.put(FluidTankModule, TankModuleRenderer)
+        BoatModuleRenderingRegistry.put(ChunkLoadingModule, ChunkLoadingModuleRenderer)
+        BoatModuleRenderingRegistry.put(OarEngineModule, OarEngineRenderer)
 
         ItemBlockRenderTypes.setRenderLayer(MBBlocks.CargoStopper.get(), RenderType.cutoutMipped())
         ItemBlockRenderTypes.setRenderLayer(MBBlocks.WaterborneConductor.get(), RenderType.cutoutMipped())

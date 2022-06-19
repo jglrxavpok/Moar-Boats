@@ -6,6 +6,7 @@ import com.mojang.math.Quaternion
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderType
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher
 import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.nbt.CompoundTag
@@ -46,7 +47,7 @@ object HelmModuleRenderer : BoatModuleRenderer() {
     val mapBackgroundRenderType = RenderType.entityCutoutNoCull(RES_MAP_BACKGROUND)
     val moduleRenderType = RenderType.entityCutoutNoCull(texture)
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRendererProvider.Context) {
+    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRenderDispatcher) {
         module as HelmModule
         matrixStack.pushPose()
         matrixStack.scale(1f, -1f, 1f)
