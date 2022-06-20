@@ -10,9 +10,10 @@ import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.protocol.Packet
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket
 import net.minecraft.network.syncher.EntityDataSerializers
 import net.minecraft.network.syncher.SynchedEntityData
-import net.minecraft.util.*
+import net.minecraft.util.Mth
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.damagesource.DamageSource
@@ -164,9 +165,9 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
     constructor(type: EntityType<out BasicBoatEntity>, world: Level, x: Double, y: Double, z: Double): this(type, world) {
         this.setPos(x, y, z)
         this.deltaMovement = Vec3.ZERO
-        this.xOld = x
-        this.yOld = y
-        this.zOld = z
+        this.xo = x
+        this.yo = y
+        this.zo = z
     }
 
     override fun isEntityInLava() = isInLava
@@ -393,6 +394,8 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
         return this.direction.clockWise
     }
 
+
+
     /**
      * Called to update the entity's position/logic.
      */
@@ -408,14 +411,14 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
             damageTaken -= 1.0f
         }
 
-        val dx = x-xOld;
-        val dy = y-yOld;
-        val dz = z-zOld;
+        val dx = x-xo;
+        val dy = y-yo;
+        val dz = z-zo;
         distanceTravelled += sqrt(dz*dz+dy*dy+dx*dx)
 
-        this.xOld = this.x
-        this.yOld = this.y
-        this.zOld = this.z
+        this.xo = this.x
+        this.yo = this.y
+        this.zo = this.z
         super.tick()
 
         breakLinkIfNeeded(FrontLink)
@@ -850,9 +853,13 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
         return LeashFenceKnotEntity.getOrCreateKnot(world, location.get())
     }
 
+    override fun getAddEntityPacket(): Packet<*>? {
+        return ClientboundAddEntityPacket(this)
+    }
+/*
     override fun getAddEntityPacket(): Packet<*> {
         return NetworkHooks.getEntitySpawningPacket(this)
-    }
+    }*/
 
     private fun getBoatLinkedTo(side: Int): BasicBoatEntity? {
         var id = entityData.get(LINKS_RUNTIME[side])

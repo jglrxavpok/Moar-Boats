@@ -46,7 +46,7 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
     internal var boatType: BoatType = BoatType.OAK
 
     companion object {
-        val InvalidPosition = BlockPos(0, -1, 0) // out of bounds so backing tile entities don't modify the world
+        val InvalidPosition = BlockPos(0, -4269, 0) // out of bounds so backing tile entities don't modify the world
     }
 
     override val entityID: Int

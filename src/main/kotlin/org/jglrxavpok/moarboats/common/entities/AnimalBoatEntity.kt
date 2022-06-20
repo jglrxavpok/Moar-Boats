@@ -39,10 +39,9 @@ class AnimalBoatEntity(entityType: EntityType<out AnimalBoatEntity>, world: Leve
 
     constructor(entityType: EntityType<out AnimalBoatEntity>, level: Level, x: Double, y: Double, z: Double): this(entityType, level) {
         this.setPos(x, y, z)
-        this.deltaMovement = Vec3.ZERO
-        this.xOld = x
-        this.yOld = y
-        this.zOld = z
+        this.xo = x
+        this.yo = y
+        this.zo = z
     }
 
     override fun getBoatItem() = MBItems.AnimalBoat.get()

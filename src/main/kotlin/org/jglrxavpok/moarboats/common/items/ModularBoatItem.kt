@@ -47,14 +47,14 @@ class ModularBoatItem(val dyeColor: DyeColor): BaseBoatItem() {
 class AnimalBoatItem: BaseBoatItem() {
 
     override fun createBoat(levelIn: Level, raytraceresult: HitResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: Player): BasicBoatEntity {
-        return AnimalBoatEntity(EntityEntries.AnimalBoat.get(), levelIn, raytraceresult.location.x, if (inUsualFluid) raytraceresult.location.y - 0.12 else raytraceresult.location.y, raytraceresult.location.z)
+        return AnimalBoatEntity(EntityEntries.AnimalBoat.get(), levelIn)
     }
 }
 
 class FurnaceBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "furnace") {
 
     override fun createBoat(levelIn: Level, raytraceresult: HitResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: Player): BasicBoatEntity {
-        return FurnaceBoatEntity(EntityEntries.FurnaceBoat.get(), levelIn, raytraceresult.location.x, if (inUsualFluid) raytraceresult.location.y - 0.12 else raytraceresult.location.y, raytraceresult.location.z).apply { boatType = this@FurnaceBoatItem.boatType }
+        return FurnaceBoatEntity(EntityEntries.FurnaceBoat.get(), levelIn).apply { boatType = this@FurnaceBoatItem.boatType }
     }
 }
 
@@ -212,6 +212,7 @@ abstract class BaseBoatItem(propertiesModifier: Item.Properties.() -> Unit = {})
             } else {
                 val inUsualFluid = Fluids.isUsualLiquidBlock(levelIn, raytraceresult.blockPos)
                 val entityboat = createBoat(levelIn, raytraceresult, inUsualFluid, itemstack, playerIn)
+                entityboat.setPos(raytraceresult.location.x, if (inUsualFluid) raytraceresult.location.y - 0.12 else raytraceresult.location.y, raytraceresult.location.z)
                 entityboat.yRot = playerIn.yRot
 
                 return if (levelIn.getBlockCollisions(entityboat, entityboat.boundingBox.inflate(-0.1)).count() != 0) {

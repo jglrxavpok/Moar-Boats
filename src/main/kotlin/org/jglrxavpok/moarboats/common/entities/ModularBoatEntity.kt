@@ -154,9 +154,9 @@ class ModularBoatEntity(entityType: EntityType<out ModularBoatEntity>, world: Le
     constructor(entityType: EntityType<out ModularBoatEntity>, world: Level, x: Double, y: Double, z: Double, color: DyeColor, owningMode: OwningMode, ownerUUID: UUID? = null): this(entityType, world) {
         this.setPos(x, y, z)
         this.deltaMovement = Vec3.ZERO
-        this.xOld = x
-        this.yOld = y
-        this.zOld = z
+        this.xo = x
+        this.yo = y
+        this.zo = z
         this.color = color
         this.owningMode = owningMode
         this.ownerUUID = ownerUUID
