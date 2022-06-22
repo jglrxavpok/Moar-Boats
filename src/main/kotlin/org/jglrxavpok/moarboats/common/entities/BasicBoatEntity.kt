@@ -39,14 +39,12 @@ import net.minecraft.world.phys.shapes.Shapes
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.entity.IEntityAdditionalSpawnData
-import net.minecraftforge.network.NetworkHooks
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.items.RopeItem
 import org.jglrxavpok.moarboats.common.modules.BlockReason
 import org.jglrxavpok.moarboats.common.modules.NoBlockReason
 import org.jglrxavpok.moarboats.extensions.Fluids
-import org.jglrxavpok.moarboats.extensions.getEntities
 import org.jglrxavpok.moarboats.extensions.toDegrees
 import java.util.*
 import kotlin.math.abs
@@ -77,6 +75,8 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
         val KnotLink = 2
 
         val CurrentDataFormatVersion = 1 // 1.2.0
+
+        val MaxLinkSearchDistance = 50.0
     }
     /** How much of current speed to acquire. Value zero to one.  */
     private var momentum = 0f
@@ -866,7 +866,8 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
         if(id == UnitializedLinkID) {
             id = forceLinkLoad(side)
             if(id == NoLinkFound) {
-                val idList = world.getEntities<BasicBoatEntity>(null) { it is BasicBoatEntity }
+                val searchBB = boundingBox.inflate(MaxLinkSearchDistance)
+                val idList = world.getEntities(null as? Entity, searchBB) { it is BasicBoatEntity }.map { it as BasicBoatEntity }
                         .map { it as BasicBoatEntity }.joinToString(", ") { it.boatID.toString() }
                 MoarBoats.logger.error("NO LINK FOUND FOR SIDE $side (UUID was ${links[side].get()}) FOR BOAT $boatID \nHere's a list of all loaded boatIDs:\n$idList")
             }
@@ -876,9 +877,11 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
 
     private fun forceLinkLoad(side: Int): Int {
         val boatID = links[side].get()
-        val correspondingBoat = world.getEntities<BasicBoatEntity>(null) { it is BasicBoatEntity }.map { it as BasicBoatEntity }.firstOrNull { entity ->
+        val searchBB = boundingBox.inflate(MaxLinkSearchDistance)
+        val correspondingBoat = world.getEntities(null as? Entity, searchBB) { it is BasicBoatEntity }.map { it as BasicBoatEntity }.firstOrNull { entity ->
             entity?.boatID == boatID ?: false
         }
+
         val id = correspondingBoat?.entityID ?: NoLinkFound
         entityData.set(LINKS_RUNTIME[side], id)
         return id

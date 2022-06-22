@@ -26,4 +26,4 @@ abstract class BoatModuleRenderer {
     }
 }
 
-val BoatModuleRenderingRegistry = mutableMapOf<BoatModule, BoatModuleRenderer>()
+val BoatModuleRenderingRegistry = mutableMapOf<BoatModule, (EntityRendererProvider.Context) -> BoatModuleRenderer>()

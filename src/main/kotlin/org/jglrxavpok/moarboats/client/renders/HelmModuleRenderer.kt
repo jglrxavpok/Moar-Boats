@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
 import com.mojang.math.Quaternion
 import net.minecraft.client.Minecraft
+import net.minecraft.client.model.geom.ModelPart
 import net.minecraft.client.renderer.GameRenderer
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderType
@@ -22,11 +23,10 @@ import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.RenderInfo
 import org.jglrxavpok.moarboats.client.addVertex
-import org.jglrxavpok.moarboats.client.models.ModelHelm
+import org.jglrxavpok.moarboats.client.models.HelmModel
 import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.data.LoopingOptions
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
-import org.jglrxavpok.moarboats.common.items.HelmItem
 import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 import org.jglrxavpok.moarboats.extensions.toRadians
@@ -34,34 +34,22 @@ import org.lwjgl.glfw.GLFW.glfwGetTime
 import kotlin.math.atan2
 import kotlin.math.sqrt
 
-object HelmModuleRenderer : BoatModuleRenderer() {
+class HelmModuleRenderer(context: EntityRendererProvider.Context) : BoatModuleRenderer() {
 
-    val model = ModelHelm()
-
-    val texture = ResourceLocation(MoarBoats.ModID, "textures/entity/helm.png")
-    private val RES_MAP_BACKGROUND = ResourceLocation("textures/map/map_background.png")
-    val waypointIndicatorTexture = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/helm/helm_waypoint.png")
-    val boatPathTexture = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/helm/boat_path.png")
-    val helmStack = ItemStack(MBItems.HelmItem.get())
-
-    val waypointRenderType = RenderType.entityCutoutNoCull(waypointIndicatorTexture)
-    val pathRenderType = RenderType.entityCutoutNoCull(boatPathTexture)
-    val mapBackgroundRenderType = RenderType.entityCutoutNoCull(RES_MAP_BACKGROUND)
-    val moduleRenderType = RenderType.entityCutoutNoCull(texture)
+    val model = HelmModel(context.bakeLayer(HelmModel.LAYER_LOCATION))
 
     override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRenderDispatcher) {
         module as HelmModule
         matrixStack.pushPose()
-        matrixStack.scale(1f, -1f, 1f)
-        matrixStack.translate(0.2, -0f/16.0, 0.0)
+        matrixStack.scale(-1f, -1f, 1f)
 
         val frameAngle = module.rotationAngleProperty[boat].toRadians()
-        // TODO: redo model
-        /*
-        rotate(frameAngle, model.frameCenter, model.left, model.radiusLeft, model.right, model.radiusRight, model.top, model.radiusTop, model.bottom, model.radiusBottom)
+
+        rotate(frameAngle, model.rotatingPart)
         model.renderToBuffer(matrixStack, buffers.getBuffer(moduleRenderType), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f)
-        rotate(-frameAngle, model.frameCenter, model.left, model.radiusLeft, model.right, model.radiusRight, model.top, model.radiusTop, model.bottom, model.radiusBottom)
-*/
+        rotate(-frameAngle, model.rotatingPart)
+
+        matrixStack.scale(-1f, 1f, 1f)
 
         val inventory = boat.getInventory(module)
         val stack = inventory.getItem(0)
@@ -72,11 +60,10 @@ object HelmModuleRenderer : BoatModuleRenderer() {
             val x = 0.0f
             val y = 0.0f
             val mapSize = 130.0f
+            matrixStack.translate(0.72, -0.9, 0.25)
             matrixStack.scale(0.0078125f, 0.0078125f, 0.0078125f)
-            matrixStack.translate(64.0, -128.0, 32.0)
-            matrixStack.translate(3+7.0, 40.0, 0.0)
             matrixStack.mulPose(Quaternion(0f, 90f, 0f, true))
-            matrixStack.mulPose(Quaternion(25f, 0f, 0f, true))
+            matrixStack.mulPose(Quaternion(20f, 0f, 0f, true))
 
             matrixStack.translate(32.0, 32.0, 0.0)
             matrixStack.mulPose(Quaternion(0f, 0f, -frameAngle, false))
@@ -103,95 +90,109 @@ object HelmModuleRenderer : BoatModuleRenderer() {
         matrixStack.popPose()
     }
 
-/*    private fun rotate(angle: Float, vararg modelParts: ModelRenderer) {
+
+    private fun rotate(angle: Float, vararg modelParts: ModelPart) {
         modelParts.forEach {
             it.xRot -= angle
         }
-    }*/
+    }
 
-    fun renderMap(boat: IControllable, renderInfo: RenderInfo, mapdata: MapItemSavedData, x: Double, y: Double, mapSize: Double, worldX: Double, worldZ: Double, margins: Double = 7.0, waypointsData: ListTag, loops: Boolean) {
-        val mc = Minecraft.getInstance()
-        val matrixStack = renderInfo.matrixStack
+    companion object {
+        val texture = ResourceLocation(MoarBoats.ModID, "textures/entity/helm.png")
+        private val RES_MAP_BACKGROUND = ResourceLocation("textures/map/map_background.png")
+        val waypointIndicatorTexture = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/helm/helm_waypoint.png")
+        val boatPathTexture = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/helm/boat_path.png")
+        val helmStack = ItemStack(MBItems.HelmItem.get())
 
-        RenderSystem.setShader { GameRenderer.getPositionTexLightmapColorShader() }
-        matrixStack.pushPose()
-        matrixStack.translate(x+margins, y+margins, 0.0)
-        matrixStack.scale(0.0078125f, 0.0078125f, 0.0078125f)
-        matrixStack.scale((mapSize-margins*2).toFloat(), (mapSize-margins*2).toFloat(), 1.0f)
-        val mapID: Int = 0 // TODO("MapID in HelmModuleRenderer")
-        mc.gameRenderer.mapRenderer.update(mapID, mapdata)
-        mc.gameRenderer.mapRenderer.render(renderInfo.matrixStack, renderInfo.buffers, mapID, mapdata, true, renderInfo.combinedLight)
+        val waypointRenderType = RenderType.entityCutoutNoCull(waypointIndicatorTexture)
+        val pathRenderType = RenderType.entityCutoutNoCull(boatPathTexture)
+        val mapBackgroundRenderType = RenderType.entityCutoutNoCull(RES_MAP_BACKGROUND)
+        val moduleRenderType = RenderType.entityCutoutNoCull(texture)
 
-        matrixStack.translate(0.0, 0.0, 1.0/0.0078125f) // prevent z-fighting
+        fun renderMap(boat: IControllable, renderInfo: RenderInfo, mapdata: MapItemSavedData, x: Double, y: Double, mapSize: Double, worldX: Double, worldZ: Double, margins: Double = 7.0, waypointsData: ListTag, loops: Boolean) {
+            val mc = Minecraft.getInstance()
+            val matrixStack = renderInfo.matrixStack
 
-        val mapScale = (1 shl mapdata.scale.toInt()).toFloat()
-        val xOffset = (worldX - mapdata.x.toDouble()).toFloat() / mapScale
-        val zOffset = (worldZ - mapdata.z.toDouble()).toFloat() / mapScale
-        val boatRenderX = ((xOffset * 2.0f).toDouble() + 0.5).toInt() / 2f + 64f
-        val boatRenderZ = ((zOffset * 2.0f).toDouble() + 0.5).toInt() / 2f + 64f
+            RenderSystem.setShader { GameRenderer.getPositionTexLightmapColorShader() }
+            matrixStack.pushPose()
+            matrixStack.translate(x+margins, y+margins, 0.0)
+            matrixStack.scale(0.0078125f, 0.0078125f, 0.0078125f)
+            matrixStack.scale((mapSize-margins*2).toFloat(), (mapSize-margins*2).toFloat(), 1.0f)
+            val mapID: Int = 0 // TODO("MapID in HelmModuleRenderer")
+            mc.gameRenderer.mapRenderer.update(mapID, mapdata)
+            mc.gameRenderer.mapRenderer.render(renderInfo.matrixStack, renderInfo.buffers, mapID, mapdata, true, renderInfo.combinedLight)
 
-        val iconScale = 0.5f
+            matrixStack.translate(0.0, 0.0, 1.0/0.0078125f) // prevent z-fighting
 
-        matrixStack.pushPose()
-        matrixStack.scale(iconScale, iconScale, iconScale)
-        matrixStack.translate(-8.0, -8.0, 0.0)
-        //mc.itemRenderer.renderGuiItem(helmStack, (boatRenderX/iconScale).toInt(), (boatRenderZ/iconScale).toInt())
+            val mapScale = (1 shl mapdata.scale.toInt()).toFloat()
+            val xOffset = (worldX - mapdata.x.toDouble()).toFloat() / mapScale
+            val zOffset = (worldZ - mapdata.z.toDouble()).toFloat() / mapScale
+            val boatRenderX = ((xOffset * 2.0f).toDouble() + 0.5).toInt() / 2f + 64f
+            val boatRenderZ = ((zOffset * 2.0f).toDouble() + 0.5).toInt() / 2f + 64f
 
-        matrixStack.popPose()
+            val iconScale = 0.5f
 
-        // render waypoints and path
-        var hasPrevious = false
-        var previousX = 0.0
-        var previousZ = 0.0
-        val first = waypointsData.firstOrNull() as? CompoundTag
-        for((index, waypoint) in waypointsData.withIndex()) {
-            waypoint as CompoundTag
-            val x = (waypoint.getInt("x").toDouble()-HelmModule.xCenterProperty[boat])/mapSize*128.0+64f
-            val z = (waypoint.getInt("z").toDouble()-HelmModule.zCenterProperty[boat])/mapSize*128.0+64f
-            renderSingleWaypoint(renderInfo, renderInfo.buffers.getBuffer(waypointRenderType), x, z-7.0)
+            matrixStack.pushPose()
+            matrixStack.scale(iconScale, iconScale, iconScale)
+            matrixStack.translate(-8.0, -8.0, 0.0)
+            //mc.itemRenderer.renderGuiItem(helmStack, (boatRenderX/iconScale).toInt(), (boatRenderZ/iconScale).toInt())
 
-            if(hasPrevious) {
-                renderPath(renderInfo, renderInfo.buffers.getBuffer(pathRenderType), previousX, previousZ, x, z)
+            matrixStack.popPose()
+
+            // render waypoints and path
+            var hasPrevious = false
+            var previousX = 0.0
+            var previousZ = 0.0
+            val first = waypointsData.firstOrNull() as? CompoundTag
+            for((index, waypoint) in waypointsData.withIndex()) {
+                waypoint as CompoundTag
+                val x = (waypoint.getInt("x").toDouble()-HelmModule.xCenterProperty[boat])/mapSize*128.0+64f
+                val z = (waypoint.getInt("z").toDouble()-HelmModule.zCenterProperty[boat])/mapSize*128.0+64f
+                renderSingleWaypoint(renderInfo, renderInfo.buffers.getBuffer(waypointRenderType), x, z-7.0)
+
+                if(hasPrevious) {
+                    renderPath(renderInfo, renderInfo.buffers.getBuffer(pathRenderType), previousX, previousZ, x, z)
+                }
+                hasPrevious = true
+                previousX = x
+                previousZ = z
+
+                if(first != null && index == waypointsData.size-1 && loops) { // last one
+                    val firstX = (first.getInt("x").toDouble()-HelmModule.xCenterProperty[boat])/mapSize*128.0+64f
+                    val firstZ = (first.getInt("z").toDouble()-HelmModule.zCenterProperty[boat])/mapSize*128.0+64f
+                    renderPath(renderInfo, renderInfo.buffers.getBuffer(pathRenderType), x, z, firstX, firstZ, redModifier = 0.15f)
+                }
             }
-            hasPrevious = true
-            previousX = x
-            previousZ = z
-
-            if(first != null && index == waypointsData.size-1 && loops) { // last one
-                val firstX = (first.getInt("x").toDouble()-HelmModule.xCenterProperty[boat])/mapSize*128.0+64f
-                val firstZ = (first.getInt("z").toDouble()-HelmModule.zCenterProperty[boat])/mapSize*128.0+64f
-                renderPath(renderInfo, renderInfo.buffers.getBuffer(pathRenderType), x, z, firstX, firstZ, redModifier = 0.15f)
-            }
+            matrixStack.popPose()
         }
-        matrixStack.popPose()
-    }
 
-    fun renderPath(renderInfo: RenderInfo, buffer: VertexConsumer, previousX: Double, previousZ: Double, x: Double, z: Double, redModifier: Float = 1.0f, greenModifier: Float = 1.0f, blueModifier: Float = 1.0f) {
-        val matrixStack = renderInfo.matrixStack
-        val time = (glfwGetTime()*1000).toInt()
-        val pathTextureIndex = 3 - ((time/500) % 4)
+        fun renderPath(renderInfo: RenderInfo, buffer: VertexConsumer, previousX: Double, previousZ: Double, x: Double, z: Double, redModifier: Float = 1.0f, greenModifier: Float = 1.0f, blueModifier: Float = 1.0f) {
+            val matrixStack = renderInfo.matrixStack
+            val time = (glfwGetTime()*1000).toInt()
+            val pathTextureIndex = 3 - ((time/500) % 4)
 
-        val dx = x - previousX
-        val dz = z - previousZ
-        val length = sqrt(dx*dx+dz*dz).toFloat()
-        val angle = atan2(dz, dx)
-        matrixStack.pushPose()
-        matrixStack.translate(previousX, previousZ, 0.0)
-        matrixStack.mulPose(Quaternion(0f, 0f, (angle * 180.0 / Math.PI).toFloat(),true))
+            val dx = x - previousX
+            val dz = z - previousZ
+            val length = sqrt(dx*dx+dz*dz).toFloat()
+            val angle = atan2(dz, dx)
+            matrixStack.pushPose()
+            matrixStack.translate(previousX, previousZ, 0.0)
+            matrixStack.mulPose(Quaternion(0f, 0f, (angle * 180.0 / Math.PI).toFloat(),true))
 
-        val thickness = 0.5f
-        buffer.addVertex(matrixStack, 0.0f, thickness, 0.0f, redModifier, greenModifier, blueModifier, 1f, 0.0f, 0.25f * pathTextureIndex, OverlayTexture.NO_OVERLAY, renderInfo.combinedLight, 0f, 0f, 1f)
-        buffer.addVertex(matrixStack, 0.0f+length, thickness, 0.0f, redModifier, greenModifier, blueModifier, 1f, 1.0f, 0.25f * pathTextureIndex, OverlayTexture.NO_OVERLAY, renderInfo.combinedLight, 0f, 0f, 1f)
-        buffer.addVertex(matrixStack, 0.0f+length, 0.0f, 0.0f, redModifier, greenModifier, blueModifier, 1f, 1.0f, 0.25f * pathTextureIndex + 0.25f, OverlayTexture.NO_OVERLAY, renderInfo.combinedLight, 0f, 0f, 1f)
-        buffer.addVertex(matrixStack, 0.0f, 0.0f, 0.0f, redModifier, greenModifier, blueModifier, 1f, 0.0f, 0.25f * pathTextureIndex + 0.25f, OverlayTexture.NO_OVERLAY, renderInfo.combinedLight, 0f, 0f, 1f)
-        matrixStack.popPose()
-    }
+            val thickness = 0.5f
+            buffer.addVertex(matrixStack, 0.0f, thickness, 0.0f, redModifier, greenModifier, blueModifier, 1f, 0.0f, 0.25f * pathTextureIndex, OverlayTexture.NO_OVERLAY, renderInfo.combinedLight, 0f, 0f, 1f)
+            buffer.addVertex(matrixStack, 0.0f+length, thickness, 0.0f, redModifier, greenModifier, blueModifier, 1f, 1.0f, 0.25f * pathTextureIndex, OverlayTexture.NO_OVERLAY, renderInfo.combinedLight, 0f, 0f, 1f)
+            buffer.addVertex(matrixStack, 0.0f+length, 0.0f, 0.0f, redModifier, greenModifier, blueModifier, 1f, 1.0f, 0.25f * pathTextureIndex + 0.25f, OverlayTexture.NO_OVERLAY, renderInfo.combinedLight, 0f, 0f, 1f)
+            buffer.addVertex(matrixStack, 0.0f, 0.0f, 0.0f, redModifier, greenModifier, blueModifier, 1f, 0.0f, 0.25f * pathTextureIndex + 0.25f, OverlayTexture.NO_OVERLAY, renderInfo.combinedLight, 0f, 0f, 1f)
+            matrixStack.popPose()
+        }
 
-    fun renderSingleWaypoint(renderInfo: RenderInfo, buffer: VertexConsumer, x: Double, y: Double, redModifier: Float = 1.0f, greenModifier: Float = 1.0f, blueModifier: Float = 1.0f) {
-        val spriteSize = 8.0
-        buffer.addVertex(renderInfo.matrixStack, (x-spriteSize/2).toFloat(), (y+spriteSize).toFloat(), 0.0f, redModifier, greenModifier, blueModifier, 1f, 0.0f, 1.0f, OverlayTexture.NO_OVERLAY, renderInfo.combinedLight, 0f, 0f, 1f)
-        buffer.addVertex(renderInfo.matrixStack, (x+spriteSize/2).toFloat(), (y+spriteSize).toFloat(), 0.0f, redModifier, greenModifier, blueModifier, 1f, 1.0f, 1.0f, OverlayTexture.NO_OVERLAY, renderInfo.combinedLight, 0f, 0f, 1f)
-        buffer.addVertex(renderInfo.matrixStack, (x+spriteSize/2).toFloat(), y.toFloat(), 0.0f, redModifier, greenModifier, blueModifier, 1f, 1.0f, 0.0f, OverlayTexture.NO_OVERLAY, renderInfo.combinedLight, 0f, 0f, 1f)
-        buffer.addVertex(renderInfo.matrixStack, (x-spriteSize/2).toFloat(), y.toFloat(), 0.0f, redModifier, greenModifier, blueModifier, 1f, 0.0f, 0.0f, OverlayTexture.NO_OVERLAY, renderInfo.combinedLight, 0f, 0f, 1f)
+        fun renderSingleWaypoint(renderInfo: RenderInfo, buffer: VertexConsumer, x: Double, y: Double, redModifier: Float = 1.0f, greenModifier: Float = 1.0f, blueModifier: Float = 1.0f) {
+            val spriteSize = 8.0
+            buffer.addVertex(renderInfo.matrixStack, (x-spriteSize/2).toFloat(), (y+spriteSize).toFloat(), 0.0f, redModifier, greenModifier, blueModifier, 1f, 0.0f, 1.0f, OverlayTexture.NO_OVERLAY, renderInfo.combinedLight, 0f, 0f, 1f)
+            buffer.addVertex(renderInfo.matrixStack, (x+spriteSize/2).toFloat(), (y+spriteSize).toFloat(), 0.0f, redModifier, greenModifier, blueModifier, 1f, 1.0f, 1.0f, OverlayTexture.NO_OVERLAY, renderInfo.combinedLight, 0f, 0f, 1f)
+            buffer.addVertex(renderInfo.matrixStack, (x+spriteSize/2).toFloat(), y.toFloat(), 0.0f, redModifier, greenModifier, blueModifier, 1f, 1.0f, 0.0f, OverlayTexture.NO_OVERLAY, renderInfo.combinedLight, 0f, 0f, 1f)
+            buffer.addVertex(renderInfo.matrixStack, (x-spriteSize/2).toFloat(), y.toFloat(), 0.0f, redModifier, greenModifier, blueModifier, 1f, 0.0f, 0.0f, OverlayTexture.NO_OVERLAY, renderInfo.combinedLight, 0f, 0f, 1f)
+        }
     }
 }

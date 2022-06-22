@@ -14,7 +14,8 @@ import net.minecraft.world.entity.Entity
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.RenderInfo
 import org.jglrxavpok.moarboats.client.models.ModelBoatLinkerAnchor
-import org.jglrxavpok.moarboats.client.models.ModelModularBoat
+import org.jglrxavpok.moarboats.client.models.ModularBoatModel
+import org.jglrxavpok.moarboats.client.normal
 import org.jglrxavpok.moarboats.client.pos
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 
@@ -25,7 +26,7 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
         val WhiteColor = floatArrayOf(1f, 1f, 1f, 1f)
     }
 
-    val model = ModelModularBoat()
+    val model = ModularBoatModel<T>(renderManager.bakeLayer(ModularBoatModel.LAYER_LOCATION))
     val ropeAnchorModel = ModelBoatLinkerAnchor()
 
     abstract fun getBoatColor(boat: T): FloatArray
@@ -68,7 +69,7 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
         val usualBuffer = bufferIn.getBuffer(this.model.renderType(getTextureLocation(entity)))
         this.model.renderToBuffer(matrixStackIn, usualBuffer, packedLightIn, OverlayTexture.NO_OVERLAY, red, green, blue, alpha)
         val noWaterBuffer = bufferIn.getBuffer(RenderType.waterMask())
-        // TODO: redo model this.model.noWater.render(matrixStackIn, noWaterBuffer, packedLightIn, OverlayTexture.NO_OVERLAY)
+        this.model.water_occlusion.render(matrixStackIn, noWaterBuffer, packedLightIn, OverlayTexture.NO_OVERLAY)
     }
 
     private fun renderLink(renderInfo: RenderInfo, boatEntity: T, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float) {
@@ -114,11 +115,12 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
         val bufferbuilder = renderInfo.buffers.getBuffer(RenderType.lines())
         val l = 32
 
-        for (i1 in 0..l) {
+        for (i1 in 0 until l) {
             val f11 = i1.toFloat() / l
             bufferbuilder
                     .pos(matrixStack, translateX * f11, translateY * (f11 * f11 + f11).toDouble() * 0.5, translateZ * f11.toDouble())
             bufferbuilder.color(138, 109, 68, 255)
+            bufferbuilder.normal(matrixStack, 1.0f, 0.0f, 0.0f)
 
             bufferbuilder.endVertex()
         }

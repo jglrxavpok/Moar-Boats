@@ -9,7 +9,7 @@ import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.block.model.ItemOverrides
 import net.minecraft.client.renderer.block.model.ItemTransforms
 import net.minecraft.client.renderer.item.ItemProperties
-import net.minecraft.client.renderer.texture.*
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite
 import net.minecraft.client.resources.model.BlockModelRotation
 import net.minecraft.client.resources.model.Material
 import net.minecraft.client.resources.model.ModelState
@@ -17,7 +17,6 @@ import net.minecraft.client.resources.sounds.SoundInstance
 import net.minecraft.core.Direction
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.sounds.SoundSource
-import net.minecraft.util.*
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.HumanoidArm
@@ -25,17 +24,13 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.InventoryMenu
 import net.minecraft.world.item.RecordItem
 import net.minecraft.world.level.Level
-import net.minecraft.world.level.block.AbstractFurnaceBlock
-import net.minecraft.world.level.block.Blocks
-import net.minecraft.world.level.block.ChestBlock
-import net.minecraft.world.level.block.GrindstoneBlock
-import net.minecraft.world.level.block.ShulkerBoxBlock
+import net.minecraft.world.level.block.*
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.properties.AttachFace
-import net.minecraft.world.level.block.state.properties.BlockStateProperties
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.client.event.EntityRenderersEvent
+import net.minecraftforge.client.event.EntityRenderersEvent.RegisterLayerDefinitions
 import net.minecraftforge.client.event.EntityRenderersEvent.RegisterRenderers
 import net.minecraftforge.client.event.InputEvent
 import net.minecraftforge.client.event.ModelBakeEvent
@@ -56,7 +51,9 @@ import org.jglrxavpok.moarboats.JavaHelpers
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.client.gui.*
+import org.jglrxavpok.moarboats.client.models.HelmModel
 import org.jglrxavpok.moarboats.client.models.ModelPatreonHook
+import org.jglrxavpok.moarboats.client.models.ModularBoatModel
 import org.jglrxavpok.moarboats.client.renders.*
 import org.jglrxavpok.moarboats.common.EntityEntries
 import org.jglrxavpok.moarboats.common.MBBlocks
@@ -69,6 +66,7 @@ import org.jglrxavpok.moarboats.common.entities.UtilityBoatEntity
 import org.jglrxavpok.moarboats.common.items.RopeItem
 import org.jglrxavpok.moarboats.common.modules.*
 import org.jglrxavpok.moarboats.common.network.CShowBoatMenu
+
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE, value = [Dist.CLIENT], modid = MoarBoats.ModID)
 object ClientEvents {
@@ -89,6 +87,12 @@ object ClientEvents {
 
     @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, value = [Dist.CLIENT], modid = MoarBoats.ModID)
     object ModBusHandler {
+        @SubscribeEvent
+        fun registerLayerDefinition(event: RegisterLayerDefinitions) {
+            event.registerLayerDefinition(ModularBoatModel.LAYER_LOCATION) { ModularBoatModel.createBodyLayer() }
+            event.registerLayerDefinition(HelmModel.LAYER_LOCATION) { HelmModel.createBodyLayer() }
+        }
+
         @SubscribeEvent
         fun registerRenderers(event: EntityRenderersEvent.RegisterRenderers) {
             event.registerEntityRenderer(EntityEntries.ModularBoat.get(), ::RenderModularBoat)
@@ -202,24 +206,24 @@ object ClientEvents {
 
         JavaHelpers.registerGuis()
 
-        BoatModuleRenderingRegistry.put(FurnaceEngineModule, FurnaceEngineRenderer)
-        BoatModuleRenderingRegistry.put(ChestModule, ChestModuleRenderer)
-        BoatModuleRenderingRegistry.put(HelmModule, HelmModuleRenderer)
-        BoatModuleRenderingRegistry.put(SonarModule, SonarModuleRenderer)
-        BoatModuleRenderingRegistry.put(FishingModule, FishingModuleRenderer)
-        BoatModuleRenderingRegistry.put(SeatModule, SeatModuleRenderer)
-        BoatModuleRenderingRegistry.put(AnchorModule, AnchorModuleRenderer)
-        BoatModuleRenderingRegistry.put(SolarEngineModule, SolarEngineRenderer)
-        BoatModuleRenderingRegistry.put(CreativeEngineModule, CreativeEngineRenderer)
-        BoatModuleRenderingRegistry.put(IceBreakerModule, IcebreakerModuleRenderer)
-        BoatModuleRenderingRegistry.put(DispenserModule, DispenserModuleRenderer)
-        BoatModuleRenderingRegistry.put(DivingModule, DivingModuleRenderer)
-        BoatModuleRenderingRegistry.put(RudderModule, RudderModuleRenderer)
-        BoatModuleRenderingRegistry.put(DropperModule, DropperModuleRenderer)
-        BoatModuleRenderingRegistry.put(BatteryModule, BatteryModuleRenderer)
-        BoatModuleRenderingRegistry.put(FluidTankModule, TankModuleRenderer)
-        BoatModuleRenderingRegistry.put(ChunkLoadingModule, ChunkLoadingModuleRenderer)
-        BoatModuleRenderingRegistry.put(OarEngineModule, OarEngineRenderer)
+        BoatModuleRenderingRegistry.put(FurnaceEngineModule) { FurnaceEngineRenderer }
+        BoatModuleRenderingRegistry.put(ChestModule) { ChestModuleRenderer }
+        BoatModuleRenderingRegistry.put(HelmModule, ::HelmModuleRenderer)
+        BoatModuleRenderingRegistry.put(SonarModule) { SonarModuleRenderer }
+        BoatModuleRenderingRegistry.put(FishingModule) { FishingModuleRenderer }
+        BoatModuleRenderingRegistry.put(SeatModule) { SeatModuleRenderer }
+        BoatModuleRenderingRegistry.put(AnchorModule) { AnchorModuleRenderer }
+        BoatModuleRenderingRegistry.put(SolarEngineModule) { SolarEngineRenderer }
+        BoatModuleRenderingRegistry.put(CreativeEngineModule) { CreativeEngineRenderer }
+        BoatModuleRenderingRegistry.put(IceBreakerModule) { IcebreakerModuleRenderer }
+        BoatModuleRenderingRegistry.put(DispenserModule) { DispenserModuleRenderer }
+        BoatModuleRenderingRegistry.put(DivingModule) { DivingModuleRenderer }
+        BoatModuleRenderingRegistry.put(RudderModule) { RudderModuleRenderer }
+        BoatModuleRenderingRegistry.put(DropperModule) { DropperModuleRenderer }
+        BoatModuleRenderingRegistry.put(BatteryModule) { BatteryModuleRenderer }
+        BoatModuleRenderingRegistry.put(FluidTankModule) { TankModuleRenderer }
+        BoatModuleRenderingRegistry.put(ChunkLoadingModule) { ChunkLoadingModuleRenderer }
+        BoatModuleRenderingRegistry.put(OarEngineModule) { OarEngineRenderer }
 
         ItemBlockRenderTypes.setRenderLayer(MBBlocks.CargoStopper.get(), RenderType.cutoutMipped())
         ItemBlockRenderTypes.setRenderLayer(MBBlocks.WaterborneConductor.get(), RenderType.cutoutMipped())
