@@ -24,6 +24,7 @@ import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.RenderInfo
 import org.jglrxavpok.moarboats.client.addVertex
 import org.jglrxavpok.moarboats.client.models.HelmModel
+import org.jglrxavpok.moarboats.client.models.ModularBoatModel
 import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.data.LoopingOptions
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
@@ -38,7 +39,17 @@ class HelmModuleRenderer(context: EntityRendererProvider.Context) : BoatModuleRe
 
     val model = HelmModel(context.bakeLayer(HelmModel.LAYER_LOCATION))
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRenderDispatcher) {
+    override fun renderModule(
+        boat: ModularBoatEntity,
+        boatModel: ModularBoatModel<ModularBoatEntity>,
+        module: BoatModule,
+        matrixStack: PoseStack,
+        buffers: MultiBufferSource,
+        packedLightIn: Int,
+        partialTicks: Float,
+        entityYaw: Float,
+        entityRendererManager: EntityRenderDispatcher
+    ) {
         module as HelmModule
         matrixStack.pushPose()
         matrixStack.scale(-1f, -1f, 1f)

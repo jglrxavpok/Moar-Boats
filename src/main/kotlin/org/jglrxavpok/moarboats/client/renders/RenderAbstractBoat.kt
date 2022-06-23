@@ -3,6 +3,7 @@ package org.jglrxavpok.moarboats.client.renders
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Quaternion
 import com.mojang.math.Vector3f
+import net.minecraft.client.model.geom.ModelPart
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.entity.EntityRenderer
@@ -24,12 +25,29 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
     companion object {
         val RopeAnchorTextureLocation = ResourceLocation(MoarBoats.ModID, "textures/entity/ropeanchor.png")
         val WhiteColor = floatArrayOf(1f, 1f, 1f, 1f)
+
+        @JvmStatic
+        fun animatePaddle(paddleAngle: Float, paddleIndex: Int, paddleModel: ModelPart, swing: Float) {
+            paddleModel.xRot =
+                Mth.clampedLerp(-Math.PI.toFloat() / 3f, -0.2617994f, (Mth.sin(-paddleAngle) + 1.0f) / 2.0f)
+            paddleModel.yRot = Mth.clampedLerp(
+                -Math.PI.toFloat() / 4f,
+                Math.PI.toFloat() / 4f,
+                (Mth.sin(-paddleAngle + 1.0f) + 1.0f) / 2.0f
+            )
+            if (paddleIndex == 1) {
+                paddleModel.yRot = Math.PI.toFloat() - paddleModel.yRot
+            }
+        }
     }
 
     val model = ModularBoatModel<T>(renderManager.bakeLayer(ModularBoatModel.LAYER_LOCATION))
     val ropeAnchorModel = ModelBoatLinkerAnchor()
 
     abstract fun getBoatColor(boat: T): FloatArray
+
+    open fun preModelRender(entity: T, entityYaw: Float, partialTicks: Float, matrixStackIn: PoseStack, bufferIn: MultiBufferSource, packedLightIn: Int) {}
+
     abstract fun postModelRender(entity: T, entityYaw: Float, partialTicks: Float, matrixStackIn: PoseStack, bufferIn: MultiBufferSource, packedLightIn: Int)
 
     override fun render(entity: T, entityYaw: Float, partialTicks: Float, matrixStackIn: PoseStack, bufferIn: MultiBufferSource, packedLightIn: Int) {
@@ -43,10 +61,13 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
         val color = getBoatColor(entity)
 
         this.model.setupAnim(entity, partialTicks, 0.0f, -0.1f, 0.0f, 0.0f)
+        this.model.paddle_left.visible = false;
+        this.model.paddle_right.visible = false;
+
+        preModelRender(entity, entityYaw, partialTicks, matrixStackIn, bufferIn, packedLightIn)
 
         matrixStackIn.pushPose()
-        matrixStackIn.scale(-1.0f, -1.0f, 1.0f)
-
+        matrixStackIn.scale(1.0f, -1.0f, 1.0f)
         renderBoat(entity, matrixStackIn, bufferIn, packedLightIn, color[0], color[1], color[2], 1.0f)
         matrixStackIn.popPose()
 

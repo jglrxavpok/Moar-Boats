@@ -19,9 +19,25 @@ class RenderModularBoat(renderManager: EntityRendererProvider.Context): RenderAb
 
     override fun getBoatColor(boat: ModularBoatEntity) = boat.color.textureDiffuseColors
 
+    override fun preModelRender(entity: ModularBoatEntity, entityYaw: Float, partialTicks: Float, matrixStackIn: PoseStack, bufferIn: MultiBufferSource, packedLightIn: Int) {
+        entity.modules.forEach {
+            moduleRenderers.get(it)?.preRenderModule(entity, model, it, matrixStackIn, bufferIn, packedLightIn, partialTicks, entityYaw, entityRenderDispatcher)
+        }
+    }
+
     override fun postModelRender(entity: ModularBoatEntity, entityYaw: Float, partialTicks: Float, matrixStackIn: PoseStack, bufferIn: MultiBufferSource, packedLightIn: Int) {
         entity.modules.forEach {
-            moduleRenderers.get(it)?.renderModule(entity, it, matrixStackIn, bufferIn, packedLightIn, partialTicks, entityYaw, entityRenderDispatcher)
+            moduleRenderers.get(it)?.renderModule(
+                entity,
+                model,
+                it,
+                matrixStackIn,
+                bufferIn,
+                packedLightIn,
+                partialTicks,
+                entityYaw,
+                entityRenderDispatcher
+            )
         }
     }
 }

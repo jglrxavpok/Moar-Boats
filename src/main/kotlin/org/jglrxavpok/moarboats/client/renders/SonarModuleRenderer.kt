@@ -5,10 +5,9 @@ import com.mojang.math.Quaternion
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher
-import net.minecraft.client.renderer.entity.EntityRendererProvider
-import net.minecraft.client.renderer.entity.EntityRendererProvider.Context
 import net.minecraft.world.level.block.Blocks
 import org.jglrxavpok.moarboats.api.BoatModule
+import org.jglrxavpok.moarboats.client.models.ModularBoatModel
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.modules.SonarModule
 import org.jglrxavpok.moarboats.common.modules.SurroundingsMatrix
@@ -18,7 +17,17 @@ object SonarModuleRenderer : BoatModuleRenderer() {
 
     private val testMatrix = SurroundingsMatrix(32)
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRenderDispatcher) {
+    override fun renderModule(
+        boat: ModularBoatEntity,
+        boatModel: ModularBoatModel<ModularBoatEntity>,
+        module: BoatModule,
+        matrixStack: PoseStack,
+        buffers: MultiBufferSource,
+        packedLightIn: Int,
+        partialTicks: Float,
+        entityYaw: Float,
+        entityRendererManager: EntityRenderDispatcher
+    ) {
         module as SonarModule
         matrixStack.pushPose()
         matrixStack.scale(0.75f, 0.75f, 0.75f)

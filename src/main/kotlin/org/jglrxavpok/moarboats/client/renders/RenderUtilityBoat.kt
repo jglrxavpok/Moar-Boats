@@ -27,6 +27,20 @@ class RenderUtilityBoat<T: UtilityBoatEntity<*,*>>(renderManager: EntityRenderer
         }
     }
 
+    override fun preModelRender(
+        entity: T,
+        entityYaw: Float,
+        partialTicks: Float,
+        matrixStackIn: PoseStack,
+        bufferIn: MultiBufferSource,
+        packedLightIn: Int
+    ) {
+        val model: BoatModel = models[entity.boatType] ?: return
+        val angle = if (entity.controllingPassenger != null) (entity.distanceTravelled * 2f).toFloat() else 0.0f
+        animatePaddle(angle, 0, model.leftPaddle, 0.0f)
+        animatePaddle(angle, 1, model.rightPaddle, 0.0f)
+    }
+
     override fun renderBoat(
         entity: T,
         matrixStackIn: PoseStack,
@@ -37,6 +51,8 @@ class RenderUtilityBoat<T: UtilityBoatEntity<*,*>>(renderManager: EntityRenderer
         blue: Float,
         alpha: Float
     ) {
+        matrixStackIn.pushPose()
+        matrixStackIn.scale(-1.0f, 1.0f, -1.0f)
         val boatmodel: BoatModel = models[entity.boatType] ?: return
         // TODO 1.19 - boatmodel.setupAnim(entity, p_113931_, 0.0f, -0.1f, 0.0f, 0.0f)
         val vertexconsumer: VertexConsumer = bufferIn.getBuffer(boatmodel.renderType(getTextureLocation(entity)))
@@ -54,6 +70,7 @@ class RenderUtilityBoat<T: UtilityBoatEntity<*,*>>(renderManager: EntityRenderer
             val vertexconsumer1: VertexConsumer = bufferIn.getBuffer(RenderType.waterMask())
             boatmodel.waterPatch().render(matrixStackIn, vertexconsumer1, packedLightIn, OverlayTexture.NO_OVERLAY)
         }
+        matrixStackIn.popPose()
     }
 
     override fun getTextureLocation(entity: T): ResourceLocation {

@@ -4,13 +4,12 @@ import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher
-import net.minecraft.client.renderer.entity.EntityRendererProvider
-import net.minecraft.client.renderer.entity.EntityRendererProvider.Context
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.resources.ResourceLocation
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.client.models.ModelRudder
+import org.jglrxavpok.moarboats.client.models.ModularBoatModel
 import org.jglrxavpok.moarboats.common.modules.RudderModule
 
 object RudderModuleRenderer : BoatModuleRenderer() {
@@ -18,7 +17,17 @@ object RudderModuleRenderer : BoatModuleRenderer() {
     val rudderModel = ModelRudder()
     private val BOAT_TEXTURES = arrayOf(ResourceLocation("textures/block/oak_planks.png"), ResourceLocation("textures/block/spruce_planks.png"), ResourceLocation("textures/block/birch_planks.png"), ResourceLocation("textures/block/jungle_planks.png"), ResourceLocation("textures/block/acacia_planks.png"), ResourceLocation("textures/block/dark_oak_planks.png"))
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRenderer: EntityRenderDispatcher) {
+    override fun renderModule(
+        boat: ModularBoatEntity,
+        boatModel: ModularBoatModel<ModularBoatEntity>,
+        module: BoatModule,
+        matrixStack: PoseStack,
+        buffers: MultiBufferSource,
+        packedLightIn: Int,
+        partialTicks: Float,
+        entityYaw: Float,
+        entityRenderer: EntityRenderDispatcher
+    ) {
         module as RudderModule
         matrixStack.pushPose()
         matrixStack.scale(1f, -1f, -1f)

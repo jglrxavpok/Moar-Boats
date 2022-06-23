@@ -8,7 +8,6 @@ import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.block.model.ItemTransforms
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher
-import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.client.resources.model.ModelResourceLocation
 import net.minecraft.nbt.CompoundTag
@@ -19,6 +18,7 @@ import net.minecraft.world.item.Items
 import net.minecraftforge.registries.ForgeRegistries
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
+import org.jglrxavpok.moarboats.client.models.ModularBoatModel
 import org.jglrxavpok.moarboats.client.normal
 import org.jglrxavpok.moarboats.client.pos
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
@@ -32,7 +32,17 @@ object FishingModuleRenderer : BoatModuleRenderer() {
 
     private val bobberRenderType = RenderType.entityCutoutNoCull(ResourceLocation("textures/entity/fishing_hook.png"))
 
-    override fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRendererManager: EntityRenderDispatcher) {
+    override fun renderModule(
+        boat: ModularBoatEntity,
+        boatModel: ModularBoatModel<ModularBoatEntity>,
+        module: BoatModule,
+        matrixStack: PoseStack,
+        buffers: MultiBufferSource,
+        packedLightIn: Int,
+        partialTicks: Float,
+        entityYaw: Float,
+        entityRendererManager: EntityRenderDispatcher
+    ) {
         module as FishingModule
         val mc = Minecraft.getInstance()
         matrixStack.pushPose()

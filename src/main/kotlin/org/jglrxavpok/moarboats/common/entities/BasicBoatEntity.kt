@@ -411,14 +411,8 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
             damageTaken -= 1.0f
         }
 
-        val dx = x-xo;
-        val dy = y-yo;
-        val dz = z-zo;
-        distanceTravelled += sqrt(dz*dz+dy*dy+dx*dx)
+        distanceTravelled += deltaMovement.length()
 
-        this.xo = this.x
-        this.yo = this.y
-        this.zo = this.z
         super.tick()
 
         breakLinkIfNeeded(FrontLink)

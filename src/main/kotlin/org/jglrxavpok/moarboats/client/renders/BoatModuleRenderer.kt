@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.client.model.data.EmptyModelData
 import org.jglrxavpok.moarboats.api.BoatModule
+import org.jglrxavpok.moarboats.client.models.ModularBoatModel
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 
 abstract class BoatModuleRenderer {
@@ -19,7 +20,18 @@ abstract class BoatModuleRenderer {
         }
     }
 
-    abstract fun renderModule(boat: ModularBoatEntity, module: BoatModule, matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRenderer: EntityRenderDispatcher)
+    abstract fun renderModule(
+        boat: ModularBoatEntity,
+        model: ModularBoatModel<ModularBoatEntity>,
+        module: BoatModule,
+        matrixStack: PoseStack,
+        buffers: MultiBufferSource,
+        packedLightIn: Int,
+        partialTicks: Float,
+        entityYaw: Float,
+        entityRenderer: EntityRenderDispatcher
+    )
+    open fun preRenderModule(boat: ModularBoatEntity, model: ModularBoatModel<ModularBoatEntity>, module: BoatModule, matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, partialTicks: Float, entityYaw: Float, entityRenderer: EntityRenderDispatcher) {}
 
     fun renderBlockState(matrixStack: PoseStack, buffers: MultiBufferSource, packedLightIn: Int, state: BlockState, brightness: Float) {
         BoatModuleRenderer.renderBlockState(matrixStack, buffers, packedLightIn, state, brightness)

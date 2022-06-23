@@ -13,10 +13,11 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
 import org.jglrxavpok.moarboats.MoarBoats;
+import org.jglrxavpok.moarboats.client.renders.RenderAbstractBoat;
+import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity;
 
-public class ModularBoatModel<T extends Entity> extends EntityModel<T> {
+public class ModularBoatModel<T extends BasicBoatEntity> extends EntityModel<T> {
 	// This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(MoarBoats.ModID, "modularboatmodel"), "main");
 	private final ModelPart bottom;
@@ -24,8 +25,8 @@ public class ModularBoatModel<T extends Entity> extends EntityModel<T> {
 	private final ModelPart back;
 	private final ModelPart right;
 	private final ModelPart left;
-	private final ModelPart paddle_left;
-	private final ModelPart paddle_right;
+	public final ModelPart paddle_left;
+	public final ModelPart paddle_right;
 	private final ModelPart anchors;
 	public final ModelPart water_occlusion;
 
@@ -71,7 +72,9 @@ public class ModularBoatModel<T extends Entity> extends EntityModel<T> {
 
 	@Override
 	public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-
+		float angle = entity.getControllingPassenger() != null ? (float) (-entity.getDistanceTravelled() * 2f) : 0.0f;
+		RenderAbstractBoat.animatePaddle(angle, 0, this.paddle_left, limbSwing);
+		RenderAbstractBoat.animatePaddle(angle, 1, this.paddle_right, limbSwing);
 	}
 
 	@Override
