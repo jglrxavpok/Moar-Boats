@@ -900,12 +900,16 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
     // === Start of code for passengers ===
 
     override fun positionRider(passenger: Entity) {
-        if (this.hasPassenger(passenger)) {
-            var f = -0.75f * 0.5f
-            val f1 = ((if ( ! this.isAlive) 0.009999999776482582 else this.myRidingOffset) + passenger.passengersRidingOffset).toFloat()
+        positionRiderWithLengthOffset(passenger, -1.1f * 0.5f)
+    }
 
-            val vec3d = Vec3(f.toDouble(), 0.0, 0.0).yRot(-(this.yRot) * 0.017453292f - Math.PI.toFloat() / 2f)
-            passenger.setPos(this.x + vec3d.x, this.y + f1.toDouble(), this.z + vec3d.z)
+    fun positionRiderWithLengthOffset(passenger: Entity, xOffset: Float) {
+        if (this.hasPassenger(passenger)) {
+            var f = xOffset
+            val f1 = ((if ( ! this.isAlive) 0.009999999776482582 else this.passengersRidingOffset) + passenger.myRidingOffset).toFloat()
+
+            val vec3d = Vec3(f.toDouble(), f1.toDouble() + 0.2, 0.0).yRot(-(this.yRot) * 0.017453292f - Math.PI.toFloat() / 2f)
+            passenger.setPos(this.x + vec3d.x, this.y + vec3d.y, this.z + vec3d.z)
             passenger.yRot += this.deltaRotation
             passenger.yHeadRot = passenger.yHeadRot + this.deltaRotation
             this.applyYawToEntity(passenger)

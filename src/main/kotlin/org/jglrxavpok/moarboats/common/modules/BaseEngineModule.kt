@@ -105,8 +105,8 @@ abstract class BaseEngineModule: BoatModule() {
                 val anchorY = posY + 0.0625f * 4f
                 val anchorZ = posZ + Mth.sin(angle) * distAlongLength - Mth.cos(angle) * distAlongWidth
                 val particle = when {
-                    blockState.material == Material.WATER -> ParticleTypes.DRIPPING_WATER
-                    blockState.material == Material.LAVA -> ParticleTypes.DRIPPING_LAVA
+/*                    blockState.material == Material.WATER -> ParticleTypes.DRIPPING_WATER
+                    blockState.material == Material.LAVA -> ParticleTypes.DRIPPING_LAVA*/
                     else -> BlockParticleOption(ParticleTypes.BLOCK, blockState)
                 }
                 from.worldRef.addParticle(particle, anchorX, anchorY, anchorZ, -from.velocityX, 1.0, -from.velocityZ)

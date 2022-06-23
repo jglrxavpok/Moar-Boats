@@ -216,16 +216,7 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
     }
 
     override fun positionRider(passenger: Entity) {
-        if (this.hasPassenger(passenger)) {
-            var f = 0.75f * 0.35f
-            val f1 = ((if ( ! this.isAlive) 0.009999999776482582 else this.myRidingOffset) + passenger.passengersRidingOffset).toFloat()
-
-            val vec3d = Vec3(f.toDouble(), 0.0, 0.0).yRot(-(this.yRot) * 0.017453292f - Math.PI.toFloat() / 2f)
-            passenger.setPos(this.x + vec3d.x, this.y + f1.toDouble(), this.z + vec3d.z)
-            passenger.yRot += this.deltaRotation
-            passenger.yHeadRot = passenger.yHeadRot + this.deltaRotation
-            this.applyYawToEntity(passenger)
-        }
+        positionRiderWithLengthOffset(passenger, 0.5f * 0.5f)
     }
 
     fun updateTileEntity(data: CompoundTag) {
