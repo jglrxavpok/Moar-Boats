@@ -23,11 +23,11 @@ import org.jglrxavpok.moarboats.common.MBItems
 
 class BlockWaterborneConductor: DiodeBlock(Properties.of(Material.DECORATION).noOcclusion().strength(0f).sound(SoundType.WOOD)) {
     init {
-        this.registerDefaultState(this.defaultBlockState().setValue(BlockStateProperties.FACING, Direction.NORTH).setValue(POWERED, false))
+        this.registerDefaultState(this.defaultBlockState().setValue(FACING, Direction.NORTH).setValue(POWERED, false))
     }
 
     override fun canConnectRedstone(state: BlockState?, level: BlockGetter?, pos: BlockPos?, side: Direction?): Boolean {
-        return state != null && side != null && side != Direction.DOWN && side != Direction.UP && (side == state.getValue(BlockStateProperties.FACING) || side == state.getValue(BlockStateProperties.FACING).opposite)
+        return state != null && side != null && side != Direction.DOWN && side != Direction.UP && (side == state.getValue(FACING) || side == state.getValue(FACING).opposite)
     }
 
     override fun getCollisionShape(state: BlockState, worldIn: BlockGetter, pos: BlockPos, context: CollisionContext): VoxelShape {
@@ -51,14 +51,14 @@ class BlockWaterborneConductor: DiodeBlock(Properties.of(Material.DECORATION).no
     }
 
     override fun getOutputSignal(levelIn: BlockGetter, pos: BlockPos, state: BlockState): Int {
-        val behindSide = state.getValue(BlockStateProperties.FACING)
+        val behindSide = state.getValue(FACING)
         val posBehind = pos.relative(behindSide)
         val behind = levelIn.getBlockState(posBehind)
         return behind.getSignal(levelIn, posBehind, behindSide)
     }
 
     override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block, BlockState>) {
-        builder.add(BlockStateProperties.FACING, POWERED)
+        builder.add(FACING, POWERED)
     }
 
     override fun onRemove(state: BlockState, levelIn: Level, pos: BlockPos, newState: BlockState, isMoving: Boolean) {

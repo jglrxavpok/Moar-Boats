@@ -66,10 +66,8 @@ class RenderUtilityBoat<T: UtilityBoatEntity<*,*>>(renderManager: EntityRenderer
             1.0f,
             1.0f
         )
-        if (!entity.isUnderWater()) {
-            val vertexconsumer1: VertexConsumer = bufferIn.getBuffer(RenderType.waterMask())
-            boatmodel.waterPatch().render(matrixStackIn, vertexconsumer1, packedLightIn, OverlayTexture.NO_OVERLAY)
-        }
+        val vertexconsumer1: VertexConsumer = bufferIn.getBuffer(RenderType.waterMask())
+        boatmodel.waterPatch().render(matrixStackIn, vertexconsumer1, packedLightIn, OverlayTexture.NO_OVERLAY)
         matrixStackIn.popPose()
     }
 

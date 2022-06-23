@@ -67,7 +67,7 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
         preModelRender(entity, entityYaw, partialTicks, matrixStackIn, bufferIn, packedLightIn)
 
         matrixStackIn.pushPose()
-        matrixStackIn.scale(1.0f, -1.0f, 1.0f)
+        matrixStackIn.scale(1.0f, -1.0f, -1.0f)
         renderBoat(entity, matrixStackIn, bufferIn, packedLightIn, color[0], color[1], color[2], 1.0f)
         matrixStackIn.popPose()
 

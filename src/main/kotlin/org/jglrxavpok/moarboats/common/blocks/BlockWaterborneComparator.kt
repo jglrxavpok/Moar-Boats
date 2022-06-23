@@ -30,13 +30,13 @@ import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 
 class BlockWaterborneComparator: DiodeBlock(Properties.of(Material.DECORATION).noOcclusion().randomTicks().strength(0f).sound(SoundType.WOOD)) {
     init {
-        this.registerDefaultState(this.defaultBlockState().setValue(BlockStateProperties.FACING, Direction.NORTH).setValue(POWERED, false))
+        this.registerDefaultState(this.defaultBlockState().setValue(FACING, Direction.NORTH).setValue(POWERED, false))
     }
 
     override fun isRandomlyTicking(state: BlockState) = true
 
     override fun canConnectRedstone(state: BlockState?, world: BlockGetter?, pos: BlockPos?, side: Direction?): Boolean {
-        return state != null && side != null && side != Direction.DOWN && side != Direction.UP && (side == state.getValue(BlockStateProperties.FACING) || side == state.getValue(BlockStateProperties.FACING).opposite)
+        return state != null && side != null && side != Direction.DOWN && side != Direction.UP && (side == state.getValue(FACING) || side == state.getValue(FACING).opposite)
     }
 
     override fun getCollisionShape(state: BlockState, worldIn: BlockGetter, pos: BlockPos, context: CollisionContext): VoxelShape {
@@ -52,9 +52,9 @@ class BlockWaterborneComparator: DiodeBlock(Properties.of(Material.DECORATION).n
     }
 
     override fun getDirectSignal(state: BlockState, blockAccess: BlockGetter, pos: BlockPos, side: Direction): Int {
-        if(blockAccess is Level && side == state.getValue(BlockStateProperties.FACING)) {
+        if(blockAccess is Level && side == state.getValue(FACING)) {
             val world = blockAccess
-            val aabb = AABB(pos.relative(state.getValue(BlockStateProperties.FACING)))
+            val aabb = AABB(pos.relative(state.getValue(FACING)))
             val entities = world.getEntitiesOfClass(BasicBoatEntity::class.java, aabb) { e -> e != null && e.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).isPresent }
             val first = entities.firstOrNull()
             return first?.let {
@@ -67,8 +67,8 @@ class BlockWaterborneComparator: DiodeBlock(Properties.of(Material.DECORATION).n
     override fun tick(state: BlockState, worldIn: ServerLevel, pos: BlockPos, random: RandomSource) {
         val produceSignal = shouldTurnOn(worldIn, pos, state)
         when {
-            produceSignal && !state.getValue(POWERED) -> worldIn.setBlockAndUpdate(pos, state.setValue(POWERED, true).setValue(BlockStateProperties.FACING, state.getValue(BlockStateProperties.FACING)))
-            !produceSignal && state.getValue(POWERED) -> worldIn.setBlockAndUpdate(pos, state.setValue(POWERED, false).setValue(BlockStateProperties.FACING, state.getValue(BlockStateProperties.FACING)))
+            produceSignal && !state.getValue(POWERED) -> worldIn.setBlockAndUpdate(pos, state.setValue(POWERED, true).setValue(FACING, state.getValue(FACING)))
+            !produceSignal && state.getValue(POWERED) -> worldIn.setBlockAndUpdate(pos, state.setValue(POWERED, false).setValue(FACING, state.getValue(FACING)))
         }
         worldIn.scheduleTick(pos, this, 2)
         checkTickOnNeighbor(worldIn, pos, state)
@@ -96,7 +96,7 @@ class BlockWaterborneComparator: DiodeBlock(Properties.of(Material.DECORATION).n
     }
 
     override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block, BlockState>) {
-        builder.add(BlockStateProperties.FACING, POWERED)
+        builder.add(FACING, POWERED)
     }
 
     override fun onRemove(state: BlockState, worldIn: Level, pos: BlockPos, newState: BlockState, isMoving: Boolean) {
@@ -114,7 +114,7 @@ class BlockWaterborneComparator: DiodeBlock(Properties.of(Material.DECORATION).n
     }
 
     override fun shouldTurnOn(worldIn: Level, pos: BlockPos, state: BlockState): Boolean {
-        return getDirectSignal(state, worldIn, pos, state.getValue(BlockStateProperties.FACING)) > 0
+        return getDirectSignal(state, worldIn, pos, state.getValue(FACING)) > 0
     }
 
     override fun getDrops(state: BlockState, builder: LootContext.Builder): MutableList<ItemStack> {
