@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.common.entities.utilityboats
 
+import net.minecraft.core.Registry
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
@@ -17,6 +18,7 @@ import net.minecraft.world.level.block.entity.BlastFurnaceBlockEntity
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity
 import net.minecraft.world.level.block.entity.SmokerBlockEntity
 import net.minecraft.world.phys.Vec3
+import net.minecraftforge.network.PlayMessages
 import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.containers.ContainerTypes
@@ -26,6 +28,8 @@ import org.jglrxavpok.moarboats.common.containers.UtilitySmokerContainer
 import org.jglrxavpok.moarboats.common.entities.UtilityBoatEntity
 
 class FurnaceBoatEntity(entityType: EntityType<out FurnaceBoatEntity>, world: Level): AbstractFurnaceBoatEntity<FurnaceBlockEntity, UtilityFurnaceContainer>(entityType, world) {
+
+    constructor(packet: PlayMessages.SpawnEntity, level: Level): this(Registry.ENTITY_TYPE.byId(packet.typeId) as EntityType<out FurnaceBoatEntity>, level, packet.posX, packet.posY, packet.posZ) {}
 
     constructor(entityType: EntityType<out FurnaceBoatEntity>, level: Level, x: Double, y: Double, z: Double): this(entityType, level) {
         this.setPos(x, y, z)
@@ -61,6 +65,8 @@ class FurnaceBoatEntity(entityType: EntityType<out FurnaceBoatEntity>, world: Le
 }
 
 class BlastFurnaceBoatEntity(entityType: EntityType<out BlastFurnaceBoatEntity>, world: Level): AbstractFurnaceBoatEntity<BlastFurnaceBlockEntity, UtilityBlastFurnaceContainer>(entityType, world) {
+    constructor(packet: PlayMessages.SpawnEntity, level: Level): this(Registry.ENTITY_TYPE.byId(packet.typeId) as EntityType<out BlastFurnaceBoatEntity>, level, packet.posX, packet.posY, packet.posZ) {}
+
     constructor(entityType: EntityType<out BlastFurnaceBoatEntity>, level: Level, x: Double, y: Double, z: Double): this(entityType, level) {
         this.setPos(x, y, z)
         this.deltaMovement = Vec3.ZERO
@@ -95,6 +101,8 @@ class BlastFurnaceBoatEntity(entityType: EntityType<out BlastFurnaceBoatEntity>,
 }
 
 class SmokerBoatEntity(entityType: EntityType<out SmokerBoatEntity>, world: Level): AbstractFurnaceBoatEntity<SmokerBlockEntity, UtilitySmokerContainer>(entityType, world) {
+    constructor(packet: PlayMessages.SpawnEntity, level: Level): this(Registry.ENTITY_TYPE.byId(packet.typeId) as EntityType<out SmokerBoatEntity>, level, packet.posX, packet.posY, packet.posZ) {}
+
     constructor(entityType: EntityType<out SmokerBoatEntity>, level: Level, x: Double, y: Double, z: Double): this(entityType, level) {
         this.setPos(x, y, z)
         this.deltaMovement = Vec3.ZERO

@@ -3,6 +3,7 @@ package org.jglrxavpok.moarboats.common.entities
 import net.minecraft.core.BlockPos
 import net.minecraft.core.BlockSource
 import net.minecraft.core.Direction
+import net.minecraft.core.Registry
 import net.minecraft.core.dispenser.DispenseItemBehavior
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
@@ -48,6 +49,8 @@ import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.wrapper.InvWrapper
 import net.minecraftforge.network.NetworkHooks
 import net.minecraftforge.network.PacketDistributor
+import net.minecraftforge.network.PlayMessages.SpawnEntity
+import net.minecraftforge.registries.ForgeRegistries
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleInventory
@@ -160,6 +163,10 @@ class ModularBoatEntity(entityType: EntityType<out ModularBoatEntity>, world: Le
         this.color = color
         this.owningMode = owningMode
         this.ownerUUID = ownerUUID
+    }
+
+    constructor(packet: SpawnEntity, world: Level): this(EntityEntries.ModularBoat.get(), world, packet.posX, packet.posY, packet.posZ, DyeColor.WHITE, OwningMode.AllowAll) {
+        syncPacketPositionCodec(packet.posX, packet.posY, packet.posZ)
     }
 
     override fun getBoatItem() = MBItems.ModularBoats[color]!!.get()

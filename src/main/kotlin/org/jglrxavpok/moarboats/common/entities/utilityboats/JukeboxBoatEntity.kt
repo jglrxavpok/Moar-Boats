@@ -1,6 +1,7 @@
 package org.jglrxavpok.moarboats.common.entities.utilityboats
 
 import net.minecraft.core.BlockPos
+import net.minecraft.core.Registry
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
@@ -19,13 +20,12 @@ import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.entity.JukeboxBlockEntity
 import net.minecraft.world.phys.Vec3
 import net.minecraftforge.network.PacketDistributor
+import net.minecraftforge.network.PlayMessages.SpawnEntity
 import org.jglrxavpok.moarboats.MoarBoats
-import org.jglrxavpok.moarboats.common.EntityEntries
 import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.containers.ContainerTypes
 import org.jglrxavpok.moarboats.common.containers.EmptyContainer
 import org.jglrxavpok.moarboats.common.entities.UtilityBoatEntity
-import org.jglrxavpok.moarboats.common.items.JukeboxBoatItem
 import org.jglrxavpok.moarboats.common.network.SPlayRecordFromBoat
 
 class JukeboxBoatEntity(entityType: EntityType<out JukeboxBoatEntity>, world: Level): UtilityBoatEntity<JukeboxBlockEntity, EmptyContainer>(entityType, world) {
@@ -38,6 +38,8 @@ class JukeboxBoatEntity(entityType: EntityType<out JukeboxBoatEntity>, world: Le
 
     private val hasRecord get() = !record.isEmpty
     private val jukeboxPos = BlockPos.MutableBlockPos()
+
+    constructor(packet: SpawnEntity, level: Level): this(Registry.ENTITY_TYPE.byId(packet.typeId) as EntityType<out JukeboxBoatEntity>, level, packet.posX, packet.posY, packet.posZ) {}
 
     constructor(entityType: EntityType<out JukeboxBoatEntity>, level: Level, x: Double, y: Double, z: Double): this(entityType, level) {
         this.setPos(x, y, z)

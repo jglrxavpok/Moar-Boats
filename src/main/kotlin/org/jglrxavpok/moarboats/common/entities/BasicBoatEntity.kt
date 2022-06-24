@@ -39,6 +39,7 @@ import net.minecraft.world.phys.shapes.Shapes
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.entity.IEntityAdditionalSpawnData
+import net.minecraftforge.network.NetworkHooks
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.items.RopeItem
@@ -163,6 +164,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
 
     constructor(type: EntityType<out BasicBoatEntity>, world: Level, x: Double, y: Double, z: Double): this(type, world) {
         this.setPos(x, y, z)
+        positionCodec.setBase(Vec3(x, y, z))
         this.deltaMovement = Vec3.ZERO
         this.xo = x
         this.yo = y
@@ -851,13 +853,13 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
         return LeashFenceKnotEntity.getOrCreateKnot(world, location.get())
     }
 
-    override fun getAddEntityPacket(): Packet<*>? {
+/*    override fun getAddEntityPacket(): Packet<*>? {
         return ClientboundAddEntityPacket(this)
-    }
-/*
+    }*/
+
     override fun getAddEntityPacket(): Packet<*> {
         return NetworkHooks.getEntitySpawningPacket(this)
-    }*/
+    }
 
     private fun getBoatLinkedTo(side: Int): BasicBoatEntity? {
         var id = entityData.get(LINKS_RUNTIME[side])

@@ -2,6 +2,7 @@ package org.jglrxavpok.moarboats.common.entities
 
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
+import net.minecraft.core.Registry
 import net.minecraft.core.dispenser.DispenseItemBehavior
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.util.*
@@ -18,9 +19,11 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 import net.minecraft.world.phys.Vec3
+import net.minecraftforge.network.PlayMessages
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.BoatModuleInventory
 import org.jglrxavpok.moarboats.common.MBItems
+import org.jglrxavpok.moarboats.common.entities.utilityboats.FurnaceBoatEntity
 import org.jglrxavpok.moarboats.common.state.BoatProperty
 import org.jglrxavpok.moarboats.extensions.Fluids
 import org.jglrxavpok.moarboats.extensions.toRadians
@@ -36,6 +39,8 @@ class AnimalBoatEntity(entityType: EntityType<out AnimalBoatEntity>, world: Leve
     init {
         this.blocksBuilding = true
     }
+
+    constructor(packet: PlayMessages.SpawnEntity, level: Level): this(Registry.ENTITY_TYPE.byId(packet.typeId) as EntityType<out AnimalBoatEntity>, level, packet.posX, packet.posY, packet.posZ) {}
 
     constructor(entityType: EntityType<out AnimalBoatEntity>, level: Level, x: Double, y: Double, z: Double): this(entityType, level) {
         this.setPos(x, y, z)

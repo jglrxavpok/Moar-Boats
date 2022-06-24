@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.common.entities.utilityboats
 
+import net.minecraft.core.Registry
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.EntityType
@@ -20,6 +21,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.entity.ChestBlockEntity
 import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity
 import net.minecraft.world.phys.Vec3
+import net.minecraftforge.network.PlayMessages
 import org.jglrxavpok.moarboats.common.EntityEntries
 import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.containers.ContainerTypes
@@ -31,6 +33,8 @@ import org.jglrxavpok.moarboats.common.items.EnderChestBoatItem
 import org.jglrxavpok.moarboats.common.items.ShulkerBoatItem
 
 class ChestBoatEntity(entityType: EntityType<out ChestBoatEntity>, world: Level): UtilityBoatEntity<ChestBlockEntity, UtilityChestContainer>(entityType, world) {
+
+    constructor(packet: PlayMessages.SpawnEntity, level: Level): this(Registry.ENTITY_TYPE.byId(packet.typeId) as EntityType<out ChestBoatEntity>, level, packet.posX, packet.posY, packet.posZ) {}
 
     constructor(entityType: EntityType<out ChestBoatEntity>, level: Level, x: Double, y: Double, z: Double): this(entityType, level) {
         this.setPos(x, y, z)
@@ -72,6 +76,8 @@ class ChestBoatEntity(entityType: EntityType<out ChestBoatEntity>, world: Level)
 class ShulkerBoatEntity(entityType: EntityType<out ShulkerBoatEntity>, world: Level): UtilityBoatEntity<ShulkerBoxBlockEntity, UtilityShulkerContainer>(entityType, world) {
 
     internal var dyeColor: DyeColor? = null
+
+    constructor(packet: PlayMessages.SpawnEntity, level: Level): this(Registry.ENTITY_TYPE.byId(packet.typeId) as EntityType<out ShulkerBoatEntity>, null, level, packet.posX, packet.posY, packet.posZ) {}
 
     constructor(entityType: EntityType<out ShulkerBoatEntity>, color: DyeColor?, level: Level, x: Double, y: Double, z: Double): this(entityType, level) {
         this.dyeColor = color
@@ -137,6 +143,8 @@ class ShulkerBoatEntity(entityType: EntityType<out ShulkerBoatEntity>, world: Le
 }
 
 class EnderChestBoatEntity(entityType: EntityType<out EnderChestBoatEntity>, world: Level): UtilityBoatEntity<BlockEntity, ChestMenu>(entityType, world) {
+
+    constructor(packet: PlayMessages.SpawnEntity, level: Level): this(Registry.ENTITY_TYPE.byId(packet.typeId) as EntityType<out EnderChestBoatEntity>, level, packet.posX, packet.posY, packet.posZ) {}
 
     constructor(entityType: EntityType<out EnderChestBoatEntity>, level: Level, x: Double, y: Double, z: Double): this(entityType, level) {
         this.setPos(x, y, z)

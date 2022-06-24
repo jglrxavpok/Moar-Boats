@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.common.entities.utilityboats
 
+import net.minecraft.core.Registry
 import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.player.Inventory
@@ -12,6 +13,7 @@ import net.minecraft.world.item.Items
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.phys.Vec3
+import net.minecraftforge.network.PlayMessages
 import org.jglrxavpok.moarboats.common.EntityEntries
 import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.containers.*
@@ -19,6 +21,8 @@ import org.jglrxavpok.moarboats.common.entities.UtilityBoatEntity
 import org.jglrxavpok.moarboats.common.items.*
 
 class CraftingTableBoatEntity(entityType: EntityType<out CraftingTableBoatEntity>, world: Level): UtilityBoatEntity<BlockEntity, UtilityWorkbenchContainer>(entityType, world) {
+
+    constructor(packet: PlayMessages.SpawnEntity, level: Level): this(Registry.ENTITY_TYPE.byId(packet.typeId) as EntityType<out CraftingTableBoatEntity>, level, packet.posX, packet.posY, packet.posZ) {}
 
     constructor(entityType: EntityType<out CraftingTableBoatEntity>, level: Level, x: Double, y: Double, z: Double): this(entityType, level) {
         this.setPos(x, y, z)
@@ -58,6 +62,8 @@ class CraftingTableBoatEntity(entityType: EntityType<out CraftingTableBoatEntity
 }
 
 class GrindstoneBoatEntity(entityType: EntityType<out GrindstoneBoatEntity>, world: Level): UtilityBoatEntity<BlockEntity, UtilityGrindstoneContainer>(entityType, world) {
+
+    constructor(packet: PlayMessages.SpawnEntity, level: Level): this(Registry.ENTITY_TYPE.byId(packet.typeId) as EntityType<out GrindstoneBoatEntity>, level, packet.posX, packet.posY, packet.posZ) {}
 
     constructor(entityType: EntityType<out GrindstoneBoatEntity>, level: Level, x: Double, y: Double, z: Double): this(entityType, level) {
         this.setPos(x, y, z)
@@ -99,6 +105,8 @@ class GrindstoneBoatEntity(entityType: EntityType<out GrindstoneBoatEntity>, wor
 
 class LoomBoatEntity(entityType: EntityType<out LoomBoatEntity>, world: Level): UtilityBoatEntity<BlockEntity, UtilityLoomContainer>(entityType, world) {
 
+    constructor(packet: PlayMessages.SpawnEntity, level: Level): this(Registry.ENTITY_TYPE.byId(packet.typeId) as EntityType<out LoomBoatEntity>, level, packet.posX, packet.posY, packet.posZ) {}
+
     constructor(entityType: EntityType<out LoomBoatEntity>, level: Level, x: Double, y: Double, z: Double): this(entityType, level) {
         this.setPos(x, y, z)
         this.deltaMovement = Vec3.ZERO
@@ -137,6 +145,8 @@ class LoomBoatEntity(entityType: EntityType<out LoomBoatEntity>, world: Level): 
 
 class CartographyTableBoatEntity(entityType: EntityType<out CartographyTableBoatEntity>, world: Level): UtilityBoatEntity<BlockEntity, UtilityCartographyTableContainer>(entityType, world) {
 
+    constructor(packet: PlayMessages.SpawnEntity, level: Level): this(Registry.ENTITY_TYPE.byId(packet.typeId) as EntityType<out CartographyTableBoatEntity>, level, packet.posX, packet.posY, packet.posZ) {}
+
     constructor(entityType: EntityType<out CartographyTableBoatEntity>, level: Level, x: Double, y: Double, z: Double): this(entityType, level) {
         this.setPos(x, y, z)
         this.deltaMovement = Vec3.ZERO
@@ -174,6 +184,8 @@ class CartographyTableBoatEntity(entityType: EntityType<out CartographyTableBoat
 }
 
 class StonecutterBoatEntity(entityType: EntityType<out StonecutterBoatEntity>, world: Level): UtilityBoatEntity<BlockEntity, UtilityStonecutterContainer>(entityType, world) {
+
+    constructor(packet: PlayMessages.SpawnEntity, level: Level): this(Registry.ENTITY_TYPE.byId(packet.typeId) as EntityType<out StonecutterBoatEntity>, level, packet.posX, packet.posY, packet.posZ) {}
 
     constructor(entityType: EntityType<out StonecutterBoatEntity>, level: Level, x: Double, y: Double, z: Double): this(entityType, level) {
         this.setPos(x, y, z)
