@@ -6,6 +6,7 @@ import net.minecraft.world.InteractionHand
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.Container
 import net.minecraft.world.inventory.AbstractContainerMenu
+import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.item.ItemStack
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.common.MBItems
@@ -90,4 +91,5 @@ object OarEngineModule: BaseEngineModule(), BlockReason {
         if(!killedByPlayerInCreative)
             boat.correspondingEntity.spawnAtLocation(MBItems.OarsItem.get(), 1)
     }
+
 }

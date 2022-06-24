@@ -1,12 +1,13 @@
 package org.jglrxavpok.moarboats.client.gui
 
 import com.mojang.blaze3d.systems.RenderSystem
-import net.minecraft.client.gui.components.Button
-import net.minecraft.client.gui.screens.Screen
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.Tesselator
 import com.mojang.blaze3d.vertex.VertexFormat
+import net.minecraft.client.gui.components.Button
+import net.minecraft.client.gui.screens.Screen
+import net.minecraft.client.renderer.GameRenderer
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.player.Inventory
@@ -18,9 +19,9 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.RenderInfo
+import org.jglrxavpok.moarboats.client.pos
 import org.jglrxavpok.moarboats.client.renders.HelmModuleRenderer
 import org.jglrxavpok.moarboats.common.containers.ContainerHelmModule
-import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
 import org.jglrxavpok.moarboats.common.data.LoopingOptions
 import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
@@ -75,15 +76,16 @@ class GuiHelmModule(menuType: MenuType<ContainerHelmModule>, containerID: Int, p
     override fun drawModuleBackground(poseStack: PoseStack, mouseX: Int, mouseY: Int) {
         super.drawModuleBackground(poseStack, mouseX, mouseY)
         RenderSystem.setShaderTexture(0, RES_MAP_BACKGROUND)
+        RenderSystem.setShader { GameRenderer.getPositionTexLightmapColorShader() }
         val tessellator = Tesselator.getInstance()
         val bufferbuilder = tessellator.builder
         val x = guiLeft + xSize/2f - mapSize/2
         val y = guiTop.toDouble() + 5.0
         bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP)
-        bufferbuilder.vertex(x, y+mapSize, 0.0).color(1f, 1f, 1f, 1f).uv(0.0f, 1.0f).uv2(15728880).endVertex()
-        bufferbuilder.vertex(x+mapSize, y+mapSize, 0.0).color(1f, 1f, 1f, 1f).uv(1.0f, 1.0f).uv2(15728880).endVertex()
-        bufferbuilder.vertex(x+mapSize, y, 0.0).color(1f, 1f, 1f, 1f).uv(1.0f, 0.0f).uv2(15728880).endVertex()
-        bufferbuilder.vertex(x, y, 0.0).color(1f, 1f, 1f, 1f).uv(0.0f, 0.0f).uv2(15728880).endVertex()
+        bufferbuilder.pos(poseStack, x, y+mapSize, 0.0).color(1f, 1f, 1f, 1f).uv(0.0f, 1.0f).uv2(15728880).endVertex()
+        bufferbuilder.pos(poseStack, x+mapSize, y+mapSize, 0.0).color(1f, 1f, 1f, 1f).uv(1.0f, 1.0f).uv2(15728880).endVertex()
+        bufferbuilder.pos(poseStack, x+mapSize, y, 0.0).color(1f, 1f, 1f, 1f).uv(1.0f, 0.0f).uv2(15728880).endVertex()
+        bufferbuilder.pos(poseStack, x, y, 0.0).color(1f, 1f, 1f, 1f).uv(0.0f, 0.0f).uv2(15728880).endVertex()
         tessellator.end()
         val stack = baseContainer.getSlot(0).item
         var hasMap = false

@@ -499,6 +499,7 @@ class GuiPathEditor(val player: Player, val pathHolder: PathHolder, val mapID: S
             RenderSystem.applyModelViewMatrix()
             mc.itemRenderer.renderGuiItem(HelmModuleRenderer.helmStack, (boatRenderX/iconScale).toInt(), (boatRenderZ/iconScale).toInt())
             modelViewStack.popPose()
+            RenderSystem.applyModelViewMatrix()
 
             matrixStack.popPose()
         }

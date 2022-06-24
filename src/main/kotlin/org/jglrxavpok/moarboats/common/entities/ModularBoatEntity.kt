@@ -284,7 +284,7 @@ class ModularBoatEntity(entityType: EntityType<out ModularBoatEntity>, world: Le
         compound.put("state", moduleData)
         compound.putString("color", color.name)
         if(owningMode == OwningMode.PlayerOwned) {
-            compound.putUUID("ownerUUID", ownerUUID ?: UUID.fromString("0000-0000-0000-0000"))
+            compound.putUUID("ownerUUID", ownerUUID ?: UUID.fromString("00000000-0000-0000-0000-00000000"))
         }
         if(ownerName != null)
             compound.putString("ownerName", ownerName)

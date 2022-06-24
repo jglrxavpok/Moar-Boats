@@ -9,6 +9,7 @@ import net.minecraft.util.Mth
 import net.minecraft.world.Container
 import net.minecraft.world.inventory.AbstractContainerMenu
 import net.minecraft.world.entity.player.Player
+import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.HopperBlock
 import net.minecraft.world.level.block.entity.HopperBlockEntity
@@ -18,6 +19,8 @@ import net.minecraftforge.api.distmarker.OnlyIn
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiEngineModule
+import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
+import org.jglrxavpok.moarboats.common.containers.EmptyModuleContainer
 import org.jglrxavpok.moarboats.common.state.BooleanBoatProperty
 import org.jglrxavpok.moarboats.common.state.FloatBoatProperty
 import org.jglrxavpok.moarboats.extensions.toRadians
@@ -126,6 +129,8 @@ abstract class BaseEngineModule: BoatModule() {
     fun isItemFuel(fuelItem: ItemStack) = getFuelTime(fuelItem) > 0
 
     fun isLockedByRedstone(boat: IControllable) = lockedByRedstoneProperty[boat]
+
+    override fun createContainer(containerID: Int, player: Player, boat: IControllable): ContainerBoatModule<*>? = EmptyModuleContainer(menuType as MenuType<EmptyModuleContainer>, containerID, player.inventory, boat, isLarge = true)
 
     companion object {
         val SECONDS_TO_TICKS = 20

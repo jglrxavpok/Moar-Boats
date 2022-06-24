@@ -101,8 +101,8 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
         if(boatEntity.hasLink(BasicBoatEntity.FrontLink)) {
             boatEntity.getLinkedTo(BasicBoatEntity.FrontLink)?.let {
                 matrixStack.pushPose()
-                matrixStack.translate(17.0, -4.0, 0.0)
-                renderActualLink(renderInfo, boatEntity, it, BasicBoatEntity.FrontLink, entityYaw)
+                matrixStack.translate(-17.0 / 16.0, 4.0 / 16.0, 0.0)
+                renderActualLink(renderInfo, boatEntity, it, BasicBoatEntity.FrontLink, entityYaw, renderInfo.combinedLight)
                 ropeAnchorModel.renderToBuffer(matrixStack, ropeBuffer, renderInfo.combinedLight, 0, 1f, 1f, 1f, 1f)
                 matrixStack.popPose()
             }
@@ -112,8 +112,8 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
         if(boatEntity.hasLink(BasicBoatEntity.BackLink)) {
             boatEntity.getLinkedTo(BasicBoatEntity.BackLink)?.let {
                 matrixStack.pushPose()
-                matrixStack.translate(-17.0, -4.0, 0.0)
-                renderActualLink(renderInfo, boatEntity, it, BasicBoatEntity.BackLink, entityYaw)
+                matrixStack.translate(17.0 / 16.0, 4.0 / 16.0, 0.0)
+                renderActualLink(renderInfo, boatEntity, it, BasicBoatEntity.BackLink, entityYaw, renderInfo.combinedLight)
                 entityRenderDispatcher.textureManager.bindForSetup(RopeAnchorTextureLocation)
                 ropeAnchorModel.renderToBuffer(matrixStack, ropeBuffer, renderInfo.combinedLight, 0, 1f, 1f, 1f, 1f)
                 matrixStack.popPose()
@@ -121,7 +121,7 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
         }
     }
 
-    private fun renderActualLink(renderInfo: RenderInfo, thisBoat: BasicBoatEntity, targetEntity: Entity, sideFromThisBoat: Int, entityYaw: Float) {
+    private fun renderActualLink(renderInfo: RenderInfo, thisBoat: BasicBoatEntity, targetEntity: Entity, sideFromThisBoat: Int, entityYaw: Float, packedLight: Int) {
         val matrixStack = renderInfo.matrixStack
         val anchorThis = thisBoat.calculateAnchorPosition(sideFromThisBoat)
         val anchorOther = (targetEntity as? BasicBoatEntity)?.calculateAnchorPosition(1-sideFromThisBoat)
@@ -133,17 +133,31 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
         matrixStack.pushPose()
         matrixStack.mulPose(Quaternion(0f, -(180.0f - entityYaw - 90f), 0.0f, true))
 
-        val bufferbuilder = renderInfo.buffers.getBuffer(RenderType.lines())
-        val l = 32
+        val bufferbuilder = renderInfo.buffers.getBuffer(RenderType.leash())
+        val l = 24 // must be multiple of 3
 
-        for (i1 in 0 until l) {
-            val f11 = i1.toFloat() / l
-            bufferbuilder
-                    .pos(matrixStack, translateX * f11, translateY * (f11 * f11 + f11).toDouble() * 0.5, translateZ * f11.toDouble())
-            bufferbuilder.color(138, 109, 68, 255)
-            bufferbuilder.normal(matrixStack, 1.0f, 0.0f, 0.0f)
+        // rope rendered from back and rope rendered from front will z-fight if we don't sync the color
+        val colorIndex = sideFromThisBoat % 2
 
-            bufferbuilder.endVertex()
+        for (segment in 0 until l) {
+            val x = segment.toFloat() / l
+
+            // polynomial of roots 0, 1
+            val hangFactor = (x * x - x)
+
+            for (y in 0 .. 1) {
+                val yOffset = y * 0.05f
+                bufferbuilder
+                    .pos(matrixStack, translateX * x, translateY + hangFactor + yOffset, translateZ * x.toDouble())
+                if(segment % 2 == colorIndex)
+                    bufferbuilder.color(138, 109, 68, 255)
+                else
+                    bufferbuilder.color(138/2, 109/2, 68/2, 255)
+                bufferbuilder.uv2(packedLight)
+                bufferbuilder.normal(matrixStack, 1.0f, 0.0f, 0.0f)
+
+                bufferbuilder.endVertex()
+            }
         }
 
         matrixStack.popPose()

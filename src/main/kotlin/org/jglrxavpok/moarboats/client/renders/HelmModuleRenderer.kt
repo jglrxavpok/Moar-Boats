@@ -146,7 +146,15 @@ class HelmModuleRenderer(context: EntityRendererProvider.Context) : BoatModuleRe
             matrixStack.pushPose()
             matrixStack.scale(iconScale, iconScale, iconScale)
             matrixStack.translate(-8.0, -8.0, 0.0)
-            //mc.itemRenderer.renderGuiItem(helmStack, (boatRenderX/iconScale).toInt(), (boatRenderZ/iconScale).toInt())
+            val viewModel = RenderSystem.getModelViewStack()
+
+            viewModel.pushPose()
+            viewModel.mulPoseMatrix(viewModel.last().pose())
+            RenderSystem.applyModelViewMatrix()
+            // TODO 1.19 - breaks rendering: find out why mc.itemRenderer.renderGuiItem(helmStack, (boatRenderX/iconScale).toInt(), (boatRenderZ/iconScale).toInt())
+
+            viewModel.popPose()
+            RenderSystem.applyModelViewMatrix()
 
             matrixStack.popPose()
 

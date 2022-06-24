@@ -1,6 +1,7 @@
 package org.jglrxavpok.moarboats.client.renders
 
 import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.math.Quaternion
 import com.mojang.math.Vector3f
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.MultiBufferSource
@@ -50,9 +51,11 @@ object ChunkLoadingModuleRenderer : BoatModuleRenderer() {
             val width = .0625f * 15f
             matrixStack.translate(-(x*width).toDouble(), yOffset.toDouble(), (z*length).toDouble())
             matrixStack.translate(-0.025, 0.5, 0.0)
-            matrixStack.mulPose(Vector3f.YN.rotationDegrees(entityYaw))
-            matrixStack.mulPose(Vector3f.YP.rotationDegrees(-entityRenderer.camera.yRot))
-            matrixStack.mulPose(Vector3f.XP.rotationDegrees(-entityRenderer.camera.xRot))
+
+            // cancel boat rotation
+            matrixStack.mulPose(Quaternion(0f, -(180.0f - entityYaw - 90f), 0.0f, true))
+
+            matrixStack.mulPose(entityRendererManager.cameraOrientation())
 
             val unknownValue = 0
             itemRenderer.renderStatic(enderPearlStack, ItemTransforms.TransformType.GROUND, packedLightIn, OverlayTexture.NO_OVERLAY, matrixStack, buffers, unknownValue)
