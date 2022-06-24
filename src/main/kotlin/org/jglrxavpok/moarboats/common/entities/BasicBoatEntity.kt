@@ -49,7 +49,6 @@ import org.jglrxavpok.moarboats.extensions.toDegrees
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.max
-import kotlin.math.sqrt
 
 abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Level): Entity(type, world), IControllable,
     IEntityAdditionalSpawnData {
@@ -414,6 +413,11 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
         distanceTravelled += deltaMovement.length()
 
         super.tick()
+
+        // ensures client always has the proper location
+        if (this.isControlledByLocalInstance) {
+            syncPacketPositionCodec(this.x, this.y, this.z)
+        }
 
         breakLinkIfNeeded(FrontLink)
         breakLinkIfNeeded(BackLink)
