@@ -20,7 +20,7 @@ object BlockEntities {
 
     @JvmField
     val FluidUnloader = Registry.register("fluid_unloader") {
-        BlockEntityType.Builder.of(::TileEntityFluidLoader, MBBlocks.FluidUnloader.get())
+        BlockEntityType.Builder.of(::TileEntityFluidUnloader, MBBlocks.FluidUnloader.get())
             .build(null /* no data fixer */)
     }
 
