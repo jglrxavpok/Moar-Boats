@@ -1,7 +1,7 @@
 {
-  "parent": "item/generated",
+  "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "item/acacia_boat",
+    "layer0": "minecraft:item/acacia_boat",
     "layer1": "moarboats:items/utility/cartography_table",
     "layer2": "moarboats:items/utility/paddle"
   }

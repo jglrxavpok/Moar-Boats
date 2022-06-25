@@ -187,7 +187,7 @@ object MoarBoats {
         fun gatherData(event: GatherDataEvent) {
             val generator = event.generator
             val delegate = event.existingFileHelper
-            val existingFileHelper = object: ExistingFileHelper(emptyList(), Collections.emptySet(), true, null, null) {
+            val existingFileHelper = object: ExistingFileHelper(emptyList(), Collections.emptySet(), false, null, null) {
                 override fun exists(loc: ResourceLocation?, type: PackType?, pathSuffix: String?, pathPrefix: String?): Boolean {
                     if(loc?.namespace == ModID)
                         return true

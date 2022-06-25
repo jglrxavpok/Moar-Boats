@@ -9,7 +9,7 @@ import org.jglrxavpok.moarboats.common.data.BoatType
 
 class JsonModelGenerator(generator: DataGenerator, val boatModID: String, val baseBoatModID: String, existingFile: ExistingFileHelper): ItemModelProvider(generator, MoarBoats.ModID, existingFile) {
     override fun getName(): String {
-        return "Moar Boats BOP Json Auto-generated Models"
+        return "Moar Boats auto-generated utilityb boat item models"
     }
 
     override fun registerModels() {

@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "moarboats:utility_boat_stonecutter",
+  "ingredients": [
+    {
+      "item": "minecraft:mangrove_boat"
+    },
+    {
+      "item": "minecraft:stonecutter"
+    }
+  ],
+  "result": {
+    "item": "moarboats:minecraft_mangrove_stonecutter_boat"
+  }
+}
