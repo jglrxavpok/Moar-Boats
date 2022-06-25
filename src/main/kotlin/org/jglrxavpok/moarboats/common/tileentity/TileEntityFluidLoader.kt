@@ -102,9 +102,9 @@ class TileEntityFluidLoader(blockPos: BlockPos, blockState: BlockState): TileEnt
         if(fluid != resource.fluid && amount > 0) {
             return 0
         }
-        fluid = resource.fluid
         val maxFillable = minOf(resource.amount, getCapacity()-amount)
         if(action.execute()) {
+            fluid = resource.fluid
             amount += maxFillable
             setChanged()
         }

@@ -76,7 +76,7 @@ class GuiHelmModule(menuType: MenuType<ContainerHelmModule>, containerID: Int, p
     override fun drawModuleBackground(poseStack: PoseStack, mouseX: Int, mouseY: Int) {
         super.drawModuleBackground(poseStack, mouseX, mouseY)
         RenderSystem.setShaderTexture(0, RES_MAP_BACKGROUND)
-        RenderSystem.setShader { GameRenderer.getPositionTexLightmapColorShader() }
+        RenderSystem.setShader { GameRenderer.getPositionColorTexLightmapShader() }
         val tessellator = Tesselator.getInstance()
         val bufferbuilder = tessellator.builder
         val x = guiLeft + xSize/2f - mapSize/2

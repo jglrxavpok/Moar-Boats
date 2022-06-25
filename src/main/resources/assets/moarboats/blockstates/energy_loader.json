@@ -1,27 +1,27 @@
 {
   "variants": {
     "facing=down": {
-      "model": "moarboats:block/energy_charger",
+      "model": "moarboats:block/energy_loader",
       "x": 180
     },
     "facing=up": {
-      "model": "moarboats:block/energy_charger"
+      "model": "moarboats:block/energy_loader"
     },
     "facing=north": {
-      "model": "moarboats:block/energy_charger",
+      "model": "moarboats:block/energy_loader",
       "x": 90
     },
     "facing=south": {
-      "model": "moarboats:block/energy_charger",
+      "model": "moarboats:block/energy_loader",
       "x": 270
     },
     "facing=west": {
-      "model": "moarboats:block/energy_charger",
+      "model": "moarboats:block/energy_loader",
       "x": 90,
       "y": 270
     },
     "facing=east": {
-      "model": "moarboats:block/energy_charger",
+      "model": "moarboats:block/energy_loader",
       "x": 90,
       "y": 90
     }

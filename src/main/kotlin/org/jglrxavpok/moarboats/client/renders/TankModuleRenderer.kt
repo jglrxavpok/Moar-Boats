@@ -1,11 +1,13 @@
 package org.jglrxavpok.moarboats.client.renders
 
+import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.blaze3d.vertex.Tesselator
+import com.mojang.blaze3d.vertex.VertexFormat
 import com.mojang.math.Vector3f
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.LightTexture
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.Sheets
+import net.minecraft.client.renderer.*
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.world.inventory.InventoryMenu
@@ -40,10 +42,12 @@ object TankModuleRenderer : BoatModuleRenderer() {
         renderBlockState(matrixStack, buffers, packedLightIn, block.defaultBlockState(), boat.lightLevelDependentMagicValue)
         val fluid = module.getFluidInside(boat)
         if(fluid != null && module.getFluidAmount(boat) > 0) {
+            RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS)
+
             val scale = 1f/16f
-            matrixStack.scale(scale, scale, scale)
+            matrixStack.scale(scale, -scale, scale)
             val sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(fluid.attributes.stillTexture)
-            val buffer = buffers.getBuffer(Sheets.chestSheet())
+            val buffer = buffers.getBuffer(RenderType.entityTranslucent(InventoryMenu.BLOCK_ATLAS))
             val minU = sprite.u0
             val maxU = sprite.u1
             val minV = sprite.v0
@@ -61,7 +65,7 @@ object TankModuleRenderer : BoatModuleRenderer() {
             buffer.pos(matrixStack,1.0, 1.01, 15.0).color(red, green, blue, 255).uv(minU, maxV).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(matrixStack, 0f, 1f, 0f).endVertex()
 
             val fillAmount = module.getFluidAmount(boat) / module.getCapacity(boat).toFloat()
-            val height = 15.0* fillAmount
+            val height = -15.0* fillAmount
             buffer.pos(matrixStack,1.0, height, 1.0).color(red, green, blue, 255).uv(minU, minV).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(matrixStack, 0f, -1f, 0f).endVertex()
             buffer.pos(matrixStack,15.0, height, 1.0).color(red, green, blue, 255).uv(maxU, minV).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(matrixStack, 0f, -1f, 0f).endVertex()
             buffer.pos(matrixStack,15.0, height, 15.0).color(red, green, blue, 255).uv(maxU, maxV).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(matrixStack, 0f, -1f, 0f).endVertex()

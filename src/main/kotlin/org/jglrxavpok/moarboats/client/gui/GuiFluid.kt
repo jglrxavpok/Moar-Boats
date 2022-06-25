@@ -43,7 +43,7 @@ class GuiFluid(isLoading: Boolean, containerID: Int, val te: TileEntityListenabl
         val localX = mouseX - guiLeft
         val localY = mouseY - guiTop
         if(localX in 60..(60+55) && localY in 6..(6+75)) {
-            renderTooltip(matrixStack, Component.translatable(MoarBoats.ModID+".tank_level", fluidAmount, fluidCapacity, Component.translatable(fluid?.attributes?.getTranslationKey(FluidStack(fluid!!, fluidAmount))) ?: "nothing")/*.formatted()*/, localX, localY)
+            renderTooltip(matrixStack, Component.translatable(MoarBoats.ModID+".tank_level", fluidAmount, fluidCapacity, Component.translatable(fluid?.attributes?.getTranslationKey(FluidStack(fluid!!, fluidAmount)) ?: "<missing translation key $fluid>") ?: "nothing")/*.formatted()*/, localX, localY)
         }
     }
 

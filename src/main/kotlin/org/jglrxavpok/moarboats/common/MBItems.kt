@@ -42,19 +42,19 @@ object MBItems {
     @JvmField
     val RudderItem = Registry.register("rudder") { RudderItem() }
     @JvmField
-    val IceBreakerItem = Registry.register("ice_breaker") { IceBreakerItem() }
+    val IceBreakerItem = Registry.register("icebreaker") { IceBreakerItem() }
     @JvmField
     val RopeItem = Registry.register("rope") { RopeItem() }
     @JvmField
     val DivingBottleItem = Registry.register("diving_bottle") { DivingBottleItem() }
     @JvmField
-    val WaterborneConductorItem = Registry.register("waterborne_conductor") { WaterborneConductorItem() }
+    val WaterborneConductorItem = Registry.register("waterborne_redstone") { WaterborneConductorItem() }
     @JvmField
     val WaterborneComparatorItem = Registry.register("waterborne_comparator") { WaterborneComparatorItem() }
     @JvmField
     val CreativeEngineItem = Registry.register("creative_engine") { CreativeEngineItem() }
     @JvmField
-    val ItemGoldenTicket = Registry.register("item_golden_ticket") { ItemGoldenTicket() }
+    val ItemGoldenTicket = Registry.register("golden_ticket") { ItemGoldenTicket() }
     @JvmField
     val MapItemWithPath = Registry.register("map_with_path") { MapItemWithPath() }
     @JvmField

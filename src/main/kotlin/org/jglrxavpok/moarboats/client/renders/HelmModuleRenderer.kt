@@ -124,12 +124,12 @@ class HelmModuleRenderer(context: EntityRendererProvider.Context) : BoatModuleRe
             val mc = Minecraft.getInstance()
             val matrixStack = renderInfo.matrixStack
 
-            RenderSystem.setShader { GameRenderer.getPositionTexLightmapColorShader() }
+            RenderSystem.setShader(GameRenderer::getPositionTexLightmapColorShader)
             matrixStack.pushPose()
             matrixStack.translate(x+margins, y+margins, 0.0)
             matrixStack.scale(0.0078125f, 0.0078125f, 0.0078125f)
             matrixStack.scale((mapSize-margins*2).toFloat(), (mapSize-margins*2).toFloat(), 1.0f)
-            val mapID: Int = 0 // TODO("MapID in HelmModuleRenderer")
+            val mapID: Int = 5 // TODO("MapID in HelmModuleRenderer")
             mc.gameRenderer.mapRenderer.update(mapID, mapdata)
             mc.gameRenderer.mapRenderer.render(renderInfo.matrixStack, renderInfo.buffers, mapID, mapdata, true, renderInfo.combinedLight)
 

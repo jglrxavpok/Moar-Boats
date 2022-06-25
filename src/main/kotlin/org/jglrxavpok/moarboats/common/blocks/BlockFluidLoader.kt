@@ -15,6 +15,10 @@ import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
 import net.minecraft.world.phys.BlockHitResult
+import net.minecraftforge.fluids.FluidStack
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler
+import net.minecraftforge.fluids.capability.IFluidHandler
+import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction
 import net.minecraftforge.network.NetworkHooks
 import org.jglrxavpok.moarboats.common.MoarBoatsGuiHandler
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityFluidLoader
@@ -40,7 +44,26 @@ class BlockFluidLoader: MoarBoatsBlockEntity() {
     override fun use(state: BlockState, worldIn: Level, pos: BlockPos, player: Player, handIn: InteractionHand, hit: BlockHitResult): InteractionResult {
         if(worldIn.isClientSide)
             return InteractionResult.SUCCESS
-        NetworkHooks.openGui(player as ServerPlayer, MoarBoatsGuiHandler.FluidLoaderGuiInteraction(pos.x, pos.y, pos.z), pos)
+        val heldStack = player.getItemInHand(handIn)
+        val capability = heldStack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY)
+        val fluidTransfer = capability.map {
+            val te = worldIn.getBlockEntity(pos) as TileEntityFluidLoader
+            val drainMode = if(player.isCreative) FluidAction.SIMULATE else FluidAction.EXECUTE
+            val anyTransfer =
+                if(te.fluid.isEmpty) {
+                    te.fill(it.drain(te.capacity, drainMode), IFluidHandler.FluidAction.EXECUTE) > 0
+                } else {
+                    val availableCapacity = te.capacity - te.fluidAmount
+                    te.fill(it.drain(FluidStack(te.fluid, availableCapacity), drainMode), IFluidHandler.FluidAction.EXECUTE) > 0
+                }
+            if(anyTransfer) {
+                player.setItemInHand(handIn, it.container)
+            }
+            return@map anyTransfer
+        }.orElse(false)
+        if(!fluidTransfer) {
+            NetworkHooks.openGui(player as ServerPlayer, MoarBoatsGuiHandler.FluidLoaderGuiInteraction(pos.x, pos.y, pos.z), pos)
+        }
         return InteractionResult.SUCCESS
     }
 
