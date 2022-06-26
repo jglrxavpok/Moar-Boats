@@ -17,6 +17,7 @@ import net.minecraft.nbt.ListTag
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
+import net.minecraft.world.item.MapItem
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
@@ -66,6 +67,8 @@ class HelmModuleRenderer(context: EntityRendererProvider.Context) : BoatModuleRe
         val stack = inventory.getItem(0)
         val item = stack.item
         HelmModule.getMapData(stack, boat)?.let { mapdata ->
+            val mapID = HelmModule.getMapID(stack) ?: return@let
+
             val mc = Minecraft.getInstance()
 
             val x = 0.0f
@@ -96,7 +99,7 @@ class HelmModuleRenderer(context: EntityRendererProvider.Context) : BoatModuleRe
                 is ItemPath -> Pair(item.getWaypointData(stack, MoarBoats.getLocalMapStorage()), item.getLoopingOptions(stack))
                 else -> return@let
             }
-            renderMap(boat, RenderInfo(matrixStack, mc.renderBuffers().bufferSource(), packedLightIn), mapdata, x.toDouble(), y.toDouble(), mapSize.toDouble(), boat.x, boat.z, 7.0, waypoints, loopingOption == LoopingOptions.Loops)
+            renderMap(boat, RenderInfo(matrixStack, mc.renderBuffers().bufferSource(), packedLightIn), mapID, mapdata, x.toDouble(), y.toDouble(), mapSize.toDouble(), boat.x, boat.z, 7.0, waypoints, loopingOption == LoopingOptions.Loops)
         }
         matrixStack.popPose()
     }
@@ -120,7 +123,7 @@ class HelmModuleRenderer(context: EntityRendererProvider.Context) : BoatModuleRe
         val mapBackgroundRenderType = RenderType.entityCutoutNoCull(RES_MAP_BACKGROUND)
         val moduleRenderType = RenderType.entityCutoutNoCull(texture)
 
-        fun renderMap(boat: IControllable, renderInfo: RenderInfo, mapdata: MapItemSavedData, x: Double, y: Double, mapSize: Double, worldX: Double, worldZ: Double, margins: Double = 7.0, waypointsData: ListTag, loops: Boolean) {
+        fun renderMap(boat: IControllable, renderInfo: RenderInfo, mapID: Int, mapdata: MapItemSavedData, x: Double, y: Double, mapSize: Double, worldX: Double, worldZ: Double, margins: Double = 7.0, waypointsData: ListTag, loops: Boolean) {
             val mc = Minecraft.getInstance()
             val matrixStack = renderInfo.matrixStack
 
@@ -129,7 +132,6 @@ class HelmModuleRenderer(context: EntityRendererProvider.Context) : BoatModuleRe
             matrixStack.translate(x+margins, y+margins, 0.0)
             matrixStack.scale(0.0078125f, 0.0078125f, 0.0078125f)
             matrixStack.scale((mapSize-margins*2).toFloat(), (mapSize-margins*2).toFloat(), 1.0f)
-            val mapID: Int = 5 // TODO("MapID in HelmModuleRenderer")
             mc.gameRenderer.mapRenderer.update(mapID, mapdata)
             mc.gameRenderer.mapRenderer.render(renderInfo.matrixStack, renderInfo.buffers, mapID, mapdata, true, renderInfo.combinedLight)
 

@@ -157,7 +157,7 @@ class GuiPathEditor(val player: Player, val pathHolder: PathHolder, val mapID: S
 
         loopingButton.propertyIndex = pathHolder.getLoopingOption().ordinal
 
-        boostSlider = object: ForgeSlider(menuX, yOffset+20, 125, 20, Component.literal("${boostSetting/*.formatted()*/}: "), Component.literal("%"), -50.0, 50.0, 0.0, 1.0, 0, true) {
+        boostSlider = object: ForgeSlider(menuX, yOffset+20, 125, 20, boostSetting.append(": "), Component.literal("%"), -50.0, 50.0, 0.0, 1.0, 0, true) {
             override fun applyValue() {
                 // no-op
             }

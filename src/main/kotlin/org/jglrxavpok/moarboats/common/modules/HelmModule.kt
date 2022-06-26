@@ -349,11 +349,11 @@ object HelmModule: BoatModule(), BlockReason {
             }
             is MapItemWithPath -> {
                 val id = stack.tag!!.getString("${MoarBoats.ModID}.mapID")
-                GuiPathEditor(player, MapWithPathHolder(stack, null, boat), id, mapData)
+                GuiPathEditor(player, MapWithPathHolder({ inventory.list[0] }, null, boat), id, mapData)
             }
             is ItemGoldenTicket -> {
                 val id = ItemGoldenTicket.getData(stack).mapID
-                GuiPathEditor(player, GoldenTicketPathHolder(stack, null, boat), id, mapData)
+                GuiPathEditor(player, GoldenTicketPathHolder({ inventory.list[0] }, null, boat), id, mapData)
             }
             else -> null
         }
@@ -369,6 +369,23 @@ object HelmModule: BoatModule(), BlockReason {
             is ItemGoldenTicket -> {
                 val mapID = ItemGoldenTicket.getData(stack).mapID
                 MoarBoats.getLocalMapStorage().get(MapItemSavedData::load, mapID)
+            }
+            else -> null
+        }
+    }
+
+    fun getMapID(stack: ItemStack): Int? {
+        return when (stack.item) {
+            is MapItem -> MapItem.getMapId(stack)
+            is MapItemWithPath -> {
+                val mapKey = stack.tag?.getString("${MoarBoats.ModID}.mapID") ?: return null
+                check(mapKey.startsWith("map_")) { "map key is expected to start with 'map_', but was $mapKey" }
+                mapKey.substring(4).toInt()
+            }
+            is ItemGoldenTicket -> {
+                val mapKey = ItemGoldenTicket.getData(stack).mapID
+                check(mapKey.startsWith("map_")) { "map key is expected to start with 'map_', but was $mapKey" }
+                mapKey.substring(4).toInt()
             }
             else -> null
         }

@@ -53,9 +53,10 @@ class BoatPathHolder(val boat: IControllable): PathHolder {
     }
 }
 
-class MapWithPathHolder(stack: ItemStack, mappingTable: TileEntityMappingTable?, boat: IControllable?): ItemPathHolder(stack, mappingTable, boat) {
+class MapWithPathHolder(stackSupplier: () -> ItemStack, mappingTable: TileEntityMappingTable?, boat: IControllable?): ItemPathHolder(stackSupplier, mappingTable, boat) {
 
     override fun nbt(): CompoundTag {
+        val stack = stackSupplier()
         if(stack.tag == null) {
             stack.tag = CompoundTag()
         }
@@ -79,9 +80,9 @@ class MapWithPathHolder(stack: ItemStack, mappingTable: TileEntityMappingTable?,
     }
 }
 
-class GoldenTicketPathHolder(stack: ItemStack, mappingTable: TileEntityMappingTable?, boat: IControllable?): ItemPathHolder(stack, mappingTable, boat) {
+class GoldenTicketPathHolder(stackSupplier: () -> ItemStack, mappingTable: TileEntityMappingTable?, boat: IControllable?): ItemPathHolder(stackSupplier, mappingTable, boat) {
     override fun nbt(): CompoundTag {
-        return ItemGoldenTicket.getData(stack).save(CompoundTag())
+        return ItemGoldenTicket.getData(stackSupplier()).save(CompoundTag())
     }
 
     override fun addWaypoint(pos: BlockPos, boost: Double?) {
@@ -101,7 +102,7 @@ class GoldenTicketPathHolder(stack: ItemStack, mappingTable: TileEntityMappingTa
     }
 }
 
-abstract class ItemPathHolder(val stack: ItemStack, val mappingTable: TileEntityMappingTable?, val boat: IControllable?): PathHolder {
+abstract class ItemPathHolder(val stackSupplier: () -> ItemStack, val mappingTable: TileEntityMappingTable?, val boat: IControllable?): PathHolder {
 
     abstract fun nbt(): CompoundTag
 

@@ -35,7 +35,7 @@ class GuiHelmModule(menuType: MenuType<ContainerHelmModule>, containerID: Int, p
     override val moduleBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/helm.png")
 
     private val RES_MAP_BACKGROUND = ResourceLocation("textures/map/map_background.png")
-    private val margins = 7.0
+    private val margins = 3.0
     private val mapSize = 100.0
     private val mapStack = ItemStack(Items.FILLED_MAP)
     private val editButtonText = Component.translatable("gui.helm.path_editor")
@@ -91,6 +91,8 @@ class GuiHelmModule(menuType: MenuType<ContainerHelmModule>, containerID: Int, p
         var hasMap = false
         val buffers = mc.renderBuffers().bufferSource()
         getMapData(stack)?.let { mapdata ->
+            val mapID = HelmModule.getMapID(stack) ?: return@let
+
             val item = stack.item
             val (waypoints, loopingOption) = when(item) {
                 Items.FILLED_MAP -> Pair(HelmModule.waypointsProperty[boat], HelmModule.loopingProperty[boat])
@@ -98,12 +100,16 @@ class GuiHelmModule(menuType: MenuType<ContainerHelmModule>, containerID: Int, p
                 else -> return@let
             }
             val renderInfo = RenderInfo(poseStack, buffers)
-            HelmModuleRenderer.renderMap(boat, renderInfo, mapdata, x, y, mapSize, boat.positionX, boat.positionZ, margins, waypoints, loopingOption == LoopingOptions.Loops)
+            poseStack.pushPose()
+            poseStack.translate(0.0, 0.0, 1.0) // map renders below background otherwise
+            HelmModuleRenderer.renderMap(boat, renderInfo, mapID, mapdata, x, y, mapSize, boat.positionX, boat.positionZ, margins, waypoints, loopingOption == LoopingOptions.Loops)
 
+            poseStack.translate(0.0, 0.0, 1.0) // waypoint renders below map otherwise
             if(mouseX >= x+margins && mouseX <= x+mapSize-margins && mouseY >= y+margins && mouseY <= y+mapSize-margins) {
                 val waypointBuffer = buffers.getBuffer(HelmModuleRenderer.waypointRenderType)
                 HelmModuleRenderer.renderSingleWaypoint(renderInfo, waypointBuffer, mouseX.toDouble(), mouseY.toDouble()-6.0)
             }
+            poseStack.popPose()
 
             hasMap = true
         }

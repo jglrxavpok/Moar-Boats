@@ -31,11 +31,12 @@ class SUpdateMapWithPathInMappingTable: SxxUpdateMapWithPath {
                 val te = Minecraft.getInstance().level!!.getBlockEntity(pos)
                 when(te) {
                     is TileEntityMappingTable -> {
-                        val stack = te.inventory.getItem(0)
+                        val stack = te.inventory.getItem(0).copy()
                         if(stack.tag == null) {
                             stack.tag = CompoundTag()
                         }
                         stack.tag!!.put("${MoarBoats.ModID}.path", list)
+                        te.inventory.setItem(0, stack)
                     }
                     else -> MoarBoats.logger.error("No mapping table at $pos")
                 }
