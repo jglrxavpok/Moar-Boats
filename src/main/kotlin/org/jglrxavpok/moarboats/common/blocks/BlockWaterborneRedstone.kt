@@ -37,40 +37,17 @@ class BlockWaterborneConductor: DiodeBlock(Properties.of(Material.DECORATION).no
     override fun canSurvive(state: BlockState, levelIn: LevelReader, pos: BlockPos): Boolean {
         return levelIn.getFluidState(pos.below()).`is`(FluidTags.WATER)
     }
-
+/*
+    override fun shouldTurnOn(p_52502_: Level, p_52503_: BlockPos, p_52504_: BlockState): Boolean {
+        //return getOutputSignal(p_52502_, p_52503_, p_52504_) > 0
+        return super.shouldTurnOn(p_52502_, p_52503_, p_52504_)
+    }
+*/
     override fun getDelay(state: BlockState?): Int {
         return 0
     }
-
-    override fun getDirectSignal(blockState: BlockState, blockAccess: BlockGetter?, pos: BlockPos?, side: Direction): Int {
-        return if (!blockState.getValue(POWERED)) {
-            0
-        } else {
-            if (canConnectRedstone(blockState, blockAccess, pos, side)) getOutputSignal(blockAccess!!, pos!!, blockState) else 0
-        }
-    }
-
-    override fun getOutputSignal(levelIn: BlockGetter, pos: BlockPos, state: BlockState): Int {
-        val behindSide = state.getValue(FACING)
-        val posBehind = pos.relative(behindSide)
-        val behind = levelIn.getBlockState(posBehind)
-        return behind.getSignal(levelIn, posBehind, behindSide)
-    }
-
     override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block, BlockState>) {
         builder.add(FACING, POWERED)
-    }
-
-    override fun onRemove(state: BlockState, levelIn: Level, pos: BlockPos, newState: BlockState, isMoving: Boolean) {
-        super.onRemove(state, levelIn, pos, newState, isMoving)
-        this.checkTickOnNeighbor(levelIn, pos, state)
-    }
-
-    /**
-     * Called by BlockItems after a block is set in the level, to allow post-place logic
-     */
-    override fun setPlacedBy(levelIn: Level, pos: BlockPos, state: BlockState, placer: LivingEntity?, stack: ItemStack) {
-        super.setPlacedBy(levelIn, pos, state, placer, stack)
     }
 
     override fun getDrops(state: BlockState, builder: LootContext.Builder): MutableList<ItemStack> {

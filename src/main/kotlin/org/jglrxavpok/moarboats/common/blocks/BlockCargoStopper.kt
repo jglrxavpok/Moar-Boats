@@ -16,26 +16,31 @@ import net.minecraft.world.level.block.DiodeBlock
 import net.minecraft.world.level.block.SoundType
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
-import net.minecraft.world.level.block.state.properties.BlockStateProperties
 import net.minecraft.world.level.material.Material
 import net.minecraft.world.level.storage.loot.LootContext
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.shapes.CollisionContext
 import net.minecraft.world.phys.shapes.Shapes
 import net.minecraft.world.phys.shapes.VoxelShape
-import net.minecraft.world.ticks.ScheduledTick
 import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.IItemHandler
 import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
-import java.util.*
 
 class BlockCargoStopper: DiodeBlock(Properties.of(Material.DECORATION).noOcclusion().randomTicks().strength(0f).sound(SoundType.WOOD)) {
     init {
-        this.registerDefaultState(this.defaultBlockState().setValue(BlockStateProperties.FACING, Direction.NORTH).setValue(POWERED, false))
+        this.registerDefaultState(this.defaultBlockState().setValue(FACING, Direction.NORTH).setValue(POWERED, false))
     }
 
     override fun isRandomlyTicking(state: BlockState) = true
+
+    override fun getSignal(p_52520_: BlockState, p_52521_: BlockGetter, p_52522_: BlockPos, p_52523_: Direction): Int {
+        return if (!p_52520_.getValue(POWERED)) {
+            0
+        } else {
+            if (p_52520_.getValue(FACING).opposite != p_52523_) getOutputSignal(p_52521_, p_52522_, p_52520_) else 0
+        }
+    }
 
     override fun canConnectRedstone(state: BlockState?, world: BlockGetter?, pos: BlockPos?, side: Direction?): Boolean {
         return side != null && side != Direction.DOWN && side != Direction.UP
@@ -56,7 +61,7 @@ class BlockCargoStopper: DiodeBlock(Properties.of(Material.DECORATION).noOcclusi
     override fun getDirectSignal(state: BlockState, blockAccess: BlockGetter, pos: BlockPos, side: Direction): Int {
         if(blockAccess is Level) {
             val world = blockAccess
-            val aabb = AABB(pos.relative(state.getValue(BlockStateProperties.FACING)))
+            val aabb = AABB(pos.relative(state.getValue(FACING)))
             val entities = world.getEntitiesOfClass(BasicBoatEntity::class.java, aabb) { e -> e != null && e.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).isPresent }
             val first = entities.firstOrNull()
             return first?.let {
@@ -69,8 +74,8 @@ class BlockCargoStopper: DiodeBlock(Properties.of(Material.DECORATION).noOcclusi
     override fun tick(state: BlockState, worldIn: ServerLevel, pos: BlockPos, rand: RandomSource) {
         val produceSignal = shouldTurnOn(worldIn, pos, state)
         when {
-            produceSignal && !state.getValue(POWERED) -> worldIn.setBlockAndUpdate(pos, state.setValue(POWERED, true).setValue(BlockStateProperties.FACING, state.getValue(BlockStateProperties.FACING)))
-            !produceSignal && state.getValue(POWERED) -> worldIn.setBlockAndUpdate(pos, state.setValue(POWERED, false).setValue(BlockStateProperties.FACING, state.getValue(BlockStateProperties.FACING)))
+            produceSignal && !state.getValue(POWERED) -> worldIn.setBlockAndUpdate(pos, state.setValue(POWERED, true).setValue(FACING, state.getValue(FACING)))
+            !produceSignal && state.getValue(POWERED) -> worldIn.setBlockAndUpdate(pos, state.setValue(POWERED, false).setValue(FACING, state.getValue(FACING)))
         }
         worldIn.scheduleTick(pos, this, 2)
         checkTickOnNeighbor(worldIn, pos, state)
@@ -98,7 +103,7 @@ class BlockCargoStopper: DiodeBlock(Properties.of(Material.DECORATION).noOcclusi
     }
 
     override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block, BlockState>) {
-        builder.add(BlockStateProperties.FACING, POWERED)
+        builder.add(FACING, POWERED)
     }
 
     override fun onRemove(state: BlockState, worldIn: Level, pos: BlockPos, newState: BlockState, isMoving: Boolean) {
@@ -116,11 +121,15 @@ class BlockCargoStopper: DiodeBlock(Properties.of(Material.DECORATION).noOcclusi
     }
 
     override fun shouldTurnOn(worldIn: Level, pos: BlockPos, state: BlockState): Boolean {
-        return getDirectSignal(state, worldIn, pos, state.getValue(BlockStateProperties.FACING)) > 0
+        return getDirectSignal(state, worldIn, pos, state.getValue(FACING)) > 0
     }
 
     override fun getDrops(state: BlockState, builder: LootContext.Builder): MutableList<ItemStack> {
         return mutableListOf(ItemStack(MBItems.CargoStopperItem.get(), 1))
+    }
+
+    override fun getOutputSignal(p_52541_: BlockGetter, p_52542_: BlockPos, p_52543_: BlockState): Int {
+        return super.getOutputSignal(p_52541_, p_52542_, p_52543_)
     }
 
     override fun getCloneItemStack(worldIn: BlockGetter, pos: BlockPos, state: BlockState) = ItemStack(MBItems.CargoStopperItem.get(), 1)
