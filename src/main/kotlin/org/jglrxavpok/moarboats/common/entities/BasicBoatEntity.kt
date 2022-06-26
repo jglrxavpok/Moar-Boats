@@ -94,7 +94,6 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
     private var lastYd = 0.0
     protected var acceleration = 0f
 
-    var boatID: UUID = UUID.randomUUID()
     protected var blockedRotation = false
     protected var blockedMotion = false
     override var blockedReason: BlockReason = NoBlockReason
@@ -689,7 +688,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
             entityData.set(LINKS_RUNTIME[linkType], NoLinkFound)
         } else {
             if(other is BasicBoatEntity) {
-                currentLinks[linkType] = Optional.of(other.boatID)
+                currentLinks[linkType] = Optional.of(other.uuid)
                 currentLinkTypes[linkType] = BoatLink
                 currentKnotLocations[linkType] = Optional.empty()
             } else if(other is LeashFenceKnotEntity) {
@@ -724,7 +723,6 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
             compound.putInt("linkBackY", pos.y)
             compound.putInt("linkBackZ", pos.z)
         }
-        compound.putUUID("boatID", boatID)
         compound.putInt("dataFormatVersion", CurrentDataFormatVersion)
     }
 
@@ -761,9 +759,6 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
         } else if(linkEntityTypes[BackLink] == KnotLink) {
             val pos = BlockPos(compound.getInt("linkBackX"), compound.getInt("linkBackY"), compound.getInt("linkBackZ"))
             readKnotLocations[BackLink] = Optional.of(pos)
-        }
-        if(compound.hasUUID("boatID")) {
-            boatID = compound.getUUID("boatID")
         }
         knotLocations = listOf(*readKnotLocations)
 
@@ -868,8 +863,8 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
             if(id == NoLinkFound) {
                 val searchBB = boundingBox.inflate(MaxLinkSearchDistance)
                 val idList = world.getEntities(null as? Entity, searchBB) { it is BasicBoatEntity }.map { it as BasicBoatEntity }
-                        .map { it as BasicBoatEntity }.joinToString(", ") { it.boatID.toString() }
-                MoarBoats.logger.error("NO LINK FOUND FOR SIDE $side (UUID was ${links[side].get()}) FOR BOAT $boatID \nHere's a list of all loaded boatIDs:\n$idList")
+                        .map { it as BasicBoatEntity }.joinToString(", ") { it.uuid.toString() }
+                MoarBoats.logger.error("NO LINK FOUND FOR SIDE $side (UUID was ${links[side].get()}) FOR BOAT $uuid \nHere's a list of all loaded boatIDs:\n$idList")
             }
         }
         return world.getEntity(id) as? BasicBoatEntity
@@ -879,7 +874,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
         val boatID = links[side].get()
         val searchBB = boundingBox.inflate(MaxLinkSearchDistance)
         val correspondingBoat = world.getEntities(null as? Entity, searchBB) { it is BasicBoatEntity }.map { it as BasicBoatEntity }.firstOrNull { entity ->
-            entity?.boatID == boatID ?: false
+            entity?.uuid == boatID ?: false
         }
 
         val id = correspondingBoat?.entityID ?: NoLinkFound
