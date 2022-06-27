@@ -16,7 +16,6 @@ import net.minecraft.world.level.block.DiodeBlock
 import net.minecraft.world.level.block.SoundType
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
-import net.minecraft.world.level.block.state.properties.BlockStateProperties
 import net.minecraft.world.level.material.Material
 import net.minecraft.world.level.storage.loot.LootContext
 import net.minecraft.world.phys.AABB
@@ -28,31 +27,17 @@ import net.minecraftforge.items.IItemHandler
 import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 
-class BlockWaterborneComparator: DiodeBlock(Properties.of(Material.DECORATION).noOcclusion().randomTicks().strength(0f).sound(SoundType.WOOD)) {
+class BlockWaterborneComparator: WaterborneRedstoneBlock() {
     init {
         this.registerDefaultState(this.defaultBlockState().setValue(FACING, Direction.NORTH).setValue(POWERED, false))
     }
-
-    override fun isRandomlyTicking(state: BlockState) = true
 
     override fun canConnectRedstone(state: BlockState?, world: BlockGetter?, pos: BlockPos?, side: Direction?): Boolean {
         return state != null && side != null && side != Direction.DOWN && side != Direction.UP && (side == state.getValue(FACING) || side == state.getValue(FACING).opposite)
     }
 
-    override fun getCollisionShape(state: BlockState, worldIn: BlockGetter, pos: BlockPos, context: CollisionContext): VoxelShape {
-        return Shapes.empty()
-    }
-
-    override fun canSurvive(state: BlockState, worldIn: LevelReader, pos: BlockPos): Boolean {
-        return worldIn.getFluidState(pos.below()).`is`(FluidTags.WATER)
-    }
-
-    override fun getDelay(state: BlockState?): Int {
-        return 0
-    }
-
     override fun getDirectSignal(state: BlockState, blockAccess: BlockGetter, pos: BlockPos, side: Direction): Int {
-        if(blockAccess is Level && side == state.getValue(FACING)) {
+        if(blockAccess is Level && state.getValue(FACING) == side) {
             val world = blockAccess
             val aabb = AABB(pos.relative(state.getValue(FACING)))
             val entities = world.getEntitiesOfClass(BasicBoatEntity::class.java, aabb) { e -> e != null && e.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).isPresent }
@@ -64,6 +49,10 @@ class BlockWaterborneComparator: DiodeBlock(Properties.of(Material.DECORATION).n
         return 0
     }
 
+    override fun getOutputSignal(blockAccess: BlockGetter, pos: BlockPos, state: BlockState): Int {
+        return getDirectSignal(state, blockAccess, pos, state.getValue(FACING))
+    }
+
     override fun tick(state: BlockState, worldIn: ServerLevel, pos: BlockPos, random: RandomSource) {
         val produceSignal = shouldTurnOn(worldIn, pos, state)
         when {
@@ -72,6 +61,8 @@ class BlockWaterborneComparator: DiodeBlock(Properties.of(Material.DECORATION).n
         }
         worldIn.scheduleTick(pos, this, 2)
         checkTickOnNeighbor(worldIn, pos, state)
+
+        updateNeighborsInFront(worldIn, pos, state)
     }
 
     private fun calcRedstoneFromInventory(inv: IItemHandler?): Int {
@@ -93,10 +84,6 @@ class BlockWaterborneComparator: DiodeBlock(Properties.of(Material.DECORATION).n
             f /= inv.slots.toFloat()
             return Mth.floor(f * 14.0f) + if (i > 0) 1 else 0
         }
-    }
-
-    override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block, BlockState>) {
-        builder.add(FACING, POWERED)
     }
 
     override fun onRemove(state: BlockState, worldIn: Level, pos: BlockPos, newState: BlockState, isMoving: Boolean) {

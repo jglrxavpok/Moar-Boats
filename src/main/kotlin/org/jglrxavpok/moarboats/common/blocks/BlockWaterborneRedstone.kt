@@ -21,33 +21,10 @@ import net.minecraft.world.phys.shapes.Shapes
 import net.minecraft.world.phys.shapes.VoxelShape
 import org.jglrxavpok.moarboats.common.MBItems
 
-class BlockWaterborneConductor: DiodeBlock(Properties.of(Material.DECORATION).noOcclusion().strength(0f).sound(SoundType.WOOD)) {
-    init {
-        this.registerDefaultState(this.defaultBlockState().setValue(FACING, Direction.NORTH).setValue(POWERED, false))
-    }
+class BlockWaterborneConductor: WaterborneRedstoneBlock() {
 
     override fun canConnectRedstone(state: BlockState?, level: BlockGetter?, pos: BlockPos?, side: Direction?): Boolean {
         return state != null && side != null && side != Direction.DOWN && side != Direction.UP && (side == state.getValue(FACING) || side == state.getValue(FACING).opposite)
-    }
-
-    override fun getCollisionShape(state: BlockState, worldIn: BlockGetter, pos: BlockPos, context: CollisionContext): VoxelShape {
-        return Shapes.empty()
-    }
-
-    override fun canSurvive(state: BlockState, levelIn: LevelReader, pos: BlockPos): Boolean {
-        return levelIn.getFluidState(pos.below()).`is`(FluidTags.WATER)
-    }
-/*
-    override fun shouldTurnOn(p_52502_: Level, p_52503_: BlockPos, p_52504_: BlockState): Boolean {
-        //return getOutputSignal(p_52502_, p_52503_, p_52504_) > 0
-        return super.shouldTurnOn(p_52502_, p_52503_, p_52504_)
-    }
-*/
-    override fun getDelay(state: BlockState?): Int {
-        return 0
-    }
-    override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block, BlockState>) {
-        builder.add(FACING, POWERED)
     }
 
     override fun getDrops(state: BlockState, builder: LootContext.Builder): MutableList<ItemStack> {

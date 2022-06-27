@@ -1,28 +1,28 @@
 {
   "variants": {
-    "facing=north,powered=true": [
-      { "model": "moarboats:block/waterborne_redstone_powered" }
-    ],
     "facing=south,powered=true": [
-      { "model": "moarboats:block/waterborne_redstone_powered", "y": 180 }
+      { "model": "moarboats:block/waterborne_conductor_on" }
     ],
-    "facing=east,powered=true": [
-      { "model": "moarboats:block/waterborne_redstone_powered", "y": 90 }
+    "facing=north,powered=true": [
+      { "model": "moarboats:block/waterborne_conductor_on", "y": 180 }
     ],
     "facing=west,powered=true": [
-      { "model": "moarboats:block/waterborne_redstone_powered", "y": 270 }
+      { "model": "moarboats:block/waterborne_conductor_on", "y": 90 }
     ],
-    "facing=north,powered=false": [
-      { "model": "moarboats:block/waterborne_redstone_unpowered" }
+    "facing=east,powered=true": [
+      { "model": "moarboats:block/waterborne_conductor_on", "y": 270 }
     ],
     "facing=south,powered=false": [
-      { "model": "moarboats:block/waterborne_redstone_unpowered", "y": 180 }
+      { "model": "moarboats:block/waterborne_conductor_off" }
     ],
-    "facing=east,powered=false": [
-      { "model": "moarboats:block/waterborne_redstone_unpowered", "y": 90 }
+    "facing=north,powered=false": [
+      { "model": "moarboats:block/waterborne_conductor_off", "y": 180 }
     ],
     "facing=west,powered=false": [
-      { "model": "moarboats:block/waterborne_redstone_unpowered", "y": 270 }
+      { "model": "moarboats:block/waterborne_conductor_off", "y": 90 }
+    ],
+    "facing=east,powered=false": [
+      { "model": "moarboats:block/waterborne_conductor_off", "y": 270 }
     ]
   }
 }

@@ -1,0 +1,162 @@
+{
+	"credit": "Made with Blockbench",
+	"ambientocclusion": false,
+	"textures": {
+		"planks": "block/dark_oak_planks",
+		"buoy": "moarboats:blocks/buoy",
+		"particle": "block/repeater_on",
+		"2_top": "block/repeater_on",
+		"lit": "block/redstone_torch"
+	},
+	"elements": [
+		{
+			"from": [4, -1, 2],
+			"to": [12, 1, 14],
+			"faces": {
+				"north": {"uv": [4, 14, 12, 16], "texture": "#2_top", "cullface": "north"},
+				"east": {"uv": [2, 14, 14, 16], "texture": "#2_top", "cullface": "east"},
+				"south": {"uv": [4, 14, 12, 16], "texture": "#2_top", "cullface": "south"},
+				"west": {"uv": [2, 14, 14, 16], "texture": "#2_top", "cullface": "west"},
+				"up": {"uv": [4, 1, 12, 13], "texture": "#2_top"},
+				"down": {"uv": [4, 1, 12, 13], "texture": "#2_top", "cullface": "down"}
+			}
+		},
+		{
+			"from": [7, 5, 3],
+			"to": [9, 5, 5],
+			"faces": {
+				"up": {"uv": [7, 6, 9, 8], "texture": "#lit"}
+			}
+		},
+		{
+			"from": [7, 0, 2],
+			"to": [9, 6, 6],
+			"faces": {
+				"east": {"uv": [6, 5, 10, 11], "texture": "#lit"},
+				"west": {"uv": [6, 5, 10, 11], "texture": "#lit"}
+			}
+		},
+		{
+			"from": [6, 0, 3],
+			"to": [10, 6, 5],
+			"faces": {
+				"north": {"uv": [6, 5, 10, 11], "texture": "#lit"},
+				"south": {"uv": [6, 5, 10, 11], "texture": "#lit"}
+			}
+		},
+		{
+			"name": "south",
+			"from": [7, 0, 14],
+			"to": [9, 1, 16],
+			"faces": {
+				"north": {"uv": [7, 14, 9, 15], "texture": "#2_top", "cullface": "north"},
+				"east": {"uv": [7, 15, 9, 16], "texture": "#2_top", "cullface": "east"},
+				"south": {"uv": [7, 15, 9, 16], "texture": "#2_top", "cullface": "south"},
+				"west": {"uv": [7, 15, 9, 16], "texture": "#2_top", "cullface": "west"},
+				"up": {"uv": [7, 12, 9, 14], "texture": "#2_top"},
+				"down": {"uv": [7, 12, 9, 14], "texture": "#2_top", "cullface": "down"}
+			}
+		},
+		{
+			"name": "north",
+			"from": [7, 0, 0],
+			"to": [9, 1, 2],
+			"faces": {
+				"north": {"uv": [7, 14, 9, 15], "texture": "#2_top", "cullface": "north"},
+				"east": {"uv": [7, 15, 9, 16], "texture": "#2_top", "cullface": "east"},
+				"south": {"uv": [7, 15, 9, 16], "texture": "#2_top", "cullface": "south"},
+				"west": {"uv": [7, 15, 9, 16], "texture": "#2_top", "cullface": "west"},
+				"up": {"uv": [7, 12, 9, 14], "texture": "#2_top"},
+				"down": {"uv": [7, 12, 9, 14], "texture": "#2_top", "cullface": "down"}
+			}
+		},
+		{
+			"name": "buoy_north",
+			"from": [3, -3, 1],
+			"to": [13, 0, 3],
+			"faces": {
+				"north": {"uv": [2, 0, 14, 3], "texture": "#buoy"},
+				"east": {"uv": [14, 0, 16, 3], "texture": "#buoy"},
+				"south": {"uv": [2, 2.75, 14, 5.75], "texture": "#buoy"},
+				"west": {"uv": [0, 0, 2, 3], "texture": "#buoy"},
+				"up": {"uv": [14, 8, 2, 6], "texture": "#buoy"},
+				"down": {"uv": [14, 8, 2, 10], "texture": "#buoy"}
+			}
+		},
+		{
+			"name": "buoy_east",
+			"from": [13, -3, 1],
+			"to": [15, 0, 15],
+			"rotation": {"angle": 0, "axis": "y", "origin": [15, 0.5, 15]},
+			"faces": {
+				"north": {"uv": [14, 0, 16, 3], "texture": "#buoy"},
+				"east": {"uv": [0, 2.25, 16, 5.25], "texture": "#buoy"},
+				"south": {"uv": [0, 0, 2, 3], "texture": "#buoy"},
+				"west": {"uv": [0, 5.5, 16, 8.5], "texture": "#buoy"},
+				"up": {"uv": [16, 10.5, 0, 8.5], "rotation": 270, "texture": "#buoy"},
+				"down": {"uv": [16, 11, 0, 13], "rotation": 90, "texture": "#buoy"}
+			}
+		},
+		{
+			"name": "buoy_west",
+			"from": [1, -3, 1],
+			"to": [3, 0, 15],
+			"rotation": {"angle": 0, "axis": "y", "origin": [15, 0.5, 15]},
+			"faces": {
+				"north": {"uv": [14, 0, 16, 3], "texture": "#buoy"},
+				"east": {"uv": [0, 2.25, 16, 5.25], "texture": "#buoy"},
+				"south": {"uv": [0, 0, 2, 3], "texture": "#buoy"},
+				"west": {"uv": [0, 5.5, 16, 8.5], "texture": "#buoy"},
+				"up": {"uv": [16, 10.5, 0, 8.5], "rotation": 270, "texture": "#buoy"},
+				"down": {"uv": [16, 11, 0, 13], "rotation": 90, "texture": "#buoy"}
+			}
+		},
+		{
+			"name": "buoy_south",
+			"from": [3, -3, 13],
+			"to": [13, 0, 15],
+			"faces": {
+				"north": {"uv": [2, 5.5, 14, 8.5], "texture": "#buoy"},
+				"east": {"uv": [14, 0, 16, 3], "texture": "#buoy"},
+				"south": {"uv": [2, 2.25, 14, 5.25], "texture": "#buoy"},
+				"west": {"uv": [0, 0, 2, 3], "texture": "#buoy"},
+				"up": {"uv": [14, 10.5, 2, 8.5], "texture": "#buoy"},
+				"down": {"uv": [14, 0, 2, 2], "texture": "#buoy"}
+			}
+		},
+		{
+			"name": "plank",
+			"from": [2, -2, 2],
+			"to": [14, -1, 14],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#planks"},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#planks"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#planks"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#planks"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#planks"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#planks"}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "repeater_1tick",
+			"origin": [8, 8, 8],
+			"color": 0,
+			"children": [0, 1, 2, 3]
+		},
+		{
+			"name": "connections",
+			"origin": [8, 8, 8],
+			"color": 0,
+			"children": [4, 5]
+		},
+		{
+			"name": "buoy",
+			"origin": [8, 8, 8],
+			"color": 0,
+			"children": [6, 7, 8, 9]
+		},
+		10
+	]
+}
