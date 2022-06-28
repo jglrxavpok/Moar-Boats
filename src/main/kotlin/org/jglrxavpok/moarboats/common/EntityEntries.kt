@@ -15,6 +15,9 @@ import org.jglrxavpok.moarboats.common.entities.utilityboats.*
 
 object EntityEntries {
 
+    // vanilla: 1.375F
+    private val BoatWidth = 1.375f
+
     @JvmField
     val Registry = DeferredRegister.create(ForgeRegistries.ENTITIES, MoarBoats.ModID)
 
@@ -24,7 +27,7 @@ object EntityEntries {
         EntityType.Builder.of(factory, MobCategory.MISC)
             .setTrackingRange(64)
             .fireImmune()
-            .sized(1.375f, 0.5625f)
+            .sized(BoatWidth, 0.5625f)
             .setShouldReceiveVelocityUpdates(true)
             .setUpdateInterval(3)
             .setCustomClientFactory { packet, u -> ModularBoatEntity(packet, u) }
@@ -37,7 +40,7 @@ object EntityEntries {
         EntityType.Builder.of(factory, MobCategory.MISC)
             .setTrackingRange(64)
             .fireImmune()
-            .sized(1.375f *1.5f, 0.5625f)
+            .sized(BoatWidth *1.5f, 0.5625f)
             .setShouldReceiveVelocityUpdates(true)
             .setUpdateInterval(3)
             .setCustomClientFactory { packet, u -> AnimalBoatEntity(packet, u) }
@@ -85,7 +88,7 @@ object EntityEntries {
         EntityType.Builder.of(factory, MobCategory.MISC)
             .setTrackingRange(64)
             .fireImmune()
-            .sized(1.375f, 0.5625f)
+            .sized(BoatWidth, 0.5625f)
             .setShouldReceiveVelocityUpdates(true)
             .setUpdateInterval(3)
             .setCustomClientFactory { packet, u -> clientFactory(packet, u) }

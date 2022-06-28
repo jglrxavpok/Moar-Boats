@@ -10,7 +10,6 @@ import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.protocol.Packet
-import net.minecraft.network.protocol.game.ClientboundAddEntityPacket
 import net.minecraft.network.syncher.EntityDataSerializers
 import net.minecraft.network.syncher.SynchedEntityData
 import net.minecraft.util.Mth
@@ -18,10 +17,7 @@ import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.damagesource.IndirectEntityDamageSource
-import net.minecraft.world.entity.Entity
-import net.minecraft.world.entity.EntitySelector
-import net.minecraft.world.entity.EntityType
-import net.minecraft.world.entity.MoverType
+import net.minecraft.world.entity.*
 import net.minecraft.world.entity.decoration.LeashFenceKnotEntity
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.entity.player.Player
@@ -39,6 +35,7 @@ import net.minecraft.world.phys.shapes.Shapes
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.entity.IEntityAdditionalSpawnData
+import net.minecraftforge.entity.PartEntity
 import net.minecraftforge.network.NetworkHooks
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.IControllable
@@ -53,6 +50,70 @@ import kotlin.math.max
 
 abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Level): Entity(type, world), IControllable,
     IEntityAdditionalSpawnData {
+
+    inner class AnchorEntityPart(parent: BasicBoatEntity, val anchorType: Int): PartEntity<BasicBoatEntity>(parent) {
+
+        private val size: EntityDimensions = EntityDimensions.fixed(0.25f, 0.25f)
+
+        init {
+            refreshDimensions()
+        }
+
+        fun updatePosition() {
+            xo = x
+            xOld = x
+
+            yo = y
+            yOld = y
+
+            zo = z
+            zOld = z
+
+            val wantedPos = parent.calculateAnchorPosition(anchorType)
+            syncPacketPositionCodec(wantedPos.x, wantedPos.y, wantedPos.z) // TODO Forge updated, might not be necessary anymore
+            setPos(wantedPos.x, wantedPos.y, wantedPos.z)
+        }
+
+        override fun defineSynchedData() {}
+
+        override fun readAdditionalSaveData(p_31025_: CompoundTag?) {}
+
+        override fun addAdditionalSaveData(p_31028_: CompoundTag?) {}
+
+        override fun isPickable(): Boolean {
+            return true
+        }
+
+        override fun hurt(damageSource: DamageSource, amount: Float): Boolean {
+            return this.parent.hurt(damageSource, amount)
+        }
+
+        override fun `is`(entity: Entity): Boolean {
+            return this === entity || this.parent === entity
+        }
+
+        override fun getAddEntityPacket(): Packet<*>? {
+            throw UnsupportedOperationException()
+        }
+
+        override fun getDimensions(p_31023_: Pose): EntityDimensions {
+            return this.size
+        }
+
+        override fun shouldBeSaved(): Boolean {
+            return false
+        }
+
+        override fun interact(player: Player, hand: InteractionHand): InteractionResult {
+            val itemstack = player.getItemInHand(hand)
+            // TODO: check with dedicated server
+            if(itemstack.item is RopeItem/* && !world.isClientSide*/) {
+                RopeItem.onLinkUsed(itemstack, player, hand, world, parent)
+                return InteractionResult.SUCCESS
+            }
+            return InteractionResult.FAIL
+        }
+    }
 
     companion object {
         val TIME_SINCE_HIT = SynchedEntityData.defineId(BasicBoatEntity::class.java, EntityDataSerializers.INT)
@@ -153,8 +214,21 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
     override var imposedSpeed = 0f
     private var isSpeedImposed = false
 
+    private val anchors: Array<AnchorEntityPart>
+
     init {
         this.blocksBuilding = true
+
+        anchors = Array(2) { index ->
+            AnchorEntityPart(this, index)
+        }
+        id = ENTITY_COUNTER.getAndAdd(this.anchors.size + 1) + 1 // Forge: Fix MC-158205: Make sure part ids are successors of parent mob id
+    }
+
+    override fun setId(baseID: Int) {
+        super.setId(baseID)
+        for (i in this.anchors.indices)  // Forge: Fix MC-158205: Set part ids to successors of parent mob id
+            this.anchors[i].setId(baseID + i + 1)
     }
 
     enum class Status {
@@ -416,6 +490,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
         super.tick()
 
         // ensures client always has the proper location
+        // TODO: Forge updated, might not be necessary anymore
         if (this.isControlledByLocalInstance) {
             syncPacketPositionCodec(this.x, this.y, this.z)
         }
@@ -460,6 +535,9 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
         breakLilypads()
 
         this.move(MoverType.SELF, this.deltaMovement)
+        for(anchor in anchors) {
+            anchor.updatePosition()
+        }
 
         this.checkInsideBlocks()
         val list = this.world.getEntities(this, this.boundingBox.expandTowards(0.20000000298023224, -0.009999999776482582, 0.20000000298023224), EntitySelector.pushableBy(this))
@@ -824,10 +902,6 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
             }
             return InteractionResult.SUCCESS
         }
-        if(itemstack.item is RopeItem && !world.isClientSide) {
-            RopeItem.onLinkUsed(itemstack, player, hand, world, this)
-            return InteractionResult.SUCCESS
-        }
         return InteractionResult.PASS
     }
 
@@ -847,10 +921,6 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
         val location = knotLocations[side]
         return LeashFenceKnotEntity.getOrCreateKnot(world, location.get())
     }
-
-/*    override fun getAddEntityPacket(): Packet<*>? {
-        return ClientboundAddEntityPacket(this)
-    }*/
 
     override fun getAddEntityPacket(): Packet<*> {
         return NetworkHooks.getEntitySpawningPacket(this)
@@ -938,5 +1008,11 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
      */
     abstract fun openGuiIfPossible(player: Player): InteractionResult
 
+    override fun isMultipartEntity(): Boolean {
+        return true
+    }
 
+    override fun getParts(): Array<AnchorEntityPart> {
+        return anchors
+    }
 }

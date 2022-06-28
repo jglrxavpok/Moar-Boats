@@ -3,15 +3,21 @@ package org.jglrxavpok.moarboats.client.renders
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Quaternion
 import com.mojang.math.Vector3f
+import net.minecraft.client.Minecraft
 import net.minecraft.client.model.geom.ModelPart
+import net.minecraft.client.renderer.LevelRenderer
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.entity.EntityRenderer
 import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.texture.OverlayTexture
+import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.Mth
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.phys.EntityHitResult
+import net.minecraft.world.phys.HitResult
+import net.minecraft.world.phys.Vec3
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.RenderInfo
 import org.jglrxavpok.moarboats.client.models.ModelBoatLinkerAnchor
@@ -19,8 +25,12 @@ import org.jglrxavpok.moarboats.client.models.ModularBoatModel
 import org.jglrxavpok.moarboats.client.normal
 import org.jglrxavpok.moarboats.client.pos
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
+import org.jglrxavpok.moarboats.common.items.RopeItem
 
 abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRendererProvider.Context): EntityRenderer<T>(renderManager) {
+
+    private val frontLinkText =  Component.literal("+")
+    private val backLinkText =  Component.literal("-")
 
     companion object {
         val RopeAnchorTextureLocation = ResourceLocation(MoarBoats.ModID, "textures/entity/ropeanchor.png")
@@ -71,10 +81,77 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
         renderBoat(entity, matrixStackIn, bufferIn, packedLightIn, color[0], color[1], color[2], 1.0f)
         matrixStackIn.popPose()
 
+
+        // TODO: capability for item
+        if(Minecraft.getInstance().player?.isHolding({ stack -> stack.item is RopeItem }) ?: false) {
+            matrixStackIn.pushPose()
+
+            matrixStackIn.translate(0.0, -4.0/16.0, 0.0)
+            // cancel entity rotation
+            matrixStackIn.mulPose(Quaternion(0f, -(180.0f - entityYaw - 90f), 0.0f, true))
+
+            val hoveredAnchor = ((Minecraft.getInstance().hitResult as? EntityHitResult)?.entity as? BasicBoatEntity.AnchorEntityPart)
+            val hoveredAnchorType = hoveredAnchor?.anchorType
+
+            for(anchorType in arrayOf(BasicBoatEntity.FrontLink, BasicBoatEntity.BackLink)) {
+                val hovered = anchorType == hoveredAnchorType && entity == hoveredAnchor?.parent
+                val anchorLocalPosition = entity.calculateAnchorPosition(anchorType).subtract(entity.x, entity.y, entity.z)
+                renderRopeHitbox(RenderInfo(matrixStackIn, bufferIn, packedLightIn), entity, entityYaw, partialTicks, anchorLocalPosition, hovered, anchorType)
+            }
+            matrixStackIn.popPose()
+        }
+
         renderLink(RenderInfo(matrixStackIn, bufferIn, packedLightIn), entity, 0.0, 0.0, 0.0, entityYaw, partialTicks)
         postModelRender(entity, entityYaw, partialTicks, matrixStackIn, bufferIn, packedLightIn)
         matrixStackIn.popPose()
         super.render(entity, entityYaw, partialTicks, matrixStackIn, bufferIn, packedLightIn)
+    }
+
+    private fun renderRopeHitbox(renderInfo: RenderInfo, entity: T, entityYaw: Float, partialTicks: Float, anchorLocalPosition: Vec3, hovered: Boolean, anchorType: Int) {
+        val poseStack = renderInfo.matrixStack
+
+        val hitboxSize = 0.25
+        val hitboxHalfSize = hitboxSize / 2
+
+        val minX = -hitboxHalfSize
+        val maxX = minX + hitboxSize
+
+        val minY = -hitboxHalfSize
+        val maxY = minY + hitboxSize
+
+        val minZ = -hitboxHalfSize
+        val maxZ = minZ + hitboxSize
+
+        val red = 1.0f
+        val green = if(hovered) 0.5f else 1.0f
+        val blue = if(hovered) 0.0f else 1.0f
+        val alpha = 1.0f
+
+        poseStack.pushPose()
+        poseStack.translate(anchorLocalPosition.x, anchorLocalPosition.y, anchorLocalPosition.z)
+        poseStack.mulPose(Quaternion(0f, (180.0f - entityYaw - 90f), 0.0f, true))
+
+        poseStack.pushPose()
+        poseStack.translate(0.0, hitboxHalfSize, 0.0)
+
+        val text = if(anchorType == BasicBoatEntity.FrontLink) frontLinkText else backLinkText
+        val textScale = 1.0f / 32.0f
+        poseStack.scale(textScale, textScale, textScale)
+        poseStack.mulPose(Quaternion(0.0f, 90.0f, 0.0f, true))
+        poseStack.mulPose(Quaternion(90.0f, 0.0f, 0.0f, true))
+        val textColor = 0xFFFFFF
+        val outlineColor = 0x000000
+        val font = Minecraft.getInstance().font
+        val formattedText = text.visualOrderText
+        val w = font.width(formattedText).toDouble()
+        val h = font.lineHeight.toDouble()
+        poseStack.translate(-w / 2.0 + 0.5, -h / 2.0 + 1, 0.0)
+        font.drawInBatch8xOutline(formattedText, 0.0f, 0.0f, textColor, outlineColor, poseStack.last().pose(), renderInfo.buffers, renderInfo.combinedLight)
+        poseStack.popPose()
+
+        val vertexBuffer = renderInfo.buffers.getBuffer(RenderType.lines())
+        LevelRenderer.renderLineBox(poseStack, vertexBuffer, minX, minY, minZ, maxX, maxY, maxZ, red, green, blue, alpha)
+        poseStack.popPose()
     }
 
     open fun renderBoat(
