@@ -108,7 +108,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
             val itemstack = player.getItemInHand(hand)
             // TODO: check with dedicated server
             if(itemstack.item is RopeItem/* && !world.isClientSide*/) {
-                RopeItem.onLinkUsed(itemstack, player, hand, world, parent)
+                RopeItem.onLinkUsed(itemstack, player, hand, world, parent, anchorType)
                 return InteractionResult.SUCCESS
             }
             return InteractionResult.FAIL

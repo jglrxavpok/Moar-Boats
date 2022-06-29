@@ -19,13 +19,21 @@ import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 class RopeItem : MoarBoatsItem("rope") {
 
     companion object {
-        private fun setLinked(levelIn: Level, stack: ItemStack, entity: BasicBoatEntity) {
+        private fun setLinked(levelIn: Level, stack: ItemStack, entity: BasicBoatEntity, anchorType: Int) {
             nbt(stack).putInt("linked", entity.entityID)
+            nbt(stack).putInt("anchorType", anchorType)
         }
 
         private fun getLinked(levelIn: Level, stack: ItemStack): BasicBoatEntity? {
             val id = nbt(stack).getInt("linked")
             return levelIn.getEntity(id) as BasicBoatEntity?
+        }
+
+        private fun getLinkedAnchorType(levelIn: Level, stack: ItemStack): Int? {
+            val data = nbt(stack)
+            if(data.contains("anchorType"))
+                return data.getInt("anchorType")
+            return null
         }
 
         private fun nbt(stack: ItemStack): CompoundTag {
@@ -36,6 +44,7 @@ class RopeItem : MoarBoatsItem("rope") {
 
         private fun resetLinked(itemstack: ItemStack) {
             nbt(itemstack).remove("linked")
+            nbt(itemstack).remove("anchorType")
         }
 
         fun getState(stack: ItemStack): State {
@@ -44,18 +53,24 @@ class RopeItem : MoarBoatsItem("rope") {
             return State.READY
         }
 
-        fun onLinkUsed(itemstack: ItemStack, playerIn: Player, handIn: InteractionHand, levelIn: Level, boatEntity: BasicBoatEntity) {
+        fun areAnchorsCompatible(anchorA: Int, anchorB: Int): Boolean {
+            return anchorA != anchorB
+        }
+
+        fun onLinkUsed(itemstack: ItemStack, playerIn: Player, handIn: InteractionHand, levelIn: Level, boatEntity: BasicBoatEntity, clickedAnchorType: Int) {
             when(getState(itemstack)) {
                 State.WAITING_NEXT -> {
                     val other = getLinked(levelIn, itemstack) ?: return
                     val hit = boatEntity
+                    val linkedAnchorType = getLinkedAnchorType(levelIn, itemstack) ?: error("anchor type == null but linked != null")
                     when {
+                        !areAnchorsCompatible(linkedAnchorType, clickedAnchorType) -> playerIn.displayClientMessage(Component.translatable("item.rope.incompatible_anchor_types"), true)
                         other == hit -> playerIn.displayClientMessage(Component.translatable("item.rope.notToSelf"), true)
-                        hit.hasLink(BasicBoatEntity.BackLink) -> playerIn.displayClientMessage(Component.translatable("item.rope.backOccupied"), true)
+                        hit.hasLink(clickedAnchorType) -> playerIn.displayClientMessage(Component.translatable("item.rope.backOccupied"), true)
                         else -> {
                             // first boat gets its back attached to the second boat's front
-                            hit.linkTo(other, BasicBoatEntity.BackLink)
-                            other.linkTo(hit, BasicBoatEntity.FrontLink)
+                            hit.linkTo(other, clickedAnchorType)
+                            other.linkTo(hit, linkedAnchorType)
                         }
                     }
                     resetLinked(itemstack)
@@ -63,17 +78,18 @@ class RopeItem : MoarBoatsItem("rope") {
                         itemstack.shrink(1)
                 }
                 else -> {
-                    if(boatEntity.hasLink(BasicBoatEntity.Companion.FrontLink)) {
+                    if(boatEntity.hasLink(clickedAnchorType)) {
                         playerIn.displayClientMessage(Component.translatable("item.rope.frontOccupied"), true)
                         resetLinked(itemstack)
                     } else {
-                        setLinked(levelIn, itemstack, boatEntity)
+                        setLinked(levelIn, itemstack, boatEntity, clickedAnchorType)
                     }
                 }
             }
         }
 
         fun onEntityInteract(player: Player, stack: ItemStack, entity: Entity): InteractionResult {
+            // TODO: fix fence knots
             if(getState(stack) == State.WAITING_NEXT) {
                 if(entity is LeashFenceKnotEntity) {
                     val level = player.level
