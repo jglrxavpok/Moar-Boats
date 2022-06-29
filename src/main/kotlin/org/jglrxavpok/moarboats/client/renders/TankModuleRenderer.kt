@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.*
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.world.inventory.InventoryMenu
+import net.minecraftforge.client.RenderProperties
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.client.models.ModularBoatModel
 import org.jglrxavpok.moarboats.client.normal
@@ -46,15 +47,16 @@ object TankModuleRenderer : BoatModuleRenderer() {
 
             val scale = 1f/16f
             matrixStack.scale(scale, -scale, scale)
-            val sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(fluid.attributes.stillTexture)
+            val fluidRenderType = RenderProperties.get(fluid)
+            val sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(fluidRenderType.stillTexture)
             val buffer = buffers.getBuffer(RenderType.entityTranslucent(InventoryMenu.BLOCK_ATLAS))
             val minU = sprite.u0
             val maxU = sprite.u1
             val minV = sprite.v0
             val maxV = sprite.v1
 
-            val luminosity = fluid.attributes.luminosity
-            val color = fluid.attributes.getColor(boat.world, boat.blockPosition())
+            val luminosity = fluid.fluidType.lightLevel
+            val color = fluidRenderType.colorTint
             val red = color shr 16 and 0xFF
             val green = color shr 8 and 0xFF
             val blue = color and 0xFF

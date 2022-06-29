@@ -17,6 +17,7 @@ import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.material.EmptyFluid
 import net.minecraft.world.level.material.Fluid
+import net.minecraftforge.client.RenderProperties
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
@@ -39,7 +40,7 @@ class GuiTankModule(menuType: MenuType<EmptyModuleContainer>, containerID: Int, 
         val localX = mouseX - guiLeft
         val localY = mouseY - guiTop
         if(localX in 60..(60+55) && localY in 6..(6+75)) {
-            val fluidName = Component.translatable(tankModule.getFluidInside(boat)?.attributes?.getTranslationKey(tankModule.getContents(boat)!!) ?: "nothing")
+            val fluidName = tankModule.getFluidInside(boat)?.fluidType?.getDescription(tankModule.getContents(boat)!!) ?: Component.literal("nothing")
             renderTooltip(poseStack, Component.translatable(MoarBoats.ModID+".tank_level", tankModule.getFluidAmount(boat), tankModule.getCapacity(boat), fluidName)/*.formatted()*/, localX, localY)
         }
     }
@@ -64,12 +65,13 @@ class GuiTankModule(menuType: MenuType<EmptyModuleContainer>, containerID: Int, 
 
             val energyHeight = (73 * (fluidAmount/fluidCapacity.toFloat())).toInt()
             val mc = Minecraft.getInstance()
-            val sprite = mc.getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(fluid.attributes.stillTexture)
+            val fluidRenderType = RenderProperties.get(fluid)
+            val sprite = mc.getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(fluidRenderType.stillTexture)
             val tessellator = Tesselator.getInstance()
             val buffer = tessellator.builder
             buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX)
 
-            val color = fluid.attributes.getColor(world, position)
+            val color = fluidRenderType.colorTint
             val red = color shr 16 and 0xFF
             val green = color shr 8 and 0xFF
             val blue = color and 0xFF

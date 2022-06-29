@@ -9,6 +9,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.material.EmptyFluid
 import net.minecraft.world.level.material.Fluid
+import net.minecraft.world.level.material.Fluids
 import net.minecraftforge.fluids.FluidStack
 import net.minecraftforge.fluids.capability.IFluidHandler
 import net.minecraftforge.registries.ForgeRegistries
@@ -21,7 +22,7 @@ class GuiFluid(isLoading: Boolean, containerID: Int, val te: TileEntityListenabl
 
     private val fluidBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/fluid.png")
     private val defaultBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/default_background.png")
-    private var fluid: Fluid? = null
+    private var fluid: Fluid = Fluids.EMPTY
     private var fluidAmount = 0
     private var fluidCapacity = 0
 
@@ -33,8 +34,8 @@ class GuiFluid(isLoading: Boolean, containerID: Int, val te: TileEntityListenabl
         RenderSystem.setShaderTexture(0, fluidBackground)
         blit(matrixStack, guiLeft, guiTop, 0, 0, xSize, ySize)
 
-        if(fluid != null && fluid !is EmptyFluid) {
-            GuiTankModule.renderFluidInGui(guiLeft + 56, guiTop + 80, fluid!!, fluidAmount, fluidCapacity, horizontalTilesCount = 4, world = te.level!!, position = te.blockPos)
+        if(fluid != Fluids.EMPTY) {
+            GuiTankModule.renderFluidInGui(guiLeft + 56, guiTop + 80, fluid, fluidAmount, fluidCapacity, horizontalTilesCount = 4, world = te.level!!, position = te.blockPos)
         }
     }
 
@@ -43,12 +44,23 @@ class GuiFluid(isLoading: Boolean, containerID: Int, val te: TileEntityListenabl
         val localX = mouseX - guiLeft
         val localY = mouseY - guiTop
         if(localX in 60..(60+55) && localY in 6..(6+75)) {
-            renderTooltip(matrixStack, Component.translatable(MoarBoats.ModID+".tank_level", fluidAmount, fluidCapacity, Component.translatable(fluid?.attributes?.getTranslationKey(FluidStack(fluid!!, fluidAmount)) ?: "<missing translation key $fluid>") ?: "nothing")/*.formatted()*/, localX, localY)
+            renderTooltip(matrixStack,
+                Component.translatable(
+                    MoarBoats.ModID+".tank_level",
+                    fluidAmount,
+                    fluidCapacity,
+                    fluid.fluidType.getDescription(FluidStack(fluid, fluidAmount)) ?: Component.literal("nothing")),
+                    localX, localY)
         }
     }
 
     fun updateFluid(fluidName: String, fluidAmount: Int, fluidCapacity: Int) {
-        fluid = ForgeRegistries.FLUIDS.getValue(ResourceLocation(fluidName))!!
+        val location = ResourceLocation(fluidName)
+        val foundFluid = ForgeRegistries.FLUIDS.getValue(location)
+        if(foundFluid == null) {
+            MoarBoats.logger.warn("Unknown fluid registry name: {} when updating Fluid Screen", location.toString())
+        }
+        fluid = foundFluid ?: Fluids.EMPTY
         this.fluidAmount = fluidAmount
         this.fluidCapacity = fluidCapacity
     }

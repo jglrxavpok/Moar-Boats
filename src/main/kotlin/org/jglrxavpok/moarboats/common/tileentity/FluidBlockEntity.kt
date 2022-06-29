@@ -8,6 +8,7 @@ import net.minecraft.world.entity.Entity
 import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.material.Fluid
+import net.minecraft.world.level.material.Fluids
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.common.extensions.IForgeBlockEntity
 import net.minecraftforge.common.util.LazyOptional
@@ -16,11 +17,12 @@ import net.minecraftforge.fluids.IFluidTank
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import net.minecraftforge.fluids.capability.IFluidHandler
 import net.minecraftforge.registries.ForgeRegistries
+import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
 import org.jglrxavpok.moarboats.common.blocks.Facing
 
 abstract class FluidBlockEntity<T: TileEntityListenable>(entityType: BlockEntityType<T>, blockPos: BlockPos, blockState: BlockState): TileEntityListenable(entityType, blockPos, blockState), ITickableTileEntity, IFluidHandler, IFluidTank, IForgeBlockEntity {
-    protected var fluid: Fluid? = null
+    protected var fluid: Fluid = Fluids.EMPTY
     protected var amount: Int = 0
     protected var working: Boolean = false
 
@@ -31,7 +33,7 @@ abstract class FluidBlockEntity<T: TileEntityListenable>(entityType: BlockEntity
      */
     abstract fun handleEntitiesInFront(entities: List<Pair<Entity, IFluidHandler>>)
 
-    fun isEmpty() = fluid == null || amount == 0
+    fun isEmpty() = fluid == Fluids.EMPTY || amount == 0
 
     override fun tick() {
         if(level!!.isClientSide)
@@ -81,7 +83,7 @@ abstract class FluidBlockEntity<T: TileEntityListenable>(entityType: BlockEntity
     }
 
     fun forceFill(resource: FluidStack, action: IFluidHandler.FluidAction): Int {
-        if(fluid == null) {
+        if(fluid == Fluids.EMPTY) {
             fluid = resource.fluid
         }
         if(fluid != resource.fluid && amount > 0) {
@@ -117,7 +119,7 @@ abstract class FluidBlockEntity<T: TileEntityListenable>(entityType: BlockEntity
             return 0
         if(!canFillFluidType(resource))
             return 0
-        if(fluid == null) {
+        if(fluid == Fluids.EMPTY) {
             fluid = resource.fluid
         }
         if(fluid != resource.fluid && amount > 0) {
@@ -153,7 +155,7 @@ abstract class FluidBlockEntity<T: TileEntityListenable>(entityType: BlockEntity
     }
 
     override fun getFluidInTank(tank: Int): FluidStack {
-        return if(fluid != null && tank == 0 && amount > 0) FluidStack(fluid, amount) else FluidStack.EMPTY
+        return if(fluid != Fluids.EMPTY && tank == 0 && amount > 0) FluidStack(fluid, amount) else FluidStack.EMPTY
     }
 
     override fun getTanks(): Int {
@@ -185,12 +187,17 @@ abstract class FluidBlockEntity<T: TileEntityListenable>(entityType: BlockEntity
     override fun saveAdditional(compound: CompoundTag) {
         super.saveAdditional(compound)
         compound.putInt("fluidAmount", amount)
-        compound.putString("fluidName", fluid?.let { ForgeRegistries.FLUIDS.getKey(it)?.toString() } ?: "")
+        compound.putString("fluidName", ForgeRegistries.FLUIDS.getKey(fluid)?.toString() ?: "")
     }
 
     override fun load(compound: CompoundTag) {
         super.load(compound)
-        fluid = ForgeRegistries.FLUIDS.getValue(ResourceLocation(compound.getString("fluidName")))
+        val location = ResourceLocation(compound.getString("fluidName"))
+        val foundFluid = ForgeRegistries.FLUIDS.getValue(location)
+        if(foundFluid == null) {
+            MoarBoats.logger.warn("Unknown fluid registry name: {} when loading block entity at {}; {}; {}", location.toString(), blockPos.x, blockPos.y, blockPos.z)
+        }
+        fluid = foundFluid ?: Fluids.EMPTY
         amount = compound.getInt("fluidAmount")
     }
 }
