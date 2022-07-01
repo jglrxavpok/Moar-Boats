@@ -29,6 +29,7 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.level.block.DispenserBlock
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.DispenserBlockEntity
 import net.minecraft.world.level.block.state.BlockState
@@ -119,7 +120,9 @@ class ModularBoatEntity(entityType: EntityType<out ModularBoatEntity>, world: Le
     var ownerName: String? = null
         private set
 
-    val blockSource = object: BlockSource {
+    inner class FakeBlockSource: BlockSource {
+        var overrideBlockState: BlockState = Blocks.AIR.defaultBlockState()
+
         override fun x(): Double {
             return this@ModularBoatEntity.x
         }
@@ -137,7 +140,7 @@ class ModularBoatEntity(entityType: EntityType<out ModularBoatEntity>, world: Le
         }
 
         override fun getBlockState(): BlockState {
-            return world.getBlockState(blockPosition())
+            return overrideBlockState
         }
 
         override fun <T : BlockEntity?> getEntity(): T? {
@@ -149,6 +152,8 @@ class ModularBoatEntity(entityType: EntityType<out ModularBoatEntity>, world: Le
         }
 
     }
+
+    val blockSource = FakeBlockSource()
 
     init {
         this.blocksBuilding = true
@@ -460,6 +465,9 @@ class ModularBoatEntity(entityType: EntityType<out ModularBoatEntity>, world: Le
             else -> overrideFacing
         }
         moduleDispensePosition.set(overridePosition ?: blockPosition())
+
+        blockSource.overrideBlockState = Blocks.DISPENSER.defaultBlockState().setValue(DispenserBlock.FACING, overrideFacing ?: defaultFacing())
+
         return behavior.dispense(blockSource, stack)
     }
 
@@ -468,7 +476,7 @@ class ModularBoatEntity(entityType: EntityType<out ModularBoatEntity>, world: Le
      */
     override fun reorientate(overrideFacing: Direction): Direction {
         val angle = overrideFacing.toYRot() // default angle is 0 (SOUTH)
-        return Direction.fromYRot(180f-(yaw.toDouble() + angle.toDouble()))
+        return Direction.fromYRot(yaw.toDouble() + angle.toDouble())
     }
 
     override fun getPickedResult(target: HitResult): ItemStack {

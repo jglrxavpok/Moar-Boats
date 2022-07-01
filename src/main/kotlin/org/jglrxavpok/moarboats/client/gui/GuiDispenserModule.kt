@@ -40,8 +40,8 @@ class GuiDispenserModule(menuType: MenuType<ContainerDispenserModule>, container
 
     private val frontFacingButton = GuiFacingButton(Direction.NORTH, 0, 0)
     private val backFacingButton = GuiFacingButton(Direction.SOUTH, 16, 0)
-    private val leftFacingButton = GuiFacingButton(Direction.EAST, 48, 0)
-    private val rightFacingButton = GuiFacingButton(Direction.WEST, 32, 0)
+    private val leftFacingButton = GuiFacingButton(Direction.WEST, 48, 0)
+    private val rightFacingButton = GuiFacingButton(Direction.EAST, 32, 0)
     private val upFacingButton = GuiFacingButton(Direction.UP, 0, 16)
     private val downFacingButton = GuiFacingButton(Direction.DOWN, 16, 16)
     private val facingButtons = arrayOf(frontFacingButton, backFacingButton, leftFacingButton, rightFacingButton, upFacingButton, downFacingButton)

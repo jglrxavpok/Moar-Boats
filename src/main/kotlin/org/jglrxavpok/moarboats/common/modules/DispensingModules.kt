@@ -12,8 +12,11 @@ import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.item.BlockItem
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.context.BlockPlaceContext
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.DispenserBlock
+import net.minecraft.world.phys.BlockHitResult
+import net.minecraft.world.phys.Vec3
 import net.minecraftforge.registries.ForgeRegistries
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
@@ -184,7 +187,8 @@ object DispenserModule: DispensingModule() {
         val block = item.block
         val newState = block.defaultBlockState() // TODO: handle multiple types?
         if(world.isEmptyBlock(blockPos) || Fluids.isUsualLiquidBlock(world, blockPos)) {
-            if(block.canSurvive(newState, world, blockPos)) {
+            val placeContext = BlockPlaceContext(world, null, InteractionHand.MAIN_HAND, stack, BlockHitResult(Vec3(blockPos.x + 0.5, blockPos.y + 0.5, blockPos.z + 0.5), facing, blockPos, true))
+            if(block.canSurvive(newState, world, blockPos) && world.getBlockState(blockPos).canBeReplaced(placeContext)) {
                 val succeeded = world.setBlock(blockPos, newState, 11)
                 if (succeeded) {
                     try {
