@@ -8,10 +8,13 @@ import net.minecraft.core.Direction
 import net.minecraft.core.particles.BlockParticleOption
 import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.ListTag
+import net.minecraft.nbt.Tag
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.syncher.EntityDataSerializers
 import net.minecraft.network.syncher.SynchedEntityData
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.Mth
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
@@ -38,11 +41,16 @@ import net.minecraftforge.entity.IEntityAdditionalSpawnData
 import net.minecraftforge.entity.PartEntity
 import net.minecraftforge.network.NetworkHooks
 import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.api.Cleat
 import org.jglrxavpok.moarboats.api.IControllable
+import org.jglrxavpok.moarboats.api.Link
+import org.jglrxavpok.moarboats.common.BoatLinksSerializer
+import org.jglrxavpok.moarboats.common.Cleats
 import org.jglrxavpok.moarboats.common.items.RopeItem
 import org.jglrxavpok.moarboats.common.modules.BlockReason
 import org.jglrxavpok.moarboats.common.modules.NoBlockReason
 import org.jglrxavpok.moarboats.extensions.Fluids
+import org.jglrxavpok.moarboats.extensions.setDirty
 import org.jglrxavpok.moarboats.extensions.toDegrees
 import java.util.*
 import kotlin.math.abs
@@ -51,8 +59,9 @@ import kotlin.math.max
 abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Level): Entity(type, world), IControllable,
     IEntityAdditionalSpawnData {
 
-    inner class AnchorEntityPart(parent: BasicBoatEntity, val anchorType: Int): PartEntity<BasicBoatEntity>(parent) {
+    inner class CleatEntityPart(parent: BasicBoatEntity, val cleat: Cleat): PartEntity<BasicBoatEntity>(parent) {
 
+        // TODO: cleat defined
         private val size: EntityDimensions = EntityDimensions.fixed(0.25f, 0.25f)
 
         init {
@@ -69,7 +78,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
             zo = z
             zOld = z
 
-            val wantedPos = parent.calculateAnchorPosition(anchorType)
+            val wantedPos = cleat.getWorldPosition(parent)
             syncPacketPositionCodec(wantedPos.x, wantedPos.y, wantedPos.z) // TODO Forge updated, might not be necessary anymore
             setPos(wantedPos.x, wantedPos.y, wantedPos.z)
         }
@@ -107,8 +116,8 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
         override fun interact(player: Player, hand: InteractionHand): InteractionResult {
             val itemstack = player.getItemInHand(hand)
             // TODO: check with dedicated server
-            if(itemstack.item is RopeItem/* && !world.isClientSide*/) {
-                RopeItem.onLinkUsed(itemstack, player, hand, world, parent, anchorType)
+            if(itemstack.item is RopeItem && !world.isClientSide) {
+                RopeItem.onLinkUsed(itemstack, player, hand, world, parent, cleat)
                 return InteractionResult.SUCCESS
             }
             return InteractionResult.FAIL
@@ -119,25 +128,9 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
         val TIME_SINCE_HIT = SynchedEntityData.defineId(BasicBoatEntity::class.java, EntityDataSerializers.INT)
         val FORWARD_DIRECTION = SynchedEntityData.defineId(BasicBoatEntity::class.java, EntityDataSerializers.INT)
         val DAMAGE_TAKEN = SynchedEntityData.defineId(BasicBoatEntity::class.java, EntityDataSerializers.FLOAT)
-        val BOAT_LINKS = Array(2) { SynchedEntityData.defineId(BasicBoatEntity::class.java, EntityDataSerializers.OPTIONAL_UUID) }
-        val LINKS_RUNTIME = Array(2) { SynchedEntityData.defineId(BasicBoatEntity::class.java, EntityDataSerializers.INT) }
-        val KNOT_LOCATIONS = Array(2) { SynchedEntityData.defineId(BasicBoatEntity::class.java, EntityDataSerializers.OPTIONAL_BLOCK_POS) }
-        val LINK_TYPES = Array(2) { SynchedEntityData.defineId(BasicBoatEntity::class.java, EntityDataSerializers.INT) }
+        val BOAT_LINKS = SynchedEntityData.defineId(BasicBoatEntity::class.java, BoatLinksSerializer)
 
-        val FrontLink = 0
-        val BackLink = 1
-
-        val UnitializedLinkID = -10
-        val NoLinkFound = -1
-
-        // Link types
-        val NoLink = 1
-        val BoatLink = 0 // Boat link is 0 so old saves still work
-        val KnotLink = 2
-
-        val CurrentDataFormatVersion = 1 // 1.2.0
-
-        val MaxLinkSearchDistance = 50.0
+        val CurrentDataFormatVersion = 2 // 1.19.1-8.0.0.0
     }
     /** How much of current speed to acquire. Value zero to one.  */
     private var momentum = 0f
@@ -197,16 +190,12 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
         set(value) { this.entityData.set(FORWARD_DIRECTION, value) }
 
     var links
-        get()= BOAT_LINKS.map { entityData[it] }
-        set(value) { BOAT_LINKS.forEachIndexed { index, dataParameter -> entityData[dataParameter] = value[index] } }
-
-    var linkEntityTypes
-        get() = LINK_TYPES.map { entityData[it] }
-        set(value) { LINK_TYPES.forEachIndexed { index, dataParameter -> entityData[dataParameter] = value[index] } }
-
-    var knotLocations
-        get() = KNOT_LOCATIONS.map { entityData[it] }
-        set(value) { KNOT_LOCATIONS.forEachIndexed { index, dataParameter -> entityData[dataParameter] = value[index] } }
+        get()= entityData[BOAT_LINKS]
+        set(value) {
+            entityData[BOAT_LINKS].clear()
+            entityData[BOAT_LINKS].putAll(value)
+            entityData.setDirty(BOAT_LINKS)
+        }
 
     var distanceTravelled: Double = 0.0
         private set
@@ -214,21 +203,24 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
     override var imposedSpeed = 0f
     private var isSpeedImposed = false
 
-    private val anchors: Array<AnchorEntityPart>
+    private val cleatEntityParts: Array<CleatEntityPart>
+
+    private val cleats: Set<Cleat> = mutableSetOf(Cleats.FrontCleat, Cleats.BackCleat)
 
     init {
         this.blocksBuilding = true
 
-        anchors = Array(2) { index ->
-            AnchorEntityPart(this, index)
+        val cleatIt = cleats.iterator()
+        cleatEntityParts = Array(cleats.size) { index ->
+            CleatEntityPart(this, cleatIt.next())
         }
-        id = ENTITY_COUNTER.getAndAdd(this.anchors.size + 1) + 1 // Forge: Fix MC-158205: Make sure part ids are successors of parent mob id
+        id = ENTITY_COUNTER.getAndAdd(this.cleatEntityParts.size + 1) + 1 // Forge: Fix MC-158205: Make sure part ids are successors of parent mob id
     }
 
     override fun setId(baseID: Int) {
         super.setId(baseID)
-        for (i in this.anchors.indices)  // Forge: Fix MC-158205: Set part ids to successors of parent mob id
-            this.anchors[i].setId(baseID + i + 1)
+        for (i in this.cleatEntityParts.indices)  // Forge: Fix MC-158205: Set part ids to successors of parent mob id
+            this.cleatEntityParts[i].setId(baseID + i + 1)
     }
 
     enum class Status {
@@ -246,7 +238,9 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
 
     override fun isEntityInLava() = isInLava
 
-    fun hasLink(linkType: Int) = linkEntityTypes[linkType] != NoLink
+    fun getLink(cleat: Cleat): Link = links.computeIfAbsent(cleat, ::Link)
+
+    fun hasLink(cleat: Cleat): Boolean = getLink(cleat).hasTarget()
 
     /**
      * Returns true if this entity should push and be pushed by other entities when colliding.
@@ -489,18 +483,27 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
 
         super.tick()
 
+        links.forEach { cleat, link ->
+            link.makeRuntimeRepresentation(world, this)
+        }
+
         // ensures client always has the proper location
         // TODO: Forge updated, might not be necessary anymore
         if (this.isControlledByLocalInstance) {
             syncPacketPositionCodec(this.x, this.y, this.z)
         }
 
-        breakLinkIfNeeded(FrontLink)
-        breakLinkIfNeeded(BackLink)
+        for(cleat in cleats) {
+            breakLinkIfNeeded(cleat)
+        }
 
         var canControlItself = true
-        if (hasLink(FrontLink)) { // is trailing boat, need to come closer to heading boat if needed
-            val heading = getLinkedTo(FrontLink)
+        for(cleat in cleats) { // is trailing boat, need to come closer to heading boat if needed
+            if(cleat.canTow())
+                continue
+
+            val link = getLink(cleat)
+            val heading = link.targetEntity
             if(heading != null) {
                 val f = distanceTo(heading)
                 if (f > 3.0f) {
@@ -511,8 +514,9 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
                     val d0 = (heading.x - this.x) / f.toDouble()
                     val alpha = 0.5f
 
-                    val anchorPos = calculateAnchorPosition(FrontLink)
-                    val otherAnchorPos = if(heading is BasicBoatEntity) heading.calculateAnchorPosition(BackLink) else heading.position()
+                    val anchorPos = cleat.getWorldPosition(this)
+                    val otherAnchorPos = link.target!!.getWorldPosition(heading)
+
                     // FIXME: handle case where targetYaw is ~0-180 and yRot is ~180+ (avoid doing a crazy flip)
                     val targetYaw = computeTargetYaw(yRot, anchorPos, otherAnchorPos)
                     yRot = alpha * yRot + targetYaw * (1f - alpha)
@@ -535,8 +539,8 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
         breakLilypads()
 
         this.move(MoverType.SELF, this.deltaMovement)
-        for(anchor in anchors) {
-            anchor.updatePosition()
+        for(cleatEntity in cleatEntityParts) {
+            cleatEntity.updatePosition()
         }
 
         this.checkInsideBlocks()
@@ -604,11 +608,10 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
         return closest
     }
 
-    private fun breakLinkIfNeeded(linkType: Int) {
-        if(hasLink(linkType)) {
-            val linkedTo = getLinkedTo(linkType)
-            if(linkedTo == null || !linkedTo.isAlive)
-                linkTo(null, linkType)
+    private fun breakLinkIfNeeded(cleat: Cleat) {
+        val link = getLink(cleat)
+        if(link.hasRuntimeTarget() && !link.targetEntity!!.isAlive) {
+            linkTo(null, cleat, null)
         }
     }
 
@@ -755,137 +758,49 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
         fallDistance = 0f;
     }
 
-    fun linkTo(other: Entity?, linkType: Int) {
-        val currentLinks = links.toTypedArray()
-        val currentLinkTypes = linkEntityTypes.toTypedArray()
-        val currentKnotLocations = knotLocations.toTypedArray()
-        if(other == null) {
-            currentLinks[linkType] = Optional.empty()
-            currentLinkTypes[linkType] = NoLink
-            currentKnotLocations[linkType] = Optional.empty()
-            entityData.set(LINKS_RUNTIME[linkType], NoLinkFound)
+    fun linkTo(other: Entity?, cleatOnThis: Cleat, cleatOnOther: Cleat?) {
+        val currentLinks = mutableMapOf<Cleat, Link>()
+        currentLinks.putAll(links)
+
+        assert((other == null) == (cleatOnOther == null)) { "Cannot set a target cleat without an entity (and vice-versa) "}
+
+        val link = getLink(cleatOnThis)
+        if(cleatOnOther != null) {
+            link.linkTo(cleatOnOther, other!!)
         } else {
-            if(other is BasicBoatEntity) {
-                currentLinks[linkType] = Optional.of(other.uuid)
-                currentLinkTypes[linkType] = BoatLink
-                currentKnotLocations[linkType] = Optional.empty()
-            } else if(other is LeashFenceKnotEntity) {
-                currentLinks[linkType] = Optional.empty()
-                currentLinkTypes[linkType] = KnotLink
-                currentKnotLocations[linkType] = Optional.of(other.pos)
-            }
-            entityData.set(LINKS_RUNTIME[linkType], other.id)
+            link.reset()
         }
-        links = listOf(*currentLinks)
-        linkEntityTypes = listOf(*currentLinkTypes)
-        knotLocations = listOf(*currentKnotLocations)
+
+        links = currentLinks // re-assigment forces the entity data to be dirty
     }
 
     override fun addAdditionalSaveData(compound: CompoundTag) {
-        compound.putInt("linkFrontType", linkEntityTypes[FrontLink])
-        compound.putInt("linkBackType", linkEntityTypes[BackLink])
-        if(links[FrontLink].isPresent)
-            compound.putUUID("linkFront", links[FrontLink].get())
-        else if(knotLocations[FrontLink].isPresent) {
-            val pos = knotLocations[FrontLink].get()
-            compound.putInt("linkFrontX", pos.x)
-            compound.putInt("linkFrontY", pos.y)
-            compound.putInt("linkFrontZ", pos.z)
+        val linkList = ListTag()
+        for(link in links) {
+            val linkCompound = CompoundTag()
+            linkCompound.putString("origin_cleat", Cleats.Registry.get().getKey(link.key)?.toString() ?: error("Unknown cleat type: ${link.key}"))
+            link.value.writeNBT(linkCompound)
+            linkList.add(linkCompound)
         }
-
-        if(links[BackLink].isPresent)
-            compound.putUUID("linkBack", links[BackLink].get())
-        else if(knotLocations[BackLink].isPresent) {
-            val pos = knotLocations[BackLink].get()
-            compound.putInt("linkBackX", pos.x)
-            compound.putInt("linkBackY", pos.y)
-            compound.putInt("linkBackZ", pos.z)
-        }
-        compound.putInt("dataFormatVersion", CurrentDataFormatVersion)
+        compound.put("links", linkList)
     }
 
     override fun readAdditionalSaveData(compound: CompoundTag) {
-        val version = compound.getInt("dataFormatVersion")
-        if(version < CurrentDataFormatVersion) {
-            updateContentsToNextVersion(compound, version)
-        } else if(version > CurrentDataFormatVersion) {
-            MoarBoats.logger.warn("Found newer data format version ($version, current is $CurrentDataFormatVersion), this might cause issues!")
+        links.clear()
+        val linkList = compound.getList("links", CompoundTag.TAG_COMPOUND.toInt())
+        for(linkData in linkList) {
+            linkData as CompoundTag
+            val originLocation = ResourceLocation(linkData.getString("origin_cleat"))
+            val originCleat = Cleats.Registry.get().getValue(originLocation) ?: error("Unregistered origin cleat $originLocation for entity $this")
+            getLink(originCleat).readNBT(linkData)
         }
-        linkEntityTypes = listOf(compound.getInt("linkFrontType"), compound.getInt("linkBackType"))
-        val readKnotLocations = knotLocations.toTypedArray()
-        if(linkEntityTypes[FrontLink] == BoatLink) {
-            val frontBoatLink =
-                    if(compound.hasUUID("linkFront"))
-                        Optional.of(compound.getUUID("linkFront")!!)
-                    else
-                        Optional.empty()
-            entityData.set(BOAT_LINKS[FrontLink], frontBoatLink)
-            readKnotLocations[FrontLink] = Optional.empty()
-        } else if(linkEntityTypes[FrontLink] == KnotLink) {
-            val pos = BlockPos(compound.getInt("linkFrontX"), compound.getInt("linkFrontY"), compound.getInt("linkFrontZ"))
-            readKnotLocations[FrontLink] = Optional.of(pos)
-        }
-
-        if(linkEntityTypes[BackLink] == BoatLink) {
-            val backBoatLink =
-                    if(compound.hasUUID("linkBack"))
-                        Optional.of(compound.getUUID("linkBack")!!)
-                    else
-                        Optional.empty()
-            entityData.set(BOAT_LINKS[BackLink], backBoatLink)
-            readKnotLocations[BackLink] = Optional.empty()
-        } else if(linkEntityTypes[BackLink] == KnotLink) {
-            val pos = BlockPos(compound.getInt("linkBackX"), compound.getInt("linkBackY"), compound.getInt("linkBackZ"))
-            readKnotLocations[BackLink] = Optional.of(pos)
-        }
-        knotLocations = listOf(*readKnotLocations)
-
-        // reset runtime links
-        entityData.set(LINKS_RUNTIME[FrontLink], UnitializedLinkID)
-        entityData.set(LINKS_RUNTIME[BackLink], UnitializedLinkID)
-    }
-
-    private tailrec fun updateContentsToNextVersion(compound: CompoundTag, fromVersion: Int) {
-        if (fromVersion < CurrentDataFormatVersion) {
-            MoarBoats.logger.info("Found boat with old data format version ($fromVersion), current is $CurrentDataFormatVersion, converting NBT data...")
-            if(fromVersion == 0)
-                updateFromVersion0(compound)
-
-            updateContentsToNextVersion(compound, fromVersion+1) // allows very old saves to be converted
-        }
-    }
-
-    private fun updateFromVersion0(compound: CompoundTag) {
-        val front =
-                if(compound.hasUUID("linkFront"))
-                    Optional.of(compound.getUUID("linkFront")!!)
-                else
-                    Optional.empty()
-        val back =
-                if(compound.hasUUID("linkBack"))
-                    Optional.of(compound.getUUID("linkBack")!!)
-                else
-                    Optional.empty()
-        fun updateSide(name: String, boat: Optional<UUID>) {
-            compound.putInt("link${name}Type", if(boat.isPresent) BoatLink else NoLink)
-        }
-
-        updateSide("Back", back)
-        updateSide("Front", front)
     }
 
     override fun defineSynchedData() {
         this.entityData.define(TIME_SINCE_HIT, 0)
         this.entityData.define(FORWARD_DIRECTION, 1)
         this.entityData.define(DAMAGE_TAKEN, 0f)
-        this.entityData.define(BOAT_LINKS[FrontLink], Optional.empty())
-        this.entityData.define(BOAT_LINKS[BackLink], Optional.empty())
-        this.entityData.define(LINKS_RUNTIME[FrontLink], UnitializedLinkID)
-        this.entityData.define(LINKS_RUNTIME[BackLink], UnitializedLinkID)
-        this.entityData.define(KNOT_LOCATIONS[FrontLink], Optional.empty())
-        this.entityData.define(KNOT_LOCATIONS[BackLink], Optional.empty())
-        this.entityData.define(LINK_TYPES[FrontLink], NoLink)
-        this.entityData.define(LINK_TYPES[BackLink], NoLink)
+        this.entityData.define(BOAT_LINKS, mutableMapOf())
     }
 
     override fun isPickable(): Boolean {
@@ -905,51 +820,12 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
         return InteractionResult.PASS
     }
 
-    fun getLinkedTo(side: Int): Entity? {
-        if(hasLink(side)) {
-            val type = linkEntityTypes[side]
-            return when(type) {
-                BoatLink -> getBoatLinkedTo(side)
-                KnotLink -> getKnotLinkedTo(side)
-                else -> null
-            }
-        }
-        return null
-    }
-
-    private fun getKnotLinkedTo(side: Int): LeashFenceKnotEntity? {
-        val location = knotLocations[side]
-        return LeashFenceKnotEntity.getOrCreateKnot(world, location.get())
+    fun getLinkedTo(cleat: Cleat): Entity? {
+        return getLink(cleat).targetEntity
     }
 
     override fun getAddEntityPacket(): Packet<*> {
         return NetworkHooks.getEntitySpawningPacket(this)
-    }
-
-    private fun getBoatLinkedTo(side: Int): BasicBoatEntity? {
-        var id = entityData.get(LINKS_RUNTIME[side])
-        if(id == UnitializedLinkID) {
-            id = forceLinkLoad(side)
-            if(id == NoLinkFound) {
-                val searchBB = boundingBox.inflate(MaxLinkSearchDistance)
-                val idList = world.getEntities(null as? Entity, searchBB) { it is BasicBoatEntity }.map { it as BasicBoatEntity }
-                        .map { it as BasicBoatEntity }.joinToString(", ") { it.uuid.toString() }
-                MoarBoats.logger.error("NO LINK FOUND FOR SIDE $side (UUID was ${links[side].get()}) FOR BOAT $uuid \nHere's a list of all loaded boatIDs:\n$idList")
-            }
-        }
-        return world.getEntity(id) as? BasicBoatEntity
-    }
-
-    private fun forceLinkLoad(side: Int): Int {
-        val boatID = links[side].get()
-        val searchBB = boundingBox.inflate(MaxLinkSearchDistance)
-        val correspondingBoat = world.getEntities(null as? Entity, searchBB) { it is BasicBoatEntity }.map { it as BasicBoatEntity }.firstOrNull { entity ->
-            entity?.uuid == boatID ?: false
-        }
-
-        val id = correspondingBoat?.entityID ?: NoLinkFound
-        entityData.set(LINKS_RUNTIME[side], id)
-        return id
     }
 
     override fun readSpawnData(additionalData: FriendlyByteBuf) {
@@ -1012,7 +888,11 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
         return true
     }
 
-    override fun getParts(): Array<AnchorEntityPart> {
-        return anchors
+    override fun getParts(): Array<CleatEntityPart> {
+        return cleatEntityParts
+    }
+
+    fun getCleats(): Collection<Cleat> {
+        return cleats
     }
 }

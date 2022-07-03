@@ -12,6 +12,7 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
 import org.jglrxavpok.moarboats.client.gui.GuiNoConfigModule
+import org.jglrxavpok.moarboats.common.Cleats
 import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.containers.ContainerBoatModule
 import org.jglrxavpok.moarboats.common.containers.ContainerTypes
@@ -33,7 +34,7 @@ object IceBreakerModule: BoatModule() {
     override fun update(from: IControllable) {
         val level = from.worldRef
         val bb = from.correspondingEntity.boundingBox
-                .move(from.calculateAnchorPosition(BasicBoatEntity.FrontLink))
+                .move(Cleats.FrontCleat.getWorldPosition(from.correspondingEntity))
                 .move(-from.positionX, -from.positionY - .75f, -from.positionZ)
                 .expandTowards(1.0, 1.0, 1.0)
         val collidedBB = level.getBlockCollisions(from.correspondingEntity, bb)

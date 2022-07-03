@@ -158,8 +158,9 @@ object MoarBoats {
     }
 
     fun setup(event: FMLCommonSetupEvent) {
+        EntityDataSerializers.registerSerializer(BoatLinksSerializer)
         EntityDataSerializers.registerSerializer(ResourceLocationsSerializer)
-        EntityDataSerializers.registerSerializer(UniqueIDSerializer)
+        EntityDataSerializers.registerSerializer(UniqueIDSerializer) // TODO: Deprecated
     }
 
     fun postLoad(event: FMLLoadCompleteEvent) {

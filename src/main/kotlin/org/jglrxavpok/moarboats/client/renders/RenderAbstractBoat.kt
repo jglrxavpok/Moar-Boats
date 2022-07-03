@@ -5,32 +5,29 @@ import com.mojang.math.Quaternion
 import com.mojang.math.Vector3f
 import net.minecraft.client.Minecraft
 import net.minecraft.client.model.geom.ModelPart
+import net.minecraft.client.renderer.GameRenderer
 import net.minecraft.client.renderer.LevelRenderer
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.entity.EntityRenderer
 import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.texture.OverlayTexture
-import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.Mth
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.phys.EntityHitResult
-import net.minecraft.world.phys.HitResult
-import net.minecraft.world.phys.Vec3
 import org.jglrxavpok.moarboats.MoarBoats
+import org.jglrxavpok.moarboats.api.Cleat
 import org.jglrxavpok.moarboats.client.RenderInfo
 import org.jglrxavpok.moarboats.client.models.ModelBoatLinkerAnchor
 import org.jglrxavpok.moarboats.client.models.ModularBoatModel
 import org.jglrxavpok.moarboats.client.normal
 import org.jglrxavpok.moarboats.client.pos
+import org.jglrxavpok.moarboats.common.Cleats
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.items.RopeItem
 
 abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRendererProvider.Context): EntityRenderer<T>(renderManager) {
-
-    private val frontLinkText =  Component.literal("+")
-    private val backLinkText =  Component.literal("-")
 
     companion object {
         val RopeAnchorTextureLocation = ResourceLocation(MoarBoats.ModID, "textures/entity/ropeanchor.png")
@@ -60,13 +57,55 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
 
     abstract fun postModelRender(entity: T, entityYaw: Float, partialTicks: Float, matrixStackIn: PoseStack, bufferIn: MultiBufferSource, packedLightIn: Int)
 
-    override fun render(entity: T, entityYaw: Float, partialTicks: Float, matrixStackIn: PoseStack, bufferIn: MultiBufferSource, packedLightIn: Int) {
-        matrixStackIn.pushPose()
-        matrixStackIn.translate(0.0, 0.375, 0.0)
-        if(entity.isEntityInLava())
-            setTranslation(matrixStackIn, entity, 0.0, 0.20, 0.0)
+    override fun render(entity: T, entityYaw: Float, partialTicks: Float, poseStack: PoseStack, bufferIn: MultiBufferSource, packedLightIn: Int) {
 
-        setRotation(matrixStackIn, entity, entityYaw, partialTicks)
+        if(Minecraft.getInstance().options.renderDebug) {
+            poseStack.pushPose()
+            poseStack.mulPose(entityRenderDispatcher.cameraOrientation())
+            poseStack.translate(0.0, 1.0, 0.0)
+
+            val scale = 1.0f / 64.0f
+            poseStack.scale(-scale, -scale, scale)
+
+            val lines = mutableListOf<String>()
+
+            for(cleat in entity.getCleats()) {
+                lines += "Cleat[${Cleats.Registry.get().getKey(cleat)}]"
+                val link = entity.getLink(cleat)
+                if(link.hasTarget()) {
+                    lines += "  Connected to: ${Cleats.Registry.get().getKey(link.target)}"
+                    lines += "  Target entity UUID is: ${link.targetEntityUUID}"
+
+                    if(link.hasRuntimeTarget()) {
+                        lines += "  Target entity is: ${link.target}"
+                    } else {
+                        lines += "  No runtime entity found"
+                    }
+                } else {
+                    lines += "  Not connected"
+                }
+            }
+
+            poseStack.translate(0.0, -(lines.size * font.lineHeight).toDouble(), 0.0)
+
+            var y = 0.0f
+            for(text in lines) {
+                font.draw(poseStack, text, 0.0f, y, 0xFFFFFF)
+                y += font.lineHeight
+            }
+            poseStack.popPose()
+        }
+
+        val entityX = Mth.lerp(partialTicks.toDouble(), entity.xOld, entity.x)
+        val entityY = Mth.lerp(partialTicks.toDouble(), entity.yOld, entity.y)
+        val entityZ = Mth.lerp(partialTicks.toDouble(), entity.zOld, entity.z)
+
+        poseStack.pushPose()
+        poseStack.translate(0.0, 0.375, 0.0)
+        if(entity.isEntityInLava())
+            setTranslation(poseStack, entity, 0.0, 0.20, 0.0)
+
+        setRotation(poseStack, entity, entityYaw, partialTicks)
 
         val color = getBoatColor(entity)
 
@@ -74,40 +113,39 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
         this.model.paddle_left.visible = false;
         this.model.paddle_right.visible = false;
 
-        preModelRender(entity, entityYaw, partialTicks, matrixStackIn, bufferIn, packedLightIn)
+        preModelRender(entity, entityYaw, partialTicks, poseStack, bufferIn, packedLightIn)
 
-        matrixStackIn.pushPose()
-        matrixStackIn.scale(1.0f, -1.0f, -1.0f)
-        renderBoat(entity, matrixStackIn, bufferIn, packedLightIn, color[0], color[1], color[2], 1.0f)
-        matrixStackIn.popPose()
+        poseStack.pushPose()
+        poseStack.scale(1.0f, -1.0f, -1.0f)
+        renderBoat(entity, poseStack, bufferIn, packedLightIn, color[0], color[1], color[2], 1.0f)
+        poseStack.popPose()
 
 
         // TODO: capability for item
         if(Minecraft.getInstance().player?.isHolding({ stack -> stack.item is RopeItem }) ?: false) {
-            matrixStackIn.pushPose()
+            poseStack.pushPose()
 
-            matrixStackIn.translate(0.0, -4.0/16.0, 0.0)
+            poseStack.translate(0.0, -4.0/16.0, 0.0)
             // cancel entity rotation
-            matrixStackIn.mulPose(Quaternion(0f, -(180.0f - entityYaw - 90f), 0.0f, true))
+            poseStack.mulPose(Quaternion(0f, -(180.0f - entityYaw - 90f), 0.0f, true))
 
-            val hoveredAnchor = ((Minecraft.getInstance().hitResult as? EntityHitResult)?.entity as? BasicBoatEntity.AnchorEntityPart)
-            val hoveredAnchorType = hoveredAnchor?.anchorType
+            val hoveredAnchor = ((Minecraft.getInstance().hitResult as? EntityHitResult)?.entity as? BasicBoatEntity.CleatEntityPart)
+            val hoveredAnchorType = hoveredAnchor?.cleat
 
-            for(anchorType in arrayOf(BasicBoatEntity.FrontLink, BasicBoatEntity.BackLink)) {
-                val hovered = anchorType == hoveredAnchorType && entity == hoveredAnchor?.parent
-                val anchorLocalPosition = entity.calculateAnchorPosition(anchorType).subtract(entity.x, entity.y, entity.z)
-                renderRopeHitbox(RenderInfo(matrixStackIn, bufferIn, packedLightIn), entity, entityYaw, partialTicks, anchorLocalPosition, hovered, anchorType)
+            for(cleat in entity.getCleats()) {
+                val hovered = cleat == hoveredAnchorType && entity == hoveredAnchor?.parent
+                renderRopeHitbox(RenderInfo(poseStack, bufferIn, packedLightIn), entity, entityX, entityY, entityZ, entityYaw, partialTicks, cleat, hovered)
             }
-            matrixStackIn.popPose()
+            poseStack.popPose()
         }
 
-        renderLink(RenderInfo(matrixStackIn, bufferIn, packedLightIn), entity, 0.0, 0.0, 0.0, entityYaw, partialTicks)
-        postModelRender(entity, entityYaw, partialTicks, matrixStackIn, bufferIn, packedLightIn)
-        matrixStackIn.popPose()
-        super.render(entity, entityYaw, partialTicks, matrixStackIn, bufferIn, packedLightIn)
+        renderLink(RenderInfo(poseStack, bufferIn, packedLightIn), entity, entityYaw, partialTicks)
+        postModelRender(entity, entityYaw, partialTicks, poseStack, bufferIn, packedLightIn)
+        poseStack.popPose()
+        super.render(entity, entityYaw, partialTicks, poseStack, bufferIn, packedLightIn)
     }
 
-    private fun renderRopeHitbox(renderInfo: RenderInfo, entity: T, entityYaw: Float, partialTicks: Float, anchorLocalPosition: Vec3, hovered: Boolean, anchorType: Int) {
+    private fun renderRopeHitbox(renderInfo: RenderInfo, entity: T, entityX: Double, entityY: Double, entityZ: Double, entityYaw: Float, partialTicks: Float, cleat: Cleat, hovered: Boolean) {
         val poseStack = renderInfo.matrixStack
 
         val hitboxSize = 0.25
@@ -127,6 +165,8 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
         val blue = if(hovered) 0.0f else 1.0f
         val alpha = 1.0f
 
+        val anchorLocalPosition = cleat.getWorldPosition(entity, partialTicks).subtract(entityX, entityY, entityZ)
+
         poseStack.pushPose()
         poseStack.translate(anchorLocalPosition.x, anchorLocalPosition.y, anchorLocalPosition.z)
         poseStack.mulPose(Quaternion(0f, (180.0f - entityYaw - 90f), 0.0f, true))
@@ -134,7 +174,7 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
         poseStack.pushPose()
         poseStack.translate(0.0, hitboxHalfSize, 0.0)
 
-        val text = if(anchorType == BasicBoatEntity.FrontLink) frontLinkText else backLinkText
+        val text = cleat.getOverlayText()
         val textScale = 1.0f / 32.0f
         poseStack.scale(textScale, textScale, textScale)
         poseStack.mulPose(Quaternion(0.0f, 90.0f, 0.0f, true))
@@ -170,39 +210,29 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
         this.model.water_occlusion.render(matrixStackIn, noWaterBuffer, packedLightIn, OverlayTexture.NO_OVERLAY)
     }
 
-    private fun renderLink(renderInfo: RenderInfo, boatEntity: T, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float) {
+    private fun renderLink(renderInfo: RenderInfo, boatEntity: T, entityYaw: Float, partialTicks: Float) {
         val matrixStack = renderInfo.matrixStack
         entityRenderDispatcher.textureManager.bindForSetup(RopeAnchorTextureLocation)
-        // front
-        val ropeBuffer = renderInfo.buffers.getBuffer(RenderType.entityTranslucent(RopeAnchorTextureLocation))
-        if(boatEntity.hasLink(BasicBoatEntity.FrontLink)) {
-            boatEntity.getLinkedTo(BasicBoatEntity.FrontLink)?.let {
+        for(cleat in boatEntity.getCleats()) {
+            val link = boatEntity.getLink(cleat)
+            if(link.hasRuntimeTarget()) {
                 matrixStack.pushPose()
-                matrixStack.translate(-17.0 / 16.0, 4.0 / 16.0, 0.0)
-                renderActualLink(renderInfo, boatEntity, it, BasicBoatEntity.FrontLink, entityYaw, renderInfo.combinedLight)
-                ropeAnchorModel.renderToBuffer(matrixStack, ropeBuffer, renderInfo.combinedLight, 0, 1f, 1f, 1f, 1f)
-                matrixStack.popPose()
-            }
-        }
+                val cleatLocalPosition = cleat.getLocalPosition()
+                matrixStack.translate(-cleatLocalPosition.z, cleatLocalPosition.y, cleatLocalPosition.x)
+                renderActualLink(renderInfo, boatEntity, link.targetEntity!!, cleat, link.target!!, entityYaw, renderInfo.combinedLight, partialTicks)
 
-        // back
-        if(boatEntity.hasLink(BasicBoatEntity.BackLink)) {
-            boatEntity.getLinkedTo(BasicBoatEntity.BackLink)?.let {
-                matrixStack.pushPose()
-                matrixStack.translate(17.0 / 16.0, 4.0 / 16.0, 0.0)
-                renderActualLink(renderInfo, boatEntity, it, BasicBoatEntity.BackLink, entityYaw, renderInfo.combinedLight)
-                entityRenderDispatcher.textureManager.bindForSetup(RopeAnchorTextureLocation)
+                val ropeBuffer = renderInfo.buffers.getBuffer(RenderType.entityTranslucent(RopeAnchorTextureLocation))
                 ropeAnchorModel.renderToBuffer(matrixStack, ropeBuffer, renderInfo.combinedLight, 0, 1f, 1f, 1f, 1f)
+
                 matrixStack.popPose()
             }
         }
     }
 
-    private fun renderActualLink(renderInfo: RenderInfo, thisBoat: BasicBoatEntity, targetEntity: Entity, sideFromThisBoat: Int, entityYaw: Float, packedLight: Int) {
+    private fun renderActualLink(renderInfo: RenderInfo, thisBoat: BasicBoatEntity, targetEntity: Entity, cleat: Cleat, connectedTo: Cleat, entityYaw: Float, packedLight: Int, partialTicks: Float) {
         val matrixStack = renderInfo.matrixStack
-        val anchorThis = thisBoat.calculateAnchorPosition(sideFromThisBoat)
-        val anchorOther = (targetEntity as? BasicBoatEntity)?.calculateAnchorPosition(1-sideFromThisBoat)
-                ?: targetEntity.position()
+        val anchorThis = cleat.getWorldPosition(thisBoat, partialTicks)
+        val anchorOther = connectedTo.getWorldPosition(targetEntity, partialTicks)
         val translateX = anchorOther.x - anchorThis.x
         val translateY = anchorOther.y - anchorThis.y
         val translateZ = anchorOther.z - anchorThis.z
@@ -214,7 +244,7 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
         val l = 24 // must be multiple of 3
 
         // rope rendered from back and rope rendered from front will z-fight if we don't sync the color
-        val colorIndex = sideFromThisBoat % 2
+        val colorIndex = if(cleat.canTow()) 0 else 1
 
         for (segment in 0 until l) {
             val x = segment.toFloat() / l

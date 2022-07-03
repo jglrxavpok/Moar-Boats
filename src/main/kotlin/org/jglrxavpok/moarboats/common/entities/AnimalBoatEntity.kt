@@ -83,14 +83,6 @@ class AnimalBoatEntity(entityType: EntityType<out AnimalBoatEntity>, world: Leve
     // MoarBoats code
     override fun controlBoat() { /* NOP */ }
 
-    override fun calculateAnchorPosition(linkType: Int): Vec3 {
-        val distanceFromCenter = (0.0625f * 17f * if(linkType == BasicBoatEntity.FrontLink) 1f else -1f) *1.5f
-        val anchorX = positionX + Mth.cos((yaw + 90f).toRadians()) * distanceFromCenter
-        val anchorY = positionY + 0.0625f * 16f
-        val anchorZ = positionZ + Mth.sin((yaw + 90f).toRadians()) * distanceFromCenter
-        return Vec3(anchorX, anchorY, anchorZ)
-    }
-
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative) {
             spawnAtLocation(getBoatItem(), 1)

@@ -70,14 +70,6 @@ interface IControllable {
     fun isSpeedImposed(): Boolean
     fun imposeSpeed(speed: Float)
 
-    fun calculateAnchorPosition(linkType: Int): Vec3 {
-        val distanceFromCenter = 0.0625f * 17f * if(linkType == BasicBoatEntity.FrontLink) 1f else -1f
-        val anchorX = positionX + Mth.cos((yaw + 90f).toRadians()) * distanceFromCenter
-        val anchorY = positionY + 4.0 / 16.0 + 0.375 + if(correspondingEntity.isInLava) 0.20 else 0.0
-        val anchorZ = positionZ + Mth.sin((yaw + 90f).toRadians()) * distanceFromCenter
-        return Vec3(anchorX, anchorY, anchorZ)
-    }
-
     /**
      * Applies current yaw rotation to the vector
      */
