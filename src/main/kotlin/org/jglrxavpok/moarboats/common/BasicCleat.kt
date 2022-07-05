@@ -20,7 +20,7 @@ class BasicCleat(val towing: Boolean): Cleat() {
 
     override fun getLocalPosition(): Vec3 {
         val direction = if(towing) -1.0 else 1.0
-        return Vec3(0.0, 4.0 / 16.0, direction * 0.0625f * 17f)
+        return Vec3(0.0, 4.0 / 16.0, direction * 0.0625f * 15.5f)
     }
 
     override fun getOverlayText(): Component {

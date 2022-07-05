@@ -5,7 +5,6 @@ import com.mojang.math.Quaternion
 import com.mojang.math.Vector3f
 import net.minecraft.client.Minecraft
 import net.minecraft.client.model.geom.ModelPart
-import net.minecraft.client.renderer.GameRenderer
 import net.minecraft.client.renderer.LevelRenderer
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderType
@@ -19,8 +18,8 @@ import net.minecraft.world.phys.EntityHitResult
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.Cleat
 import org.jglrxavpok.moarboats.client.RenderInfo
-import org.jglrxavpok.moarboats.client.models.ModelBoatLinkerAnchor
 import org.jglrxavpok.moarboats.client.models.ModularBoatModel
+import org.jglrxavpok.moarboats.client.models.RopeKnotModel
 import org.jglrxavpok.moarboats.client.normal
 import org.jglrxavpok.moarboats.client.pos
 import org.jglrxavpok.moarboats.common.Cleats
@@ -30,7 +29,7 @@ import org.jglrxavpok.moarboats.common.items.RopeItem
 abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRendererProvider.Context): EntityRenderer<T>(renderManager) {
 
     companion object {
-        val RopeAnchorTextureLocation = ResourceLocation(MoarBoats.ModID, "textures/entity/ropeanchor.png")
+        val RopeAnchorTextureLocation = ResourceLocation("minecraft", "textures/entity/lead_knot.png")
         val WhiteColor = floatArrayOf(1f, 1f, 1f, 1f)
 
         @JvmStatic
@@ -49,7 +48,7 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
     }
 
     val model = ModularBoatModel<T>(renderManager.bakeLayer(ModularBoatModel.LAYER_LOCATION))
-    val ropeAnchorModel = ModelBoatLinkerAnchor()
+    val ropeAnchorModel = RopeKnotModel(renderManager.bakeLayer(RopeKnotModel.LAYER_LOCATION))
 
     abstract fun getBoatColor(boat: T): FloatArray
 
@@ -220,10 +219,14 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
                 val cleatLocalPosition = cleat.getLocalPosition()
                 matrixStack.translate(-cleatLocalPosition.z, cleatLocalPosition.y, cleatLocalPosition.x)
                 renderActualLink(renderInfo, boatEntity, link.targetEntity!!, cleat, link.target!!, entityYaw, renderInfo.combinedLight, partialTicks)
+                matrixStack.popPose()
 
+                matrixStack.pushPose()
+                val d = if(cleat.canTow()) 1.0f else -1.0f
+                matrixStack.scale(d, -1.0f, 1.0f)
+                matrixStack.translate(0.0, 0.0, 1.0 / 16.0)
                 val ropeBuffer = renderInfo.buffers.getBuffer(RenderType.entityTranslucent(RopeAnchorTextureLocation))
-                ropeAnchorModel.renderToBuffer(matrixStack, ropeBuffer, renderInfo.combinedLight, 0, 1f, 1f, 1f, 1f)
-
+                ropeAnchorModel.renderToBuffer(matrixStack, ropeBuffer, renderInfo.combinedLight, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f)
                 matrixStack.popPose()
             }
         }
@@ -257,9 +260,9 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
                 bufferbuilder
                     .pos(matrixStack, translateX * x, translateY + hangFactor + yOffset, translateZ * x.toDouble())
                 if(segment % 2 == colorIndex)
-                    bufferbuilder.color(138, 109, 68, 255)
+                    bufferbuilder.color(118, 92, 56, 255)
                 else
-                    bufferbuilder.color(138/2, 109/2, 68/2, 255)
+                    bufferbuilder.color(182, 150, 116, 255)
                 bufferbuilder.uv2(packedLight)
                 bufferbuilder.normal(matrixStack, 1.0f, 0.0f, 0.0f)
 

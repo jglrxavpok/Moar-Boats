@@ -54,6 +54,7 @@ import org.jglrxavpok.moarboats.client.gui.*
 import org.jglrxavpok.moarboats.client.models.HelmModel
 import org.jglrxavpok.moarboats.client.models.ModelPatreonHook
 import org.jglrxavpok.moarboats.client.models.ModularBoatModel
+import org.jglrxavpok.moarboats.client.models.RopeKnotModel
 import org.jglrxavpok.moarboats.client.models.RudderModel
 import org.jglrxavpok.moarboats.client.models.SeatModel
 import org.jglrxavpok.moarboats.client.renders.*
@@ -95,6 +96,7 @@ object ClientEvents {
             event.registerLayerDefinition(HelmModel.LAYER_LOCATION) { HelmModel.createBodyLayer() }
             event.registerLayerDefinition(SeatModel.LAYER_LOCATION) { SeatModel.createBodyLayer() }
             event.registerLayerDefinition(RudderModel.LAYER_LOCATION) { RudderModel.createBodyLayer() }
+            event.registerLayerDefinition(RopeKnotModel.LAYER_LOCATION) { RopeKnotModel.createBodyLayer() }
         }
 
         @SubscribeEvent
