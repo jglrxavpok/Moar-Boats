@@ -157,7 +157,15 @@ object DispenserModule: DispensingModule() {
 
     override fun dispenseItem(row: Int, boat: IControllable) {
         val pos = boat.correspondingEntity.position()
-        val blockPos = BlockPos.MutableBlockPos(pos.x, pos.y + row + .75f, pos.z)
+        val yOffset =
+            if(facingProperty[boat] == Direction.DOWN) {
+                -3
+            } else if(facingProperty[boat] == Direction.UP) {
+                1
+            } else {
+                0
+            }
+        val blockPos = BlockPos.MutableBlockPos(pos.x, pos.y + yOffset + row + .75f, pos.z)
         val inventoryRowStart = (-row)*5 +5
         firstValidStack(inventoryRowStart, boat)?.let { (index, stack) ->
             val item = stack.item
