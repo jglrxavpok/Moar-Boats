@@ -173,8 +173,11 @@ object HelmModule: BoatModule(), BlockReason {
             waypointsProperty[boat] = ListTag() // reset waypoints
             return
         }
+        if(!boat.worldRef.isClientSide) {
+            return
+        }
         val mapdata = mapDataCopyProperty[boat]
-        if (mapdata != null && !boat.worldRef.isClientSide) {
+        if (mapdata != null) {
             xCenterProperty[boat] = mapdata.x
             zCenterProperty[boat] = mapdata.z
         } else if(boat.correspondingEntity.tickCount % MapUpdatePeriod == 0) {

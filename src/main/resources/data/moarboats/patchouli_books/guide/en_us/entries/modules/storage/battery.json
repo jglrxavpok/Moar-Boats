@@ -1,0 +1,30 @@
+{
+    "name": "Battery",
+    "icon": "moarboats:boat_battery",
+    "category": "moarboats:modules",
+    "sortnum": 23,
+    "pages": [
+        {
+            "type": "moarboats:module",
+            "module": "battery",
+            "state": "{}",
+            "spot": "storage"
+        },
+        {
+            "type": "patchouli:text",
+            "text": "Stores $(thing)energy$()$(br)Use $(item)Energy Charger$() and $(item)Energy Discharger$() to fill and empty."
+        },
+        {
+            "type": "patchouli:image",
+            "title": "Battery module menu",
+            "border": true,
+            "images": [
+                "moarboats:textures/gui/guide/entries/battery_module_menu.png"
+            ]
+        },
+        {
+            "type": "patchouli:text",
+            "text": "Hovering the storage view will show how much energy is stored inside the battery, and its capacity."
+        }
+    ]
+}

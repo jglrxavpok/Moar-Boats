@@ -1,0 +1,26 @@
+{
+    "name": "Paddles",
+    "icon": "moarboats:oars",
+    "category": "moarboats:modules",
+    "sortnum": 12,
+    "pages": [
+        {
+            "type": "moarboats:module",
+            "module": "oar_engine",
+            "state": "{}",
+            "spot": "engine"
+        },
+        {
+            "type": "patchouli:text",
+            "text": "The $(thing)paddles$() do not burn items, but require a player to move the boat. The engine will move the boat at $(6)0.04 * $(italics)Imposed Speed$() blocks / tick$(), where $(italics)Imposed Speed$() is the speed set inside the menu.$(br2)$(bold)$(underline)Note$()$(): You need to use a $(l:modules/storage/seat)Seat$() for a player to ride the boat."
+        },
+        {
+            "type": "patchouli:image",
+            "title": "Paddles module menu",
+            "border": true,
+            "images": [
+                "moarboats:textures/gui/guide/entries/oars_module_menu.png"
+            ]
+        }
+    ]
+}

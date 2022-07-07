@@ -200,6 +200,13 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
     var distanceTravelled: Double = 0.0
         private set
 
+    /**
+     * Patchouli seems to have issues to render modules inside books, so rendering has
+     * a hack to tweak module rendering to invert normals. Seems to do the trick
+      */
+    var patchouliRenderingFix = false
+        private set
+
     override var imposedSpeed = 0f
     private var isSpeedImposed = false
 
@@ -793,6 +800,10 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
             val originLocation = ResourceLocation(linkData.getString("origin_cleat"))
             val originCleat = Cleats.Registry.get().getValue(originLocation) ?: error("Unregistered origin cleat $originLocation for entity $this")
             getLink(originCleat).readNBT(linkData)
+        }
+
+        if(compound.contains("patchouli_rendering_fix")) {
+            patchouliRenderingFix = compound.getBoolean("patchouli_rendering_fix")
         }
     }
 

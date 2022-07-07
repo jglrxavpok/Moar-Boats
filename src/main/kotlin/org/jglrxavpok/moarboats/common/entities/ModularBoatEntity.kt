@@ -320,6 +320,11 @@ class ModularBoatEntity(entityType: EntityType<out ModularBoatEntity>, world: Le
                 this.readFromNBT(this@ModularBoatEntity, moduleNBT)
             }
         }
+
+        // special case for Patchouli: load modules now because we won't have a tick() call
+        modules.clear()
+        moduleLocations.forEach { modules.add(BoatModuleRegistry[it].module) }
+
         moduleRNG = RandomSource.create(uuid.leastSignificantBits)
         fun colorFromString(str: String): DyeColor {
             return DyeColor.values().find { it.name.toLowerCase() == str.toLowerCase() } ?: DyeColor.WHITE

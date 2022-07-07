@@ -89,6 +89,12 @@ class RenderUtilityBoat<T: UtilityBoatEntity<*,*>>(renderManager: EntityRenderer
         val scale = 16.0f/14.0f // try to have same size as vanilla chest boat
         matrixStackIn.scale(scale, scale, scale)
         matrixStackIn.translate(-1.0/16.0, 0.0, -1.0/16.0)
+
+        if(boat.patchouliRenderingFix) {
+            matrixStackIn.translate(1.0, 0.0, 0.0)
+            matrixStackIn.scale(-1.0f, 1.0f, 1.0f)
+        }
+
         BoatModuleRenderer.renderBlockState(matrixStackIn, bufferIn, packedLightIn, blockstateProvider(boat), boat.lightLevelDependentMagicValue)
         matrixStackIn.popPose()
     }

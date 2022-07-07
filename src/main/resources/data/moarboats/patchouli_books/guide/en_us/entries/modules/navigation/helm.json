@@ -1,0 +1,51 @@
+{
+    "name": "Helm",
+    "icon": "moarboats:helm",
+    "category": "moarboats:modules",
+    "sortnum": 30,
+    "pages": [
+        {
+            "type": "moarboats:module",
+            "module": "helm",
+            "state": "{}",
+            "spot": "navigation"
+        },
+        {
+            "type": "patchouli:text",
+            "text": "The helm takes a $(item)$(l:modules/navigation/helm#maplike)map-like item$()$() and steers the boat towards the next waypoint on this item."
+        },
+        {
+            "type": "patchouli:image",
+            "title": "Helm module menu",
+            "border": true,
+            "images": [
+                "moarboats:textures/gui/guide/entries/helm_module_menu.png"
+            ]
+        },
+        {
+            "type": "patchouli:text",
+            "text": "The $(underline)Edit path$() button opens the $(l:others/path_editor)Path Editor menu$(), to edit the waypoints represented by the item.$(br2)$(underline)Save on map$() is available only when you have a $(item)Map$() inside the helm. Clicking the button will convert the map to a $(l:modules/navigation/helm#map_with_path)Map with Path$() item, which stores the waypoint on the item directly."
+        },
+        {
+            "anchor": "maplike",
+            "type": "patchouli:text",
+            "title": "Map-like items"
+        },
+        {
+            "type": "patchouli:text",
+            "title": "Map",
+            "text": "TODO"
+        },
+        {
+            "anchor": "map_with_path",
+            "type": "patchouli:text",
+            "title": "Map with Path",
+            "text": "TODO"
+        },
+        {
+            "type": "patchouli:text",
+            "title": "Golden ticket",
+            "text": "TODO"
+        }
+    ]
+}

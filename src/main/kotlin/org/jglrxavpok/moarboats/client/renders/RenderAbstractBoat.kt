@@ -169,6 +169,7 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
         poseStack.pushPose()
         poseStack.translate(anchorLocalPosition.x, anchorLocalPosition.y, anchorLocalPosition.z)
         poseStack.mulPose(Quaternion(0f, (180.0f - entityYaw - 90f), 0.0f, true))
+        poseStack.translate(0.0, 0.0, 0.5 / 16.0)
 
         poseStack.pushPose()
         poseStack.translate(0.0, hitboxHalfSize, 0.0)

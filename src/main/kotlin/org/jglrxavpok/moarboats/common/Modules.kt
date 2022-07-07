@@ -26,24 +26,27 @@ object Modules {
     @SubscribeEvent
     fun register(event: RegisterEvent) {
         event.register(RegistryKey) { helper ->
-            helper.registerModule({Blocks.CHEST.asItem()}, ChestModule, ::ChestModuleInventory)
             helper.registerModule({Blocks.FURNACE.asItem()}, FurnaceEngineModule, ::EngineModuleInventory)
-            helper.registerModule(MBItems.HelmItem, HelmModule, { boat, module -> SimpleModuleInventory(1, "helm", boat, module) })
-            helper.registerModule({ Items.FISHING_ROD}, FishingModule, { boat, module -> SimpleModuleInventory(1, "fishing", boat, module) })
-            helper.registerModule(SeatModule, MBItems.SeatItem)
-            helper.registerModule(AnchorModule, {Blocks.ANVIL.asItem()})
             helper.registerModule(SolarEngineModule, {Blocks.DAYLIGHT_DETECTOR.asItem()})
             helper.registerModule(CreativeEngineModule, MBItems.CreativeEngineItem)
-            helper.registerModule(IceBreakerModule, MBItems.IceBreakerItem)
-            helper.registerModule(SonarModule, {Blocks.NOTE_BLOCK.asItem()})
+            helper.registerModule(OarEngineModule, MBItems.OarsItem)
+
+            helper.registerModule({Blocks.CHEST.asItem()}, ChestModule, ::ChestModuleInventory)
             helper.registerModule(DispenserModule, {Blocks.DISPENSER.asItem()}, { boat, module -> SimpleModuleInventory(3 * 5, "dispenser", boat, module) })
-            helper.registerModule(DivingModule, MBItems.DivingBottleItem)
-            helper.registerModule(RudderModule, MBItems.RudderItem)
             helper.registerModule(DropperModule, {Blocks.DROPPER.asItem()}, { boat, module -> SimpleModuleInventory(3 * 5, "dropper", boat, module) })
             helper.registerModule(BatteryModule, MBItems.BoatBattery)
             helper.registerModule(FluidTankModule, MBItems.BoatTank)
+            helper.registerModule(SeatModule, MBItems.SeatItem)
+
+            helper.registerModule(MBItems.HelmItem, HelmModule, { boat, module -> SimpleModuleInventory(1, "helm", boat, module) })
+            helper.registerModule(SonarModule, {Blocks.NOTE_BLOCK.asItem()})
+            helper.registerModule(RudderModule, MBItems.RudderItem)
+
+            helper.registerModule({ Items.FISHING_ROD}, FishingModule, { boat, module -> SimpleModuleInventory(1, "fishing", boat, module) })
+            helper.registerModule(AnchorModule, {Blocks.ANVIL.asItem()})
+            helper.registerModule(IceBreakerModule, MBItems.IceBreakerItem)
+            helper.registerModule(DivingModule, MBItems.DivingBottleItem)
             helper.registerModule(ChunkLoadingModule, MBItems.ChunkLoaderItem, restriction = MoarBoatsConfig.chunkLoader.allowed::get)
-            helper.registerModule(OarEngineModule, MBItems.OarsItem)
         }
 
         event.register(ForgeRegistries.CONTAINERS.registryKey) { helper ->

@@ -1,0 +1,18 @@
+{
+    "name": "Chest",
+    "icon": "minecraft:chest",
+    "category": "moarboats:modules",
+    "sortnum": 20,
+    "pages": [
+        {
+            "type": "moarboats:module",
+            "module": "chest",
+            "state": "{}",
+            "spot": "storage"
+        },
+        {
+            "type": "patchouli:text",
+            "text": "Stores items. Simple as that.$(br)Interacts with hoppers like $(thing)Hoppers Minecart$()."
+        }
+    ]
+}

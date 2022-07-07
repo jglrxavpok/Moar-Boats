@@ -1,0 +1,18 @@
+{
+    "name": "Boat Seat",
+    "icon": "moarboats:seat",
+    "category": "moarboats:modules",
+    "sortnum": 25,
+    "pages": [
+        {
+            "type": "moarboats:module",
+            "module": "seat",
+            "state": "{}",
+            "spot": "storage"
+        },
+        {
+            "type": "patchouli:text",
+            "text": "Allows a player to ride inside the boat.$(br2)Required for the $(l:modules/engine/oars)Paddles module$() to work."
+        }
+    ]
+}

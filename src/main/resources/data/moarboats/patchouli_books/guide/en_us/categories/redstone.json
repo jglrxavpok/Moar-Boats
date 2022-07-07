@@ -1,0 +1,6 @@
+{
+    "name": "Redstone interactions",
+    "description": "How MoarBoats interacts with redstone",
+    "icon": "minecraft:redstone",
+    "sortnum": 3
+}

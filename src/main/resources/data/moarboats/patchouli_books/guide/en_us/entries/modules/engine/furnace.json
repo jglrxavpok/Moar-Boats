@@ -1,0 +1,34 @@
+{
+    "name": "Furnace engine",
+    "icon": "minecraft:furnace",
+    "category": "moarboats:modules",
+    "sortnum": 10,
+    "pages": [
+        {
+            "type": "moarboats:module",
+            "module": "furnace_engine",
+            "state": "{}",
+            "spot": "engine"
+        },
+        {
+            "type": "patchouli:text",
+            "text": "The $(thing)furnace engine$() burns items to move the boat. The burn duration of an item determines how much the item will move the boat at $(6)0.04 * $(italics)Imposed Speed$() blocks / tick$(), where $(italics)Imposed Speed$() is the speed set inside the menu."
+        },
+        {
+            "type": "patchouli:image",
+            "title": "Furnace module menu",
+            "border": true,
+            "images": [
+                "moarboats:textures/gui/guide/entries/furnace_module_menu.png"
+            ]
+        },
+        {
+            "type": "patchouli:text",
+            "text": "A single slot is available for the fuel item. $(#ff0000)If empty, the furnace engine will pull from any available $(l:modules/spots#storage)storage module.$()$()$(br2)The engine is locked by default, preventing the boat from moving, but does not consume items.$(br2)The speed can be adjusted from this menu.$(br)$(italics)Imposed speed$() is the speed imposed by $(l:modules/spots#navigation)Navigation modules$(), and acts as a multiplier of the speed set inside this interface."
+        },
+        {
+            "type": "patchouli:text",
+            "text": "The interface also displays an estimation of how long the engine will be fueled by the items currently inside it."
+        }
+    ]
+}

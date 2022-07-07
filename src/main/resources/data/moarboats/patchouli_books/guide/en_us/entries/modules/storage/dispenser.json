@@ -1,0 +1,30 @@
+{
+    "name": "Dispenser",
+    "icon": "minecraft:dispenser",
+    "category": "moarboats:modules",
+    "sortnum": 21,
+    "pages": [
+        {
+            "type": "moarboats:module",
+            "module": "dispenser",
+            "state": "{}",
+            "spot": "storage"
+        },
+        {
+            "type": "patchouli:text",
+            "text": "Dispenses items. Respects the placement behaviour of items, ie can place boats & minecarts, or shoot arrows.$(br2)The only special case is for $(thing)blocks$(): the module will attempt to place a block instead of dispensing the item.$(br2)The $(thing)top$() and $(thing)bottom$() orientations will add an offset dispense one block above and three blocks below the boat, respectively."
+        },
+        {
+            "type": "patchouli:image",
+            "title": "Dispenser module menu",
+            "border": true,
+            "images": [
+                "moarboats:textures/gui/guide/entries/dispenser_module_menu.png"
+            ]
+        },
+        {
+            "type": "patchouli:text",
+            "text": "$(br)Each row will dispense at a different height.$(li)$(italics)Top$() dispenses 2 blocks above the boat.$()$(li)$(italics)Middle$() dispenses 1 block above the boat.$()$(li)$(italics)Bottom$() dispenses at the same height as the boat.$()$(br2)You can also select the orientation of the module, which is relative to the boat.$(br2)Finally, the period at which to dispense is also configurable here."
+        }
+    ]
+}

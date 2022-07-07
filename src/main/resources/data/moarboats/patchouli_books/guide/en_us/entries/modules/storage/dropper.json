@@ -1,0 +1,30 @@
+{
+    "name": "Dropper",
+    "icon": "minecraft:dropper",
+    "category": "moarboats:modules",
+    "sortnum": 22,
+    "pages": [
+        {
+            "type": "moarboats:module",
+            "module": "dropper",
+            "state": "{}",
+            "spot": "storage"
+        },
+        {
+            "type": "patchouli:text",
+            "text": "Drops items. Contrary to the dispenser module, this always outputs an item (like regular $(item)Droppers$())."
+        },
+        {
+            "type": "patchouli:image",
+            "title": "Dropper module menu",
+            "border": true,
+            "images": [
+                "moarboats:textures/gui/guide/entries/dropper_module_menu.png"
+            ]
+        },
+        {
+            "type": "patchouli:text",
+            "text": "$(br)Each row will dispense at a different height.$(li)$(italics)Top$() dispenses 2 blocks above the boat.$()$(li)$(italics)Middle$() dispenses 1 block above the boat.$()$(li)$(italics)Bottom$() dispenses at the same height as the boat.$()$(br2)You can also select the orientation of the module, which is relative to the boat.$(br2)Finally, the period at which to dispense is also configurable here."
+        }
+    ]
+}

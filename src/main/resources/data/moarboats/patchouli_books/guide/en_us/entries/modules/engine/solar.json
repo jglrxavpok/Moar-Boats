@@ -1,0 +1,26 @@
+{
+    "name": "Solar engine",
+    "icon": "minecraft:daylight_detector",
+    "category": "moarboats:modules",
+    "sortnum": 11,
+    "pages": [
+        {
+            "type": "moarboats:module",
+            "module": "solar_engine",
+            "state": "{inverted:0b}",
+            "spot": "engine"
+        },
+        {
+            "type": "patchouli:text",
+            "text": "The $(thing)solar engine$() does not burn items, but requires exposure to the sun. The engine will move the boat at $(6)0.04 * $(italics)Imposed Speed$() blocks / tick$(), where $(italics)Imposed Speed$() is the speed set inside the menu.$(br2)$(bold)$(underline)Note$()$(): By shift-right-clicking the boat, the sensor can be inverted to use moonlight instead of sunlight."
+        },
+        {
+            "type": "patchouli:image",
+            "title": "Solar module menu",
+            "border": true,
+            "images": [
+                "moarboats:textures/gui/guide/entries/daylight_module_menu.png"
+            ]
+        }
+    ]
+}

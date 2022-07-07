@@ -42,6 +42,12 @@ open class BlockBoatModuleRenderer(id: ResourceLocation, private val spot: BoatM
 
         matrixStack.scale(0.75f, 0.75f, 0.75f)
         matrixStack.translate(-0.5, -4f/16.0, 1.0/16.0/0.75)
+
+        if(boat.patchouliRenderingFix) {
+            matrixStack.translate(1.0, 0.0, 0.0)
+            matrixStack.scale(-1.0f, 1.0f, 1.0f)
+        }
+
         renderBlockState(matrixStack, buffers, packedLightIn, block, boat.lightLevelDependentMagicValue)
         matrixStack.popPose()
     }

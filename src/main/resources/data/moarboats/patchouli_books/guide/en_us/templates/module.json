@@ -1,0 +1,41 @@
+{
+    "components": [
+        {
+            "type": "patchouli:header",
+            "text": "inventory.#module#",
+            "x": -1,
+            "y": -1
+        },
+        {
+            "type": "patchouli:header",
+            "text": "moarboats:#module#",
+            "scale": 0.5,
+            "x": -1,
+            "y": 9
+        },
+        {
+            "type": "patchouli:separator",
+            "x": -1,
+            "y": 15
+        },
+        {
+            "type": "patchouli:frame",
+            "x": -1,
+            "y": 20
+        },
+        {
+            "type": "patchouli:entity",
+            "entity": "moarboats:modular_boat{patchouli_rendering_fix:1b,modules:[{moduleID:'moarboats:#module#',state:#state#}]}",
+            "render_size": 75,
+            "x": 58,
+            "y": 60
+        },
+        {
+            "type": "patchouli:text",
+            "text": "$(l:modules/spots)Spot$(): #spot->capital#",
+            "scale": 0.75,
+            "x": 8,
+            "y": 130
+        }
+    ]
+}

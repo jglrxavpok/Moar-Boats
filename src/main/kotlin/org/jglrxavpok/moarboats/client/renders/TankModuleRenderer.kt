@@ -39,6 +39,11 @@ object TankModuleRenderer : BoatModuleRenderer() {
         matrixStack.scale(0.75f, 0.75f, 0.75f)
         matrixStack.translate(-0.5, -4f/16.0, 1.0/16.0/0.75)
 
+        if(boat.patchouliRenderingFix) {
+            matrixStack.translate(1.0, 0.0, 0.0)
+            matrixStack.scale(-1.0f, 1.0f, 1.0f)
+        }
+
         val block = MBBlocks.BoatTank.get()
         renderBlockState(matrixStack, buffers, packedLightIn, block.defaultBlockState(), boat.lightLevelDependentMagicValue)
         val fluid = module.getFluidInside(boat)

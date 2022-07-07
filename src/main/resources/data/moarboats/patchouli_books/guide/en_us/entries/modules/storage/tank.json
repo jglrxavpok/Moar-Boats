@@ -1,0 +1,31 @@
+{
+    "name": "Tank",
+    "icon": "moarboats:boat_tank",
+    "category": "moarboats:modules",
+    "sortnum": 24,
+    "pages": [
+        {
+            "type": "moarboats:module",
+            "module": "fluid_tank",
+            "state": "{fluid_name:lava, fluid_amount:5000}",
+            "spot": "storage"
+        },
+        {
+            "type": "patchouli:text",
+            "text": "Stores $(thing)fluids$().$(br)Use $(item)Fluid Loader$() and $(item)Fluid Unloader$() to fill and empty. You can also use buckets, or any item that can store $(thing)fluids$()."
+        },
+        {
+            "type": "patchouli:image",
+            "title": "Tank module menu",
+            "border": true,
+            "images": [
+                "moarboats:textures/gui/guide/entries/water_tank_module_menu.png",
+                "moarboats:textures/gui/guide/entries/lava_tank_module_menu.png"
+            ]
+        },
+        {
+            "type": "patchouli:text",
+            "text": "Hovering the storage view will show how much fluid is stored inside the battery, and its capacity."
+        }
+    ]
+}

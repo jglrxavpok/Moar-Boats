@@ -128,7 +128,6 @@ object MoarBoats {
             }
         )
 
-        MOD_CONTEXT.getKEventBus().addListener(ClientEvents::doClientStuff)
         MOD_CONTEXT.getKEventBus().addListener(this::setup)
         MOD_CONTEXT.getKEventBus().addListener(this::postLoad)
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, MoarBoatsConfig.spec)

@@ -6,11 +6,11 @@
     "pages": [
         {
             "type": "patchouli:text",
-            "text": "While automation is not the only focus of Moar-Boats, it is the area with the most content."
+            "text": "While automation is not the only focus of Moar-Boats, it is the area with the most content.$(br2)You may also be interested in $(l:redstone)Redstone interactions with Moar-Boats$()."
         },
         {
             "type": "patchouli:text",
-            "text": "Moar-Boats supports the following automation possibilities: $(li)Item transport via $(l:introduction/utility)Utility Boats$() and $(l:modules/spots#storage)Storage modules$()$()$()$(li)Automatic boat movement with the $(l:modules/spots#engine)Engine$() and $(l:modules/spots#navigation)Navigation $()modules$()$()$(li)Entity transport via the $(l:introduction/animal_boat)Animal Boat$()$()$(li)Fluid transport with the $(l:modules/tank)Boat Tank module$()$()$(li)Energy transport with the $(l:modules/tank)Boat Battery module$()$()$(br2)Reminder: $(l:boat_linking)you can link boats$()."
+            "text": "Moar-Boats supports the following automation possibilities: $(li)Item transport via $(l:introduction/utility)Utility Boats$() and $(l:modules/spots#storage)Storage modules$()$()$()$(li)Automatic boat movement with the $(l:modules/spots#engine)Engine$() and $(l:modules/spots#navigation)Navigation $()modules$()$()$(li)Entity transport via the $(l:introduction/animal_boat)Animal Boat$()$()$(li)Fluid transport with the $(l:modules/storage/tank)Boat Tank module$()$()$(li)Energy transport with the $(l:modules/storage/battery)Boat Battery module$()$()$(br2)Reminder: $(l:boat_linking)you can link boats$()."
         }
     ]
 }

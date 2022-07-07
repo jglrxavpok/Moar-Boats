@@ -3,5 +3,6 @@
     "landing_text": "moarboats.guide.landing_text",
     "version": 1,
     "model": "moarboats:guide",
-    "creative_tab": "moarboats"
+    "creative_tab": "moarboats",
+    "i18n": true
 }
