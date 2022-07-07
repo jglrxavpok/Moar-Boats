@@ -78,12 +78,12 @@ object EntityEntries {
     val EnderChestBoat = utilityBoatEntry("ender_chest", ::EnderChestBoatEntity, ::EnderChestBoatEntity)
 
     @JvmField
-    val ShulkerBoat = utilityBoatEntry("shulker", ::ShulkerBoatEntity, ::ShulkerBoatEntity)
+    val ShulkerBoat = utilityBoatEntry("shulker_box", ::ShulkerBoatEntity, ::ShulkerBoatEntity)
 
     @JvmField
     val JukeboxBoat = utilityBoatEntry("jukebox", ::JukeboxBoatEntity, ::JukeboxBoatEntity)
 
-    private fun <T: UtilityBoatEntity<*,*>> utilityBoatEntry(id: String, constructor: (EntityType<T>, Level) -> T, clientFactory: (SpawnEntity, Level) -> T) = Registry.register(id) {
+    private fun <T: UtilityBoatEntity<*,*>> utilityBoatEntry(id: String, constructor: (EntityType<T>, Level) -> T, clientFactory: (SpawnEntity, Level) -> T) = Registry.register("${id}_boat") {
         val factory = EntityFactory<T>(constructor)
         EntityType.Builder.of(factory, MobCategory.MISC)
             .setTrackingRange(64)
@@ -92,6 +92,6 @@ object EntityEntries {
             .setShouldReceiveVelocityUpdates(true)
             .setUpdateInterval(3)
             .setCustomClientFactory { packet, u -> clientFactory(packet, u) }
-            .build(id)
+            .build("${id}_boat")
     }
 }

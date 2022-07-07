@@ -1,0 +1,17 @@
+{
+    "name": "Animal boat",
+    "icon": "moarboats:animal_boat",
+    "category": "moarboats:introduction",
+    "sortnum": 3,
+    "pages": [
+        {
+            "type": "patchouli:entity",
+            "entity": "moarboats:animal_boat",
+            "text": "Regular boats can transport some entities. Because it is bigger, the Animal Boat can transport more types of entities."
+        },
+        {
+            "type": "patchouli:crafting",
+            "recipe": "moarboats:animal_boat"
+        }
+    ]
+}

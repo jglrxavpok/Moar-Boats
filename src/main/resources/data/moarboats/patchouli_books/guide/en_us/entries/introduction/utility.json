@@ -1,0 +1,151 @@
+{
+    "name": "Utility boats",
+    "icon": "moarboats:minecraft_oak_furnace_boat",
+    "category": "moarboats:introduction",
+    "sortnum": 2,
+    "pages": [
+        {
+            "type": "patchouli:text",
+            "text": "Vanilla already has $(item)boats$() and $(item)chest boats$(), but what about furnace boats, crafting table boats or loom boats??$(br)Don't worry, all your wildest dreams are now possible."
+        },
+        {
+            "type": "patchouli:text",
+            "text": "Combine a $(thing)base block$() with a regular boat to get a $(thing)Utility Boat$().$(br2)$(thing)Utility Boats$() act as a portable version of the given $(thing)base block$(), and can also be $(l:boat_linking)linked$().$(br)$(bold)$(underline)Note$()$(): All crafts and entities are shown with oak boats, but any wood type should work $(italic)or at least vanilla wood types$()."
+        },
+
+
+        {
+            "type": "patchouli:entity",
+            "entity": "moarboats:furnace_boat",
+            "text": "Smell items on the go",
+            "scale": 0.75
+        },
+        {
+            "type": "patchouli:crafting",
+            "recipe": "moarboats:moarboats_minecraft_oak_furnace_boat"
+        },
+
+        {
+            "type": "patchouli:entity",
+            "entity": "moarboats:smoker_boat",
+            "text": "Cook on the sea",
+            "scale": 0.75
+        },
+        {
+            "type": "patchouli:crafting",
+            "recipe": "moarboats:moarboats_minecraft_oak_smoker_boat"
+        },
+
+        {
+            "type": "patchouli:entity",
+            "entity": "moarboats:blast_furnace_boat",
+            "text": "Blast ores portably",
+            "scale": 0.75
+        },
+        {
+            "type": "patchouli:crafting",
+            "recipe": "moarboats:moarboats_minecraft_oak_blast_furnace_boat"
+        },
+
+        {
+            "type": "patchouli:entity",
+            "entity": "moarboats:crafting_table_boat",
+            "text": "Portable non-item Crafting Table",
+            "scale": 0.75
+        },
+        {
+            "type": "patchouli:crafting",
+            "recipe": "moarboats:moarboats_minecraft_oak_crafting_table_boat"
+        },
+
+        {
+            "type": "patchouli:entity",
+            "entity": "moarboats:grindstone_boat",
+            "text": "Remove enchantments directly after fishing in the open waters",
+            "scale": 0.75
+        },
+        {
+            "type": "patchouli:crafting",
+            "recipe": "moarboats:moarboats_minecraft_oak_grindstone_boat"
+        },
+
+        {
+            "type": "patchouli:entity",
+            "entity": "moarboats:stonecutter_boat",
+            "text": "Because you need stairs NOW",
+            "scale": 0.75
+        },
+        {
+            "type": "patchouli:crafting",
+            "recipe": "moarboats:moarboats_minecraft_oak_stonecutter_boat"
+        },
+
+        {
+            "type": "patchouli:entity",
+            "entity": "moarboats:loom_boat",
+            "text": "Why not?",
+            "scale": 0.75
+        },
+        {
+            "type": "patchouli:crafting",
+            "recipe": "moarboats:moarboats_minecraft_oak_loom_boat"
+        },
+
+        {
+            "type": "patchouli:entity",
+            "entity": "moarboats:cartography_table_boat",
+            "text": "Map the depths",
+            "scale": 0.75
+        },
+        {
+            "type": "patchouli:crafting",
+            "recipe": "moarboats:moarboats_minecraft_oak_cartography_table_boat"
+        },
+
+        {
+            "type": "patchouli:entity",
+            "entity": "moarboats:chest_boat",
+            "text": "Mojang stole my idea! [Page to delete once entity is goooone]",
+            "scale": 0.75
+        },
+        {
+            "type": "patchouli:crafting",
+            "recipe": "moarboats:moarboats_minecraft_oak_chest_boat"
+        },
+
+        {
+            "type": "patchouli:entity",
+            "entity": "moarboats:ender_chest_boat",
+            "text": "This chest boat has not been copied by Mojang $(italics)yet$()",
+            "scale": 0.75
+        },
+        {
+            "type": "patchouli:crafting",
+            "recipe": "moarboats:moarboats_minecraft_oak_ender_chest_boat"
+        },
+
+        {
+            "type": "patchouli:entity",
+            "entity": "moarboats:shulker_box_boat",
+            "text": "Transport lots of items easily",
+            "scale": 0.75
+        },
+        {
+            "type": "patchouli:crafting",
+            "recipe": "moarboats:moarboats_minecraft_oak_shulker_box_boat"
+        },
+
+        {
+            "type": "patchouli:entity",
+            "entity": "moarboats:jukebox_boat",
+            "text": "You are going to scare the fish",
+            "scale": 0.75
+        },
+        {
+            "type": "patchouli:crafting",
+            "recipe": "moarboats:moarboats_minecraft_oak_jukebox_boat",
+            "text": "Right click with a record to play it"
+        }
+
+    ]
+}

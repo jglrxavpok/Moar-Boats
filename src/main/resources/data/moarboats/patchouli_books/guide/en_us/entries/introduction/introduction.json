@@ -1,0 +1,12 @@
+{
+    "name": "Moar Boats",
+    "icon": "moarboats:modular_boat_white",
+    "category": "moarboats:introduction",
+    "sortnum": 0,
+    "pages": [
+        {
+            "type": "patchouli:text",
+            "text": "Moar-Boats is a mod which gives more uses to boats and adds new boat types."
+        }
+    ]
+}

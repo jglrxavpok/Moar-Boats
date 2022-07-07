@@ -1,0 +1,36 @@
+{
+    "name": "Module Spots",
+    "icon": "moarboats:modular_boat_white",
+    "category": "moarboats:modules",
+    "sortnum": 0,
+    "pages": [
+        {
+            "type": "patchouli:text",
+            "text": "Modular boats can have up to 4 different module types at once."
+        },
+        {
+            "type": "patchouli:text",
+            "title": "Engine Spot",
+            "anchor": "engine",
+            "text": "$(thing)Engine modules$() are used to move the boat. The speed of the boat can be adjusted, by either underclocking or overclocking the engine.$(br)Increasing the speed also increases the rate at which items are consumed, and lowering the speed reduces this rate."
+        },
+        {
+            "type": "patchouli:text",
+            "title": "Storage Spot",
+            "anchor": "storage",
+            "text": "$(thing)Storage modules$() can store items, energy, fluids or players.$(br)Some modules require a storage module to be attached in order to work (for example, the $(l:modules/fishing)Fishing module$()).$(br2)When the boat is destroyed, the items inside the module will spawn."
+        },
+        {
+            "type": "patchouli:text",
+            "title": "Navigation Spot",
+            "anchor": "navigation",
+            "text": "$(thing)Navigation modules$() are used to help the boat navigate. $(l:modules/spots#engine)Engines$() only push the boat forward but do not make the boat turn. Navigation modules are therefore useful for orienting the boat towards a destination."
+        },
+        {
+            "type": "patchouli:text",
+            "title": "Miscellaneous Spot",
+            "anchor": "misc",
+            "text": "$(thing)Miscellaneous modules$() are various modules that do not fit in the other categories, and are mostly utility modules."
+        }
+    ]
+}

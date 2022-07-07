@@ -30,7 +30,7 @@
     "_comment": "1.2.0",
     "inventory.fishing": "Module de pêche",
     "gui.fishing.missingStorage": "Il manque un module de stockage!",
-    "item.moarboats.rope.description": "Sélectionnez le dernier bateau de la chaîne, puis celui le précédant!",
+    "item.rope.description": "A utiliser pour attacher des bateaux ensemble",
     "item.moarboats.seat": "Siège pour bateau",
     "inventory.seat": "Siège pour bateau",
     "gui.seat.nothingToDo": "Rien à configurer!",

@@ -1,0 +1,6 @@
+{
+    "name": "Boat Linking",
+    "description": "Link boats together to automate or move multiple boats at once.",
+    "icon": "moarboats:rope",
+    "sortnum": 1
+}
