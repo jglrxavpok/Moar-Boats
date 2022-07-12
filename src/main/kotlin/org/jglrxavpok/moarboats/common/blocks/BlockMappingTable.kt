@@ -51,7 +51,7 @@ class BlockMappingTable: MoarBoatsBlockEntity({ sound(SoundType.STONE).strength(
         if(levelIn.isClientSide) {
             return InteractionResult.SUCCESS
         }
-        NetworkHooks.openGui(playerIn as ServerPlayer, MoarBoatsGuiHandler.MappingTableGuiInteraction(pos.x, pos.y, pos.z), pos)
+        NetworkHooks.openScreen(playerIn as ServerPlayer, MoarBoatsGuiHandler.MappingTableGuiInteraction(pos.x, pos.y, pos.z), pos)
         return InteractionResult.SUCCESS
     }
 }

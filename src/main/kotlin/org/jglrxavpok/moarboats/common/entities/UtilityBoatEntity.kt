@@ -122,7 +122,7 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
 
     override fun openGuiIfPossible(player: Player): InteractionResult {
         if(player is ServerPlayer && getContainerType() != ContainerTypes.Empty.get()) {
-            NetworkHooks.openGui(player, this) {
+            NetworkHooks.openScreen(player, this) {
                 it.writeInt(entityID)
             }
             return InteractionResult.SUCCESS

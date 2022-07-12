@@ -43,7 +43,7 @@ class BlockEnergyLoader: MoarBoatsBlockEntity() {
     override fun use(state: BlockState, worldIn: Level, pos: BlockPos, player: Player, handIn: InteractionHand, hit: BlockHitResult): InteractionResult {
         if(worldIn.isClientSide)
             return InteractionResult.SUCCESS
-        NetworkHooks.openGui(player as ServerPlayer, MoarBoatsGuiHandler.EnergyChargerGuiInteraction(pos.x, pos.y, pos.z), pos)
+        NetworkHooks.openScreen(player as ServerPlayer, MoarBoatsGuiHandler.EnergyChargerGuiInteraction(pos.x, pos.y, pos.z), pos)
         return InteractionResult.SUCCESS
     }
 

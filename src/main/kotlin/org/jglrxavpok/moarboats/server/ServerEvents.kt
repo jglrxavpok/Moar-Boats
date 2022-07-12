@@ -5,8 +5,8 @@ import net.minecraft.nbt.ListTag
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraftforge.event.entity.living.LivingEvent
+import net.minecraftforge.event.level.LevelEvent
 import net.minecraftforge.event.server.ServerStartingEvent
-import net.minecraftforge.event.world.WorldEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.network.PacketDistributor
 import org.jglrxavpok.moarboats.MoarBoats
@@ -20,8 +20,8 @@ import org.jglrxavpok.moarboats.common.network.SSetGoldenItinerary
 object ServerEvents {
 
     @SubscribeEvent
-    fun onPlayerUpdate(event: LivingEvent.LivingUpdateEvent) {
-        val player = event.entityLiving as? ServerPlayer ?: return
+    fun onPlayerUpdate(event: LivingEvent.LivingTickEvent) {
+        val player = event.entity as? ServerPlayer ?: return
         for(i in 0 until player.inventory.containerSize) {
             val itemstack = player.inventory.getItem(i)
 
@@ -37,8 +37,8 @@ object ServerEvents {
     }
 
     @SubscribeEvent
-    fun onWorldLoad(event: WorldEvent.Load) {
-        val world = (event.world as? ServerLevel) ?: return
+    fun onWorldLoad(event: LevelEvent.Load) {
+        val world = (event.level as? ServerLevel) ?: return
         val chunks = world.dataStorage.computeIfAbsent(::ForcedChunkList, ::ForcedChunkList, ForcedChunkList.getId())
         for(nbt in chunks.list) {
             nbt as CompoundTag
@@ -49,8 +49,8 @@ object ServerEvents {
     }
 
     @SubscribeEvent
-    fun onWorldSave(event: WorldEvent.Save) {
-        val world = (event.world as? ServerLevel) ?: return
+    fun onWorldSave(event: LevelEvent.Save) {
+        val world = (event.level as? ServerLevel) ?: return
         val boats = world.getEntities<ModularBoatEntity>(EntityEntries.ModularBoat.get()) { ChunkLoadingModule in (it as ModularBoatEntity).modules }.map { it as ModularBoatEntity }
         val nbtList = ListTag()
         boats.forEach {

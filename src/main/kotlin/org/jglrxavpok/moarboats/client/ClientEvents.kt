@@ -1,6 +1,10 @@
 package org.jglrxavpok.moarboats.client
 
 import com.google.common.collect.ImmutableList
+import com.mojang.math.Transformation
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap
+import it.unimi.dsi.fastutil.ints.IntSet
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.screens.MenuScreens
 import net.minecraft.client.gui.screens.inventory.ContainerScreen
@@ -33,14 +37,12 @@ import net.minecraftforge.client.event.EntityRenderersEvent
 import net.minecraftforge.client.event.EntityRenderersEvent.RegisterLayerDefinitions
 import net.minecraftforge.client.event.EntityRenderersEvent.RegisterRenderers
 import net.minecraftforge.client.event.InputEvent
-import net.minecraftforge.client.event.ModelBakeEvent
+import net.minecraftforge.client.event.ModelEvent
 import net.minecraftforge.client.event.RenderHandEvent
-import net.minecraftforge.client.model.ForgeModelBakery
-import net.minecraftforge.client.model.IModelConfiguration
 import net.minecraftforge.client.model.ItemLayerModel
-import net.minecraftforge.client.model.geometry.IModelGeometryPart
+import net.minecraftforge.client.model.geometry.IGeometryBakingContext
 import net.minecraftforge.common.MinecraftForge
-import net.minecraftforge.event.entity.EntityJoinWorldEvent
+import net.minecraftforge.event.entity.EntityJoinLevelEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
@@ -62,7 +64,7 @@ import org.jglrxavpok.moarboats.common.EntityEntries
 import org.jglrxavpok.moarboats.common.MBBlocks
 import org.jglrxavpok.moarboats.common.MBItems
 import org.jglrxavpok.moarboats.common.MoarBoatsConfig
-import org.jglrxavpok.moarboats.common.containers.ContainerTypes
+import org.jglrxavpok.moarboats.common.containers.*
 import org.jglrxavpok.moarboats.common.data.MapImageStripe
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
 import org.jglrxavpok.moarboats.common.entities.UtilityBoatEntity
@@ -127,37 +129,41 @@ object ClientEvents {
 
         @OnlyIn(Dist.CLIENT)
         @SubscribeEvent
-        fun registerModels(event: ModelBakeEvent) {
-            val modelConfiguration = object: IModelConfiguration {
-                override fun isShadedInGui() = true
-
-                override fun isTexturePresent(name: String) = MissingTextureAtlasSprite.getLocation() != resolveTexture(name).texture()
-
+        fun registerModels(event: ModelEvent.BakingCompleted) {
+            val modelConfiguration = object: IGeometryBakingContext {
                 override fun getModelName() = FishingModuleRenderer.CastFishingRodLocation.toString()
 
-                override fun getCameraTransforms() = ItemTransforms.NO_TRANSFORMS
+                override fun hasMaterial(name: String) = MissingTextureAtlasSprite.getLocation() != getMaterial(name).texture()
 
-                override fun getOwnerModel() = null
+                override fun isGui3d() = true
 
-                override fun isSideLit() = false
+                override fun getTransforms() = ItemTransforms.NO_TRANSFORMS
 
-                override fun resolveTexture(name: String): Material {
+                override fun useAmbientOcclusion() = false
+
+                override fun getMaterial(name: String): Material {
                     return Material(InventoryMenu.BLOCK_ATLAS, ResourceLocation(name))
                 }
 
-                override fun getCombinedTransform(): ModelState {
-                    return BlockModelRotation.X0_Y0
+                override fun getRootTransform(): Transformation {
+                    return Transformation.identity()
                 }
 
-                override fun useSmoothLighting() = true
+                override fun getRenderTypeHint(): ResourceLocation? {
+                    return null
+                }
 
-                override fun getPartVisibility(part: IModelGeometryPart): Boolean {
+                override fun useBlockLight() = true
+
+                override fun isComponentVisible(component: String?, fallback: Boolean): Boolean {
                     return true
                 }
             }
-            val bakedModel = ItemLayerModel(ImmutableList.of(Material(InventoryMenu.BLOCK_ATLAS, ResourceLocation("item/fishing_rod_cast"))))
-                    .bake(modelConfiguration, event.modelLoader, ForgeModelBakery.defaultTextureGetter(), BlockModelRotation.X0_Y0, ItemOverrides.EMPTY, FishingModuleRenderer.CastFishingRodLocation)
-            event.modelRegistry[FishingModuleRenderer.CastFishingRodLocation] = bakedModel
+            val map = Int2ObjectArrayMap<ResourceLocation>()
+            map[0] = ResourceLocation("item/fishing_rod_cast")
+            val bakedModel = ItemLayerModel(ImmutableList.of(Material(InventoryMenu.BLOCK_ATLAS, ResourceLocation("item/fishing_rod_cast"))), IntSet.of(), map)
+                    .bake(modelConfiguration, event.modelBakery, Material::sprite, BlockModelRotation.X0_Y0, ItemOverrides.EMPTY, FishingModuleRenderer.CastFishingRodLocation)
+            event.models[FishingModuleRenderer.CastFishingRodLocation] = bakedModel
         }
     }
 
@@ -169,28 +175,28 @@ object ClientEvents {
         MinecraftForge.EVENT_BUS.register(this)
 
         for(moduleEntry in BoatModuleRegistry.Registry.get().values) {
-            MoarBoats.logger.debug("Confirming association of module ${moduleEntry.module.id} to container ${ForgeRegistries.CONTAINERS.getKey(moduleEntry.module.menuType)}")
+            MoarBoats.logger.debug("Confirming association of module ${moduleEntry.module.id} to container ${ForgeRegistries.MENU_TYPES.getKey(moduleEntry.module.menuType)}")
             MenuScreens.register(
                     moduleEntry.module.menuType,
                     moduleEntry.module.guiFactory())
         }
 
-        MenuScreens.register(ContainerTypes.MappingTable.get()) { container, playerInv, title ->
+        MenuScreens.register(ContainerTypes.MappingTable.get()) { container: ContainerMappingTable, playerInv, title ->
             GuiMappingTable(container.containerID, container.te, playerInv)
         }
 
-        MenuScreens.register(ContainerTypes.FluidLoader.get()) { container, playerInv, title ->
+        MenuScreens.register(ContainerTypes.FluidLoader.get()) { container: FluidContainer, playerInv, title ->
             GuiFluid(true, container.containerID, container.te, container.fluidCapability, playerInv.player)
         }
-        MenuScreens.register(ContainerTypes.FluidUnloader.get()) { container, playerInv, title ->
+        MenuScreens.register(ContainerTypes.FluidUnloader.get()) { container: FluidContainer, playerInv, title ->
             GuiFluid(false, container.containerID, container.te, container.fluidCapability, playerInv.player)
         }
 
-        MenuScreens.register(ContainerTypes.EnergyCharger.get()) { container, playerInv, title ->
+        MenuScreens.register(ContainerTypes.EnergyCharger.get()) { container: EnergyContainer, playerInv, title ->
             GuiEnergy(true, container.containerID, container.te, playerInv.player)
         }
 
-        MenuScreens.register(ContainerTypes.EnergyDischarger.get()) { container, playerInv, title ->
+        MenuScreens.register(ContainerTypes.EnergyDischarger.get()) { container: EnergyContainer, playerInv, title ->
             GuiEnergy(false, container.containerID, container.te, playerInv.player)
         }
 
@@ -248,7 +254,7 @@ object ClientEvents {
 
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
-    fun onEntityJoinWorld(event: EntityJoinWorldEvent) {
+    fun onEntityJoinWorld(event: EntityJoinLevelEvent) {
         if(event.entity is Player) {
             for(list in recordCache.values) {
                 for(source in list) {
@@ -380,7 +386,7 @@ object ClientEvents {
 
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
-    fun onInventoryOpened(keyEvent: InputEvent.KeyInputEvent) {
+    fun onInventoryOpened(keyEvent: InputEvent.Key) {
         val mc = Minecraft.getInstance()
         if(mc.level == null)
             return // must be playing

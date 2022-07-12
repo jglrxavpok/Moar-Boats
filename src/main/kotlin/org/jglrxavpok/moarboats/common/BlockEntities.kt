@@ -10,7 +10,7 @@ import org.jglrxavpok.moarboats.common.tileentity.*
 object BlockEntities {
 
     @JvmField
-    val Registry = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITIES, MoarBoats.ModID)
+    val Registry = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, MoarBoats.ModID)
 
     @JvmField
     val FluidLoader = Registry.register("fluid_loader") {

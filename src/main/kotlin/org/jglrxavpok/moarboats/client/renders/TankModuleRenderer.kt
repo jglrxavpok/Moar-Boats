@@ -1,17 +1,16 @@
 package org.jglrxavpok.moarboats.client.renders
 
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.PoseStack
-import com.mojang.blaze3d.vertex.Tesselator
-import com.mojang.blaze3d.vertex.VertexFormat
 import com.mojang.math.Vector3f
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.*
+import net.minecraft.client.renderer.LightTexture
+import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.world.inventory.InventoryMenu
-import net.minecraftforge.client.RenderProperties
+import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.client.models.ModularBoatModel
 import org.jglrxavpok.moarboats.client.normal
@@ -52,7 +51,7 @@ object TankModuleRenderer : BoatModuleRenderer() {
 
             val scale = 1f/16f
             matrixStack.scale(scale, -scale, scale)
-            val fluidRenderType = RenderProperties.get(fluid)
+            val fluidRenderType = IClientFluidTypeExtensions.of(fluid)
             val sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(fluidRenderType.stillTexture)
             val buffer = buffers.getBuffer(RenderType.entityTranslucent(InventoryMenu.BLOCK_ATLAS))
             val minU = sprite.u0
@@ -61,7 +60,7 @@ object TankModuleRenderer : BoatModuleRenderer() {
             val maxV = sprite.v1
 
             val luminosity = fluid.fluidType.lightLevel
-            val color = fluidRenderType.colorTint
+            val color = fluidRenderType.tintColor
             val red = color shr 16 and 0xFF
             val green = color shr 8 and 0xFF
             val blue = color and 0xFF

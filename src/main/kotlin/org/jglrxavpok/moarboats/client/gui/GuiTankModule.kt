@@ -17,7 +17,7 @@ import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.material.EmptyFluid
 import net.minecraft.world.level.material.Fluid
-import net.minecraftforge.client.RenderProperties
+import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModule
 import org.jglrxavpok.moarboats.api.IControllable
@@ -65,13 +65,13 @@ class GuiTankModule(menuType: MenuType<EmptyModuleContainer>, containerID: Int, 
 
             val energyHeight = (73 * (fluidAmount/fluidCapacity.toFloat())).toInt()
             val mc = Minecraft.getInstance()
-            val fluidRenderType = RenderProperties.get(fluid)
+            val fluidRenderType = IClientFluidTypeExtensions.of(fluid)
             val sprite = mc.getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(fluidRenderType.stillTexture)
             val tessellator = Tesselator.getInstance()
             val buffer = tessellator.builder
             buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX)
 
-            val color = fluidRenderType.colorTint
+            val color = fluidRenderType.tintColor
             val red = color shr 16 and 0xFF
             val green = color shr 8 and 0xFF
             val blue = color and 0xFF

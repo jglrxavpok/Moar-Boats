@@ -19,7 +19,7 @@ object EntityEntries {
     private val BoatWidth = 1.375f
 
     @JvmField
-    val Registry = DeferredRegister.create(ForgeRegistries.ENTITIES, MoarBoats.ModID)
+    val Registry = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, MoarBoats.ModID)
 
     @JvmField
     val ModularBoat = Registry.register("modular_boat") {

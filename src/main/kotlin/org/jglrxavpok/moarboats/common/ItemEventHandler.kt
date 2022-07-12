@@ -14,7 +14,7 @@ object ItemEventHandler {
     @JvmStatic
     @SubscribeEvent
     fun onEntityInteract(event: PlayerInteractEvent.EntityInteract) {
-        val player = event.player
+        val player = event.entity
         val stack = event.itemStack
         if(stack.item is RopeItem && event.target is LeashFenceKnotEntity) {
             if(RopeItem.getState(stack) == RopeItem.State.WAITING_NEXT) {

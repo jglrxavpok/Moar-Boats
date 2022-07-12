@@ -19,7 +19,7 @@ import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 
 object ContainerTypes {
     @JvmField
-    val Registry = DeferredRegister.create(ForgeRegistries.CONTAINERS, MoarBoats.ModID)
+    val Registry = DeferredRegister.create(ForgeRegistries.MENU_TYPES, MoarBoats.ModID)
 
     @JvmField
     val Empty = Registry.register("empty") {

@@ -258,7 +258,7 @@ class ModularBoatEntity(entityType: EntityType<out ModularBoatEntity>, world: Le
         val canOpenGui = validOwner && !modules.any { it.onInteract(this, player, hand, player.isCrouching) }
         if(canOpenGui) {
             if(modules.isNotEmpty() && !world.isClientSide) {
-                NetworkHooks.openGui(player as ServerPlayer, MoarBoatsGuiHandler.ModulesGuiInteraction(entityID, -1, findFirstModuleToShowOnGui().id.toString())) {
+                NetworkHooks.openScreen(player as ServerPlayer, MoarBoatsGuiHandler.ModulesGuiInteraction(entityID, -1, findFirstModuleToShowOnGui().id.toString())) {
                     it.writeInt(entityID) // boat entity id
                 }
             }

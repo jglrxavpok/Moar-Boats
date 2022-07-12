@@ -59,7 +59,7 @@ abstract class FluidStoringBlock<T: FluidBlockEntity<T>>(): MoarBoatsBlockEntity
             return@map anyTransfer
         }.orElse(false)
         if(!fluidTransfer) {
-            NetworkHooks.openGui(player as ServerPlayer, createInteration(pos), pos)
+            NetworkHooks.openScreen(player as ServerPlayer, createInteration(pos), pos)
         }
         return InteractionResult.SUCCESS
     }

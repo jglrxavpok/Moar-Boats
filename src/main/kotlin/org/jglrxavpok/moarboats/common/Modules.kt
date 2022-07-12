@@ -49,7 +49,7 @@ object Modules {
             helper.registerModule(ChunkLoadingModule, MBItems.ChunkLoaderItem, restriction = MoarBoatsConfig.chunkLoader.allowed::get)
         }
 
-        event.register(ForgeRegistries.CONTAINERS.registryKey) { helper ->
+        event.register(ForgeRegistries.MENU_TYPES.registryKey) { helper ->
             val modules = listOf(
                 ChestModule,
                 FurnaceEngineModule,

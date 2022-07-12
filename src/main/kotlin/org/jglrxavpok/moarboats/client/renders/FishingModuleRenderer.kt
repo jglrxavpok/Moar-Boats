@@ -80,13 +80,16 @@ object FishingModuleRenderer : BoatModuleRenderer() {
             val animationTick = module.animationTickProperty[boat]
             val animationProgress = (animationTick + partialTicks) / FishingModule.MaxAnimationTicks
             val scaling = 1f / (1.5f * 0.75f)
-            val hookX = (-0.75f-0.40) * scaling
+            val hookX = -(-0.75f-0.40) * scaling
             val hookY = (8f/16f-0.50) * scaling
             val hookZ = 0.58 * scaling
 
+            val storageX = 0.5 * scaling
+            val storageZ = 0.0
+
             val t = (1f-animationProgress)
-            val fishX = hookX * t
-            val fishZ = hookZ * t
+            val fishX = hookX * t + (1f-t) * storageX
+            val fishZ = hookZ * t + (1f-t) * storageZ
             val alpha = (t * (t-1.0))*4.0
             val fishY = hookY * alpha + 0.5f * (1f-alpha)
             matrixStack.pushPose()
