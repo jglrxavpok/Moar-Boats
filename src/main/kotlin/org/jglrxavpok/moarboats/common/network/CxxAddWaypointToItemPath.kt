@@ -44,7 +44,6 @@ abstract class CxxAddWaypointToItemPath(): MoarBoatsPacket {
                     message.insertionIndex)
             val answer = createResponse(message, ctx, data)
             MoarBoats.network.send(PacketDistributor.ALL.noArg(), answer)
-            MoarBoats.network.send(PacketDistributor.ALL.noArg(), SConfirmWaypointCreation(data))
             return null
         }
 

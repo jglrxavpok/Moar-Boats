@@ -45,6 +45,7 @@ class GuiWaypointEditor(val player: Player, val te: TileEntityMappingTable, val 
         storeIntoNBT()
         MoarBoats.network.sendToServer(CModifyWaypoint(te, index, waypointData))
         mc.setScreen(parent)
+        parent.reload()
     }
     private val cancelButton = Button(0, 0, 150, 20, cancelText/*.formatted()*/) {
         mc.setScreen(parent)

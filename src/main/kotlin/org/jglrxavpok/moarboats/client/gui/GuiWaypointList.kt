@@ -122,4 +122,9 @@ class GuiWaypointList(val mc: Minecraft, val parent: GuiMappingTable, width: Int
     override fun getScrollbarPosition(): Int {
         return right - 6
     }
+
+    fun setListTop(top: Int) {
+        y0 = top
+        y1 = top + height
+    }
 }

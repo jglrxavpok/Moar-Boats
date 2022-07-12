@@ -11,9 +11,11 @@ import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 class SSetGoldenItinerary(): ServerMoarBoatsPacket {
 
     lateinit var data: ItemGoldenTicket.WaypointData
+    var openEditMenuOfMappingTable: Boolean = false
 
-    constructor(data: ItemGoldenTicket.WaypointData): this() {
+    constructor(data: ItemGoldenTicket.WaypointData, openEditMenuOfMappingTable: Boolean): this() {
         this.data = data
+        this.openEditMenuOfMappingTable = openEditMenuOfMappingTable
     }
 
     object Handler: MBMessageHandler<SSetGoldenItinerary, MoarBoatsPacket?> {
@@ -28,7 +30,12 @@ class SSetGoldenItinerary(): ServerMoarBoatsPacket {
             val mc = Minecraft.getInstance()
 
             if(mc.screen is GuiMappingTable) {
-                (mc.screen as GuiMappingTable).reload()
+                if(message.openEditMenuOfMappingTable) {
+                    val mappingTable = Minecraft.getInstance().screen as GuiMappingTable
+                    mappingTable.confirmWaypointCreation(message.data.backingList)
+                } else {
+                    (mc.screen as GuiMappingTable).reload()
+                }
             }
             return null
         }

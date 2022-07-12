@@ -47,7 +47,7 @@ class CRemoveWaypointFromGoldenTicketFromMappingTable: CxxRemoveWaypointToItemPa
         override fun createResponse(message: CRemoveWaypointFromGoldenTicketFromMappingTable, ctx: NetworkEvent.Context, waypointList: ListTag): SSetGoldenItinerary? {
             val stack = getStack(message, ctx) ?: return null
             val data = ItemGoldenTicket.getData(stack)
-            return SSetGoldenItinerary(data)
+            return SSetGoldenItinerary(data, false)
         }
 
     }

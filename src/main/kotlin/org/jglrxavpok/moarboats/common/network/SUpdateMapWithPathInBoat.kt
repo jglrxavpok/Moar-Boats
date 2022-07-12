@@ -12,9 +12,9 @@ class SUpdateMapWithPathInBoat: SxxUpdateMapWithPath {
 
     var boatID: Int = 0
 
-    constructor()
+    constructor(): super(false)
 
-    constructor(list: ListTag, boatID: Int): super(list) {
+    constructor(list: ListTag, boatID: Int): super(list, false) {
         this.boatID = boatID
     }
 

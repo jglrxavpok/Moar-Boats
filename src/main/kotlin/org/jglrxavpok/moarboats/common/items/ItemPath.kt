@@ -114,12 +114,11 @@ class ItemGoldenTicket: ItemPath("golden_ticket") {
             val data = WaypointData(uuid)
             data.backingList = list
             data.loopingOption = option
-            data.mapID = mapID
             mapStorage.set(WaypointData.makeKey(data), data)
 
             DistExecutor.callWhenOn(Dist.DEDICATED_SERVER) {
                 Callable<Unit> {
-                    MoarBoats.network.send(PacketDistributor.ALL.noArg(), SSetGoldenItinerary(data))
+                    MoarBoats.network.send(PacketDistributor.ALL.noArg(), SSetGoldenItinerary(data, false))
                 }
             }
         }
@@ -128,16 +127,17 @@ class ItemGoldenTicket: ItemPath("golden_ticket") {
             val mapStorage = MoarBoats.getLocalMapStorage()
             val uuid = getUUID(stack)
             val uuidString = uuid.toString()
-            var data = mapStorage.get({WaypointData(uuidString)}, uuidString)
+            val key = ItemGoldenTicket.WaypointData.makeKey(uuidString)
+            var data = mapStorage.get({WaypointData(uuidString)}, key)
             if(data == null) {
                 data = WaypointData(uuidString)
-                mapStorage.set(WaypointData.makeKey(data), data)
+                mapStorage.set(key, data)
             }
             return data
         }
 
         fun loadWaypointData(nbt: CompoundTag): WaypointData {
-            val result = WaypointData(nbt.getString("uuid"))
+            val result = WaypointData(nbt.getString("${MoarBoats.ModID}.uuid"))
             result.backingList = nbt.getList("${MoarBoats.ModID}.path", Tag.TAG_COMPOUND.toInt())
             if(nbt.getBoolean("${MoarBoats.ModID}.loops")) { // retro-compatibility
                 result.loopingOption = LoopingOptions.Loops
@@ -145,8 +145,6 @@ class ItemGoldenTicket: ItemPath("golden_ticket") {
             if(nbt.contains("${MoarBoats.ModID}.loopingOption")) {
                 result.loopingOption = LoopingOptions.values()[nbt.getInt("${MoarBoats.ModID}.loopingOption").coerceIn(LoopingOptions.values().indices)]
             }
-
-            result.mapID = nbt.getString("${MoarBoats.ModID}.mapID")
             return result
         }
     }
@@ -155,7 +153,6 @@ class ItemGoldenTicket: ItemPath("golden_ticket") {
 
         var backingList = ListTag()
         var loopingOption = LoopingOptions.NoLoop
-        var mapID = ""
 
         companion object {
             fun makeKey(uuid: String): String {
@@ -174,7 +171,7 @@ class ItemGoldenTicket: ItemPath("golden_ticket") {
         override fun save(compound: CompoundTag): CompoundTag {
             compound.put("${MoarBoats.ModID}.path", backingList)
             compound.putInt("${MoarBoats.ModID}.loopingOption", loopingOption.ordinal)
-            compound.putString("${MoarBoats.ModID}.mapID", mapID)
+            compound.putString("${MoarBoats.ModID}.uuid", uuid)
             return compound
         }
     }

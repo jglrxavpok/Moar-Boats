@@ -39,7 +39,6 @@ object MoarBoatsPacketList {
                 CRemoveWaypointFromGoldenTicketFromBoat.Handler,
                 CAddWaypointToGoldenTicketFromMappingTable.Handler,
                 CAddWaypointToGoldenTicketFromBoat.Handler,
-                SConfirmWaypointCreation.Handler,
                 CModifyWaypoint.Handler,
                 CChangeLoopingStateItemPathBoat.Handler,
                 CChangeLoopingStateItemPathMappingTable.Handler,

@@ -37,14 +37,14 @@ interface MoarBoatsPacket {
     @Target(AnnotationTarget.PROPERTY, AnnotationTarget.FIELD)
     @Retention(AnnotationRetention.RUNTIME)
     /**
-     * Allows a packet class to define fields that will not be serialized
+     * Allows a packet class to define fields that may not be serialized if absent
      */
     annotation class Nullable
 
     @Target(AnnotationTarget.PROPERTY, AnnotationTarget.FIELD)
     @Retention(AnnotationRetention.RUNTIME)
     /**
-     * Allows a packet class to define fields that will not be serialized
+     * Allows a packet class to define fields that represent a list of item stacks
      */
     annotation class ItemStackList
 

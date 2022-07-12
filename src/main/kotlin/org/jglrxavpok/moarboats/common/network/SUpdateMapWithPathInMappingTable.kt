@@ -14,9 +14,9 @@ class SUpdateMapWithPathInMappingTable: SxxUpdateMapWithPath {
     var tileEntityY: Int = 0
     var tileEntityZ: Int = 0
 
-    constructor()
+    constructor(): super(true)
 
-    constructor(list: ListTag, tileEntityX: Int, tileEntityY: Int, tileEntityZ: Int): super(list) {
+    constructor(list: ListTag, tileEntityX: Int, tileEntityY: Int, tileEntityZ: Int): super(list, true) {
         this.tileEntityX = tileEntityX
         this.tileEntityY = tileEntityY
         this.tileEntityZ = tileEntityZ

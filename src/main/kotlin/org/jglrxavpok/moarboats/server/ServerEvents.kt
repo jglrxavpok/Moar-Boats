@@ -29,7 +29,7 @@ object ServerEvents {
                 if(!ItemGoldenTicket.isEmpty(itemstack)) {
                     if(player.tickCount % 5 == 0) { // send every 5 ticks
                         val data = ItemGoldenTicket.getData(itemstack)
-                        MoarBoats.network.send(PacketDistributor.PLAYER.with {player}, SSetGoldenItinerary(data))
+                        MoarBoats.network.send(PacketDistributor.PLAYER.with {player}, SSetGoldenItinerary(data, false))
                     }
                 }
             }

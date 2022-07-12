@@ -35,7 +35,7 @@ class CChangeLoopingStateItemPathBoat: CChangeLoopingStateBase {
                 if(item is ItemPath) {
                     item.setLoopingOptions(stack, message.loopingOption)
                     when(item) {
-                        is ItemGoldenTicket -> return SSetGoldenItinerary(ItemGoldenTicket.getData(stack))
+                        is ItemGoldenTicket -> return SSetGoldenItinerary(ItemGoldenTicket.getData(stack), false)
                         is MapItemWithPath -> return SUpdateMapWithPathInBoat(item.getWaypointData(stack, MoarBoats.getLocalMapStorage()), boatID)
                     }
                 }

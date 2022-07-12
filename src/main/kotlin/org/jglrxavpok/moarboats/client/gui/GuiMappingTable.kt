@@ -5,7 +5,6 @@ import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
-import net.minecraft.core.NonNullList
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.inventory.AbstractContainerMenu
 import net.minecraft.world.item.ItemStack
@@ -73,7 +72,11 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
     private val controls = listOf(addWaypointButton, insertWaypointButton, editWaypointButton, removeWaypointButton)
     private var waypointToEditAfterCreation = 0
 
-    var list: GuiWaypointList = GuiWaypointList(mc, this, 1, 1, 0, 0, 1) // not using lateinit because sometimes drawScreen/updateScreen are called before init
+    var list: GuiWaypointList = GuiWaypointList(mc, this,
+        (xSize*.90f).toInt(),
+        85,
+        1,
+        1, 20)
 
     private var hasData = false
     var selectedIndex: Int = 0
@@ -82,13 +85,16 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
     override fun init() {
         this.height = 114 + 6 * 18
         super.init()
-        val totalWidth = xSize*.90f
-        val xStart = (xSize-totalWidth)/2f+guiLeft
-        val listWidth = totalWidth.toInt()
-        val listHeight = 85
-        val listLeft = xStart.toInt()
-        val listTop = guiTop + 28 // margins
-        list = GuiWaypointList(mc, this, listWidth, listHeight, listTop, listLeft, 20)
+
+        val listTop = guiTop + 28
+        list.setLeftPos(((xSize-xSize*.90f)/2f+guiLeft).toInt())
+        list.setListTop(listTop)
+
+        val totalWidth = list.width
+        val xStart = list.left
+        val listHeight = list.height
+
+
         // TODO:
         // add button to use GuiPathEditor
 
