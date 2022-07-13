@@ -102,7 +102,7 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
         poseStack.pushPose()
         poseStack.translate(0.0, 0.375, 0.0)
         if(entity.isEntityInLava())
-            setTranslation(poseStack, entity, 0.0, 0.20, 0.0)
+            poseStack.translate(0.0, BasicBoatEntity.LavaOffset, 0.0)
 
         setRotation(poseStack, entity, entityYaw, partialTicks)
 
@@ -119,6 +119,10 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
         renderBoat(entity, poseStack, bufferIn, packedLightIn, color[0], color[1], color[2], 1.0f)
         poseStack.popPose()
 
+        postModelRender(entity, entityYaw, partialTicks, poseStack, bufferIn, packedLightIn)
+
+        if(entity.isEntityInLava())
+            poseStack.translate(0.0, -BasicBoatEntity.LavaOffset, 0.0)
 
         // TODO: capability for item
         if(Minecraft.getInstance().player?.isHolding({ stack -> stack.item is RopeItem }) ?: false) {
@@ -139,7 +143,6 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
         }
 
         renderLink(RenderInfo(poseStack, bufferIn, packedLightIn), entity, entityYaw, partialTicks)
-        postModelRender(entity, entityYaw, partialTicks, poseStack, bufferIn, packedLightIn)
         poseStack.popPose()
         super.render(entity, entityYaw, partialTicks, poseStack, bufferIn, packedLightIn)
     }
@@ -272,10 +275,6 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
         }
 
         matrixStack.popPose()
-    }
-
-    private fun setTranslation(matrixStack: PoseStack, entity: T, x: Double, y: Double, z: Double) {
-        matrixStack.translate(x, y + 0.375f, z)
     }
 
     private fun setRotation(matrixStack: PoseStack, entity: T, entityYaw: Float, partialTicks: Float) {
