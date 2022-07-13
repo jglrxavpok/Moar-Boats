@@ -37,31 +37,6 @@ object ServerEvents {
     }
 
     @SubscribeEvent
-    fun onWorldLoad(event: LevelEvent.Load) {
-        val world = (event.level as? ServerLevel) ?: return
-        val chunks = world.dataStorage.computeIfAbsent(::ForcedChunkList, ::ForcedChunkList, ForcedChunkList.getId())
-        for(nbt in chunks.list) {
-            nbt as CompoundTag
-            val chunks = ForcedChunks(world)
-            chunks.read(nbt)
-            chunks.forceAfterWorldLoad()
-        }
-    }
-
-    @SubscribeEvent
-    fun onWorldSave(event: LevelEvent.Save) {
-        val world = (event.level as? ServerLevel) ?: return
-        val boats = world.getEntities<ModularBoatEntity>(EntityEntries.ModularBoat.get()) { ChunkLoadingModule in (it as ModularBoatEntity).modules }.map { it as ModularBoatEntity }
-        val nbtList = ListTag()
-        boats.forEach {
-            nbtList.add(it.forcedChunks.write(CompoundTag()))
-        }
-
-        world.dataStorage.set(ForcedChunkList.getId(), ForcedChunkList(nbtList))
-        world.dataStorage.save()
-    }
-
-    @SubscribeEvent
     fun initDedicatedServer(event: ServerStartingEvent) {
         MoarBoats.dedicatedServerInstance = event.server
     }

@@ -108,7 +108,7 @@ class ModularBoatEntity(entityType: EntityType<out ModularBoatEntity>, world: Le
     private val itemHandler = InvWrapper(this)
     private val moduleInventories = hashMapOf<ResourceLocation, BoatModuleInventory>()
 
-    val forcedChunks = ForcedChunks(world)
+    val forcedChunks = ForcedChunks(world, this)
 
     var color = DyeColor.WHITE // white by default
         private set

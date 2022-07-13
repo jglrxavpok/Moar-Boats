@@ -3,15 +3,18 @@ package org.jglrxavpok.moarboats.common.data
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
 import net.minecraft.nbt.Tag
+import net.minecraft.world.entity.Entity
 import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.Level
+import net.minecraftforge.common.world.ForgeChunkManager
+import org.jglrxavpok.moarboats.MoarBoats
 
 private typealias ChunkCompactPosition = Long
 
 /**
  * Responsible for holding a set of forced-loaded chunks. Ensures chunk forced through this object are unforced 10 seconds after
  */
-class ForcedChunks(val world: Level) {
+class ForcedChunks(val world: Level, val owner: Entity) {
 
     /**
      * A forced chunk with its last-updated timestamp
@@ -33,7 +36,9 @@ class ForcedChunks(val world: Level) {
         chunk.resetTimestamp()
         val dimensiontype = world.dimension()
         val ServerLevel = world.server!!.getLevel(dimensiontype) ?: error("Server world is null?? Dimension is $dimensiontype")
-        ServerLevel.setChunkForced(ChunkPos.getX(position), ChunkPos.getZ(position), true)
+        val chunkX = ChunkPos.getX(position)
+        val chunkZ = ChunkPos.getZ(position)
+        ForgeChunkManager.forceChunk(ServerLevel, MoarBoats.ModID, owner, chunkX, chunkZ, true, true)
     }
 
     fun forceAfterWorldLoad() {
@@ -99,7 +104,8 @@ class ForcedChunks(val world: Level) {
         positions.forEach {
             val x = ChunkPos.getX(it)
             val z = ChunkPos.getZ(it)
-            ServerLevel.setChunkForced(x, z, false)
+
+            ForgeChunkManager.forceChunk(ServerLevel, MoarBoats.ModID, owner, x, z, false, true)
         }
     }
 }

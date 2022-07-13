@@ -9,7 +9,7 @@ class ForcedChunkList: SavedData {
 
     companion object {
         fun getId(): String {
-            return "moarboats:forced_chunks"
+            return "moarboats_forced_chunks"
         }
     }
 
