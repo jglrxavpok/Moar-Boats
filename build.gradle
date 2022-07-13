@@ -39,6 +39,13 @@ sourceSets {
         resources {
             srcDirs "src/generated/resources", "src/main/resources"
         }
+        kotlin {
+            var dirs = ["src/main/kotlin"]
+            if(journeymap_integration) {
+                dirs += "src/integrations/journeymap"
+            }
+            srcDirs dirs
+        }
     }
 }
 
@@ -128,14 +135,21 @@ minecraft {
 }
 
 repositories {
-    maven { url 'https://minecraft.curseforge.com/api/maven/' }
-    maven {
-        url "https://maven.tterrag.com/"
-    }
     maven {
         name = 'kotlinforforge'
         url = 'https://thedarkcolour.github.io/KotlinForForge/'
     }
+
+    // JourneyMap API releases are here
+    maven {
+        name = "JourneyMap (Public)"
+        url = "https://jm.gserv.me/repository/maven-public/"
+    }
+    maven {
+        url "https://www.cursemaven.com"
+    }
+
+    mavenCentral()
     //maven { url 'https://maven.blamejared.com' } // Patchouli
     mavenLocal() // Patchouli, built from https://github.com/Minecraftschurli/Patchouli, until it works with Forge 41.0.94+
 }
@@ -150,8 +164,15 @@ dependencies {
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     minecraft 'net.minecraftforge:forge:1.19-41.0.98'
 
-    compileOnly fg.deobf("vazkii.patchouli:Patchouli:$patchouliVersion:api")
-    runtimeOnly fg.deobf("vazkii.patchouli:Patchouli:$patchouliVersion")
+    if(patchouli_integration) {
+        compileOnly fg.deobf("vazkii.patchouli:Patchouli:$patchouli_version:api")
+        runtimeOnly fg.deobf("vazkii.patchouli:Patchouli:$patchouli_version")
+    }
+
+    if(journeymap_integration) {
+        compileOnly fg.deobf(group: 'info.journeymap', name: 'journeymap-api', version: journeymap_api_version, changing: true)
+        runtimeOnly fg.deobf("curse.maven:journeymap-$journeymap_runtime_version")
+    }
 
     // You may put jars on which you depend on in ./libs or you may define them like so..
     // compile "some.group:artifact:version:classifier"

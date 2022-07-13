@@ -1,4 +1,4 @@
-package org.jglrxavpok.moarboats.integration
+package org.jglrxavpok.moarboats.api
 
 import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.player.Player
@@ -16,4 +16,4 @@ interface IWaypointProvider {
     fun updateList(player: Player) {}
 }
 
-data class WaypointInfo(val name: String, val x: Int, val z: Int, val boost: Double?)
+data class WaypointInfo(val origin: String, val name: String, val x: Int, val z: Int, val boost: Double?)

@@ -9,9 +9,9 @@ import net.minecraft.client.gui.components.ObjectSelectionList
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import org.jglrxavpok.moarboats.client.drawModalRectWithCustomSizedTexture
-import org.jglrxavpok.moarboats.integration.IWaypointProvider
-import org.jglrxavpok.moarboats.integration.WaypointInfo
-import org.jglrxavpok.moarboats.integration.WaypointProviders
+import org.jglrxavpok.moarboats.api.IWaypointProvider
+import org.jglrxavpok.moarboats.api.WaypointInfo
+import org.jglrxavpok.moarboats.api.WaypointProviders
 import org.lwjgl.opengl.GL11
 
 class WaypointInfoEntry(val parent: GuiWaypointEditor, val slot: WaypointInfo, val slotTops: MutableMap<WaypointInfoEntry, Int>, val waypoints: List<WaypointInfoEntry>, val slotHeight: Int): ObjectSelectionList.Entry<WaypointInfoEntry>() {
@@ -58,6 +58,7 @@ class WaypointInfoEntry(val parent: GuiWaypointEditor, val slot: WaypointInfo, v
                 if(slot.boost != null) " (${(slot.boost * 100).toInt()}%)"
                 else ""
         mc.font.draw(matrixStack, text, 0f, 0f, 0xFFFFFF)
+        mc.font.draw(matrixStack, slot.origin, 0f, mc.font.lineHeight.toFloat(), 0xFFFFFF)
         matrixStack.popPose()
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
         slotTops[this] = slotTop
@@ -65,7 +66,7 @@ class WaypointInfoEntry(val parent: GuiWaypointEditor, val slot: WaypointInfo, v
     }
 
     override fun getNarration(): Component {
-        TODO()
+        return Component.empty()
     }
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
@@ -95,6 +96,8 @@ class GuiWaypointEditorList(val mc: Minecraft, val parent: GuiWaypointEditor, wi
 
     init {
         this.setLeftPos(left)
+        setRenderBackground(false)
+        setRenderTopAndBottom(false)
     }
 
     fun compileFromProviders() {
@@ -107,15 +110,10 @@ class GuiWaypointEditorList(val mc: Minecraft, val parent: GuiWaypointEditor, wi
         }
     }
 
-    override fun renderBackground(matrixStack: PoseStack) {
-        blit(matrixStack, left, top, right, bottom, 0, 0)
-    }
-
     override fun render(matrixStack: PoseStack, insideLeft: Int, insideTop: Int, partialTicks: Float) {
-        val scaleX = mc.window.width/mc.window.guiScaledHeight.toDouble()
         val scaleY = mc.window.height/mc.window.guiScaledHeight.toDouble()
         GL11.glEnable(GL11.GL_SCISSOR_TEST)
-        GL11.glScissor((left * scaleX).toInt(), ((mc.window.guiScaledHeight - top - height) * scaleY).toInt(), (width * scaleX).toInt(), (height * scaleY).toInt())
+        GL11.glScissor(0, ((mc.window.guiScaledHeight - top - height) * scaleY).toInt(), mc.window.width, (height * scaleY).toInt())
         super.render(matrixStack, insideLeft, insideTop, partialTicks)
         GL11.glDisable(GL11.GL_SCISSOR_TEST)
     }

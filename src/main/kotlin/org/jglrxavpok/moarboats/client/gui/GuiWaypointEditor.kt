@@ -10,14 +10,15 @@ import net.minecraft.client.gui.screens.Screen
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.player.Player
+import net.minecraftforge.client.gui.ScreenUtils
 import net.minecraftforge.client.gui.widget.ForgeSlider
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.gui.elements.Checkbox
 import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.network.CModifyWaypoint
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
-import org.jglrxavpok.moarboats.integration.WaypointInfo
-import org.jglrxavpok.moarboats.integration.WaypointProviders
+import org.jglrxavpok.moarboats.api.WaypointInfo
+import org.jglrxavpok.moarboats.api.WaypointProviders
 
 class GuiWaypointEditor(val player: Player, val te: TileEntityMappingTable, val index: Int, val parent: GuiMappingTable): Screen(NarratorChatListener.NO_TITLE) {
 
@@ -120,7 +121,7 @@ class GuiWaypointEditor(val player: Player, val te: TileEntityMappingTable, val 
         val listHeight = (height * .7).toInt()
         val listLeft = width - listWidth.toInt()
         val listTop = 0 + 28 // margins
-        waypointList = GuiWaypointEditorList(mc, this, listWidth.toInt(), listHeight, listTop, listLeft, 20)
+        waypointList = GuiWaypointEditorList(mc, this, listWidth.toInt(), listHeight, listTop, listLeft, 24)
 
         refreshButton.x = listLeft
         refreshButton.y = listTop + listHeight
