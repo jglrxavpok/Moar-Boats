@@ -136,7 +136,8 @@ repositories {
         name = 'kotlinforforge'
         url = 'https://thedarkcolour.github.io/KotlinForForge/'
     }
-    maven { url 'https://maven.blamejared.com' } // Patchouli
+    //maven { url 'https://maven.blamejared.com' } // Patchouli
+    mavenLocal() // Patchouli, built from https://github.com/Minecraftschurli/Patchouli, until it works with Forge 41.0.94+
 }
 
 configurations {
