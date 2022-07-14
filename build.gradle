@@ -46,6 +46,9 @@ sourceSets {
             }
             srcDirs dirs
         }
+        java {
+            srcDirs "src/main/java"
+        }
     }
 }
 

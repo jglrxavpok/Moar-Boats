@@ -517,24 +517,27 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
                 val otherAnchorPos = link.target!!.getWorldPosition(heading)
 
                 val alpha = 0.5f
-                // FIXME: handle case where targetYaw is ~0-180 and yRot is ~180+ (avoid doing a crazy flip)
-                val targetYaw = computeTargetYaw(yRot, anchorPos, otherAnchorPos)
-                yRot = alpha * yRot + targetYaw * (1f - alpha)
 
-                val restingLength = 0.75f
+                val restingLength = 0.5f
                 val d0 = (otherAnchorPos.x - anchorPos.x)
                 val d1 = (otherAnchorPos.y - anchorPos.y)
                 val d2 = (otherAnchorPos.z - anchorPos.z)
                 val length = sqrt(d0 * d0 + d1 * d1 + d2 * d2).coerceAtLeast(0.01)
 
-                val k = -0.03
-                val forceMagnitude = -k * (length - restingLength)
-                val dirX = d0 / length
-                val dirY = d1 / length
-                val dirZ = d2 / length
+                if(length >= restingLength) {
+                    val k = -0.03
+                    val forceMagnitude = -k * (length - restingLength)
+                    val dirX = d0 / length
+                    val dirY = d1 / length
+                    val dirZ = d2 / length
 
-                this.deltaMovement = deltaMovement.add(dirX * forceMagnitude, dirY * forceMagnitude, dirZ * forceMagnitude)
-                canControlItself = false
+                    this.deltaMovement = deltaMovement.add(dirX * forceMagnitude, dirY * forceMagnitude, dirZ * forceMagnitude)
+                    canControlItself = false
+
+                    // FIXME: handle case where targetYaw is ~0-180 and yRot is ~180+ (avoid doing a crazy flip)
+                    val targetYaw = computeTargetYaw(yRot, anchorPos, otherAnchorPos)
+                    yRot = alpha * yRot + targetYaw * (1f - alpha)
+                }
             }
         }
         this.updateMotion()
