@@ -55,6 +55,7 @@ import org.jglrxavpok.moarboats.extensions.toDegrees
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.max
+import kotlin.math.sqrt
 
 abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Level): Entity(type, world), IControllable,
     IEntityAdditionalSpawnData {
@@ -79,7 +80,6 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
             zOld = z
 
             val wantedPos = cleat.getWorldPosition(parent)
-            syncPacketPositionCodec(wantedPos.x, wantedPos.y, wantedPos.z) // TODO Forge updated, might not be necessary anymore
             setPos(wantedPos.x, wantedPos.y, wantedPos.z)
         }
 
@@ -497,7 +497,6 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
         }
 
         // ensures client always has the proper location
-        // TODO: Forge updated, might not be necessary anymore
         if (this.isControlledByLocalInstance) {
             syncPacketPositionCodec(this.x, this.y, this.z)
         }
@@ -514,25 +513,28 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
             val link = getLink(cleat)
             val heading = link.targetEntity
             if(heading != null) {
-                val f = distanceTo(heading)
-                if (f > 3.0f) {
-                    canControlItself = false
+                val anchorPos = cleat.getWorldPosition(this)
+                val otherAnchorPos = link.target!!.getWorldPosition(heading)
 
-                    val d1 = (heading.y - this.y) / f.toDouble()
-                    val d2 = (heading.z - this.z) / f.toDouble()
-                    val d0 = (heading.x - this.x) / f.toDouble()
-                    val alpha = 0.5f
+                val alpha = 0.5f
+                // FIXME: handle case where targetYaw is ~0-180 and yRot is ~180+ (avoid doing a crazy flip)
+                val targetYaw = computeTargetYaw(yRot, anchorPos, otherAnchorPos)
+                yRot = alpha * yRot + targetYaw * (1f - alpha)
 
-                    val anchorPos = cleat.getWorldPosition(this)
-                    val otherAnchorPos = link.target!!.getWorldPosition(heading)
+                val restingLength = 0.75f
+                val d0 = (otherAnchorPos.x - anchorPos.x)
+                val d1 = (otherAnchorPos.y - anchorPos.y)
+                val d2 = (otherAnchorPos.z - anchorPos.z)
+                val length = sqrt(d0 * d0 + d1 * d1 + d2 * d2).coerceAtLeast(0.01)
 
-                    // FIXME: handle case where targetYaw is ~0-180 and yRot is ~180+ (avoid doing a crazy flip)
-                    val targetYaw = computeTargetYaw(yRot, anchorPos, otherAnchorPos)
-                    yRot = alpha * yRot + targetYaw * (1f - alpha)
+                val k = -0.03
+                val forceMagnitude = -k * (length - restingLength)
+                val dirX = d0 / length
+                val dirY = d1 / length
+                val dirZ = d2 / length
 
-                    val speed = 0.2
-                    this.deltaMovement = deltaMovement.add(d0 * abs(d0) * speed, d1 * abs(d1) * speed, d2 * abs(d2) * speed)
-                }
+                this.deltaMovement = deltaMovement.add(dirX * forceMagnitude, dirY * forceMagnitude, dirZ * forceMagnitude)
+                canControlItself = false
             }
         }
         this.updateMotion()

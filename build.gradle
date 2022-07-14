@@ -25,7 +25,7 @@ apply plugin: 'maven-publish'
 
 apply from: "https://raw.githubusercontent.com/thedarkcolour/KotlinForForge/site/thedarkcolour/kotlinforforge/gradle/kff-${kffVersion}.gradle"
 
-version = "1.19-9.0.0.0-indev"
+version = "1.19-9.0.0.0-indev3"
 group = "org.jglrxavpok.moarboats" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "moarboats"
 
@@ -149,6 +149,10 @@ repositories {
         url "https://www.cursemaven.com"
     }
 
+    flatDir {
+        dirs 'run/obfmods'
+    }
+
     mavenCentral()
     //maven { url 'https://maven.blamejared.com' } // Patchouli
     mavenLocal() // Patchouli, built from https://github.com/Minecraftschurli/Patchouli, until it works with Forge 41.0.94+
@@ -173,6 +177,13 @@ dependencies {
         compileOnly fg.deobf(group: 'info.journeymap', name: 'journeymap-api', version: journeymap_api_version, changing: true)
         runtimeOnly fg.deobf("curse.maven:journeymap-$journeymap_runtime_version")
     }
+
+    runtimeOnly fg.deobf('local:badpackets:forge-0.1.2')
+    runtimeOnly fg.deobf('local:EdivadLib:1.19-1.0.2')
+    runtimeOnly fg.deobf('local:jei:1.19-forge-11.0.0.211')
+    runtimeOnly fg.deobf('local:pipez:1.19-1.0.5')
+    runtimeOnly fg.deobf('local:SolarGeneration:1.19-5.0.1')
+    runtimeOnly fg.deobf('local:wthit:forge-5.6.1')
 
     // You may put jars on which you depend on in ./libs or you may define them like so..
     // compile "some.group:artifact:version:classifier"

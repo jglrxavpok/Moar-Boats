@@ -4,5 +4,6 @@
     "version": 1,
     "model": "moarboats:guide",
     "creative_tab": "moarboats",
-    "i18n": true
+    "i18n": true,
+    "use_blocky_font": true
 }

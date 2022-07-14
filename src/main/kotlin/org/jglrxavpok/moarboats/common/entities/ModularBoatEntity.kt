@@ -489,6 +489,7 @@ class ModularBoatEntity(entityType: EntityType<out ModularBoatEntity>, world: Le
         stack.hoverName = Component.translatable("moarboats.item.modular_boat.copy", stack.displayName)
         val boatData = stack.getOrCreateTagElement("boat_data")
         addAdditionalSaveData(boatData)
+        boatData.remove("links")
         stack.addTagElement("boat_data", boatData)
         return stack
     }
