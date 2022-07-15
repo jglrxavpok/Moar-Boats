@@ -3,7 +3,7 @@
   "textures": {
     "particle": "moarboats:blocks/energy_io_bottom",
     "down": "moarboats:blocks/energy_io_bottom",
-    "up": "moarboats:blocks/energy_io_top",
+    "up": "moarboats:blocks/energy_loader_top",
     "north": "moarboats:blocks/energy_loader_side",
     "east": "moarboats:blocks/energy_loader_side",
     "south": "moarboats:blocks/energy_loader_side",

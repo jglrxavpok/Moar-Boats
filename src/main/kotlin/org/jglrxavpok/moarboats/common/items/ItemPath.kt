@@ -125,10 +125,10 @@ class ItemGoldenTicket: ItemPath("golden_ticket") {
 
         fun getData(stack: ItemStack): WaypointData {
             val mapStorage = MoarBoats.getLocalMapStorage()
-            val uuid = getUUID(stack)
+            val uuid = getUUID(stack) ?: return WaypointData("EMPTY")
             val uuidString = uuid.toString()
             val key = ItemGoldenTicket.WaypointData.makeKey(uuidString)
-            var data = mapStorage.get({WaypointData(uuidString)}, key)
+            var data = mapStorage.get({loadWaypointData(it).apply { this.uuid = uuidString }}, key)
             if(data == null) {
                 data = WaypointData(uuidString)
                 mapStorage.set(key, data)
@@ -156,7 +156,7 @@ class ItemGoldenTicket: ItemPath("golden_ticket") {
 
         companion object {
             fun makeKey(uuid: String): String {
-                return "moarboats:waypoint_data_$uuid"
+                return "moarboats_golden_ticket_$uuid"
             }
 
             fun makeKey(data: WaypointData): String {

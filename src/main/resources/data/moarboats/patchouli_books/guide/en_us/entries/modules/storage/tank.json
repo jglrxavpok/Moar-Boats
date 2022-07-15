@@ -7,7 +7,7 @@
         {
             "type": "moarboats:module",
             "module": "fluid_tank",
-            "state": "{fluid_name:lava, fluid_amount:5000}",
+            "state": "{\"moarboats:fluid_tank\": {fluid_amount: 8000, fluid_name: \"minecraft:lava\"}}",
             "spot": "storage"
         },
         {

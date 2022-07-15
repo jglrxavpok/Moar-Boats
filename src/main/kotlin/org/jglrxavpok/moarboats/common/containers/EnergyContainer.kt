@@ -1,7 +1,7 @@
 package org.jglrxavpok.moarboats.common.containers
 
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.inventory.DataSlot
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityEnergy
 
@@ -12,7 +12,8 @@ class EnergyContainer(isLoading: Boolean, containerID: Int, val te: TileEntityEn
         ContainerTypes.EnergyDischarger.get()
     }) {
 
-    private var energy = -1
+    var energy = -1
+        private set
     private var energyHolder = object: DataSlot() {
 /*        override fun checkAndClearUpdateFlag(): Boolean {
             return energy != te.energy
@@ -35,5 +36,14 @@ class EnergyContainer(isLoading: Boolean, containerID: Int, val te: TileEntityEn
     override fun removed(playerIn: Player?) {
         super.removed(playerIn)
         te.removeContainerListener(this)
+    }
+
+    override fun broadcastChanges() {
+        super.broadcastChanges()
+        if(player !is ServerPlayer)
+            return
+        val teEnergy = te.energy
+        energyHolder.set(teEnergy)
+        setData(0, teEnergy)
     }
 }

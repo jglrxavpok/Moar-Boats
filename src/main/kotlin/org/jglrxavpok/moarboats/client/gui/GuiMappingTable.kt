@@ -5,14 +5,14 @@ import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
-import net.minecraft.world.entity.player.Inventory
-import net.minecraft.world.inventory.AbstractContainerMenu
-import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.inventory.AbstractContainerMenu
 import net.minecraft.world.inventory.ContainerListener
+import net.minecraft.world.item.ItemStack
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.client.gui.elements.GuiPropertyButton
 import org.jglrxavpok.moarboats.common.containers.ContainerMappingTable
@@ -26,8 +26,7 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
     ContainerListener {
 
     companion object {
-        private val EmptyBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/modules/helm.png")
-        private val Background = ResourceLocation(MoarBoats.ModID, "textures/gui/default_background_large.png")
+        private val Background = ResourceLocation(MoarBoats.ModID, "textures/gui/mapping_table.png")
     }
 
     private val mc = Minecraft.getInstance()
@@ -83,10 +82,10 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
         private set
 
     override fun init() {
-        this.height = 114 + 6 * 18
+        imageHeight = 230
         super.init()
 
-        val listTop = guiTop + 28
+        val listTop = guiTop + 38
         list.setLeftPos(((xSize-xSize*.90f)/2f+guiLeft).toInt())
         list.setListTop(listTop)
 
@@ -111,8 +110,10 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
         }
 
         loopingButton.x = 8 + guiLeft + 30
-        loopingButton.y = guiTop + 6
+        loopingButton.y = guiTop + 16
         addRenderableWidget(loopingButton)
+
+        resetList(menu.getSlot(0).item)
     }
 
     override fun containerTick() {
@@ -150,10 +151,7 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
 
     override fun renderBg(matrixStack: PoseStack, partialTicks: Float, mouseX: Int, mouseY: Int) {
         RenderSystem.setShaderTexture(0, Background)
-        blit(matrixStack, guiLeft, guiTop, 0, 0, this.xSize, this.height)
-
-        RenderSystem.setShaderTexture(0, EmptyBackground)
-        blit(matrixStack, guiLeft, guiTop, 0, 0, this.xSize, height)
+        blit(matrixStack, guiLeft, guiTop, 0, 0, this.xSize, this.imageHeight)
     }
 
     override fun render(matrixStack: PoseStack, mouseX: Int, mouseY: Int, partialTicks: Float) {
@@ -227,4 +225,7 @@ class GuiMappingTable(containerID: Int, val te: TileEntityMappingTable, val play
         resetList(te.inventory.getItem(0))
     }
 
+    override fun renderLabels(poseStack: PoseStack, mouseX: Int, mouseY: Int) {
+        font.draw(poseStack, title, titleLabelX.toFloat(), titleLabelY.toFloat(), 4210752)
+    }
 }

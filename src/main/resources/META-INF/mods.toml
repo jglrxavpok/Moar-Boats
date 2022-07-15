@@ -10,7 +10,7 @@ displayName="Moar Boats" #mandatory
 updateJSONURL="https://raw.githubusercontent.com/jglrxavpok/Moar-Boats/master/updateCheck.json" #optional
 displayURL="https://www.curseforge.com/minecraft/mc-mods/moar-boats" #optional
 logoFile="logo.png" #optional
-credits="DYColdWind for the Chinese translation" #optional
+credits="Instinx for their playtesting and continued support\nDYColdWind for the Chinese translation" #optional
 authors="jglrxavpok" #optional
 description='''
 Adds more uses to boats!

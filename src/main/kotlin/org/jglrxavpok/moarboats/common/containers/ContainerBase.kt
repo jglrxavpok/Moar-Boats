@@ -9,8 +9,12 @@ import net.minecraft.world.item.ItemStack
 
 abstract class ContainerBase<T: AbstractContainerMenu>(val containerRef: MenuType<T>, val containerID: Int, val playerInventory: Inventory): AbstractContainerMenu(containerRef, containerID) {
 
-    protected fun addPlayerSlots(isLarge: Boolean, xStart: Int = 8) {
-        val yOffset = if(isLarge) 3 * 18 +2 else 0
+    protected fun addPlayerSlots(isLarge: Boolean, xStart: Int = 8, customYOffset: Int = 0) {
+        val yOffset =
+            if(customYOffset != 0) customYOffset
+            else {
+                if(isLarge) 3 * 18 +2 else 0
+            }
         for (i in 0..2) {
             for (j in 0..8) {
                 this.addSlot(Slot(playerInventory, j + i * 9 + 9, xStart + j * 18, 84 + i * 18 + yOffset))

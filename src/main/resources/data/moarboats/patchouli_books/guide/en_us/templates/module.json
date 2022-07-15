@@ -25,7 +25,7 @@
         },
         {
             "type": "patchouli:entity",
-            "entity": "moarboats:modular_boat{patchouli_rendering_fix:1b,modules:[{moduleID:'moarboats:#module#',state:#state#}]}",
+            "entity": "moarboats:modular_boat{patchouli_rendering_fix:1b,modules:[{moduleID:'moarboats:#module#'}],state:#state#}",
             "render_size": 75,
             "x": 58,
             "y": 60

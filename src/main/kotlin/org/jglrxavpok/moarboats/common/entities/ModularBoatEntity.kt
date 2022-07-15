@@ -327,10 +327,9 @@ class ModularBoatEntity(entityType: EntityType<out ModularBoatEntity>, world: Le
 
         moduleRNG = RandomSource.create(uuid.leastSignificantBits)
         fun colorFromString(str: String): DyeColor {
-            return DyeColor.values().find { it.name.toLowerCase() == str.toLowerCase() } ?: DyeColor.WHITE
+            return DyeColor.values().find { it.name.toLowerCase() == str.toLowerCase() } ?: error("Unknown color: $str")
         }
-        if(compound.contains("color"))
-            color = colorFromString(compound.getString("color"))
+        color = colorFromString(compound.getString("color"))
 
         if(compound.hasUUID("ownerUUID")) {
             ownerUUID = compound.getUUID("ownerUUID")

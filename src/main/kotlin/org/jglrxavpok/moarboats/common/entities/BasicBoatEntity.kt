@@ -847,8 +847,12 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
     }
 
     override fun readSpawnData(additionalData: FriendlyByteBuf) {
-        val data = additionalData.readNbt()
-        readAdditionalSaveData(data!!)
+        try {
+            val data = additionalData.readNbt()
+            readAdditionalSaveData(data!!)
+        } catch (t: Throwable) {
+            MoarBoats.logger.error("Error in readSpawnData", t)
+        }
     }
 
     override fun writeSpawnData(buffer: FriendlyByteBuf) {

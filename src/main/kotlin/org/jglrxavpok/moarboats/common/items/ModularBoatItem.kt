@@ -178,6 +178,10 @@ abstract class BaseBoatItem(propertiesModifier: Item.Properties.() -> Unit = {})
 
     override fun use(levelIn: Level, playerIn: Player, handIn: InteractionHand): InteractionResultHolder<ItemStack> {
         val itemstack = playerIn.getItemInHand(handIn)
+        if (levelIn.isClientSide) {
+            return InteractionResultHolder.consume(itemstack)
+        }
+
         val f1 = playerIn.xRotO + (playerIn.xRot - playerIn.xRotO) * 1.0f
         val f2 = playerIn.yRotO + (playerIn.yRot - playerIn.yRotO) * 1.0f
         val d0 = playerIn.xOld + (playerIn.x - playerIn.xOld) * 1.0
@@ -218,9 +222,7 @@ abstract class BaseBoatItem(propertiesModifier: Item.Properties.() -> Unit = {})
                 return if (levelIn.getBlockCollisions(entityboat, entityboat.boundingBox.inflate(-0.1)).count() != 0) {
                     InteractionResultHolder(InteractionResult.FAIL, itemstack)
                 } else {
-                    if (!levelIn.isClientSide) {
-                        levelIn.addFreshEntity(entityboat)
-                    }
+                    levelIn.addFreshEntity(entityboat)
 
                     if (!playerIn.isCreative) {
                         itemstack.shrink(1)

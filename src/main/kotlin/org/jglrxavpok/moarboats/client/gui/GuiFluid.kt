@@ -7,7 +7,6 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.level.material.EmptyFluid
 import net.minecraft.world.level.material.Fluid
 import net.minecraft.world.level.material.Fluids
 import net.minecraftforge.fluids.FluidStack
@@ -18,7 +17,7 @@ import org.jglrxavpok.moarboats.common.containers.FluidContainer
 import org.jglrxavpok.moarboats.common.tileentity.TileEntityListenable
 
 class GuiFluid(isLoading: Boolean, containerID: Int, val te: TileEntityListenable, val fluidHandler: IFluidHandler, val player: Player): AbstractContainerScreen<FluidContainer>(FluidContainer(isLoading, containerID, te, fluidHandler, player), player.inventory,
-        Component.translatable("inventory.moarboats.fluid")) {
+        Component.translatable("inventory.moarboats.fluid${if(isLoading) "_loader" else "_unloader"}")) {
 
     private val fluidBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/fluid.png")
     private val defaultBackground = ResourceLocation(MoarBoats.ModID, "textures/gui/default_background.png")
@@ -40,7 +39,10 @@ class GuiFluid(isLoading: Boolean, containerID: Int, val te: TileEntityListenabl
     }
 
     override fun renderLabels(matrixStack: PoseStack, mouseX: Int, mouseY: Int) {
-        super.renderLabels(matrixStack, mouseX, mouseY)
+        val titleWidth = 55 - titleLabelX
+        font.drawWordWrap(title, titleLabelX, titleLabelY, titleWidth, 4210752)
+        font.draw(matrixStack, playerInventoryTitle, inventoryLabelX.toFloat(), inventoryLabelY.toFloat(), 4210752)
+
         val localX = mouseX - guiLeft
         val localY = mouseY - guiTop
         if(localX in 60..(60+55) && localY in 6..(6+75)) {
