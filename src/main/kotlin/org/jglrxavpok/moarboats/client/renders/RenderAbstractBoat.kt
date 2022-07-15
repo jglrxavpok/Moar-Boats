@@ -228,7 +228,7 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
                 matrixStack.pushPose()
                 val d = if(cleat.canTow()) 1.0f else -1.0f
                 matrixStack.scale(d, -1.0f, 1.0f)
-                matrixStack.translate(0.0, 0.0, 1.0 / 16.0)
+                matrixStack.translate(0.0, 0.0, 0.5 / 16.0)
                 val ropeBuffer = renderInfo.buffers.getBuffer(RenderType.entityTranslucent(RopeAnchorTextureLocation))
                 ropeAnchorModel.renderToBuffer(matrixStack, ropeBuffer, renderInfo.combinedLight, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f)
                 matrixStack.popPose()

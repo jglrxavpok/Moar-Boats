@@ -31,19 +31,7 @@ object DivingModuleRenderer: BoatModuleRenderer() {
     ) {
         matrixStack.pushPose()
 
-        val localX = -0.8
-        val localY = 0.25
-        val localZ = 0.74
-        matrixStack.translate(localX, localY, localZ)
-
-        val anchorScale = 0.5f
-        matrixStack.pushPose()
-        matrixStack.scale(anchorScale, -anchorScale, anchorScale)
-        matrixStack.mulPose(Quaternion(0f, 90f, 0f, true))
         bottleModel.renderToBuffer(matrixStack, buffers.getBuffer(RenderType.entityTranslucent(textureLocation)), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f)
-
-
-        matrixStack.popPose()
         matrixStack.popPose()
     }
 

@@ -66,11 +66,11 @@ public class ModularBoatModel<T extends BasicBoatEntity> extends EntityModel<T> 
 		.texOffs(62, 20).mirror().addBox(-0.99F, -4.0F, 8.5F, 1.0F, 6.0F, 7.0F, new CubeDeformation(0.0F)).mirror(false), PartPose.offsetAndRotation(-2.5F, -4.0F, -9.0F, -0.5236F, 3.1416F, 0.0F));
 
 		PartDefinition anchors = partdefinition.addOrReplaceChild("anchors", CubeListBuilder.create().texOffs(112, 0).addBox(15.0F, -29.0F, -3.0F, 1.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
-		.texOffs(112, 3).addBox(15.0F, -29.0F, 1.0F, 1.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
-		.texOffs(112, 0).addBox(15.0F, -30.0F, -4.0F, 1.0F, 1.0F, 7.0F, new CubeDeformation(0.0F))
-		.texOffs(112, 8).addBox(-16.0F, -30.0F, -4.0F, 1.0F, 1.0F, 7.0F, new CubeDeformation(0.0F))
-		.texOffs(112, 8).addBox(-16.0F, -29.0F, -3.0F, 1.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
-		.texOffs(112, 11).addBox(-16.0F, -29.0F, 1.0F, 1.0F, 2.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 24.0F, 0.0F));
+		.texOffs(112, 3).addBox(15.0F, -29.0F, 2.0F, 1.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
+		.texOffs(110, 0).addBox(15.0F, -30.0F, -4.0F, 1.0F, 1.0F, 8.0F, new CubeDeformation(0.0F))
+		.texOffs(110, 9).addBox(-16.0F, -30.0F, -4.0F, 1.0F, 1.0F, 8.0F, new CubeDeformation(0.0F))
+		.texOffs(112, 9).addBox(-16.0F, -29.0F, -3.0F, 1.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
+		.texOffs(112, 12).addBox(-16.0F, -29.0F, 2.0F, 1.0F, 2.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 24.0F, 0.0F));
 
 		PartDefinition water_occlusion = partdefinition.addOrReplaceChild("water_occlusion", CubeListBuilder.create().texOffs(0, 0).addBox(-14.0F, -27.0F, -8.0F, 28.0F, 6.0F, 16.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 24.0F, 0.0F));
 

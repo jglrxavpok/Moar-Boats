@@ -5,6 +5,7 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.InteractionHand
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.core.BlockPos
+import net.minecraft.tags.BlockTags
 import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.IceBlock
@@ -43,14 +44,11 @@ object IceBreakerModule: BoatModule() {
             val center = box.bounds().center
             blockPos.set(center.x, center.y, center.z)
             val blockAtCenter = level.getBlockState(blockPos)
-            if(blockAtCenter.block is IceBlock) {
+            if(blockAtCenter.`is`(BlockTags.ICE)) {
                 var progress = getBreakProgress(from, blockPos)
                 progress += (blockAtCenter.getDestroySpeed(level, blockPos) / 20f)
                 if(progress < 1.0f) {
                     setBreakProgress(from, blockPos, progress)
-                    val blockIndex = getBlockIndex(from, blockPos)
-                    val fakeEntityID = -from.entityID*(blockIndex) // hack to allow for multiple blocks to be broken by the same entity
-                    level.destroyBlockProgress(fakeEntityID, BlockPos(blockPos), (progress * 10f).toInt())
                 } else {
                     clearBreakProgress(from, blockPos)
                     level.setBlockAndUpdate(blockPos, Blocks.WATER.defaultBlockState())
@@ -90,7 +88,6 @@ object IceBreakerModule: BoatModule() {
                     val y = positions[1]
                     val z = positions[2]
                     pos.set(x, y, z)
-                    boat.worldRef.destroyBlockProgress(boat.entityID, pos, -1)
                     clearBreakProgress(boat, pos)
                 }
             }
