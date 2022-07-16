@@ -25,7 +25,7 @@ class MoarBoatsPlugin: IClientPlugin, IWaypointProvider {
         return MoarBoats.ModID
     }
 
-    override fun onEvent(p0: ClientEvent) {
+    override fun onEvent(event: ClientEvent) {
         // don't care
     }
 

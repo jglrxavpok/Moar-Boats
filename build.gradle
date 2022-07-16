@@ -25,7 +25,7 @@ apply plugin: 'maven-publish'
 
 apply from: "https://raw.githubusercontent.com/thedarkcolour/KotlinForForge/site/thedarkcolour/kotlinforforge/gradle/kff-${kffVersion}.gradle"
 
-version = "1.19-9.0.0.0-indev4"
+version = "${mc_version}-9.0.0.0-indev4"
 group = "org.jglrxavpok.moarboats" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "moarboats"
 
@@ -43,6 +43,9 @@ sourceSets {
             var dirs = ["src/main/kotlin"]
             if(journeymap_integration) {
                 dirs += "src/integrations/journeymap"
+            }
+            if(jei_integration) {
+                dirs += "src/integrations/jei"
             }
             srcDirs dirs
         }
@@ -152,6 +155,18 @@ repositories {
         url "https://www.cursemaven.com"
     }
 
+    // JEI API
+    maven {
+        // location of the maven that hosts JEI files
+        name = "Progwml6 maven"
+        url = "https://dvs1.progwml6.com/files/maven/"
+    }
+    maven {
+        // location of a maven mirror for JEI files, as a fallback
+        name = "ModMaven"
+        url = "https://modmaven.dev"
+    }
+
     flatDir {
         dirs 'run/obfmods'
     }
@@ -181,9 +196,15 @@ dependencies {
         runtimeOnly fg.deobf("curse.maven:journeymap-$journeymap_runtime_version")
     }
 
+    if(jei_integration) {
+        compileOnly fg.deobf("mezz.jei:jei-${mc_version}-common-api:${jei_version}")
+        compileOnly fg.deobf("mezz.jei:jei-${mc_version}-forge-api:${jei_version}")
+        // at runtime, use the full JEI jar for Forge
+        runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}-forge:${jei_version}")
+    }
+
     runtimeOnly fg.deobf('local:badpackets:forge-0.1.2')
     runtimeOnly fg.deobf('local:EdivadLib:1.19-1.0.2')
-    runtimeOnly fg.deobf('local:jei:1.19-forge-11.0.0.211')
     runtimeOnly fg.deobf('local:pipez:1.19-1.0.5')
     runtimeOnly fg.deobf('local:SolarGeneration:1.19-5.0.1')
     runtimeOnly fg.deobf('local:wthit:forge-5.6.1')
