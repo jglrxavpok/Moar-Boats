@@ -55,13 +55,6 @@ class FurnaceBoatEntity(entityType: EntityType<out FurnaceBoatEntity>, world: Le
         val furnaceData = getBackingTileEntity()!!.dataAccess
         return UtilityFurnaceContainer(p0, p1, getBackingTileEntity(), furnaceData)
     }
-
-    override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
-        super.dropItemsOnDeath(killedByPlayerInCreative)
-        if(!killedByPlayerInCreative) {
-            spawnAtLocation(ItemStack(Items.FURNACE))
-        }
-    }
 }
 
 class BlastFurnaceBoatEntity(entityType: EntityType<out BlastFurnaceBoatEntity>, world: Level): AbstractFurnaceBoatEntity<BlastFurnaceBlockEntity, UtilityBlastFurnaceContainer>(entityType, world) {
@@ -91,13 +84,6 @@ class BlastFurnaceBoatEntity(entityType: EntityType<out BlastFurnaceBoatEntity>,
         val furnaceData = getBackingTileEntity()!!.dataAccess
         return UtilityBlastFurnaceContainer(p0, p1, getBackingTileEntity(), furnaceData)
     }
-
-    override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
-        super.dropItemsOnDeath(killedByPlayerInCreative)
-        if(!killedByPlayerInCreative) {
-            spawnAtLocation(ItemStack(Items.BLAST_FURNACE))
-        }
-    }
 }
 
 class SmokerBoatEntity(entityType: EntityType<out SmokerBoatEntity>, world: Level): AbstractFurnaceBoatEntity<SmokerBlockEntity, UtilitySmokerContainer>(entityType, world) {
@@ -126,13 +112,6 @@ class SmokerBoatEntity(entityType: EntityType<out SmokerBoatEntity>, world: Leve
     override fun createMenu(p0: Int, p1: Inventory, p2: Player): AbstractContainerMenu? {
         val furnaceData = getBackingTileEntity()!!.dataAccess
         return UtilitySmokerContainer(p0, p1, getBackingTileEntity(), furnaceData)
-    }
-
-    override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
-        super.dropItemsOnDeath(killedByPlayerInCreative)
-        if(!killedByPlayerInCreative) {
-            spawnAtLocation(ItemStack(Items.SMOKER))
-        }
     }
 }
 

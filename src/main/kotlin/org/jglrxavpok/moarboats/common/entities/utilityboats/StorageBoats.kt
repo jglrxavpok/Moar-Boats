@@ -64,13 +64,6 @@ class ChestBoatEntity(entityType: EntityType<out ChestBoatEntity>, world: Level)
         return Component.translatable("moarboats.container.utility_boat", Component.translatable("container.chest"))
     }
 
-    override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
-        super.dropItemsOnDeath(killedByPlayerInCreative)
-        if(!killedByPlayerInCreative) {
-            spawnAtLocation(ItemStack(Items.CHEST))
-        }
-    }
-
 }
 
 class ShulkerBoatEntity(entityType: EntityType<out ShulkerBoatEntity>, world: Level): UtilityBoatEntity<ShulkerBoxBlockEntity, UtilityShulkerContainer>(entityType, world) {
@@ -109,7 +102,9 @@ class ShulkerBoatEntity(entityType: EntityType<out ShulkerBoatEntity>, world: Le
     }
 
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
-        dropBaseBoat(killedByPlayerInCreative)
+        if(!killedByPlayerInCreative) {
+            getBaseBoatItem()?.let { item -> spawnAtLocation(item) }
+        }
         val tileEntity = getBackingTileEntity()!!
         if(!killedByPlayerInCreative || !tileEntity.isEmpty) {
             val stack = ShulkerBoxBlock.getColoredItemStack(dyeColor)
@@ -172,12 +167,5 @@ class EnderChestBoatEntity(entityType: EntityType<out EnderChestBoatEntity>, wor
 
     override fun getDisplayName(): Component {
         return Component.translatable("moarboats.container.utility_boat", Component.translatable("block.minecraft.ender_chest"))
-    }
-
-    override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
-        super.dropItemsOnDeath(killedByPlayerInCreative)
-        if(!killedByPlayerInCreative) {
-            spawnAtLocation(ItemStack(Items.ENDER_CHEST))
-        }
     }
 }

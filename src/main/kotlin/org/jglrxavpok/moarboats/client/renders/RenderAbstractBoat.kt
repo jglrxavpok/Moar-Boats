@@ -57,7 +57,7 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
     abstract fun postModelRender(entity: T, entityYaw: Float, partialTicks: Float, matrixStackIn: PoseStack, bufferIn: MultiBufferSource, packedLightIn: Int)
 
     override fun render(entity: T, entityYaw: Float, partialTicks: Float, poseStack: PoseStack, bufferIn: MultiBufferSource, packedLightIn: Int) {
-
+        super.render(entity, entityYaw, partialTicks, poseStack, bufferIn, packedLightIn) // name tag rendering
         if(Minecraft.getInstance().options.renderDebug) {
             poseStack.pushPose()
             poseStack.mulPose(entityRenderDispatcher.cameraOrientation())

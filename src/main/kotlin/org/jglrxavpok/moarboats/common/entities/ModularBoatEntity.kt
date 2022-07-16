@@ -174,7 +174,12 @@ class ModularBoatEntity(entityType: EntityType<out ModularBoatEntity>, world: Le
         syncPacketPositionCodec(packet.posX, packet.posY, packet.posZ)
     }
 
-    override fun getBoatItem() = MBItems.ModularBoats[color]!!.get()
+    override fun getBoatItemStack() = ItemStack(MBItems.ModularBoats[color]!!.get()).let { stack ->
+        if(hasCustomName()) {
+            stack.hoverName = displayName
+        }
+        stack
+    }
 
     /**
      * Called to update the entity's position/logic.
@@ -329,7 +334,10 @@ class ModularBoatEntity(entityType: EntityType<out ModularBoatEntity>, world: Le
         fun colorFromString(str: String): DyeColor {
             return DyeColor.values().find { it.name.toLowerCase() == str.toLowerCase() } ?: error("Unknown color: $str")
         }
-        color = colorFromString(compound.getString("color"))
+        color = if(compound.contains("color"))
+            colorFromString(compound.getString("color"))
+        else
+            DyeColor.WHITE
 
         if(compound.hasUUID("ownerUUID")) {
             ownerUUID = compound.getUUID("ownerUUID")
@@ -432,7 +440,7 @@ class ModularBoatEntity(entityType: EntityType<out ModularBoatEntity>, world: Le
 
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative) {
-            spawnAtLocation(ItemStack(getBoatItem(), 1), 0.0f)
+            spawnAtLocation(getBoatItemStack())
         }
         modules.forEach {
             dropItemsForModule(it, killedByPlayerInCreative)
@@ -484,8 +492,9 @@ class ModularBoatEntity(entityType: EntityType<out ModularBoatEntity>, world: Le
     }
 
     override fun getPickedResult(target: HitResult): ItemStack {
-        val stack = ItemStack(getBoatItem(), 1)
-        stack.hoverName = Component.translatable("moarboats.item.modular_boat.copy", stack.displayName)
+        val stack = getBoatItemStack()
+        val name = stack.hoverName
+        stack.hoverName = Component.translatable("moarboats.item.modular_boat.copy", name)
         val boatData = stack.getOrCreateTagElement("boat_data")
         addAdditionalSaveData(boatData)
         boatData.remove("links")

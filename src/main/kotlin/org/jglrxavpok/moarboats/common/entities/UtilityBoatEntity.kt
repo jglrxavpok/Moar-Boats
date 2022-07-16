@@ -155,7 +155,8 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
     }
 
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
-        dropBaseBoat(killedByPlayerInCreative)
+        if(!killedByPlayerInCreative)
+            spawnAtLocation(getBoatItemStack())
         val tileEntity = getBackingTileEntity()
         if(tileEntity is Container) {
             for (i in 0 until tileEntity.containerSize) {
@@ -164,12 +165,6 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
                     continue
                 spawnAtLocation(stack.copy())
             }
-        }
-    }
-
-    protected fun dropBaseBoat(killedByPlayerInCreative: Boolean) {
-        if(!killedByPlayerInCreative) {
-            getBaseBoatItem()?.let { item -> spawnAtLocation(ItemStack(item)) }
         }
     }
 
@@ -224,4 +219,15 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
     }
 
     fun getBoatType() = boatType
+
+    abstract fun getBoatItem(): Item
+
+    override fun getBoatItemStack(): ItemStack {
+        return ItemStack(getBoatItem()).let { stack ->
+            if(hasCustomName()) {
+                stack.hoverName = customName!!
+            }
+            stack
+        }
+    }
 }

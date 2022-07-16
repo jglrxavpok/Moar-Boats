@@ -3,6 +3,7 @@ package org.jglrxavpok.moarboats.common.data
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.vehicle.Boat
 import net.minecraft.world.item.Item
+import net.minecraft.world.item.Items
 import net.minecraftforge.fml.ModList
 import net.minecraftforge.registries.ForgeRegistries
 import org.jglrxavpok.moarboats.MoarBoats
@@ -44,7 +45,11 @@ interface BoatType {
             private val baseItem by lazy {
                 ModList.get().mods.firstNotNullOfOrNull {
                     val itemID = ResourceLocation(it.modId, "${type.getName()}_boat")
-                    ForgeRegistries.ITEMS.getValue(itemID)
+                    val item = ForgeRegistries.ITEMS.getValue(itemID)
+                    if(item != Items.AIR) {
+                        return@firstNotNullOfOrNull item
+                    }
+                    return@firstNotNullOfOrNull null
                 }
             }
 

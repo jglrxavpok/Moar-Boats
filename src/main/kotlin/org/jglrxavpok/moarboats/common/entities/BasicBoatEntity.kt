@@ -661,7 +661,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
 
     abstract fun isValidLiquidBlock(currentPosition: BlockPos): Boolean
 
-    abstract fun getBoatItem(): Item
+    abstract fun getBoatItemStack(): ItemStack
 
     open fun getLiquidHeight(world: Level, blockPos: BlockPos): Float {
         return Fluids.getLiquidHeight(world, blockPos)
@@ -864,6 +864,10 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
     override fun inLiquid(): Boolean = when(status) {
         Status.UNDER_FLOWING_LIQUID, Status.IN_LIQUID -> true
         else -> false
+    }
+
+    override fun shouldShowName(): Boolean {
+        return hasCustomName() && passengers.isEmpty()
     }
 
     // === Start of code for passengers ===

@@ -52,13 +52,6 @@ class CraftingTableBoatEntity(entityType: EntityType<out CraftingTableBoatEntity
     override fun getDisplayName(): Component {
         return Component.translatable("moarboats.container.utility_boat", Component.translatable("container.crafting"))
     }
-
-    override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
-        super.dropItemsOnDeath(killedByPlayerInCreative)
-        if(!killedByPlayerInCreative) {
-            spawnAtLocation(ItemStack(Items.CRAFTING_TABLE))
-        }
-    }
 }
 
 class GrindstoneBoatEntity(entityType: EntityType<out GrindstoneBoatEntity>, world: Level): UtilityBoatEntity<BlockEntity, UtilityGrindstoneContainer>(entityType, world) {
@@ -93,14 +86,6 @@ class GrindstoneBoatEntity(entityType: EntityType<out GrindstoneBoatEntity>, wor
     override fun getDisplayName(): Component {
         return Component.translatable("moarboats.container.utility_boat", Component.translatable("container.grindstone"))
     }
-
-    override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
-        super.dropItemsOnDeath(killedByPlayerInCreative)
-        if(!killedByPlayerInCreative) {
-            spawnAtLocation(ItemStack(Items.GRINDSTONE))
-        }
-    }
-
 }
 
 class LoomBoatEntity(entityType: EntityType<out LoomBoatEntity>, world: Level): UtilityBoatEntity<BlockEntity, UtilityLoomContainer>(entityType, world) {
@@ -133,13 +118,6 @@ class LoomBoatEntity(entityType: EntityType<out LoomBoatEntity>, world: Level): 
 
     override fun getDisplayName(): Component {
         return Component.translatable("moarboats.container.utility_boat", Component.translatable("container.loom"))
-    }
-
-    override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
-        super.dropItemsOnDeath(killedByPlayerInCreative)
-        if(!killedByPlayerInCreative) {
-            spawnAtLocation(ItemStack(Items.LOOM))
-        }
     }
 }
 
@@ -174,13 +152,6 @@ class CartographyTableBoatEntity(entityType: EntityType<out CartographyTableBoat
     override fun getDisplayName(): Component {
         return Component.translatable("moarboats.container.utility_boat", Component.translatable("container.cartography_table"))
     }
-
-    override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
-        super.dropItemsOnDeath(killedByPlayerInCreative)
-        if(!killedByPlayerInCreative) {
-            spawnAtLocation(ItemStack(Items.CARTOGRAPHY_TABLE))
-        }
-    }
 }
 
 class StonecutterBoatEntity(entityType: EntityType<out StonecutterBoatEntity>, world: Level): UtilityBoatEntity<BlockEntity, UtilityStonecutterContainer>(entityType, world) {
@@ -213,12 +184,5 @@ class StonecutterBoatEntity(entityType: EntityType<out StonecutterBoatEntity>, w
 
     override fun getDisplayName(): Component {
         return Component.translatable("moarboats.container.utility_boat", Component.translatable("container.stonecutter"))
-    }
-
-    override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
-        super.dropItemsOnDeath(killedByPlayerInCreative)
-        if(!killedByPlayerInCreative) {
-            spawnAtLocation(ItemStack(Items.STONECUTTER))
-        }
     }
 }

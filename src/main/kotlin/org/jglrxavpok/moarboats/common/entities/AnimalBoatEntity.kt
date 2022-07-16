@@ -49,7 +49,12 @@ class AnimalBoatEntity(entityType: EntityType<out AnimalBoatEntity>, world: Leve
         this.zo = z
     }
 
-    override fun getBoatItem() = MBItems.AnimalBoat.get()
+    override fun getBoatItemStack() = ItemStack(MBItems.AnimalBoat.get()).let { stack ->
+        if(hasCustomName()) {
+            stack.hoverName = customName!!
+        }
+        stack
+    }
 
     override fun getOwnerIdOrNull(): UUID? {
         return null
@@ -85,7 +90,7 @@ class AnimalBoatEntity(entityType: EntityType<out AnimalBoatEntity>, world: Leve
 
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative) {
-            spawnAtLocation(getBoatItem(), 1)
+            spawnAtLocation(getBoatItemStack())
         }
     }
 
