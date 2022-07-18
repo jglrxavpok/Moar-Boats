@@ -79,10 +79,7 @@ abstract class DispensingModule: BoatModule() {
                 .filter { !it.isEmpty }
                 .filter(this::isAllowed)
                 .mapIndexed { index, itemStack -> Pair(startIndex+index, itemStack) }
-                .firstOrNull { val item = it.second.item
-                    item is BlockItem
-                            || DispenserBlock.DISPENSER_REGISTRY[item] !is DefaultDispenseItemBehavior
-                }
+                .firstOrNull()
     }
 
     private val pattern = Pattern.compile("^([a-z_]+:)?([a-z_]+)(\\/\\d+)?$")

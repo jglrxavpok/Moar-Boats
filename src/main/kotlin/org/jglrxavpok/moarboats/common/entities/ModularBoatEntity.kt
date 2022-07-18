@@ -65,10 +65,7 @@ import org.jglrxavpok.moarboats.common.modules.SeatModule
 import org.jglrxavpok.moarboats.common.network.SModuleData
 import org.jglrxavpok.moarboats.common.network.SModuleLocations
 import org.jglrxavpok.moarboats.common.state.BoatProperty
-import org.jglrxavpok.moarboats.extensions.Fluids
-import org.jglrxavpok.moarboats.extensions.loadInventory
-import org.jglrxavpok.moarboats.extensions.saveInventory
-import org.jglrxavpok.moarboats.extensions.setDirty
+import org.jglrxavpok.moarboats.extensions.*
 import java.util.*
 
 class ModularBoatEntity(entityType: EntityType<out ModularBoatEntity>, world: Level): BasicBoatEntity(entityType, world), Container, ICapabilityProvider, IEnergyStorage, IFluidHandler, IFluidTank,
@@ -298,7 +295,7 @@ class ModularBoatEntity(entityType: EntityType<out ModularBoatEntity>, world: Le
             list.add(module.writeToNBT(this, data))
         }
         compound.put("modules", list)
-        compound.put("state", moduleData)
+        compound.put("state", moduleData.copy())
         compound.putString("color", color.name)
         if(owningMode == OwningMode.PlayerOwned) {
             compound.putUUID("ownerUUID", ownerUUID ?: UUID.fromString("00000000-0000-0000-0000-00000000"))
@@ -312,7 +309,7 @@ class ModularBoatEntity(entityType: EntityType<out ModularBoatEntity>, world: Le
     public override fun readAdditionalSaveData(compound: CompoundTag) {
         super.readAdditionalSaveData(compound)
         moduleLocations.clear()
-        moduleData = compound.getCompound("state")
+        moduleData = compound.getCompound("state").copy()
         val list = compound.getList("modules", Tag.TAG_COMPOUND.toInt())
         for(moduleNBT in list) {
             moduleNBT as CompoundTag
@@ -475,10 +472,10 @@ class ModularBoatEntity(entityType: EntityType<out ModularBoatEntity>, world: Le
             null -> defaultFacing()
             Direction.WEST, Direction.EAST, Direction.NORTH, Direction.SOUTH -> reorientate(overrideFacing)
             else -> overrideFacing
-        }
+        }.opposite
         moduleDispensePosition.set(overridePosition ?: blockPosition())
 
-        blockSource.overrideBlockState = Blocks.DISPENSER.defaultBlockState().setValue(DispenserBlock.FACING, overrideFacing ?: defaultFacing())
+        blockSource.overrideBlockState = Blocks.DISPENSER.defaultBlockState().setValue(DispenserBlock.FACING, moduleDispenseFacing)
 
         return behavior.dispense(blockSource, stack)
     }
