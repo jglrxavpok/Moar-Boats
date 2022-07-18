@@ -100,16 +100,11 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
         super.tick()
         if(backingTileEntity != null) {
             backingTileEntity.level = world
-            // TODO 1.19 - ITickableTileEntity is now a MoarBoats construct
-            if(backingTileEntity is ITickableTileEntity) {
-                try {
-                    backingTileEntity.tick()
-                } catch (e: Exception) {
-                    // shhhh, don't crash because you are not a block plz
-                }
-            }
+            tickBlockEntity()
         }
     }
+
+    open fun tickBlockEntity(): Unit {}
 
     override fun interact(player: Player, hand: InteractionHand): InteractionResult {
         if (super.interact(player, hand) == InteractionResult.SUCCESS)
