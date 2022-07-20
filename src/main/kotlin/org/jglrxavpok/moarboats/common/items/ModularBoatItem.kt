@@ -11,8 +11,11 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.DyeColor
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.TooltipFlag
 import net.minecraft.world.level.ClipContext
 import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.level.block.ShulkerBoxBlock
 import net.minecraft.world.phys.HitResult
 import net.minecraft.world.phys.Vec3
 import org.jglrxavpok.moarboats.MoarBoats
@@ -208,7 +211,12 @@ class ShulkerBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "shulker") 
 
                     boat
                 }
-                .apply { getBackingTileEntity()!!.deserializeNBT(itemstack.getOrCreateTagElement("AdditionalData").getCompound("TileEntityData")) }
+                .apply { getBackingTileEntity()!!.deserializeNBT(itemstack.getOrCreateTagElement("BlockEntityTag")) }
+    }
+
+    override fun appendHoverText(stack: ItemStack, level: Level?, components: MutableList<Component>, tooltipFlag: TooltipFlag) {
+        super.appendHoverText(stack, level, components, tooltipFlag)
+        (Blocks.SHULKER_BOX as ShulkerBoxBlock).appendHoverText(stack, level, components, tooltipFlag)
     }
 
     override fun getContainerDisplayName(): Component {

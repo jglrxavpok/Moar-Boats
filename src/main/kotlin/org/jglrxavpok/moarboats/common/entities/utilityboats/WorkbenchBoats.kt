@@ -48,10 +48,6 @@ class CraftingTableBoatEntity(entityType: EntityType<out CraftingTableBoatEntity
         return UtilityWorkbenchContainer(windowID, inv, ContainerLevelAccess.create(player.level, player.blockPosition()))
     }
 
-
-    override fun getDisplayName(): Component {
-        return Component.translatable("moarboats.container.utility_boat", Component.translatable("container.crafting"))
-    }
 }
 
 class GrindstoneBoatEntity(entityType: EntityType<out GrindstoneBoatEntity>, world: Level): UtilityBoatEntity<BlockEntity, UtilityGrindstoneContainer>(entityType, world) {
@@ -80,11 +76,6 @@ class GrindstoneBoatEntity(entityType: EntityType<out GrindstoneBoatEntity>, wor
 
     override fun createMenu(windowID: Int, inv: Inventory, player: Player): UtilityGrindstoneContainer? {
         return UtilityGrindstoneContainer(windowID, inv, ContainerLevelAccess.create(player.level, player.blockPosition()))
-    }
-
-
-    override fun getDisplayName(): Component {
-        return Component.translatable("moarboats.container.utility_boat", Component.translatable("container.grindstone"))
     }
 }
 
@@ -115,10 +106,6 @@ class LoomBoatEntity(entityType: EntityType<out LoomBoatEntity>, world: Level): 
     override fun createMenu(windowID: Int, inv: Inventory, player: Player): UtilityLoomContainer? {
         return UtilityLoomContainer(windowID, inv, ContainerLevelAccess.create(player.level, player.blockPosition()))
     }
-
-    override fun getDisplayName(): Component {
-        return Component.translatable("moarboats.container.utility_boat", Component.translatable("container.loom"))
-    }
 }
 
 class CartographyTableBoatEntity(entityType: EntityType<out CartographyTableBoatEntity>, world: Level): UtilityBoatEntity<BlockEntity, UtilityCartographyTableContainer>(entityType, world) {
@@ -148,10 +135,6 @@ class CartographyTableBoatEntity(entityType: EntityType<out CartographyTableBoat
     override fun createMenu(windowID: Int, inv: Inventory, player: Player): UtilityCartographyTableContainer? {
         return UtilityCartographyTableContainer(windowID, inv, ContainerLevelAccess.create(player.level, player.blockPosition()))
     }
-
-    override fun getDisplayName(): Component {
-        return Component.translatable("moarboats.container.utility_boat", Component.translatable("container.cartography_table"))
-    }
 }
 
 class StonecutterBoatEntity(entityType: EntityType<out StonecutterBoatEntity>, world: Level): UtilityBoatEntity<BlockEntity, UtilityStonecutterContainer>(entityType, world) {
@@ -180,9 +163,5 @@ class StonecutterBoatEntity(entityType: EntityType<out StonecutterBoatEntity>, w
 
     override fun createMenu(windowID: Int, inv: Inventory, player: Player): UtilityStonecutterContainer? {
         return UtilityStonecutterContainer(windowID, inv, ContainerLevelAccess.create(player.level, player.blockPosition()))
-    }
-
-    override fun getDisplayName(): Component {
-        return Component.translatable("moarboats.container.utility_boat", Component.translatable("container.stonecutter"))
     }
 }

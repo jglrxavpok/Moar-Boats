@@ -59,10 +59,13 @@ object ShulkerBoatRecipe: CraftingRecipe {
         }
         if(shulkerBox != null && boatType != null) {
             val stack = ItemStack(MBItems.ShulkerBoats[BoatType.OAK]!!.get())
-            stack.getOrCreateTagElement("AdditionalData").put("TileEntityData", shulkerBox.getOrCreateTagElement("BlockEntityTag"))
+            stack.getOrCreateTagElement("BlockEntityTag").merge(shulkerBox.getOrCreateTagElement("BlockEntityTag"))
             val color = ShulkerBoxBlock.getColorFromItem(shulkerBox.item)
             if(color != null) {
                 stack.getOrCreateTagElement("AdditionalData").putString("Color", color.getName())
+            }
+            if(shulkerBox.hasCustomHoverName()) {
+                stack.hoverName = shulkerBox.hoverName
             }
             return stack
         }

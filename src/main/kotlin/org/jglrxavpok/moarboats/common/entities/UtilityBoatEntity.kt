@@ -89,13 +89,6 @@ abstract class UtilityBoatEntity<TE, C>(type: EntityType<out BasicBoatEntity>, w
         }
     }
 
-    override fun getDisplayName(): Component {
-        if(backingTileEntity is MenuProvider) {
-            return Component.translatable("moarboats.container.utility_boat", backingTileEntity.displayName)
-        }
-        return super.getDisplayName()
-    }
-
     override fun tick() {
         super.tick()
         if(backingTileEntity != null) {

@@ -59,11 +59,6 @@ class ChestBoatEntity(entityType: EntityType<out ChestBoatEntity>, world: Level)
     override fun createMenu(windowID: Int, inv: Inventory, player: Player): UtilityChestContainer? {
         return UtilityChestContainer(windowID, inv, getBackingTileEntity()!!)
     }
-
-    override fun getDisplayName(): Component {
-        return Component.translatable("moarboats.container.utility_boat", Component.translatable("container.chest"))
-    }
-
 }
 
 class ShulkerBoatEntity(entityType: EntityType<out ShulkerBoatEntity>, world: Level): UtilityBoatEntity<ShulkerBoxBlockEntity, UtilityShulkerContainer>(entityType, world) {
@@ -97,10 +92,6 @@ class ShulkerBoatEntity(entityType: EntityType<out ShulkerBoatEntity>, world: Le
         return UtilityShulkerContainer(windowID, inv, getBackingTileEntity()!!)
     }
 
-    override fun getDisplayName(): Component {
-        return Component.translatable("moarboats.container.utility_boat", Component.translatable("container.shulkerBox"))
-    }
-
     override fun dropItemsOnDeath(killedByPlayerInCreative: Boolean) {
         if(!killedByPlayerInCreative) {
             getBaseBoatItem()?.let { item -> spawnAtLocation(item) }
@@ -113,8 +104,8 @@ class ShulkerBoatEntity(entityType: EntityType<out ShulkerBoatEntity>, world: Le
                 stack.addTagElement("BlockEntityTag", nbt)
             }
 
-            if (tileEntity.hasCustomName()) {
-                stack.hoverName = tileEntity.customName
+            if (hasCustomName()) {
+                stack.hoverName = customName
             }
             spawnAtLocation(stack)
         }
@@ -163,9 +154,5 @@ class EnderChestBoatEntity(entityType: EntityType<out EnderChestBoatEntity>, wor
 
     override fun createMenu(windowID: Int, inv: Inventory, player: Player): ChestMenu? {
         return ChestMenu.threeRows(windowID, inv, player.enderChestInventory)
-    }
-
-    override fun getDisplayName(): Component {
-        return Component.translatable("moarboats.container.utility_boat", Component.translatable("block.minecraft.ender_chest"))
     }
 }
