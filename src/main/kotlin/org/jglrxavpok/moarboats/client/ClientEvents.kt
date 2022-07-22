@@ -102,7 +102,6 @@ object ClientEvents {
             event.registerLayerDefinition(RudderModel.LAYER_LOCATION) { RudderModel.createBodyLayer() }
             event.registerLayerDefinition(RopeKnotModel.LAYER_LOCATION) { RopeKnotModel.createBodyLayer() }
             event.registerLayerDefinition(CleatModel.LAYER_LOCATION) { CleatModel.createBodyLayer() }
-            event.registerLayerDefinition(IcebreakerModel.LAYER_LOCATION) { IcebreakerModel.createBodyLayer() }
         }
 
         @SubscribeEvent

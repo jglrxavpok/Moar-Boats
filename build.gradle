@@ -25,7 +25,7 @@ apply plugin: 'maven-publish'
 
 apply from: "https://raw.githubusercontent.com/thedarkcolour/KotlinForForge/site/thedarkcolour/kotlinforforge/gradle/kff-${kffVersion}.gradle"
 
-version = "${mc_version}-9.0.0.0-indev4"
+version = "${mc_version}-9.0.0.0-indev5"
 group = "org.jglrxavpok.moarboats" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "moarboats"
 

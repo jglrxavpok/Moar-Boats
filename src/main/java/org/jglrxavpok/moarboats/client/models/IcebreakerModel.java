@@ -1,44 +1,39 @@
 package org.jglrxavpok.moarboats.client.models;
 
-// Made with Blockbench 4.2.5
-// Exported for Minecraft version 1.17 - 1.18 with Mojang mappings
-
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.model.EntityModel;
+import com.mojang.math.Quaternion;
 import net.minecraft.client.model.Model;
-import net.minecraft.client.model.geom.ModelLayerLocation;
-import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
-import org.jglrxavpok.moarboats.MoarBoats;
+import org.jglrxavpok.moarboats.client.RenderInfoKt;
 
 public class IcebreakerModel extends Model {
-	// This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
-	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(MoarBoats.ModID, "icebreakermodel"), "main");
-	private final ModelPart icebreaker;
 
-	public IcebreakerModel(ModelPart root) {
+	public IcebreakerModel() {
 		super(RenderType::entityCutoutNoCull);
-		this.icebreaker = root.getChild("icebreaker");
-	}
-
-	public static LayerDefinition createBodyLayer() {
-		MeshDefinition meshdefinition = new MeshDefinition();
-		PartDefinition partdefinition = meshdefinition.getRoot();
-
-		PartDefinition icebreaker = partdefinition.addOrReplaceChild("icebreaker", CubeListBuilder.create().texOffs(11, 4).addBox(-23.0F, -27.0F, -6.0F, 8.0F, 1.0F, 12.0F, new CubeDeformation(0.0F))
-		.texOffs(1, 37).addBox(-22.0F, -26.0F, -5.0F, 7.0F, 2.0F, 10.0F, new CubeDeformation(0.0F))
-		.texOffs(42, 22).addBox(-21.0F, -24.0F, 0.0F, 7.0F, 5.0F, 0.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 24.0F, 0.0F));
-
-		return LayerDefinition.create(meshdefinition, 128, 64);
 	}
 
 	@Override
 	public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-		icebreaker.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+		poseStack.pushPose();
+		poseStack.translate(-1.05, -0.25, 0.0);
+		poseStack.mulPose(new Quaternion(0.0f, 0.0f, 60.0f, true));
+		float w = 0.75f;
+		float h = 0.75f;
+		float minU = 0.0f;
+		float maxU = 1.0f;
+		float minV = 1.0f;
+		float maxV = 0.0f;
+
+		RenderInfoKt.addVertex(vertexConsumer, poseStack, 0.0f, 0.0f, 0.0f, red, green, blue, alpha, minU, minV, packedOverlay, packedLight, 0.0f, 0.0f, 1.0f);
+		RenderInfoKt.addVertex(vertexConsumer, poseStack, w, 0.0f, 0.0f, red, green, blue, alpha, maxU, minV, packedOverlay, packedLight, 0.0f, 0.0f, 1.0f);
+		RenderInfoKt.addVertex(vertexConsumer, poseStack, w, h, 0.0f, red, green, blue, alpha, maxU, maxV, packedOverlay, packedLight, 0.0f, 0.0f, 1.0f);
+		RenderInfoKt.addVertex(vertexConsumer, poseStack, 0.0f, h, 0.0f, red, green, blue, alpha, minU, maxV, packedOverlay, packedLight, 0.0f, 0.0f, 1.0f);
+
+		RenderInfoKt.addVertex(vertexConsumer, poseStack, 0.0f, h, 0.0f, red, green, blue, alpha, minU, maxV, packedOverlay, packedLight, 0.0f, 0.0f, -1.0f);
+		RenderInfoKt.addVertex(vertexConsumer, poseStack, w, h, 0.0f, red, green, blue, alpha, maxU, maxV, packedOverlay, packedLight, 0.0f, 0.0f, -1.0f);
+		RenderInfoKt.addVertex(vertexConsumer, poseStack, w, 0.0f, 0.0f, red, green, blue, alpha, maxU, minV, packedOverlay, packedLight, 0.0f, 0.0f, -1.0f);
+		RenderInfoKt.addVertex(vertexConsumer, poseStack, 0.0f, 0.0f, 0.0f, red, green, blue, alpha, minU, minV, packedOverlay, packedLight, 0.0f, 0.0f, -1.0f);
+		poseStack.popPose();
 	}
 }
