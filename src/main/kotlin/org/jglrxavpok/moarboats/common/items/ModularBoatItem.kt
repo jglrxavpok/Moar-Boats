@@ -31,17 +31,17 @@ import java.util.*
 class ModularBoatItem(val dyeColor: DyeColor): BaseBoatItem() {
 
     override fun createBoat(levelIn: Level, raytraceresult: HitResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: Player): BasicBoatEntity {
-        val color = dyeColor
         return ModularBoatEntity(
                 EntityEntries.ModularBoat.get(),
                 levelIn,
                 raytraceresult.location.x,
                 if (inUsualFluid) raytraceresult.location.y - 0.12 else raytraceresult.location.y,
                 raytraceresult.location.z,
-                color,
                 ModularBoatEntity.OwningMode.PlayerOwned,
                 playerIn.gameProfile.id).let { boat ->
-                    boat.readAdditionalSaveData(itemstack.getOrCreateTagElement("boat_data"))
+                    val nbt = itemstack.getOrCreateTagElement("boat_data")
+                    nbt.putString("color", dyeColor.name)
+                    boat.readAdditionalSaveData(nbt)
                     if(itemstack.hasCustomHoverName()) {
                         boat.customName = itemstack.hoverName
                     }

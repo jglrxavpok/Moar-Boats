@@ -108,7 +108,6 @@ class ModularBoatEntity(entityType: EntityType<out ModularBoatEntity>, world: Le
     val forcedChunks = ForcedChunks(world, this)
 
     var color = DyeColor.WHITE // white by default
-        private set
 
     var owningMode = OwningMode.PlayerOwned
         private set
@@ -156,7 +155,7 @@ class ModularBoatEntity(entityType: EntityType<out ModularBoatEntity>, world: Le
         this.blocksBuilding = true
     }
 
-    constructor(entityType: EntityType<out ModularBoatEntity>, world: Level, x: Double, y: Double, z: Double, color: DyeColor, owningMode: OwningMode, ownerUUID: UUID? = null): this(entityType, world) {
+    constructor(entityType: EntityType<out ModularBoatEntity>, world: Level, x: Double, y: Double, z: Double, owningMode: OwningMode, ownerUUID: UUID? = null): this(entityType, world) {
         this.setPos(x, y, z)
         this.deltaMovement = Vec3.ZERO
         this.xo = x
@@ -167,7 +166,7 @@ class ModularBoatEntity(entityType: EntityType<out ModularBoatEntity>, world: Le
         this.ownerUUID = ownerUUID
     }
 
-    constructor(packet: SpawnEntity, world: Level): this(EntityEntries.ModularBoat.get(), world, packet.posX, packet.posY, packet.posZ, DyeColor.WHITE, OwningMode.AllowAll) {
+    constructor(packet: SpawnEntity, world: Level): this(EntityEntries.ModularBoat.get(), world, packet.posX, packet.posY, packet.posZ, OwningMode.AllowAll) {
         syncPacketPositionCodec(packet.posX, packet.posY, packet.posZ)
     }
 
