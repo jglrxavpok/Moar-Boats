@@ -1,6 +1,7 @@
 package org.jglrxavpok.moarboats.client.renders
 
 import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.blaze3d.vertex.VertexConsumer
 import com.mojang.math.Quaternion
 import com.mojang.math.Vector3f
 import net.minecraft.client.Minecraft
@@ -18,6 +19,7 @@ import net.minecraft.world.phys.EntityHitResult
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.Cleat
 import org.jglrxavpok.moarboats.client.RenderInfo
+import org.jglrxavpok.moarboats.client.models.CleatModel
 import org.jglrxavpok.moarboats.client.models.ModularBoatModel
 import org.jglrxavpok.moarboats.client.models.RopeKnotModel
 import org.jglrxavpok.moarboats.client.normal
@@ -28,7 +30,13 @@ import org.jglrxavpok.moarboats.common.items.RopeItem
 
 abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRendererProvider.Context): EntityRenderer<T>(renderManager) {
 
+    init {
+        cleatModel = CleatModel(renderManager.bakeLayer(CleatModel.LAYER_LOCATION))
+    }
+
     companion object {
+        private var cleatModel: CleatModel? = null
+
         val RopeAnchorTextureLocation = ResourceLocation("minecraft", "textures/entity/lead_knot.png")
         val WhiteColor = floatArrayOf(1f, 1f, 1f, 1f)
 
@@ -43,6 +51,38 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
             )
             if (paddleIndex == 1) {
                 paddleModel.yRot = Math.PI.toFloat() - paddleModel.yRot
+            }
+        }
+
+
+        fun renderBoatCleats(
+            cleatPredicate: (Entity, Cleat) -> Boolean,
+            entity: Entity,
+            matrixStackIn: PoseStack,
+            vertexconsumer: VertexConsumer,
+            packedLightIn: Int
+        ) {
+            check(cleatModel != null) { "Cleat model was not loaded" }
+
+            for (cleat in arrayOf(Cleats.FrontCleat, Cleats.BackCleat)) {
+                if (!cleatPredicate(entity, cleat))
+                    continue
+
+                matrixStackIn.pushPose()
+                val d = if (cleat.canTow()) 1.0f else -1.0f
+                matrixStackIn.scale(d, 1.0f, 1.0f)
+                matrixStackIn.translate(0.0, 0.0, 1.0 / 16.0)
+                cleatModel!!.renderToBuffer(
+                    matrixStackIn,
+                    vertexconsumer,
+                    packedLightIn,
+                    OverlayTexture.NO_OVERLAY,
+                    1f,
+                    1f,
+                    1f,
+                    1f
+                )
+                matrixStackIn.popPose()
             }
         }
     }

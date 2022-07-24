@@ -1,17 +1,25 @@
 package org.jglrxavpok.moarboats.client
 
 import com.google.common.collect.ImmutableList
+import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.math.Quaternion
 import com.mojang.math.Transformation
+import com.mojang.math.Vector3f
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import it.unimi.dsi.fastutil.ints.IntSet
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.screens.MenuScreens
 import net.minecraft.client.gui.screens.inventory.ContainerScreen
+import net.minecraft.client.model.PlayerModel
+import net.minecraft.client.model.geom.ModelPart
+import net.minecraft.client.player.AbstractClientPlayer
+import net.minecraft.client.player.LocalPlayer
 import net.minecraft.client.renderer.ItemBlockRenderTypes
 import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.block.model.ItemOverrides
 import net.minecraft.client.renderer.block.model.ItemTransforms
+import net.minecraft.client.renderer.entity.player.PlayerRenderer
 import net.minecraft.client.renderer.item.ItemProperties
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite
 import net.minecraft.client.resources.model.BlockModelRotation
@@ -21,6 +29,7 @@ import net.minecraft.client.resources.sounds.SoundInstance
 import net.minecraft.core.Direction
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.sounds.SoundSource
+import net.minecraft.util.Mth
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.HumanoidArm
@@ -82,9 +91,8 @@ object ClientEvents {
     private val recordCache = mutableMapOf<Level, MutableMap<Int, SoundInstance>>()
     private val stripes = mutableMapOf<String, MapImageStripe>()
 
-    /* TODO: redo model
     val hookTextureLocation = ResourceLocation(MoarBoats.ModID, "textures/hook.png")
-    val armModel = ModelRenderer(64, 64, 32, 48).apply {
+    /*val armModel = ModelRenderer(64, 64, 32, 48).apply {
         addBox(-1.0f, -2.0f, -2.0f, 4f, 9f, 4f) // arm
         addBox(-1.0f, -2.0f, -2.0f, 4f, 9f, 4f, 0.25f, false) // armwear
         this.setPos(-5.0F, 2.0F + 0f, 0.0F)
@@ -247,11 +255,13 @@ object ClientEvents {
 
     fun postInit(evt: FMLLoadCompleteEvent) {
         val mc = Minecraft.getInstance()
-/* TODO: redo models        mc.entityRenderDispatcher.skinMap["default"]!!.apply {
-            this.addLayer(MoarBoatsPatreonHookLayer(this))
+/*        mc.entityRenderDispatcher.skinMap["default"]!!.apply {
+            this as PlayerRenderer
+            // TODO 1.19 - redo this.addLayer(MoarBoatsPatreonHookLayer(this))
         }
         mc.entityRenderDispatcher.skinMap["slim"]!!.apply {
-            this.addLayer(MoarBoatsPatreonHookLayer(this))
+            this as PlayerRenderer
+            // TODO 1.19 - redo this.addLayer(MoarBoatsPatreonHookLayer(this))
         }*/
     }
 
@@ -291,7 +301,6 @@ object ClientEvents {
 
     // COPY PASTED FROM FirstPersonRenderer
     private fun renderArmFirstPerson(renderInfo: RenderInfo, equippedProgress: Float, swingProgress: Float, side: HumanoidArm) {
-        /* TODO 1.19 - redo
         val matrixStack = renderInfo.matrixStack
         val mc = Minecraft.getInstance()
         val rightHanded = side != HumanoidArm.LEFT
@@ -306,7 +315,7 @@ object ClientEvents {
         val f6 = Mth.sin(f1 * Math.PI.toFloat())
         matrixStack.mulPose(Vector3f.YP.rotationDegrees(f * f6 * 70.0f))
         matrixStack.mulPose(Vector3f.ZP.rotationDegrees(f * f5 * -20.0f))
-        val player: Player = mc.player!!
+        val player: LocalPlayer = mc.player!!
         mc.getTextureManager().bindForSetup(player.skinTextureLocation)
         matrixStack.translate((f * -1.0f).toDouble(), 3.6f.toDouble(), 3.5)
         matrixStack.mulPose(Vector3f.ZP.rotationDegrees(f * 120.0f))
@@ -321,11 +330,9 @@ object ClientEvents {
         renderArm(renderInfo, arm, player, model)
 
         RenderSystem.enableCull()
-         */
     }
 
-    /* TODO 1.19 - redo
-    private fun renderArm(renderInfo: RenderInfo, arm: ModelRenderer, clientPlayer: AbstractClientPlayer, playerModel: PlayerModel<AbstractClientPlayer>) {
+    private fun renderArm(renderInfo: RenderInfo, arm: ModelPart, clientPlayer: LocalPlayer, playerModel: PlayerModel<AbstractClientPlayer>) {
         val matrixStack = renderInfo.matrixStack
         val f = 1.0f
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1f)
@@ -346,7 +353,7 @@ object ClientEvents {
         matrixStack.mulPose(Quaternion(arm.xRot * (180f / Math.PI.toFloat()), 0.0f, 0.0f, true))
 
         matrixStack.pushPose()
-        armModel.render(renderInfo.matrixStack, renderInfo.buffers.getBuffer(RenderType.entityTranslucent(clientPlayer.skinTextureLocation)), renderInfo.combinedLight, OverlayTexture.NO_OVERLAY)
+        // TODO 1.19 -redo armModel.render(renderInfo.matrixStack, renderInfo.buffers.getBuffer(RenderType.entityTranslucent(clientPlayer.skinTextureLocation)), renderInfo.combinedLight, OverlayTexture.NO_OVERLAY)
         matrixStack.popPose()
 
         val hookScale = 4f / 11f
@@ -354,11 +361,10 @@ object ClientEvents {
         matrixStack.scale(hookScale, -hookScale, hookScale)
         matrixStack.translate(-1f / 16.0, 0.0, -1f / 16.0)
         matrixStack.translate(0.0, -1.25, 0.0)
-        hookModel.renderToBuffer(renderInfo.matrixStack, renderInfo.buffers.getBuffer(RenderType.entityTranslucent(hookTextureLocation)), renderInfo.combinedLight, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f)
+        // TODO 1.19 -redo hookModel.renderToBuffer(renderInfo.matrixStack, renderInfo.buffers.getBuffer(RenderType.entityTranslucent(hookTextureLocation)), renderInfo.combinedLight, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f)
         matrixStack.popPose()
         RenderSystem.disableBlend()
     }
-     */
 
     fun saveMapStripe(data: MapImageStripe) {
         stripes[data.stripeID] = data

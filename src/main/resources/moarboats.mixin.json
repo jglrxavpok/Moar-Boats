@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "package": "org.jglrxavpok.moarboats.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+  ],
+  "client": [
+    "client.BoatRenderer"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "refmap": "moarboats.mixin-refmap.json"
+}

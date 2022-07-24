@@ -531,7 +531,10 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
                     val dirY = d1 / length
                     val dirZ = d2 / length
 
-                    this.deltaMovement = deltaMovement.add(dirX * forceMagnitude, dirY * forceMagnitude, dirZ * forceMagnitude)
+                    val dampingFactor = 0.2;
+                    val dampingX = deltaMovement.x * -dampingFactor;
+                    val dampingZ = deltaMovement.z * -dampingFactor;
+                    this.deltaMovement = deltaMovement.add(dirX * forceMagnitude + dampingX, dirY * forceMagnitude, dirZ * forceMagnitude + dampingZ)
                     canControlItself = false
 
                     // FIXME: handle case where targetYaw is ~0-180 and yRot is ~180+ (avoid doing a crazy flip)

@@ -20,7 +20,6 @@ import org.jglrxavpok.moarboats.common.entities.UtilityBoatEntity
 class RenderUtilityBoat<T: UtilityBoatEntity<*,*>>(renderManager: EntityRendererProvider.Context, val blockstateProvider: (T) ->BlockState): RenderAbstractBoat<T>(renderManager) {
 
     val models = mutableMapOf<BoatType, BoatModel>()
-    val cleatModel = CleatModel(renderManager.bakeLayer(CleatModel.LAYER_LOCATION))
 
     init {
         for(type in BoatType.values()) {
@@ -71,17 +70,7 @@ class RenderUtilityBoat<T: UtilityBoatEntity<*,*>>(renderManager: EntityRenderer
             1.0f
         )
 
-        for(cleat in arrayOf(Cleats.FrontCleat, Cleats.BackCleat)) {
-            if(!entity.hasLink(cleat))
-                continue
-
-            matrixStackIn.pushPose()
-            val d = if(cleat.canTow()) 1.0f else -1.0f
-            matrixStackIn.scale(d, 1.0f, 1.0f)
-            matrixStackIn.translate(0.0, 0.0, 1.0 / 16.0)
-            cleatModel.renderToBuffer(matrixStackIn, vertexconsumer, packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f)
-            matrixStackIn.popPose()
-        }
+        RenderAbstractBoat.renderBoatCleats({_, cleat -> entity.hasLink(cleat) }, entity, matrixStackIn, vertexconsumer, packedLightIn)
 
         val vertexconsumer1: VertexConsumer = bufferIn.getBuffer(RenderType.waterMask())
         boatmodel.waterPatch().render(matrixStackIn, vertexconsumer1, packedLightIn, OverlayTexture.NO_OVERLAY)
