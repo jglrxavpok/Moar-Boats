@@ -6,6 +6,8 @@ import net.minecraft.world.level.storage.DimensionDataStorage
 
 interface Proxy {
 
+    fun showDetailedTooltip(): Boolean
+
     fun get(dimensionType: ResourceKey<Level>): DimensionDataStorage
 
 }

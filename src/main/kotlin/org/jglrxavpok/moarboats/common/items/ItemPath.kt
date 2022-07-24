@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.common.items
 
+import net.minecraft.ChatFormatting
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
 import net.minecraft.nbt.Tag
@@ -31,6 +32,17 @@ abstract class ItemPath(id: String, putInItemGroup: Boolean = true): MoarBoatsIt
             val mapStorage: DimensionDataStorage = MoarBoats.getLocalMapStorage()
             val list = getWaypointData(stack, mapStorage)
             tooltip.add(Component.translatable(MoarBoats.ModID+".item_path.description", list.size))
+
+            if(MoarBoats.proxy.showDetailedTooltip()) {
+                for((index, waypointNBT) in list.withIndex()) {
+                    waypointNBT as CompoundTag
+                    val x = waypointNBT.getDouble("x").toInt()
+                    val z = waypointNBT.getDouble("z").toInt()
+                    tooltip.add(Component.literal("#${index+1} X: $x; Z: $z").withStyle(ChatFormatting.ITALIC))
+                }
+            } else {
+                tooltip.add(Component.translatable("moarboats.item.detailed_tooltip"))
+            }
         }
     }
 

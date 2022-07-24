@@ -190,6 +190,8 @@
     "moarboats.item.golden_ticket.name.empty": "Golden Ticket (Empty)",
     "moarboats.item.modular_boat.copy": "%s - Copy",
 
+    "moarboats.item.detailed_tooltip": "Hold Shift for details",
+
     "moarboats.locked_by_owner": "Locked by owner (%s) !",
     "moarboats.only_usable_on_boat": "Only usable on boats",
     "moarboats.restricted": "This feature is disabled by your server admin.",

@@ -2,7 +2,7 @@
     "name": "moarboats.guide.name",
     "landing_text": "moarboats.guide.landing_text",
     "version": 1,
-    "model": "moarboats:guide",
+    "model": "moarboats:guide_book",
     "creative_tab": "moarboats",
     "i18n": true,
     "use_blocky_font": true
