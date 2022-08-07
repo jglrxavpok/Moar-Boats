@@ -9,6 +9,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.vehicle.Boat;
 import org.jglrxavpok.moarboats.api.Cleat;
 import org.jglrxavpok.moarboats.client.renders.RenderAbstractBoat;
+import org.jglrxavpok.moarboats.common.vanillaglue.CleatCapability;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -38,6 +39,13 @@ public class BoatRenderer {
     }
 
     private boolean checkCleats(Entity boat, Cleat cleat) {
-        return true; /* TODO */
+        var cap = boat.getCapability(CleatCapability.Companion.getCapability());
+        if(!cap.isPresent()) {
+            return false;
+        }
+
+        return cap
+                .orElseThrow(() -> new IllegalStateException("LazyOptional isPresent but no value?"))
+                .has(cleat);
     }
 }

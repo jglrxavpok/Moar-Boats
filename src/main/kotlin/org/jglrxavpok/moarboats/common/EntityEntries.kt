@@ -1,5 +1,6 @@
 package org.jglrxavpok.moarboats.common
 
+import net.minecraft.world.entity.EntityDimensions
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.EntityType.EntityFactory
 import net.minecraft.world.entity.MobCategory
@@ -10,6 +11,7 @@ import net.minecraftforge.registries.ForgeRegistries
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.common.entities.AnimalBoatEntity
 import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
+import org.jglrxavpok.moarboats.common.entities.StandaloneCleat
 import org.jglrxavpok.moarboats.common.entities.UtilityBoatEntity
 import org.jglrxavpok.moarboats.common.entities.utilityboats.*
 
@@ -45,6 +47,19 @@ object EntityEntries {
             .setUpdateInterval(3)
             .setCustomClientFactory { packet, u -> AnimalBoatEntity(packet, u) }
             .build("animal_boat")
+    }
+
+    @JvmField
+    val StandaloneCleat = Registry.register("standalone_cleat") {
+        val factory: EntityFactory<StandaloneCleat> = EntityFactory<StandaloneCleat>({ type, level -> StandaloneCleat(type, level) })
+        EntityType.Builder.of(factory, MobCategory.MISC)
+            .setTrackingRange(64)
+            .fireImmune()
+            .sized(0.25f, 0.25f)
+            .setShouldReceiveVelocityUpdates(true)
+            .setUpdateInterval(3)
+            .setCustomClientFactory { packet, u -> StandaloneCleat(packet, u) }
+            .build("standalone_cleat")
     }
 
     @JvmField

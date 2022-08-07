@@ -6,7 +6,6 @@ import com.mojang.math.Quaternion
 import com.mojang.math.Transformation
 import com.mojang.math.Vector3f
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import it.unimi.dsi.fastutil.ints.IntSet
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.screens.MenuScreens
@@ -24,7 +23,6 @@ import net.minecraft.client.renderer.item.ItemProperties
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite
 import net.minecraft.client.resources.model.BlockModelRotation
 import net.minecraft.client.resources.model.Material
-import net.minecraft.client.resources.model.ModelState
 import net.minecraft.client.resources.sounds.SoundInstance
 import net.minecraft.core.Direction
 import net.minecraft.resources.ResourceLocation
@@ -64,7 +62,6 @@ import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.client.gui.*
 import org.jglrxavpok.moarboats.client.models.CleatModel
 import org.jglrxavpok.moarboats.client.models.HelmModel
-import org.jglrxavpok.moarboats.client.models.IcebreakerModel
 import org.jglrxavpok.moarboats.client.models.ModelPatreonHook
 import org.jglrxavpok.moarboats.client.models.ModularBoatModel
 import org.jglrxavpok.moarboats.client.models.RopeKnotModel
@@ -116,6 +113,7 @@ object ClientEvents {
         fun registerRenderers(event: EntityRenderersEvent.RegisterRenderers) {
             event.registerEntityRenderer(EntityEntries.ModularBoat.get(), ::RenderModularBoat)
             event.registerEntityRenderer(EntityEntries.AnimalBoat.get(), ::RenderAnimalBoat)
+            event.registerEntityRenderer(EntityEntries.StandaloneCleat.get(), ::StandaloneCleatRenderer)
 
             registerUtilityBoat(event, EntityEntries.FurnaceBoat.get()) { boat -> Blocks.FURNACE.defaultBlockState().setValue(
                 AbstractFurnaceBlock.LIT, boat.isFurnaceLit()) }

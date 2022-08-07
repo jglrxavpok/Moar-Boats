@@ -184,7 +184,6 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
 
         renderLink(RenderInfo(poseStack, bufferIn, packedLightIn), entity, entityYaw, partialTicks)
         poseStack.popPose()
-        super.render(entity, entityYaw, partialTicks, poseStack, bufferIn, packedLightIn)
     }
 
     private fun renderRopeHitbox(renderInfo: RenderInfo, entity: T, entityX: Double, entityY: Double, entityZ: Double, entityYaw: Float, partialTicks: Float, cleat: Cleat, hovered: Boolean) {
