@@ -5,20 +5,36 @@ import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.syncher.EntityDataSerializers
 import net.minecraft.network.syncher.SynchedEntityData
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.InteractionResult
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.entity.vehicle.Boat
 import net.minecraft.world.level.Level
+import net.minecraft.world.phys.Vec3
 import net.minecraftforge.entity.IEntityAdditionalSpawnData
 import net.minecraftforge.network.NetworkHooks
 import net.minecraftforge.network.PlayMessages
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.Cleat
+import org.jglrxavpok.moarboats.api.Link
+import org.jglrxavpok.moarboats.common.BoatLinksSerializer
 import org.jglrxavpok.moarboats.common.Cleats
 import org.jglrxavpok.moarboats.common.EntityEntries
+import org.jglrxavpok.moarboats.common.items.RopeItem
+import org.jglrxavpok.moarboats.common.vanillaglue.ICleatCapability
+import org.jglrxavpok.moarboats.extensions.toDegrees
+import kotlin.math.sqrt
 
 class StandaloneCleat(type: EntityType<out StandaloneCleat>, level: Level): Entity(type, level), IEntityAdditionalSpawnData {
 
     companion object {
+        // Yes, Boat::class and not StandaloneCleat, that's on purpose
+        @JvmField
+        val BOAT_LINKS = SynchedEntityData.defineId(Boat::class.java, BoatLinksSerializer)
+
+
         val ParentEntityID = SynchedEntityData.defineId(StandaloneCleat::class.java, EntityDataSerializers.INT)
         val NoParent = 0
     }
@@ -79,14 +95,14 @@ class StandaloneCleat(type: EntityType<out StandaloneCleat>, level: Level): Enti
             return
         }
 
+        val parentCleatCapability = parent.getCapability(ICleatCapability.Capability).orElseThrow{ IllegalStateException("Attached a cleat to an entity that has no cleat capability?") }
+        parentCleatCapability.tick(level, parent)
+
         // 1. set position
         setPos(cleatType.getWorldPosition(parent, 0.0f))
         setOldPosAndRot()
         setPos(cleatType.getWorldPosition(parent, 1.0f))
         deltaMovement = parent.deltaMovement
-
-        // 2. update parent velocity if towed
-        // TODO("Not yet implemented")
     }
 
     override fun readAdditionalSaveData(p_20052_: CompoundTag) {
@@ -114,6 +130,17 @@ class StandaloneCleat(type: EntityType<out StandaloneCleat>, level: Level): Enti
             return
         }
         cleatType = wantedCleat
+    }
+
+    override fun interact(player: Player, hand: InteractionHand): InteractionResult {
+        val itemstack = player.getItemInHand(hand)
+        // TODO: check with dedicated server
+        if(itemstack.item is RopeItem && !level.isClientSide) {
+            val parentEntity = getParent() ?: return InteractionResult.FAIL
+            RopeItem.onLinkUsed(itemstack, player, hand, level, parentEntity, cleatType)
+            return InteractionResult.SUCCESS
+        }
+        return InteractionResult.FAIL
     }
 
     override fun shouldBeSaved(): Boolean {

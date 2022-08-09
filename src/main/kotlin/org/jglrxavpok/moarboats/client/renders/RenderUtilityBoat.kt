@@ -70,7 +70,7 @@ class RenderUtilityBoat<T: UtilityBoatEntity<*,*>>(renderManager: EntityRenderer
             1.0f
         )
 
-        RenderAbstractBoat.renderBoatCleats({_, cleat -> entity.hasLink(cleat) }, entity, matrixStackIn, vertexconsumer, packedLightIn)
+        RenderAbstractBoat.renderBoatCleats({_, cleat -> entity.cleatCapability.hasLinkAt(cleat) }, entity, matrixStackIn, vertexconsumer, packedLightIn)
 
         val vertexconsumer1: VertexConsumer = bufferIn.getBuffer(RenderType.waterMask())
         boatmodel.waterPatch().render(matrixStackIn, vertexconsumer1, packedLightIn, OverlayTexture.NO_OVERLAY)

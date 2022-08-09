@@ -17,19 +17,19 @@ import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.FenceBlock
 import org.jglrxavpok.moarboats.api.Cleat
 import org.jglrxavpok.moarboats.common.Cleats
-import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
+import org.jglrxavpok.moarboats.common.vanillaglue.ICleatCapability
 
 class RopeItem : MoarBoatsItem("rope") {
 
     companion object {
-        private fun setLinked(levelIn: Level, stack: ItemStack, entity: BasicBoatEntity, cleat: Cleat) {
-            nbt(stack).putInt("linked", entity.entityID)
+        private fun setLinked(levelIn: Level, stack: ItemStack, entity: Entity, cleat: Cleat) {
+            nbt(stack).putInt("linked", entity.id)
             nbt(stack).putString("cleat", Cleats.Registry.get().getKey(cleat)?.toString() ?: error("Cleat not registered"))
         }
 
-        private fun getLinked(levelIn: Level, stack: ItemStack): BasicBoatEntity? {
+        private fun getLinked(levelIn: Level, stack: ItemStack): Entity? {
             val id = nbt(stack).getInt("linked")
-            return levelIn.getEntity(id) as BasicBoatEntity?
+            return levelIn.getEntity(id)
         }
 
         private fun getLinkedCleat(levelIn: Level, stack: ItemStack): Cleat? {
@@ -56,19 +56,29 @@ class RopeItem : MoarBoatsItem("rope") {
             return State.READY
         }
 
-        fun onLinkUsed(itemstack: ItemStack, playerIn: Player, handIn: InteractionHand, levelIn: Level, boatEntity: BasicBoatEntity, clickedCleat: Cleat) {
+        fun onLinkUsed(itemstack: ItemStack, playerIn: Player, handIn: InteractionHand, levelIn: Level, hit: Entity, clickedCleat: Cleat) {
+            val optionalCapability = hit.getCapability(ICleatCapability.Capability)
+            if(!optionalCapability.isPresent) {
+                return
+            }
+            val capability = optionalCapability.orElseThrow { IllegalStateException() }
             when(getState(itemstack)) {
                 State.WAITING_NEXT -> {
                     val other = getLinked(levelIn, itemstack) ?: return
-                    val hit = boatEntity
+
+                    val optionalOtherCapability = other.getCapability(ICleatCapability.Capability)
+                    if(!optionalOtherCapability.isPresent) {
+                        return
+                    }
+                    val otherCapability = optionalOtherCapability.orElseThrow { IllegalStateException() }
                     val linkedCleat = getLinkedCleat(levelIn, itemstack) ?: error("anchor type == null but linked != null")
                     when {
                         !linkedCleat.supportsConnection(clickedCleat) -> playerIn.displayClientMessage(Component.translatable("item.rope.incompatible_anchor_types"), true)
                         other == hit -> playerIn.displayClientMessage(Component.translatable("item.rope.notToSelf"), true)
-                        hit.hasLink(clickedCleat) -> playerIn.displayClientMessage(Component.translatable("item.rope.backOccupied"), true)
+                        capability.hasLinkAt(clickedCleat) -> playerIn.displayClientMessage(Component.translatable("item.rope.backOccupied"), true)
                         else -> {
-                            hit.linkTo(other, clickedCleat, linkedCleat)
-                            other.linkTo(hit, linkedCleat, clickedCleat)
+                            capability.linkTo(other, clickedCleat, linkedCleat)
+                            otherCapability.linkTo(hit, linkedCleat, clickedCleat)
                         }
                     }
                     resetLinked(itemstack)
@@ -76,11 +86,11 @@ class RopeItem : MoarBoatsItem("rope") {
                         itemstack.shrink(1)
                 }
                 else -> {
-                    if(boatEntity.hasLink(clickedCleat)) {
+                    if(capability.hasLinkAt(clickedCleat)) {
                         playerIn.displayClientMessage(Component.translatable("item.rope.frontOccupied"), true)
                         resetLinked(itemstack)
                     } else {
-                        setLinked(levelIn, itemstack, boatEntity, clickedCleat)
+                        setLinked(levelIn, itemstack, hit, clickedCleat)
                     }
                 }
             }

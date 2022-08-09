@@ -6,6 +6,7 @@ import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.packs.PackType
+import net.minecraft.world.entity.vehicle.Boat
 import net.minecraft.world.item.AirItem
 import net.minecraft.world.item.CreativeModeTab
 import net.minecraft.world.item.DyeColor
@@ -40,6 +41,7 @@ import org.jglrxavpok.moarboats.client.ClientProxy
 import org.jglrxavpok.moarboats.common.*
 import org.jglrxavpok.moarboats.common.containers.ContainerTypes
 import org.jglrxavpok.moarboats.common.data.BoatType
+import org.jglrxavpok.moarboats.common.events.VanillaBoatEvents
 import org.jglrxavpok.moarboats.common.items.MBRecipeSerializers
 import org.jglrxavpok.moarboats.datagen.JsonModelGenerator
 import org.jglrxavpok.moarboats.datagen.UtilityBoatRecipes

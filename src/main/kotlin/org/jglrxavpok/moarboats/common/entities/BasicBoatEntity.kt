@@ -8,23 +8,18 @@ import net.minecraft.core.Direction
 import net.minecraft.core.particles.BlockParticleOption
 import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.nbt.ListTag
-import net.minecraft.nbt.Tag
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.syncher.EntityDataSerializers
 import net.minecraft.network.syncher.SynchedEntityData
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.Mth
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.damagesource.IndirectEntityDamageSource
 import net.minecraft.world.entity.*
-import net.minecraft.world.entity.decoration.LeashFenceKnotEntity
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.GameRules
 import net.minecraft.world.level.Level
@@ -37,6 +32,8 @@ import net.minecraft.world.phys.shapes.BooleanOp
 import net.minecraft.world.phys.shapes.Shapes
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraftforge.common.capabilities.Capability
+import net.minecraftforge.common.util.LazyOptional
 import net.minecraftforge.entity.IEntityAdditionalSpawnData
 import net.minecraftforge.entity.PartEntity
 import net.minecraftforge.network.NetworkHooks
@@ -49,13 +46,10 @@ import org.jglrxavpok.moarboats.common.Cleats
 import org.jglrxavpok.moarboats.common.items.RopeItem
 import org.jglrxavpok.moarboats.common.modules.BlockReason
 import org.jglrxavpok.moarboats.common.modules.NoBlockReason
+import org.jglrxavpok.moarboats.common.vanillaglue.ICleatCapability
 import org.jglrxavpok.moarboats.extensions.Fluids
 import org.jglrxavpok.moarboats.extensions.setDirty
-import org.jglrxavpok.moarboats.extensions.toDegrees
-import java.util.*
-import kotlin.math.abs
 import kotlin.math.max
-import kotlin.math.sqrt
 
 abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Level): Entity(type, world), IControllable,
     IEntityAdditionalSpawnData {
@@ -216,6 +210,16 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
 
     private val cleats: Set<Cleat> = mutableSetOf(Cleats.FrontCleat, Cleats.BackCleat)
 
+    val cleatCapability = object: ICleatCapability() {
+        override fun getLinkStorage(): MutableMap<Cleat, Link> {
+            return links
+        }
+
+        override fun syncLinkStorage(newValue: MutableMap<Cleat, Link>) {
+            links = newValue
+        }
+    }
+
     init {
         this.blocksBuilding = true
 
@@ -246,10 +250,6 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
     }
 
     override fun isEntityInLava() = isInLava
-
-    fun getLink(cleat: Cleat): Link = links.computeIfAbsent(cleat, ::Link)
-
-    fun hasLink(cleat: Cleat): Boolean = getLink(cleat).hasTarget()
 
     /**
      * Returns true if this entity should push and be pushed by other entities when colliding.
@@ -492,66 +492,19 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
 
         super.tick()
 
-        links.forEach { cleat, link ->
-            link.makeRuntimeRepresentation(world, this)
-        }
-
         // ensures client always has the proper location
         if (this.isControlledByLocalInstance) {
             syncPacketPositionCodec(this.x, this.y, this.z)
         }
 
-        for(cleat in cleats) {
-            breakLinkIfNeeded(cleat)
-        }
-
-        var canControlItself = true
-        for(cleat in cleats) { // is trailing boat, need to come closer to heading boat if needed
-            if(cleat.canTow())
-                continue
-
-            val link = getLink(cleat)
-            val heading = link.targetEntity
-            if(heading != null) {
-                val anchorPos = cleat.getWorldPosition(this)
-                val otherAnchorPos = link.target!!.getWorldPosition(heading)
-
-                val alpha = 0.5f
-
-                val restingLength = 0.5f
-                val d0 = (otherAnchorPos.x - anchorPos.x)
-                val d1 = (otherAnchorPos.y - anchorPos.y)
-                val d2 = (otherAnchorPos.z - anchorPos.z)
-                val length = sqrt(d0 * d0 + d1 * d1 + d2 * d2).coerceAtLeast(0.01)
-
-                if(length >= restingLength) {
-                    val k = -0.03
-                    val forceMagnitude = -k * (length - restingLength)
-                    val dirX = d0 / length
-                    val dirY = d1 / length
-                    val dirZ = d2 / length
-
-                    val dampingFactor = 0.2;
-                    val dampingX = deltaMovement.x * -dampingFactor;
-                    val dampingZ = deltaMovement.z * -dampingFactor;
-                    this.deltaMovement = deltaMovement.add(dirX * forceMagnitude + dampingX, dirY * forceMagnitude, dirZ * forceMagnitude + dampingZ)
-                    canControlItself = false
-
-                    // FIXME: handle case where targetYaw is ~0-180 and yRot is ~180+ (avoid doing a crazy flip)
-                    val targetYaw = computeTargetYaw(yRot, anchorPos, otherAnchorPos)
-                    yRot = alpha * yRot + targetYaw * (1f - alpha)
-                }
-            }
-        }
         this.updateMotion()
 
         isSpeedImposed = false
         blockedReason = NoBlockReason
         blockedMotion = false
         blockedRotation = false
-        if (canControlItself) {
-            this.controlBoat()
-        }
+        cleatCapability.tick(level, this)
+        this.controlBoat()
 
         breakLilypads()
 
@@ -607,28 +560,6 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
                     }
                 }
             }
-        }
-    }
-
-    private fun computeTargetYaw(currentYaw: Float, anchorPos: Vec3, otherAnchorPos: Vec3): Float {
-        val idealYaw = Math.atan2(otherAnchorPos.x - anchorPos.x, -(otherAnchorPos.z - anchorPos.z)).toFloat().toDegrees() + 180f
-        var closestDistance = Float.POSITIVE_INFINITY
-        var closest = idealYaw
-        for(sign in -1..1) {
-            val potentialYaw = idealYaw + sign * 360f
-            val distance = Math.abs(potentialYaw - currentYaw)
-            if(distance < closestDistance) {
-                closestDistance = distance
-                closest = potentialYaw
-            }
-        }
-        return closest
-    }
-
-    private fun breakLinkIfNeeded(cleat: Cleat) {
-        val link = getLink(cleat)
-        if(link.hasRuntimeTarget() && !link.targetEntity!!.isAlive) {
-            linkTo(null, cleat, null)
         }
     }
 
@@ -775,42 +706,12 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
         fallDistance = 0f;
     }
 
-    fun linkTo(other: Entity?, cleatOnThis: Cleat, cleatOnOther: Cleat?) {
-        val currentLinks = mutableMapOf<Cleat, Link>()
-        currentLinks.putAll(links)
-
-        assert((other == null) == (cleatOnOther == null)) { "Cannot set a target cleat without an entity (and vice-versa) "}
-
-        val link = getLink(cleatOnThis)
-        if(cleatOnOther != null) {
-            link.linkTo(cleatOnOther, other!!)
-        } else {
-            link.reset()
-        }
-
-        links = currentLinks // re-assigment forces the entity data to be dirty
-    }
-
     override fun addAdditionalSaveData(compound: CompoundTag) {
-        val linkList = ListTag()
-        for(link in links) {
-            val linkCompound = CompoundTag()
-            linkCompound.putString("origin_cleat", Cleats.Registry.get().getKey(link.key)?.toString() ?: error("Unknown cleat type: ${link.key}"))
-            link.value.writeNBT(linkCompound)
-            linkList.add(linkCompound)
-        }
-        compound.put("links", linkList)
+        cleatCapability.saveToNBT(compound)
     }
 
     override fun readAdditionalSaveData(compound: CompoundTag) {
-        links.clear()
-        val linkList = compound.getList("links", CompoundTag.TAG_COMPOUND.toInt())
-        for(linkData in linkList) {
-            linkData as CompoundTag
-            val originLocation = ResourceLocation(linkData.getString("origin_cleat"))
-            val originCleat = Cleats.Registry.get().getValue(originLocation) ?: error("Unregistered origin cleat $originLocation for entity $this")
-            getLink(originCleat).readNBT(linkData)
-        }
+        cleatCapability.readFromNBT(compound)
 
         if(compound.contains("patchouli_rendering_fix")) {
             patchouliRenderingFix = compound.getBoolean("patchouli_rendering_fix")
@@ -839,10 +740,6 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
             return InteractionResult.SUCCESS
         }
         return InteractionResult.PASS
-    }
-
-    fun getLinkedTo(cleat: Cleat): Entity? {
-        return getLink(cleat).targetEntity
     }
 
     override fun getAddEntityPacket(): Packet<*> {
@@ -923,5 +820,12 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
 
     fun getCleats(): Collection<Cleat> {
         return cleats
+    }
+
+    override fun <T : Any?> getCapability(capability: Capability<T>, facing: Direction?): LazyOptional<T> {
+        if(capability == ICleatCapability.Capability) {
+            return LazyOptional.of { cleatCapability }.cast()
+        }
+        return super<Entity>.getCapability(capability, facing)
     }
 }

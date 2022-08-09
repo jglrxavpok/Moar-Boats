@@ -69,7 +69,7 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
                     continue
 
                 matrixStackIn.pushPose()
-                val d = if (cleat.canTow()) 1.0f else -1.0f
+                val d = if (cleat.canTow()) -1.0f else 1.0f
                 matrixStackIn.scale(d, 1.0f, 1.0f)
                 matrixStackIn.translate(0.0, 0.0, 1.0 / 16.0)
                 cleatModel!!.renderToBuffer(
@@ -110,7 +110,7 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
 
             for(cleat in entity.getCleats()) {
                 lines += "Cleat[${Cleats.Registry.get().getKey(cleat)}]"
-                val link = entity.getLink(cleat)
+                val link = entity.cleatCapability.getLink(cleat)
                 if(link.hasTarget()) {
                     lines += "  Connected to: ${Cleats.Registry.get().getKey(link.target)}"
                     lines += "  Target entity UUID is: ${link.targetEntityUUID}"
@@ -256,7 +256,7 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
         val matrixStack = renderInfo.matrixStack
         entityRenderDispatcher.textureManager.bindForSetup(RopeAnchorTextureLocation)
         for(cleat in boatEntity.getCleats()) {
-            val link = boatEntity.getLink(cleat)
+            val link = boatEntity.cleatCapability.getLink(cleat)
             if(link.hasRuntimeTarget()) {
                 matrixStack.pushPose()
                 val cleatLocalPosition = cleat.getLocalPosition()
