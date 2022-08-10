@@ -140,7 +140,7 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
         val entityZ = Mth.lerp(partialTicks.toDouble(), entity.zOld, entity.z)
 
         poseStack.pushPose()
-        poseStack.translate(0.0, 0.375, 0.0)
+        poseStack.translate(0.0, BasicBoatEntity.BoatOffset, 0.0)
         if(entity.isEntityInLava())
             poseStack.translate(0.0, BasicBoatEntity.LavaOffset, 0.0)
 
@@ -164,75 +164,33 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
         if(entity.isEntityInLava())
             poseStack.translate(0.0, -BasicBoatEntity.LavaOffset, 0.0)
 
-        // TODO: capability for item
-        if(Minecraft.getInstance().player?.isHolding({ stack -> stack.item is RopeItem }) ?: false) {
+        poseStack.pushPose()
+
+        poseStack.translate(0.0, -4.0/16.0, 0.0)
+        // cancel entity rotation
+        poseStack.mulPose(Quaternion(0f, -(180.0f - entityYaw - 90f), 0.0f, true))
+
+        val hoveredAnchor = ((Minecraft.getInstance().hitResult as? EntityHitResult)?.entity as? BasicBoatEntity.CleatEntityPart)
+        val hoveredAnchorType = hoveredAnchor?.cleat
+
+        for(cleat in entity.getCleats()) {
+            val anchorLocalPosition = cleat.getWorldPosition(entity, partialTicks).subtract(entityX, entityY, entityZ)
+
             poseStack.pushPose()
+            poseStack.translate(anchorLocalPosition.x, anchorLocalPosition.y, anchorLocalPosition.z)
 
-            poseStack.translate(0.0, -4.0/16.0, 0.0)
-            // cancel entity rotation
-            poseStack.mulPose(Quaternion(0f, -(180.0f - entityYaw - 90f), 0.0f, true))
-
-            val hoveredAnchor = ((Minecraft.getInstance().hitResult as? EntityHitResult)?.entity as? BasicBoatEntity.CleatEntityPart)
-            val hoveredAnchorType = hoveredAnchor?.cleat
-
-            for(cleat in entity.getCleats()) {
-                val hovered = cleat == hoveredAnchorType && entity == hoveredAnchor?.parent
-                renderRopeHitbox(RenderInfo(poseStack, bufferIn, packedLightIn), entity, entityX, entityY, entityZ, entityYaw, partialTicks, cleat, hovered)
-            }
+            val hovered = cleat == hoveredAnchorType && entity == hoveredAnchor?.parent
+            StandaloneCleatRenderer.renderCleatWithRope(
+                RenderInfo(poseStack, bufferIn, packedLightIn),
+                entity,
+                entity.cleatCapability,
+                cleat,
+                hovered,
+                entityYaw,
+                partialTicks)
             poseStack.popPose()
         }
-
-        renderLink(RenderInfo(poseStack, bufferIn, packedLightIn), entity, entityYaw, partialTicks)
         poseStack.popPose()
-    }
-
-    private fun renderRopeHitbox(renderInfo: RenderInfo, entity: T, entityX: Double, entityY: Double, entityZ: Double, entityYaw: Float, partialTicks: Float, cleat: Cleat, hovered: Boolean) {
-        val poseStack = renderInfo.matrixStack
-
-        val hitboxSize = 0.25
-        val hitboxHalfSize = hitboxSize / 2
-
-        val minX = -hitboxHalfSize
-        val maxX = minX + hitboxSize
-
-        val minY = -hitboxHalfSize
-        val maxY = minY + hitboxSize
-
-        val minZ = -hitboxHalfSize
-        val maxZ = minZ + hitboxSize
-
-        val red = 1.0f
-        val green = if(hovered) 0.5f else 1.0f
-        val blue = if(hovered) 0.0f else 1.0f
-        val alpha = 1.0f
-
-        val anchorLocalPosition = cleat.getWorldPosition(entity, partialTicks).subtract(entityX, entityY, entityZ)
-
-        poseStack.pushPose()
-        poseStack.translate(anchorLocalPosition.x, anchorLocalPosition.y, anchorLocalPosition.z)
-        poseStack.mulPose(Quaternion(0f, (180.0f - entityYaw - 90f), 0.0f, true))
-        poseStack.translate(0.0, 0.0, 0.5 / 16.0)
-
-        poseStack.pushPose()
-        poseStack.translate(0.0, hitboxHalfSize, 0.0)
-
-        val text = cleat.getOverlayText()
-        val textScale = 1.0f / 32.0f
-        poseStack.scale(textScale, textScale, textScale)
-        poseStack.mulPose(Quaternion(0.0f, 90.0f, 0.0f, true))
-        poseStack.mulPose(Quaternion(90.0f, 0.0f, 0.0f, true))
-        val textColor = 0xFFFFFF
-        val outlineColor = 0x000000
-        val font = Minecraft.getInstance().font
-        val formattedText = text.visualOrderText
-        val w = font.width(formattedText).toDouble()
-        val h = font.lineHeight.toDouble()
-        poseStack.translate(-w / 2.0 + 0.5, -h / 2.0 + 1, 0.0)
-        font.drawInBatch8xOutline(formattedText, 0.0f, 0.0f, textColor, outlineColor, poseStack.last().pose(), renderInfo.buffers, renderInfo.combinedLight)
-        poseStack.popPose()
-
-        val vertexBuffer = renderInfo.buffers.getBuffer(RenderType.lines())
-        LevelRenderer.renderLineBox(poseStack, vertexBuffer, minX, minY, minZ, maxX, maxY, maxZ, red, green, blue, alpha)
         poseStack.popPose()
     }
 
@@ -250,70 +208,6 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
         this.model.renderToBuffer(matrixStackIn, usualBuffer, packedLightIn, OverlayTexture.NO_OVERLAY, red, green, blue, alpha)
         val noWaterBuffer = bufferIn.getBuffer(RenderType.waterMask())
         this.model.water_occlusion.render(matrixStackIn, noWaterBuffer, packedLightIn, OverlayTexture.NO_OVERLAY)
-    }
-
-    private fun renderLink(renderInfo: RenderInfo, boatEntity: T, entityYaw: Float, partialTicks: Float) {
-        val matrixStack = renderInfo.matrixStack
-        entityRenderDispatcher.textureManager.bindForSetup(RopeAnchorTextureLocation)
-        for(cleat in boatEntity.getCleats()) {
-            val link = boatEntity.cleatCapability.getLink(cleat)
-            if(link.hasRuntimeTarget()) {
-                matrixStack.pushPose()
-                val cleatLocalPosition = cleat.getLocalPosition()
-                matrixStack.translate(-cleatLocalPosition.z, cleatLocalPosition.y, cleatLocalPosition.x)
-                renderActualLink(renderInfo, boatEntity, link.targetEntity!!, cleat, link.target!!, entityYaw, renderInfo.combinedLight, partialTicks)
-                matrixStack.popPose()
-
-                matrixStack.pushPose()
-                val d = if(cleat.canTow()) 1.0f else -1.0f
-                matrixStack.scale(d, -1.0f, 1.0f)
-                matrixStack.translate(0.0, 0.0, 0.5 / 16.0)
-                val ropeBuffer = renderInfo.buffers.getBuffer(RenderType.entityTranslucent(RopeAnchorTextureLocation))
-                ropeAnchorModel.renderToBuffer(matrixStack, ropeBuffer, renderInfo.combinedLight, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f)
-                matrixStack.popPose()
-            }
-        }
-    }
-
-    private fun renderActualLink(renderInfo: RenderInfo, thisBoat: BasicBoatEntity, targetEntity: Entity, cleat: Cleat, connectedTo: Cleat, entityYaw: Float, packedLight: Int, partialTicks: Float) {
-        val matrixStack = renderInfo.matrixStack
-        val anchorThis = cleat.getWorldPosition(thisBoat, partialTicks)
-        val anchorOther = connectedTo.getWorldPosition(targetEntity, partialTicks)
-        val translateX = anchorOther.x - anchorThis.x
-        val translateY = anchorOther.y - anchorThis.y
-        val translateZ = anchorOther.z - anchorThis.z
-
-        matrixStack.pushPose()
-        matrixStack.mulPose(Quaternion(0f, -(180.0f - entityYaw - 90f), 0.0f, true))
-
-        val bufferbuilder = renderInfo.buffers.getBuffer(RenderType.leash())
-        val l = 24 // must be multiple of 3
-
-        // rope rendered from back and rope rendered from front will z-fight if we don't sync the color
-        val colorIndex = if(cleat.canTow()) 0 else 1
-
-        for (segment in 0 until l) {
-            val x = segment.toFloat() / l
-
-            // polynomial of roots 0, 1
-            val hangFactor = (x * x - x)
-
-            for (y in 0 .. 1) {
-                val yOffset = y * 0.05f
-                bufferbuilder
-                    .pos(matrixStack, translateX * x, translateY + hangFactor + yOffset, translateZ * x.toDouble())
-                if(segment % 2 == colorIndex)
-                    bufferbuilder.color(118, 92, 56, 255)
-                else
-                    bufferbuilder.color(182, 150, 116, 255)
-                bufferbuilder.uv2(packedLight)
-                bufferbuilder.normal(matrixStack, 1.0f, 0.0f, 0.0f)
-
-                bufferbuilder.endVertex()
-            }
-        }
-
-        matrixStack.popPose()
     }
 
     private fun setRotation(matrixStack: PoseStack, entity: T, entityYaw: Float, partialTicks: Float) {

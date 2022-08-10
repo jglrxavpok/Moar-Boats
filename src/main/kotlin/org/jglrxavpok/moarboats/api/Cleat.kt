@@ -61,7 +61,7 @@ abstract class Cleat {
         val cosYaw = Mth.cos(angle)
         val sinYaw = Mth.sin(angle)
         val anchorX = entityX + cosYaw * localPosition.z + sinYaw * localPosition.x
-        val anchorY = entityY + localPosition.y + 0.375 + if(owner.isInLava) BasicBoatEntity.LavaOffset else 0.0
+        val anchorY = entityY + localPosition.y + BasicBoatEntity.BoatOffset + if(owner.isInLava) BasicBoatEntity.LavaOffset else 0.0
         val anchorZ = entityZ + sinYaw * localPosition.z + cosYaw * localPosition.x
         return Vec3(anchorX, anchorY, anchorZ)
     }

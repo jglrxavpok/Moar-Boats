@@ -128,6 +128,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
         val CurrentDataFormatVersion = 2 // 1.19.1-8.0.0.0
 
         val LavaOffset get()= 0.20
+        val BoatOffset get()= 0.375
     }
     /** How much of current speed to acquire. Value zero to one.  */
     private var momentum = 0f
