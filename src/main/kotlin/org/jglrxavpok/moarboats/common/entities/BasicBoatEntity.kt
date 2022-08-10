@@ -49,6 +49,7 @@ import org.jglrxavpok.moarboats.common.modules.NoBlockReason
 import org.jglrxavpok.moarboats.common.vanillaglue.ICleatCapability
 import org.jglrxavpok.moarboats.extensions.Fluids
 import org.jglrxavpok.moarboats.extensions.setDirty
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.max
 
 abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Level): Entity(type, world), IControllable,
@@ -211,12 +212,12 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
     private val cleats: Set<Cleat> = mutableSetOf(Cleats.FrontCleat, Cleats.BackCleat)
 
     val cleatCapability = object: ICleatCapability() {
-        override fun getLinkStorage(): MutableMap<Cleat, Link> {
+        override fun getLinkStorage(): ConcurrentHashMap<Cleat, Link> {
             return links
         }
 
-        override fun syncLinkStorage(newValue: MutableMap<Cleat, Link>) {
-            links = newValue
+        override fun syncLinkStorage(newValue: Map<Cleat, Link>) {
+            links = ConcurrentHashMap<Cleat, Link>(newValue) // handle self assign
         }
     }
 
@@ -722,7 +723,7 @@ abstract class BasicBoatEntity(type: EntityType<out BasicBoatEntity>, world: Lev
         this.entityData.define(TIME_SINCE_HIT, 0)
         this.entityData.define(FORWARD_DIRECTION, 1)
         this.entityData.define(DAMAGE_TAKEN, 0f)
-        this.entityData.define(BOAT_LINKS, mutableMapOf())
+        this.entityData.define(BOAT_LINKS, ConcurrentHashMap())
     }
 
     override fun isPickable(): Boolean {

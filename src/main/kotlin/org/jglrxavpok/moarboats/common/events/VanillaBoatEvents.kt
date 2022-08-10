@@ -15,6 +15,7 @@ import org.jglrxavpok.moarboats.common.entities.StandaloneCleat
 import org.jglrxavpok.moarboats.common.vanillaglue.ICleatCapability
 import org.jglrxavpok.moarboats.common.vanillaglue.ICleatLinkStorage
 import org.jglrxavpok.moarboats.mixins.common.MixinBoat
+import java.util.concurrent.ConcurrentHashMap
 
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE, modid = MoarBoats.ModID)
@@ -31,11 +32,11 @@ object VanillaBoatEvents {
                     return event.`object` as ICleatLinkStorage
                 }
 
-                override fun getLinkStorage(): MutableMap<Cleat, Link> {
+                override fun getLinkStorage(): ConcurrentHashMap<Cleat, Link> {
                     return withMixin().getLinkStorage()
                 }
 
-                override fun syncLinkStorage(newValue: MutableMap<Cleat, Link>) {
+                override fun syncLinkStorage(newValue: Map<Cleat, Link>) {
                     return withMixin().syncLinkStorage(newValue)
                 }
 

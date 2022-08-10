@@ -12,20 +12,16 @@ import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.vehicle.Boat
 import net.minecraft.world.level.Level
-import net.minecraft.world.phys.Vec3
 import net.minecraftforge.entity.IEntityAdditionalSpawnData
 import net.minecraftforge.network.NetworkHooks
 import net.minecraftforge.network.PlayMessages
 import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.Cleat
-import org.jglrxavpok.moarboats.api.Link
 import org.jglrxavpok.moarboats.common.BoatLinksSerializer
 import org.jglrxavpok.moarboats.common.Cleats
 import org.jglrxavpok.moarboats.common.EntityEntries
 import org.jglrxavpok.moarboats.common.items.RopeItem
 import org.jglrxavpok.moarboats.common.vanillaglue.ICleatCapability
-import org.jglrxavpok.moarboats.extensions.toDegrees
-import kotlin.math.sqrt
 
 class StandaloneCleat(type: EntityType<out StandaloneCleat>, level: Level): Entity(type, level), IEntityAdditionalSpawnData {
 

@@ -112,7 +112,7 @@ abstract class ICleatCapability(): ICapabilityProvider, ICleatLinkStorage {
 
     fun readFromNBT(compound: CompoundTag) {
         getLinkStorage().clear()
-        val linkList = compound.getList("links", CompoundTag.TAG_COMPOUND.toInt())
+        val linkList = compound.getList("${MoarBoats.ModID}:links", CompoundTag.TAG_COMPOUND.toInt())
         for(linkData in linkList) {
             linkData as CompoundTag
             val originLocation = ResourceLocation(linkData.getString("origin_cleat"))
@@ -130,7 +130,7 @@ abstract class ICleatCapability(): ICapabilityProvider, ICleatLinkStorage {
             link.value.writeNBT(linkCompound)
             linkList.add(linkCompound)
         }
-        compound.put("links", linkList)
+        compound.put("${MoarBoats.ModID}:links", linkList)
     }
 
     // boilerplate

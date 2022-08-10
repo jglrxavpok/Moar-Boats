@@ -1,11 +1,9 @@
 package org.jglrxavpok.moarboats.mixins.common;
 
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.vehicle.Boat;
 import org.jglrxavpok.moarboats.api.Cleat;
 import org.jglrxavpok.moarboats.api.Link;
-import org.jglrxavpok.moarboats.common.BoatLinksSerializer;
 import org.jglrxavpok.moarboats.common.entities.StandaloneCleat;
 import org.jglrxavpok.moarboats.common.vanillaglue.ICleatCapability;
 import org.jglrxavpok.moarboats.common.vanillaglue.ICleatLinkStorage;
@@ -17,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Mixin(Boat.class)
 public class MixinBoat implements ICleatLinkStorage {
@@ -25,13 +24,18 @@ public class MixinBoat implements ICleatLinkStorage {
         return (Boat)(Object)this;
     }
 
+    private ICleatCapability getCleatCapability() {
+        return self().getCapability(ICleatCapability.Companion.getCapability()).orElseThrow(() -> new IllegalStateException("No cleat capability on this boat"));
+    }
+
     @Override
-    public Map<Cleat, Link> getLinkStorage() {
+    public ConcurrentHashMap<Cleat, Link> getLinkStorage() {
         return self().getEntityData().get(StandaloneCleat.BOAT_LINKS);
     }
 
     @Override
     public void syncLinkStorage(Map<Cleat, Link> newValue) {
+        newValue = new HashMap<Cleat, Link>(newValue); // handle self assign
         Map<Cleat, Link> links = getLinkStorage();
         links.clear();
         links.putAll(newValue);
@@ -40,15 +44,22 @@ public class MixinBoat implements ICleatLinkStorage {
 
     @Inject(at = @At("HEAD"), method = "defineSynchedData()V")
     public void defineSynchedData(CallbackInfo ci) {
-        self().getEntityData().define(StandaloneCleat.BOAT_LINKS, new HashMap<>());
+        self().getEntityData().define(StandaloneCleat.BOAT_LINKS, new ConcurrentHashMap<>());
     }
 
     @Inject(at = @At("HEAD"), method = "tick()V")
     public void tick(CallbackInfo ci) {
-        ICleatCapability capability = self().getCapability(ICleatCapability.Companion.getCapability()).orElseThrow(() -> new IllegalStateException("No cleat capability on this boat"));
-        capability.tick(self().level, self());
+        getCleatCapability().tick(self().level, self());
     }
 
-    // TODO: NBT saving/loading
+    @Inject(at = @At("HEAD"), method = "readAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V")
+    public void readAdditionalSaveData(CompoundTag nbt, CallbackInfo ci) {
+        getCleatCapability().readFromNBT(nbt);
+    }
+
+    @Inject(at = @At("HEAD"), method = "addAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V")
+    public void addAdditionalSaveData(CompoundTag nbt, CallbackInfo ci) {
+        getCleatCapability().saveToNBT(nbt);
+    }
 
 }
