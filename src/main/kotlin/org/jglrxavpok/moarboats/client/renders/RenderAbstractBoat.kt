@@ -26,7 +26,9 @@ import org.jglrxavpok.moarboats.client.normal
 import org.jglrxavpok.moarboats.client.pos
 import org.jglrxavpok.moarboats.common.Cleats
 import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
+import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.items.RopeItem
+import org.jglrxavpok.moarboats.common.vanillaglue.ICleatCapability
 
 abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRendererProvider.Context): EntityRenderer<T>(renderManager) {
 
@@ -56,31 +58,68 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
 
 
         fun renderBoatCleats(
-            cleatPredicate: (Entity, Cleat) -> Boolean,
+            renderCleatModels: Boolean,
+            cleatCapability: ICleatCapability,
+
+            isHovered: (Cleat) -> Boolean,
+
             entity: Entity,
             matrixStackIn: PoseStack,
+            bufferSource: MultiBufferSource,
             vertexconsumer: VertexConsumer,
-            packedLightIn: Int
+            packedLightIn: Int,
+
+            entityYaw: Float,
+
+            partialTicks: Float
         ) {
             check(cleatModel != null) { "Cleat model was not loaded" }
 
-            for (cleat in arrayOf(Cleats.FrontCleat, Cleats.BackCleat)) {
-                if (!cleatPredicate(entity, cleat))
-                    continue
+            if(renderCleatModels) {
+                for (cleat in arrayOf(Cleats.FrontCleat, Cleats.BackCleat)) {
+                    if (!cleatCapability.hasLinkAt(cleat))
+                        continue
 
+                    matrixStackIn.pushPose()
+                    val d = if (cleat.canTow()) -1.0f else 1.0f
+                    matrixStackIn.scale(d, 1.0f, 1.0f)
+                    matrixStackIn.translate(0.0, 0.0, 1.0 / 16.0)
+                    cleatModel!!.renderToBuffer(
+                        matrixStackIn,
+                        vertexconsumer,
+                        packedLightIn,
+                        OverlayTexture.NO_OVERLAY,
+                        1f,
+                        1f,
+                        1f,
+                        1f
+                    )
+                    matrixStackIn.popPose()
+                }
+            }
+
+            for (cleat in arrayOf(Cleats.FrontCleat, Cleats.BackCleat)) {
                 matrixStackIn.pushPose()
-                val d = if (cleat.canTow()) -1.0f else 1.0f
-                matrixStackIn.scale(d, 1.0f, 1.0f)
-                matrixStackIn.translate(0.0, 0.0, 1.0 / 16.0)
-                cleatModel!!.renderToBuffer(
-                    matrixStackIn,
-                    vertexconsumer,
-                    packedLightIn,
-                    OverlayTexture.NO_OVERLAY,
-                    1f,
-                    1f,
-                    1f,
-                    1f
+                matrixStackIn.scale(1.0f, -1.0f, 1.0f)
+                matrixStackIn.mulPose(Quaternion(0f,  -(180.0f - entityYaw - 90f), 0.0f, true))
+
+                val entityX = Mth.lerp(partialTicks.toDouble(), entity.xOld, entity.x)
+                val entityY = Mth.lerp(partialTicks.toDouble(), entity.yOld, entity.y)
+                val entityZ = Mth.lerp(partialTicks.toDouble(), entity.zOld, entity.z)
+                val anchorLocalPosition = cleat.getWorldPosition(entity, partialTicks).subtract(entityX, entityY, entityZ)
+
+                matrixStackIn.translate(anchorLocalPosition.x, anchorLocalPosition.y, anchorLocalPosition.z)
+                matrixStackIn.translate(0.0, -4.0 / 16.0, 0.0)
+
+                val hovered = isHovered(cleat)
+                StandaloneCleatRenderer.renderCleatWithRope(
+                    RenderInfo(matrixStackIn, bufferSource, packedLightIn),
+                    entity,
+                    cleatCapability,
+                    cleat,
+                    hovered,
+                    entityYaw,
+                    partialTicks
                 )
                 matrixStackIn.popPose()
             }
@@ -135,10 +174,6 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
             poseStack.popPose()
         }
 
-        val entityX = Mth.lerp(partialTicks.toDouble(), entity.xOld, entity.x)
-        val entityY = Mth.lerp(partialTicks.toDouble(), entity.yOld, entity.y)
-        val entityZ = Mth.lerp(partialTicks.toDouble(), entity.zOld, entity.z)
-
         poseStack.pushPose()
         poseStack.translate(0.0, BasicBoatEntity.BoatOffset, 0.0)
         if(entity.isEntityInLava())
@@ -156,7 +191,7 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
 
         poseStack.pushPose()
         poseStack.scale(1.0f, -1.0f, -1.0f)
-        renderBoat(entity, poseStack, bufferIn, packedLightIn, color[0], color[1], color[2], 1.0f)
+        renderBoat(entity, poseStack, bufferIn, packedLightIn, entityYaw, partialTicks, color[0], color[1], color[2], 1.0f)
         poseStack.popPose()
 
         postModelRender(entity, entityYaw, partialTicks, poseStack, bufferIn, packedLightIn)
@@ -164,33 +199,6 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
         if(entity.isEntityInLava())
             poseStack.translate(0.0, -BasicBoatEntity.LavaOffset, 0.0)
 
-        poseStack.pushPose()
-
-        poseStack.translate(0.0, -4.0/16.0, 0.0)
-        // cancel entity rotation
-        poseStack.mulPose(Quaternion(0f, -(180.0f - entityYaw - 90f), 0.0f, true))
-
-        val hoveredAnchor = ((Minecraft.getInstance().hitResult as? EntityHitResult)?.entity as? BasicBoatEntity.CleatEntityPart)
-        val hoveredAnchorType = hoveredAnchor?.cleat
-
-        for(cleat in entity.getCleats()) {
-            val anchorLocalPosition = cleat.getWorldPosition(entity, partialTicks).subtract(entityX, entityY, entityZ)
-
-            poseStack.pushPose()
-            poseStack.translate(anchorLocalPosition.x, anchorLocalPosition.y, anchorLocalPosition.z)
-
-            val hovered = cleat == hoveredAnchorType && entity == hoveredAnchor?.parent
-            StandaloneCleatRenderer.renderCleatWithRope(
-                RenderInfo(poseStack, bufferIn, packedLightIn),
-                entity,
-                entity.cleatCapability,
-                cleat,
-                hovered,
-                entityYaw,
-                partialTicks)
-            poseStack.popPose()
-        }
-        poseStack.popPose()
         poseStack.popPose()
     }
 
@@ -199,6 +207,10 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
         matrixStackIn: PoseStack,
         bufferIn: MultiBufferSource,
         packedLightIn: Int,
+
+        entityYaw: Float,
+        partialTicks: Float,
+
         red: Float,
         green: Float,
         blue: Float,
@@ -206,6 +218,16 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
     ) {
         val usualBuffer = bufferIn.getBuffer(this.model.renderType(getTextureLocation(entity)))
         this.model.renderToBuffer(matrixStackIn, usualBuffer, packedLightIn, OverlayTexture.NO_OVERLAY, red, green, blue, alpha)
+
+        matrixStackIn.pushPose()
+
+        val hoveredAnchor = ((Minecraft.getInstance().hitResult as? EntityHitResult)?.entity as? BasicBoatEntity.CleatEntityPart)
+        val hoveredAnchorType = hoveredAnchor?.cleat
+
+        renderBoatCleats(entity !is ModularBoatEntity, entity.cleatCapability, {cleat -> hoveredAnchor?.parent == entity && hoveredAnchorType == cleat }, entity, matrixStackIn, bufferIn, usualBuffer, packedLightIn, entityYaw, partialTicks)
+
+        matrixStackIn.popPose()
+
         val noWaterBuffer = bufferIn.getBuffer(RenderType.waterMask())
         this.model.water_occlusion.render(matrixStackIn, noWaterBuffer, packedLightIn, OverlayTexture.NO_OVERLAY)
     }

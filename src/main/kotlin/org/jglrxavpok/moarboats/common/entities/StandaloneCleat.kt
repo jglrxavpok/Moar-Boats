@@ -12,6 +12,7 @@ import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.vehicle.Boat
 import net.minecraft.world.level.Level
+import net.minecraft.world.phys.Vec3
 import net.minecraftforge.entity.IEntityAdditionalSpawnData
 import net.minecraftforge.network.NetworkHooks
 import net.minecraftforge.network.PlayMessages
@@ -23,6 +24,9 @@ import org.jglrxavpok.moarboats.common.EntityEntries
 import org.jglrxavpok.moarboats.common.items.RopeItem
 import org.jglrxavpok.moarboats.common.vanillaglue.ICleatCapability
 
+/**
+ * Standalone entity that can be added to the world, which will act as a cleat attached to a given entity
+ */
 class StandaloneCleat(type: EntityType<out StandaloneCleat>, level: Level): Entity(type, level), IEntityAdditionalSpawnData {
 
     companion object {
@@ -44,9 +48,7 @@ class StandaloneCleat(type: EntityType<out StandaloneCleat>, level: Level): Enti
         setPos(parent.position())
     }
 
-    constructor(packet: PlayMessages.SpawnEntity, level: Level): this(EntityEntries.StandaloneCleat.get(), level) {
-
-    }
+    constructor(packet: PlayMessages.SpawnEntity, level: Level): this(EntityEntries.StandaloneCleat.get(), level) {}
 
     fun setParent(parent: Entity) {
         setParentID(parent.id)
@@ -78,8 +80,6 @@ class StandaloneCleat(type: EntityType<out StandaloneCleat>, level: Level): Enti
     }
 
     override fun tick() {
-        super.tick()
-
         val parent = getParent()
         if(parent == null) {
             remove(RemovalReason.DISCARDED)
@@ -91,14 +91,20 @@ class StandaloneCleat(type: EntityType<out StandaloneCleat>, level: Level): Enti
             return
         }
 
-        val parentCleatCapability = parent.getCapability(ICleatCapability.Capability).orElseThrow{ IllegalStateException("Attached a cleat to an entity that has no cleat capability?") }
-        parentCleatCapability.tick(level, parent)
-
         // 1. set position
-        setPos(cleatType.getWorldPosition(parent, 0.0f))
+        val wantedPos = cleatType.getWorldPosition(parent)
+        xo = x
+        xOld = x
+
+        yo = y
+        yOld = y
+
+        zo = z
+        zOld = z
+
+        setPos(wantedPos.x, wantedPos.y, wantedPos.z)
         setOldPosAndRot()
-        setPos(cleatType.getWorldPosition(parent, 1.0f))
-        deltaMovement = parent.deltaMovement
+        deltaMovement = Vec3.ZERO
     }
 
     override fun readAdditionalSaveData(p_20052_: CompoundTag) {

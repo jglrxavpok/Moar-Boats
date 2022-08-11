@@ -3,7 +3,9 @@ package org.jglrxavpok.moarboats.client.renders
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
+import com.mojang.math.Quaternion
 import com.mojang.math.Vector3f
+import net.minecraft.client.Minecraft
 import net.minecraft.client.model.BoatModel
 import net.minecraft.client.model.geom.ModelLayerLocation
 import net.minecraft.client.renderer.MultiBufferSource
@@ -12,9 +14,12 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.phys.EntityHitResult
 import org.jglrxavpok.moarboats.client.models.CleatModel
 import org.jglrxavpok.moarboats.common.Cleats
 import org.jglrxavpok.moarboats.common.data.BoatType
+import org.jglrxavpok.moarboats.common.entities.BasicBoatEntity
+import org.jglrxavpok.moarboats.common.entities.ModularBoatEntity
 import org.jglrxavpok.moarboats.common.entities.UtilityBoatEntity
 
 class RenderUtilityBoat<T: UtilityBoatEntity<*,*>>(renderManager: EntityRendererProvider.Context, val blockstateProvider: (T) ->BlockState): RenderAbstractBoat<T>(renderManager) {
@@ -49,11 +54,16 @@ class RenderUtilityBoat<T: UtilityBoatEntity<*,*>>(renderManager: EntityRenderer
         matrixStackIn: PoseStack,
         bufferIn: MultiBufferSource,
         packedLightIn: Int,
+
+        entityYaw: Float,
+        partialTicks: Float,
+
         red: Float,
         green: Float,
         blue: Float,
         alpha: Float
     ) {
+        matrixStackIn.pushPose()
         matrixStackIn.pushPose()
         matrixStackIn.scale(-1.0f, 1.0f, -1.0f)
         val boatmodel: BoatModel = models[entity.boatType] ?: return
@@ -69,8 +79,16 @@ class RenderUtilityBoat<T: UtilityBoatEntity<*,*>>(renderManager: EntityRenderer
             1.0f,
             1.0f
         )
+        matrixStackIn.popPose()
 
-        RenderAbstractBoat.renderBoatCleats({_, cleat -> entity.cleatCapability.hasLinkAt(cleat) }, entity, matrixStackIn, vertexconsumer, packedLightIn)
+        matrixStackIn.pushPose()
+
+        val hoveredAnchor = ((Minecraft.getInstance().hitResult as? EntityHitResult)?.entity as? BasicBoatEntity.CleatEntityPart)
+        val hoveredAnchorType = hoveredAnchor?.cleat
+
+        renderBoatCleats(true, entity.cleatCapability, { cleat -> hoveredAnchor?.parent == entity && hoveredAnchorType == cleat }, entity, matrixStackIn, bufferIn, vertexconsumer, packedLightIn, entityYaw, partialTicks)
+
+        matrixStackIn.popPose()
 
         val vertexconsumer1: VertexConsumer = bufferIn.getBuffer(RenderType.waterMask())
         boatmodel.waterPatch().render(matrixStackIn, vertexconsumer1, packedLightIn, OverlayTexture.NO_OVERLAY)

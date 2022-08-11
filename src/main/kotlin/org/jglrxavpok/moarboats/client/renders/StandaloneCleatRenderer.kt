@@ -31,6 +31,8 @@ class StandaloneCleatRenderer<T: StandaloneCleat>(renderManager: EntityRendererP
     }
 
     override fun render(entity: T, entityYaw: Float, partialTicks: Float, poseStack: PoseStack, bufferIn: MultiBufferSource, packedLightIn: Int) {
+        if(true)
+            return;
         val parent = entity.getParent() ?: return
 
         val entityYaw = Mth.lerp(partialTicks.toDouble(), parent.yRotO.toDouble(), parent.yRot.toDouble()).toFloat()
@@ -68,7 +70,9 @@ class StandaloneCleatRenderer<T: StandaloneCleat>(renderManager: EntityRendererP
                 poseStack.popPose()
             }
 
-            renderRopeWithAnchor(renderInfo, owner, cleatCapability, cleatType, entityYaw, partialTicks)
+            if(cleatCapability.hasLinkAt(cleatType)) {
+                renderRopeWithAnchor(renderInfo, owner, cleatCapability, cleatType, entityYaw, partialTicks)
+            }
         }
 
         private fun renderCleatHitbox(renderInfo: RenderInfo, cleat: Cleat, hovered: Boolean) {
@@ -92,14 +96,13 @@ class StandaloneCleatRenderer<T: StandaloneCleat>(renderManager: EntityRendererP
             val alpha = 1.0f
 
             poseStack.pushPose()
-            poseStack.translate(0.0, 0.0, 0.5 / 16.0)
 
             poseStack.pushPose()
             poseStack.translate(0.0, hitboxHalfSize, 0.0)
 
             val text = cleat.getOverlayText()
             val textScale = 1.0f / 32.0f
-            poseStack.scale(textScale, textScale, textScale)
+            poseStack.scale(textScale, textScale, -textScale)
             poseStack.mulPose(Quaternion(0.0f, 90.0f, 0.0f, true))
             poseStack.mulPose(Quaternion(90.0f, 0.0f, 0.0f, true))
             val textColor = 0xFFFFFF
@@ -124,14 +127,13 @@ class StandaloneCleatRenderer<T: StandaloneCleat>(renderManager: EntityRendererP
             val link = cleatCapability.getLink(cleat)
             if(link.hasRuntimeTarget()) {
                 matrixStack.pushPose()
+                matrixStack.mulPose(Quaternion(0f, 2*(180.0f - entityYaw - 90f) + 90.0f, 0.0f, true))
                 renderRope(renderInfo, ownerEntity, link.targetEntity!!, cleat, link.target!!, renderInfo.combinedLight, partialTicks)
                 matrixStack.popPose()
 
                 matrixStack.pushPose()
-                val d = if(cleat.canTow()) 1.0f else -1.0f
                 matrixStack.mulPose(Quaternion(0f, (180.0f - entityYaw - 90f), 0.0f, true))
-                matrixStack.scale(d, -1.0f, 1.0f)
-                matrixStack.translate(-0.5 / 16.0f, BasicBoatEntity.BoatOffset, 0.5 / 16.0)
+                matrixStack.translate(-0.5 / 16.0f, BasicBoatEntity.BoatOffset - 1.0 / 16.0, 0.5 / 16.0)
                 val ropeBuffer = renderInfo.buffers.getBuffer(RenderType.entityTranslucent(Companion.RopeAnchorTextureLocation))
                 ropeAnchorModel.renderToBuffer(matrixStack, ropeBuffer, renderInfo.combinedLight, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f)
                 matrixStack.popPose()
@@ -142,11 +144,9 @@ class StandaloneCleatRenderer<T: StandaloneCleat>(renderManager: EntityRendererP
             val matrixStack = renderInfo.matrixStack
             val anchorThis = cleat.getWorldPosition(ownerEntity, partialTicks)
             val anchorOther = connectedTo.getWorldPosition(targetEntity, partialTicks)
-            val translateX = anchorOther.x - anchorThis.x
+            val translateZ = anchorOther.x - anchorThis.x
             val translateY = anchorOther.y - anchorThis.y
-            val translateZ = anchorOther.z - anchorThis.z
-
-            matrixStack.pushPose()
+            val translateX = anchorOther.z - anchorThis.z
 
             val bufferbuilder = renderInfo.buffers.getBuffer(RenderType.leash())
             val l = 24 // must be multiple of 3
@@ -174,8 +174,6 @@ class StandaloneCleatRenderer<T: StandaloneCleat>(renderManager: EntityRendererP
                     bufferbuilder.endVertex()
                 }
             }
-
-            matrixStack.popPose()
         }
     }
 
