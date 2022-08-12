@@ -9,9 +9,11 @@ import org.jglrxavpok.moarboats.common.vanillaglue.ICleatCapability;
 import org.jglrxavpok.moarboats.common.vanillaglue.ICleatLinkStorage;
 import org.jglrxavpok.moarboats.extensions.EntityExtensionsKt;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,12 +22,33 @@ import java.util.concurrent.ConcurrentHashMap;
 @Mixin(Boat.class)
 public class MixinBoat implements ICleatLinkStorage {
 
+    @Shadow
+    private int lerpSteps;
+
+    @Shadow
+    private double lerpX;
+
+    @Shadow
+    private double lerpY;
+
+    @Shadow
+    private double lerpZ;
+
+    private int lastCleatTick = 0;
+
     private Boat self() {
         return (Boat)(Object)this;
     }
 
     private ICleatCapability getCleatCapability() {
         return self().getCapability(ICleatCapability.Companion.getCapability()).orElseThrow(() -> new IllegalStateException("No cleat capability on this boat"));
+    }
+
+    private void tickCapability() {
+        if(self().tickCount != lastCleatTick) {
+            getCleatCapability().tick(self().level, self());
+            lastCleatTick = self().tickCount;
+        }
     }
 
     @Override
@@ -47,9 +70,42 @@ public class MixinBoat implements ICleatLinkStorage {
         self().getEntityData().define(StandaloneCleat.BOAT_LINKS, new ConcurrentHashMap<>());
     }
 
-    @Inject(at = @At("HEAD"), method = "tick()V")
-    public void tick(CallbackInfo ci) {
-        getCleatCapability().tick(self().level, self());
+    @Inject(method = "tick()V",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/entity/vehicle/Boat;tickLerp()V",
+                    shift = At.Shift.BEFORE
+            )
+    )
+    public void preTickLerps(CallbackInfo ci) {
+        if(lerpSteps > 0) {
+            lerpSteps = 1;
+        }
+        /*lerpX = self().getX();
+        lerpY = self().getY();
+        lerpZ = self().getZ();*/
+    }
+
+    @Inject(method = "tick()V",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/entity/vehicle/Boat;move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V",
+                    shift = At.Shift.BEFORE
+            )
+    )
+    public void preMove(CallbackInfo ci) {
+        tickCapability();
+    }
+
+    @Inject(method = "tick()V",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/entity/vehicle/Boat;tickBubbleColumn()V",
+                    shift = At.Shift.BEFORE
+            )
+    )
+    public void preBubbleColumn(CallbackInfo ci) {
+        tickCapability();
     }
 
     @Inject(at = @At("HEAD"), method = "readAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V")
