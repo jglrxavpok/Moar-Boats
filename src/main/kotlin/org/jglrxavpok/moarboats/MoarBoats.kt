@@ -91,13 +91,6 @@ object MoarBoats {
         override fun makeIcon(): ItemStack {
             return ItemStack(MBItems.ModularBoats[DyeColor.WHITE]!!.get())
         }
-
-        override fun fillItemList(items: NonNullList<ItemStack>) {
-            for (itemEntry in MBItems.Registry.entries) {
-                val item = itemEntry.get()
-                item.fillItemCategory(this, items)
-            }
-        }
     }
 
     val UtilityBoatTab = object: CreativeModeTab("moarboats_utility") {
@@ -105,13 +98,6 @@ object MoarBoats {
         @OnlyIn(Dist.CLIENT)
         override fun makeIcon(): ItemStack {
             return ItemStack(MBItems.CraftingTableBoats[BoatType.OAK]!!.get())
-        }
-
-        override fun fillItemList(items: NonNullList<ItemStack>) {
-            for (itemEntry in MBItems.Registry.entries) {
-                val item = itemEntry.get()
-                item.fillItemCategory(this, items)
-            }
         }
     }
 

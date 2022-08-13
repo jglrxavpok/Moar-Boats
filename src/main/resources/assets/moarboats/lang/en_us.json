@@ -26,6 +26,8 @@
     "entity.moarboats.shulker_box_boat": "Shulker Box Boat",
     "entity.moarboats.jukebox_boat": "Jukebox Boat",
 
+    "entity.moarboats.standalone_cleat": "Cleat hitbox",
+
     "general.occupiedSpot": "Spot \"%s\" is already occupied!",
     "general.spot.engine": "Engine",
     "general.spot.misc": "Miscellaneous",
@@ -167,6 +169,7 @@
     "moarboats.gui.generic.confirm": "Confirm",
     "moarboats.gui.generic.misc": "Miscellaneous",
 
+    "moarboats.gui.helm.golden_ticket_in_slot": "Golden ticket: no map to show",
     "moarboats.gui.helm.save_on_map": "Save on map",
 
     "moarboats.gui.mapping_table.add": "Add",

@@ -7,7 +7,7 @@
         {
             "type": "patchouli:entity",
             "entity": "moarboats:animal_boat",
-            "text": "Regular boats can transport some entities. Because it is bigger, the Animal Boat can transport more types of entities."
+            "text": "Regular boats can only transport some entities. Because it is bigger, the Animal Boat can transport more types of entities."
         },
         {
             "type": "patchouli:crafting",

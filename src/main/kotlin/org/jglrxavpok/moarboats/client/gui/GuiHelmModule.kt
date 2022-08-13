@@ -23,6 +23,7 @@ import org.jglrxavpok.moarboats.client.pos
 import org.jglrxavpok.moarboats.client.renders.HelmModuleRenderer
 import org.jglrxavpok.moarboats.common.containers.ContainerHelmModule
 import org.jglrxavpok.moarboats.common.data.LoopingOptions
+import org.jglrxavpok.moarboats.common.items.ItemGoldenTicket
 import org.jglrxavpok.moarboats.common.items.ItemPath
 import org.jglrxavpok.moarboats.common.modules.HelmModule
 import org.jglrxavpok.moarboats.common.network.CChangeEngineMode
@@ -38,6 +39,7 @@ class GuiHelmModule(menuType: MenuType<ContainerHelmModule>, containerID: Int, p
     private val margins = 3.0
     private val mapSize = 100.0
     private val mapStack = ItemStack(Items.FILLED_MAP)
+    private val goldenTicketButtonText = Component.translatable("moarboats.gui.helm.golden_ticket_in_slot")
     private val editButtonText = Component.translatable("gui.helm.path_editor")
     private val saveButtonText = Component.translatable("moarboats.gui.helm.save_on_map")
     private val mapEditButton = Button(0, 0, 150, 20, editButtonText) {
@@ -75,6 +77,13 @@ class GuiHelmModule(menuType: MenuType<ContainerHelmModule>, containerID: Int, p
 
     override fun drawModuleBackground(poseStack: PoseStack, mouseX: Int, mouseY: Int) {
         super.drawModuleBackground(poseStack, mouseX, mouseY)
+
+        val stack = baseContainer.getSlot(0).item
+        if(stack.item is ItemGoldenTicket) {
+            font.drawCenteredString(poseStack, goldenTicketButtonText, guiLeft + imageWidth / 2, guiTop + inventoryLabelY / 2, 0xFFFFFFFF.toInt(), true)
+            return;
+        }
+
         RenderSystem.setShaderTexture(0, RES_MAP_BACKGROUND)
         RenderSystem.setShader { GameRenderer.getPositionColorTexLightmapShader() }
         val tessellator = Tesselator.getInstance()
@@ -87,7 +96,7 @@ class GuiHelmModule(menuType: MenuType<ContainerHelmModule>, containerID: Int, p
         bufferbuilder.pos(poseStack, x+mapSize, y, 0.0).color(1f, 1f, 1f, 1f).uv(1.0f, 0.0f).uv2(15728880).endVertex()
         bufferbuilder.pos(poseStack, x, y, 0.0).color(1f, 1f, 1f, 1f).uv(0.0f, 0.0f).uv2(15728880).endVertex()
         tessellator.end()
-        val stack = baseContainer.getSlot(0).item
+
         var hasMap = false
         val buffers = mc.renderBuffers().bufferSource()
         getMapData(stack)?.let { mapdata ->
@@ -140,9 +149,14 @@ class GuiHelmModule(menuType: MenuType<ContainerHelmModule>, containerID: Int, p
 
     override fun containerTick() {
         super.containerTick()
-        val mapData = getMapData(baseContainer.getSlot(0).item)
+        val itemStack = baseContainer.getSlot(0).item
+        val mapData = getMapData(itemStack)
+
+        mapEditButton.visible = itemStack.item !is ItemGoldenTicket
+        saveButton.visible = itemStack.item !is ItemGoldenTicket
+
         mapEditButton.active = mapData != null
-        saveButton.active = mapData != null && baseContainer.getSlot(0).item.item == Items.FILLED_MAP
+        saveButton.active = mapData != null && itemStack.item == Items.FILLED_MAP
     }
 
 }

@@ -121,7 +121,7 @@ class CraftingTableBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "craf
     }
 
     override fun getContainerDisplayName(): Component {
-        return Component.translatable("container.crafting")
+        return Component.translatable("block.minecraft.crafting_table")
     }
 }
 
@@ -220,7 +220,7 @@ class ShulkerBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "shulker") 
     }
 
     override fun getContainerDisplayName(): Component {
-        return Component.translatable("container.shulkerBox")
+        return Component.translatable("block.minecraft.shulker_box")
     }
 
     override fun getName(stack: ItemStack): Component {
@@ -270,7 +270,7 @@ class JukeboxBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "jukebox") 
 
 abstract class UtilityBoatItem(val boatType: BoatType, val containerType: String): BaseBoatItem({ tab(MoarBoats.UtilityBoatTab) }) {
 
-    open fun getContainerDisplayName(): Component = Component.translatable("container.$containerType")
+    open fun getContainerDisplayName(): Component = Component.translatable("block.minecraft.$containerType")
 
     override fun getName(stack: ItemStack): Component {
         return Component.translatable("item.moarboats.utility_boat.name", Component.translatable("item.${boatType.getBaseBoatOriginModID()}.${boatType.getShortName()}_boat"), getContainerDisplayName())

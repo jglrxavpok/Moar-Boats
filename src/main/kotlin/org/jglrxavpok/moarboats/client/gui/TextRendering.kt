@@ -12,7 +12,7 @@ fun Font.drawCenteredString(matrixStack: PoseStack, text: String, x: Int, y: Int
     val textWidth = this.width(text)
     val textX = x - textWidth / 2
     if(shadow)
-        draw(matrixStack, text, textX.toFloat(), y.toFloat(), color)
+        drawShadow(matrixStack, text, textX.toFloat(), y.toFloat(), color)
     else
         draw(matrixStack, text, textX.toFloat(), y.toFloat(), color)
 }
