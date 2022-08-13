@@ -61,6 +61,7 @@ import org.jglrxavpok.moarboats.MoarBoats
 import org.jglrxavpok.moarboats.api.BoatModuleRegistry
 import org.jglrxavpok.moarboats.client.gui.*
 import org.jglrxavpok.moarboats.client.models.CleatModel
+import org.jglrxavpok.moarboats.client.models.DivingBottlesModel
 import org.jglrxavpok.moarboats.client.models.HelmModel
 import org.jglrxavpok.moarboats.client.models.ModelPatreonHook
 import org.jglrxavpok.moarboats.client.models.ModularBoatModel
@@ -107,6 +108,7 @@ object ClientEvents {
             event.registerLayerDefinition(RudderModel.LAYER_LOCATION) { RudderModel.createBodyLayer() }
             event.registerLayerDefinition(RopeKnotModel.LAYER_LOCATION) { RopeKnotModel.createBodyLayer() }
             event.registerLayerDefinition(CleatModel.LAYER_LOCATION) { CleatModel.createBodyLayer() }
+            event.registerLayerDefinition(DivingBottlesModel.LAYER_LOCATION) { DivingBottlesModel.createBodyLayer() }
         }
 
         @SubscribeEvent
@@ -238,7 +240,7 @@ object ClientEvents {
         BoatModuleRenderingRegistry.put(CreativeEngineModule) { CreativeEngineRenderer }
         BoatModuleRenderingRegistry.put(IceBreakerModule, ::IcebreakerModuleRenderer)
         BoatModuleRenderingRegistry.put(DispenserModule) { DispenserModuleRenderer }
-        BoatModuleRenderingRegistry.put(DivingModule) { DivingModuleRenderer }
+        BoatModuleRenderingRegistry.put(DivingModule, ::DivingModuleRenderer)
         BoatModuleRenderingRegistry.put(RudderModule, ::RudderModuleRenderer)
         BoatModuleRenderingRegistry.put(DropperModule) { DropperModuleRenderer }
         BoatModuleRenderingRegistry.put(BatteryModule) { BatteryModuleRenderer }
