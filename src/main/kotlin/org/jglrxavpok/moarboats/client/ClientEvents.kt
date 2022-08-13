@@ -127,8 +127,6 @@ object ClientEvents {
             registerUtilityBoat(event, EntityEntries.LoomBoat.get()) { boat -> Blocks.LOOM.defaultBlockState() }
             registerUtilityBoat(event, EntityEntries.CartographyTableBoat.get()) { boat -> Blocks.CARTOGRAPHY_TABLE.defaultBlockState() }
             registerUtilityBoat(event, EntityEntries.StonecutterBoat.get()) { boat -> Blocks.STONECUTTER.defaultBlockState() }
-            registerUtilityBoat(event, EntityEntries.ChestBoat.get()) { boat -> Blocks.CHEST.defaultBlockState().setValue(
-                ChestBlock.FACING, Direction.SOUTH) }
             registerUtilityBoat(event, EntityEntries.EnderChestBoat.get()) { boat -> Blocks.ENDER_CHEST.defaultBlockState().setValue(ChestBlock.FACING, Direction.EAST) }
             registerUtilityBoat(event, EntityEntries.JukeboxBoat.get()) { boat -> Blocks.JUKEBOX.defaultBlockState() }
             registerUtilityBoat(event, EntityEntries.ShulkerBoat.get()) { boat -> ShulkerBoxBlock.getBlockByColor(boat.dyeColor).defaultBlockState() }

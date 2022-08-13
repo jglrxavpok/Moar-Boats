@@ -104,13 +104,13 @@
 
         {
             "type": "patchouli:entity",
-            "entity": "moarboats:chest_boat{boatType:minecraft_oak,patchouli_rendering_fix:1b}",
-            "text": "Mojang stole my idea! [Page to delete once entity is goooone]",
+            "entity": "minecraft:chest_boat",
+            "text": "The Vanilla boat is also compatible with MoarBoats!",
             "scale": 0.75
         },
         {
             "type": "patchouli:crafting",
-            "recipe": "moarboats:moarboats_minecraft_oak_chest_boat"
+            "recipe": "minecraft:oak_chest_boat"
         },
 
         {

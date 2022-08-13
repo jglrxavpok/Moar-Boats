@@ -185,20 +185,6 @@ class StonecutterBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "stonec
     }
 }
 
-class ChestBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "chest") {
-
-    override fun createBoat(levelIn: Level, raytraceresult: HitResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: Player): BasicBoatEntity {
-        return ChestBoatEntity(EntityEntries.ChestBoat.get(), levelIn, raytraceresult.location.x, if (inUsualFluid) raytraceresult.location.y - 0.12 else raytraceresult.location.y, raytraceresult.location.z).let { boat ->
-            boat.boatType = this.boatType
-            if(itemstack.hasCustomHoverName()) {
-                boat.customName = itemstack.hoverName
-            }
-
-            boat
-        }
-    }
-}
-
 class ShulkerBoatItem(woodType: BoatType): UtilityBoatItem(woodType, "shulker") {
 
     override fun createBoat(levelIn: Level, raytraceresult: HitResult, inUsualFluid: Boolean, itemstack: ItemStack, playerIn: Player): BasicBoatEntity {

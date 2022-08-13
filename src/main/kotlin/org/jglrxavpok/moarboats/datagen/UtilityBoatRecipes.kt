@@ -23,7 +23,6 @@ class UtilityBoatRecipes(generator: DataGenerator): RecipeProvider(generator) {
         for(type in BoatType.values()) {
             registerRecipe(consumer, MBItems.BlastFurnaceBoats[type]!!.get())
             registerRecipe(consumer, MBItems.CartographyTableBoats[type]!!.get())
-            registerRecipe(consumer, MBItems.ChestBoats[type]!!.get())
             registerRecipe(consumer, MBItems.CraftingTableBoats[type]!!.get())
             registerRecipe(consumer, MBItems.EnderChestBoats[type]!!.get())
             registerRecipe(consumer, MBItems.FurnaceBoats[type]!!.get())

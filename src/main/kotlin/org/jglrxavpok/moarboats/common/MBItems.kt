@@ -72,8 +72,6 @@ object MBItems {
     @JvmField
     val CartographyTableBoats = mapOf(*BoatType.values().map { type -> type to Registry.register("${type.getFullName()}_cartography_table_boat") { CartographyTableBoatItem(type) } }.toTypedArray())
     @JvmField
-    val ChestBoats = mapOf(*BoatType.values().map { type -> type to Registry.register("${type.getFullName()}_chest_boat") { ChestBoatItem(type) } }.toTypedArray())
-    @JvmField
     val CraftingTableBoats = mapOf(*BoatType.values().map { type -> type to Registry.register("${type.getFullName()}_crafting_table_boat") { CraftingTableBoatItem(type) } }.toTypedArray())
     @JvmField
     val EnderChestBoats = mapOf(*BoatType.values().map { type -> type to Registry.register("${type.getFullName()}_ender_chest_boat") { EnderChestBoatItem(type) } }.toTypedArray())

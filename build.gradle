@@ -47,16 +47,18 @@ sourceSets {
         }
         kotlin {
             var dirs = ["src/main/kotlin"]
-            if(journeymap_integration) {
-                dirs += "src/integrations/journeymap"
-            }
-            if(jei_integration) {
+            if(jei_integration.equalsIgnoreCase("true")) {
                 dirs += "src/integrations/jei"
             }
             srcDirs dirs
         }
         java {
-            srcDirs "src/main/java"
+            var dirs = ["src/main/java"]
+
+            if(journeymap_integration.equalsIgnoreCase("true")) {
+                dirs += "src/integrations/journeymap"
+            }
+            srcDirs dirs
         }
     }
 }
@@ -193,17 +195,17 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.19-41.0.110'
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
-    if(patchouli_integration) {
+    if(patchouli_integration.equalsIgnoreCase("true")) {
         compileOnly fg.deobf("vazkii.patchouli:Patchouli:$patchouli_version:api")
         runtimeOnly fg.deobf("vazkii.patchouli:Patchouli:$patchouli_version")
     }
 
-    if(journeymap_integration) {
+    if(journeymap_integration.equalsIgnoreCase("true")) {
         compileOnly fg.deobf(group: 'info.journeymap', name: 'journeymap-api', version: journeymap_api_version, changing: true)
         runtimeOnly fg.deobf("curse.maven:journeymap-$journeymap_runtime_version")
     }
 
-    if(jei_integration) {
+    if(jei_integration.equalsIgnoreCase("true")) {
         compileOnly fg.deobf("mezz.jei:jei-${mc_version}-common-api:${jei_version}")
         compileOnly fg.deobf("mezz.jei:jei-${mc_version}-forge-api:${jei_version}")
         // at runtime, use the full JEI jar for Forge

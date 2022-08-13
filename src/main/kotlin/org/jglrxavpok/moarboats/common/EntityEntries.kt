@@ -87,9 +87,6 @@ object EntityEntries {
     val CartographyTableBoat = utilityBoatEntry("cartography_table", ::CartographyTableBoatEntity, ::CartographyTableBoatEntity)
 
     @JvmField
-    val ChestBoat = utilityBoatEntry("chest", ::ChestBoatEntity, ::ChestBoatEntity)
-
-    @JvmField
     val EnderChestBoat = utilityBoatEntry("ender_chest", ::EnderChestBoatEntity, ::EnderChestBoatEntity)
 
     @JvmField
