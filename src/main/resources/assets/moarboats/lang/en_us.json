@@ -181,6 +181,7 @@
     "moarboats.gui.rudder.blocking": "Blocks engine",
     "moarboats.gui.rudder.nonblocking": "Does not block engine",
 
+    "moarboats.gui.waypoint_editor.title": "Waypoint Editor",
     "moarboats.gui.waypoint_editor.existing_waypoints": "Waypoints from mods",
     "moarboats.gui.waypoint_editor.has_boost": "Has speed boost",
     "moarboats.gui.waypoint_editor.position": "Position",

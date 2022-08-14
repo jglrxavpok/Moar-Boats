@@ -136,7 +136,10 @@ abstract class ICleatCapability(): ICapabilityProvider, ICleatLinkStorage {
     // boilerplate
 
     companion object {
+        @JvmField
         val ResourceID = ResourceLocation(MoarBoats.ModID, "cleat_capability")
+
+        @JvmField
         val Capability = CapabilityManager.get(object : CapabilityToken<ICleatCapability>() {})
     }
 

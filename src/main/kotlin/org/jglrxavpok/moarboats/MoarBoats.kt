@@ -24,6 +24,7 @@ import net.minecraftforge.data.event.GatherDataEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.DistExecutor
 import net.minecraftforge.fml.DistExecutor.SafeSupplier
+import net.minecraftforge.fml.ModList
 import net.minecraftforge.fml.ModLoadingContext
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.config.ModConfig
@@ -45,6 +46,7 @@ import org.jglrxavpok.moarboats.common.events.VanillaBoatEvents
 import org.jglrxavpok.moarboats.common.items.MBRecipeSerializers
 import org.jglrxavpok.moarboats.datagen.JsonModelGenerator
 import org.jglrxavpok.moarboats.datagen.UtilityBoatRecipes
+import org.jglrxavpok.moarboats.integrations.littlelogistics.LittleLogisticsEvents
 import org.jglrxavpok.moarboats.server.ServerEvents
 import org.jglrxavpok.moarboats.server.ServerProxy
 import thedarkcolour.kotlinforforge.forge.MOD_CONTEXT
@@ -133,6 +135,11 @@ object MoarBoats {
         BlockEntities.Registry.register(bus)
         ContainerTypes.Registry.register(bus)
         MBRecipeSerializers.Registry.register(bus)
+
+        // integrations
+        if(ModList.get().isLoaded("littlelogistics")) {
+            MinecraftForge.EVENT_BUS.register(LittleLogisticsEvents::class.java)
+        }
     }
 
     fun getLocalMapStorage(dimensionType: ResourceKey<Level> = Level.OVERWORLD): DimensionDataStorage {

@@ -38,7 +38,7 @@ public class BoatRenderer {
         poseStack.pushPose();
         poseStack.scale(-1.0f, 1.0f, -1.0f);
 
-        entity.getCapability(ICleatCapability.Companion.getCapability()).ifPresent(capability -> {
+        entity.getCapability(ICleatCapability.Capability).ifPresent(capability -> {
             StandaloneCleat hoveredCleat = null;
             if(Minecraft.getInstance().hitResult instanceof EntityHitResult) {
                 if(((EntityHitResult)Minecraft.getInstance().hitResult).getEntity() instanceof StandaloneCleat cleatEntity) {
@@ -53,7 +53,7 @@ public class BoatRenderer {
     }
 
     private boolean checkCleats(Entity boat, Cleat cleat) {
-        var cap = boat.getCapability(ICleatCapability.Companion.getCapability());
+        var cap = boat.getCapability(ICleatCapability.Capability);
         if(!cap.isPresent()) {
             return false;
         }

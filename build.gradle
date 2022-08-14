@@ -58,6 +58,10 @@ sourceSets {
             if(journeymap_integration.equalsIgnoreCase("true")) {
                 dirs += "src/integrations/journeymap"
             }
+
+            if(littlelogistics_integration.equalsIgnoreCase("true")) {
+                dirs += "src/integrations/littlelogistics"
+            }
             srcDirs dirs
         }
     }
@@ -192,7 +196,7 @@ dependencies {
     // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
     // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
-    minecraft 'net.minecraftforge:forge:1.19-41.0.110'
+    minecraft "net.minecraftforge:forge:$mc_version-43.0.8"
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
     if(patchouli_integration.equalsIgnoreCase("true")) {
@@ -212,11 +216,16 @@ dependencies {
         runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}-forge:${jei_version}")
     }
 
-    runtimeOnly fg.deobf('local:badpackets:forge-0.1.2')
+    if(littlelogistics_integration.equalsIgnoreCase("true")) {
+        compileOnly fg.deobf("curse.maven:littlelogistics-$littlelogistics_version")
+        runtimeOnly fg.deobf("curse.maven:littlelogistics-$littlelogistics_version")
+    }
+
+/*    runtimeOnly fg.deobf('local:badpackets:forge-0.1.2')
     runtimeOnly fg.deobf('local:EdivadLib:1.19-1.0.2')
     runtimeOnly fg.deobf('local:pipez:1.19-1.0.5')
     runtimeOnly fg.deobf('local:SolarGeneration:1.19-5.0.1')
-    runtimeOnly fg.deobf('local:wthit:forge-5.6.1')
+    runtimeOnly fg.deobf('local:wthit:forge-5.6.1')*/
 
     // You may put jars on which you depend on in ./libs or you may define them like so..
     // compile "some.group:artifact:version:classifier"

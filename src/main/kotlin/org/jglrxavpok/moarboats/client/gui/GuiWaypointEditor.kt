@@ -3,7 +3,6 @@ package org.jglrxavpok.moarboats.client.gui
 import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.ChatFormatting
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.chat.NarratorChatListener
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.components.EditBox
 import net.minecraft.client.gui.screens.Screen
@@ -20,7 +19,7 @@ import org.jglrxavpok.moarboats.common.tileentity.TileEntityMappingTable
 import org.jglrxavpok.moarboats.api.WaypointInfo
 import org.jglrxavpok.moarboats.api.WaypointProviders
 
-class GuiWaypointEditor(val player: Player, val te: TileEntityMappingTable, val index: Int, val parent: GuiMappingTable): Screen(NarratorChatListener.NO_TITLE) {
+class GuiWaypointEditor(val player: Player, val te: TileEntityMappingTable, val index: Int, val parent: GuiMappingTable): Screen(Component.translatable("moarboats.gui.waypoint_editor.title")) {
 
     val mc = Minecraft.getInstance() // forces 'mc' to hold a value when initializing the scrolling list below (waypointList)
 

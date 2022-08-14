@@ -41,7 +41,7 @@ public class MixinBoat implements ICleatLinkStorage {
     }
 
     private ICleatCapability getCleatCapability() {
-        return self().getCapability(ICleatCapability.Companion.getCapability()).orElseThrow(() -> new IllegalStateException("No cleat capability on this boat"));
+        return self().getCapability(ICleatCapability.Capability).orElseThrow(() -> new IllegalStateException("No cleat capability on this boat"));
     }
 
     private void tickCapability() {
