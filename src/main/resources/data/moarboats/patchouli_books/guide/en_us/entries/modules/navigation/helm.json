@@ -29,23 +29,35 @@
         {
             "anchor": "maplike",
             "type": "patchouli:text",
-            "title": "Map-like items"
+            "title": "Map-like items",
+            "text": "Moar Boats support multiple item types to allow you to define and store paths."
         },
         {
             "type": "patchouli:text",
             "title": "Map",
-            "text": "TODO"
+            "text": "Using a regular $(item)Map$() stores the path inside the boat.$(br2)Removing the item from the boat $(underline)will LOSE$() the path."
         },
         {
             "anchor": "map_with_path",
             "type": "patchouli:text",
             "title": "Map with Path",
-            "text": "TODO"
+            "text": "Contrary to $(item)Maps$(), Maps with Path store the path inside the item. That means the item can be removed from the boat, stored for later reuse and be reused later without losing its path."
         },
         {
             "type": "patchouli:text",
             "title": "Golden ticket",
-            "text": "TODO"
+            "text": "Golden tickets cannot be edited with the Helm menu, but only with the $(l:blocks/mapping_table)Mapping Table$().$(br2)Golden tickets can be copied, and copies will be synchronized with the original ticket: modifying waypoints on a Golden Ticket will modify the waypoints of all copies of that Golden Ticket."
+        },
+        {
+            "type": "patchouli:image",
+            "title": "Golden Ticket groups",
+            "border": true,
+            "images": [
+                "moarboats:textures/gui/guide/entries/golden_ticket.png"
+            ],
+            "width": 215,
+            "height": 215,
+            "text": "$(br2)Multiple groups of Golden Tickets can exist at once, and tickets inside the same group share the same 'UUID'."
         }
     ]
 }

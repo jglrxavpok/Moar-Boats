@@ -66,7 +66,7 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
             entity: Entity,
             matrixStackIn: PoseStack,
             bufferSource: MultiBufferSource,
-            vertexconsumer: VertexConsumer,
+            vertexconsumer: VertexConsumer?,
             packedLightIn: Int,
 
             entityYaw: Float,
@@ -76,6 +76,7 @@ abstract class RenderAbstractBoat<T: BasicBoatEntity>(renderManager: EntityRende
             check(cleatModel != null) { "Cleat model was not loaded" }
 
             if(renderCleatModels) {
+                check(vertexconsumer != null)
                 for (cleat in arrayOf(Cleats.FrontCleat, Cleats.BackCleat)) {
                     if (!cleatCapability.hasLinkAt(cleat))
                         continue

@@ -139,7 +139,7 @@
     "item.moarboats.seat": "Boat Seat",
     "item.moarboats.utility_boat.name": "%2$s %1$s",
     "item.moarboats.waterborne_comparator": "Waterborne comparator",
-    "item.moarboats.waterborne_redstone": "Waterborne redstone conductor",
+    "item.moarboats.waterborne_redstone": "Waterborne conductor",
 
     "item.rope.backOccupied": "Back already occupied",
     "item.rope.description": "Link boats together",
@@ -189,6 +189,7 @@
     "moarboats.gui.waypoint_editor": "Editing waypoint: %s",
 
     "moarboats.guide.name": "Moar-Boats Guide",
+    "moarboats.guide.landing_text": "Getting more out of your boats",
 
     "moarboats.item_path.description": "%s waypoint(s)",
     "moarboats.item.golden_ticket.name.empty": "Golden Ticket (Empty)",

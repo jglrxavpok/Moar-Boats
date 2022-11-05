@@ -27,14 +27,6 @@ public class LittleLogisticsEvents {
 
     private static final EntityDataAccessor<ConcurrentHashMap<Cleat, Link>> BOAT_LINKS = SynchedEntityData.defineId(VesselEntity.class, BoatLinksSerializer.INSTANCE);
 
-    /**
-     * Called by MoarBoats in the mod constructor to allow for this integration to register generic events
-     */
-    public static void register() {
-/*        IEventBus bus = KotlinModLoadingContext.Companion.get().getKEventBus();
-        bus.addGenericListener(Entity.class, LittleLogisticsEvents::injectCapabilities);*/
-    }
-
     @SubscribeEvent
     public static void injectCapabilities(AttachCapabilitiesEvent<Entity> event) {
         if(event.getObject() instanceof VesselEntity entity) {

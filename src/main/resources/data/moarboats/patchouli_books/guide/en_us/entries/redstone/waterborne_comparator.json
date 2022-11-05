@@ -1,0 +1,25 @@
+{
+    "name": "Waterborne Comparator",
+    "icon": "moarboats:waterborne_comparator",
+    "category": "moarboats:redstone",
+    "sortnum": 1,
+    "pages": [
+        {
+            "type": "patchouli:crafting",
+            "recipe": "moarboats:waterborne_comparator"
+        },
+        {
+            "type": "patchouli:image",
+            "border": true,
+            "images": [
+                "moarboats:textures/gui/guide/entries/waterborne_comparator_1.png",
+                "moarboats:textures/gui/guide/entries/waterborne_comparator_2.png"
+            ],
+            "text": "Counts how many items are inside a boat and emits a redstone signal proportional to this amount."
+        },
+        {
+            "type": "patchouli:text",
+            "text": "The increase of floatibility made the device only capable of counting items."
+        }
+    ]
+}

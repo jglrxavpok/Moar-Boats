@@ -1,0 +1,25 @@
+{
+    "name": "Cargo Stopper",
+    "icon": "moarboats:cargo_stopper",
+    "category": "moarboats:redstone",
+    "sortnum": 2,
+    "pages": [
+        {
+            "type": "patchouli:crafting",
+            "recipe": "moarboats:cargo_stopper"
+        },
+        {
+            "type": "patchouli:image",
+            "border": true,
+            "images": [
+                "moarboats:textures/gui/guide/entries/cargo_stopper_1.png",
+                "moarboats:textures/gui/guide/entries/cargo_stopper_2.png"
+            ],
+            "text": "Special version of the $(l:redstone/waterborne_comparator)Waterborne Comparator$() which emits a signal in all directions."
+        },
+        {
+            "type": "patchouli:text",
+            "text": "Because the device outputs signals in all directions, it can be used to automatically stop boats containing items."
+        }
+    ]
+}

@@ -21,6 +21,8 @@ class MoarBoatsPlugin implements IClientPlugin, IWaypointProvider {
 
     private IClientAPI apiRef = null;
 
+    public MoarBoatsPlugin() {}
+
     @Override
     public void initialize(IClientAPI api) {
         apiRef = api;

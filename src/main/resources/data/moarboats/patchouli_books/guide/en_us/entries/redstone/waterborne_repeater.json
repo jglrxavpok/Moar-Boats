@@ -1,0 +1,25 @@
+{
+    "name": "Waterborne Conductor",
+    "icon": "moarboats:waterborne_redstone",
+    "category": "moarboats:redstone",
+    "sortnum": 0,
+    "pages": [
+        {
+            "type": "patchouli:crafting",
+            "recipe": "moarboats:waterborne_redstone"
+        },
+        {
+            "type": "patchouli:image",
+            "border": true,
+            "images": [
+                "moarboats:textures/gui/guide/entries/waterborne_repeater_1.png",
+                "moarboats:textures/gui/guide/entries/waterborne_repeater_2.png"
+            ],
+            "text": "$(item)Redstone$() signals can be transmitted above water."
+        },
+        {
+            "type": "patchouli:text",
+            "text": "Any $(l:modules/spots#engine)engine$() on a boat will stop if the boat is next to a $(thing)redstone signal$(). The best option is to use $(item)Waterborne Conductors$() to transmit redstone without blocking entities.$(br2)Be careful, stopped engines continue to consume fuel!"
+        }
+    ]
+}

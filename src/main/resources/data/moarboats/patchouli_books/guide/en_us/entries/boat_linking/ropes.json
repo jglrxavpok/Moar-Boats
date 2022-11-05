@@ -1,0 +1,33 @@
+{
+    "name": "Ropes",
+    "icon": "moarboats:rope",
+    "category": "moarboats:boat_linking",
+    "sortnum": 0,
+    "pages": [
+        {
+            "type": "patchouli:crafting",
+            "recipe": "moarboats:rope"
+        },
+        {
+            "type": "patchouli:image",
+            "border": true,
+            "images": [
+                "moarboats:textures/gui/guide/entries/boat_linking_1.png",
+                "moarboats:textures/gui/guide/entries/boat_linking_2.png"
+            ],
+            "text": "Boats can be linked together with ropes to form chains. Compatible with vanilla boats."
+        },
+        {
+            "type": "patchouli:image",
+            "border": true,
+            "images": [
+                "moarboats:textures/gui/guide/entries/cleat_view.png"
+            ],
+            "text": "Holding the rope item will show the different cleats present on boats. '+' cleats can only be linked to '-' cleats."
+        },
+        {
+            "type": "patchouli:text",
+            "text": "Right click on a cleat hitbox with the rope item to start linking boats. Right click on another boat cleat to link the two boats together."
+        }
+    ]
+}
